@@ -35,6 +35,28 @@ REQUIRED_FILES = (
     "verification/README.md",
 )
 
+# PHASE-00 remains a historical baseline. Later files are permitted only when
+# their paths were explicitly approved by the next phase plan.
+APPROVED_PHASE01_FILES = (
+    "datasets/external/README.md",
+    "datasets/fixtures/phase01/README.md",
+    "datasets/fixtures/phase01/known-tone-ci8.sigmf-data",
+    "datasets/fixtures/phase01/known-tone-ci8.sigmf-meta",
+    "docs/decisions/ADR-0002-SIGMF-DATA-PROFILES.md",
+    "docs/interfaces/SIGMF_INPUT_CONTRACT.md",
+    "reference/sigmf/__init__.py",
+    "reference/sigmf/contract.py",
+    "results/evidence/phase01/external-dataset-manifest.example.json",
+    "results/evidence/phase01/fixture-manifest.json",
+    "results/evidence/phase01/verification-summary.json",
+    "scripts/extract_external_sigmf_slice.py",
+    "scripts/generate_phase01_fixture.py",
+    "scripts/verify_phase01.py",
+    "tests/test_external_sigmf_integration.py",
+    "tests/test_phase01_fixture.py",
+    "tests/test_sigmf_contract.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -81,11 +103,12 @@ def _repository_files() -> set[str]:
 
 
 def check_allowed_tree() -> dict[str, object]:
-    unexpected = sorted(_repository_files() - set(REQUIRED_FILES))
+    allowed = set(REQUIRED_FILES) | set(APPROVED_PHASE01_FILES)
+    unexpected = sorted(_repository_files() - allowed)
     return _result(
         "minimal-file-tree",
         not unexpected,
-        "repository contains only the PHASE-00 file set"
+        "repository contains the PHASE-00 baseline and approved PHASE-01 paths"
         if not unexpected
         else "unexpected files: " + ", ".join(unexpected),
     )
@@ -158,31 +181,32 @@ def check_ktr_traceability() -> dict[str, object]:
 
 def check_roadmap() -> dict[str, object]:
     text = (ROOT / "docs/plans/IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
-    phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(10)]
+    phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(14)]
     ordered = all(position >= 0 for position in phase_positions) and phase_positions == sorted(phase_positions)
-    current = "**Mevcut faz: PHASE-00**" in text
+    baseline_present = "| PHASE-00 | Repository ve mühendislik temeli |" in text
+    current_phase_present = "**Mevcut faz: PHASE-" in text
     return _result(
         "phase-roadmap",
-        ordered and current,
-        "roadmap starts at PHASE-00, preserves phase order, and marks PHASE-00 current"
-        if ordered and current
-        else "roadmap phase order or current-phase marker is invalid",
+        ordered and baseline_present and current_phase_present,
+        "roadmap retains the PHASE-00 baseline and preserves PHASE-00 through PHASE-13 order"
+        if ordered and baseline_present and current_phase_present
+        else "roadmap phase order, baseline, or current-phase marker is invalid",
     )
 
 
 def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
-        "mevcut faz yalnızca **phase-00",
+        "phase-00 repository temelini kurmuştur",
+        "mevcut faz **phase-01",
         "henüz dsp",
-        "henüz uygulanmış değildir",
         "rf alma/verme",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README explicitly identifies PHASE-00 and unimplemented DSP/RF capabilities"
+        "README preserves the PHASE-00 baseline and unimplemented DSP/RF claims"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
@@ -210,15 +234,26 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
+    allowed = set(APPROVED_PHASE01_FILES) | {
+        "rtl/README.md",
+        "reference/README.md",
+        "verification/README.md",
+        "host/README.md",
+        "datasets/README.md",
+    }
     unexpected: list[str] = []
     for directory in implementation_directories:
         for path in (ROOT / directory).rglob("*"):
-            if path.is_file() and path.name != "README.md":
-                unexpected.append(path.relative_to(ROOT).as_posix())
+            if path.is_file():
+                relative = path.relative_to(ROOT).as_posix()
+                if "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}:
+                    continue
+                if relative not in allowed:
+                    unexpected.append(relative)
     return _result(
         "no-future-phase-sources",
         not unexpected,
-        "implementation directories contain no post-PHASE-00 source or data"
+        "implementation directories contain only approved PHASE-01 additions"
         if not unexpected
         else "future-phase files found: " + ", ".join(sorted(unexpected)),
     )

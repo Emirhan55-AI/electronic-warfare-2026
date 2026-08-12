@@ -5,15 +5,24 @@ Fazlar sıralıdır; bir fazın çıkış kapısı doğrulanmadan ve kullanıcı
 | Faz | Ad | Çıkış kapısı |
 |---|---|---|
 | PHASE-00 | Repository ve mühendislik temeli | Repository sözleşmesi, mimari/karar/güvenlik belgeleri, toolchain envanteri ve PHASE-00 doğrulaması başarıyla tamamlanır. |
-| PHASE-01 | SigMF girişi sözleşmesi ve deterministik test verisi | SigMF giriş sözleşmesi belgelenir; tekrarlanabilir, etiketli test verileri otomatik olarak doğrulanır. |
-| PHASE-02 | Floating-point sinyal tespit referans modeli | KTR 4.1 zincirinin floating-point modeli deterministik testlerde beklenen tespitleri üretir. |
-| PHASE-03 | Sabit nokta mimarisi ve hata bütçesi | Sözcük uzunlukları, ölçekleme ve kabul edilebilir model farkları ölçümle onaylanır. |
-| PHASE-04 | RTL veri akışı, Hann ve FFT | RTL akış kontrolü, pencereleme ve 4096 FFT çıktıları referans sonuçlarıyla kabul toleransında eşleşir. |
-| PHASE-05 | RTL PSD ve üstel ortalama | PSD ve üstel ortalama RTL çıktıları sabit nokta referansıyla kabul toleransında eşleşir. |
-| PHASE-06 | OS-CFAR ve aday sinyal birleştirme | Eşikleme ve komşu hücre birleştirme, tanımlı senaryolarda beklenen aday listesini üretir. |
-| PHASE-07 | ZedBoard PS/PL entegrasyonu | PS, DDR/AXI DMA ve PL arasındaki kayıtlı veri yolu ZedBoard üzerinde tekrarlanabilir testle doğrulanır. |
-| PHASE-08 | PC–ZedBoard kayıtlı veri aktarımı | PC'den Ethernet üzerinden gönderilen kayıtlı I/Q verisi uçtan uca bütünlük ve hız kanıtıyla işlenir. |
-| PHASE-09 | HackRF-1 canlı I/Q entegrasyonu | HackRF-1 canlı RX akışı güvenli alma testinde uçtan uca tespit zincirine ulaşır. |
-| Sonraki fazlar | Parametre çıkarımı, DF, konum, dinleme ve kontrollü ET | Her görev için ayrı kapsam, güvenlik koşulları ve ölçülebilir kabul kriterleri kullanıcı onayıyla tanımlanır. |
+| PHASE-01 | SigMF giriş sözleşmesi ve deterministik test verisi | Kanonik `ci8` ve çevrimdışı `ci16_le` sözleşmeleri ile sentetik golden fixture zorunlu doğrulamaları geçer; harici veri kontrolü mevcutsa geçer, yoksa kontrollü atlanır. |
+| PHASE-02 | Referans spektrum DSP zinciri | Çerçeveleme, Hann, 4096 FFT, PSD ve üstel ortalama floating-point referans çıktıları deterministik vektörlerle doğrulanır. |
+| PHASE-03 | Sinyal tespiti | OS-CFAR ve komşu hücre birleştirme, etiketli senaryolarda beklenen aday sinyal listesini üretir. |
+| PHASE-04 | Parametre çıkarımı | Tespit adaylarının merkez frekansı, bant genişliği ve güç ölçümleri tanımlı kabul toleranslarında referans sonuçlarla eşleşir. |
+| PHASE-05 | Sinyal izleme ve analog dinleme | İzinli kayıtlı analog sinyaller izlenir ve seçilen demodülasyon zinciri tekrarlanabilir testlerde doğrulanır. |
+| PHASE-06 | FPGA RTL DSP zinciri | Sabit nokta mimarisi ve RTL spektrum/tespit zinciri, referans modelle tanımlı toleranslarda eşleşir. |
+| PHASE-07 | PC–ZedBoard veri aktarımı | Kayıtlı I/Q verisi PC'den Ethernet, ZedBoard PS, DDR/AXI DMA ve PL yoluyla bütünlük ve hız kanıtıyla aktarılır. |
+| PHASE-08 | HackRF-1 canlı I/Q ve ED entegrasyonu | HackRF-1 canlı RX akışı uçtan uca ED zincirine ulaşır ve kontrollü alma senaryolarında beklenen adayları üretir. |
+| PHASE-09 | Genlik tabanlı yön bulma ve yaklaşık konum | Manuel açı/göreli güç ölçümlerinden yön ve iki bilinen ölçüm noktasından yaklaşık konum, bilinen hedeflerle hata raporu üretecek şekilde doğrulanır. |
+| PHASE-10 | ET simülasyonu ve kapalı RF test altyapısı | İletimsiz dalga şekli simülasyonları doğrulanır; kablolu, zayıflatıcılı ve RF olarak kapalı test düzeni güvenlik kontrolünden geçmeden RF TX etkinleştirilmez. |
+| PHASE-11 | Sürekli ve arabakışlı karıştırma | Sürekli ve arabakışlı dalga şekilleri önce simülasyonda, ardından yalnız onaylı kapalı RF düzeneğinde güç, spektrum ve görev çevrimi ölçümleriyle doğrulanır. |
+| PHASE-12 | Analog telsiz ve GPS L1 aldatma | Analog telsiz ve GPS L1 senaryoları önce iletimsiz simülasyonda, ardından yalnız izinli kablolu/zayıflatıcılı kapalı düzende izole test alıcılarıyla doğrulanır. |
+| PHASE-13 | Arayüz, sistem entegrasyonu ve yarışma demosu | ED görev akışı ve yalnız izin verilen ET gösterimleri arayüzden uçtan uca çalışır; demo provası, güvenlik kontrol listesi ve kanıt paketi tamamlanır. |
 
-**Mevcut faz: PHASE-00**
+## ET güvenlik kapıları
+
+ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla başlar; ardından kablolu, zayıflatıcılı ve RF olarak kapalı test düzenine geçer. Güvenli test düzeneği kurulup doğrulanmadan RF TX etkinleştirilmez. Açık ortam RF testi yalnız yürürlükteki mevzuat, yarışma komitesi izni ve komitenin belirlediği zaman ile test düzeni altında yapılabilir.
+
+KTR yarışma görevlerinin kaynağı olarak korunur; eski donanımın teknik performans hedefleri bağlayıcı değildir. Referans mimari 2× HackRF One, ZedBoard ve laptoptur.
+
+**Mevcut faz: PHASE-01**

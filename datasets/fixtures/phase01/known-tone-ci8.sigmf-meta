@@ -1,0 +1,17 @@
+{
+  "global": {
+    "core:version": "1.0.0",
+    "core:datatype": "ci8",
+    "core:sample_rate": 8000000,
+    "core:num_channels": 1,
+    "core:sha512": "2e0d6f3e2fd2505de06281569cda143d4ddfa75033fb86d9e386f0bd144e8afce1e05cb07e3ffc214db6a95c1047caea8b94b56a47283a23d8ff7526f8b60697",
+    "core:description": "Deterministic PHASE-01 complex tone fixture"
+  },
+  "captures": [
+    {
+      "core:sample_start": 0,
+      "core:frequency": 100000000
+    }
+  ],
+  "annotations": []
+}

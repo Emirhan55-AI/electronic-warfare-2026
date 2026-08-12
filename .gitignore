@@ -22,3 +22,6 @@ dist/
 *.fst
 .Xil/
 xsim.dir/
+
+# Local external datasets and extracted real-data slices
+datasets/external/local/

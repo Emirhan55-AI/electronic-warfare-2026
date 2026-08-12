@@ -1,10 +1,10 @@
 # KTR Gereksinim İzlenebilirliği
 
-Bu başlangıç matrisi planlanan işlevleri gerçek referans donanıma eşler. Hiçbir satır tamamlanmış bir yetenek iddiası değildir.
+Bu matris yarışma görevlerini ve genel algoritma sırasını gerçek referans donanıma eşler. KTR teknik parametrelerin veya sayısal performans hedeflerinin bağlayıcı kaynağı değildir. Hiçbir satır tamamlanmış bir DSP/RF yeteneği iddiası değildir.
 
 | Gereksinim kimliği | KTR bölümü | Beklenen işlev | Yeni donanımla uygulanma yöntemi | Planlanan faz | Doğrulama yöntemi | Durum |
 |---|---|---|---|---|---|---|
-| KTR-4.1 | 4.1 Sinyal Tespiti | Aday RF sinyallerini tespit etme | SigMF/HackRF-1 I/Q; Hann, 4096 FFT, PSD, üstel ortalama, OS-CFAR ve hücre birleştirme zincirinin aşamalı PS/PL uygulaması | PHASE-01–09 | Referans model, RTL karşılaştırması ve kayıtlı/canlı veri testleri | Planlandı |
+| KTR-4.1 | 4.1 Sinyal Tespiti | Aday RF sinyallerini tespit etme | HackRF uyumlu `ci8` giriş/değişim sözleşmesi; metadata-temelli örnekleme hızı; genel Hann, 4096 FFT, PSD, üstel ortalama, OS-CFAR ve hücre birleştirme sırası | PHASE-01–09 | Sözleşme, referans model, RTL karşılaştırması ve kayıtlı/canlı veri testleri | Planlandı |
 | KTR-4.2 | 4.2 Parametre Çıkarımı | Tespit edilen sinyal parametrelerini çıkarma | HackRF-1 verisi ve doğrulanmış tespit adayları üzerinde sonraki faz işleme | Sonraki fazlar | Etiketli kayıtlar ve kontrollü sinyal testleri | Uygulanmadı |
 | KTR-4.3 | 4.3 Sinyal İzleme/Dinleme | Analog amatör telsiz sinyalini izleme/dinleme | HackRF-1 RX ve laptop tarafında ileride geliştirilecek güvenli alıcı zinciri | Sonraki fazlar | Kayıtlı ve izinli canlı alma senaryoları | Uygulanmadı |
 | KTR-4.4 | 4.4 Yön Bulma | Sinyal geliş yönünü yaklaşık belirleme | Yönlü antenin manuel çevrilmesi, manuel açı girişi ve açı başına göreli güç/PSD | Sonraki fazlar | Bilinen verici yönleriyle kontrollü saha ölçümü | Uygulanmadı |

@@ -1,3 +1,3 @@
 # Doğrulama
 
-Bu dizin ileride referans model ve RTL doğrulama varlıklarını barındıracaktır. PHASE-00 repository sözleşmesi testleri kökteki `tests/` dizinindedir; burada sonraki fazlara ait testbench veya sahte kaynak bulunmaz.
+Repository sözleşmesi ve PHASE-01 SigMF doğrulamaları kökteki `tests/` dizinindedir. Harici dataset entegrasyonu ortam değişkenleri yoksa kontrollü biçimde atlanır. RTL testbench ve DSP doğrulaması sonraki fazlara aittir.

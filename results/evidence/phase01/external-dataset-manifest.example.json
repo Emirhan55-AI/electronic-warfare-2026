@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-01",
+  "source_metadata_filename": "ism_band_24.sigmf-meta.txt",
+  "source_data_filename": "ism_band_24.sigmf-data",
+  "source_datatype": "ci16_le",
+  "source_sample_rate": 56000000,
+  "source_center_frequency": 2430000000,
+  "source_sample_range": [
+    0,
+    16384
+  ],
+  "complex_sample_count": 16384,
+  "frame_length": 4096,
+  "frame_count": 4,
+  "slice_size_bytes": 65536,
+  "source_author": "Marc Lichtman",
+  "source_description": "2.4 GHz ISM band example",
+  "source_hardware": "USRP B210",
+  "source_recorder": "GNU Radio",
+  "source_license_text": "CC BY-SA",
+  "license_status": "unverified",
+  "warnings": [
+    "nonstandard_metadata_extension",
+    "license_unverified"
+  ]
+}

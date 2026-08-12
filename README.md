@@ -12,26 +12,29 @@ Hedef veri yolu şöyledir:
 
 HackRF-1 ED/RX ve canlı I/Q kaynağı, laptop USB erişimi/veri aktarımı/kayıt/kullanıcı arayüzü, ZedBoard PS ağ-kontrol-DDR aktarımı ve ZedBoard PL gerçek FPGA DSP işlemleri için planlanmıştır. HackRF-2 yalnızca ileride güvenli, kontrollü ve izinli ET/TX deneylerinde kullanılacaktır.
 
-Korunan tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT → PSD → üstel ortalama → OS-CFAR → komşu hücre birleştirme → aday sinyaller` zinciridir. Bu zincir hedef mimaridir; henüz uygulanmış değildir.
+Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT → PSD → üstel ortalama → OS-CFAR → komşu hücre birleştirme → aday sinyaller` zinciridir. KTR yalnız yarışma görevleri ve bu genel sıralama için referanstır; sayısal performans parametreleri satın alınmış HackRF–ZedBoard–laptop sistemine göre belirlenir.
 
 ## Mevcut durum
 
-Mevcut faz yalnızca **PHASE-00 — Repository ve mühendislik temeli** aşamasıdır. Henüz DSP, RTL, RF alma/verme, yön bulma, konum belirleme, demodülasyon, karıştırma veya aldatma işlevi uygulanmamıştır.
+Mevcut faz **PHASE-01 — SigMF giriş sözleşmesi ve deterministik test verisi** aşamasıdır. PHASE-00 repository temelini kurmuştur. PHASE-01 yalnız `ci8`/`ci16_le` metadata ve binary yerleşim sözleşmesini, deterministik golden fixture'ı ve güvenli harici veri incelemesini uygular. Henüz DSP, FFT, RTL, RF alma/verme, yön bulma, konum belirleme, demodülasyon, karıştırma veya aldatma işlevi uygulanmamıştır.
 
 ## Dizinler
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
-- `rtl/`: İleride geliştirilecek FPGA veri yolu; PHASE-00'da kaynak kod içermez.
-- `reference/`: İleride geliştirilecek yazılım referans modelleri.
-- `verification/`: İleride eklenecek donanım ve model doğrulama varlıkları.
+- `rtl/`: İleride geliştirilecek FPGA veri yolu; henüz RTL uygulaması içermez.
+- `reference/`: PHASE-01 SigMF sözleşme çözümleyicisi; DSP referans modelleri henüz uygulanmamıştır.
+- `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: İleride geliştirilecek PC/ZedBoard ana sistem yazılımı.
-- `datasets/`: İleride tanımlanacak kayıtlı test verileri ve veri sözleşmeleri.
-- `scripts/`: PHASE-00 ortam envanteri ve repository doğrulama araçları.
-- `tests/`: Repository sözleşmesi testleri.
+- `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
+- `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
+- `scripts/`: PHASE-00 araçları ile PHASE-01 fixture üreticisi, harici kesit aracı ve verifier.
+- `tests/`: Repository, SigMF sözleşmesi, fixture ve opsiyonel harici dataset testleri.
 - `results/evidence/phase00/`: PHASE-00 makine tarafından okunabilir kanıtları.
+- `results/evidence/phase01/`: Fixture manifesti ve PHASE-01 doğrulama kanıtları.
 
 ## Doğrulama
 
 ```text
 python scripts/verify_phase00.py
+python scripts/verify_phase01.py
 ```
