@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-00",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "required-files",
+      "status": "passed",
+      "detail": "all required files are present"
+    },
+    {
+      "id": "minimal-file-tree",
+      "status": "passed",
+      "detail": "repository contains only the PHASE-00 file set"
+    },
+    {
+      "id": "text-integrity",
+      "status": "passed",
+      "detail": "all PHASE-00 text files are valid UTF-8 with LF endings and no trailing whitespace"
+    },
+    {
+      "id": "reference-hardware-adr",
+      "status": "passed",
+      "detail": "accepted reference hardware decision and limitations are documented"
+    },
+    {
+      "id": "ktr-traceability",
+      "status": "passed",
+      "detail": "all required KTR rows are present and remain planned/not implemented"
+    },
+    {
+      "id": "phase-roadmap",
+      "status": "passed",
+      "detail": "roadmap starts at PHASE-00, preserves phase order, and marks PHASE-00 current"
+    },
+    {
+      "id": "readme-current-state",
+      "status": "passed",
+      "detail": "README explicitly identifies PHASE-00 and unimplemented DSP/RF capabilities"
+    },
+    {
+      "id": "rf-test-boundaries",
+      "status": "passed",
+      "detail": "all mandatory PHASE-00 RF safety boundaries are documented"
+    },
+    {
+      "id": "no-future-phase-sources",
+      "status": "passed",
+      "detail": "implementation directories contain no post-PHASE-00 source or data"
+    },
+    {
+      "id": "toolchain-inventory",
+      "status": "passed",
+      "detail": "all toolchain entries have valid statuses and detection evidence; unavailable/unknown are informational"
+    }
+  ]
+}

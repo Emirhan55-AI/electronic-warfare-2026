@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-00",
+  "tools": [
+    {
+      "name": "Git",
+      "status": "available",
+      "version": "git version 2.51.0.windows.2",
+      "evidence": "executable: C:\\Program Files\\Git\\cmd\\git.exe (git)"
+    },
+    {
+      "name": "Python",
+      "status": "available",
+      "version": "3.13.7",
+      "evidence": "executable: C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python313\\python.exe (current interpreter)"
+    },
+    {
+      "name": "NumPy",
+      "status": "available",
+      "version": "2.2.6",
+      "evidence": "python-module: numpy; origin: C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\numpy\\__init__.py"
+    },
+    {
+      "name": "SciPy",
+      "status": "available",
+      "version": "1.16.0",
+      "evidence": "python-module: scipy; origin: C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\scipy\\__init__.py"
+    },
+    {
+      "name": "pytest",
+      "status": "available",
+      "version": "8.4.1",
+      "evidence": "python-module: pytest; origin: C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\pytest\\__init__.py"
+    },
+    {
+      "name": "CMake",
+      "status": "available",
+      "version": "cmake version 4.1.2",
+      "evidence": "executable: C:\\Program Files\\CMake\\bin\\cmake.exe (cmake)"
+    },
+    {
+      "name": "Ninja",
+      "status": "available",
+      "version": "1.13.0.git.kitware.jobserver-pipe-1",
+      "evidence": "executable: C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python311\\Scripts\\ninja.exe (ninja)"
+    },
+    {
+      "name": "C/C++ compiler",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: cc, c++, gcc, g++, clang, clang++, clang-cl, cl"
+    },
+    {
+      "name": "Qt",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: qmake6, qmake, qtpaths6, qtpaths"
+    },
+    {
+      "name": "GHDL",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: ghdl"
+    },
+    {
+      "name": "VUnit",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "python module not found: vunit"
+    },
+    {
+      "name": "Verilator",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: verilator"
+    },
+    {
+      "name": "Icarus Verilog",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: iverilog"
+    },
+    {
+      "name": "Vivado",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: vivado"
+    },
+    {
+      "name": "XSim",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: xsim"
+    },
+    {
+      "name": "HackRF command-line tools",
+      "status": "unavailable",
+      "version": null,
+      "evidence": "no executable found in PATH: hackrf_info, hackrf_transfer, hackrf_sweep"
+    }
+  ]
+}
