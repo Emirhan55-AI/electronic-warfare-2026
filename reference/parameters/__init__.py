@@ -1,11 +1,15 @@
 """PHASE-04 core parameter extraction reference API."""
 
 from .classification import FEATURE_HISTORY_BYTES, FeatureHistoryStore, classify_features
-from .evaluation import evaluate_parameter_methods
+from .evaluation import characterize_phase04_r2_oos, evaluate_parameter_methods, evaluate_phase04_r2
 from .extraction import (
     ANALYSIS_METHODS,
     BANDWIDTH_METHODS,
     POWER_SNR_METHODS,
+    NOISE_METHODS,
+    R2_BAND_HISTORY_BYTES,
+    R2_PARAMETER_HISTORY_BYTES,
+    BandEdgeHistoryStore,
     MethodSelection,
     ParameterExtractor,
     build_analysis_candidates,
@@ -26,11 +30,23 @@ from .models import (
     SignalDomainEstimate,
 )
 from .scenes import ParameterSceneFrame, generate_parameter_scene, load_parameter_catalog
+from .r2 import (
+    HANN_CORRECTION,
+    MORPHOLOGY_MOMENT_THRESHOLD,
+    NOMINAL_GROW_RATIO,
+    NOMINAL_SEED_RATIO,
+    build_method_lock,
+    hann_covariance_calibration,
+    hann_end_to_end_calibration,
+    iid_trimmed_mean_expectation,
+    morphology_calibration,
+)
 
 __all__ = [
     "ANALYSIS_METHODS",
     "AnalysisCandidate",
     "BANDWIDTH_METHODS",
+    "BandEdgeHistoryStore",
     "BandSupportResult",
     "BandwidthEstimate",
     "EventParameterEstimate",
@@ -39,7 +55,10 @@ __all__ = [
     "FieldState",
     "FrequencyEstimate",
     "MethodSelection",
+    "NOISE_METHODS",
     "POWER_SNR_METHODS",
+    "R2_BAND_HISTORY_BYTES",
+    "R2_PARAMETER_HISTORY_BYTES",
     "ParameterExtractor",
     "ParameterFrameResult",
     "ParameterInvalidReason",
@@ -49,9 +68,20 @@ __all__ = [
     "classify_features",
     "build_analysis_candidates",
     "compute_transient_guard",
+    "characterize_phase04_r2_oos",
     "evaluate_parameter_methods",
+    "evaluate_phase04_r2",
     "estimate_band_support",
     "extract_frame_features",
     "generate_parameter_scene",
     "load_parameter_catalog",
+    "HANN_CORRECTION",
+    "MORPHOLOGY_MOMENT_THRESHOLD",
+    "NOMINAL_GROW_RATIO",
+    "NOMINAL_SEED_RATIO",
+    "build_method_lock",
+    "hann_covariance_calibration",
+    "hann_end_to_end_calibration",
+    "iid_trimmed_mean_expectation",
+    "morphology_calibration",
 ]

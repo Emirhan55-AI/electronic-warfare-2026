@@ -1,0 +1,785 @@
+{
+  "schema_version": 3,
+  "phase": "PHASE-04-R2",
+  "comparison_id": "phase04-r2-band-recovery",
+  "overall": "failed",
+  "catalog_sha256": "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
+  "implementation_manifest_sha256": "4af7407f416c298d60f3aa9977ccc5982f4b308a100fc38e82cbe4762892d99c",
+  "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67",
+  "method_lock_sha256": "07fb9f69c87641f07b2d3760f574c7d9cdecb99b4d9ff2049f2c38fa5a13cb05",
+  "selection_contract": {
+    "dependency_order": [
+      "analysis-window",
+      "noise-bandwidth-pair",
+      "center-carrier-pair",
+      "power-snr",
+      "signal-domain",
+      "combined-pipeline"
+    ],
+    "minimum_meaningful_loss_difference": 0.02,
+    "paired_bootstrap_seed": 20260404,
+    "bootstrap_repetitions": 10000,
+    "cost_key": [
+      "extra_4096_transforms",
+      "full_vector_passes",
+      "maximum_selection_width",
+      "temporary_4096_vectors",
+      "nonlinear_operation_rank",
+      "fixed_state_bytes"
+    ]
+  },
+  "gate_applicability": [
+    {
+      "name": "carrier_valid_rate_minimum",
+      "value": 0.9,
+      "scope": "global-expected-carrier",
+      "binding": true
+    },
+    {
+      "name": "carrier_q95_error_bins_maximum",
+      "value": 0.5,
+      "scope": "global-valid-carrier",
+      "binding": true
+    },
+    {
+      "name": "spectral_center_q95_error_bins_maximum",
+      "value": 1.5,
+      "scope": "global-valid-spectral-center",
+      "binding": true
+    },
+    {
+      "name": "false_carrier_rate_maximum",
+      "value": 0.02,
+      "scope": "global-carrier-not-observed",
+      "binding": true
+    },
+    {
+      "name": "carrier_abstention_rate_minimum",
+      "value": 0.9,
+      "scope": "global-carrier-not-observed",
+      "binding": true
+    },
+    {
+      "name": "band_edge_q95_error_bins_floor",
+      "value": 4.0,
+      "scope": "per-estimate-lower-and-upper",
+      "binding": true
+    },
+    {
+      "name": "band_edge_q95_error_width_fraction",
+      "value": 0.1,
+      "scope": "per-estimate-lower-and-upper",
+      "binding": true
+    },
+    {
+      "name": "bandwidth_q95_relative_error_maximum",
+      "value": 0.2,
+      "scope": "global-valid-bandwidth",
+      "binding": true
+    },
+    {
+      "name": "bandwidth_valid_rate_minimum",
+      "value": 0.95,
+      "scope": "global-bandwidth-valid-ground-truth",
+      "binding": true
+    },
+    {
+      "name": "region_success_rate_minimum",
+      "value": 0.9,
+      "scope": "global-bandwidth-valid-ground-truth",
+      "binding": true
+    },
+    {
+      "name": "region_coverage_minimum",
+      "value": 0.85,
+      "scope": "per-estimate",
+      "binding": true
+    },
+    {
+      "name": "region_iou_minimum",
+      "value": 0.75,
+      "scope": "per-estimate",
+      "binding": true
+    },
+    {
+      "name": "region_overreach_maximum",
+      "value": 0.2,
+      "scope": "per-estimate",
+      "binding": true
+    },
+    {
+      "name": "close_pair_separate_rate_minimum",
+      "value": 0.9,
+      "scope": "close-pair-frame",
+      "binding": true
+    },
+    {
+      "name": "close_pair_cross_match_rate_maximum",
+      "value": 0.02,
+      "scope": "close-pair-frame",
+      "binding": true
+    },
+    {
+      "name": "noise_false_valid_rate_maximum",
+      "value": 0.02,
+      "scope": "noise-temporal-frame",
+      "binding": true
+    },
+    {
+      "name": "power_q95_error_db_maximum",
+      "value": 1.5,
+      "scope": "global-valid-power-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "snr_q95_error_db_maximum",
+      "value": 2.0,
+      "scope": "global-valid-snr-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "zero_snr_power_median_error_db_maximum",
+      "value": 2.0,
+      "scope": "global-valid-power-snr-0",
+      "binding": true
+    },
+    {
+      "name": "zero_snr_median_error_db_maximum",
+      "value": 3.0,
+      "scope": "global-valid-snr-snr-0",
+      "binding": true
+    },
+    {
+      "name": "classification_wrong_definite_total_maximum",
+      "value": 0.02,
+      "scope": "global-definite-family-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "classification_wrong_definite_family_maximum",
+      "value": 0.05,
+      "scope": "per-definite-family-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "classification_correct_definite_total_minimum",
+      "value": 0.85,
+      "scope": "global-definite-family-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "classification_correct_definite_family_minimum",
+      "value": 0.75,
+      "scope": "per-definite-family-snr-ge-6",
+      "binding": true
+    },
+    {
+      "name": "zero_snr_wrong_definite_maximum",
+      "value": 0.05,
+      "scope": "global-definite-family-snr-0",
+      "binding": true
+    },
+    {
+      "name": "uncertain_rejection_rate_minimum",
+      "value": 0.9,
+      "scope": "uncertain-family-and-snr-minus-6",
+      "binding": true
+    },
+    {
+      "name": "noise_definite_count_maximum",
+      "value": 0,
+      "scope": "noise-only-count",
+      "binding": true
+    }
+  ],
+  "sample_counts": {
+    "trials_per_condition": 128,
+    "continuous_frames_per_sequence": 4,
+    "continuous_binding_frame": 3,
+    "burst_frames_per_sequence": 6,
+    "burst_binding_frame": 4,
+    "noise_sequences": 128,
+    "noise_frames_per_sequence": 32,
+    "r2_locked_band_candidate_count": 1,
+    "r2_phase03_unique_frames": 23552,
+    "r2_extractor_evaluations": 23552,
+    "streamed_not_bulk_cached": true
+  },
+  "noise_bandwidth_pairs": [
+    {
+      "analysis_window_method": "analysis.clustered-regions-v1",
+      "noise_method": "noise.trimmed-mean-20-hann-calibrated-v1",
+      "bandwidth_method": "band.temporal-morphology-envelope-v1",
+      "target_trials": 1280,
+      "valid_results": 1142,
+      "invalid_reasons": {
+        "no_valid_estimate": 138
+      },
+      "valid_rate": 0.8921875,
+      "q95_relative_bandwidth_error": 0.33809115146,
+      "q95_lower_edge_error_bins": 5.773695796155,
+      "q95_upper_edge_error_bins": 6.035388711721,
+      "q95_lower_edge_normalized_to_scene_limit": 1.357252203726,
+      "q95_upper_edge_normalized_to_scene_limit": 1.397080720306,
+      "mean_coverage": 0.867310131268,
+      "mean_iou": 0.85335565193,
+      "mean_overreach": 0.015341805342,
+      "region_success_rate": 0.44765625,
+      "close_pair_separate_rate": 0.859375,
+      "close_pair_cross_match_rate": 0.0,
+      "noise_false_valid_rate": 0.0,
+      "noise_false_frame_rate_diagnostic": 0.0,
+      "noise_temporal_frame_count": 4096,
+      "noise_unique_false_event_count": 0,
+      "noise_false_sequence_count": 0,
+      "noise_false_sequence_rate_diagnostic": 0.0,
+      "burst_passive_frame_valid_outputs_diagnostic": 0,
+      "family_snr_diagnostics": [
+        {
+          "scene": "am-carrier",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "am-carrier",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.203125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.053006904679,
+          "q95_upper_edge_normalized_to_scene_limit": 2.048343542603,
+          "mean_coverage": 0.066043867826,
+          "mean_iou": 0.065661338318,
+          "mean_overreach": 0.616907494779,
+          "binding": false
+        },
+        {
+          "scene": "am-carrier",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 1.0,
+          "region_success_rate": 0.015625,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.043315928314,
+          "q95_upper_edge_normalized_to_scene_limit": 2.04972160692,
+          "mean_coverage": 0.142093500914,
+          "mean_iou": 0.135612765719,
+          "mean_overreach": 0.426494816199,
+          "binding": false
+        },
+        {
+          "scene": "am-carrier",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 1.0,
+          "region_success_rate": 0.8984375,
+          "q95_relative_bandwidth_error": 0.507068473738,
+          "q95_lower_edge_normalized_to_scene_limit": 1.375819922148,
+          "q95_upper_edge_normalized_to_scene_limit": 1.202056619505,
+          "mean_coverage": 0.95352848002,
+          "mean_iou": 0.921420495651,
+          "mean_overreach": 0.032675759988,
+          "binding": true
+        },
+        {
+          "scene": "bpsk",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "bpsk",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0078125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 0.828126496727,
+          "q95_lower_edge_normalized_to_scene_limit": 1.101841418747,
+          "q95_upper_edge_normalized_to_scene_limit": 3.370041663578,
+          "mean_coverage": 0.171873503273,
+          "mean_iou": 0.171873503273,
+          "mean_overreach": 0.0,
+          "binding": false
+        },
+        {
+          "scene": "bpsk",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.4921875,
+          "region_success_rate": 0.0078125,
+          "q95_relative_bandwidth_error": 0.632657393026,
+          "q95_lower_edge_normalized_to_scene_limit": 1.705915357752,
+          "q95_upper_edge_normalized_to_scene_limit": 1.964903609316,
+          "mean_coverage": 0.596224625008,
+          "mean_iou": 0.583528799559,
+          "mean_overreach": 0.030010303054,
+          "binding": false
+        },
+        {
+          "scene": "bpsk",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.796875,
+          "region_success_rate": 0.3515625,
+          "q95_relative_bandwidth_error": 0.319823730409,
+          "q95_lower_edge_normalized_to_scene_limit": 0.973438998382,
+          "q95_upper_edge_normalized_to_scene_limit": 0.983143661381,
+          "mean_coverage": 0.829547697931,
+          "mean_iou": 0.816157650661,
+          "mean_overreach": 0.015540106269,
+          "binding": true
+        },
+        {
+          "scene": "burst-qpsk",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "burst-qpsk",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "burst-qpsk",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.5234375,
+          "region_success_rate": 0.015625,
+          "q95_relative_bandwidth_error": 0.514434412527,
+          "q95_lower_edge_normalized_to_scene_limit": 2.852632024845,
+          "q95_upper_edge_normalized_to_scene_limit": 2.947819167857,
+          "mean_coverage": 0.661397256196,
+          "mean_iou": 0.656411389083,
+          "mean_overreach": 0.005621446062,
+          "binding": false
+        },
+        {
+          "scene": "burst-qpsk",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.8125,
+          "region_success_rate": 0.2890625,
+          "q95_relative_bandwidth_error": 0.284464136315,
+          "q95_lower_edge_normalized_to_scene_limit": 1.75370743729,
+          "q95_upper_edge_normalized_to_scene_limit": 1.800826321136,
+          "mean_coverage": 0.841670895804,
+          "mean_iou": 0.80978354898,
+          "mean_overreach": 0.035719757902,
+          "binding": true
+        },
+        {
+          "scene": "close-am-qpsk",
+          "snr_db": -6.0,
+          "targets": 256,
+          "valid_rate": 0.3671875,
+          "region_success_rate": 0.00390625,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.097191542909,
+          "q95_upper_edge_normalized_to_scene_limit": 2.096189487717,
+          "mean_coverage": 0.059004253908,
+          "mean_iou": 0.056901413007,
+          "mean_overreach": 0.655073778113,
+          "binding": false
+        },
+        {
+          "scene": "close-am-qpsk",
+          "snr_db": 0.0,
+          "targets": 256,
+          "valid_rate": 0.5,
+          "region_success_rate": 0.0703125,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.010651833791,
+          "q95_upper_edge_normalized_to_scene_limit": 2.009924865929,
+          "mean_coverage": 0.370644111329,
+          "mean_iou": 0.365437626567,
+          "mean_overreach": 0.191564011953,
+          "binding": false
+        },
+        {
+          "scene": "close-am-qpsk",
+          "snr_db": 6.0,
+          "targets": 256,
+          "valid_rate": 0.78125,
+          "region_success_rate": 0.5078125,
+          "q95_relative_bandwidth_error": 0.417900770061,
+          "q95_lower_edge_normalized_to_scene_limit": 2.336835792757,
+          "q95_upper_edge_normalized_to_scene_limit": 2.159955589547,
+          "mean_coverage": 0.89148729383,
+          "mean_iou": 0.876209955904,
+          "mean_overreach": 0.01584969605,
+          "binding": false
+        },
+        {
+          "scene": "close-am-qpsk",
+          "snr_db": 12.0,
+          "targets": 256,
+          "valid_rate": 0.9296875,
+          "region_success_rate": 0.6640625,
+          "q95_relative_bandwidth_error": 0.224063992275,
+          "q95_lower_edge_normalized_to_scene_limit": 1.13414512912,
+          "q95_upper_edge_normalized_to_scene_limit": 1.253521471417,
+          "mean_coverage": 0.923145982535,
+          "mean_iou": 0.915304378431,
+          "mean_overreach": 0.007922474228,
+          "binding": true
+        },
+        {
+          "scene": "nfm",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "nfm",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "nfm",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.78125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 0.619264695525,
+          "q95_lower_edge_normalized_to_scene_limit": 1.558095615256,
+          "q95_upper_edge_normalized_to_scene_limit": 1.598149470012,
+          "mean_coverage": 0.493398077718,
+          "mean_iou": 0.487186787689,
+          "mean_overreach": 0.009567050949,
+          "binding": false
+        },
+        {
+          "scene": "nfm",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.9140625,
+          "region_success_rate": 0.3515625,
+          "q95_relative_bandwidth_error": 0.320844266547,
+          "q95_lower_edge_normalized_to_scene_limit": 1.075712094007,
+          "q95_upper_edge_normalized_to_scene_limit": 1.199244006903,
+          "mean_coverage": 0.843212326263,
+          "mean_iou": 0.825742566816,
+          "mean_overreach": 0.019348182822,
+          "binding": true
+        },
+        {
+          "scene": "ook",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "ook",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.078125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.826674345612,
+          "q95_upper_edge_normalized_to_scene_limit": 2.702786427969,
+          "mean_coverage": 0.098778583566,
+          "mean_iou": 0.098778583566,
+          "mean_overreach": 0.6,
+          "binding": false
+        },
+        {
+          "scene": "ook",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.8984375,
+          "region_success_rate": 0.0078125,
+          "q95_relative_bandwidth_error": 1.0,
+          "q95_lower_edge_normalized_to_scene_limit": 2.710176719856,
+          "q95_upper_edge_normalized_to_scene_limit": 2.736511370461,
+          "mean_coverage": 0.369707814908,
+          "mean_iou": 0.364099727022,
+          "mean_overreach": 0.069141601063,
+          "binding": false
+        },
+        {
+          "scene": "ook",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.953125,
+          "region_success_rate": 0.109375,
+          "q95_relative_bandwidth_error": 0.412570523443,
+          "q95_lower_edge_normalized_to_scene_limit": 1.390680818991,
+          "q95_upper_edge_normalized_to_scene_limit": 1.295008740988,
+          "mean_coverage": 0.734582571414,
+          "mean_iou": 0.72671835202,
+          "mean_overreach": 0.011259022158,
+          "binding": true
+        },
+        {
+          "scene": "qpsk",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "qpsk",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "qpsk",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.5234375,
+          "region_success_rate": 0.046875,
+          "q95_relative_bandwidth_error": 0.529847182618,
+          "q95_lower_edge_normalized_to_scene_limit": 2.800355570218,
+          "q95_upper_edge_normalized_to_scene_limit": 2.906163108239,
+          "mean_coverage": 0.66640347523,
+          "mean_iou": 0.662974735863,
+          "mean_overreach": 0.004573223162,
+          "binding": false
+        },
+        {
+          "scene": "qpsk",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.890625,
+          "region_success_rate": 0.2265625,
+          "q95_relative_bandwidth_error": 0.24064117124,
+          "q95_lower_edge_normalized_to_scene_limit": 1.386536651322,
+          "q95_upper_edge_normalized_to_scene_limit": 1.424731162145,
+          "mean_coverage": 0.828425108858,
+          "mean_iou": 0.822035916629,
+          "mean_overreach": 0.007100261333,
+          "binding": true
+        },
+        {
+          "scene": "two-fsk",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "two-fsk",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0078125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 0.663720050706,
+          "q95_lower_edge_normalized_to_scene_limit": 4.22702509841,
+          "q95_upper_edge_normalized_to_scene_limit": 1.547339342731,
+          "mean_coverage": 0.336279949294,
+          "mean_iou": 0.336279949294,
+          "mean_overreach": 0.0,
+          "binding": false
+        },
+        {
+          "scene": "two-fsk",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.6796875,
+          "region_success_rate": 0.03125,
+          "q95_relative_bandwidth_error": 0.557494891846,
+          "q95_lower_edge_normalized_to_scene_limit": 2.291585413068,
+          "q95_upper_edge_normalized_to_scene_limit": 2.570908675652,
+          "mean_coverage": 0.639467243877,
+          "mean_iou": 0.633165943382,
+          "mean_overreach": 0.009226491807,
+          "binding": false
+        },
+        {
+          "scene": "two-fsk",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.9140625,
+          "region_success_rate": 0.140625,
+          "q95_relative_bandwidth_error": 0.311336997026,
+          "q95_lower_edge_normalized_to_scene_limit": 1.446351617625,
+          "q95_upper_edge_normalized_to_scene_limit": 1.519841211647,
+          "mean_coverage": 0.808434621092,
+          "mean_iou": 0.80013107121,
+          "mean_overreach": 0.009614252105,
+          "binding": true
+        },
+        {
+          "scene": "wideband-noise-like",
+          "snr_db": -6.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "wideband-noise-like",
+          "snr_db": 0.0,
+          "targets": 128,
+          "valid_rate": 0.0,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": null,
+          "q95_lower_edge_normalized_to_scene_limit": null,
+          "q95_upper_edge_normalized_to_scene_limit": null,
+          "mean_coverage": null,
+          "mean_iou": null,
+          "mean_overreach": null,
+          "binding": false
+        },
+        {
+          "scene": "wideband-noise-like",
+          "snr_db": 6.0,
+          "targets": 128,
+          "valid_rate": 0.078125,
+          "region_success_rate": 0.0,
+          "q95_relative_bandwidth_error": 0.954739998796,
+          "q95_lower_edge_normalized_to_scene_limit": 8.842575054823,
+          "q95_upper_edge_normalized_to_scene_limit": 8.452604161995,
+          "mean_coverage": 0.203851909355,
+          "mean_iou": 0.203851909355,
+          "mean_overreach": 0.0,
+          "binding": false
+        },
+        {
+          "scene": "wideband-noise-like",
+          "snr_db": 12.0,
+          "targets": 128,
+          "valid_rate": 0.78125,
+          "region_success_rate": 0.78125,
+          "q95_relative_bandwidth_error": 0.031335447621,
+          "q95_lower_edge_normalized_to_scene_limit": 0.245237151883,
+          "q95_upper_edge_normalized_to_scene_limit": 0.148379497124,
+          "mean_coverage": 0.992579133069,
+          "mean_iou": 0.986833704422,
+          "mean_overreach": 0.005807145131,
+          "binding": true
+        }
+      ],
+      "normalized_loss": 0.428390535626,
+      "resource_cost": [
+        0,
+        39,
+        32,
+        4,
+        3,
+        0
+      ],
+      "eligible": false,
+      "status": "failed"
+    }
+  ],
+  "noise_bandwidth_decision": {
+    "status": "failed",
+    "reason": "no candidate passed every fixed gate",
+    "comparisons": []
+  },
+  "center_carrier_pairs": [],
+  "center_carrier_decision": {
+    "status": "skipped",
+    "reason": "upstream-band-failed",
+    "comparisons": []
+  },
+  "power_snr_chain": {
+    "status": "skipped",
+    "reason": "upstream-frequency-failed"
+  },
+  "signal_domain_methods": [],
+  "signal_domain_decision": {
+    "status": "skipped",
+    "reason": "upstream-power-failed",
+    "comparisons": []
+  },
+  "selected_methods": null,
+  "combined_pipeline": {
+    "status": "failed",
+    "no_upstream_backtracking": true,
+    "same_upstream_for_all_classifiers": true,
+    "dynamic_timing_used_for_selection": false,
+    "out_of_sample_used_for_selection": false
+  }
+}

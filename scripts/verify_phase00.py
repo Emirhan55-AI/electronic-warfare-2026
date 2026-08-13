@@ -125,7 +125,9 @@ APPROVED_PHASE03_FILES = (
 
 APPROVED_PHASE04_BASE_FILES = (
     "datasets/fixtures/phase04/parameter-scenes.json",
+    "datasets/fixtures/phase04/r2-method-lock.json",
     "docs/decisions/ADR-0005-CORE-PARAMETER-EXTRACTION.md",
+    "docs/decisions/ADR-0006-PHASE04-R2-BAND-RECOVERY.md",
     "docs/interfaces/PARAMETER_EXTRACTION_CONTRACT.md",
     "reference/parameters/__init__.py",
     "reference/parameters/models.py",
@@ -133,7 +135,12 @@ APPROVED_PHASE04_BASE_FILES = (
     "reference/parameters/classification.py",
     "reference/parameters/scenes.py",
     "reference/parameters/evaluation.py",
+    "reference/parameters/r2.py",
     "scripts/select_phase04_profile.py",
+    "scripts/select_phase04_r2_profile.py",
+    "scripts/diagnose_phase04_r2.py",
+    "scripts/characterize_phase04_r2_oos.py",
+    "scripts/verify_phase04_r2.py",
     "scripts/verify_phase04.py",
     "scripts/render_phase04_ui.py",
     "tests/test_parameter_reference.py",
@@ -141,10 +148,19 @@ APPROVED_PHASE04_BASE_FILES = (
     "tests/test_parameter_statistics.py",
     "tests/test_phase04_selector.py",
     "tests/test_phase04_verifier.py",
+    "tests/test_phase04_r2_diagnostics.py",
+    "tests/test_phase04_r2_reference.py",
+    "tests/test_phase04_r2_selector.py",
+    "tests/test_phase04_r2_verifier.py",
     "tests/test_operator_parameters.py",
     "results/evidence/phase04/parameter-comparison.json",
     "results/evidence/phase04/golden-parameters.json",
     "results/evidence/phase04/verification-summary.json",
+    "results/evidence/phase04/r2-family-diagnostic.json",
+    "results/evidence/phase04/r2-parameter-comparison.json",
+    "results/evidence/phase04/r2-out-of-sample.json",
+    "results/evidence/phase04/r2-golden-parameters.json",
+    "results/evidence/phase04/r2-verification-summary.json",
 )
 
 PHASE04_SUCCESS_ONLY_FILES = (

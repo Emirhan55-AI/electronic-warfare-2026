@@ -21,6 +21,9 @@ DEFAULT_PROFILE_PATH = ROOT / "profiles" / "phase03" / "operation-default.json"
 PHASE04_PROFILE_PATH = ROOT / "profiles" / "phase04" / "operation-default.json"
 PHASE04_COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04" / "parameter-comparison.json"
 PHASE04_COMPARISON_ID = "phase04-r1-parameter-selection"
+PHASE04_R2_COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04" / "r2-parameter-comparison.json"
+PHASE04_R2_METHOD_LOCK_PATH = ROOT / "datasets" / "fixtures" / "phase04" / "r2-method-lock.json"
+PHASE04_R2_COMPARISON_ID = "phase04-r2-band-recovery"
 BLOCK_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 PHASE04_METHOD_KEYS = (
@@ -53,9 +56,10 @@ class VerifiedProfileBinding:
     catalog_sha256: str
     phase03_profile_sha256: str
     selected_methods: tuple[tuple[str, str], ...]
+    method_lock_sha256: str | None = None
 
     def __post_init__(self) -> None:
-        if self.comparison_id != PHASE04_COMPARISON_ID:
+        if self.comparison_id not in {PHASE04_COMPARISON_ID, PHASE04_R2_COMPARISON_ID}:
             raise ProfileError("comparison_identity_mismatch", "PHASE-04 comparison identity is invalid")
         for value in (
             self.comparison_sha256,
@@ -69,6 +73,11 @@ class VerifiedProfileBinding:
             raise ProfileError("comparison_methods_invalid", "PHASE-04 selected method order is invalid")
         if any(not isinstance(value, str) or not value for _, value in self.selected_methods):
             raise ProfileError("comparison_methods_invalid", "PHASE-04 selected method value is invalid")
+        if self.comparison_id == PHASE04_R2_COMPARISON_ID:
+            if self.method_lock_sha256 is None or not SHA256_PATTERN.fullmatch(self.method_lock_sha256):
+                raise ProfileError("method_lock_digest_invalid", "PHASE-04-R2 method-lock digest is invalid")
+        elif self.method_lock_sha256 is not None:
+            raise ProfileError("method_lock_unexpected", "PHASE-04-R1 binding cannot carry an R2 method lock")
 
 
 @dataclass(frozen=True)
@@ -305,6 +314,36 @@ BLOCK_DEFINITIONS: dict[tuple[str, int], BlockDefinition] = {
             }
         ),
     ),
+    ("analysis.core-parameters", 2): BlockDefinition(
+        "analysis.core-parameters",
+        2,
+        (
+            PortDefinition("frame", "iq.frame/v1"),
+            PortDefinition("spectrum", "spectrum.power/v1"),
+            PortDefinition("events", "detection.events/v1"),
+        ),
+        (PortDefinition("parameters", "parameters.core/v1"),),
+        frozenset(
+            {
+                "analysis_window_method", "noise_method", "bandwidth_method",
+                "spectral_center_method", "carrier_method", "power_snr_method",
+                "signal_domain_method", "transient_guard_samples", "feature_history_depth",
+                "feature_history_bytes", "band_history_bytes", "comparison_id",
+                "comparison_sha256", "implementation_manifest_sha256", "catalog_sha256",
+                "phase03_profile_sha256", "method_lock_sha256",
+            }
+        ),
+        frozenset(
+            {
+                "analysis_window_method", "noise_method", "bandwidth_method",
+                "spectral_center_method", "carrier_method", "power_snr_method",
+                "signal_domain_method", "transient_guard_samples", "feature_history_depth",
+                "feature_history_bytes", "band_history_bytes", "comparison_id",
+                "comparison_sha256", "implementation_manifest_sha256", "catalog_sha256",
+                "phase03_profile_sha256", "method_lock_sha256",
+            }
+        ),
+    ),
     ("sink.operator-console", 2): BlockDefinition(
         "sink.operator-console",
         2,
@@ -396,10 +435,16 @@ class RuntimePipeline:
                 )
             if verified_binding is not None:
                 _validate_parameter_binding(parameter_block, verified_binding)
+            expected_history = 74_368 if parameter_block.version == 2 else 67_840
+            expected_band_history = 6_528 if parameter_block.version == 2 else None
             if (
                 int(parameter_block.parameters["transient_guard_samples"]) != 1152
                 or int(parameter_block.parameters["feature_history_depth"]) != 4
-                or int(parameter_block.parameters["feature_history_bytes"]) != 67_840
+                or int(parameter_block.parameters["feature_history_bytes"]) != expected_history
+                or (
+                    expected_band_history is not None
+                    and int(parameter_block.parameters["band_history_bytes"]) != expected_band_history
+                )
             ):
                 raise ProfileError("parameter_bounds_invalid", "parameter block violates PHASE-04 bounded state")
             self.parameters = ParameterExtractor(
@@ -476,6 +521,11 @@ def _binding_from_parameter_block(block: BlockInstance) -> VerifiedProfileBindin
         catalog_sha256=str(block.parameters["catalog_sha256"]),
         phase03_profile_sha256=str(block.parameters["phase03_profile_sha256"]),
         selected_methods=tuple(_parameter_methods(block).items()),
+        method_lock_sha256=(
+            str(block.parameters["method_lock_sha256"])
+            if "method_lock_sha256" in block.parameters
+            else None
+        ),
     )
 
 
@@ -489,7 +539,7 @@ def _phase04_comparison_document(data: bytes) -> dict[str, Any]:
         document = json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ProfileError("comparison_unreadable", "PHASE-04 comparison cannot be read") from exc
-    expected_keys = [
+    common_keys = [
         "schema_version",
         "phase",
         "comparison_id",
@@ -497,6 +547,10 @@ def _phase04_comparison_document(data: bytes) -> dict[str, Any]:
         "catalog_sha256",
         "implementation_manifest_sha256",
         "phase03_profile_sha256",
+    ]
+    if document.get("comparison_id") == PHASE04_R2_COMPARISON_ID:
+        common_keys.append("method_lock_sha256")
+    expected_keys = common_keys + [
         "selection_contract",
         "gate_applicability",
         "sample_counts",
@@ -512,11 +566,16 @@ def _phase04_comparison_document(data: bytes) -> dict[str, Any]:
     ]
     if not isinstance(document, dict) or list(document) != expected_keys:
         raise ProfileError("comparison_schema_invalid", "PHASE-04 comparison schema or key order is invalid")
-    if (
-        document["schema_version"] != 2
-        or document["phase"] != "PHASE-04"
-        or document["comparison_id"] != PHASE04_COMPARISON_ID
-    ):
+    valid_identity = (
+        document.get("schema_version") == 2
+        and document.get("phase") == "PHASE-04"
+        and document.get("comparison_id") == PHASE04_COMPARISON_ID
+    ) or (
+        document.get("schema_version") == 3
+        and document.get("phase") == "PHASE-04-R2"
+        and document.get("comparison_id") == PHASE04_R2_COMPARISON_ID
+    )
+    if not valid_identity:
         raise ProfileError("comparison_identity_mismatch", "PHASE-04 comparison identity is invalid")
     return document
 
@@ -528,6 +587,70 @@ def _validate_phase04_comparison_semantics(comparison: dict[str, Any]) -> None:
     from reference.parameters.scenes import load_parameter_catalog
 
     catalog = load_parameter_catalog()
+    if comparison["comparison_id"] == PHASE04_R2_COMPARISON_ID:
+        expected = {
+            "trials_per_condition": 128,
+            "continuous_frames_per_sequence": 4,
+            "continuous_binding_frame": 3,
+            "burst_frames_per_sequence": 6,
+            "burst_binding_frame": 4,
+            "noise_sequences": 128,
+            "noise_frames_per_sequence": 32,
+            "r2_locked_band_candidate_count": 1,
+            "r2_phase03_unique_frames": 23_552,
+            "r2_extractor_evaluations": 23_552,
+            "streamed_not_bulk_cached": True,
+        }
+        if comparison["selection_contract"] != catalog["selection_contract"]:
+            raise ProfileError("comparison_selection_contract_mismatch", "PHASE-04-R2 selection contract is stale")
+        if comparison["gate_applicability"] != _gate_applicability(catalog):
+            raise ProfileError("comparison_gate_matrix_mismatch", "PHASE-04-R2 gate matrix is stale")
+        if comparison["sample_counts"] != expected:
+            raise ProfileError("comparison_sample_schedule_mismatch", "PHASE-04-R2 sample schedule is incomplete")
+        selected = comparison["selected_methods"]
+        if not isinstance(selected, dict) or tuple(selected) != PHASE04_METHOD_KEYS:
+            raise ProfileError("comparison_methods_invalid", "PHASE-04-R2 selected method set is invalid")
+        locked = {
+            "analysis_window": "analysis.clustered-regions-v1",
+            "noise": "noise.trimmed-mean-20-hann-calibrated-v1",
+            "bandwidth": "band.temporal-morphology-envelope-v1",
+        }
+        if any(selected[name] != value for name, value in locked.items()):
+            raise ProfileError("comparison_method_mismatch", "PHASE-04-R2 upstream differs from the method lock")
+        band_records = comparison["noise_bandwidth_pairs"]
+        if not isinstance(band_records, list) or len(band_records) != 1:
+            raise ProfileError("comparison_candidate_shape_invalid", "PHASE-04-R2 requires one locked band candidate")
+        band = band_records[0]
+        if (
+            band.get("analysis_window_method") != locked["analysis_window"]
+            or band.get("noise_method") != locked["noise"]
+            or band.get("bandwidth_method") != locked["bandwidth"]
+            or band.get("eligible") is not True
+            or band.get("status") != "passed"
+        ):
+            raise ProfileError("comparison_method_mismatch", "PHASE-04-R2 locked band candidate did not pass")
+        if len(comparison["center_carrier_pairs"]) != 9 or len(comparison["signal_domain_methods"]) != 3:
+            raise ProfileError("comparison_candidate_shape_invalid", "PHASE-04-R2 downstream candidates are incomplete")
+        center = next(
+            (
+                item
+                for item in comparison["center_carrier_pairs"]
+                if item.get("spectral_center_method") == selected["spectral_center"]
+                and item.get("carrier_method") == selected["carrier"]
+            ),
+            None,
+        )
+        domain = next(
+            (item for item in comparison["signal_domain_methods"] if item.get("method") == selected["signal_domain"]),
+            None,
+        )
+        if center is None or center.get("eligible") is not True or center.get("status") != "passed":
+            raise ProfileError("comparison_method_mismatch", "selected PHASE-04-R2 frequency tuple did not pass")
+        if domain is None or domain.get("eligible") is not True or domain.get("status") != "passed":
+            raise ProfileError("comparison_method_mismatch", "selected PHASE-04-R2 signal-domain method did not pass")
+        if comparison["power_snr_chain"].get("method") != selected["power_snr"]:
+            raise ProfileError("comparison_method_mismatch", "selected PHASE-04-R2 power/SNR method differs")
+        return
     expected_schedule = {
         "trials_per_condition": 128,
         "continuous_frames_per_sequence": 4,
@@ -565,7 +688,13 @@ def _validate_phase04_comparison_semantics(comparison: dict[str, Any]) -> None:
     band_records = require_candidates(
         "noise_bandwidth_pairs",
         ("analysis_window_method", "noise_method", "bandwidth_method"),
-        [(analysis, noise, bandwidth) for analysis in ANALYSIS_METHODS for noise in noise_order for bandwidth in BANDWIDTH_METHODS],
+        [
+            (analysis, noise, bandwidth)
+            for analysis in ANALYSIS_METHODS
+            for noise in noise_order
+            for bandwidth in BANDWIDTH_METHODS
+            if bandwidth != "band.temporal-morphology-envelope-v1"
+        ],
     )
     center_records = require_candidates(
         "center_carrier_pairs",
@@ -637,6 +766,25 @@ def load_verified_phase04_profile(
     if comparison["comparison_id"] != binding.comparison_id:
         raise ProfileError("comparison_identity_mismatch", "PHASE-04 comparison identity does not match the profile")
 
+    if comparison["comparison_id"] == PHASE04_R2_COMPARISON_ID:
+        try:
+            lock_bytes = PHASE04_R2_METHOD_LOCK_PATH.read_bytes()
+            lock = json.loads(lock_bytes.decode("utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise ProfileError("method_lock_unreadable", "PHASE-04-R2 method lock cannot be read") from exc
+        lock_digest = hashlib.sha256(lock_bytes).hexdigest()
+        if comparison.get("method_lock_sha256") != lock_digest or binding.method_lock_sha256 != lock_digest:
+            raise ProfileError("method_lock_digest_mismatch", "PHASE-04-R2 method lock digest is stale")
+        if (
+            lock.get("comparison_id") != PHASE04_R2_COMPARISON_ID
+            or lock.get("catalog_sha256") != comparison.get("catalog_sha256")
+            or lock.get("phase03_profile_sha256") != comparison.get("phase03_profile_sha256")
+            or lock.get("noise_calibration", {}).get("status") != "passed"
+            or lock.get("noise_end_to_end_validation", {}).get("status") != "passed"
+            or lock.get("morphology_calibration", {}).get("status") != "passed"
+        ):
+            raise ProfileError("method_lock_contract_mismatch", "PHASE-04-R2 method lock is incomplete")
+
     try:
         from reference.parameters.evaluation import phase04_implementation_manifest
 
@@ -678,6 +826,11 @@ def load_verified_phase04_profile(
         catalog_sha256=str(comparison["catalog_sha256"]),
         phase03_profile_sha256=str(comparison["phase03_profile_sha256"]),
         selected_methods=tuple((str(name), str(value)) for name, value in selected.items()),
+        method_lock_sha256=(
+            str(comparison["method_lock_sha256"])
+            if comparison["comparison_id"] == PHASE04_R2_COMPARISON_ID
+            else None
+        ),
     )
     if binding != comparison_binding:
         raise ProfileError("comparison_binding_mismatch", "comparison and profile binding identities differ")
@@ -692,7 +845,14 @@ def resolve_default_operation_profile() -> ResolvedOperationProfile:
     if not PHASE04_PROFILE_PATH.is_file():
         return ResolvedOperationProfile(load_profile(DEFAULT_PROFILE_PATH), None, None)
     try:
-        profile, binding = load_verified_phase04_profile(PHASE04_PROFILE_PATH, PHASE04_COMPARISON_PATH)
+        preliminary = load_profile(PHASE04_PROFILE_PATH)
+        block = preliminary.parameter_block
+        comparison_path = (
+            PHASE04_R2_COMPARISON_PATH
+            if block is not None and block.parameters.get("comparison_id") == PHASE04_R2_COMPARISON_ID
+            else PHASE04_COMPARISON_PATH
+        )
+        profile, binding = load_verified_phase04_profile(PHASE04_PROFILE_PATH, comparison_path)
         return ResolvedOperationProfile(profile, binding, None)
     except ProfileError as exc:
         return ResolvedOperationProfile(load_profile(DEFAULT_PROFILE_PATH), None, exc.code)
@@ -987,12 +1147,14 @@ def build_phase04_profile(
             "noise.sideband-median-ln2",
             "noise.trimmed-mean-20",
             "noise.winsorized-mean-10",
+            "noise.trimmed-mean-20-hann-calibrated-v1",
         },
         "bandwidth": {
             "band.noise-threshold-6db",
             "band.occupied-power-99",
             "band.peak-drop-20db",
             "band.multi-component-excess-99-v1",
+            "band.temporal-morphology-envelope-v1",
         },
         "spectral_center": {
             "center.excess-power-centroid",
@@ -1017,7 +1179,8 @@ def build_phase04_profile(
         raise ProfileError("comparison_method_mismatch", "profile methods differ from the comparison binding")
     base = profile_to_document(build_operation_profile("regional", lifecycle=lifecycle))
     base["profile_id"] = "phase04-operation-default"
-    base["profile_version"] = 2
+    is_r2 = binding.comparison_id == PHASE04_R2_COMPARISON_ID
+    base["profile_version"] = 3 if is_r2 else 2
     for block in base["blocks"]:
         if block["id"] == "sink":
             block["version"] = 2
@@ -1025,7 +1188,7 @@ def build_phase04_profile(
         {
             "id": "parameters",
             "type": "analysis.core-parameters",
-            "version": 1,
+            "version": 2 if is_r2 else 1,
             "parameters": {
                 "analysis_window_method": methods["analysis_window"],
                 "noise_method": methods["noise"],
@@ -1036,12 +1199,20 @@ def build_phase04_profile(
                 "signal_domain_method": methods["signal_domain"],
                 "transient_guard_samples": 1152,
                 "feature_history_depth": 4,
-                "feature_history_bytes": 67840,
+                "feature_history_bytes": 74368 if is_r2 else 67840,
                 "comparison_id": binding.comparison_id,
                 "comparison_sha256": binding.comparison_sha256,
                 "implementation_manifest_sha256": binding.implementation_manifest_sha256,
                 "catalog_sha256": binding.catalog_sha256,
                 "phase03_profile_sha256": binding.phase03_profile_sha256,
+                **(
+                    {
+                        "band_history_bytes": 6528,
+                        "method_lock_sha256": binding.method_lock_sha256,
+                    }
+                    if is_r2
+                    else {}
+                ),
             },
             "validated_parameter_envelope": {},
         }

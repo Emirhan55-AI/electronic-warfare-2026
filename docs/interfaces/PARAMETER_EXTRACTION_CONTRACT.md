@@ -80,6 +80,12 @@ Olay başına dört adet 32 elemanlı `float64` özellik kaydı tutulur. 64 olay
 Seek, sarma, atlanan frame, kaynak, profil, Pfa, merkez veya DC değişimi geçmişi
 temizler. Split geçmiş miras almaz; merge yalnız kalan track kimliğini korur.
 
+R2 bant kenarı geçmişi ham I/Q veya tam PSD saklamaz. 64 olay için en fazla üç
+alt kenar, üst kenar, noise, frame indisi ve iki boolean maske tutar; ek yük
+`6.528 byte`, bütün parametre geçmişinin üst sınırı `74.368 byte`tır. İlk miss,
+seek, frame atlama, split, owner değişimi veya nesil sıfırlaması R2 kenar
+geçmişini temizler.
+
 ## Sınırlı sinyal alanı ayrımı
 
 Doğru kesin karar paydasında yalnız AM/NFM ile OOK/2-FSK/BPSK/QPSK bulunur.
@@ -148,3 +154,45 @@ PHASE-04 profili üretilmez; eski profil başarı kanıtı sayılmaz. Profil anc
 comparison SHA ile güncel katalog, implementation ve PHASE-03 profil digestleri
 eşleşirse yüklenir. Bağ geçersizse parametre katmanı kapatılır ve PHASE-03 profiline
 dönülür.
+
+## PHASE-04-R2 kilitli bant zinciri
+
+R2 yalnız şu pre-binding zincirini çalıştırır:
+
+1. `analysis.clustered-regions-v1`
+2. `noise.trimmed-mean-20-hann-calibrated-v1`
+3. `band.temporal-morphology-envelope-v1`
+
+32 reference hücresinin sıralı 7–26. order-statistic ortalaması iid üstel modelde
+`0,7827495643569612` beklenen orana ve `1,2775478205746595` düzeltmeye sahiptir.
+Bu iid sonucu runtime katsayısı değildir. Periyodik Hann covariance modeli için
+sabit seed `20260421`, `1.048.576` bağımsız frame ve gerçek PHASE-02 zincirinde
+ayrı seed `20260422`, `16.384` frame ile doğrulanan düzeltme
+`1,2601468855166762` değeridir. Kalibrasyon binding sahnelerini kullanmaz.
+
+Seed ve grow kararları smoothing öncesi raw PSD/noise oranlarında sırasıyla
+`6,907755278982137` ve `2,995732273553991` nominal oranlarıyla verilir. Bu
+değerler exact Pfa veya CFAR katsayısı değildir. `[0,25, 0,50, 0,25]` smoothing
+yalnız excess, fractional kenar ve ikinci moment hesabında uygulanır.
+
+Anchor owner peak'ini içermelidir. Anchor dışı component ancak seed hücresi
+içeriyorsa veya aynı analysis candidate'ın constituent region'larından biriyle
+kesişiyorsa retained adayıdır. Salt grow/noise component zarfı genişletemez,
+köprü olamaz ve arkasındaki bileşene atlanamaz. Gap `24` dahildir, `25` frontier'i
+kapatır; en fazla 32 component ve 176 search hücresi işlenir.
+
+Çizgisel/geniş ayrımı Hann ENBW karesinden türetilmez. Tam-bin ve fractional-bin
+Hann tonları ile sabit RRC-benzeri analitik takım arasındaki ölçülmüş ikinci
+moment aralığının orta noktası `2,7005873918882553 bin²` olarak method-lock'ta
+sabitlenmiştir. Ayrışma marjı pre-binding kapısıdır.
+
+İlk confirmed+observed frame public bant kenarı üretmez ve
+`insufficient_quality/temporal_warmup` durumundadır. İkinci ardışık
+confirmed+observed frame'de iki kenarın temporal medyanı yayımlanabilir. Bu
+warm-up, katalogdaki beklenen-valid paydasını sessizce azaltmaz; benchmark yalnız
+önceden sabit scoring frame'ini değerlendirir.
+
+Frozen binding yalnız bir kez çalıştırılır. Ayrı seed `20260423` ve aile başına
+32 trial içeren OOS sonuçları yalnız karakterizasyondur; selector, katalog kapısı
+veya eşik ayarı için kullanılamaz. Harici ISM annotation içermediğinden bant
+doğruluğu ground truth'u değildir.

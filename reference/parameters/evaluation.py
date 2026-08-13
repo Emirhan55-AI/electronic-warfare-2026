@@ -32,7 +32,7 @@ CLASS_SCENES = ("am-carrier", "nfm", "ook", "two-fsk", "bpsk", "qpsk", "dsb-sc",
 MANIFEST_SOURCES = (
     "reference/parameters/__init__.py", "reference/parameters/classification.py",
     "reference/parameters/evaluation.py", "reference/parameters/extraction.py",
-    "reference/parameters/models.py", "reference/parameters/scenes.py",
+    "reference/parameters/models.py", "reference/parameters/r2.py", "reference/parameters/scenes.py",
     "reference/detection/__init__.py", "reference/detection/cfar.py", "reference/detection/pipeline.py",
     "reference/spectrum/__init__.py", "reference/spectrum/dsp.py", "reference/spectrum/source.py",
     "reference/pipeline/__init__.py", "reference/pipeline/profile.py",
@@ -42,6 +42,8 @@ R1_COST_MODELS: dict[str, tuple[int, ...]] = {
     "analysis.clustered-regions-v1": (0, 1, 32, 1, 1, 0),
     "band.multi-component-excess-99-v1": (0, 4, 32, 2, 1, 0),
     POWER_SNR_METHOD: (0, 1, 0, 0, 1, 0),
+    "noise.trimmed-mean-20-hann-calibrated-v1": (0, 32, 32, 1, 1, 0),
+    "band.temporal-morphology-envelope-v1": (0, 6, 32, 2, 1, 0),
 }
 
 
@@ -307,8 +309,7 @@ def _match_estimates(estimates: Sequence[Any], truths: Sequence[tuple[float, flo
     def pair_cost(truth_index: int, estimate_index: int) -> tuple[float, float, int] | None:
         center, truth_lo, truth_hi = truths[truth_index]
         item = valid[estimate_index]
-        predicted_lo = float(item.bandwidth.lower_shifted_bin)
-        predicted_hi = float(item.bandwidth.upper_shifted_bin + 1)
+        predicted_lo, predicted_hi = _estimate_edges(item)
         intersection = max(0.0, min(predicted_hi, truth_hi) - max(predicted_lo, truth_lo))
         union = max(predicted_hi, truth_hi) - min(predicted_lo, truth_lo)
         iou = intersection / union if union else 0.0
@@ -337,6 +338,15 @@ def _match_estimates(estimates: Sequence[Any], truths: Sequence[tuple[float, flo
     return matched
 
 
+def _estimate_edges(estimate: Any) -> tuple[float, float]:
+    bandwidth = estimate.bandwidth
+    lower_edge = getattr(bandwidth, "lower_shifted_edge", None)
+    upper_edge = getattr(bandwidth, "upper_shifted_edge", None)
+    if lower_edge is not None and upper_edge is not None:
+        return float(lower_edge), float(upper_edge)
+    return float(bandwidth.lower_shifted_bin), float(bandwidth.upper_shifted_bin + 1)
+
+
 def _select_scored_estimate(
     estimates: Sequence[Any], catalog: dict[str, Any], truth_center: float,
     truth_lo: float | None, truth_hi: float | None,
@@ -356,8 +366,7 @@ def _select_scored_estimate(
             bandwidth = estimate.bandwidth
             if bandwidth.bandwidth_state != "valid":
                 continue
-            predicted_lo = float(bandwidth.lower_shifted_bin)
-            predicted_hi = float(bandwidth.upper_shifted_bin + 1)
+            predicted_lo, predicted_hi = _estimate_edges(estimate)
             intersection = max(0.0, min(predicted_hi, truth_hi) - max(predicted_lo, truth_lo))
             if intersection <= 0.0:
                 continue
@@ -392,8 +401,7 @@ def _band_measurements(result: Any, truths: Sequence[tuple[float, float, float]]
         if estimate is None:
             measured.append({"valid": False, "reason": "no_valid_estimate", "loss": 1.0})
             continue
-        predicted_lo = float(estimate.bandwidth.lower_shifted_bin)
-        predicted_hi = float(estimate.bandwidth.upper_shifted_bin + 1)
+        predicted_lo, predicted_hi = _estimate_edges(estimate)
         truth_width = truth_hi - truth_lo
         predicted_width = predicted_hi - predicted_lo
         limit = max(float(gates["band_edge_q95_error_bins_floor"]), truth_width * float(gates["band_edge_q95_error_width_fraction"]))
@@ -485,6 +493,7 @@ def _band_diagnostic_row(scene: str, snr_db: float, values: dict[str, Any]) -> d
 def _run_shared_band_sequence(
     catalog: dict[str, Any], contexts: list[dict[str, Any]], scene_id: str, *, trial: int,
     condition: int, frame_count: int, score_frame: int, snr_db: float,
+    scene_seed_override: int | None = None,
 ) -> tuple[list[Any], list[list[Any]]]:
     from reference.pipeline import RuntimePipeline
 
@@ -497,6 +506,7 @@ def _run_shared_band_sequence(
         frame = generate_parameter_scene(
             scene_id, trial_index=trial, condition_index=condition, frame_index=frame_index,
             clean_power_dbfs=-18.0, snr_db=snr_db, catalog=catalog,
+            scene_seed_override=scene_seed_override,
         )
         runtime_result = runtime.process(
             frame.samples, sample_rate_hz=float(common["sample_rate_hz"]),
@@ -510,12 +520,23 @@ def _run_shared_band_sequence(
     return scored, traces
 
 
-def _band_pairs(catalog: dict[str, Any], trials: int, full: bool) -> tuple[list[dict[str, Any]], dict[str, Any] | None, dict[str, Any]]:
+def _band_pairs(
+    catalog: dict[str, Any],
+    trials: int,
+    full: bool,
+    *,
+    locked_selections: Sequence[MethodSelection] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None, dict[str, Any]]:
     gates = catalog["success_gates"]
-    contexts = [
-        _new_band_accumulator(MethodSelection(noise, bandwidth, "center.excess-power-centroid", "carrier.peak-gated", "domain.explainable-rules", analysis, POWER_SNR_METHOD))
-        for analysis in ANALYSIS_METHODS for noise in catalog["method_order"]["noise"] for bandwidth in BANDWIDTH_METHODS
-    ]
+    contexts = (
+        [_new_band_accumulator(selection) for selection in locked_selections]
+        if locked_selections is not None
+        else [
+            _new_band_accumulator(MethodSelection(noise, bandwidth, "center.excess-power-centroid", "carrier.peak-gated", "domain.explainable-rules", analysis, POWER_SNR_METHOD))
+            for analysis in ANALYSIS_METHODS for noise in catalog["method_order"]["noise"] for bandwidth in BANDWIDTH_METHODS
+            if bandwidth != "band.temporal-morphology-envelope-v1"
+        ]
+    )
     snr_order = list(catalog["power_benchmark"]["snr_db_order"])
     for scene_index, scene_id in enumerate(CONTINUOUS_BAND_SCENES):
         spec = _scene(catalog, scene_id)
@@ -557,8 +578,16 @@ def _band_pairs(catalog: dict[str, Any], trials: int, full: bool) -> tuple[list[
                 measurements = _band_measurements(result, close_truth, gates)
                 key = ("close-am-qpsk", snr_db)
                 _record_band_diagnostic(acc, key, measurements)
-                separate = len([item for item in matched if item is not None]) == 2 and int(matched[0].bandwidth.upper_shifted_bin) < int(matched[1].bandwidth.lower_shifted_bin)  # type: ignore[union-attr]
-                cross = any((index == 0 and int(item.bandwidth.upper_shifted_bin) >= midpoint) or (index == 1 and int(item.bandwidth.lower_shifted_bin) <= midpoint) for index, item in enumerate(matched) if item is not None)
+                separate = (
+                    len([item for item in matched if item is not None]) == 2
+                    and _estimate_edges(matched[0])[1] < _estimate_edges(matched[1])[0]  # type: ignore[arg-type]
+                )
+                cross = any(
+                    (index == 0 and _estimate_edges(item)[1] >= midpoint)
+                    or (index == 1 and _estimate_edges(item)[0] <= midpoint)
+                    for index, item in enumerate(matched)
+                    if item is not None
+                )
                 if snr_db == 12.0:
                     _record_band_measurements(acc, measurements, "close")
                     acc["close_frames"] += 1
@@ -962,7 +991,8 @@ def evaluate_parameter_methods(*, full: bool = True) -> tuple[dict[str, Any], di
             "signal_domain": class_selected["method"],
         }
     snr_condition_count = len(catalog["power_benchmark"]["snr_db_order"])
-    band_candidate_count = len(ANALYSIS_METHODS) * len(catalog["method_order"]["noise"]) * len(BANDWIDTH_METHODS)
+    r1_band_methods = [method for method in BANDWIDTH_METHODS if method != "band.temporal-morphology-envelope-v1"]
+    band_candidate_count = len(ANALYSIS_METHODS) * len(catalog["method_order"]["noise"]) * len(r1_band_methods)
     noise_sequence_count = 128 if full else 1
     r1d_unique_frames = (
         len(CONTINUOUS_BAND_SCENES) * snr_condition_count * trials * 4
@@ -1004,3 +1034,228 @@ def evaluate_parameter_methods(*, full: bool = True) -> tuple[dict[str, Any], di
         },
     }
     return payload, selected
+
+
+def evaluate_phase04_r2(
+    *, full: bool = True, method_lock_sha256: str,
+) -> tuple[dict[str, Any], dict[str, str] | None]:
+    """Evaluate the single pre-locked R2 upstream and unchanged downstream chain."""
+    from .r2 import R2_COMPARISON_ID
+
+    catalog = load_parameter_catalog()
+    trials = 128 if full else 1
+    manifest = phase04_implementation_manifest()
+    locked = MethodSelection(
+        "noise.trimmed-mean-20-hann-calibrated-v1",
+        "band.temporal-morphology-envelope-v1",
+        "center.excess-power-centroid",
+        "carrier.peak-gated",
+        "domain.explainable-rules",
+        "analysis.clustered-regions-v1",
+        POWER_SNR_METHOD,
+    )
+    band_records, band_selected, band_decision = _band_pairs(
+        catalog, trials, full, locked_selections=(locked,),
+    )
+    frequency_records: list[dict[str, Any]] = []
+    frequency_selected: dict[str, Any] | None = None
+    frequency_decision: dict[str, Any] = {
+        "status": "skipped", "reason": "upstream-band-failed", "comparisons": [],
+    }
+    power_payload: dict[str, Any] = {"status": "skipped", "reason": "upstream-frequency-failed"}
+    class_records: list[dict[str, Any]] = []
+    class_selected: dict[str, Any] | None = None
+    class_decision: dict[str, Any] = {
+        "status": "skipped", "reason": "upstream-power-failed", "comparisons": [],
+    }
+    power_passed = False
+    if band_selected is not None:
+        frequency_records, frequency_selected, frequency_decision = _frequency_pairs(catalog, band_selected, trials)
+    if band_selected is not None and frequency_selected is not None:
+        base = _selection_from(
+            band_selected,
+            frequency_selected["spectral_center_method"],
+            frequency_selected["carrier_method"],
+            "domain.explainable-rules",
+        )
+        power_payload, power_passed = _power_metrics(catalog, base, trials)
+        if power_passed:
+            internal: list[dict[str, Any]] = []
+            for method in catalog["method_order"]["signal_domain"]:
+                record, _ = _classification_metrics(catalog, base, method, trials)
+                internal.append(record)
+            class_selected, class_decision = _choose(internal, catalog, ("method",))
+            class_records = [
+                {key: value for key, value in record.items() if key != "_paired_losses"}
+                for record in internal
+            ]
+    selected: dict[str, str] | None = None
+    if band_selected is not None and frequency_selected is not None and power_passed and class_selected is not None:
+        selected = {
+            "analysis_window": str(band_selected["analysis_window_method"]),
+            "noise": str(band_selected["noise_method"]),
+            "bandwidth": str(band_selected["bandwidth_method"]),
+            "spectral_center": str(frequency_selected["spectral_center_method"]),
+            "carrier": str(frequency_selected["carrier_method"]),
+            "power_snr": POWER_SNR_METHOD,
+            "signal_domain": str(class_selected["method"]),
+        }
+    snr_count = len(catalog["power_benchmark"]["snr_db_order"])
+    noise_sequences = 128 if full else 1
+    unique_frames = (
+        len(CONTINUOUS_BAND_SCENES) * snr_count * trials * 4
+        + snr_count * trials * 6
+        + snr_count * trials * 4
+        + noise_sequences * 32
+    )
+    payload = {
+        "schema_version": 3,
+        "phase": "PHASE-04-R2",
+        "comparison_id": R2_COMPARISON_ID,
+        "overall": "passed" if selected is not None else "failed",
+        "catalog_sha256": manifest["catalog_sha256"],
+        "implementation_manifest_sha256": manifest["implementation_manifest_sha256"],
+        "phase03_profile_sha256": manifest["phase03_profile_sha256"],
+        "method_lock_sha256": method_lock_sha256,
+        "selection_contract": catalog["selection_contract"],
+        "gate_applicability": _gate_applicability(catalog),
+        "sample_counts": {
+            "trials_per_condition": trials,
+            "continuous_frames_per_sequence": 4,
+            "continuous_binding_frame": 3,
+            "burst_frames_per_sequence": 6,
+            "burst_binding_frame": 4,
+            "noise_sequences": noise_sequences,
+            "noise_frames_per_sequence": 32,
+            "r2_locked_band_candidate_count": 1,
+            "r2_phase03_unique_frames": unique_frames,
+            "r2_extractor_evaluations": unique_frames,
+            "streamed_not_bulk_cached": True,
+        },
+        "noise_bandwidth_pairs": band_records,
+        "noise_bandwidth_decision": band_decision,
+        "center_carrier_pairs": frequency_records,
+        "center_carrier_decision": frequency_decision,
+        "power_snr_chain": power_payload,
+        "signal_domain_methods": class_records,
+        "signal_domain_decision": class_decision,
+        "selected_methods": selected,
+        "combined_pipeline": {
+            "status": "passed" if selected is not None else "failed",
+            "no_upstream_backtracking": True,
+            "same_upstream_for_all_classifiers": True,
+            "dynamic_timing_used_for_selection": False,
+            "out_of_sample_used_for_selection": False,
+        },
+    }
+    return payload, selected
+
+
+def characterize_phase04_r2_oos() -> dict[str, Any]:
+    """Run the locked, non-selecting out-of-sample family characterization."""
+    from .r2 import R2_OOS_BASE_SEED, R2_OOS_TRIALS_PER_FAMILY
+
+    catalog = load_parameter_catalog()
+    gates = catalog["success_gates"]
+    selection = MethodSelection(
+        "noise.trimmed-mean-20-hann-calibrated-v1",
+        "band.temporal-morphology-envelope-v1",
+        "center.excess-power-centroid",
+        "carrier.peak-gated",
+        "domain.explainable-rules",
+        "analysis.clustered-regions-v1",
+        POWER_SNR_METHOD,
+    )
+    contexts = [_new_band_accumulator(selection)]
+    snr_order = (12.0, -6.0, 0.0, 6.0)
+    rows: list[dict[str, Any]] = []
+
+    def summarize(name: str, snr_db: float, measurements: list[dict[str, Any]]) -> None:
+        valid = [item for item in measurements if item["valid"]]
+        rows.append({
+            "family": name,
+            "snr_db": snr_db,
+            "trials": R2_OOS_TRIALS_PER_FAMILY,
+            "valid_rate": _round(len(valid) / len(measurements)),
+            "q95_relative_bandwidth_error": _q95([item["width_error"] for item in valid]),
+            "q95_lower_edge_normalized": _q95([item["lower_normalized"] for item in valid]),
+            "q95_upper_edge_normalized": _q95([item["upper_normalized"] for item in valid]),
+            "region_success_rate": _round(sum(bool(item["region_ok"]) for item in valid) / len(measurements)),
+            "binding": False,
+        })
+
+    for family_index, scene_id in enumerate(CONTINUOUS_BAND_SCENES):
+        spec = _scene(catalog, scene_id)
+        center, lower, upper = _truth_bins(catalog, spec)
+        assert lower is not None and upper is not None
+        for snr_index, snr_db in enumerate(snr_order):
+            collected: list[dict[str, Any]] = []
+            for trial in range(R2_OOS_TRIALS_PER_FAMILY):
+                scored, _ = _run_shared_band_sequence(
+                    catalog,
+                    contexts,
+                    scene_id,
+                    trial=trial,
+                    condition=snr_index,
+                    frame_count=4,
+                    score_frame=3,
+                    snr_db=snr_db,
+                    scene_seed_override=R2_OOS_BASE_SEED + family_index,
+                )
+                collected.extend(_band_measurements(scored[0], ((center, lower, upper),), gates))
+            summarize(scene_id, snr_db, collected)
+
+    burst_index = 7
+    burst = _scene(catalog, "burst-qpsk")
+    center, lower, upper = _truth_bins(catalog, burst)
+    assert lower is not None and upper is not None
+    for snr_index, snr_db in enumerate(snr_order):
+        collected = []
+        for trial in range(R2_OOS_TRIALS_PER_FAMILY):
+            scored, _ = _run_shared_band_sequence(
+                catalog,
+                contexts,
+                "burst-qpsk",
+                trial=trial,
+                condition=snr_index,
+                frame_count=6,
+                score_frame=4,
+                snr_db=snr_db,
+                scene_seed_override=R2_OOS_BASE_SEED + burst_index,
+            )
+            collected.extend(_band_measurements(scored[0], ((center, lower, upper),), gates))
+        summarize("burst-qpsk", snr_db, collected)
+
+    close_truth = _close_truth(catalog)
+    for snr_index, snr_db in enumerate(snr_order):
+        first: list[dict[str, Any]] = []
+        second: list[dict[str, Any]] = []
+        for trial in range(R2_OOS_TRIALS_PER_FAMILY):
+            scored, _ = _run_shared_band_sequence(
+                catalog,
+                contexts,
+                "close-am-qpsk",
+                trial=trial,
+                condition=snr_index,
+                frame_count=4,
+                score_frame=3,
+                snr_db=snr_db,
+                scene_seed_override=R2_OOS_BASE_SEED + 8,
+            )
+            measurements = _band_measurements(scored[0], close_truth, gates)
+            first.append(measurements[0])
+            second.append(measurements[1])
+        summarize("close-am-target", snr_db, first)
+        summarize("close-qpsk-target", snr_db, second)
+    return {
+        "schema_version": 1,
+        "phase": "PHASE-04-R2",
+        "status": "passed",
+        "purpose": "non-binding out-of-sample characterization",
+        "base_seed": R2_OOS_BASE_SEED,
+        "trials_per_family": R2_OOS_TRIALS_PER_FAMILY,
+        "snr_db_order": list(snr_order),
+        "used_for_selection": False,
+        "used_for_gate_changes": False,
+        "rows": rows,
+    }

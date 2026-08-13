@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-R2",
+  "evidence_status": "passed",
+  "algorithm_status": "failed",
+  "checks": [
+    {
+      "name": "method-lock-and-calibration",
+      "status": "passed"
+    },
+    {
+      "name": "comparison-integrity",
+      "status": "passed"
+    },
+    {
+      "name": "oos-isolation",
+      "status": "passed"
+    },
+    {
+      "name": "binding-band",
+      "status": "failed"
+    },
+    {
+      "name": "validated-profile-binding",
+      "status": "skipped"
+    },
+    {
+      "name": "external-ism-bounded",
+      "status": "skipped"
+    }
+  ]
+}

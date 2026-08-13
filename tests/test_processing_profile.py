@@ -85,6 +85,7 @@ class ProcessingProfileTests(unittest.TestCase):
             for analysis in ANALYSIS_METHODS
             for noise in catalog["method_order"]["noise"]
             for bandwidth in BANDWIDTH_METHODS
+            if bandwidth != "band.temporal-morphology-envelope-v1"
         ]
         center_records = [
             {

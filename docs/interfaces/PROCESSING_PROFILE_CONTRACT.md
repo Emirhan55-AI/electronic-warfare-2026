@@ -20,4 +20,26 @@ Operasyon çözümleyicisi PHASE-04 profilini yalnız şu koşulların tamamınd
 
 `verify_phase04.py --write` başarılı veya başarısız golden/summary dosyalarının sahibidir. Renderer yalnız geçerli bağlı profil ve tam başarıda PHASE-04 visual summary ile yedi PNG'nin sahibidir. Bütün `--check` modları salt-okunurdur.
 
+PHASE-04-R2 comparison şeması v3'tür ve profil sürümü v3 içindeki
+`analysis.core-parameters/v2` bloğuna bağlanır. R2 bağı; exact comparison SHA'nın
+yanında method-lock SHA, güncel implementation manifesti, frozen katalog ve
+PHASE-03 profil digestlerini zorunlu tutar. Locked analysis/noise/band yöntemleri,
+geçen downstream yöntemleri ve comparison kayıtları birebir aynı değilse profil
+yüklenmez. R2 bant geçmişi `6.528 byte`, birleşik parametre geçmişi `74.368 byte`
+üst sınırındadır.
+
+`select_phase04_r2_profile.py --evaluate`, tek frozen binding çalışmasının
+canonical sonucunu yalnız repository dışındaki açık output yoluna yazar.
+`--establish-from` benchmark'ı yeniden çalıştırmadan aynı payload'ı
+`r2-parameter-comparison.json` olarak atomik kurar; validated profil yalnız bütün
+aşamalar geçtiyse oluşur. `characterize_phase04_r2_oos.py` ayrı seed ailesinin
+karakterizasyonunu repository dışında üretir ve bu veri selector kararına girmez.
+
+R2 evidence sahipliği çakışmaz: selector yalnız R2 comparison ve koşullu profili;
+R2 verifier family diagnostic, OOS, golden ve summary dosyalarını; renderer ise
+yalnız tam başarıdaki mevcut yedi PHASE-04 görselini yönetir. R1 evidence dosyaları
+R2 araçları tarafından yazılmaz. Başarısız R2 comparison yanında eski bir profil
+bulunsa bile method-lock/comparison digest bağı geçmediğinde runtime onu
+çalıştırmaz ve PHASE-03 `regional` profiline döner.
+
 PHASE-05'te gerçek dinleme blokları geldikçe ayrı Akış Tasarımı editörü geliştirilebilir. PHASE-06'da PC/PS/PL hedefleri ayrı doğrulanır; profil otomatik HDL üretmez. PHASE-08 canlı kaynak bloğunu, PHASE-13 doğrulanmış profil kilidini kapsar. ET/TX blokları güvenlik kapıları olmadan eklenmez.

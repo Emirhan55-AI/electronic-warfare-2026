@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-R2",
+  "evidence_status": "passed",
+  "algorithm_status": "failed",
+  "binding_band_status": "failed",
+  "method_lock_sha256": "07fb9f69c87641f07b2d3760f574c7d9cdecb99b4d9ff2049f2c38fa5a13cb05",
+  "comparison_sha256": "abbfaedec54dd5d303c2ae643db169f7c59ca38c603f686f96c85749d5ce3c7d",
+  "family_diagnostic_sha256": "03a131792641073ba1881bfb7fcd1fcbe54e8a0f3a686da67f9ce57d76ac2985",
+  "out_of_sample_sha256": "394bb5a901854dffda291f5e40e0248c6c698e91cd5798e1806843b340a09c66",
+  "profile_sha256": null,
+  "selected_methods": null,
+  "profile_binding_status": "skipped",
+  "profile_binding_error_code": null,
+  "locked_calibration": {
+    "iid_correction": 1.2775478205746595,
+    "hann_correction": 1.2601468855166762,
+    "nominal_seed_ratio": 6.907755278982137,
+    "nominal_grow_ratio": 2.995732273553991,
+    "exact_pfa_claimed": false,
+    "morphology_moment_threshold_bins2": 2.7005873918882553
+  },
+  "history_bounds": {
+    "band_history_payload_bytes": 6528,
+    "combined_parameter_history_payload_bytes": 74368,
+    "raw_iq_retained": false
+  },
+  "out_of_sample": {
+    "status": "passed",
+    "base_seed": 20260423,
+    "trials_per_family": 32,
+    "used_for_selection": false,
+    "used_for_gate_changes": false
+  },
+  "external_integration": {
+    "status": "skipped",
+    "reason": "external paths are not configured"
+  }
+}

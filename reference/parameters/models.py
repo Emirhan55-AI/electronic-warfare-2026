@@ -20,6 +20,9 @@ ParameterInvalidReason = Literal[
     "support_component_overflow",
     "support_empty",
     "invalid_noise",
+    "anchor_not_supported",
+    "temporal_warmup",
+    "morphology_not_separable",
 ]
 SignalDomain = Literal["Analog", "Sayısal", "Belirsiz"]
 
@@ -42,6 +45,7 @@ class AnalysisCandidate:
     peak_bin: int
     state: FieldState
     invalid_reason: ParameterInvalidReason | None = None
+    constituent_regions: tuple[tuple[int, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -56,6 +60,10 @@ class BandSupportResult:
     retained_component_count: int = 0
     expansion_order: tuple[str, ...] = ()
     retained_component_indices: tuple[int, ...] = ()
+    lower_shifted_edge: float | None = None
+    upper_shifted_edge: float | None = None
+    component_moments: tuple[float, ...] = ()
+    supported_component_indices: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -77,6 +85,8 @@ class BandwidthEstimate:
     lower_shifted_bin: int | None
     upper_shifted_bin: int | None
     invalid_reason: ParameterInvalidReason | None = None
+    lower_shifted_edge: float | None = None
+    upper_shifted_edge: float | None = None
 
 
 @dataclass(frozen=True)

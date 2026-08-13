@@ -30,9 +30,9 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE04_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
-        self.assertEqual(21, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
+        self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
         self.assertEqual(9, len(VERIFY.PHASE04_SUCCESS_ONLY_FILES))
-        self.assertEqual(30, len(VERIFY.APPROVED_PHASE04_FILES))
+        self.assertEqual(46, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -41,6 +41,11 @@ class RepositoryContractTests(unittest.TestCase):
             "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
             hashlib.sha256(catalog.read_bytes()).hexdigest(),
         )
+
+    def test_phase04_r2_method_lock_is_present_and_path_stable(self) -> None:
+        lock = ROOT / "datasets" / "fixtures" / "phase04" / "r2-method-lock.json"
+        self.assertTrue(lock.is_file())
+        self.assertIn("datasets/fixtures/phase04/r2-method-lock.json", VERIFY.APPROVED_PHASE04_BASE_FILES)
 
     def test_phase04_visual_artifacts_are_complete_or_absent(self) -> None:
         visual = set(VERIFY.PHASE04_SUCCESS_ONLY_FILES) - {"profiles/phase04/operation-default.json"}

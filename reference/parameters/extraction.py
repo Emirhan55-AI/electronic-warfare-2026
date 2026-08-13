@@ -24,6 +24,12 @@ from .models import (
     RelativePowerEstimate,
     SignalDomainEstimate,
 )
+from .r2 import (
+    HANN_CORRECTION,
+    MORPHOLOGY_MOMENT_THRESHOLD,
+    NOMINAL_GROW_RATIO,
+    NOMINAL_SEED_RATIO,
+)
 
 
 FRAME_LENGTH = 4096
@@ -42,6 +48,12 @@ ANALYSIS_REGION_COUNT_MAX = 32
 MULTI_COMPONENT_GAP_MAX = 16
 MULTI_COMPONENT_COUNT_MAX = 32
 MULTI_COMPONENT_POWER_FRACTION_MIN = 0.02
+R2_COMPONENT_GAP_MAX = 24
+R2_COMPONENT_COUNT_MAX = 32
+R2_TEMPORAL_DEPTH = 3
+R2_BAND_HISTORY_BYTES = 6_528
+R2_PARAMETER_HISTORY_BYTES = FEATURE_HISTORY_BYTES + R2_BAND_HISTORY_BYTES
+assert R2_PARAMETER_HISTORY_BYTES == 74_368
 
 ANALYSIS_METHODS = (
     "analysis.single-region-v1",
@@ -52,6 +64,13 @@ BANDWIDTH_METHODS = (
     "band.occupied-power-99",
     "band.peak-drop-20db",
     "band.multi-component-excess-99-v1",
+    "band.temporal-morphology-envelope-v1",
+)
+NOISE_METHODS = (
+    "noise.sideband-median-ln2",
+    "noise.trimmed-mean-20",
+    "noise.winsorized-mean-10",
+    "noise.trimmed-mean-20-hann-calibrated-v1",
 )
 POWER_SNR_METHODS = ("power.psd-noise-subtract-v1",)
 
@@ -152,6 +171,7 @@ def _analysis_candidate(
         peak_bin=owner.region.peak_bin,
         state="valid" if reason is None else "insufficient_quality",
         invalid_reason=reason,
+        constituent_regions=tuple((region.start_bin, region.end_bin) for region in regions),
     )
 
 
@@ -226,10 +246,11 @@ def _noise_density(psd: np.ndarray, candidate: AnalysisCandidate, method: str) -
     ordered = np.sort(references)
     if method == "noise.sideband-median-ln2":
         return float(np.median(ordered) / math.log(2.0))
-    if method == "noise.trimmed-mean-20":
+    if method in {"noise.trimmed-mean-20", "noise.trimmed-mean-20-hann-calibrated-v1"}:
         cut = int(math.floor(0.2 * ordered.size))
         body = ordered[cut : ordered.size - cut] if ordered.size - 2 * cut else ordered
-        return float(np.mean(body))
+        estimate = float(np.mean(body))
+        return estimate * HANN_CORRECTION if method.endswith("hann-calibrated-v1") else estimate
     if method == "noise.winsorized-mean-10":
         cut = int(math.floor(0.1 * ordered.size))
         if cut:
@@ -351,6 +372,125 @@ def _multi_component_support(
     )
 
 
+def _component_intersects_regions(
+    component: tuple[int, int], lower: int, constituent_regions: tuple[tuple[int, int], ...],
+) -> bool:
+    absolute_start = lower + component[0]
+    absolute_end = lower + component[1]
+    return any(absolute_start <= region_end and absolute_end >= region_start for region_start, region_end in constituent_regions)
+
+
+def _weighted_moment_and_centroid(
+    excess: np.ndarray, component: tuple[int, int], lower: int,
+) -> tuple[float, float]:
+    start, end = component
+    weights = excess[start : end + 1]
+    total = float(np.sum(weights))
+    if total <= 0.0:
+        return math.inf, float(lower + 0.5 * (start + end))
+    bins = lower + np.arange(start, end + 1, dtype=np.float64)
+    centroid = float(np.sum(weights * bins) / total)
+    moment = float(np.sum(weights * (bins - centroid) ** 2) / total)
+    return moment, centroid
+
+
+def _fractional_power_edge(
+    excess: np.ndarray, component: tuple[int, int], lower: int, quantile: float,
+) -> float:
+    start, end = component
+    weights = excess[start : end + 1]
+    total = float(np.sum(weights))
+    if total <= 0.0:
+        return float(lower + start if quantile <= 0.5 else lower + end)
+    target = quantile * total
+    cumulative = np.cumsum(weights)
+    relative = int(np.searchsorted(cumulative, target, side="left"))
+    relative = min(relative, weights.size - 1)
+    before = 0.0 if relative == 0 else float(cumulative[relative - 1])
+    fraction = (target - before) / max(float(weights[relative]), np.finfo(np.float64).tiny)
+    # Treat each PSD cell as uniform across its physical half-bin boundaries.
+    return float(lower + start + relative - 0.5 + np.clip(fraction, 0.0, 1.0))
+
+
+def _temporal_morphology_support(
+    raw: np.ndarray,
+    smoothed: np.ndarray,
+    *,
+    lower: int,
+    local_peak: int,
+    noise: float,
+    constituent_regions: tuple[tuple[int, int], ...],
+) -> BandSupportResult:
+    seed = raw >= noise * NOMINAL_SEED_RATIO
+    grow = _bridge(raw >= noise * NOMINAL_GROW_RATIO)
+    components = _connected_components(grow)
+    if len(components) > R2_COMPONENT_COUNT_MAX:
+        return _invalid_support("support_component_overflow", component_count=len(components))
+    anchor = next((index for index, (start, end) in enumerate(components) if start <= local_peak <= end), None)
+    if anchor is None:
+        return _invalid_support("anchor_not_supported", component_count=len(components))
+    seed_backed = [bool(np.any(seed[start : end + 1])) for start, end in components]
+    region_backed = [
+        _component_intersects_regions(component, lower, constituent_regions) for component in components
+    ]
+    supported = [left or right for left, right in zip(seed_backed, region_backed)]
+    if not supported[anchor]:
+        return _invalid_support("anchor_not_supported", component_count=len(components))
+
+    retained = {anchor}
+    hull_start, hull_end = components[anchor]
+    # Grow-only components are ignored and never shorten the physical gap.
+    for index in reversed([item for item in range(anchor) if supported[item]]):
+        gap = hull_start - components[index][1] - 1
+        if gap > R2_COMPONENT_GAP_MAX:
+            break
+        retained.add(index)
+        hull_start = components[index][0]
+    for index in [item for item in range(anchor + 1, len(components)) if supported[item]]:
+        gap = components[index][0] - hull_end - 1
+        if gap > R2_COMPONENT_GAP_MAX:
+            break
+        retained.add(index)
+        hull_end = components[index][1]
+
+    excess = np.maximum(smoothed - noise, 0.0)
+    ordered = sorted(retained)
+    moments: list[float] = []
+    centroids: dict[int, float] = {}
+    for index in ordered:
+        moment, centroid = _weighted_moment_and_centroid(excess, components[index], lower)
+        moments.append(moment)
+        centroids[index] = centroid
+    first, last = ordered[0], ordered[-1]
+    first_is_line = seed_backed[first] and moments[0] <= MORPHOLOGY_MOMENT_THRESHOLD
+    last_is_line = seed_backed[last] and moments[-1] <= MORPHOLOGY_MOMENT_THRESHOLD
+    lower_edge = (
+        centroids[first]
+        if first_is_line
+        else _fractional_power_edge(excess, components[first], lower, 0.005)
+    )
+    upper_edge = (
+        centroids[last]
+        if last_is_line
+        else _fractional_power_edge(excess, components[last], lower, 0.995)
+    )
+    if upper_edge < lower_edge:
+        return _invalid_support("support_empty", component_count=len(components))
+    return BandSupportResult(
+        lower_shifted_bin=lower + components[first][0],
+        upper_shifted_bin=lower + components[last][1],
+        state="valid",
+        component_count=len(components),
+        retained_component_count=len(retained),
+        expansion_order=("anchor", "left", "right"),
+        retained_component_indices=tuple(ordered),
+        lower_shifted_edge=lower_edge,
+        upper_shifted_edge=upper_edge,
+        component_moments=tuple(moments),
+        supported_component_indices=tuple(index for index, value in enumerate(supported) if value),
+    )
+
+
 def estimate_band_support(
     psd: npt.ArrayLike,
     lower: int,
@@ -358,6 +498,7 @@ def estimate_band_support(
     peak: int,
     noise: float,
     method: str,
+    constituent_regions: tuple[tuple[int, int], ...] = (),
 ) -> BandSupportResult:
     """Estimate inclusive shifted-bin support inside one bounded search window."""
     values = np.asarray(psd, dtype=np.float64)
@@ -370,6 +511,15 @@ def estimate_band_support(
     window = values[lower : upper + 1]
     smoothed = np.convolve(window, np.asarray([0.25, 0.5, 0.25]), mode="same")
     local_peak = int(np.clip(peak - lower, 0, window.size - 1))
+    if method == "band.temporal-morphology-envelope-v1":
+        return _temporal_morphology_support(
+            window,
+            smoothed,
+            lower=lower,
+            local_peak=local_peak,
+            noise=noise,
+            constituent_regions=constituent_regions,
+        )
     if method == "band.multi-component-excess-99-v1":
         return _multi_component_support(smoothed, lower=lower, local_peak=local_peak, noise=noise)
     if method == "band.noise-threshold-6db":
@@ -600,6 +750,105 @@ def _invalid_event(
     )
 
 
+@dataclass
+class _BandSlot:
+    row: int
+    last_frame: int
+
+
+class BandEdgeHistoryStore:
+    """Bounded three-frame edge history; no raw I/Q or full PSD is retained."""
+
+    MAX_TRACKS = 64
+
+    def __init__(self) -> None:
+        shape = (self.MAX_TRACKS, R2_TEMPORAL_DEPTH)
+        self.lower = np.zeros(shape, dtype=np.float64)
+        self.upper = np.zeros(shape, dtype=np.float64)
+        self.noise = np.zeros(shape, dtype=np.float64)
+        self.frame_indices = np.full(shape, -1, dtype=np.int64)
+        self.valid = np.zeros(shape, dtype=np.bool_)
+        self.supported = np.zeros(shape, dtype=np.bool_)
+        self._slots: dict[int, _BandSlot] = {}
+        assert self.payload_bytes == R2_BAND_HISTORY_BYTES
+
+    @property
+    def payload_bytes(self) -> int:
+        return sum(
+            item.nbytes
+            for item in (self.lower, self.upper, self.noise, self.frame_indices, self.valid, self.supported)
+        )
+
+    def reset(self) -> None:
+        self.lower.fill(0.0)
+        self.upper.fill(0.0)
+        self.noise.fill(0.0)
+        self.frame_indices.fill(-1)
+        self.valid.fill(False)
+        self.supported.fill(False)
+        self._slots.clear()
+
+    def contains(self, event_id: int) -> bool:
+        return event_id in self._slots
+
+    def last_frame(self, event_id: int) -> int | None:
+        slot = self._slots.get(event_id)
+        return None if slot is None else slot.last_frame
+
+    def discard(self, event_id: int) -> None:
+        slot = self._slots.pop(event_id, None)
+        if slot is not None:
+            self._clear_row(slot.row)
+
+    def retain_observed(self, observed_event_ids: set[int]) -> None:
+        """A first miss immediately invalidates continuity for the R2 edge median."""
+        for event_id in sorted(set(self._slots) - observed_event_ids):
+            self.discard(event_id)
+
+    def append(
+        self,
+        event_id: int,
+        frame_index: int,
+        lower: float,
+        upper: float,
+        noise: float,
+        *,
+        supported: bool,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        if not all(math.isfinite(value) for value in (lower, upper, noise)) or upper < lower or noise <= 0.0:
+            raise ValueError("band history requires finite ordered edges and positive noise")
+        slot = self._slots.get(event_id)
+        if slot is None:
+            occupied = {item.row for item in self._slots.values()}
+            free = next((row for row in range(self.MAX_TRACKS) if row not in occupied), None)
+            if free is None:
+                raise ValueError("band history track capacity exceeded")
+            slot = _BandSlot(free, frame_index - 1)
+            self._slots[event_id] = slot
+        if frame_index != slot.last_frame + 1:
+            self._clear_row(slot.row)
+        row = slot.row
+        for array in (self.lower, self.upper, self.noise, self.frame_indices, self.valid, self.supported):
+            array[row, :-1] = array[row, 1:]
+        self.lower[row, -1] = lower
+        self.upper[row, -1] = upper
+        self.noise[row, -1] = noise
+        self.frame_indices[row, -1] = frame_index
+        self.valid[row, -1] = True
+        self.supported[row, -1] = supported
+        slot.last_frame = frame_index
+        mask = self.valid[row]
+        return self.lower[row, mask].copy(), self.upper[row, mask].copy(), self.noise[row, mask].copy()
+
+    def _clear_row(self, row: int) -> None:
+        self.lower[row].fill(0.0)
+        self.upper[row].fill(0.0)
+        self.noise[row].fill(0.0)
+        self.frame_indices[row].fill(-1)
+        self.valid[row].fill(False)
+        self.supported[row].fill(False)
+
+
 class ParameterExtractor:
     """Stateful only for bounded per-event feature records, never raw I/Q."""
 
@@ -608,13 +857,17 @@ class ParameterExtractor:
             raise ValueError(f"unsupported analysis-window method: {selection.analysis_window}")
         if selection.bandwidth not in BANDWIDTH_METHODS:
             raise ValueError(f"unsupported bandwidth method: {selection.bandwidth}")
+        if selection.noise not in NOISE_METHODS:
+            raise ValueError(f"unsupported noise method: {selection.noise}")
         if selection.power_snr not in POWER_SNR_METHODS:
             raise ValueError(f"unsupported power/SNR method: {selection.power_snr}")
         self.selection = selection
         self.history = FeatureHistoryStore()
+        self.band_history = BandEdgeHistoryStore()
 
     def reset(self) -> None:
         self.history.reset()
+        self.band_history.reset()
 
     def process(
         self,
@@ -628,29 +881,44 @@ class ParameterExtractor:
             raise ValueError("detection and parameter frame indices differ")
         frame = np.asarray(samples, dtype=np.complex128)
         active = {event.event_id for event in detection.active_events}
+        observed = {
+            event.event_id
+            for event in detection.active_events
+            if event.state == "confirmed" and event.observed_this_frame
+        }
         self.history.remove_missing(active)
+        self.band_history.retain_observed(observed)
+        owner_history = (
+            self.band_history
+            if self.selection.bandwidth == "band.temporal-morphology-envelope-v1"
+            else self.history
+        )
         candidates, dropped_owner_count = _build_analysis_candidates_and_drops(
             detection,
             self.selection.analysis_window,
-            self.history,
+            owner_history,  # type: ignore[arg-type]
         )
         owner_ids = {candidate.owner_event_id for candidate in candidates}
         for event in detection.active_events:
             if event.state == "confirmed" and event.observed_this_frame and event.event_id not in owner_ids:
                 self.history.discard(event.event_id)
+                self.band_history.discard(event.event_id)
         events = {event.event_id: event for event in detection.active_events}
         estimates: list[EventParameterEstimate] = []
         for candidate in candidates:
             event = events[candidate.owner_event_id]
             if candidate.state != "valid":
                 assert candidate.invalid_reason is not None
+                self.band_history.discard(event.event_id)
                 estimates.append(_invalid_event(event, frame_index, candidate.invalid_reason))
             else:
                 estimates.append(self._event(frame, spectrum, event, candidate, frame_index))
         return ParameterFrameResult(
             frame_index,
             tuple(estimates),
-            FEATURE_HISTORY_BYTES,
+            R2_PARAMETER_HISTORY_BYTES
+            if self.selection.bandwidth == "band.temporal-morphology-envelope-v1"
+            else FEATURE_HISTORY_BYTES,
             TRANSIENT_GUARD,
             FEATURE_SAMPLES,
             analysis_candidates=candidates,
@@ -674,18 +942,42 @@ class ParameterExtractor:
             candidate.peak_bin,
             noise,
             self.selection.bandwidth,
+            candidate.constituent_regions,
         )
         if support.state != "valid":
             assert support.invalid_reason is not None
+            self.band_history.discard(event.event_id)
             return _invalid_event(event, frame_index, support.invalid_reason)
         assert support.lower_shifted_bin is not None and support.upper_shifted_bin is not None
         lo, hi = support.lower_shifted_bin, support.upper_shifted_bin
+        lower_edge = float(lo)
+        upper_edge = float(hi + 1)
+        temporal_ready = True
+        if self.selection.bandwidth == "band.temporal-morphology-envelope-v1":
+            assert support.lower_shifted_edge is not None and support.upper_shifted_edge is not None
+            lower_history, upper_history, noise_history = self.band_history.append(
+                event.event_id,
+                frame_index,
+                support.lower_shifted_edge,
+                support.upper_shifted_edge,
+                noise,
+                supported=True,
+            )
+            temporal_ready = lower_history.size >= 2
+            lower_edge = float(np.median(lower_history))
+            upper_edge = float(np.median(upper_history))
+            noise = float(np.median(noise_history))
+            temporal_lo = int(math.ceil(lower_edge))
+            temporal_hi = int(math.floor(upper_edge))
+            if temporal_lo <= temporal_hi:
+                lo = max(candidate.search_start_bin, temporal_lo)
+                hi = min(candidate.search_end_bin, temporal_hi)
         center_bin = _spectral_center(psd, lo, hi, noise, self.selection.spectral_center)
         carrier_bin = _carrier_bin(samples, psd, lo, hi, noise, center_bin, spectrum.sample_rate_hz, self.selection.carrier)
         df = spectrum.bin_spacing_hz
-        lower_frequency = spectrum.center_frequency_hz + (lo - FRAME_LENGTH / 2.0) * df
-        upper_frequency = spectrum.center_frequency_hz + (hi + 1 - FRAME_LENGTH / 2.0) * df
-        bandwidth_hz = (hi - lo + 1) * df
+        lower_frequency = spectrum.center_frequency_hz + (lower_edge - FRAME_LENGTH / 2.0) * df
+        upper_frequency = spectrum.center_frequency_hz + (upper_edge - FRAME_LENGTH / 2.0) * df
+        bandwidth_hz = (upper_edge - lower_edge) * df
         center_frequency = spectrum.center_frequency_hz + (center_bin - FRAME_LENGTH / 2.0) * df
         carrier_frequency = None if carrier_bin is None else spectrum.center_frequency_hz + (carrier_bin - FRAME_LENGTH / 2.0) * df
         total = float(np.sum(psd[lo : hi + 1]) * df)
@@ -708,11 +1000,25 @@ class ParameterExtractor:
             )
             history = self.history.append(event.event_id, frame_index, features)
             domain = classify_features(self.selection.signal_domain, history)
+        if not temporal_ready:
+            return _invalid_event(event, frame_index, "temporal_warmup")
         return EventParameterEstimate(
             event.event_id,
             frame_index,
             FrequencyEstimate(center_frequency, "valid", carrier_frequency, "valid" if carrier_frequency is not None else "not_observed"),
-            BandwidthEstimate(lower_frequency, "valid", upper_frequency, "valid", bandwidth_hz, "valid", lo, hi),
+            BandwidthEstimate(
+                lower_frequency,
+                "valid",
+                upper_frequency,
+                "valid",
+                bandwidth_hz,
+                "valid",
+                lo,
+                hi,
+                None,
+                lower_edge,
+                upper_edge,
+            ),
             power,
             domain,
         )

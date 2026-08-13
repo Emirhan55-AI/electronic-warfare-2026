@@ -159,11 +159,15 @@ def generate_parameter_scene(
     clean_power_dbfs: float = -18.0,
     snr_db: float = 12.0,
     catalog: dict[str, Any] | None = None,
+    scene_seed_override: int | None = None,
 ) -> ParameterSceneFrame:
     document = catalog or load_parameter_catalog()
     scene = next((item for item in document["scenes"] if item["id"] == scene_id), None)
     if scene is None:
         raise KeyError(scene_id)
+    if scene_seed_override is not None:
+        scene = dict(scene)
+        scene["scene_seed"] = int(scene_seed_override)
     n = int(document["common"]["frame_length"])
     active = scene.get("active_frames")
     if active is not None and frame_index not in active:
