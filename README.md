@@ -16,25 +16,29 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-Mevcut faz **PHASE-01 — SigMF giriş sözleşmesi ve deterministik test verisi** aşamasıdır. PHASE-00 repository temelini kurmuştur. PHASE-01 yalnız `ci8`/`ci16_le` metadata ve binary yerleşim sözleşmesini, deterministik golden fixture'ı ve güvenli harici veri incelemesini uygular. Henüz DSP, FFT, RTL, RF alma/verme, yön bulma, konum belirleme, demodülasyon, karıştırma veya aldatma işlevi uygulanmamıştır.
+Mevcut faz **PHASE-02 — Referans spektrum DSP zinciri ve kalıcı operatör uygulamasının ilk sürümü** aşamasıdır. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuştur. PHASE-02 yalnız kayıtlı SigMF çerçevelerini bounded biçimde okuyan Hann/FFT/güç/PSD golden modelini ve bu gerçek sonuçları gösteren Türkçe Windows operatör uygulamasını uygular.
+
+Henüz sinyal tespiti, CFAR, sınıflandırma, parametre çıkarımı, RTL, canlı HackRF, ZedBoard veri aktarımı, RF alma/verme, yön/konum, demodülasyon, karıştırma veya aldatma işlevi uygulanmamıştır. Arayüzde bu yeteneklere ait sahte durum bulunmaz. Gösterilen `dBFS/bin` ve `dBFS/Hz` sonuçları kalibre edilmemiştir ve dBm değildir.
 
 ## Dizinler
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
 - `rtl/`: İleride geliştirilecek FPGA veri yolu; henüz RTL uygulaması içermez.
-- `reference/`: PHASE-01 SigMF sözleşme çözümleyicisi; DSP referans modelleri henüz uygulanmamıştır.
+- `reference/`: PHASE-01 SigMF sözleşmesi ve PHASE-02 floating-point spektrum golden modeli.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
-- `host/`: İleride geliştirilecek PC/ZedBoard ana sistem yazılımı.
+- `host/`: Türkçe kalıcı operatör uygulamasının PHASE-02 SigMF spektrum sürümü.
 - `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
 - `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
-- `scripts/`: PHASE-00 araçları ile PHASE-01 fixture üreticisi, harici kesit aracı ve verifier.
-- `tests/`: Repository, SigMF sözleşmesi, fixture ve opsiyonel harici dataset testleri.
+- `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları ve PHASE-02 gerçek UI renderer'ı.
+- `tests/`: Repository, SigMF, golden DSP, bounded okuma, operatör uygulaması, Unicode, görsel durum ve performans testleri.
 - `results/evidence/phase00/`: PHASE-00 makine tarafından okunabilir kanıtları.
 - `results/evidence/phase01/`: Fixture manifesti ve PHASE-01 doğrulama kanıtları.
+- `results/evidence/phase02/`: Golden spektrum, sabit sıralı doğrulama özeti ve görsel inceleme kanıtları.
 
 ## Doğrulama
 
 ```text
 python scripts/verify_phase00.py
 python scripts/verify_phase01.py
+python scripts/verify_phase02.py
 ```

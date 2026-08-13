@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-02",
+  "fixture": "known-tone-ci8",
+  "fixture_model": "repeated 16-sample integer lookup with deterministic quantization harmonics",
+  "full_spectrum_digest_is_portable_gate": false,
+  "expected": {
+    "unshifted_peak_index": 256,
+    "shifted_peak_index": 2304,
+    "peak_offset_hz": 500000.0,
+    "peak_absolute_hz": 100500000.0,
+    "peak_amplitude_fs": 0.780247925333,
+    "peak_bin_power_dbfs": -2.155347549,
+    "peak_psd_dbfs_per_hz": -36.82356053,
+    "frequency_axis_size": 4096,
+    "frequency_offset_first_hz": -4000000.0,
+    "frequency_offset_last_hz": 3998046.875,
+    "frequency_absolute_first_hz": 96000000.0,
+    "frequency_absolute_last_hz": 103998046.875
+  },
+  "tolerances": {
+    "frequency_absolute_tolerance_hz": 1e-09,
+    "frequency_relative_tolerance": 1e-12,
+    "linear_absolute_tolerance": 1e-12,
+    "linear_relative_tolerance": 1e-10,
+    "db_absolute_tolerance": 1e-08
+  },
+  "actual": {
+    "fixture_sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "fixture_sha512": "2e0d6f3e2fd2505de06281569cda143d4ddfa75033fb86d9e386f0bd144e8afce1e05cb07e3ffc214db6a95c1047caea8b94b56a47283a23d8ff7526f8b60697",
+    "frame_count": 4,
+    "unshifted_peak_indices": [
+      256,
+      256,
+      256,
+      256
+    ],
+    "shifted_peak_indices": [
+      2304,
+      2304,
+      2304,
+      2304
+    ],
+    "peak_offset_hz": 500000.0,
+    "peak_absolute_hz": 100500000.0,
+    "peak_amplitude_fs": 0.780247925333,
+    "peak_bin_power_dbfs": -2.155347549,
+    "peak_psd_dbfs_per_hz": -36.82356053,
+    "frequency_axis_size": 4096,
+    "frequency_offset_first_hz": -4000000.0,
+    "frequency_offset_last_hz": 3998046.875,
+    "frequency_absolute_first_hz": 96000000.0,
+    "frequency_absolute_last_hz": 103998046.875,
+    "all_outputs_finite": true,
+    "four_frames_equal_within_tolerance": true,
+    "quantization_harmonics_present": true
+  }
+}

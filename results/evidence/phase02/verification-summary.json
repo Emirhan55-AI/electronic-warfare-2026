@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-02",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "runtime-dependencies",
+      "status": "passed",
+      "detail": "required Python runtime versions are available"
+    },
+    {
+      "id": "historical-evidence",
+      "status": "passed",
+      "detail": "PHASE-00/01 evidence files are byte-for-byte unchanged"
+    },
+    {
+      "id": "golden-spectrum",
+      "status": "passed",
+      "detail": "fixture hashes, four dominant bins, selected measurements, axis, harmonics, and finiteness passed"
+    },
+    {
+      "id": "turkish-ui-and-capability-policy",
+      "status": "passed",
+      "detail": "Turkish UTF-8 text, uncalibrated-power wording, and truthful PHASE-02 capability policy passed"
+    },
+    {
+      "id": "visual-evidence",
+      "status": "passed",
+      "detail": "five real UI states pass logical/physical size, clipping, readability, contrast, and truthfulness checks"
+    },
+    {
+      "id": "recorded-playback-performance",
+      "status": "passed",
+      "detail": "10 fps minimum cadence, 30 fps target observation, responsive heartbeat, single worker, and bounded queue passed"
+    },
+    {
+      "id": "external-single-frame",
+      "status": "passed",
+      "detail": "one explicitly selected source-native frame was read and processed without hashing the source"
+    },
+    {
+      "id": "windows-packaging",
+      "status": "skipped",
+      "detail": "pyside6-deploy or MSVC dumpbin is unavailable; no dependency or compiler installation attempted"
+    },
+    {
+      "id": "required-files",
+      "status": "passed",
+      "detail": "all approved PHASE-02 files are present"
+    },
+    {
+      "id": "text-integrity",
+      "status": "passed",
+      "detail": "all PHASE-02 text files are valid UTF-8 with LF endings and no trailing whitespace"
+    }
+  ]
+}

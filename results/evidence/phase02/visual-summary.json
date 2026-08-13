@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-02",
+  "rendering_contract": {
+    "screenshots_are_byte_portable_gate": false,
+    "minimum_logical_width": 960,
+    "minimum_logical_height": 600,
+    "physical_1920x1080_scale150_uses_logical_1280x720": true
+  },
+  "screenshots": [
+    {
+      "state": "empty",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "plots_readable": true,
+        "contrast_valid": true,
+        "state_truthful": true,
+        "four_real_waterfall_rows": true
+      },
+      "path": "results/evidence/phase02/screenshots/empty-1366x768-scale100.png"
+    },
+    {
+      "state": "loaded",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "plots_readable": true,
+        "contrast_valid": true,
+        "state_truthful": true,
+        "four_real_waterfall_rows": true
+      },
+      "path": "results/evidence/phase02/screenshots/loaded-1366x768-scale100.png"
+    },
+    {
+      "state": "loaded",
+      "logical_width": 1280,
+      "logical_height": 720,
+      "device_pixel_ratio": 1.5,
+      "physical_width": 1920,
+      "physical_height": 1080,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "plots_readable": true,
+        "contrast_valid": true,
+        "state_truthful": true,
+        "four_real_waterfall_rows": true
+      },
+      "path": "results/evidence/phase02/screenshots/loaded-1920x1080-scale150.png"
+    },
+    {
+      "state": "warning",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "plots_readable": true,
+        "contrast_valid": true,
+        "state_truthful": true,
+        "four_real_waterfall_rows": true
+      },
+      "path": "results/evidence/phase02/screenshots/warning-1366x768-scale100.png"
+    },
+    {
+      "state": "error",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "plots_readable": true,
+        "contrast_valid": true,
+        "state_truthful": true,
+        "four_real_waterfall_rows": true
+      },
+      "path": "results/evidence/phase02/screenshots/error-1366x768-scale100.png"
+    }
+  ]
+}

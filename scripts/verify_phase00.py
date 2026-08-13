@@ -57,6 +57,38 @@ APPROVED_PHASE01_FILES = (
     "tests/test_sigmf_contract.py",
 )
 
+APPROVED_PHASE02_FILES = (
+    "docs/decisions/ADR-0003-OPERATOR-APPLICATION-STACK.md",
+    "docs/interfaces/SPECTRUM_REFERENCE_CONTRACT.md",
+    "host/operator_console/__init__.py",
+    "host/operator_console/__main__.py",
+    "host/operator_console/application.py",
+    "host/operator_console/controller.py",
+    "host/operator_console/main_window.py",
+    "host/operator_console/pysidedeploy.spec",
+    "host/operator_console/spectrum_view.py",
+    "host/operator_console/theme.qss",
+    "host/operator_console/ui_text.py",
+    "reference/spectrum/__init__.py",
+    "reference/spectrum/dsp.py",
+    "reference/spectrum/source.py",
+    "requirements/phase02.txt",
+    "results/evidence/phase02/golden-spectrum.json",
+    "results/evidence/phase02/screenshots/empty-1366x768-scale100.png",
+    "results/evidence/phase02/screenshots/error-1366x768-scale100.png",
+    "results/evidence/phase02/screenshots/loaded-1366x768-scale100.png",
+    "results/evidence/phase02/screenshots/loaded-1920x1080-scale150.png",
+    "results/evidence/phase02/screenshots/warning-1366x768-scale100.png",
+    "results/evidence/phase02/verification-summary.json",
+    "results/evidence/phase02/visual-summary.json",
+    "scripts/render_phase02_ui.py",
+    "scripts/verify_phase02.py",
+    "tests/test_operator_console.py",
+    "tests/test_phase02_verifier.py",
+    "tests/test_sigmf_frame_source.py",
+    "tests/test_spectrum_reference.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -103,12 +135,12 @@ def _repository_files() -> set[str]:
 
 
 def check_allowed_tree() -> dict[str, object]:
-    allowed = set(REQUIRED_FILES) | set(APPROVED_PHASE01_FILES)
+    allowed = set(REQUIRED_FILES) | set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES)
     unexpected = sorted(_repository_files() - allowed)
     return _result(
         "minimal-file-tree",
         not unexpected,
-        "repository contains the PHASE-00 baseline and approved PHASE-01 paths"
+        "repository contains the PHASE-00 baseline and approved PHASE-01/02 paths"
         if not unexpected
         else "unexpected files: " + ", ".join(unexpected),
     )
@@ -198,15 +230,15 @@ def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
         "phase-00 repository temelini kurmuştur",
-        "mevcut faz **phase-01",
-        "henüz dsp",
+        "mevcut faz **phase-02",
+        "referans spektrum dsp",
         "rf alma/verme",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README preserves the PHASE-00 baseline and unimplemented DSP/RF claims"
+        "README preserves the PHASE-00 baseline and truthful PHASE-02/RF claims"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
@@ -234,7 +266,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",
@@ -253,7 +285,7 @@ def check_no_future_sources() -> dict[str, object]:
     return _result(
         "no-future-phase-sources",
         not unexpected,
-        "implementation directories contain only approved PHASE-01 additions"
+        "implementation directories contain only approved PHASE-01/02 additions"
         if not unexpected
         else "future-phase files found: " + ", ".join(sorted(unexpected)),
     )

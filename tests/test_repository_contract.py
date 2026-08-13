@@ -20,8 +20,12 @@ class RepositoryContractTests(unittest.TestCase):
     def test_phase00_baseline_files_remain_required(self) -> None:
         self.assertEqual(19, len(VERIFY.REQUIRED_FILES))
 
-    def test_only_approved_phase01_paths_extend_the_baseline(self) -> None:
-        allowed = set(VERIFY.REQUIRED_FILES) | set(VERIFY.APPROVED_PHASE01_FILES)
+    def test_only_approved_later_phase_paths_extend_the_baseline(self) -> None:
+        allowed = (
+            set(VERIFY.REQUIRED_FILES)
+            | set(VERIFY.APPROVED_PHASE01_FILES)
+            | set(VERIFY.APPROVED_PHASE02_FILES)
+        )
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_every_repository_contract_check_passes(self) -> None:
