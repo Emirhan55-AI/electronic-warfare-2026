@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04",
+  "overall": "failed",
+  "checks": [
+    {
+      "name": "catalog-contract",
+      "status": "passed"
+    },
+    {
+      "name": "transient-guard",
+      "status": "passed"
+    },
+    {
+      "name": "feature-history-bound",
+      "status": "passed"
+    },
+    {
+      "name": "comparison-profile-runtime",
+      "status": "failed"
+    },
+    {
+      "name": "combined-pipeline",
+      "status": "failed"
+    },
+    {
+      "name": "external-ism-bounded",
+      "status": "skipped"
+    }
+  ]
+}

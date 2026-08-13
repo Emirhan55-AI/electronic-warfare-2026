@@ -39,7 +39,7 @@ QLabel#caption, QLabel#metadataCaption {
     color: #98A7B7;
 }
 
-QLabel#sourceValue, QLabel#metadataValue, QLabel#profileValue {
+QLabel#sourceValue, QLabel#metadataValue, QLabel#profileValue, QLabel#parameterValue {
     color: #E8EEF5;
     font-weight: 500;
 }
@@ -56,7 +56,7 @@ QLabel#calibrationNote {
     padding: 10px;
 }
 
-QLabel#profileValue, QLabel#detectionState, QLabel#detectionNote {
+QLabel#profileValue, QLabel#detectionState, QLabel#detectionNote, QLabel#parameterState {
     color: #98A7B7;
 }
 

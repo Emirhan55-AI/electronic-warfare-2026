@@ -11,7 +11,14 @@ from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, Signal, 
 from PySide6.QtWidgets import QFileDialog
 
 from reference.detection import DetectionFrameResult
-from reference.pipeline import ProcessingProfile, RuntimeFrameResult, RuntimePipeline, load_profile
+from reference.parameters import ParameterFrameResult
+from reference.pipeline import (
+    ProcessingProfile,
+    RuntimeFrameResult,
+    RuntimePipeline,
+    VerifiedProfileBinding,
+    resolve_default_operation_profile,
+)
 from reference.spectrum import (
     ExponentialPowerAverager,
     SigMFFrameSource,
@@ -122,6 +129,7 @@ class OperatorController(QObject):
         *,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
         profile: ProcessingProfile | None = None,
+        verified_binding: VerifiedProfileBinding | None = None,
     ) -> None:
         super().__init__(window)
         self.window = window
@@ -132,14 +140,23 @@ class OperatorController(QObject):
         self.playback_timer.timeout.connect(self._advance_playback)
         self.source: SigMFFrameSource | None = None
         self.source_factory = source_factory
-        self.profile = profile or load_profile()
-        self.runtime_pipeline = RuntimePipeline(self.profile)
+        if profile is None:
+            resolved = resolve_default_operation_profile()
+            self.profile = resolved.profile
+            self.verified_binding = resolved.binding
+            self.profile_fallback_code = resolved.fallback_code
+        else:
+            self.profile = profile
+            self.verified_binding = verified_binding
+            self.profile_fallback_code = None
+        self.runtime_pipeline = RuntimePipeline(self.profile, verified_binding=self.verified_binding)
         self.processor = self.runtime_pipeline.processor
         self.averager = ExponentialPowerAverager(alpha=0.2)
         self.current_index = 0
         self.generation = 0
         self.last_result: SpectrumResult | None = None
         self.last_detection: DetectionFrameResult | None = None
+        self.last_parameters: ParameterFrameResult | None = None
         self._active_tasks = 0
         self._refresh_pending = False
         self._pending_open: tuple[int, Path, Path | None, Literal["standard", "explicit"]] | None = None
@@ -169,6 +186,8 @@ class OperatorController(QObject):
         window.pfa_combo.currentIndexChanged.connect(self._detector_config_changed)
         window.center_checkbox.toggled.connect(self._detector_config_changed)
         self._show_profile_summary()
+        if self.profile_fallback_code is not None:
+            self.window.show_warning(TEXT["phase04_fallback"])
 
     @property
     def active_task_count(self) -> int:
@@ -278,6 +297,7 @@ class OperatorController(QObject):
         self.current_index = 0
         self.last_result = None
         self.last_detection = None
+        self.last_parameters = None
         self.averager.reset()
         self.runtime_pipeline.detection.reset()
         self.window.set_source(filename, source.report)
@@ -373,6 +393,7 @@ class OperatorController(QObject):
         else:
             self.last_result = result.spectrum
             self.last_detection = result.detection  # type: ignore[assignment]
+            self.last_parameters = result.parameters
             averaged_power = (
                 self.averager.update(result.spectrum.fft_power_unshifted)
                 if self.window.average_checkbox.isChecked()
@@ -385,8 +406,10 @@ class OperatorController(QObject):
                 append_waterfall=True,
                 detection_result=self.last_detection,
                 spectrum_result=result.spectrum,
+                parameter_result=self.last_parameters,
             )
             self.window.set_detection_result(self.last_detection)
+            self.window.set_parameter_result(self.last_parameters)
             assert self.source is not None
             self.window.set_frame_position(index, self.source.frame_count)
             self.frame_rendered.emit(index, elapsed_seconds)
@@ -471,6 +494,7 @@ class OperatorController(QObject):
         try:
             pipeline = RuntimePipeline(
                 self.profile,
+                verified_binding=self.verified_binding,
                 pfa=self.window.pfa,
                 evaluate_center=self.window.center_checkbox.isChecked(),
                 remove_dc=self.window.dc_checkbox.isChecked(),
@@ -484,6 +508,7 @@ class OperatorController(QObject):
         self.averager.reset()
         self.last_result = None
         self.last_detection = None
+        self.last_parameters = None
         self._show_profile_summary()
         self._invalidate_processing(clear_history=True)
         self.request_current_frame()
@@ -508,6 +533,7 @@ class OperatorController(QObject):
             append_waterfall=False,
             detection_result=self.last_detection,
             spectrum_result=self.last_result,
+            parameter_result=self.last_parameters,
         )
 
     def _invalidate_processing(self, *, clear_history: bool) -> None:
@@ -517,6 +543,7 @@ class OperatorController(QObject):
         # worker may still own the previous instance until its result is rejected.
         self.runtime_pipeline = RuntimePipeline(
             self.profile,
+            verified_binding=self.verified_binding,
             pfa=self.runtime_pipeline.pfa,
             evaluate_center=self.runtime_pipeline.evaluate_center,
             remove_dc=self.runtime_pipeline.remove_dc,
@@ -524,15 +551,24 @@ class OperatorController(QObject):
         self.processor = self.runtime_pipeline.processor
         self.last_detection = None
         self.window.clear_detections()
+        self.last_parameters = None
+        self.window.clear_parameters()
         self.window.spectrum_view.clear_detection_overlay()
         if clear_history:
             self.window.spectrum_view.clear_history()
 
-    def set_profile(self, profile: ProcessingProfile) -> None:
+    def set_profile(
+        self,
+        profile: ProcessingProfile,
+        *,
+        verified_binding: VerifiedProfileBinding | None = None,
+    ) -> None:
         """Replace the operation profile and reset all generation-bound state."""
-        pipeline = RuntimePipeline(profile)
+        pipeline = RuntimePipeline(profile, verified_binding=verified_binding)
         self.pause()
         self.profile = profile
+        self.verified_binding = verified_binding
+        self.profile_fallback_code = None
         self.runtime_pipeline = pipeline
         self.processor = pipeline.processor
         self.averager.reset()
@@ -550,6 +586,15 @@ class OperatorController(QObject):
             "os_regional_cap": "OS + bölgesel sınır",
         }[self.runtime_pipeline.detector_method]
         summary = f"Varsayılan v{self.profile.profile_version} · {method}\nPfa/CUT {self.runtime_pipeline.pfa:g} · {center}"
+        if self.profile.parameter_block is not None:
+            block = self.profile.parameter_block
+            assert block is not None
+            summary += (
+                "\nParametre: "
+                + str(block.parameters["bandwidth_method"]).removeprefix("band.")
+                + " · "
+                + str(block.parameters["signal_domain_method"]).removeprefix("domain.")
+            )
         self.window.set_profile_summary(summary, validated=True)
 
     @staticmethod

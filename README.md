@@ -16,33 +16,39 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-Mevcut faz **PHASE-03 — Uyarlanabilir sinyal tespiti ve doğrulanmış işlem profili** aşamasıdır. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuş, PHASE-02 kayıtlı SigMF için spektrum golden modelini ve Türkçe operatör uygulamasını getirmiştir. PHASE-03 bölgesel sağlam taban, CA-CFAR ve OS-CFAR yöntemlerini sabit sentetik sahnelerde tarafsız karşılaştırır; zorunlu kapıları geçen yöntemi seri hâle getirilebilir doğrulanmış profilden çalıştırır ve kaba adayları bounded temporal olaylara dönüştürür.
+Mevcut faz **PHASE-04 — Çekirdek teknik parametre çıkarımı** aşamasıdır. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuş, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını getirmiş, PHASE-03 kayıtlı/sentetik I/Q için `regional` detector kullanan doğrulanmış tespit profilini oluşturmuştur.
 
-Tespit yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir; canlı RF, HackRF gerçek zamanlı çalışma ve FPGA/PL tespiti iddiası değildir. Henüz sınıflandırma, parametre çıkarımı, RTL, ZedBoard veri aktarımı, RF alma/verme, yön/konum, demodülasyon, karıştırma veya aldatma uygulanmamıştır. Arayüzde bu yeteneklere ait sahte durum bulunmaz. Gösterilen `dBFS/bin` ve `dBFS/Hz` sonuçları kalibre edilmemiştir ve dBm değildir.
+PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1 kurtarma çalışması gerçek PHASE-03 `2-of-3` temporal olaylarını, tarafsız analysis-window adaylarını ve çok-bileşenli bant desteğini kullanır. Validated PHASE-04 profili yalnız bütün katalog kapıları ve comparison/digest bağı geçerse kurulur; başarısız comparison yanında eski bir profil bulunsa bile Operasyon zinciri onu yüklemez. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
+
+İşlevler yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir; RF alma/verme, canlı HackRF gerçek zamanlı çalışma, dBm, FPGA/PL, ZedBoard aktarımı, dinleme/demodülasyon, yön/konum, karıştırma veya aldatma iddiası değildir. Arayüzde bu yeteneklere ait sahte durum bulunmaz.
 
 ## Dizinler
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
 - `rtl/`: İleride geliştirilecek FPGA veri yolu; henüz RTL uygulaması içermez.
-- `reference/`: SigMF/spektrum modelleri ile PHASE-03 detector, gruplama, temporal olay ve işlem profili çalışma zamanı.
+- `reference/`: SigMF/spektrum, detector/temporal olay ve PHASE-04 frame-local parametre modelleri ile allowlist çalışma zamanı.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
-- `host/`: Türkçe kalıcı operatör uygulamasının spektrum ve kayıtlı-I/Q tespit sürümü.
+- `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
+- `datasets/fixtures/phase04/`: Geçerlilik matrisi, seed, yöntem sırası ve sabit başarı kapılarını içeren parametre sahne kataloğu.
+- `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
 - `datasets/fixtures/phase03/`: Detector bağımsız, sayısal parametreleri sabit sentetik sahne kataloğu.
 - `profiles/phase03/`: Benchmark sonucuyla kurulan doğrulanmış Operasyon işlem profili.
 - `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
 - `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
-- `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector seçici ve gerçek UI renderer'ları.
-- `tests/`: Repository, SigMF, DSP, detector istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
+- `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector/parametre seçicileri ve gerçek UI renderer'ları.
+- `tests/`: Repository, SigMF, DSP, detector/parametre istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
 - `results/evidence/phase00/`: PHASE-00 makine tarafından okunabilir kanıtları.
 - `results/evidence/phase01/`: Fixture manifesti ve PHASE-01 doğrulama kanıtları.
 - `results/evidence/phase02/`: Golden spektrum, sabit sıralı doğrulama özeti ve görsel inceleme kanıtları.
 - `results/evidence/phase03/`: Detector karşılaştırması, golden tespit, sabit doğrulama özeti ve yedi gerçek UI görüntüsü.
+- `results/evidence/phase04/`: Başarılı veya başarısız parametre karşılaştırması ile golden/doğrulama özeti; yedi gerçek UI görüntüsü yalnız tam başarıda üretilir.
 
 ## Doğrulama
 
 ```text
-python scripts/verify_phase00.py
-python scripts/verify_phase01.py
-python scripts/verify_phase02.py
-python scripts/verify_phase03.py --check
+python -B scripts/generate_phase01_fixture.py --check
+python -B scripts/select_phase04_profile.py --evaluate
+python -B scripts/select_phase04_profile.py --check
+python -B scripts/verify_phase04.py --check
+python -B -m unittest discover -s tests -v
 ```

@@ -50,6 +50,10 @@ class OperatorDetectionTests(unittest.TestCase):
         self.assertIsNotNone(self.window.spectrum_view.threshold_curve.xData)
         self.assertGreater(self.window.detection_list.count(), 0)
         self.assertLessEqual(self.window.detection_list.count(), 12)
+        if self.controller.runtime_pipeline.parameters is None:
+            self.assertIsNone(self.controller.last_parameters)
+        else:
+            self.assertEqual(self.controller.runtime_pipeline.parameters.history.payload_bytes, 67_840)
 
     def test_detector_setting_change_resets_generation_and_temporal_state(self) -> None:
         if self.controller.source is None:

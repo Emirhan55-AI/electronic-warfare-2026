@@ -10,6 +10,7 @@ from PySide6.QtCore import QRectF, Qt
 from PySide6.QtWidgets import QLabel, QSplitter, QVBoxLayout, QWidget
 
 from reference.detection import DetectionFrameResult
+from reference.parameters import ParameterFrameResult
 from reference.spectrum import SpectrumDisplay
 from reference.spectrum import SpectrumResult
 
@@ -68,6 +69,14 @@ class SpectrumView(QWidget):
             overlay.hide()
             self.spectrum_plot.addItem(overlay)
             self.region_overlays.append(overlay)
+        self.parameter_overlay = pg.LinearRegionItem(
+            values=(0.0, 0.0),
+            movable=False,
+            pen=pg.mkPen("#4DB6AC", width=1.2),
+            brush=pg.mkBrush(77, 182, 172, 24),
+        )
+        self.parameter_overlay.hide()
+        self.spectrum_plot.addItem(self.parameter_overlay)
         self._detection_visible = True
         self.spectrum_empty_label = self._empty_label(
             self.spectrum_plot,
@@ -174,6 +183,7 @@ class SpectrumView(QWidget):
         append_waterfall: bool = True,
         detection_result: DetectionFrameResult | None = None,
         spectrum_result: SpectrumResult | None = None,
+        parameter_result: ParameterFrameResult | None = None,
     ) -> None:
         x_hz = (
             line_display.frequency_offset_hz
@@ -196,6 +206,7 @@ class SpectrumView(QWidget):
             padding=0.0,
         )
         self._update_detection_overlay(detection_result, spectrum_result)
+        self._update_parameter_overlay(parameter_result)
 
         if append_waterfall:
             self._waterfall_rows.append(np.asarray(waterfall, dtype=np.float32).copy())
@@ -271,6 +282,27 @@ class SpectrumView(QWidget):
         self.peak_markers.clear()
         for overlay in self.region_overlays:
             overlay.hide()
+        self.parameter_overlay.hide()
+
+    def _update_parameter_overlay(self, result: ParameterFrameResult | None) -> None:
+        self.parameter_overlay.hide()
+        if result is None or not result.events or self.last_x_mhz.size != 4096:
+            return
+        bandwidth = result.events[0].bandwidth
+        if (
+            bandwidth.lower_edge_state != "valid"
+            or bandwidth.upper_edge_state != "valid"
+            or bandwidth.bandwidth_state != "valid"
+            or bandwidth.lower_shifted_bin is None
+            or bandwidth.upper_shifted_bin is None
+        ):
+            return
+        start = float(self.last_x_mhz[bandwidth.lower_shifted_bin])
+        end = float(self.last_x_mhz[bandwidth.upper_shifted_bin])
+        if end <= start:
+            return
+        self.parameter_overlay.setRegion((start, end))
+        self.parameter_overlay.show()
 
     def clear_history(self) -> None:
         self._waterfall_rows.clear()

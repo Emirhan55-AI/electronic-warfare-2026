@@ -10,6 +10,7 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -23,6 +24,7 @@ from host.operator_console.controller import OperatorController  # noqa: E402
 from host.operator_console.main_window import MainWindow  # noqa: E402
 from host.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
 from reference.spectrum import SigMFFrameSource  # noqa: E402
+from reference.pipeline import ResolvedOperationProfile, load_profile  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,6 +85,23 @@ class OperatorConsoleTests(unittest.TestCase):
         self.assertTrue(self.window.spectrum_view.waterfall_empty_label.isVisible())
         self.assertFalse(self.window.spectrum_view.spectrum_plot.getPlotItem().getAxis("bottom").isVisible())
         self.assertFalse(self.window.spectrum_view.waterfall_plot.getPlotItem().getAxis("bottom").isVisible())
+
+    def test_stale_phase04_resolution_warns_and_keeps_phase03_parameters_disabled(self) -> None:
+        window = MainWindow()
+        resolved = ResolvedOperationProfile(
+            load_profile(),
+            None,
+            "comparison_digest_mismatch",
+        )
+        with patch("host.operator_console.controller.resolve_default_operation_profile", return_value=resolved):
+            controller = OperatorController(window)
+        try:
+            self.assertIsNone(controller.runtime_pipeline.parameters)
+            self.assertEqual(TEXT["phase04_fallback"], window.notification.text())
+            self.assertEqual(TEXT["no_parameter"], window.parameter_state.text())
+        finally:
+            controller.close()
+            window.close()
 
     def test_fixture_loads_real_dsp_and_transport_controls(self) -> None:
         self.load_fixture()
@@ -333,6 +352,8 @@ class OperatorConsoleTests(unittest.TestCase):
         self.assertEqual(1, thirty.maximum_concurrent_tasks)
         self.assertLessEqual(thirty.maximum_pending_intents, 1)
         self.assertEqual(0, thirty.active_tasks_after_stop)
+        self.assertIn(ten.feature_history_bytes, {0, 67_840})
+        self.assertIn(thirty.feature_history_bytes, {0, 67_840})
 
     def test_all_visible_labels_fit_at_minimum_logical_size(self) -> None:
         self.load_fixture()

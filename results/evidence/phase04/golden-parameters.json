@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04",
+  "overall": "failed",
+  "catalog_sha256": "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
+  "comparison_sha256": "375f9f328c72591d11d060e9a995bf3a0fc1ed399c4a95d425a9dbba6dd5c669",
+  "profile_sha256": null,
+  "selected_methods": null,
+  "binding_status": "failed",
+  "binding_error_code": "profile_not_established",
+  "transient_guard": {
+    "impulse_energy_fraction": 0.999,
+    "worst_radius_samples": 1106,
+    "worst_mask_width_bins": 2,
+    "rounded_guard_samples_per_side": 1152,
+    "feature_slice": [
+      1152,
+      2944
+    ],
+    "feature_sample_count": 1792
+  },
+  "feature_history": {
+    "maximum_tracks": 64,
+    "records_per_track": 4,
+    "float64_values_per_record": 32,
+    "payload_bytes": 67840,
+    "raw_iq_retained": false
+  },
+  "external_integration": {
+    "status": "skipped",
+    "reason": "external paths are not configured"
+  }
+}

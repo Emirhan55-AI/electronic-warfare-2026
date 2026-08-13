@@ -1,4 +1,4 @@
-"""Application bootstrap and source-run smoke entry point."""
+"""Application bootstrap and bounded spectrum/detection/parameter smoke entry point."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from PySide6.QtCore import QEventLoop, QLocale, QTimer
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
-from reference.pipeline import ProcessingProfile
+from reference.pipeline import ProcessingProfile, VerifiedProfileBinding
 
 from .controller import OperatorController
 from .main_window import MainWindow
@@ -52,12 +52,14 @@ class PlaybackBenchmarkResult:
     maximum_concurrent_tasks: int
     maximum_pending_intents: int
     active_tasks_after_stop: int
+    feature_history_bytes: int
 
 
 def build_application(
     argv: list[str] | None = None,
     *,
     profile: ProcessingProfile | None = None,
+    verified_binding: VerifiedProfileBinding | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
     app.setApplicationName("Elektronik Harp Operatör Konsolu")
@@ -67,7 +69,7 @@ def build_application(
     QLocale.setDefault(QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey))
     app.setStyleSheet(STYLE_PATH.read_text(encoding="utf-8"))
     window = MainWindow()
-    controller = OperatorController(window, profile=profile)
+    controller = OperatorController(window, profile=profile, verified_binding=verified_binding)
     app.aboutToQuit.connect(controller.close)
     return app, window, controller
 
@@ -135,6 +137,11 @@ def run_playback_benchmark(
         maximum_concurrent_tasks=controller.max_concurrent_tasks,
         maximum_pending_intents=controller.max_pending_intents,
         active_tasks_after_stop=controller.active_task_count,
+        feature_history_bytes=(
+            controller.runtime_pipeline.parameters.history.payload_bytes
+            if controller.runtime_pipeline.parameters is not None
+            else 0
+        ),
     )
 
 

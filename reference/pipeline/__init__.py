@@ -1,23 +1,43 @@
-"""Validated processing-profile runtime for the PHASE-03 operation pipeline."""
+"""Validated processing-profile runtime for PHASE-03/04 operation pipelines."""
 
 from .profile import (
     DEFAULT_PROFILE_PATH,
+    PHASE04_PROFILE_PATH,
+    PHASE04_COMPARISON_PATH,
+    PHASE04_METHOD_KEYS,
     ProfileError,
     ProcessingProfile,
+    ResolvedOperationProfile,
     RuntimeFrameResult,
     RuntimePipeline,
+    VerifiedProfileBinding,
     build_operation_profile,
+    build_phase04_profile,
     canonical_profile_bytes,
     load_profile,
+    load_verified_phase04_profile,
+    profile_from_document,
+    profile_to_document,
+    resolve_default_operation_profile,
 )
 
 __all__ = [
     "DEFAULT_PROFILE_PATH",
+    "PHASE04_PROFILE_PATH",
+    "PHASE04_COMPARISON_PATH",
+    "PHASE04_METHOD_KEYS",
     "ProfileError",
     "ProcessingProfile",
+    "ResolvedOperationProfile",
     "RuntimeFrameResult",
     "RuntimePipeline",
+    "VerifiedProfileBinding",
     "build_operation_profile",
+    "build_phase04_profile",
     "canonical_profile_bytes",
     "load_profile",
+    "load_verified_phase04_profile",
+    "profile_from_document",
+    "profile_to_document",
+    "resolve_default_operation_profile",
 ]

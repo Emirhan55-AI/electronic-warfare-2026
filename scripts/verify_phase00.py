@@ -123,6 +123,44 @@ APPROVED_PHASE03_FILES = (
     "tests/test_processing_profile.py",
 )
 
+APPROVED_PHASE04_BASE_FILES = (
+    "datasets/fixtures/phase04/parameter-scenes.json",
+    "docs/decisions/ADR-0005-CORE-PARAMETER-EXTRACTION.md",
+    "docs/interfaces/PARAMETER_EXTRACTION_CONTRACT.md",
+    "reference/parameters/__init__.py",
+    "reference/parameters/models.py",
+    "reference/parameters/extraction.py",
+    "reference/parameters/classification.py",
+    "reference/parameters/scenes.py",
+    "reference/parameters/evaluation.py",
+    "scripts/select_phase04_profile.py",
+    "scripts/verify_phase04.py",
+    "scripts/render_phase04_ui.py",
+    "tests/test_parameter_reference.py",
+    "tests/test_parameter_scenes.py",
+    "tests/test_parameter_statistics.py",
+    "tests/test_phase04_selector.py",
+    "tests/test_phase04_verifier.py",
+    "tests/test_operator_parameters.py",
+    "results/evidence/phase04/parameter-comparison.json",
+    "results/evidence/phase04/golden-parameters.json",
+    "results/evidence/phase04/verification-summary.json",
+)
+
+PHASE04_SUCCESS_ONLY_FILES = (
+    "profiles/phase04/operation-default.json",
+    "results/evidence/phase04/visual-summary.json",
+    "results/evidence/phase04/empty-1366x768-scale100.png",
+    "results/evidence/phase04/parameters-valid-1366x768-scale100.png",
+    "results/evidence/phase04/carrier-unavailable-1366x768-scale100.png",
+    "results/evidence/phase04/classification-uncertain-1366x768-scale100.png",
+    "results/evidence/phase04/warning-1366x768-scale100.png",
+    "results/evidence/phase04/error-1366x768-scale100.png",
+    "results/evidence/phase04/parameters-valid-1920x1080-scale150.png",
+)
+
+APPROVED_PHASE04_FILES = APPROVED_PHASE04_BASE_FILES + PHASE04_SUCCESS_ONLY_FILES
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -174,12 +212,13 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE01_FILES)
         | set(APPROVED_PHASE02_FILES)
         | set(APPROVED_PHASE03_FILES)
+        | set(APPROVED_PHASE04_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
         "minimal-file-tree",
         not unexpected,
-        "repository contains the PHASE-00 baseline and approved PHASE-01/02/03 paths"
+        "repository contains the PHASE-00 baseline and approved PHASE-01/02/03/04 paths"
         if not unexpected
         else "unexpected files: " + ", ".join(unexpected),
     )
@@ -269,15 +308,15 @@ def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
         "phase-00 repository temelini kurmuştur",
-        "mevcut faz **phase-03",
-        "uyarlanabilir sinyal tespiti",
+        "mevcut faz **phase-04",
+        "çekirdek teknik parametre çıkarımı",
         "rf alma/verme",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README preserves the PHASE-00 baseline and truthful PHASE-03/RF claims"
+        "README preserves the PHASE-00 baseline and truthful PHASE-04/RF claims"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
@@ -305,7 +344,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",
@@ -324,7 +363,7 @@ def check_no_future_sources() -> dict[str, object]:
     return _result(
         "no-future-phase-sources",
         not unexpected,
-        "implementation directories contain only approved PHASE-01/02 additions"
+        "implementation directories contain only approved PHASE-01/02/03/04 additions"
         if not unexpected
         else "future-phase files found: " + ", ".join(sorted(unexpected)),
     )

@@ -1,4 +1,4 @@
-"""Main window for the permanent PHASE-03 operation console."""
+"""Main window for the permanent spectrum, detection, and parameter console."""
 
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 
 from reference.sigmf.contract import ContractReport
 from reference.detection import DetectionEvent, DetectionFrameResult
+from reference.parameters import EventParameterEstimate, ParameterFrameResult
 
 from .spectrum_view import SpectrumView
 from .ui_text import TEXT
@@ -150,6 +151,36 @@ class MainWindow(QMainWindow):
         self.detection_note.setObjectName("detectionNote")
         self.detection_note.setWordWrap(True)
         layout.addWidget(self.detection_note)
+        parameter_heading = QLabel(TEXT["core_parameters"])
+        parameter_heading.setObjectName("sectionTitle")
+        layout.addWidget(parameter_heading)
+        self.parameter_state = QLabel(TEXT["no_parameter"])
+        self.parameter_state.setObjectName("parameterState")
+        self.parameter_state.setWordWrap(True)
+        layout.addWidget(self.parameter_state)
+        parameter_grid = QGridLayout()
+        parameter_grid.setHorizontalSpacing(10)
+        parameter_grid.setVerticalSpacing(3)
+        self.parameter_values: dict[str, QLabel] = {}
+        for row, (key, caption) in enumerate(
+            (
+                ("frequency", TEXT["estimated_frequency"]),
+                ("bandwidth", TEXT["estimated_bandwidth"]),
+                ("power", TEXT["relative_power"]),
+                ("snr", TEXT["in_band_snr"]),
+                ("domain", TEXT["signal_domain"]),
+            )
+        ):
+            caption_label = QLabel(caption)
+            caption_label.setObjectName("metadataCaption")
+            value_label = QLabel("—")
+            value_label.setObjectName("parameterValue")
+            value_label.setWordWrap(True)
+            parameter_grid.addWidget(caption_label, row, 0)
+            parameter_grid.addWidget(value_label, row, 1)
+            self.parameter_values[key] = value_label
+        parameter_grid.setColumnStretch(1, 1)
+        layout.addLayout(parameter_grid)
         note = QLabel(TEXT["uncalibrated"])
         note.setObjectName("calibrationNote")
         note.setWordWrap(True)
@@ -228,6 +259,7 @@ class MainWindow(QMainWindow):
         self.state_value.setText(TEXT["empty"])
         self.spectrum_view.clear_all()
         self.clear_detections()
+        self.clear_parameters()
         self.set_source_controls_enabled(False)
         self.hide_notification()
 
@@ -279,6 +311,61 @@ class MainWindow(QMainWindow):
         self.detection_state.setText(TEXT["no_detection"])
         self.detection_list.clear()
         self.detection_note.setText(TEXT["detection_detail"])
+
+    def clear_parameters(self) -> None:
+        self.parameter_state.setText(TEXT["no_parameter"])
+        for value in self.parameter_values.values():
+            value.setText("—")
+
+    def set_parameter_result(self, result: ParameterFrameResult | None) -> None:
+        if result is None or not result.events:
+            self.clear_parameters()
+            return
+        estimate = result.events[0]
+        self.parameter_state.setText(TEXT["parameter_event"].format(event_id=estimate.event_id))
+        if (
+            estimate.frequency.observed_carrier_state == "valid"
+            and estimate.frequency.observed_carrier_frequency_hz is not None
+        ):
+            frequency = estimate.frequency.observed_carrier_frequency_hz
+            self.parameter_values["frequency"].setText(
+                f"{TEXT['observed_carrier']}: {self._frequency(frequency)}"
+            )
+        elif (
+            estimate.frequency.spectral_center_state == "valid"
+            and estimate.frequency.spectral_center_frequency_hz is not None
+        ):
+            frequency = estimate.frequency.spectral_center_frequency_hz
+            self.parameter_values["frequency"].setText(
+                f"{TEXT['spectral_center']}: {self._frequency(frequency)}"
+            )
+        else:
+            state = estimate.frequency.spectral_center_state
+            if state == "valid":
+                state = "insufficient_quality"
+            self.parameter_values["frequency"].setText(TEXT[state])
+        if estimate.bandwidth.bandwidth_state != "valid" or estimate.bandwidth.bandwidth_hz is None:
+            state = estimate.bandwidth.bandwidth_state
+            self.parameter_values["bandwidth"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
+        else:
+            bandwidth_khz = self.locale.toString(estimate.bandwidth.bandwidth_hz / 1000.0, "f", 1)
+            self.parameter_values["bandwidth"].setText(f"{bandwidth_khz} kHz")
+        if estimate.power.relative_power_state != "valid" or estimate.power.signal_power_dbfs is None:
+            state = estimate.power.relative_power_state
+            self.parameter_values["power"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
+        else:
+            value = self.locale.toString(estimate.power.signal_power_dbfs, "f", 1)
+            self.parameter_values["power"].setText(f"{value} dBFS")
+        if estimate.power.snr_state != "valid" or estimate.power.snr_db is None:
+            state = estimate.power.snr_state
+            self.parameter_values["snr"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
+        else:
+            self.parameter_values["snr"].setText(self.locale.toString(estimate.power.snr_db, "f", 1) + " dB")
+        self.parameter_values["domain"].setText(
+            estimate.signal_domain.value
+            if estimate.signal_domain.state == "valid"
+            else TEXT[estimate.signal_domain.state]
+        )
 
     def set_detection_result(self, result: DetectionFrameResult) -> None:
         active = list(result.active_events)
