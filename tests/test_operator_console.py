@@ -48,6 +48,7 @@ class OperatorConsoleTests(unittest.TestCase):
         self.window.show_empty()
         self.controller.source = None
         self.controller.last_result = None
+        self.controller.last_detection = None
         self.controller.current_index = 0
         self.app.processEvents()
 
@@ -92,6 +93,9 @@ class OperatorConsoleTests(unittest.TestCase):
         self.assertEqual(4096, self.window.spectrum_view.last_line_values.size)
         self.assertEqual(2304, int(np.argmax(self.window.spectrum_view.last_line_values)))
         self.assertEqual(1, self.window.spectrum_view.waterfall_count)
+        self.assertIsNotNone(self.controller.last_detection)
+        self.assertEqual("regional", self.controller.runtime_pipeline.detector_method)
+        self.assertIn("Doğrulanmış parametre zarfı", self.window.profile_value.text())
 
         self.controller.start()
         self.assertTrue(self.controller.playing)

@@ -39,7 +39,7 @@ QLabel#caption, QLabel#metadataCaption {
     color: #98A7B7;
 }
 
-QLabel#sourceValue, QLabel#metadataValue {
+QLabel#sourceValue, QLabel#metadataValue, QLabel#profileValue {
     color: #E8EEF5;
     font-weight: 500;
 }
@@ -54,6 +54,35 @@ QLabel#calibrationNote {
     border-radius: 4px;
     color: #98A7B7;
     padding: 10px;
+}
+
+QLabel#profileValue, QLabel#detectionState, QLabel#detectionNote {
+    color: #98A7B7;
+}
+
+QLabel#profileValue {
+    background: #0E151D;
+    border: 1px solid #27313D;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+QListWidget#detectionList {
+    background: #0E151D;
+    border: 1px solid #27313D;
+    border-radius: 4px;
+    color: #E8EEF5;
+    outline: 0;
+    padding: 4px;
+}
+
+QListWidget#detectionList::item {
+    border-bottom: 1px solid #202A35;
+    padding: 6px 4px;
+}
+
+QListWidget#detectionList::item:selected {
+    background: #1C2B38;
 }
 
 QLabel#stateValue {

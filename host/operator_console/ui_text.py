@@ -1,10 +1,10 @@
-"""User-visible Turkish text catalog."""
+"""User-visible Turkish text catalog for the permanent operation console."""
 
 TURKISH_GLYPHS = "çÇğĞıİöÖşŞüÜ"
 
 TEXT = {
     "window_title": "TEKNOFEST Elektronik Harp Operatör Konsolu",
-    "application_title": "Spektrum İnceleme",
+    "application_title": "Spektrum ve Tespit İnceleme",
     "open_sigmf": "SigMF Aç",
     "no_source": "Veri kaynağı seçilmedi",
     "opening_source": "Kaynak açılıyor…",
@@ -28,6 +28,23 @@ TEXT = {
     "psd": "Güç spektral yoğunluğu (dBFS/Hz)",
     "remove_dc": "DC'yi gider",
     "average": "Üstel ortalama (α=0,2)",
+    "detection_layer": "Tespit katmanını göster",
+    "pfa": "Teorik Pfa/CUT",
+    "evaluate_center": "Merkez hücresini değerlendir",
+    "detections": "Tespitler",
+    "no_detection": "Tespit yok",
+    "profile": "Aktif İşlem Profili",
+    "validated_envelope": "Doğrulanmış parametre zarfı",
+    "tentative": "Geçici",
+    "confirmed": "Doğrulanmış",
+    "ended": "Sona ermiş",
+    "detection_detail": "Kaba aday bölgeler kesin bant genişliği değildir.",
+    "instant_detection_note": "Tespit anlık lineer gücü kullanır; spektrum ortalaması yalnız gösterimdir.",
+    "candidate_limit": "Aday kapasitesi aşıldı; {count} aday izlenemedi.",
+    "history_evicted": "{count} eski olay geçmişten çıkarıldı.",
+    "events_hidden": "{count} olay daha gösterilmiyor.",
+    "profile_error": "Doğrulanmış işlem profili yüklenemedi.",
+    "parameter_error": "Ayar doğrulanmış profil sınırları dışında.",
     "ready": "Hazır",
     "playing": "Oynatılıyor",
     "paused": "Duraklatıldı",
@@ -68,4 +85,10 @@ ERROR_TEXT = {
     "frame_read_failed": "Seçilen çerçeve data dosyasından okunamadı.",
     "short_frame_read": "Data kaynağı tam çerçeve döndürmedi.",
     "frame_index_out_of_range": "Çerçeve konumu kayıt sınırının dışında.",
+    "profile_unreadable": "Doğrulanmış işlem profili okunamadı.",
+    "profile_not_validated": "Operasyon ekranı yalnız doğrulanmış işlem profili kullanır.",
+    "parameter_outside_validated_envelope": "Ayar doğrulanmış profil sınırları dışında.",
+    "power_size_mismatch": "Detector giriş gücü beklenen 4096 hücreyi içermiyor.",
+    "nonfinite_power": "Detector girişinde sonlu olmayan güç değeri bulundu.",
+    "negative_power": "Detector girişinde negatif güç değeri bulundu.",
 }

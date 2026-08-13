@@ -10,11 +10,11 @@ from typing import Callable, Literal
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, Signal, Slot
 from PySide6.QtWidgets import QFileDialog
 
+from reference.detection import DetectionFrameResult
+from reference.pipeline import ProcessingProfile, RuntimeFrameResult, RuntimePipeline, load_profile
 from reference.spectrum import (
     ExponentialPowerAverager,
     SigMFFrameSource,
-    SpectrumConfig,
-    SpectrumProcessor,
     SpectrumResult,
 )
 
@@ -78,13 +78,13 @@ class FrameTask(QRunnable):
         generation: int,
         index: int,
         source: SigMFFrameSource,
-        processor: SpectrumProcessor,
+        runtime_pipeline: RuntimePipeline,
     ) -> None:
         super().__init__()
         self.generation = generation
         self.index = index
         self.source = source
-        self.processor = processor
+        self.runtime_pipeline = runtime_pipeline
         self.signals = FrameTaskSignals()
 
     @Slot()
@@ -92,10 +92,11 @@ class FrameTask(QRunnable):
         started = time.perf_counter()
         try:
             frame = self.source.read_frame(self.index)
-            result = self.processor.process(
+            result = self.runtime_pipeline.process(
                 frame,
                 sample_rate_hz=self.source.sample_rate_hz,
                 center_frequency_hz=self.source.center_frequency_hz,
+                frame_index=self.index,
             )
         except Exception as exc:  # Worker boundary reports typed details to the controller.
             code = getattr(exc, "code", "processing_failed")
@@ -120,6 +121,7 @@ class OperatorController(QObject):
         window: MainWindow,
         *,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
+        profile: ProcessingProfile | None = None,
     ) -> None:
         super().__init__(window)
         self.window = window
@@ -130,11 +132,14 @@ class OperatorController(QObject):
         self.playback_timer.timeout.connect(self._advance_playback)
         self.source: SigMFFrameSource | None = None
         self.source_factory = source_factory
-        self.processor = SpectrumProcessor()
+        self.profile = profile or load_profile()
+        self.runtime_pipeline = RuntimePipeline(self.profile)
+        self.processor = self.runtime_pipeline.processor
         self.averager = ExponentialPowerAverager(alpha=0.2)
         self.current_index = 0
         self.generation = 0
         self.last_result: SpectrumResult | None = None
+        self.last_detection: DetectionFrameResult | None = None
         self._active_tasks = 0
         self._refresh_pending = False
         self._pending_open: tuple[int, Path, Path | None, Literal["standard", "explicit"]] | None = None
@@ -160,6 +165,10 @@ class OperatorController(QObject):
         window.metric_combo.currentIndexChanged.connect(self._metric_changed)
         window.dc_checkbox.toggled.connect(self._dsp_config_changed)
         window.average_checkbox.toggled.connect(self._average_changed)
+        window.detection_layer_checkbox.toggled.connect(self._detection_layer_changed)
+        window.pfa_combo.currentIndexChanged.connect(self._detector_config_changed)
+        window.center_checkbox.toggled.connect(self._detector_config_changed)
+        self._show_profile_summary()
 
     @property
     def active_task_count(self) -> int:
@@ -268,7 +277,9 @@ class OperatorController(QObject):
             previous_source.close()
         self.current_index = 0
         self.last_result = None
+        self.last_detection = None
         self.averager.reset()
+        self.runtime_pipeline.detection.reset()
         self.window.set_source(filename, source.report)
         warning_messages = [self._warning_text(issue.code) for issue in source.report.warnings]
         warning_messages = [message for message in warning_messages if message]
@@ -337,7 +348,7 @@ class OperatorController(QObject):
             self.max_pending_intents = max(self.max_pending_intents, 1)
             self.task_counters_changed.emit()
             return False
-        task = FrameTask(self.generation, self.current_index, self.source, self.processor)
+        task = FrameTask(self.generation, self.current_index, self.source, self.runtime_pipeline)
         task.signals.completed.connect(self._task_completed)
         task.signals.failed.connect(self._task_failed)
         self._active_tasks = 1
@@ -352,7 +363,7 @@ class OperatorController(QObject):
         self,
         generation: int,
         index: int,
-        result: SpectrumResult,
+        result: RuntimeFrameResult,
         elapsed_seconds: float,
     ) -> None:
         self._active_tasks = 0
@@ -360,18 +371,22 @@ class OperatorController(QObject):
         if generation != self.generation or index != self.current_index:
             self.stale_results_rejected += 1
         else:
-            self.last_result = result
+            self.last_result = result.spectrum
+            self.last_detection = result.detection  # type: ignore[assignment]
             averaged_power = (
-                self.averager.update(result.fft_power_unshifted)
+                self.averager.update(result.spectrum.fft_power_unshifted)
                 if self.window.average_checkbox.isChecked()
-                else result.fft_power_unshifted
+                else result.spectrum.fft_power_unshifted
             )
-            line_display = self.processor.display_from_power(result, averaged_power)
+            line_display = self.processor.display_from_power(result.spectrum, averaged_power)
             self.window.spectrum_view.update_spectrum(
                 line_display,
-                result.display,
+                result.spectrum.display,
                 append_waterfall=True,
+                detection_result=self.last_detection,
+                spectrum_result=result.spectrum,
             )
+            self.window.set_detection_result(self.last_detection)
             assert self.source is not None
             self.window.set_frame_position(index, self.source.frame_count)
             self.frame_rendered.emit(index, elapsed_seconds)
@@ -445,11 +460,38 @@ class OperatorController(QObject):
 
     @Slot(bool)
     def _dsp_config_changed(self, enabled: bool) -> None:
-        self.processor = SpectrumProcessor(SpectrumConfig(remove_dc=enabled))
+        del enabled
+        self._pipeline_config_changed()
+
+    @Slot()
+    def _detector_config_changed(self, *_: object) -> None:
+        self._pipeline_config_changed()
+
+    def _pipeline_config_changed(self) -> None:
+        try:
+            pipeline = RuntimePipeline(
+                self.profile,
+                pfa=self.window.pfa,
+                evaluate_center=self.window.center_checkbox.isChecked(),
+                remove_dc=self.window.dc_checkbox.isChecked(),
+            )
+        except Exception as exc:
+            code = str(getattr(exc, "code", "parameter_outside_validated_envelope"))
+            self.window.show_error(ERROR_TEXT.get(code, TEXT["parameter_error"]))
+            return
+        self.runtime_pipeline = pipeline
+        self.processor = pipeline.processor
         self.averager.reset()
         self.last_result = None
+        self.last_detection = None
+        self._show_profile_summary()
         self._invalidate_processing(clear_history=True)
         self.request_current_frame()
+
+    @Slot(bool)
+    def _detection_layer_changed(self, visible: bool) -> None:
+        self.window.spectrum_view.set_detection_visible(visible)
+        self._render_last_without_history()
 
     @Slot(bool)
     def _average_changed(self, _: bool) -> None:
@@ -464,13 +506,51 @@ class OperatorController(QObject):
             self.last_result.display,
             self.last_result.display,
             append_waterfall=False,
+            detection_result=self.last_detection,
+            spectrum_result=self.last_result,
         )
 
     def _invalidate_processing(self, *, clear_history: bool) -> None:
         self.generation += 1
         self._refresh_pending = False
+        # Replace, rather than mutate, the generation-bound pipeline. A stale
+        # worker may still own the previous instance until its result is rejected.
+        self.runtime_pipeline = RuntimePipeline(
+            self.profile,
+            pfa=self.runtime_pipeline.pfa,
+            evaluate_center=self.runtime_pipeline.evaluate_center,
+            remove_dc=self.runtime_pipeline.remove_dc,
+        )
+        self.processor = self.runtime_pipeline.processor
+        self.last_detection = None
+        self.window.clear_detections()
+        self.window.spectrum_view.clear_detection_overlay()
         if clear_history:
             self.window.spectrum_view.clear_history()
+
+    def set_profile(self, profile: ProcessingProfile) -> None:
+        """Replace the operation profile and reset all generation-bound state."""
+        pipeline = RuntimePipeline(profile)
+        self.pause()
+        self.profile = profile
+        self.runtime_pipeline = pipeline
+        self.processor = pipeline.processor
+        self.averager.reset()
+        self.last_result = None
+        self._show_profile_summary()
+        self._invalidate_processing(clear_history=True)
+        self.request_current_frame()
+
+    def _show_profile_summary(self) -> None:
+        center = "merkez dâhil" if self.runtime_pipeline.evaluate_center else "merkez dışarıda"
+        method = {
+            "regional": "Bölgesel",
+            "ca_cfar": "CA-CFAR",
+            "os_cfar": "OS-CFAR",
+            "os_regional_cap": "OS + bölgesel sınır",
+        }[self.runtime_pipeline.detector_method]
+        summary = f"Varsayılan v{self.profile.profile_version} · {method}\nPfa/CUT {self.runtime_pipeline.pfa:g} · {center}"
+        self.window.set_profile_summary(summary, validated=True)
 
     @staticmethod
     def _warning_text(code: str) -> str:

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-03",
+  "coefficient_table": [
+    {
+      "pfa_per_cut": 0.001,
+      "regional_multiplier": 6.907755278982,
+      "ca_multiplier": 7.710008344055,
+      "os_multiplier": 6.086336856021
+    },
+    {
+      "pfa_per_cut": 0.0001,
+      "regional_multiplier": 9.210340371976,
+      "ca_multiplier": 10.672685829226,
+      "os_multiplier": 8.580143040699
+    },
+    {
+      "pfa_per_cut": 1e-05,
+      "regional_multiplier": 11.51292546497,
+      "ca_multiplier": 13.856402247583,
+      "os_multiplier": 11.34244446728
+    }
+  ],
+  "expected": {
+    "fixture_shifted_peak_bin": 2304,
+    "include_center_evaluated_cut_count": 4056,
+    "exclude_center_evaluated_cut_count": 4055,
+    "minimum_wideband_shifted_roundtrip_overlap": 0.95
+  },
+  "tolerances": {
+    "coefficient_absolute": 1e-10,
+    "wideband_roundtrip_overlap_minimum": 0.95
+  },
+  "actual": {
+    "selected_method": "regional",
+    "profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67",
+    "comparison_sha256": "5989619dd7f6dc07ab78b8507301a22cf36399349b2aaab3eb49c618340119cf",
+    "fixture_sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "fixture_sha512": "2e0d6f3e2fd2505de06281569cda143d4ddfa75033fb86d9e386f0bd144e8afce1e05cb07e3ffc214db6a95c1047caea8b94b56a47283a23d8ff7526f8b60697",
+    "fixture_frame_count": 4,
+    "fixture_shifted_peak_bins": [
+      2304,
+      2304,
+      2304,
+      2304
+    ],
+    "fixture_peak_detected_per_frame": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "fixture_cell_vectors_equal": true,
+    "include_center_evaluated_cut_count": 4056,
+    "exclude_center_evaluated_cut_count": 4055,
+    "exclude_center_mask_value": false,
+    "wideband_shifted_roundtrip_overlap": 0.979166666667,
+    "all_outputs_finite": true
+  }
+}

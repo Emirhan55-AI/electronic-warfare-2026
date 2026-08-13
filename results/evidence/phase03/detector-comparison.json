@@ -1,0 +1,1879 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-03",
+  "overall": "passed",
+  "selection_contract": {
+    "default_pfa_per_cut": 0.0001,
+    "default_evaluate_center": true,
+    "minimum_meaningful_score_difference": 0.02,
+    "paired_bootstrap_seed": 20260303,
+    "bootstrap_repetitions": 10000,
+    "bootstrap_interval": "95% percentile; paired frame or sequence identity",
+    "detection_rate_interval": "95% Wilson score",
+    "balanced_layers": [
+      "narrowband",
+      "multiple_signals",
+      "wideband",
+      "temporal"
+    ],
+    "balanced_layer_weights": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ],
+    "dynamic_timing_used_for_selection": false,
+    "hybrid_evaluated_only_if_needed": true
+  },
+  "coefficient_table": [
+    {
+      "pfa_per_cut": 0.001,
+      "regional_multiplier": 6.907755278982,
+      "ca_multiplier": 7.710008344055,
+      "os_multiplier": 6.086336856021
+    },
+    {
+      "pfa_per_cut": 0.0001,
+      "regional_multiplier": 9.210340371976,
+      "ca_multiplier": 10.672685829226,
+      "os_multiplier": 8.580143040699
+    },
+    {
+      "pfa_per_cut": 1e-05,
+      "regional_multiplier": 11.51292546497,
+      "ca_multiplier": 13.856402247583,
+      "os_multiplier": 11.34244446728
+    }
+  ],
+  "os_expected_ratio": 1.340638052579,
+  "sample_counts": {
+    "noise_frames_per_level": 1024,
+    "shaped_noise_frames_per_scene": 512,
+    "snr_frames_per_point": 256,
+    "multi_signal_frames_per_scene": 256,
+    "wideband_frames": 256,
+    "edge_frames_per_scene": 128,
+    "temporal_sequences_per_family": 128
+  },
+  "methods": [
+    {
+      "method": "regional",
+      "label": "Bölgesel sağlam taban",
+      "status": "passed",
+      "eligible": true,
+      "balanced_detection_score": 0.933170572917,
+      "false_alarm": {
+        "status": "passed",
+        "records": [
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001135229829,
+            "bootstrap_95": [
+              0.001098392043,
+              0.001172067616
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001135028129,
+            "bootstrap_95": [
+              0.001098422087,
+              0.001172838317
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000130978797,
+            "bootstrap_95": [
+              0.000119662614,
+              0.000143017289
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000131011097,
+            "bootstrap_95": [
+              0.000119451295,
+              0.0001425709
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 1.540927e-05,
+            "bootstrap_95": [
+              1.1556953e-05,
+              1.9743127e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 1.541307e-05,
+            "bootstrap_95": [
+              1.1559803e-05,
+              1.9507167e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001121987488,
+            "bootstrap_95": [
+              0.00108683509,
+              0.001158102965
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.00112226418,
+            "bootstrap_95": [
+              0.001086374605,
+              0.001157425247
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000128571098,
+            "bootstrap_95": [
+              0.000117014146,
+              0.000140368821
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000128602805,
+            "bootstrap_95": [
+              0.000117524661,
+              0.000139921779
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 1.8298508e-05,
+            "bootstrap_95": [
+              1.3964651e-05,
+              2.3113905e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 1.8303021e-05,
+            "bootstrap_95": [
+              1.3968095e-05,
+              2.2878776e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001132581361,
+            "bootstrap_95": [
+              0.001094780495,
+              0.001171104536
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001132379007,
+            "bootstrap_95": [
+              0.001095285286,
+              0.001171152512
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000143258059,
+            "bootstrap_95": [
+              0.000130978797,
+              0.000155537321
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000143052559,
+            "bootstrap_95": [
+              0.000130770268,
+              0.000155575678
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 1.4686961e-05,
+            "bootstrap_95": [
+              1.0834643e-05,
+              1.8780048e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 1.4690583e-05,
+            "bootstrap_95": [
+              1.0837315e-05,
+              1.8784679e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001257300142,
+            "bootstrap_95": [
+              0.001199996918,
+              0.001314603365
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.001257610203,
+            "bootstrap_95": [
+              0.001201737824,
+              0.001315890875
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000149758845,
+            "bootstrap_95": [
+              0.000132904956,
+              0.000167094274
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000149795777,
+            "bootstrap_95": [
+              0.000132937731,
+              0.000167135481
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 1.8780048e-05,
+            "bootstrap_95": [
+              1.3001572e-05,
+              2.5040064e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 1.8784679e-05,
+            "bootstrap_95": [
+              1.3004778e-05,
+              2.5046239e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001122469027,
+            "bootstrap_95": [
+              0.001071907359,
+              0.001173030695
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.001122745838,
+            "bootstrap_95": [
+              0.001072171702,
+              0.001174283292
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000132423416,
+            "bootstrap_95": [
+              0.000117014146,
+              0.000148795766
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000132456073,
+            "bootstrap_95": [
+              0.000117043002,
+              0.00014883246
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 2.3595445e-05,
+            "bootstrap_95": [
+              1.6853889e-05,
+              3.0337001e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 2.3601264e-05,
+            "bootstrap_95": [
+              1.7339704e-05,
+              3.0344482e-05
+            ],
+            "status": "passed"
+          }
+        ]
+      },
+      "quality": {
+        "narrowband": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.03125,
+              "wilson_95": [
+                0.015918258892,
+                0.060441606508
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.703125,
+              "wilson_95": [
+                0.644489273622,
+                0.755754784705
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.0234375,
+              "wilson_95": [
+                0.010784867556,
+                0.0501809956
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.62109375,
+              "wilson_95": [
+                0.560291797714,
+                0.678315237058
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            }
+          ]
+        },
+        "multiple_signals": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "two-equal-tones",
+              "trials": 256,
+              "separate_detection_rate": 1.0,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 0.0,
+              "status": "passed"
+            },
+            {
+              "scene": "two-unequal-tones",
+              "trials": 256,
+              "separate_detection_rate": 1.0,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 0.0,
+              "status": "passed"
+            }
+          ]
+        },
+        "wideband": {
+          "status": "passed",
+          "trials": 256,
+          "minimum_coverage": 0.6,
+          "minimum_iou": 0.5,
+          "maximum_overreach": 0.25,
+          "successful_frame_rate": 1.0,
+          "mean_coverage": 0.997680664062,
+          "mean_iou": 0.972528851306,
+          "mean_overflow": 0.025257081968
+        },
+        "center_and_edges": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "center-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "first-valid-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "unevaluated-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            }
+          ]
+        },
+        "false_candidates_in_signal_scenes": {
+          "status": "passed",
+          "mean_per_frame": 0.503305288462,
+          "limit": 0.75
+        },
+        "temporal": {
+          "status": "passed",
+          "noise_sequences": 128,
+          "noise_frames_per_sequence": 32,
+          "false_confirmed_events": 2,
+          "false_events_per_frame": 0.00048828125,
+          "bootstrap_95_upper": 0.001220703125,
+          "single_frame_rejection_rate": 1.0,
+          "persistent_exact_transition_rate": 1.0
+        }
+      },
+      "implementation_gate": {
+        "status": "passed",
+        "dynamic_timing_used": false,
+        "finite_vectors": true,
+        "spectrum_cells": 4096,
+        "evaluated_cut_count": 4056,
+        "maximum_active_tracks": 64,
+        "maximum_ended_history": 128
+      },
+      "resource_cost": {
+        "selection_inputs_per_frame": 4096,
+        "stream_state_slots": 256,
+        "maximum_selection_width": 256,
+        "basic_arithmetic_ops": 32
+      }
+    },
+    {
+      "method": "ca_cfar",
+      "label": "CA-CFAR",
+      "status": "failed",
+      "eligible": false,
+      "balanced_detection_score": 0.549381510417,
+      "false_alarm": {
+        "status": "failed",
+        "records": [
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001650477302,
+            "bootstrap_95": [
+              0.00160617565,
+              0.001695742033
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001649921008,
+            "bootstrap_95": [
+              0.001604885943,
+              0.00169591939
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000235232141,
+            "bootstrap_95": [
+              0.000218378251,
+              0.00025208603
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000235049322,
+            "bootstrap_95": [
+              0.000218191276,
+              0.000252148197
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 3.6115477e-05,
+            "bootstrap_95": [
+              3.0337001e-05,
+              4.2375493e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 3.5883554e-05,
+            "bootstrap_95": [
+              3.0103653e-05,
+              4.1904285e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.00166949812,
+            "bootstrap_95": [
+              0.001625678008,
+              0.001714281312
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001669669004,
+            "bootstrap_95": [
+              0.001626072894,
+              0.001714222411
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000223915958,
+            "bootstrap_95": [
+              0.000208265918,
+              0.000239806768
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000223971178,
+            "bootstrap_95": [
+              0.000208317278,
+              0.000239865906
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 2.9614691e-05,
+            "bootstrap_95": [
+              2.4076985e-05,
+              3.5633937e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 2.9621994e-05,
+            "bootstrap_95": [
+              2.4082922e-05,
+              3.5401896e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001679610454,
+            "bootstrap_95": [
+              0.001636031111,
+              0.001723912106
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001679543002,
+            "bootstrap_95": [
+              0.001635230425,
+              0.001724096409
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000234269061,
+            "bootstrap_95": [
+              0.000218137482,
+              0.00025136974
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000234086005,
+            "bootstrap_95": [
+              0.000217950447,
+              0.000250221563
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 3.081854e-05,
+            "bootstrap_95": [
+              2.5280834e-05,
+              3.6597017e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 3.0826141e-05,
+            "bootstrap_95": [
+              2.5287068e-05,
+              3.6606042e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001629530325,
+            "bootstrap_95": [
+              0.001569819403,
+              0.001692130486
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.001628968866,
+            "bootstrap_95": [
+              0.001567786201,
+              0.001691596505
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000223434418,
+            "bootstrap_95": [
+              0.000202246672,
+              0.000245103704
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000223489519,
+            "bootstrap_95": [
+              0.000202296547,
+              0.000245164149
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 3.226316e-05,
+            "bootstrap_95": [
+              2.4076985e-05,
+              4.0449334e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 3.2271116e-05,
+            "bootstrap_95": [
+              2.4082922e-05,
+              4.0940968e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001692130486,
+            "bootstrap_95": [
+              0.001626641087,
+              0.001757138344
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.001686767879,
+            "bootstrap_95": [
+              0.001623188964,
+              0.001750346794
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000245103704,
+            "bootstrap_95": [
+              0.000222471339,
+              0.000268711188
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000242755857,
+            "bootstrap_95": [
+              0.000219636252,
+              0.000266357121
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 4.2375493e-05,
+            "bootstrap_95": [
+              3.3707779e-05,
+              5.1524747e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 4.1904285e-05,
+            "bootstrap_95": [
+              3.3234433e-05,
+              5.1055795e-05
+            ],
+            "status": "failed"
+          }
+        ]
+      },
+      "quality": {
+        "narrowband": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.015625,
+              "wilson_95": [
+                0.006092598203,
+                0.039479262709
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.5859375,
+              "wilson_95": [
+                0.524763792793,
+                0.644570231884
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.0234375,
+              "wilson_95": [
+                0.010784867556,
+                0.0501809956
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.48046875,
+              "wilson_95": [
+                0.420008769738,
+                0.541506224654
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            }
+          ]
+        },
+        "multiple_signals": {
+          "status": "failed",
+          "records": [
+            {
+              "scene": "two-equal-tones",
+              "trials": 256,
+              "separate_detection_rate": 1.0,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 0.0,
+              "status": "passed"
+            },
+            {
+              "scene": "two-unequal-tones",
+              "trials": 256,
+              "separate_detection_rate": 0.0,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 1.0,
+              "status": "failed"
+            }
+          ]
+        },
+        "wideband": {
+          "status": "failed",
+          "trials": 256,
+          "minimum_coverage": 0.6,
+          "minimum_iou": 0.5,
+          "maximum_overreach": 0.25,
+          "successful_frame_rate": 0.0,
+          "mean_coverage": 8.1380208e-05,
+          "mean_iou": 7.8914141e-05,
+          "mean_overflow": 0.998046875
+        },
+        "center_and_edges": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "center-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "first-valid-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "unevaluated-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            }
+          ]
+        },
+        "false_candidates_in_signal_scenes": {
+          "status": "failed",
+          "mean_per_frame": 0.841947115385,
+          "limit": 0.75
+        },
+        "temporal": {
+          "status": "passed",
+          "noise_sequences": 128,
+          "noise_frames_per_sequence": 32,
+          "false_confirmed_events": 5,
+          "false_events_per_frame": 0.001220703125,
+          "bootstrap_95_upper": 0.00244140625,
+          "single_frame_rejection_rate": 1.0,
+          "persistent_exact_transition_rate": 1.0
+        }
+      },
+      "implementation_gate": {
+        "status": "passed",
+        "dynamic_timing_used": false,
+        "finite_vectors": true,
+        "spectrum_cells": 4096,
+        "evaluated_cut_count": 4056,
+        "maximum_active_tracks": 64,
+        "maximum_ended_history": 128
+      },
+      "resource_cost": {
+        "selection_inputs_per_frame": 0,
+        "stream_state_slots": 41,
+        "maximum_selection_width": 0,
+        "basic_arithmetic_ops": 24363
+      }
+    },
+    {
+      "method": "os_cfar",
+      "label": "OS-CFAR",
+      "status": "failed",
+      "eligible": false,
+      "balanced_detection_score": 0.66943359375,
+      "false_alarm": {
+        "status": "failed",
+        "records": [
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001551761665,
+            "bootstrap_95": [
+              0.001506244125,
+              0.001596785626
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001551662685,
+            "bootstrap_95": [
+              0.001506386791,
+              0.001598383554
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000206098989,
+            "bootstrap_95": [
+              0.000190930489,
+              0.000221508259
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000205908986,
+            "bootstrap_95": [
+              0.000190495916,
+              0.000221322056
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 3.0096231e-05,
+            "bootstrap_95": [
+              2.4558524e-05,
+              3.5874707e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-low",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 3.0103653e-05,
+            "bootstrap_95": [
+              2.4564581e-05,
+              3.5883554e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001603767952,
+            "bootstrap_95": [
+              0.00155970707,
+              0.001649273453
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001603922626,
+            "bootstrap_95": [
+              0.001559850879,
+              0.001648476033
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000207543608,
+            "bootstrap_95": [
+              0.000192375108,
+              0.000223193648
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.00020759479,
+            "bootstrap_95": [
+              0.00019218172,
+              0.000223489519
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 2.6003143e-05,
+            "bootstrap_95": [
+              2.0946977e-05,
+              3.154085e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-medium",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 2.6009556e-05,
+            "bootstrap_95": [
+              2.0952142e-05,
+              3.1548628e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001581617126,
+            "bootstrap_95": [
+              0.001536833934,
+              0.001626881857
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.001581525509,
+            "bootstrap_95": [
+              0.001535527127,
+              0.001626801403
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000218619021,
+            "bootstrap_95": [
+              0.000202728211,
+              0.000234991371
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 0.000218672935,
+            "bootstrap_95": [
+              0.000202537377,
+              0.000234808493
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 1024,
+            "empirical_pfa": 2.8410842e-05,
+            "bootstrap_95": [
+              2.2873135e-05,
+              3.4430088e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "awgn-high",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 1024,
+            "empirical_pfa": 2.8417848e-05,
+            "bootstrap_95": [
+              2.2878776e-05,
+              3.4438579e-05
+            ],
+            "status": "failed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001556817832,
+            "bootstrap_95": [
+              0.001495180751,
+              0.001619899532
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.00155623844,
+            "bootstrap_95": [
+              0.001493141184,
+              0.001620299014
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000213322085,
+            "bootstrap_95": [
+              0.000193097417,
+              0.000234509831
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000213374692,
+            "bootstrap_95": [
+              0.000192663379,
+              0.000234086005
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 3.2744699e-05,
+            "bootstrap_95": [
+              2.5040064e-05,
+              4.0942913e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "sloped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 3.2752774e-05,
+            "bootstrap_95": [
+              2.5046239e-05,
+              4.1422626e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.001616528754,
+            "bootstrap_95": [
+              0.001553447054,
+              0.001679610454
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.001607775894,
+            "bootstrap_95": [
+              0.00154708693,
+              0.001669909834
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 0.000226323656,
+            "bootstrap_95": [
+              0.00020465437,
+              0.000248956022
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 0.0001,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 0.000223007861,
+            "bootstrap_95": [
+              0.000201333231,
+              0.000245164149
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": true,
+            "evaluated_cut_count": 4056,
+            "frame_count": 512,
+            "empirical_pfa": 3.7560096e-05,
+            "bootstrap_95": [
+              2.8410842e-05,
+              4.767243e-05
+            ],
+            "status": "passed"
+          },
+          {
+            "scene": "stepped-noise",
+            "pfa_per_cut": 1e-05,
+            "evaluate_center": false,
+            "evaluated_cut_count": 4055,
+            "frame_count": 512,
+            "empirical_pfa": 3.5642725e-05,
+            "bootstrap_95": [
+              2.6972873e-05,
+              4.5275894e-05
+            ],
+            "status": "passed"
+          }
+        ]
+      },
+      "quality": {
+        "narrowband": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.02734375,
+              "wilson_95": [
+                0.013307156355,
+                0.055355707922
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.5,
+              "wilson_95": [
+                0.439205558589,
+                0.560794441411
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-bin-centered",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -30.0,
+              "trials": 256,
+              "detection_probability": 0.01953125,
+              "wilson_95": [
+                0.008370729785,
+                0.04489813225
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -24.0,
+              "trials": 256,
+              "detection_probability": 0.40625,
+              "wilson_95": [
+                0.347903676799,
+                0.467368296281
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -18.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -12.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            },
+            {
+              "scene": "tone-off-bin",
+              "snr_db": -6.0,
+              "trials": 256,
+              "detection_probability": 1.0,
+              "wilson_95": [
+                0.985216143574,
+                1.0
+              ],
+              "status": "passed"
+            }
+          ]
+        },
+        "multiple_signals": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "two-equal-tones",
+              "trials": 256,
+              "separate_detection_rate": 1.0,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 0.0,
+              "status": "passed"
+            },
+            {
+              "scene": "two-unequal-tones",
+              "trials": 256,
+              "separate_detection_rate": 0.99609375,
+              "false_merge_rate": 0.0,
+              "weak_masking_rate": 0.00390625,
+              "status": "passed"
+            }
+          ]
+        },
+        "wideband": {
+          "status": "failed",
+          "trials": 256,
+          "minimum_coverage": 0.6,
+          "minimum_iou": 0.5,
+          "maximum_overreach": 0.25,
+          "successful_frame_rate": 0.0,
+          "mean_coverage": 0.000366210938,
+          "mean_iou": 0.000361672866,
+          "mean_overflow": 0.9857421875
+        },
+        "center_and_edges": {
+          "status": "passed",
+          "records": [
+            {
+              "scene": "center-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "first-valid-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            },
+            {
+              "scene": "unevaluated-edge-tone",
+              "trials": 128,
+              "success_rate": 1.0,
+              "status": "passed"
+            }
+          ]
+        },
+        "false_candidates_in_signal_scenes": {
+          "status": "failed",
+          "mean_per_frame": 0.754807692308,
+          "limit": 0.75
+        },
+        "temporal": {
+          "status": "failed",
+          "noise_sequences": 128,
+          "noise_frames_per_sequence": 32,
+          "false_confirmed_events": 5,
+          "false_events_per_frame": 0.001220703125,
+          "bootstrap_95_upper": 0.00244140625,
+          "single_frame_rejection_rate": 0.9921875,
+          "persistent_exact_transition_rate": 1.0
+        }
+      },
+      "implementation_gate": {
+        "status": "passed",
+        "dynamic_timing_used": false,
+        "finite_vectors": true,
+        "spectrum_cells": 4096,
+        "evaluated_cut_count": 4056,
+        "maximum_active_tracks": 64,
+        "maximum_ended_history": 128
+      },
+      "resource_cost": {
+        "selection_inputs_per_frame": 129792,
+        "stream_state_slots": 41,
+        "maximum_selection_width": 32,
+        "basic_arithmetic_ops": 8112
+      }
+    }
+  ],
+  "hybrid_status": "skipped",
+  "decision": {
+    "status": "passed",
+    "reason": "only eligible method",
+    "comparisons": []
+  },
+  "selected_detector": "regional"
+}

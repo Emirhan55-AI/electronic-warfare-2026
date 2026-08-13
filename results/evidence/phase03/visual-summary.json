@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-03",
+  "rendering_contract": {
+    "screenshots_are_byte_portable_gate": false,
+    "real_application_and_pipeline": true,
+    "physical_1920x1080_scale150_uses_logical_1280x720": true
+  },
+  "screenshots": [
+    {
+      "state": "empty",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/empty-1366x768-scale100.png"
+    },
+    {
+      "state": "noise-only",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/noise-only-1366x768-scale100.png"
+    },
+    {
+      "state": "tentative",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/tentative-1366x768-scale100.png"
+    },
+    {
+      "state": "confirmed",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/confirmed-1366x768-scale100.png"
+    },
+    {
+      "state": "warning",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/warning-1366x768-scale100.png"
+    },
+    {
+      "state": "error",
+      "logical_width": 1366,
+      "logical_height": 768,
+      "device_pixel_ratio": 1.0,
+      "physical_width": 1366,
+      "physical_height": 768,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/error-1366x768-scale100.png"
+    },
+    {
+      "state": "confirmed",
+      "logical_width": 1280,
+      "logical_height": 720,
+      "device_pixel_ratio": 1.5,
+      "physical_width": 1920,
+      "physical_height": 1080,
+      "checks": {
+        "minimum_logical_area": true,
+        "widget_geometry_inside_window": true,
+        "text_not_clipped": true,
+        "spectrum_remains_primary": true,
+        "state_truthful": true,
+        "real_detection_pipeline": true,
+        "visible_events_bounded": true,
+        "turkish_text_catalog_present": true
+      },
+      "clipped_labels": [],
+      "path": "results/evidence/phase03/screenshots/confirmed-1920x1080-scale150.png"
+    }
+  ]
+}

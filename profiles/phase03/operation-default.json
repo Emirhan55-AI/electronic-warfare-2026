@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "profile_id": "phase03-operation-default",
+  "profile_version": 1,
+  "lifecycle": "validated",
+  "blocks": [
+    {
+      "id": "detector",
+      "type": "detector.regional",
+      "version": 1,
+      "parameters": {
+        "pfa": 0.0001,
+        "evaluate_center": true,
+        "region_size": 256
+      },
+      "validated_parameter_envelope": {
+        "pfa": [
+          0.001,
+          0.0001,
+          1e-05
+        ],
+        "evaluate_center": [
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "id": "grouping",
+      "type": "detection.group-regions",
+      "version": 1,
+      "parameters": {
+        "max_gap_bins": 1
+      },
+      "validated_parameter_envelope": {}
+    },
+    {
+      "id": "sink",
+      "type": "sink.operator-console",
+      "version": 1,
+      "parameters": {
+        "max_visible_events": 12,
+        "max_waterfall_rows": 128
+      },
+      "validated_parameter_envelope": {}
+    },
+    {
+      "id": "source",
+      "type": "source.sigmf-recorded",
+      "version": 1,
+      "parameters": {
+        "frame_length": 4096
+      },
+      "validated_parameter_envelope": {}
+    },
+    {
+      "id": "spectrum",
+      "type": "dsp.phase02-spectrum",
+      "version": 1,
+      "parameters": {
+        "frame_length": 4096,
+        "remove_dc": false
+      },
+      "validated_parameter_envelope": {
+        "remove_dc": [
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "id": "temporal",
+      "type": "detection.temporal-m-of-n",
+      "version": 1,
+      "parameters": {
+        "confirmations_required": 2,
+        "confirmation_window": 3,
+        "association_tolerance_bins": 2,
+        "max_active_tracks": 64,
+        "max_ended_history": 128
+      },
+      "validated_parameter_envelope": {}
+    }
+  ],
+  "connections": [
+    {
+      "source_block": "detector",
+      "source_port": "cells",
+      "target_block": "grouping",
+      "target_port": "cells"
+    },
+    {
+      "source_block": "grouping",
+      "source_port": "regions",
+      "target_block": "temporal",
+      "target_port": "regions"
+    },
+    {
+      "source_block": "source",
+      "source_port": "frame",
+      "target_block": "spectrum",
+      "target_port": "frame"
+    },
+    {
+      "source_block": "spectrum",
+      "source_port": "spectrum",
+      "target_block": "detector",
+      "target_port": "spectrum"
+    },
+    {
+      "source_block": "spectrum",
+      "source_port": "spectrum",
+      "target_block": "sink",
+      "target_port": "spectrum"
+    },
+    {
+      "source_block": "temporal",
+      "source_port": "events",
+      "target_block": "sink",
+      "target_port": "events"
+    }
+  ]
+}

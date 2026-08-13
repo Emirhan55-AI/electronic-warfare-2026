@@ -1,4 +1,4 @@
-"""Main window for the permanent PHASE-02 operator console."""
+"""Main window for the permanent PHASE-03 operation console."""
 
 from __future__ import annotations
 
@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
     QMainWindow,
     QPushButton,
     QSizePolicy,
@@ -22,6 +24,7 @@ from PySide6.QtWidgets import (
 )
 
 from reference.sigmf.contract import ContractReport
+from reference.detection import DetectionEvent, DetectionFrameResult
 
 from .spectrum_view import SpectrumView
 from .ui_text import TEXT
@@ -94,14 +97,14 @@ class MainWindow(QMainWindow):
         panel.setMaximumWidth(360)
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(12)
+        layout.setSpacing(8)
         heading = QLabel(TEXT["metadata"])
         heading.setObjectName("sectionTitle")
         layout.addWidget(heading)
 
         grid = QGridLayout()
         grid.setHorizontalSpacing(12)
-        grid.setVerticalSpacing(10)
+        grid.setVerticalSpacing(4)
         self.metadata_values: dict[str, QLabel] = {}
         fields = (
             ("center_frequency", TEXT["center_frequency"]),
@@ -117,11 +120,36 @@ class MainWindow(QMainWindow):
             value_label = QLabel("—")
             value_label.setObjectName("metadataValue")
             value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-            grid.addWidget(caption_label, row * 2, 0)
-            grid.addWidget(value_label, row * 2 + 1, 0)
+            grid.addWidget(caption_label, row, 0)
+            grid.addWidget(value_label, row, 1)
             self.metadata_values[key] = value_label
+        grid.setColumnStretch(1, 1)
         layout.addLayout(grid)
-        layout.addStretch(1)
+        profile_heading = QLabel(TEXT["profile"])
+        profile_heading.setObjectName("sectionTitle")
+        layout.addWidget(profile_heading)
+        self.profile_value = QLabel("—")
+        self.profile_value.setObjectName("profileValue")
+        self.profile_value.setWordWrap(True)
+        self.profile_value.setMinimumHeight(72)
+        self.profile_value.setToolTip(TEXT["validated_envelope"])
+        layout.addWidget(self.profile_value)
+
+        detection_heading = QLabel(TEXT["detections"])
+        detection_heading.setObjectName("sectionTitle")
+        layout.addWidget(detection_heading)
+        self.detection_state = QLabel(TEXT["no_detection"])
+        self.detection_state.setObjectName("detectionState")
+        layout.addWidget(self.detection_state)
+        self.detection_list = QListWidget()
+        self.detection_list.setObjectName("detectionList")
+        self.detection_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.detection_list.setMinimumHeight(110)
+        layout.addWidget(self.detection_list, 1)
+        self.detection_note = QLabel(TEXT["detection_detail"])
+        self.detection_note.setObjectName("detectionNote")
+        self.detection_note.setWordWrap(True)
+        layout.addWidget(self.detection_note)
         note = QLabel(TEXT["uncalibrated"])
         note.setObjectName("calibrationNote")
         note.setWordWrap(True)
@@ -152,6 +180,15 @@ class MainWindow(QMainWindow):
         self.metric_combo.addItems([TEXT["bin_power"], TEXT["psd"]])
         self.dc_checkbox = QCheckBox(TEXT["remove_dc"])
         self.average_checkbox = QCheckBox(TEXT["average"])
+        self.detection_layer_checkbox = QCheckBox(TEXT["detection_layer"])
+        self.detection_layer_checkbox.setChecked(True)
+        self.pfa_combo = QComboBox()
+        for label, value in (("1e-3", 1e-3), ("1e-4", 1e-4), ("1e-5", 1e-5)):
+            self.pfa_combo.addItem(label, value)
+        self.pfa_combo.setCurrentIndex(1)
+        self.pfa_combo.setToolTip(TEXT["validated_envelope"])
+        self.center_checkbox = QCheckBox(TEXT["evaluate_center"])
+        self.center_checkbox.setChecked(True)
         self.state_value = QLabel(TEXT["empty"])
         self.state_value.setObjectName("stateValue")
         self.state_value.setWordWrap(True)
@@ -159,7 +196,8 @@ class MainWindow(QMainWindow):
         speed_caption = QLabel(TEXT["review_speed"])
         axis_caption = QLabel(TEXT["axis"])
         display_caption = QLabel(TEXT["display"])
-        for caption in (frame_caption, speed_caption, axis_caption, display_caption):
+        pfa_caption = QLabel(TEXT["pfa"])
+        for caption in (frame_caption, speed_caption, axis_caption, display_caption, pfa_caption):
             caption.setWordWrap(True)
 
         layout.addWidget(self.start_button, 0, 0)
@@ -176,6 +214,10 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.metric_combo, 1, 4, 1, 2)
         layout.addWidget(self.dc_checkbox, 1, 6)
         layout.addWidget(self.average_checkbox, 1, 7, 1, 2)
+        layout.addWidget(self.detection_layer_checkbox, 2, 0, 1, 2)
+        layout.addWidget(pfa_caption, 2, 2)
+        layout.addWidget(self.pfa_combo, 2, 3)
+        layout.addWidget(self.center_checkbox, 2, 4, 1, 3)
         layout.setColumnStretch(8, 1)
         return controls
 
@@ -185,6 +227,7 @@ class MainWindow(QMainWindow):
             value.setText("—")
         self.state_value.setText(TEXT["empty"])
         self.spectrum_view.clear_all()
+        self.clear_detections()
         self.set_source_controls_enabled(False)
         self.hide_notification()
 
@@ -227,6 +270,69 @@ class MainWindow(QMainWindow):
     def set_state(self, state: str) -> None:
         self.state_value.setText(TEXT[state])
 
+    def set_profile_summary(self, summary: str, *, validated: bool) -> None:
+        suffix = TEXT["validated_envelope"] if validated else TEXT["parameter_error"]
+        self.profile_value.setText(f"{summary}\n{suffix}")
+        self.profile_value.setToolTip(f"{summary}\n{suffix}")
+
+    def clear_detections(self) -> None:
+        self.detection_state.setText(TEXT["no_detection"])
+        self.detection_list.clear()
+        self.detection_note.setText(TEXT["detection_detail"])
+
+    def set_detection_result(self, result: DetectionFrameResult) -> None:
+        active = list(result.active_events)
+        confirmed = [event for event in active if event.state == "confirmed"]
+        tentative = [event for event in active if event.state == "tentative"]
+        if confirmed or tentative:
+            self.detection_state.setText(
+                f"{len(confirmed)} {TEXT['confirmed'].casefold()} · "
+                f"{len(tentative)} {TEXT['tentative'].casefold()}"
+            )
+        else:
+            self.detection_state.setText(TEXT["no_detection"])
+
+        ended = list(reversed(result.ended_history))
+        ordered = sorted(confirmed, key=self._event_sort_key) + sorted(
+            tentative, key=self._event_sort_key
+        ) + ended
+        visible = ordered[:12]
+        self.detection_list.clear()
+        for event in visible:
+            item = QListWidgetItem(self._event_text(event))
+            item.setToolTip(self._event_tooltip(event))
+            item.setData(Qt.ItemDataRole.UserRole, event.event_id)
+            self.detection_list.addItem(item)
+
+        notes: list[str] = [TEXT["detection_detail"]]
+        if result.dropped_candidates:
+            notes.append(TEXT["candidate_limit"].format(count=result.dropped_candidates))
+        if result.evicted_history_count:
+            notes.append(TEXT["history_evicted"].format(count=result.evicted_history_count))
+        hidden = max(0, len(ordered) - len(visible))
+        if hidden:
+            notes.append(TEXT["events_hidden"].format(count=hidden))
+        self.detection_note.setText(" ".join(notes))
+
+    def _event_text(self, event: DetectionEvent) -> str:
+        label = TEXT[event.state]
+        peak_mhz = self.locale.toString(event.region.peak_frequency_hz / 1_000_000.0, "f", 4)
+        delta = self.locale.toString(event.region.peak_to_noise_db, "f", 1)
+        return f"#{event.event_id} · {label} · {peak_mhz} MHz · +{delta} dB"
+
+    def _event_tooltip(self, event: DetectionEvent) -> str:
+        start = self.locale.toString(event.region.start_frequency_hz / 1_000_000.0, "f", 4)
+        end = self.locale.toString(event.region.end_frequency_hz / 1_000_000.0, "f", 4)
+        return (
+            f"Kaba bölge: {start}–{end} MHz\n"
+            f"İlk/son çerçeve: {event.first_frame + 1}/{event.last_seen_frame + 1}\n"
+            f"Görülme sayısı: {event.seen_count}"
+        )
+
+    @staticmethod
+    def _event_sort_key(event: DetectionEvent) -> tuple[float, int]:
+        return (-event.region.peak_to_noise_db, event.event_id)
+
     def show_warning(self, message: str) -> None:
         self._show_notification(message, "warning")
 
@@ -255,6 +361,9 @@ class MainWindow(QMainWindow):
             self.metric_combo,
             self.dc_checkbox,
             self.average_checkbox,
+            self.detection_layer_checkbox,
+            self.pfa_combo,
+            self.center_checkbox,
         ):
             widget.setEnabled(enabled)
 
@@ -265,6 +374,10 @@ class MainWindow(QMainWindow):
     @property
     def metric(self) -> str:
         return "bin" if self.metric_combo.currentIndex() == 0 else "psd"
+
+    @property
+    def pfa(self) -> float:
+        return float(self.pfa_combo.currentData())
 
     def _frequency(self, value: int | float | None) -> str:
         if value is None:

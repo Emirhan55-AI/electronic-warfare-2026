@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "index_order": "fftshift",
+  "seed_rule": "SeedSequence([scene_seed, condition_index, trial_index, stream_kind, component_index])",
+  "common": {
+    "sample_rate_hz": 8000000,
+    "frame_length": 4096,
+    "center_frequency_hz": 100000000,
+    "bin_spacing_hz": 1953.125,
+    "default_noise_power": 0.0001
+  },
+  "evaluation_contract": {
+    "wideband": {
+      "minimum_coverage": 0.6,
+      "minimum_iou": 0.5,
+      "maximum_overreach": 0.25
+    }
+  },
+  "scenes": [
+    {
+      "id": "awgn-low",
+      "kind": "awgn",
+      "scene_seed": 31001,
+      "noise_power": 0.000001,
+      "normalize_noise": false
+    },
+    {
+      "id": "awgn-medium",
+      "kind": "awgn",
+      "scene_seed": 31002,
+      "noise_power": 0.0001,
+      "normalize_noise": false
+    },
+    {
+      "id": "awgn-high",
+      "kind": "awgn",
+      "scene_seed": 31003,
+      "noise_power": 0.01,
+      "normalize_noise": false
+    },
+    {
+      "id": "tone-bin-centered",
+      "kind": "tone",
+      "scene_seed": 32001,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "conditions": [
+        {"snr_db": -30.0},
+        {"snr_db": -24.0},
+        {"snr_db": -18.0},
+        {"snr_db": -12.0},
+        {"snr_db": -6.0}
+      ],
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": 256.0,
+          "expected_peak_shifted_bin": 2304,
+          "main_lobe_start_shifted_bin": 2303,
+          "main_lobe_end_shifted_bin": 2305,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "tone-off-bin",
+      "kind": "tone",
+      "scene_seed": 32002,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "conditions": [
+        {"snr_db": -30.0},
+        {"snr_db": -24.0},
+        {"snr_db": -18.0},
+        {"snr_db": -12.0},
+        {"snr_db": -6.0}
+      ],
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": 256.35,
+          "expected_peak_shifted_bin": 2304,
+          "main_lobe_start_shifted_bin": 2303,
+          "main_lobe_end_shifted_bin": 2306,
+          "peak_tolerance_bins": 1
+        }
+      ]
+    },
+    {
+      "id": "two-equal-tones",
+      "kind": "multi_tone",
+      "scene_seed": 33001,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": 240.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 2288,
+          "main_lobe_start_shifted_bin": 2287,
+          "main_lobe_end_shifted_bin": 2289,
+          "peak_tolerance_bins": 0
+        },
+        {
+          "role": "target",
+          "signed_bin": 252.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 2300,
+          "main_lobe_start_shifted_bin": 2299,
+          "main_lobe_end_shifted_bin": 2301,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "two-unequal-tones",
+      "kind": "multi_tone",
+      "scene_seed": 33002,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": -300.0,
+          "snr_db": -6.0,
+          "expected_peak_shifted_bin": 1748,
+          "main_lobe_start_shifted_bin": 1747,
+          "main_lobe_end_shifted_bin": 1749,
+          "peak_tolerance_bins": 0
+        },
+        {
+          "role": "target",
+          "signed_bin": -288.35,
+          "snr_db": -18.0,
+          "expected_peak_shifted_bin": 1760,
+          "main_lobe_start_shifted_bin": 1758,
+          "main_lobe_end_shifted_bin": 1761,
+          "peak_tolerance_bins": 1
+        }
+      ]
+    },
+    {
+      "id": "wideband-noise-like",
+      "kind": "wideband",
+      "scene_seed": 34001,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "shifted_start_bin": 2468,
+      "shifted_end_bin": 2563,
+      "signed_start_bin": 420,
+      "signed_end_bin": 515,
+      "bandwidth_bins": 96,
+      "total_snr_db": 15.0,
+      "frequency_coefficient_distribution": "equal_magnitude_seeded_phase"
+    },
+    {
+      "id": "sloped-noise",
+      "kind": "sloped_noise",
+      "scene_seed": 35001,
+      "noise_power": 0.0001,
+      "start_db": -9.0,
+      "end_db": 9.0,
+      "slope_db_per_bin": 0.004395604395604396
+    },
+    {
+      "id": "stepped-noise",
+      "kind": "stepped_noise",
+      "scene_seed": 35002,
+      "noise_power": 0.0001,
+      "boundary_shifted_bin": 2048,
+      "left_db": -6.0,
+      "right_db": 6.0,
+      "right_to_left_power_ratio": 15.8489319246
+    },
+    {
+      "id": "transient-tone",
+      "kind": "tone",
+      "scene_seed": 36001,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "sequence_length": 5,
+      "active_frames": [2],
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": -512.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 1536,
+          "main_lobe_start_shifted_bin": 1535,
+          "main_lobe_end_shifted_bin": 1537,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "persistent-tone",
+      "kind": "tone",
+      "scene_seed": 36002,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "sequence_length": 7,
+      "active_frames": [1, 2, 3, 4],
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": 700.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 2748,
+          "main_lobe_start_shifted_bin": 2747,
+          "main_lobe_end_shifted_bin": 2749,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "center-tone",
+      "kind": "tone",
+      "scene_seed": 37001,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": 0.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 2048,
+          "main_lobe_start_shifted_bin": 2047,
+          "main_lobe_end_shifted_bin": 2049,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "first-valid-edge-tone",
+      "kind": "tone",
+      "scene_seed": 37002,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "tones": [
+        {
+          "role": "target",
+          "signed_bin": -2028.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 20,
+          "main_lobe_start_shifted_bin": 20,
+          "main_lobe_end_shifted_bin": 21,
+          "peak_tolerance_bins": 0
+        }
+      ]
+    },
+    {
+      "id": "unevaluated-edge-tone",
+      "kind": "tone",
+      "scene_seed": 37003,
+      "noise_power": 0.0001,
+      "normalize_noise": true,
+      "tones": [
+        {
+          "role": "policy_probe",
+          "signed_bin": -2040.0,
+          "snr_db": -12.0,
+          "expected_peak_shifted_bin": 8,
+          "main_lobe_start_shifted_bin": 7,
+          "main_lobe_end_shifted_bin": 9,
+          "peak_tolerance_bins": 0,
+          "expected_evaluated": false
+        }
+      ]
+    }
+  ]
+}

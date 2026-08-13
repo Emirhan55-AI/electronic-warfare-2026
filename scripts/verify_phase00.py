@@ -89,6 +89,40 @@ APPROVED_PHASE02_FILES = (
     "tests/test_spectrum_reference.py",
 )
 
+APPROVED_PHASE03_FILES = (
+    "datasets/fixtures/phase03/detection-scenes.json",
+    "docs/decisions/ADR-0004-ADAPTIVE-DETECTION.md",
+    "docs/interfaces/DETECTION_CONTRACT.md",
+    "docs/interfaces/PROCESSING_PROFILE_CONTRACT.md",
+    "profiles/phase03/operation-default.json",
+    "reference/detection/__init__.py",
+    "reference/detection/cfar.py",
+    "reference/detection/pipeline.py",
+    "reference/detection/scenes.py",
+    "reference/pipeline/__init__.py",
+    "reference/pipeline/profile.py",
+    "results/evidence/phase03/detector-comparison.json",
+    "results/evidence/phase03/golden-detection.json",
+    "results/evidence/phase03/screenshots/confirmed-1366x768-scale100.png",
+    "results/evidence/phase03/screenshots/confirmed-1920x1080-scale150.png",
+    "results/evidence/phase03/screenshots/empty-1366x768-scale100.png",
+    "results/evidence/phase03/screenshots/error-1366x768-scale100.png",
+    "results/evidence/phase03/screenshots/noise-only-1366x768-scale100.png",
+    "results/evidence/phase03/screenshots/tentative-1366x768-scale100.png",
+    "results/evidence/phase03/screenshots/warning-1366x768-scale100.png",
+    "results/evidence/phase03/verification-summary.json",
+    "results/evidence/phase03/visual-summary.json",
+    "scripts/render_phase03_ui.py",
+    "scripts/select_phase03_profile.py",
+    "scripts/verify_phase03.py",
+    "tests/test_detection_reference.py",
+    "tests/test_detection_statistics.py",
+    "tests/test_operator_detection.py",
+    "tests/test_phase03_selector.py",
+    "tests/test_phase03_verifier.py",
+    "tests/test_processing_profile.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -135,12 +169,17 @@ def _repository_files() -> set[str]:
 
 
 def check_allowed_tree() -> dict[str, object]:
-    allowed = set(REQUIRED_FILES) | set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES)
+    allowed = (
+        set(REQUIRED_FILES)
+        | set(APPROVED_PHASE01_FILES)
+        | set(APPROVED_PHASE02_FILES)
+        | set(APPROVED_PHASE03_FILES)
+    )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
         "minimal-file-tree",
         not unexpected,
-        "repository contains the PHASE-00 baseline and approved PHASE-01/02 paths"
+        "repository contains the PHASE-00 baseline and approved PHASE-01/02/03 paths"
         if not unexpected
         else "unexpected files: " + ", ".join(unexpected),
     )
@@ -230,15 +269,15 @@ def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
         "phase-00 repository temelini kurmuştur",
-        "mevcut faz **phase-02",
-        "referans spektrum dsp",
+        "mevcut faz **phase-03",
+        "uyarlanabilir sinyal tespiti",
         "rf alma/verme",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README preserves the PHASE-00 baseline and truthful PHASE-02/RF claims"
+        "README preserves the PHASE-00 baseline and truthful PHASE-03/RF claims"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
@@ -266,7 +305,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

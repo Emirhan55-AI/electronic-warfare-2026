@@ -9,7 +9,9 @@ import pyqtgraph as pg
 from PySide6.QtCore import QRectF, Qt
 from PySide6.QtWidgets import QLabel, QSplitter, QVBoxLayout, QWidget
 
+from reference.detection import DetectionFrameResult
 from reference.spectrum import SpectrumDisplay
+from reference.spectrum import SpectrumResult
 
 from .ui_text import TEXT
 
@@ -18,6 +20,7 @@ class SpectrumView(QWidget):
     """Display one spectrum line and at most 128 real history rows."""
 
     MAX_WATERFALL_ROWS = 128
+    MAX_REGION_OVERLAYS = 64
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -41,6 +44,31 @@ class SpectrumView(QWidget):
         self.spectrum_plot.setMenuEnabled(False)
         self.spectrum_plot.setMouseEnabled(x=True, y=True)
         self.spectrum_curve = self.spectrum_plot.plot(pen=pg.mkPen("#3A9DFF", width=1.5))
+        self.noise_curve = self.spectrum_plot.plot(
+            pen=pg.mkPen("#7F8D9C", width=1.0, style=Qt.PenStyle.DashLine)
+        )
+        self.threshold_curve = self.spectrum_plot.plot(
+            pen=pg.mkPen("#F2C46D", width=1.2)
+        )
+        self.peak_markers = pg.ScatterPlotItem(
+            size=7,
+            pen=pg.mkPen("#FFB454", width=1.0),
+            brush=pg.mkBrush(255, 180, 84, 130),
+        )
+        self.spectrum_plot.addItem(self.peak_markers)
+        self.region_overlays: list[pg.LinearRegionItem] = []
+        for _ in range(self.MAX_REGION_OVERLAYS):
+            overlay = pg.LinearRegionItem(
+                values=(0.0, 0.0),
+                movable=False,
+                pen=pg.mkPen("#FFB454", width=0.8),
+                brush=pg.mkBrush(255, 180, 84, 28),
+            )
+            overlay.setZValue(-5)
+            overlay.hide()
+            self.spectrum_plot.addItem(overlay)
+            self.region_overlays.append(overlay)
+        self._detection_visible = True
         self.spectrum_empty_label = self._empty_label(
             self.spectrum_plot,
             TEXT["empty_spectrum"],
@@ -144,6 +172,8 @@ class SpectrumView(QWidget):
         waterfall_display: SpectrumDisplay,
         *,
         append_waterfall: bool = True,
+        detection_result: DetectionFrameResult | None = None,
+        spectrum_result: SpectrumResult | None = None,
     ) -> None:
         x_hz = (
             line_display.frequency_offset_hz
@@ -165,6 +195,7 @@ class SpectrumView(QWidget):
             float(self.last_x_mhz[-1]),
             padding=0.0,
         )
+        self._update_detection_overlay(detection_result, spectrum_result)
 
         if append_waterfall:
             self._waterfall_rows.append(np.asarray(waterfall, dtype=np.float32).copy())
@@ -185,6 +216,62 @@ class SpectrumView(QWidget):
             )
             self.waterfall_plot.setYRange(0.0, float(max(image.shape[0], 2)), padding=0.0)
 
+    def set_detection_visible(self, visible: bool) -> None:
+        self._detection_visible = bool(visible)
+        if not self._detection_visible:
+            self.clear_detection_overlay()
+
+    def _update_detection_overlay(
+        self,
+        detection: DetectionFrameResult | None,
+        spectrum: SpectrumResult | None,
+    ) -> None:
+        self.clear_detection_overlay()
+        if not self._detection_visible or detection is None or spectrum is None:
+            return
+        evaluated = detection.cells.evaluated_mask
+        noise = detection.cells.noise_power
+        threshold = detection.cells.threshold_power
+        floor = 10.0 ** (-200.0 / 10.0)
+        if self._metric == "bin":
+            noise_values = 10.0 * np.log10(np.maximum(noise, floor))
+            threshold_values = 10.0 * np.log10(np.maximum(threshold, floor))
+        else:
+            factor = (
+                (spectrum.frame_length * spectrum.window_coherent_gain) ** 2
+                / (spectrum.sample_rate_hz * spectrum.window_power_sum)
+            )
+            noise_values = 10.0 * np.log10(np.maximum(noise * factor, floor))
+            threshold_values = 10.0 * np.log10(np.maximum(threshold * factor, floor))
+        noise_values = np.where(evaluated, noise_values, np.nan)
+        threshold_values = np.where(evaluated, threshold_values, np.nan)
+        self.noise_curve.setData(self.last_x_mhz, noise_values)
+        self.threshold_curve.setData(self.last_x_mhz, threshold_values)
+
+        strongest = sorted(
+            detection.regions,
+            key=lambda region: (-region.peak_power, region.start_bin, region.end_bin),
+        )[: self.MAX_REGION_OVERLAYS]
+        peaks_x: list[float] = []
+        peaks_y: list[float] = []
+        for overlay, region in zip(self.region_overlays, strongest, strict=False):
+            start = float(self.last_x_mhz[region.start_bin])
+            end = float(self.last_x_mhz[region.end_bin])
+            if end <= start:
+                end = start + spectrum.bin_spacing_hz / 1_000_000.0
+            overlay.setRegion((start, end))
+            overlay.show()
+            peaks_x.append(float(self.last_x_mhz[region.peak_bin]))
+            peaks_y.append(float(self.last_line_values[region.peak_bin]))
+        self.peak_markers.setData(peaks_x, peaks_y)
+
+    def clear_detection_overlay(self) -> None:
+        self.noise_curve.clear()
+        self.threshold_curve.clear()
+        self.peak_markers.clear()
+        for overlay in self.region_overlays:
+            overlay.hide()
+
     def clear_history(self) -> None:
         self._waterfall_rows.clear()
         self.last_waterfall_values = np.empty((0, 0), dtype=np.float32)
@@ -196,5 +283,6 @@ class SpectrumView(QWidget):
         self.last_x_mhz = np.array([], dtype=np.float64)
         self.last_line_values = np.array([], dtype=np.float64)
         self.spectrum_curve.clear()
+        self.clear_detection_overlay()
         self._set_spectrum_available(False)
         self._position_empty_labels()

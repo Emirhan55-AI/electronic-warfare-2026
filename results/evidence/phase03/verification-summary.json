@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-03",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "profile-comparison-runtime",
+      "status": "passed",
+      "detail": "selected detector regional matches comparison, profile, and runtime"
+    },
+    {
+      "id": "wideband-acceptance-contract",
+      "status": "passed",
+      "detail": "catalog and comparison use coverage 0.60, IoU 0.50, and overreach 0.25"
+    },
+    {
+      "id": "phase03-files",
+      "status": "passed",
+      "detail": "all 31 approved PHASE-03 files are present"
+    },
+    {
+      "id": "golden-detection",
+      "status": "passed",
+      "detail": "fixture, coefficients, center mask, and shifted-scene gates passed"
+    },
+    {
+      "id": "historical-evidence",
+      "status": "passed",
+      "detail": "13 PHASE-00/01/02 evidence blobs match HEAD"
+    },
+    {
+      "id": "phase03-text-integrity",
+      "status": "passed",
+      "detail": "PHASE-03 text is UTF-8/LF clean and evidence has no absolute user path"
+    },
+    {
+      "id": "visual-evidence",
+      "status": "passed",
+      "detail": "seven real pipeline UI states passed fixed visual checks"
+    },
+    {
+      "id": "external-ism-bounded",
+      "status": "passed",
+      "detail": "bounded ci16_le frames processed deterministically"
+    },
+    {
+      "id": "worker-performance",
+      "status": "passed",
+      "detail": "10 FPS and bounded worker gate passed; 30 FPS characterized"
+    },
+    {
+      "id": "detector-selection",
+      "status": "passed",
+      "detail": "all mandatory gates and predetermined selection rule were applied"
+    }
+  ],
+  "external_integration": {
+    "frame_start": 0,
+    "frame_count": 4,
+    "datatype": "ci16_le",
+    "sample_rate_hz": 56000000.0,
+    "center_frequency_hz": 2430000000.0,
+    "deterministic_output": true,
+    "source_size_and_mtime_unchanged": true,
+    "source_check_is_cryptographic": false,
+    "full_source_hashed": false
+  },
+  "determinism": {
+    "absolute_paths_present": false,
+    "dynamic_timing_values_recorded": false
+  }
+}

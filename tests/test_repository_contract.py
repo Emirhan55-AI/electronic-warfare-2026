@@ -25,7 +25,9 @@ class RepositoryContractTests(unittest.TestCase):
             set(VERIFY.REQUIRED_FILES)
             | set(VERIFY.APPROVED_PHASE01_FILES)
             | set(VERIFY.APPROVED_PHASE02_FILES)
+            | set(VERIFY.APPROVED_PHASE03_FILES)
         )
+        self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_every_repository_contract_check_passes(self) -> None:

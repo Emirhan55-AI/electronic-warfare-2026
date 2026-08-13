@@ -14,6 +14,8 @@ from PySide6.QtCore import QEventLoop, QLocale, QTimer
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
+from reference.pipeline import ProcessingProfile
+
 from .controller import OperatorController
 from .main_window import MainWindow
 
@@ -52,7 +54,11 @@ class PlaybackBenchmarkResult:
     active_tasks_after_stop: int
 
 
-def build_application(argv: list[str] | None = None) -> tuple[QApplication, MainWindow, OperatorController]:
+def build_application(
+    argv: list[str] | None = None,
+    *,
+    profile: ProcessingProfile | None = None,
+) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
     app.setApplicationName("Elektronik Harp Operatör Konsolu")
     app.setOrganizationName("TEKNOFEST 2026 Elektronik Harp")
@@ -61,7 +67,7 @@ def build_application(argv: list[str] | None = None) -> tuple[QApplication, Main
     QLocale.setDefault(QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey))
     app.setStyleSheet(STYLE_PATH.read_text(encoding="utf-8"))
     window = MainWindow()
-    controller = OperatorController(window)
+    controller = OperatorController(window, profile=profile)
     app.aboutToQuit.connect(controller.close)
     return app, window, controller
 
