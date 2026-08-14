@@ -20,7 +20,7 @@ Mevcut faz **PHASE-04 — Çekirdek teknik parametre çıkarımı** aşamasıdı
 
 PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
 
-İşlevler yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir; RF alma/verme, canlı HackRF gerçek zamanlı çalışma, dBm, FPGA/PL, ZedBoard aktarımı, dinleme/demodülasyon, yön/konum, karıştırma veya aldatma iddiası değildir. Arayüzde bu yeteneklere ait sahte durum bulunmaz.
+İşlevler yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve RF performansı henüz çalıştırılmamış ve kanıtlanmamıştır. RF alma/verme yeteneği, dBm, FPGA/PL, ZedBoard aktarımı, dinleme/demodülasyon, yön/konum, karıştırma veya aldatma iddiası değildir. Arayüzde bu yeteneklere ait sahte durum bulunmaz.
 
 ## Dizinler
 
@@ -29,6 +29,7 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 - `reference/`: SigMF/spektrum, detector/temporal olay ve PHASE-04 frame-local ile operatör destekli parametre modelleri; E1 alanları yalnız alan-bazlı profil bağı geçerse etkinleşir.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
+- `host/acquisition/`: HackRF-1 için Qt/DSP bağımsız gerçek CLI ve deterministik test backend'leri, bounded `ci8` capture ve süreç güvenliği.
 - `datasets/fixtures/phase04/`: Geçerlilik matrisi, seed, yöntem sırası ve sabit başarı kapılarını içeren parametre sahne kataloğu.
 - `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
 - `datasets/fixtures/phase04e1/`: E1 acceptance kapıları, operatör-span sahneleri ve sonuçlardan önce kilitlenen yöntem sözleşmesi.
@@ -45,6 +46,7 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 - `results/evidence/phase03/`: Detector karşılaştırması, golden tespit, sabit doğrulama özeti ve yedi gerçek UI görüntüsü.
 - `results/evidence/phase04/`: Başarılı veya başarısız parametre karşılaştırması ile golden/doğrulama özeti; yedi gerçek UI görüntüsü yalnız tam başarıda üretilir.
 - `results/evidence/phase04e1/`: E1 golden ölçümleri, binding/OOS ham sonuçları, alan kararları, doğrulama özeti ve gerçek fallback arayüz görselleri.
+- `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
 
 ## Doğrulama
 

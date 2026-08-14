@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-08A",
+  "status": "passed",
+  "hardware_status": "not_exercised",
+  "screenshots": [
+    {
+      "file": "tools-missing-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "tools_missing"
+    },
+    {
+      "file": "device-missing-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "device_missing"
+    },
+    {
+      "file": "deterministic-source-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "deterministic"
+    },
+    {
+      "file": "cli-error-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "cli_error"
+    },
+    {
+      "file": "tools-missing-1920x1080-scale150.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "scale150"
+    }
+  ],
+  "byte_equality_gate": false
+}

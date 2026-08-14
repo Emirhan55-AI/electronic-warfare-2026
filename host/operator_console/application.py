@@ -9,12 +9,14 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from PySide6.QtCore import QEventLoop, QLocale, QTimer
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
 from reference.pipeline import ProcessingProfile, VerifiedProfileBinding
+from host.acquisition import HackRFBackend
 
 from .controller import OperatorController
 from .main_window import MainWindow
@@ -60,6 +62,8 @@ def build_application(
     *,
     profile: ProcessingProfile | None = None,
     verified_binding: VerifiedProfileBinding | None = None,
+    acquisition_backend: HackRFBackend | None = None,
+    test_backend_factory: Callable[[], HackRFBackend] | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
     app.setApplicationName("Elektronik Harp Operatör Konsolu")
@@ -69,7 +73,14 @@ def build_application(
     QLocale.setDefault(QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey))
     app.setStyleSheet(STYLE_PATH.read_text(encoding="utf-8"))
     window = MainWindow()
-    controller = OperatorController(window, profile=profile, verified_binding=verified_binding)
+    controller_kwargs: dict[str, object] = {
+        "profile": profile,
+        "verified_binding": verified_binding,
+        "acquisition_backend": acquisition_backend,
+    }
+    if test_backend_factory is not None:
+        controller_kwargs["test_backend_factory"] = test_backend_factory
+    controller = OperatorController(window, **controller_kwargs)
     app.aboutToQuit.connect(controller.close)
     return app, window, controller
 

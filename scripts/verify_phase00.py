@@ -266,6 +266,28 @@ APPROVED_PHASE04_FILES = (
     + PHASE04_E1_SUCCESS_ONLY_FILES
 )
 
+APPROVED_PHASE08A_FILES = (
+    "docs/decisions/ADR-0009-HACKRF-RX-HOST-PREPARATION.md",
+    "docs/interfaces/HACKRF_RX_HOST_CONTRACT.md",
+    "host/acquisition/__init__.py",
+    "host/acquisition/contracts.py",
+    "host/acquisition/hackrf.py",
+    "host/acquisition/process.py",
+    "host/acquisition/source.py",
+    "scripts/render_phase08a_ui.py",
+    "scripts/verify_phase08a.py",
+    "tests/test_hackrf_acquisition.py",
+    "tests/test_operator_hackrf.py",
+    "tests/test_phase08a_verifier.py",
+    "results/evidence/phase08a/verification-summary.json",
+    "results/evidence/phase08a/visual-summary.json",
+    "results/evidence/phase08a/tools-missing-1366x768.png",
+    "results/evidence/phase08a/device-missing-1366x768.png",
+    "results/evidence/phase08a/deterministic-source-1366x768.png",
+    "results/evidence/phase08a/cli-error-1366x768.png",
+    "results/evidence/phase08a/tools-missing-1920x1080-scale150.png",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -318,6 +340,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE02_FILES)
         | set(APPROVED_PHASE03_FILES)
         | set(APPROVED_PHASE04_FILES)
+        | set(APPROVED_PHASE08A_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -449,7 +472,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

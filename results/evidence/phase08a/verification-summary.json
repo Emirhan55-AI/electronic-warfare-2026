@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-08A",
+  "status": "passed",
+  "hardware_status": "not_exercised",
+  "live_rx_status": "not_exercised",
+  "tool_inventory": [
+    {
+      "name": "hackrf_info",
+      "status": "unavailable"
+    },
+    {
+      "name": "hackrf_transfer",
+      "status": "unavailable"
+    },
+    {
+      "name": "hackrf_sweep",
+      "status": "unavailable"
+    }
+  ],
+  "runtime_profile": "phase03-operation-default",
+  "detector": "detector.regional",
+  "mock_backend_status": "passed",
+  "checks": [
+    {
+      "id": "acquisition-contract",
+      "status": "passed"
+    },
+    {
+      "id": "bounded-ci8-capture",
+      "status": "passed"
+    },
+    {
+      "id": "phase02-phase03-adapter",
+      "status": "passed"
+    },
+    {
+      "id": "real-cli-hardware",
+      "status": "skipped"
+    },
+    {
+      "id": "real-sweep-format",
+      "status": "skipped"
+    },
+    {
+      "id": "historical-evidence-and-profiles",
+      "status": "passed",
+      "files": 66
+    },
+    {
+      "id": "packaging",
+      "status": "skipped"
+    }
+  ],
+  "limits": {
+    "default_complex_samples": 16384,
+    "maximum_complex_samples": 65536,
+    "frame_length": 4096,
+    "maximum_worker_count": 1,
+    "maximum_pending_intents": 1,
+    "maximum_process_output_bytes": 32768
+  },
+  "claim_boundary": "Donanımsız host hazırlığıdır; gerçek cihaz, canlı I/Q, sweep biçimi ve RF performansı çalıştırılmamıştır."
+}

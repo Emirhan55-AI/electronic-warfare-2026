@@ -1,0 +1,229 @@
+"""Real CLI and deterministic test implementations of the HackRF RX contract."""
+
+from __future__ import annotations
+
+import math
+import re
+import shutil
+import tempfile
+import threading
+from pathlib import Path
+from typing import Callable
+
+from .contracts import (
+    AcquisitionError,
+    CaptureResult,
+    DeviceStatus,
+    RXConfig,
+    SweepBin,
+    SweepResult,
+    ToolInventory,
+    ToolStatus,
+)
+from .process import SafeProcessRunner
+
+
+TOOL_NAMES = ("hackrf_info", "hackrf_transfer", "hackrf_sweep")
+TRANSFER_OPTIONS = ("-r", "-f", "-s", "-n", "-a", "-l", "-g")
+MAX_SWEEP_POINTS = 4096
+MAX_SWEEP_BYTES = 262_144
+
+
+def _help_options(payload: bytes) -> tuple[str, ...]:
+    text = payload.decode("utf-8", errors="replace")
+    found = set(re.findall(r"(?<![\w-])-[A-Za-z](?![\w-])", text))
+    return tuple(sorted(found))
+
+
+def parse_sweep_fixture(payload: bytes, *, maximum_points: int = MAX_SWEEP_POINTS) -> tuple[SweepBin, ...]:
+    """Parse the bounded project fixture format: one `frequency_hz,power_dbfs` row."""
+    if len(payload) > MAX_SWEEP_BYTES:
+        raise AcquisitionError("sweep_output_too_large", "Sweep çıktısı bounded sınırı aşıyor.")
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise AcquisitionError("sweep_invalid_utf8", "Sweep çıktısı geçerli UTF-8 değil.") from exc
+    rows: list[SweepBin] = []
+    previous = -1
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [item.strip() for item in line.split(",")]
+        if len(parts) != 2:
+            raise AcquisitionError("sweep_malformed", "Sweep satırı iki alandan oluşmalıdır.")
+        try:
+            frequency = int(parts[0])
+            power = float(parts[1])
+        except ValueError as exc:
+            raise AcquisitionError("sweep_malformed", "Sweep satırında sayısal olmayan alan var.") from exc
+        if not 1_000_000 <= frequency <= 6_000_000_000 or not math.isfinite(power) or frequency <= previous:
+            raise AcquisitionError("sweep_value_invalid", "Sweep değeri veya sırası geçersizdir.")
+        rows.append(SweepBin(frequency, power))
+        previous = frequency
+        if len(rows) > maximum_points:
+            raise AcquisitionError("sweep_point_limit", "Sweep nokta sınırı aşıldı.")
+    if not rows:
+        raise AcquisitionError("sweep_empty", "Sweep çıktısında örnek bulunamadı.")
+    return tuple(rows)
+
+
+class RealHackRFBackend:
+    """Conservative CLI adapter; it never assumes undocumented streaming behavior."""
+
+    backend_kind = "real"
+
+    def __init__(
+        self,
+        *,
+        runner: SafeProcessRunner | None = None,
+        which: Callable[[str], str | None] = shutil.which,
+    ) -> None:
+        self.runner = runner or SafeProcessRunner()
+        self.which = which
+        self._inventory: ToolInventory | None = None
+        self._cancel_event = threading.Event()
+
+    def discover_tools(self, *, inspect_help: bool = False) -> ToolInventory:
+        tools: list[ToolStatus] = []
+        for name in TOOL_NAMES:
+            path = self.which(name)
+            if path is None:
+                tools.append(ToolStatus(name, "unavailable"))
+                continue
+            if not inspect_help:
+                tools.append(ToolStatus(name, "available", False))
+                continue
+            try:
+                result = self.runner.run([path, "-h"], timeout_seconds=2.0)
+            except AcquisitionError:
+                tools.append(ToolStatus(name, "unverified"))
+                continue
+            payload = result.stdout + b"\n" + result.stderr
+            options = _help_options(payload)
+            help_text = payload.decode("utf-8", errors="replace").casefold()
+            verified = result.returncode in {0, 1} and bool(
+                options if name != "hackrf_info" else ("hackrf_info" in help_text or "usage" in help_text)
+            )
+            tools.append(ToolStatus(name, "available" if verified else "unverified", verified, options))
+        self._inventory = ToolInventory(tuple(tools))
+        return self._inventory
+
+    def discover_device(self, cancellation: threading.Event | None = None) -> DeviceStatus:
+        inventory = self._inventory or self.discover_tools(inspect_help=True)
+        info = inventory.get("hackrf_info")
+        path = self.which("hackrf_info")
+        if info.state != "available" or path is None:
+            return DeviceStatus("not_exercised", reason_code="tools_unavailable")
+        token = cancellation or self._cancel_event
+        try:
+            result = self.runner.run([path], timeout_seconds=3.0, cancellation=token)
+        except AcquisitionError as exc:
+            return DeviceStatus("error", reason_code=exc.code)
+        output = (result.stdout + b"\n" + result.stderr).decode("utf-8", errors="replace").casefold()
+        if result.returncode != 0 or "no hackrf boards found" in output or "hackrf_open() failed" in output:
+            return DeviceStatus("not_found", reason_code="device_not_found")
+        count = output.count("serial number") or output.count("board id number")
+        if count < 1:
+            return DeviceStatus("error", reason_code="device_output_unrecognized")
+        return DeviceStatus("ready", device_count=count)
+
+    def capture(self, config: RXConfig, cancellation: threading.Event | None = None) -> CaptureResult:
+        inventory = self._inventory or self.discover_tools(inspect_help=True)
+        transfer = inventory.get("hackrf_transfer")
+        path = self.which("hackrf_transfer")
+        if path is None or transfer.state != "available" or not transfer.help_verified:
+            raise AcquisitionError("tools_unavailable", "HackRF receive aracı doğrulanamadı.")
+        if not set(TRANSFER_OPTIONS) <= set(transfer.supported_options):
+            raise AcquisitionError("cli_options_unverified", "Gerekli HackRF RX seçenekleri yardım çıktısında doğrulanmadı.")
+        descriptor, raw_path = tempfile.mkstemp(prefix="phase08a-rx-", suffix=".ci8")
+        capture_path = Path(raw_path)
+        try:
+            import os
+
+            os.close(descriptor)
+            argv = [
+                path,
+                "-r",
+                str(capture_path),
+                "-f",
+                str(config.center_frequency_hz),
+                "-s",
+                str(config.sample_rate_hz),
+                "-n",
+                str(config.sample_count),
+                "-a",
+                "1" if config.rf_amplifier else "0",
+                "-l",
+                str(config.lna_gain_db),
+                "-g",
+                str(config.vga_gain_db),
+            ]
+            result = self.runner.run(argv, timeout_seconds=10.0, cancellation=cancellation or self._cancel_event)
+            if result.returncode != 0:
+                raise AcquisitionError("capture_process_failed", "HackRF capture aracı başarısız oldu.")
+            expected = config.sample_count * 2
+            with capture_path.open("rb") as stream:
+                payload = stream.read(expected + 1)
+            if len(payload) < expected:
+                raise AcquisitionError("short_capture", "HackRF capture beklenen uzunluktan kısa.")
+            if len(payload) > expected:
+                raise AcquisitionError("long_capture", "HackRF capture beklenen uzunluktan uzun.")
+            return CaptureResult("passed", payload, config, "real")
+        finally:
+            capture_path.unlink(missing_ok=True)
+
+    def coarse_sweep(self, cancellation: threading.Event | None = None) -> SweepResult:
+        del cancellation
+        return SweepResult("not_exercised", reason_code="real_sweep_format_not_verified")
+
+    def cancel(self) -> None:
+        self._cancel_event.set()
+        self.runner.close()
+        self._cancel_event = threading.Event()
+
+    def close(self) -> None:
+        self.cancel()
+
+
+class DeterministicMockBackend:
+    """Test-only bounded backend; it never reports a real device or live RF."""
+
+    backend_kind = "deterministic_test"
+
+    def __init__(self, payload: bytes | None = None) -> None:
+        self._payload = None if payload is None else bytes(payload)
+        self._cancelled = False
+
+    def discover_tools(self, *, inspect_help: bool = False) -> ToolInventory:
+        del inspect_help
+        return ToolInventory(tuple(ToolStatus(name, "unavailable") for name in TOOL_NAMES))
+
+    def discover_device(self, cancellation: threading.Event | None = None) -> DeviceStatus:
+        del cancellation
+        return DeviceStatus("not_exercised", reason_code="deterministic_test_source")
+
+    def capture(self, config: RXConfig, cancellation: threading.Event | None = None) -> CaptureResult:
+        if self._cancelled or (cancellation is not None and cancellation.is_set()):
+            raise AcquisitionError("operation_cancelled", "Deterministik test capture işlemi iptal edildi.")
+        expected = config.sample_count * 2
+        payload = self._payload
+        if payload is None:
+            fixture = Path(__file__).resolve().parents[2] / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-data"
+            payload = fixture.read_bytes()
+        if len(payload) != expected:
+            reason = "short_capture" if len(payload) < expected else "long_capture"
+            raise AcquisitionError(reason, "Deterministik capture boyutu beklenen değerle eşleşmiyor.")
+        return CaptureResult("passed", payload, config, "deterministic_test")
+
+    def coarse_sweep(self, cancellation: threading.Event | None = None) -> SweepResult:
+        if self._cancelled or (cancellation is not None and cancellation.is_set()):
+            raise AcquisitionError("operation_cancelled", "Deterministik sweep iptal edildi.")
+        fixture = b"99000000,-72.0\n100000000,-18.0\n101000000,-70.5\n"
+        return SweepResult("passed", parse_sweep_fixture(fixture))
+
+    def cancel(self) -> None:
+        self._cancelled = True
+
+    def close(self) -> None:
+        self.cancel()

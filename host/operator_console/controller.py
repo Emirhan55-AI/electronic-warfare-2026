@@ -10,6 +10,17 @@ from typing import Callable, Literal
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, Signal, Slot
 from PySide6.QtWidgets import QFileDialog
 
+from host.acquisition import (
+    AcquisitionError,
+    BoundedCI8FrameSource,
+    CaptureResult,
+    DeterministicMockBackend,
+    DeviceStatus,
+    HackRFBackend,
+    RXConfig,
+    RealHackRFBackend,
+    ToolInventory,
+)
 from reference.detection import DetectionFrameResult
 from reference.parameters import (
     AnalysisSpan,
@@ -53,10 +64,55 @@ class MeasurementTaskSignals(QObject):
     failed = Signal(object, str)
 
 
+class AcquisitionTaskSignals(QObject):
+    completed = Signal(int, str, object)
+    failed = Signal(int, str, str)
+
+
+class AcquisitionTask(QRunnable):
+    """Run HackRF discovery or one bounded capture outside the UI thread."""
+
+    def __init__(
+        self,
+        generation: int,
+        operation: Literal["probe", "capture", "test_capture"],
+        backend: HackRFBackend,
+        config: RXConfig,
+        closing_event: threading.Event,
+    ) -> None:
+        super().__init__()
+        self.generation = generation
+        self.operation = operation
+        self.backend = backend
+        self.config = config
+        self.closing_event = closing_event
+        self.signals = AcquisitionTaskSignals()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            if self.operation == "probe":
+                inventory = self.backend.discover_tools(inspect_help=True)
+                device = (
+                    self.backend.discover_device(self.closing_event)
+                    if inventory.receive_available
+                    else DeviceStatus("not_exercised", reason_code="tools_unavailable")
+                )
+                result: object = (inventory, device)
+            else:
+                result = self.backend.capture(self.config, self.closing_event)
+        except Exception as exc:
+            self.signals.failed.emit(self.generation, self.operation, str(getattr(exc, "code", "device_probe_failed")))
+            return
+        if self.closing_event.is_set():
+            return
+        self.signals.completed.emit(self.generation, self.operation, result)
+
+
 class MeasurementTask(QRunnable):
     """Bounded four-frame E1 read and measurement outside the UI thread."""
 
-    def __init__(self, intent: MeasurementIntent, source: SigMFFrameSource, processor: object) -> None:
+    def __init__(self, intent: MeasurementIntent, source: object, processor: object) -> None:
         super().__init__()
         self.intent = intent
         self.source = source
@@ -127,7 +183,7 @@ class FrameTask(QRunnable):
         self,
         generation: int,
         index: int,
-        source: SigMFFrameSource,
+        source: object,
         runtime_pipeline: RuntimePipeline,
     ) -> None:
         super().__init__()
@@ -171,6 +227,8 @@ class OperatorController(QObject):
         window: MainWindow,
         *,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
+        acquisition_backend: HackRFBackend | None = None,
+        test_backend_factory: Callable[[], HackRFBackend] = DeterministicMockBackend,
         profile: ProcessingProfile | None = None,
         verified_binding: VerifiedProfileBinding | None = None,
     ) -> None:
@@ -181,8 +239,10 @@ class OperatorController(QObject):
         self.playback_timer = QTimer(self)
         self.playback_timer.setTimerType(Qt.TimerType.PreciseTimer)
         self.playback_timer.timeout.connect(self._advance_playback)
-        self.source: SigMFFrameSource | None = None
+        self.source: object | None = None
         self.source_factory = source_factory
+        self.acquisition_backend = acquisition_backend or RealHackRFBackend()
+        self.test_backend_factory = test_backend_factory
         if profile is None:
             resolved = resolve_default_operation_profile()
             self.profile = resolved.profile
@@ -205,6 +265,7 @@ class OperatorController(QObject):
         self._refresh_pending = False
         self._pending_open: tuple[int, Path, Path | None, Literal["standard", "explicit"]] | None = None
         self._pending_measurement: MeasurementIntent | None = None
+        self._pending_acquisition: tuple[int, Literal["probe", "capture", "test_capture"], HackRFBackend, RXConfig] | None = None
         self._measurement_intent: MeasurementIntent | None = None
         self._selected_event_id: int | None = None
         self._span: AnalysisSpan | None = None
@@ -213,6 +274,8 @@ class OperatorController(QObject):
         self._event_observation_history: dict[int, list[bool]] = {}
         self._closing = False
         self._closing_event = threading.Event()
+        self._hackrf_device_ready = False
+        self._active_acquisition_backend: HackRFBackend | None = None
         self.playing = False
 
         self.requested_task_count = 0
@@ -223,7 +286,11 @@ class OperatorController(QObject):
         self.max_concurrent_tasks = 0
         self.max_pending_intents = 0
 
-        window.open_button.clicked.connect(self.choose_source)
+        window.open_button.clicked.connect(self.activate_selected_source)
+        window.source_type_combo.currentIndexChanged.connect(self._source_type_changed)
+        window.hackrf_refresh_button.clicked.connect(self.probe_hackrf)
+        window.hackrf_start_button.clicked.connect(self.start_hackrf_capture)
+        window.hackrf_stop_button.clicked.connect(self.stop_hackrf_capture)
         window.start_button.clicked.connect(self.start)
         window.pause_button.clicked.connect(self.pause)
         window.stop_button.clicked.connect(self.stop)
@@ -250,7 +317,101 @@ class OperatorController(QObject):
 
     @property
     def pending_intent_count(self) -> int:
-        return 1 if self._refresh_pending or self._pending_open is not None or self._pending_measurement is not None else 0
+        return 1 if self._refresh_pending or self._pending_open is not None or self._pending_measurement is not None or self._pending_acquisition is not None else 0
+
+    @Slot()
+    def activate_selected_source(self) -> None:
+        if self.window.source_kind == "deterministic_test":
+            self.open_deterministic_source()
+        elif self.window.source_kind == "sigmf":
+            self.choose_source()
+
+    @Slot(int)
+    def _source_type_changed(self, _: int) -> None:
+        mode = self.window.source_kind
+        self.pause()
+        self.acquisition_backend.cancel()
+        if self._active_acquisition_backend is not None:
+            self._active_acquisition_backend.cancel()
+        self._pending_acquisition = None
+        self._hackrf_device_ready = False
+        if self.source is not None:
+            self.source.close()  # type: ignore[attr-defined]
+            self.source = None
+        self._invalidate_processing(clear_history=True)
+        self.window.show_empty()
+        self.window.set_acquisition_mode(mode)
+
+    @Slot()
+    def probe_hackrf(self) -> bool:
+        if self._closing or self.window.source_kind != "hackrf":
+            return False
+        self._hackrf_device_ready = False
+        self.window.set_hackrf_state("searching")
+        config = RXConfig(**self.window.hackrf_settings)
+        return self._queue_acquisition("probe", self.acquisition_backend, config)
+
+    @Slot()
+    def start_hackrf_capture(self) -> bool:
+        if self._closing or self.window.source_kind != "hackrf" or not self._hackrf_device_ready:
+            return False
+        try:
+            config = RXConfig(**self.window.hackrf_settings)
+        except AcquisitionError as exc:
+            self.window.show_error(ERROR_TEXT.get(exc.code, TEXT["source_error"]))
+            return False
+        self.window.set_hackrf_state("capture_starting")
+        return self._queue_acquisition("capture", self.acquisition_backend, config)
+
+    @Slot()
+    def open_deterministic_source(self) -> bool:
+        if self._closing or self.window.source_kind != "deterministic_test":
+            return False
+        config = RXConfig()
+        self.window.show_opening()
+        return self._queue_acquisition("test_capture", self.test_backend_factory(), config)
+
+    @Slot()
+    def stop_hackrf_capture(self) -> None:
+        self.acquisition_backend.cancel()
+        self._pending_acquisition = None
+        self.pause()
+        self._invalidate_processing(clear_history=True)
+        self.window.set_hackrf_state("stopped")
+
+    def _queue_acquisition(
+        self,
+        operation: Literal["probe", "capture", "test_capture"],
+        backend: HackRFBackend,
+        config: RXConfig,
+    ) -> bool:
+        self._invalidate_processing(clear_history=True)
+        request = (self.generation, operation, backend, config)
+        if self._active_tasks:
+            self._pending_acquisition = request
+            self._pending_open = None
+            self._pending_measurement = None
+            self._refresh_pending = False
+            self.coalesced_request_count += 1
+            self.max_pending_intents = max(self.max_pending_intents, 1)
+            return True
+        self._start_acquisition(request)
+        return True
+
+    def _start_acquisition(
+        self,
+        request: tuple[int, Literal["probe", "capture", "test_capture"], HackRFBackend, RXConfig],
+    ) -> None:
+        generation, operation, backend, config = request
+        task = AcquisitionTask(generation, operation, backend, config, self._closing_event)
+        task.signals.completed.connect(self._acquisition_completed)
+        task.signals.failed.connect(self._acquisition_failed)
+        self._active_tasks = 1
+        self._active_acquisition_backend = backend
+        self.requested_task_count += 1
+        self.max_concurrent_tasks = max(self.max_concurrent_tasks, self._active_tasks)
+        self.thread_pool.start(task)
+        self.task_counters_changed.emit()
 
     @Slot()
     def choose_source(self) -> None:
@@ -345,18 +506,7 @@ class OperatorController(QObject):
             self._dispatch_pending_intent()
             return
 
-        previous_source = self.source
-        self.source = source
-        if previous_source is not None and previous_source is not source:
-            previous_source.close()
-        self.current_index = 0
-        self.last_result = None
-        self.last_detection = None
-        self.last_parameters = None
-        self.clear_analysis()
-        self.averager.reset()
-        self.runtime_pipeline.detection.reset()
-        self.window.set_source(filename, source.report)
+        self._install_source(source, filename)
         warning_messages = [self._warning_text(issue.code) for issue in source.report.warnings]
         warning_messages = [message for message in warning_messages if message]
         if warning_messages:
@@ -367,6 +517,73 @@ class OperatorController(QObject):
         self.task_counters_changed.emit()
         if not self._dispatch_pending_intent():
             self.request_current_frame()
+
+    def _install_source(self, source: object, label: str) -> None:
+        previous_source = self.source
+        self.source = source
+        if previous_source is not None and previous_source is not source:
+            previous_source.close()  # type: ignore[attr-defined]
+        self.current_index = 0
+        self.last_result = None
+        self.last_detection = None
+        self.last_parameters = None
+        self.clear_analysis()
+        self.averager.reset()
+        self.runtime_pipeline.detection.reset()
+        self.window.set_source(label, source.report)  # type: ignore[attr-defined]
+        self.window.finish_opening(source_available=True)
+
+    @Slot(int, str, object)
+    def _acquisition_completed(self, generation: int, operation: str, result: object) -> None:
+        self._active_tasks = 0
+        self._active_acquisition_backend = None
+        self.completed_task_count += 1
+        if self._closing or generation != self.generation:
+            self.stale_results_rejected += 1
+            self._dispatch_pending_intent()
+            return
+        if operation == "probe":
+            inventory, device = result  # type: ignore[misc]
+            assert isinstance(inventory, ToolInventory) and isinstance(device, DeviceStatus)
+            if not inventory.receive_available:
+                self.window.set_hackrf_state("tools_missing")
+            elif device.state == "ready":
+                self._hackrf_device_ready = True
+                self.window.set_hackrf_state("device_ready")
+            elif device.state == "not_found":
+                self.window.set_hackrf_state("device_missing")
+            else:
+                self.window.set_hackrf_state("cli_error")
+        else:
+            assert isinstance(result, CaptureResult)
+            source = BoundedCI8FrameSource(result)
+            label = "Deterministik ci8 test kaynağı" if result.backend_kind == "deterministic_test" else "HackRF-1 bounded RX"
+            self._install_source(source, label)
+            if result.backend_kind == "deterministic_test":
+                self.window.set_hackrf_state("test_source")
+                self.window.show_warning(TEXT["deterministic_source_active"])
+            else:
+                self.window.set_hackrf_state("live")
+            self.request_current_frame()
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot(int, str, str)
+    def _acquisition_failed(self, generation: int, operation: str, code: str) -> None:
+        self._active_tasks = 0
+        self._active_acquisition_backend = None
+        self.failed_task_count += 1
+        if not self._closing and generation == self.generation:
+            if code == "operation_timeout":
+                self.window.set_hackrf_state("timeout")
+            elif operation == "probe" and code == "tools_unavailable":
+                self.window.set_hackrf_state("tools_missing")
+            else:
+                self.window.set_hackrf_state("cli_error")
+            self.window.show_error(ERROR_TEXT.get(code, TEXT["hackrf_cli_error"]))
+            self.window.finish_opening(source_available=self.source is not None)
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
 
     @Slot(int, str, str)
     def _source_open_failed(self, generation: int, code: str, detail: str) -> None:
@@ -506,6 +723,12 @@ class OperatorController(QObject):
             self._pending_open = None
             self._refresh_pending = False
             self._start_source_open(request)
+            return True
+        if self._pending_acquisition is not None:
+            request = self._pending_acquisition
+            self._pending_acquisition = None
+            self._refresh_pending = False
+            self._start_acquisition(request)
             return True
         if self._pending_measurement is not None:
             intent = self._pending_measurement
@@ -823,12 +1046,16 @@ class OperatorController(QObject):
         self._closing_event.set()
         self.generation += 1
         self._pending_open = None
+        self._pending_acquisition = None
         self._pending_measurement = None
         self._measurement_intent = None
         self._refresh_pending = False
         self.playback_timer.stop()
+        self.acquisition_backend.close()
+        if self._active_acquisition_backend is not None:
+            self._active_acquisition_backend.close()
         self.thread_pool.waitForDone()
         self._active_tasks = 0
         if self.source is not None:
-            self.source.close()
+            self.source.close()  # type: ignore[attr-defined]
             self.source = None

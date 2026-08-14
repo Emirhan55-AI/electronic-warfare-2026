@@ -29,6 +29,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE02_FILES)
             | set(VERIFY.APPROVED_PHASE03_FILES)
             | set(VERIFY.APPROVED_PHASE04_FILES)
+            | set(VERIFY.APPROVED_PHASE08A_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -37,6 +38,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(47, len(VERIFY.APPROVED_PHASE04_E1_FILES))
         self.assertEqual(1, len(VERIFY.PHASE04_E1_SUCCESS_ONLY_FILES))
         self.assertEqual(120, len(VERIFY.APPROVED_PHASE04_FILES))
+        self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -79,6 +81,17 @@ class RepositoryContractTests(unittest.TestCase):
             self.assertIn(text, roadmap)
         self.assertEqual([], list(ROOT.rglob("*.sv")))
         self.assertEqual([], list(ROOT.rglob("*.svh")))
+
+    def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
+        roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
+        for text in (
+            "Mevcut faz: PHASE-04",
+            "PHASE-08A",
+            "PHASE-05–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez",
+            "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı",
+        ):
+            self.assertIn(text, roadmap)
+        self.assertFalse((ROOT / "profiles" / "phase04e1" / "operation-default.json").exists())
 
     def test_every_repository_contract_check_passes(self) -> None:
         failures = [

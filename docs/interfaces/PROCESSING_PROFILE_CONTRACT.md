@@ -49,3 +49,5 @@ bulunsa bile method-lock/comparison digest bağı geçmediğinde runtime onu
 Profil; `validated_fields`, sabit yöntem kimlikleri, method-lock SHA, exact comparison SHA, implementation manifest SHA, PHASE-03 profil SHA ve acceptance contract SHA taşır. Bu bağlardan biri bozuksa hiçbir E1 ölçüm bloğu yüklenmez, analiz sonuçları temizlenir ve uygulama saf PHASE-03 profiline döner. Doğrulanmamış alan UI'da sayı göstermez. En az bir alanın geçmesi `PHASE-04 tamamlandı` anlamına gelmez.
 
 PHASE-05'te gerçek dinleme blokları geldikçe ayrı Akış Tasarımı editörü geliştirilebilir. PHASE-06'da PC/PS/PL hedefleri ayrı doğrulanır; profil otomatik HDL üretmez. PHASE-08 canlı kaynak bloğunu, PHASE-13 doğrulanmış profil kilidini kapsar. ET/TX blokları güvenlik kapıları olmadan eklenmez.
+
+PHASE-08A sıra istisnası profil şemasını veya PHASE-03 profilini değiştirmez. HackRF-1 bounded RX capture yalnız mevcut `iq.frame/v1` kaynak portuna host adaptörü olarak bağlanır. Araç veya device acceptance bağı geçmediğinde canlı kaynak kurulmaz; deterministik test kaynağı ayrı kimlikle çalışır ve Operasyon ekranında canlı RF olarak sunulmaz.

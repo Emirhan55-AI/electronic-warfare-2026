@@ -137,7 +137,7 @@ QLabel#notification[kind="error"] {
     color: #F08A8A;
 }
 
-QPushButton, QComboBox, QSpinBox {
+QPushButton, QComboBox, QSpinBox, QDoubleSpinBox {
     min-height: 30px;
     background: #18212B;
     border: 1px solid #344252;
@@ -146,7 +146,7 @@ QPushButton, QComboBox, QSpinBox {
     padding: 0 10px;
 }
 
-QPushButton:hover, QComboBox:hover, QSpinBox:hover {
+QPushButton:hover, QComboBox:hover, QSpinBox:hover, QDoubleSpinBox:hover {
     border-color: #3A9DFF;
 }
 
@@ -154,9 +154,21 @@ QPushButton:pressed {
     background: #1C2B38;
 }
 
-QPushButton:disabled, QComboBox:disabled, QSpinBox:disabled, QCheckBox:disabled {
+QPushButton:disabled, QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled, QCheckBox:disabled {
     color: #617080;
     border-color: #27313D;
+}
+
+QFrame#hackrfPanel {
+    background: #111923;
+    border: 1px solid #27313D;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+QLabel#hackrfStatus {
+    color: #C8D4E0;
+    padding: 4px 0;
 }
 
 QPushButton#primaryButton {

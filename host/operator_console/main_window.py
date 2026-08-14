@@ -8,6 +8,7 @@ from PySide6.QtCore import QLocale, QSignalBlocker, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QDoubleSpinBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -54,6 +55,12 @@ class MainWindow(QMainWindow):
         title.setObjectName("applicationTitle")
         source_caption = QLabel(TEXT["source"])
         source_caption.setObjectName("caption")
+        self.source_type_combo = QComboBox()
+        self.source_type_combo.setObjectName("sourceTypeCombo")
+        self.source_type_combo.addItem(TEXT["source_sigmf"], "sigmf")
+        self.source_type_combo.addItem(TEXT["source_hackrf"], "hackrf")
+        self.source_type_combo.addItem(TEXT["source_deterministic"], "deterministic_test")
+        self.source_type_combo.setAccessibleName(TEXT["source_type"])
         header = QFrame()
         header.setObjectName("header")
         header_layout = QHBoxLayout(header)
@@ -62,6 +69,7 @@ class MainWindow(QMainWindow):
         header_layout.addWidget(title)
         header_layout.addSpacing(12)
         header_layout.addWidget(source_caption)
+        header_layout.addWidget(self.source_type_combo)
         header_layout.addWidget(self.source_value, 1)
         header_layout.addWidget(self.open_button)
 
@@ -103,6 +111,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.workspace_tabs, 1)
         self.setCentralWidget(central)
         self.show_empty()
+        self.set_acquisition_mode("sigmf")
 
     def _build_metadata_panel(self) -> QFrame:
         panel = QFrame()
@@ -115,6 +124,57 @@ class MainWindow(QMainWindow):
         heading = QLabel(TEXT["metadata"])
         heading.setObjectName("sectionTitle")
         layout.addWidget(heading)
+
+        self.hackrf_panel = QFrame()
+        self.hackrf_panel.setObjectName("hackrfPanel")
+        hackrf_layout = QVBoxLayout(self.hackrf_panel)
+        hackrf_layout.setContentsMargins(0, 0, 0, 8)
+        hackrf_layout.setSpacing(6)
+        hackrf_heading = QLabel(TEXT["hackrf_controls"])
+        hackrf_heading.setObjectName("sectionTitle")
+        hackrf_layout.addWidget(hackrf_heading)
+        self.hackrf_status = QLabel(TEXT["hardware_acceptance_pending"])
+        self.hackrf_status.setObjectName("hackrfStatus")
+        self.hackrf_status.setWordWrap(True)
+        hackrf_layout.addWidget(self.hackrf_status)
+        hackrf_grid = QGridLayout()
+        self.hackrf_center_spin = QDoubleSpinBox()
+        self.hackrf_center_spin.setRange(1.0, 6000.0)
+        self.hackrf_center_spin.setDecimals(3)
+        self.hackrf_center_spin.setValue(100.0)
+        self.hackrf_sample_combo = QComboBox()
+        for label, value in (("8", 8_000_000), ("10", 10_000_000), ("20", 20_000_000)):
+            self.hackrf_sample_combo.addItem(label, value)
+        self.hackrf_lna_spin = QSpinBox()
+        self.hackrf_lna_spin.setRange(0, 40)
+        self.hackrf_lna_spin.setSingleStep(8)
+        self.hackrf_lna_spin.setValue(16)
+        self.hackrf_vga_spin = QSpinBox()
+        self.hackrf_vga_spin.setRange(0, 62)
+        self.hackrf_vga_spin.setSingleStep(2)
+        self.hackrf_vga_spin.setValue(16)
+        self.hackrf_amp_checkbox = QCheckBox(TEXT["rf_amplifier"])
+        for row, (caption, widget) in enumerate(
+            (
+                (TEXT["center_frequency_mhz"], self.hackrf_center_spin),
+                (TEXT["sample_rate_msps"], self.hackrf_sample_combo),
+                (TEXT["lna_gain"], self.hackrf_lna_spin),
+                (TEXT["vga_gain"], self.hackrf_vga_spin),
+            )
+        ):
+            hackrf_grid.addWidget(QLabel(caption), row, 0)
+            hackrf_grid.addWidget(widget, row, 1)
+        hackrf_grid.addWidget(self.hackrf_amp_checkbox, 4, 0, 1, 2)
+        hackrf_layout.addLayout(hackrf_grid)
+        self.hackrf_refresh_button = QPushButton(TEXT["refresh_hardware"])
+        self.hackrf_start_button = QPushButton(TEXT["start_capture"])
+        self.hackrf_stop_button = QPushButton(TEXT["stop_capture"])
+        hackrf_buttons = QGridLayout()
+        hackrf_buttons.addWidget(self.hackrf_refresh_button, 0, 0, 1, 2)
+        hackrf_buttons.addWidget(self.hackrf_start_button, 1, 0)
+        hackrf_buttons.addWidget(self.hackrf_stop_button, 1, 1)
+        hackrf_layout.addLayout(hackrf_buttons)
+        layout.addWidget(self.hackrf_panel)
 
         grid = QGridLayout()
         grid.setHorizontalSpacing(12)
@@ -329,6 +389,60 @@ class MainWindow(QMainWindow):
         self.clear_parameters()
         self.set_source_controls_enabled(False)
         self.hide_notification()
+
+    def set_acquisition_mode(self, mode: str) -> None:
+        """Expose only controls belonging to the selected, honestly labelled source."""
+        is_hackrf = mode == "hackrf"
+        self.hackrf_panel.setVisible(is_hackrf)
+        self.open_button.setVisible(not is_hackrf)
+        self.open_button.setText(TEXT["open_test_source"] if mode == "deterministic_test" else TEXT["open_sigmf"])
+        if is_hackrf:
+            self.set_hackrf_state("acceptance_pending")
+
+    def set_hackrf_state(self, state: str) -> None:
+        mapping = {
+            "acceptance_pending": TEXT["hardware_acceptance_pending"],
+            "tools_missing": TEXT["hackrf_tools_missing"] + " · " + TEXT["live_rx_unavailable"],
+            "searching": TEXT["device_searching"],
+            "device_missing": TEXT["hackrf_device_missing"] + " · " + TEXT["live_rx_unavailable"],
+            "device_ready": TEXT["device_ready"],
+            "capture_starting": TEXT["capture_starting"],
+            "live": TEXT["live_capture"],
+            "stopped": TEXT["capture_stopped"],
+            "disconnected": TEXT["device_disconnected"],
+            "timeout": TEXT["operation_timeout"],
+            "test_source": TEXT["deterministic_source_active"],
+            "cli_error": TEXT["hackrf_cli_error"],
+        }
+        self.hackrf_status.setText(mapping[state])
+        ready = state in {"device_ready", "stopped"}
+        busy = state in {"searching", "capture_starting", "live"}
+        self.hackrf_refresh_button.setEnabled(not busy)
+        self.hackrf_start_button.setEnabled(ready)
+        self.hackrf_stop_button.setEnabled(busy)
+        for widget in (
+            self.hackrf_center_spin,
+            self.hackrf_sample_combo,
+            self.hackrf_lna_spin,
+            self.hackrf_vga_spin,
+            self.hackrf_amp_checkbox,
+        ):
+            widget.setEnabled(ready)
+
+    @property
+    def source_kind(self) -> str:
+        return str(self.source_type_combo.currentData())
+
+    @property
+    def hackrf_settings(self) -> dict[str, int | bool]:
+        return {
+            "center_frequency_hz": round(self.hackrf_center_spin.value() * 1_000_000),
+            "sample_rate_hz": int(self.hackrf_sample_combo.currentData()),
+            "sample_count": 16_384,
+            "rf_amplifier": self.hackrf_amp_checkbox.isChecked(),
+            "lna_gain_db": self.hackrf_lna_spin.value(),
+            "vga_gain_db": self.hackrf_vga_spin.value(),
+        }
 
     def show_opening(self) -> None:
         """Show a bounded busy state while retaining any valid source details."""
