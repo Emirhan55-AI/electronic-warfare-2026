@@ -24,6 +24,17 @@ PHASE04_COMPARISON_ID = "phase04-r1-parameter-selection"
 PHASE04_R2_COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04" / "r2-parameter-comparison.json"
 PHASE04_R2_METHOD_LOCK_PATH = ROOT / "datasets" / "fixtures" / "phase04" / "r2-method-lock.json"
 PHASE04_R2_COMPARISON_ID = "phase04-r2-band-recovery"
+PHASE04E1_PROFILE_PATH = ROOT / "profiles" / "phase04e1" / "operation-default.json"
+PHASE04E1_COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04e1" / "parameter-comparison.json"
+PHASE04E1_METHOD_LOCK_PATH = ROOT / "datasets" / "fixtures" / "phase04e1" / "method-lock.json"
+PHASE04E1_ACCEPTANCE_PATH = ROOT / "datasets" / "fixtures" / "phase04e1" / "acceptance-gates.json"
+PHASE04E1_FIELDS = (
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_power_dbfs",
+    "signal_domain",
+)
 BLOCK_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 PHASE04_METHOD_KEYS = (
@@ -87,6 +98,103 @@ class ResolvedOperationProfile:
     profile: ProcessingProfile
     binding: VerifiedProfileBinding | None
     fallback_code: str | None
+
+
+@dataclass(frozen=True)
+class Phase04E1Capability:
+    """Verified field-scoped E1 capability layered over PHASE-03 detection."""
+
+    profile_id: str
+    validated_fields: tuple[str, ...]
+    automatic_span_validated: bool
+    methods: tuple[tuple[str, str], ...]
+    method_lock_sha256: str
+    comparison_sha256: str
+    implementation_manifest_sha256: str
+    phase03_profile_sha256: str
+    acceptance_contract_sha256: str
+
+    def __post_init__(self) -> None:
+        if self.profile_id != "phase04e1-operator-assisted-parameters":
+            raise ProfileError("e1_profile_identity", "PHASE-04-E1 profile identity is invalid")
+        if not self.validated_fields or any(item not in PHASE04E1_FIELDS for item in self.validated_fields):
+            raise ProfileError("e1_validated_fields", "PHASE-04-E1 validated fields are invalid")
+        if tuple(sorted(set(self.validated_fields), key=PHASE04E1_FIELDS.index)) != self.validated_fields:
+            raise ProfileError("e1_validated_fields", "PHASE-04-E1 validated field order is invalid")
+        for value in (
+            self.method_lock_sha256,
+            self.comparison_sha256,
+            self.implementation_manifest_sha256,
+            self.phase03_profile_sha256,
+            self.acceptance_contract_sha256,
+        ):
+            if not SHA256_PATTERN.fullmatch(value):
+                raise ProfileError("e1_digest_invalid", "PHASE-04-E1 digest is invalid")
+
+
+def _file_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_phase04e1_capability(
+    profile_path: Path = PHASE04E1_PROFILE_PATH,
+    comparison_path: Path = PHASE04E1_COMPARISON_PATH,
+) -> Phase04E1Capability | None:
+    """Return a verified E1 layer or None; never weakens PHASE-03 fallback."""
+    if not profile_path.exists():
+        return None
+    try:
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        comparison = json.loads(comparison_path.read_text(encoding="utf-8"))
+        method_lock = json.loads(PHASE04E1_METHOD_LOCK_PATH.read_text(encoding="utf-8"))
+        from reference.parameters.operator_reference import implementation_manifest
+
+        capability = Phase04E1Capability(
+            profile_id=str(profile["profile_id"]),
+            validated_fields=tuple(profile["validated_fields"]),
+            automatic_span_validated=bool(profile.get("automatic_span_validated", False)),
+            methods=tuple((str(key), str(value)) for key, value in profile["methods"].items()),
+            method_lock_sha256=str(profile["method_lock_sha256"]),
+            comparison_sha256=str(profile["comparison_sha256"]),
+            implementation_manifest_sha256=str(profile["implementation_manifest_sha256"]),
+            phase03_profile_sha256=str(profile["phase03_profile_sha256"]),
+            acceptance_contract_sha256=str(profile["acceptance_contract_sha256"]),
+        )
+        if comparison.get("comparison_id") != "phase04e1-operator-assisted-parameters":
+            return None
+        if comparison.get("protocol_revision") != "independent-fields-v2":
+            return None
+        if tuple(comparison.get("validated_fields", ())) != capability.validated_fields:
+            return None
+        if bool(comparison.get("automatic_span_validated", False)) != capability.automatic_span_validated:
+            return None
+        if _file_sha256(comparison_path) != capability.comparison_sha256:
+            return None
+        if _file_sha256(PHASE04E1_METHOD_LOCK_PATH) != capability.method_lock_sha256:
+            return None
+        if _file_sha256(DEFAULT_PROFILE_PATH) != capability.phase03_profile_sha256:
+            return None
+        if _file_sha256(PHASE04E1_ACCEPTANCE_PATH) != capability.acceptance_contract_sha256:
+            return None
+        if implementation_manifest()["sha256"] != capability.implementation_manifest_sha256:
+            return None
+        if method_lock.get("status") != "locked-pre-binding" or method_lock.get("protocol_revision") != "independent-fields-v2":
+            return None
+        passed_manual = tuple(
+            item.get("field")
+            for item in comparison.get("field_decisions", ())
+            if item.get("field") != "automatic_span" and item.get("status") == "passed"
+        )
+        if passed_manual != capability.validated_fields:
+            return None
+        lock_methods = dict(method_lock.get("methods", {}))
+        if not capability.automatic_span_validated:
+            lock_methods.pop("automatic_span", None)
+        if tuple((str(key), str(value)) for key, value in lock_methods.items()) != capability.methods:
+            return None
+        return capability
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ProfileError):
+        return None
 
 
 @dataclass(frozen=True)

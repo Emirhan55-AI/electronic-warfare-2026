@@ -11,7 +11,15 @@ from PySide6.QtCore import QObject, QRunnable, QThreadPool, QTimer, Qt, Signal, 
 from PySide6.QtWidgets import QFileDialog
 
 from reference.detection import DetectionFrameResult
-from reference.parameters import ParameterFrameResult
+from reference.parameters import (
+    AnalysisSpan,
+    MeasurementCandidate,
+    MeasurementContext,
+    MeasurementIntent,
+    OperatorMeasurementProcessor,
+    ParameterFrameResult,
+    suggest_analysis_span,
+)
 from reference.pipeline import (
     ProcessingProfile,
     RuntimeFrameResult,
@@ -19,6 +27,7 @@ from reference.pipeline import (
     VerifiedProfileBinding,
     resolve_default_operation_profile,
 )
+from reference.pipeline.profile import load_phase04e1_capability
 from reference.spectrum import (
     ExponentialPowerAverager,
     SigMFFrameSource,
@@ -37,6 +46,40 @@ class FrameTaskSignals(QObject):
 class SourceOpenTaskSignals(QObject):
     completed = Signal(int, object, str)
     failed = Signal(int, str, str)
+
+
+class MeasurementTaskSignals(QObject):
+    completed = Signal(object, object)
+    failed = Signal(object, str)
+
+
+class MeasurementTask(QRunnable):
+    """Bounded four-frame E1 read and measurement outside the UI thread."""
+
+    def __init__(self, intent: MeasurementIntent, source: SigMFFrameSource, processor: object) -> None:
+        super().__init__()
+        self.intent = intent
+        self.source = source
+        self.processor = processor
+        self.signals = MeasurementTaskSignals()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            samples = tuple(self.source.read_frame(self.intent.start_frame + offset) for offset in range(4))
+            spectra = tuple(
+                self.processor.process(
+                    frame,
+                    sample_rate_hz=self.source.sample_rate_hz,
+                    center_frequency_hz=self.source.center_frequency_hz,
+                )
+                for frame in samples
+            )
+            result = OperatorMeasurementProcessor().measure(self.intent, samples, spectra)
+        except Exception as exc:
+            self.signals.failed.emit(self.intent.generation_key, str(getattr(exc, "code", "measurement_failed")))
+            return
+        self.signals.completed.emit(self.intent.generation_key, result)
 
 
 class SourceOpenTask(QRunnable):
@@ -150,6 +193,7 @@ class OperatorController(QObject):
             self.verified_binding = verified_binding
             self.profile_fallback_code = None
         self.runtime_pipeline = RuntimePipeline(self.profile, verified_binding=self.verified_binding)
+        self.e1_capability = load_phase04e1_capability()
         self.processor = self.runtime_pipeline.processor
         self.averager = ExponentialPowerAverager(alpha=0.2)
         self.current_index = 0
@@ -160,6 +204,13 @@ class OperatorController(QObject):
         self._active_tasks = 0
         self._refresh_pending = False
         self._pending_open: tuple[int, Path, Path | None, Literal["standard", "explicit"]] | None = None
+        self._pending_measurement: MeasurementIntent | None = None
+        self._measurement_intent: MeasurementIntent | None = None
+        self._selected_event_id: int | None = None
+        self._span: AnalysisSpan | None = None
+        self._span_revision = 0
+        self._configuration_generation = 0
+        self._event_observation_history: dict[int, list[bool]] = {}
         self._closing = False
         self._closing_event = threading.Event()
         self.playing = False
@@ -185,6 +236,10 @@ class OperatorController(QObject):
         window.detection_layer_checkbox.toggled.connect(self._detection_layer_changed)
         window.pfa_combo.currentIndexChanged.connect(self._detector_config_changed)
         window.center_checkbox.toggled.connect(self._detector_config_changed)
+        window.detection_list.itemSelectionChanged.connect(self._analysis_event_selected)
+        window.analysis_spectrum.span_changed.connect(self._analysis_span_changed)
+        window.measure_button.clicked.connect(self.request_measurement)
+        window.clear_measurement_button.clicked.connect(self.clear_analysis)
         self._show_profile_summary()
         if self.profile_fallback_code is not None:
             self.window.show_warning(TEXT["phase04_fallback"])
@@ -195,7 +250,7 @@ class OperatorController(QObject):
 
     @property
     def pending_intent_count(self) -> int:
-        return 1 if self._refresh_pending or self._pending_open is not None else 0
+        return 1 if self._refresh_pending or self._pending_open is not None or self._pending_measurement is not None else 0
 
     @Slot()
     def choose_source(self) -> None:
@@ -298,6 +353,7 @@ class OperatorController(QObject):
         self.last_result = None
         self.last_detection = None
         self.last_parameters = None
+        self.clear_analysis()
         self.averager.reset()
         self.runtime_pipeline.detection.reset()
         self.window.set_source(filename, source.report)
@@ -393,6 +449,11 @@ class OperatorController(QObject):
         else:
             self.last_result = result.spectrum
             self.last_detection = result.detection  # type: ignore[assignment]
+            active_ids = {int(item.event_id) for item in self.last_detection.active_events}
+            for event_id in set(self._event_observation_history) | active_ids:
+                event = next((item for item in self.last_detection.active_events if int(item.event_id) == event_id), None)
+                self._event_observation_history.setdefault(event_id, []).append(bool(event is not None and event.observed_this_frame))
+                self._event_observation_history[event_id] = self._event_observation_history[event_id][-4:]
             self.last_parameters = result.parameters
             averaged_power = (
                 self.averager.update(result.spectrum.fft_power_unshifted)
@@ -410,6 +471,8 @@ class OperatorController(QObject):
             )
             self.window.set_detection_result(self.last_detection)
             self.window.set_parameter_result(self.last_parameters)
+            if self._selected_event_id is not None:
+                self._refresh_selected_event()
             assert self.source is not None
             self.window.set_frame_position(index, self.source.frame_count)
             self.frame_rendered.emit(index, elapsed_seconds)
@@ -443,6 +506,11 @@ class OperatorController(QObject):
             self._pending_open = None
             self._refresh_pending = False
             self._start_source_open(request)
+            return True
+        if self._pending_measurement is not None:
+            intent = self._pending_measurement
+            self._pending_measurement = None
+            self._start_measurement(intent)
             return True
         return False
 
@@ -508,7 +576,10 @@ class OperatorController(QObject):
         self.averager.reset()
         self.last_result = None
         self.last_detection = None
+        self._event_observation_history.clear()
         self.last_parameters = None
+        self._configuration_generation += 1
+        self.clear_analysis()
         self._show_profile_summary()
         self._invalidate_processing(clear_history=True)
         self.request_current_frame()
@@ -550,10 +621,12 @@ class OperatorController(QObject):
         )
         self.processor = self.runtime_pipeline.processor
         self.last_detection = None
+        self._event_observation_history.clear()
         self.window.clear_detections()
         self.last_parameters = None
         self.window.clear_parameters()
         self.window.spectrum_view.clear_detection_overlay()
+        self.clear_analysis()
         if clear_history:
             self.window.spectrum_view.clear_history()
 
@@ -597,6 +670,146 @@ class OperatorController(QObject):
             )
         self.window.set_profile_summary(summary, validated=True)
 
+    @Slot()
+    def _analysis_event_selected(self) -> None:
+        items = self.window.detection_list.selectedItems()
+        if not items or self.last_detection is None or self.last_result is None:
+            self.clear_analysis()
+            return
+        event_id = int(items[0].data(Qt.ItemDataRole.UserRole))
+        event = next((item for item in self.last_detection.active_events if item.event_id == event_id), None)
+        if event is None or event.state != "confirmed" or not event.observed_this_frame:
+            self.clear_analysis()
+            return
+        self._selected_event_id = event_id
+        self._span_revision += 1
+        if self.e1_capability is not None and self.e1_capability.automatic_span_validated:
+            span = suggest_analysis_span(event, self.last_detection.active_events, revision=self._span_revision)
+        else:
+            lower = max(20, int(event.region.start_bin))
+            upper = min(4075, int(event.region.end_bin))
+            if upper - lower + 1 < 8:
+                upper = min(4075, lower + 7)
+                lower = max(20, upper - 7)
+            span = AnalysisSpan(lower, upper, "operator_adjusted", self._span_revision)
+        self.window.set_analysis_event(event)
+        self.window.measure_button.setEnabled(self.e1_capability is not None)
+        self.window.analysis_spectrum.set_spectrum(self.last_result.display)
+        if span is None:
+            self._span = None
+            self.window.span_value.setText(TEXT["manual_span_available"])
+            return
+        self._span = span
+        self.window.analysis_spectrum.set_span(span.lower_shifted_bin, span.upper_shifted_bin)
+        self.window.set_analysis_span(span.lower_shifted_bin, span.upper_shifted_bin, span.provenance)
+
+    def _refresh_selected_event(self) -> None:
+        if self.last_detection is None:
+            self.clear_analysis()
+            return
+        event = next((item for item in self.last_detection.active_events if item.event_id == self._selected_event_id), None)
+        if event is None or event.state != "confirmed" or not event.observed_this_frame:
+            self.clear_analysis()
+            return
+        self.window.set_analysis_event(event)
+        self.window.measure_button.setEnabled(self.e1_capability is not None)
+
+    @Slot(int, int)
+    def _analysis_span_changed(self, lower: int, upper: int) -> None:
+        if self._selected_event_id is None:
+            return
+        self._span_revision += 1
+        self._span = AnalysisSpan(lower, upper, "operator_adjusted", self._span_revision)
+        self._measurement_intent = None
+        self.window.set_analysis_span(lower, upper, self._span.provenance)
+
+    @Slot()
+    def request_measurement(self) -> bool:
+        if self.e1_capability is None or self.source is None or self._selected_event_id is None or self._span is None:
+            return False
+        observations = tuple(self._event_observation_history.get(self._selected_event_id, ()))
+        if self.current_index < 3 or len(observations) != 4 or not all(observations):
+            self.window.measurement_state.setText(TEXT["measurement_failed"] + ": " + TEXT["insufficient_quality"])
+            return False
+        event = next((item for item in (self.last_detection.active_events if self.last_detection else ()) if item.event_id == self._selected_event_id), None)
+        if event is None or event.state != "confirmed" or not event.observed_this_frame:
+            return False
+        candidates = tuple(
+            MeasurementCandidate(
+                int(item.event_id), int(item.seen_count), int(item.region.start_bin), int(item.region.end_bin),
+                item.state == "confirmed",
+            )
+            for item in (self.last_detection.active_events if self.last_detection else ())
+        )
+        context = MeasurementContext(
+            self.generation,
+            self.generation,
+            self._configuration_generation,
+            int(event.event_id),
+            int(event.seen_count),
+            observations,  # type: ignore[arg-type]
+            candidates,
+        )
+        intent = MeasurementIntent(
+            self.generation,
+            self.generation,
+            self._configuration_generation,
+            event.event_id,
+            event.seen_count,
+            self.current_index - 3,
+            self._span,
+            context,
+        )
+        self._measurement_intent = intent
+        self.window.set_measurement_busy()
+        if self._active_tasks:
+            self._pending_measurement = intent
+            self._refresh_pending = False
+            self.max_pending_intents = max(self.max_pending_intents, 1)
+            return True
+        self._start_measurement(intent)
+        return True
+
+    def _start_measurement(self, intent: MeasurementIntent) -> None:
+        assert self.source is not None
+        task = MeasurementTask(intent, self.source, self.runtime_pipeline.processor)
+        task.signals.completed.connect(self._measurement_completed)
+        task.signals.failed.connect(self._measurement_failed)
+        self._active_tasks = 1
+        self.requested_task_count += 1
+        self.max_concurrent_tasks = max(self.max_concurrent_tasks, self._active_tasks)
+        self.thread_pool.start(task)
+        self.task_counters_changed.emit()
+
+    @Slot(object, object)
+    def _measurement_completed(self, generation_key: object, result: object) -> None:
+        self._active_tasks = 0
+        self.completed_task_count += 1
+        if self._measurement_intent is None or generation_key != self._measurement_intent.generation_key or self._closing:
+            self.stale_results_rejected += 1
+        else:
+            fields = self.e1_capability.validated_fields if self.e1_capability is not None else ()
+            self.window.set_operator_measurement(result, fields)
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot(object, str)
+    def _measurement_failed(self, generation_key: object, _: str) -> None:
+        self._active_tasks = 0
+        self.failed_task_count += 1
+        if self._measurement_intent is not None and generation_key == self._measurement_intent.generation_key and not self._closing:
+            self.window.measurement_state.setText(TEXT["measurement_failed"])
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot()
+    def clear_analysis(self) -> None:
+        self._selected_event_id = None
+        self._span = None
+        self._measurement_intent = None
+        self._pending_measurement = None
+        self.window.clear_analysis()
+
     @staticmethod
     def _warning_text(code: str) -> str:
         return {
@@ -610,6 +823,8 @@ class OperatorController(QObject):
         self._closing_event.set()
         self.generation += 1
         self._pending_open = None
+        self._pending_measurement = None
+        self._measurement_intent = None
         self._refresh_pending = False
         self.playback_timer.stop()
         self.thread_pool.waitForDone()

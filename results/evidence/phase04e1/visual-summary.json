@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-E1",
+  "status": "passed",
+  "screenshots": [
+    {
+      "file": "empty-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "state": "empty"
+    },
+    {
+      "file": "loading-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "loading"
+    },
+    {
+      "file": "no-detection-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "no_detection"
+    },
+    {
+      "file": "tentative-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "tentative"
+    },
+    {
+      "file": "confirmed-selected-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "confirmed"
+    },
+    {
+      "file": "auto-span-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "state": "auto_span"
+    },
+    {
+      "file": "operator-span-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "operator_span"
+    },
+    {
+      "file": "fields-disabled-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "fields_disabled"
+    },
+    {
+      "file": "validation-unavailable-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "validation_unavailable"
+    },
+    {
+      "file": "uncertain-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "uncertain"
+    },
+    {
+      "file": "unmeasured-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "state": "unmeasured"
+    },
+    {
+      "file": "warning-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "warning"
+    },
+    {
+      "file": "error-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "error"
+    },
+    {
+      "file": "multiple-events-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "multiple"
+    },
+    {
+      "file": "scale150-1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "scale150"
+    }
+  ],
+  "byte_equality_gate": false
+}

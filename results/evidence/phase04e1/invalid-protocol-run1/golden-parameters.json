@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04e1-golden-parameters-v1",
+  "status": "passed",
+  "sample_rate_hz": 8000000.0,
+  "center_frequency_hz": 100000000.0,
+  "fft_length": 4096,
+  "families": [
+    {
+      "family_id": "am",
+      "source_scene_id": "am-carrier",
+      "carrier_line_applicable": true,
+      "expected_domain": "Analog",
+      "operator_span": [
+        1776,
+        1819
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 1788.869823434012,
+        "upper_shifted_native_bin": 1806.630176565988,
+        "lower_offset_hz": -506113.626105445,
+        "upper_offset_hz": -471425.436394555,
+        "lower_frequency_hz": 99493886.37389456,
+        "upper_frequency_hz": 99528574.56360544,
+        "occupied_bandwidth_hz": 34688.18971089
+      },
+      "emission_center_frequency_hz": 99511230.46875,
+      "carrier_line_frequency_hz": 99511230.46875,
+      "clean_channel_power_dbfs": -18.00000001774582,
+      "clean_peak_power_dbfs_per_bin": -19.07036382511333,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "nfm",
+      "source_scene_id": "nfm",
+      "carrier_line_applicable": true,
+      "expected_domain": "Analog",
+      "operator_span": [
+        2411,
+        2454
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 2423.096599873038,
+        "upper_shifted_native_bin": 2441.403389822763,
+        "lower_offset_hz": 732610.546627027,
+        "upper_offset_hz": 768365.995747583,
+        "lower_frequency_hz": 100732610.54662703,
+        "upper_frequency_hz": 100768365.99574758,
+        "occupied_bandwidth_hz": 35755.449120557
+      },
+      "emission_center_frequency_hz": 100750488.2711873,
+      "carrier_line_frequency_hz": 100750488.28125,
+      "clean_channel_power_dbfs": -18.000000487280644,
+      "clean_peak_power_dbfs_per_bin": -23.421242944382755,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "ook",
+      "source_scene_id": "ook",
+      "carrier_line_applicable": true,
+      "expected_domain": "Sayısal",
+      "operator_span": [
+        1514,
+        1557
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 1526.554632581184,
+        "upper_shifted_native_bin": 1544.746990428816,
+        "lower_offset_hz": -1018447.983239876,
+        "upper_offset_hz": -982916.034318718,
+        "lower_frequency_hz": 98981552.01676013,
+        "upper_frequency_hz": 99017083.96568128,
+        "occupied_bandwidth_hz": 35531.948921158
+      },
+      "emission_center_frequency_hz": 98999317.9912207,
+      "carrier_line_frequency_hz": 98999316.40625,
+      "clean_channel_power_dbfs": -16.99074901613519,
+      "clean_peak_power_dbfs_per_bin": -20.3434398740419,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "two_fsk",
+      "source_scene_id": "two-fsk",
+      "carrier_line_applicable": false,
+      "expected_domain": "Sayısal",
+      "operator_span": [
+        2721,
+        2776
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 2733.226932090111,
+        "upper_shifted_native_bin": 2763.212342545346,
+        "lower_offset_hz": 1338333.851738499,
+        "upper_offset_hz": 1396899.106533878,
+        "lower_frequency_hz": 101338333.8517385,
+        "upper_frequency_hz": 101396899.10653389,
+        "occupied_bandwidth_hz": 58565.254795379
+      },
+      "emission_center_frequency_hz": 101367616.47913618,
+      "carrier_line_frequency_hz": null,
+      "clean_channel_power_dbfs": -18.000001547213145,
+      "clean_peak_power_dbfs_per_bin": -25.970864198456766,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "bpsk",
+      "source_scene_id": "bpsk",
+      "carrier_line_applicable": false,
+      "expected_domain": "Sayısal",
+      "operator_span": [
+        1126,
+        1170
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 1138.167009893868,
+        "upper_shifted_native_bin": 1157.134150385084,
+        "lower_offset_hz": -1777017.55880104,
+        "upper_offset_hz": -1739972.362529132,
+        "lower_frequency_hz": 98222982.44119896,
+        "upper_frequency_hz": 98260027.63747087,
+        "occupied_bandwidth_hz": 37045.196271908
+      },
+      "emission_center_frequency_hz": 98241505.03933491,
+      "carrier_line_frequency_hz": null,
+      "clean_channel_power_dbfs": -18.011170348649372,
+      "clean_peak_power_dbfs_per_bin": -24.161917363146653,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "qpsk",
+      "source_scene_id": "qpsk",
+      "carrier_line_applicable": false,
+      "expected_domain": "Sayısal",
+      "operator_span": [
+        3117,
+        3179
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 3129.585922264505,
+        "upper_shifted_native_bin": 3166.972768490282,
+        "lower_offset_hz": 2112472.504422862,
+        "upper_offset_hz": 2185493.688457582,
+        "lower_frequency_hz": 102112472.50442286,
+        "upper_frequency_hz": 102185493.68845758,
+        "occupied_bandwidth_hz": 73021.18403472
+      },
+      "emission_center_frequency_hz": 102148983.09644023,
+      "carrier_line_frequency_hz": null,
+      "clean_channel_power_dbfs": -17.971419636268532,
+      "clean_peak_power_dbfs_per_bin": -27.754367327928733,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "wideband_noise_like",
+      "source_scene_id": "wideband-noise-like",
+      "carrier_line_applicable": false,
+      "expected_domain": "Belirsiz",
+      "operator_span": [
+        2455,
+        2576
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 2467.928573251984,
+        "upper_shifted_native_bin": 2563.091371857959,
+        "lower_offset_hz": 820172.994632782,
+        "upper_offset_hz": 1006037.835660076,
+        "lower_frequency_hz": 100820172.99463278,
+        "upper_frequency_hz": 101006037.83566007,
+        "occupied_bandwidth_hz": 185864.841027295
+      },
+      "emission_center_frequency_hz": 100913105.41514643,
+      "carrier_line_frequency_hz": null,
+      "clean_channel_power_dbfs": -18.29392965006959,
+      "clean_peak_power_dbfs_per_bin": -33.117071382917814,
+      "clean_time_power_dbfs": -18.0
+    },
+    {
+      "family_id": "burst_qpsk",
+      "source_scene_id": "burst-qpsk",
+      "carrier_line_applicable": false,
+      "expected_domain": "Sayısal",
+      "operator_span": [
+        2617,
+        2679
+      ],
+      "obw99": {
+        "lower_shifted_native_bin": 2629.541438920078,
+        "upper_shifted_native_bin": 2666.85727390667,
+        "lower_offset_hz": 1135823.122890778,
+        "upper_offset_hz": 1208705.613098965,
+        "lower_frequency_hz": 101135823.12289077,
+        "upper_frequency_hz": 101208705.61309896,
+        "occupied_bandwidth_hz": 72882.490208187
+      },
+      "emission_center_frequency_hz": 101172264.36799487,
+      "carrier_line_frequency_hz": null,
+      "clean_channel_power_dbfs": -19.249913720200663,
+      "clean_peak_power_dbfs_per_bin": -28.041346243561375,
+      "clean_time_power_dbfs": -19.249387366083
+    }
+  ],
+  "contracts": {
+    "operator_scenes_sha256": "b8cf7337f92fafc9ef145c4a8753e8a2e64f9901d14ed7dfa6d55597e73acd15",
+    "acceptance_gates_sha256": "569d3a5dfab11a9c8121130516d46abba3a9dfbf4e990216f3e6ab62ace60598",
+    "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  }
+}

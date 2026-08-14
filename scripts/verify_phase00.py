@@ -204,8 +204,66 @@ APPROVED_PHASE04_D1_FILES = (
     "tests/test_phase04d1_verifier.py",
 )
 
+APPROVED_PHASE04_E1_FILES = (
+    "datasets/fixtures/phase04e1/acceptance-gates.json",
+    "datasets/fixtures/phase04e1/operator-scenes.json",
+    "datasets/fixtures/phase04e1/method-lock.json",
+    "docs/decisions/ADR-0008-OPERATOR-ASSISTED-PARAMETERS.md",
+    "docs/interfaces/OPERATOR_ASSISTED_PARAMETER_CONTRACT.md",
+    "reference/parameters/operator_assisted.py",
+    "reference/parameters/operator_classification.py",
+    "reference/parameters/operator_evaluation.py",
+    "reference/parameters/operator_reference.py",
+    "scripts/generate_phase04e1_reference.py",
+    "scripts/lock_phase04e1_method.py",
+    "scripts/run_phase04e1_evaluation.py",
+    "scripts/verify_phase04e1.py",
+    "scripts/render_phase04e1_ui.py",
+    "tests/test_phase04e1_algorithms.py",
+    "tests/test_phase04e1_evaluation.py",
+    "tests/test_phase04e1_profile.py",
+    "tests/test_operator_analysis.py",
+    "tests/test_phase04e1_verifier.py",
+    "results/evidence/phase04e1/golden-parameters.json",
+    "results/evidence/phase04e1/binding-results.json",
+    "results/evidence/phase04e1/oos-results.json",
+    "results/evidence/phase04e1/parameter-comparison.json",
+    "results/evidence/phase04e1/verification-summary.json",
+    "results/evidence/phase04e1/visual-summary.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/binding-results.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/oos-results.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/parameter-comparison.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/golden-parameters.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/verification-summary.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/method-lock.json",
+    "results/evidence/phase04e1/invalid-protocol-run1/invalid-run-manifest.json",
+    "results/evidence/phase04e1/empty-1280x720.png",
+    "results/evidence/phase04e1/loading-1366x768.png",
+    "results/evidence/phase04e1/no-detection-1920x1080.png",
+    "results/evidence/phase04e1/tentative-1366x768.png",
+    "results/evidence/phase04e1/confirmed-selected-1366x768.png",
+    "results/evidence/phase04e1/auto-span-1280x720.png",
+    "results/evidence/phase04e1/operator-span-1366x768.png",
+    "results/evidence/phase04e1/fields-disabled-1920x1080.png",
+    "results/evidence/phase04e1/validation-unavailable-1366x768.png",
+    "results/evidence/phase04e1/uncertain-1366x768.png",
+    "results/evidence/phase04e1/unmeasured-1280x720.png",
+    "results/evidence/phase04e1/warning-1366x768.png",
+    "results/evidence/phase04e1/error-1366x768.png",
+    "results/evidence/phase04e1/multiple-events-1920x1080.png",
+    "results/evidence/phase04e1/scale150-1920x1080.png",
+)
+
+PHASE04_E1_SUCCESS_ONLY_FILES = (
+    "profiles/phase04e1/operation-default.json",
+)
+
 APPROVED_PHASE04_FILES = (
-    APPROVED_PHASE04_BASE_FILES + PHASE04_SUCCESS_ONLY_FILES + APPROVED_PHASE04_D1_FILES
+    APPROVED_PHASE04_BASE_FILES
+    + PHASE04_SUCCESS_ONLY_FILES
+    + APPROVED_PHASE04_D1_FILES
+    + APPROVED_PHASE04_E1_FILES
+    + PHASE04_E1_SUCCESS_ONLY_FILES
 )
 
 EXPECTED_TOOLS = (

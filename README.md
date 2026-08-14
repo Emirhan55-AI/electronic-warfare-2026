@@ -18,7 +18,7 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 Mevcut faz **PHASE-04 — Çekirdek teknik parametre çıkarımı** aşamasıdır. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuş, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını getirmiş, PHASE-03 kayıtlı/sentetik I/Q için `regional` detector kullanan doğrulanmış tespit profilini oluşturmuştur.
 
-PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1 kurtarma çalışması gerçek PHASE-03 `2-of-3` temporal olaylarını, tarafsız analysis-window adaylarını ve çok-bileşenli bant desteğini kullanır. Validated PHASE-04 profili yalnız bütün katalog kapıları ve comparison/digest bağı geçerse kurulur; başarısız comparison yanında eski bir profil bulunsa bile Operasyon zinciri onu yüklemez. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
+PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
 
 İşlevler yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir; RF alma/verme, canlı HackRF gerçek zamanlı çalışma, dBm, FPGA/PL, ZedBoard aktarımı, dinleme/demodülasyon, yön/konum, karıştırma veya aldatma iddiası değildir. Arayüzde bu yeteneklere ait sahte durum bulunmaz.
 
@@ -26,11 +26,13 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
 - `rtl/`: İleride geliştirilecek FPGA veri yolu; henüz RTL uygulaması içermez.
-- `reference/`: SigMF/spektrum, detector/temporal olay ve PHASE-04 frame-local parametre modelleri ile allowlist çalışma zamanı.
+- `reference/`: SigMF/spektrum, detector/temporal olay ve PHASE-04 frame-local ile operatör destekli parametre modelleri; E1 alanları yalnız alan-bazlı profil bağı geçerse etkinleşir.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
 - `datasets/fixtures/phase04/`: Geçerlilik matrisi, seed, yöntem sırası ve sabit başarı kapılarını içeren parametre sahne kataloğu.
 - `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
+- `datasets/fixtures/phase04e1/`: E1 acceptance kapıları, operatör-span sahneleri ve sonuçlardan önce kilitlenen yöntem sözleşmesi.
+- `profiles/phase04e1/`: En az bir E1 alanı binding ve OOS kapılarını geçerse oluşturulacak alan-bazlı profil; mevcut değerlendirmede oluşturulmamıştır.
 - `datasets/fixtures/phase03/`: Detector bağımsız, sayısal parametreleri sabit sentetik sahne kataloğu.
 - `profiles/phase03/`: Benchmark sonucuyla kurulan doğrulanmış Operasyon işlem profili.
 - `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
@@ -42,6 +44,7 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 - `results/evidence/phase02/`: Golden spektrum, sabit sıralı doğrulama özeti ve görsel inceleme kanıtları.
 - `results/evidence/phase03/`: Detector karşılaştırması, golden tespit, sabit doğrulama özeti ve yedi gerçek UI görüntüsü.
 - `results/evidence/phase04/`: Başarılı veya başarısız parametre karşılaştırması ile golden/doğrulama özeti; yedi gerçek UI görüntüsü yalnız tam başarıda üretilir.
+- `results/evidence/phase04e1/`: E1 golden ölçümleri, binding/OOS ham sonuçları, alan kararları, doğrulama özeti ve gerçek fallback arayüz görselleri.
 
 ## Doğrulama
 

@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "comparison_id": "phase04e1-operator-assisted-parameters",
+  "protocol_revision": "independent-fields-v2",
+  "status": "failed",
+  "automatic_span_validated": false,
+  "validated_fields": [],
+  "field_decisions": [
+    {
+      "capability": "automatic_span",
+      "field": "automatic_span",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "capability": "manual_emission_center_frequency",
+      "field": "emission_center_frequency",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "capability": "manual_carrier_line_frequency",
+      "field": "carrier_line_frequency",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "capability": "manual_occupied_bandwidth",
+      "field": "occupied_bandwidth",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "capability": "manual_uncalibrated_power_dbfs",
+      "field": "uncalibrated_power_dbfs",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "capability": "manual_signal_domain",
+      "field": "signal_domain",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    }
+  ],
+  "method_lock_sha256": "cc8427a5a0ca67f9b905a2e2446f99ea877124d2367cb8945c08183e35b94728"
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "evaluation_protocol_invalid",
+  "protocol_revision": "coupled-fields-v1",
+  "invalid_reasons": [
+    "automatic_span_was_a_global_manual_field_gate",
+    "obw_edge_and_temporal_gates_were_applied_to_every_field"
+  ],
+  "capability_decision_allowed": false,
+  "benchmark_used_for_retuning": false,
+  "algorithm_constants_changed": false,
+  "algorithm_constants_sha256": "1c613f46e8141264e726c6ecf1020a400ab90d9a495e191eacb55a7c2d35e197",
+  "files": [
+    {
+      "file": "binding-results.json",
+      "sha256": "6f0c36c208956556765d50a57c644b254b38172d224d66716c9ed33d8a7824fb"
+    },
+    {
+      "file": "oos-results.json",
+      "sha256": "44565f0bc359dff2bd5dda5e873483e1bbd4d56d66cbc418f4555a2771b39df9"
+    },
+    {
+      "file": "parameter-comparison.json",
+      "sha256": "02085fc6d8b800eacfb533e610f7a65c5339177f64cd51de2123f11a10afaafd"
+    },
+    {
+      "file": "golden-parameters.json",
+      "sha256": "94aceb99be4d36feb003739382a05128ad034e3f8429fad006ef0abc5ac8ac95"
+    },
+    {
+      "file": "verification-summary.json",
+      "sha256": "d343cf1c4ce55d7e6faafbf2914d6d6ae2c20e9ccd578de134aff601e67f3708"
+    },
+    {
+      "file": "method-lock.json",
+      "sha256": "85c8766ef40bb3759eac8620e769a63e345b08e106e32c97f192dd9782feb912"
+    }
+  ]
+}

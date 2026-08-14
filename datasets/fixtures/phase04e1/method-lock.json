@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04e1-method-lock-v1",
+  "status": "locked-pre-binding",
+  "protocol_revision": "independent-fields-v2",
+  "methods": {
+    "automatic_span": "span.candidate-bounded-v1",
+    "emission_center_frequency": "frequency.emission-center-v1",
+    "carrier_line_frequency": "frequency.carrier-line-parabolic-v1",
+    "occupied_bandwidth": "band.operator-span-debiased-obw99-v1",
+    "uncalibrated_power_dbfs": "power.operator-span-psd-v1",
+    "signal_domain": "domain.operator-span-rules-v1"
+  },
+  "constants": {
+    "usable_shifted_bins": [
+      20,
+      4075
+    ],
+    "span_width_bins": [
+      8,
+      512
+    ],
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4,
+    "reference_mismatch_db_maximum": 3.0,
+    "required_consecutive_frames": 4,
+    "minimum_integrated_snr_db": 6.0,
+    "edge_excess_share_maximum": 0.005,
+    "carrier_peak_to_noise_db_minimum": 10.0,
+    "carrier_line_share_minimum": 0.35,
+    "carrier_temporal_range_bins_maximum": 1.0,
+    "domain_thresholds": {
+      "off_fraction_minimum": 0.2,
+      "two_level_minimum": 0.75,
+      "constant_modulus_maximum": 0.2,
+      "phase_jump_minimum": 0.005,
+      "phase_jump_maximum": 0.25,
+      "fsk_mode_separation_minimum": 4.0,
+      "fsk_valley_ratio_maximum": 0.5,
+      "confidence_minimum": 0.33,
+      "score_margin_minimum": 2
+    }
+  },
+  "contracts": {
+    "acceptance_sha256": "569d3a5dfab11a9c8121130516d46abba3a9dfbf4e990216f3e6ab62ace60598",
+    "operator_scenes_sha256": "b8cf7337f92fafc9ef145c4a8753e8a2e64f9901d14ed7dfa6d55597e73acd15",
+    "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67",
+    "implementation_manifest_sha256": "c1ef40c74a20be8a53bf4fb13f55f491e532baa7aec38d7f0916eed396c02673"
+  },
+  "method_lock_sha256": "e59e6724795c5a109b6d1df1fb7d7bde14087a8bbd9bf880b5585c593346e785"
+}

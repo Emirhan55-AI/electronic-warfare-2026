@@ -42,4 +42,10 @@ R2 araçları tarafından yazılmaz. Başarısız R2 comparison yanında eski bi
 bulunsa bile method-lock/comparison digest bağı geçmediğinde runtime onu
 çalıştırmaz ve PHASE-03 `regional` profiline döner.
 
+## PHASE-04-E1 alan bazlı capability profili
+
+`phase04e1-operator-assisted-parameters` tam PHASE-04 profili değildir. Byte-sabit PHASE-03 `regional` zincirinin üzerine yalnız binding ve OOS kapılarını ayrı ayrı geçen `emission_center_frequency`, `carrier_line_frequency`, `occupied_bandwidth`, `uncalibrated_power_dbfs` ve `signal_domain` alanlarını ekler. Otomatik span ayrı convenience alanıdır; başarısızlığı manuel operatör span'ini tek başına kapatmaz.
+
+Profil; `validated_fields`, sabit yöntem kimlikleri, method-lock SHA, exact comparison SHA, implementation manifest SHA, PHASE-03 profil SHA ve acceptance contract SHA taşır. Bu bağlardan biri bozuksa hiçbir E1 ölçüm bloğu yüklenmez, analiz sonuçları temizlenir ve uygulama saf PHASE-03 profiline döner. Doğrulanmamış alan UI'da sayı göstermez. En az bir alanın geçmesi `PHASE-04 tamamlandı` anlamına gelmez.
+
 PHASE-05'te gerçek dinleme blokları geldikçe ayrı Akış Tasarımı editörü geliştirilebilir. PHASE-06'da PC/PS/PL hedefleri ayrı doğrulanır; profil otomatik HDL üretmez. PHASE-08 canlı kaynak bloğunu, PHASE-13 doğrulanmış profil kilidini kapsar. ET/TX blokları güvenlik kapıları olmadan eklenmez.

@@ -6,7 +6,7 @@ from collections import deque
 
 import numpy as np
 import pyqtgraph as pg
-from PySide6.QtCore import QRectF, Qt
+from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtWidgets import QLabel, QSplitter, QVBoxLayout, QWidget
 
 from reference.detection import DetectionFrameResult
@@ -141,7 +141,6 @@ class SpectrumView(QWidget):
     def resizeEvent(self, event: object) -> None:
         super().resizeEvent(event)  # type: ignore[arg-type]
         self._position_empty_labels()
-
     def _set_spectrum_available(self, available: bool) -> None:
         self.spectrum_plot.getPlotItem().showAxis("left", available)
         self.spectrum_plot.getPlotItem().showAxis("bottom", available)
@@ -318,3 +317,77 @@ class SpectrumView(QWidget):
         self.clear_detection_overlay()
         self._set_spectrum_available(False)
         self._position_empty_labels()
+
+
+class AnalysisSpectrumView(QWidget):
+    """Focused spectrum with a bounded, draggable operator span."""
+
+    span_changed = Signal(int, int)
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.plot = pg.PlotWidget()
+        self.plot.setObjectName("analysisSpectrumPlot")
+        self.plot.setTitle(TEXT["analysis_spectrum"], color="#E8EEF5", size="11pt")
+        self.plot.setLabel("bottom", TEXT["frequency"], units="MHz")
+        self.plot.setLabel("left", "Bin/ton gücü", units="dBFS/bin")
+        self.plot.showGrid(x=True, y=True, alpha=0.16)
+        self.plot.setMenuEnabled(False)
+        self.curve = self.plot.plot(pen=pg.mkPen("#3A9DFF", width=1.5))
+        self.region = pg.LinearRegionItem(
+            values=(0.0, 0.0), movable=True,
+            pen=pg.mkPen("#4DB6AC", width=1.5), brush=pg.mkBrush(77, 182, 172, 40),
+        )
+        self.plot.addItem(self.region)
+        self.region.hide()
+        self.region.sigRegionChangeFinished.connect(self._region_finished)
+        self._frequencies = np.array([], dtype=np.float64)
+        self._bin_spacing_mhz = 0.0
+        self._blocking = False
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.plot)
+
+    def set_spectrum(self, display: SpectrumDisplay) -> None:
+        self._frequencies = np.asarray(display.frequency_absolute_hz / 1_000_000.0, dtype=np.float64)
+        self._bin_spacing_mhz = float(self._frequencies[1] - self._frequencies[0])
+        self.curve.setData(self._frequencies, display.bin_power_dbfs)
+
+    def set_span(self, lower_bin: int, upper_bin: int) -> None:
+        if self._frequencies.size != 4096:
+            return
+        self._blocking = True
+        self.region.setBounds((float(self._frequencies[20]), float(self._frequencies[4075])))
+        self.region.setRegion((float(self._frequencies[lower_bin]), float(self._frequencies[upper_bin])))
+        self.region.show()
+        margin = max(16, upper_bin - lower_bin + 1)
+        start = max(20, lower_bin - margin)
+        end = min(4075, upper_bin + margin)
+        self.plot.setXRange(float(self._frequencies[start]), float(self._frequencies[end]), padding=0.0)
+        self._blocking = False
+
+    def clear_span(self) -> None:
+        self.region.hide()
+        self.curve.clear()
+        self._frequencies = np.array([], dtype=np.float64)
+
+    def nudge(self, amount_bins: int) -> None:
+        if not self.region.isVisible() or self._bin_spacing_mhz == 0.0:
+            return
+        lower, upper = self.region.getRegion()
+        delta = amount_bins * self._bin_spacing_mhz
+        self.region.setRegion((lower + delta, upper + delta))
+        self._region_finished()
+
+    def _region_finished(self) -> None:
+        if self._blocking or self._frequencies.size != 4096:
+            return
+        lower_mhz, upper_mhz = self.region.getRegion()
+        lower = int(np.searchsorted(self._frequencies, lower_mhz, side="right") - 1)
+        upper = int(np.searchsorted(self._frequencies, upper_mhz, side="left"))
+        lower = min(max(lower, 20), 4068)
+        upper = min(max(upper, lower + 7), 4075)
+        if upper - lower + 1 > 512:
+            upper = lower + 511
+        self.set_span(lower, upper)
+        self.span_changed.emit(lower, upper)

@@ -30,6 +30,18 @@ from .models import (
     SignalDomainEstimate,
 )
 from .scenes import ParameterSceneFrame, generate_parameter_scene, load_parameter_catalog
+from .operator_assisted import (
+    AnalysisSpan,
+    FieldMeasurement,
+    MeasurementCandidate,
+    MeasurementContext,
+    MeasurementIntent,
+    MeasurementQuality,
+    OperatorAssistedParameterResult,
+    OperatorMeasurementProcessor,
+    project_to_simplex,
+    suggest_analysis_span,
+)
 from .r2 import (
     HANN_CORRECTION,
     MORPHOLOGY_MOMENT_THRESHOLD,
@@ -63,6 +75,16 @@ __all__ = [
     "ParameterFrameResult",
     "ParameterInvalidReason",
     "ParameterSceneFrame",
+    "AnalysisSpan",
+    "FieldMeasurement",
+    "MeasurementCandidate",
+    "MeasurementContext",
+    "MeasurementIntent",
+    "MeasurementQuality",
+    "OperatorAssistedParameterResult",
+    "OperatorMeasurementProcessor",
+    "project_to_simplex",
+    "suggest_analysis_span",
     "RelativePowerEstimate",
     "SignalDomainEstimate",
     "classify_features",

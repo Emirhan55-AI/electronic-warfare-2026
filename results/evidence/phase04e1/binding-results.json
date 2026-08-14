@@ -1,0 +1,1894 @@
+{
+  "schema_version": 2,
+  "artifact_id": "phase04e1-binding-results-v1",
+  "role": "binding",
+  "status": "failed",
+  "validated_fields": [],
+  "family_results": [
+    {
+      "family_id": "am",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 128,
+        "occupied_bandwidth": 3,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 128
+      },
+      "q95_errors": {
+        "emission_center_frequency": 0.4882728516769409,
+        "carrier_line_frequency": 0.07006131671142578,
+        "occupied_bandwidth": 0.034152850414315976,
+        "uncalibrated_power_dbfs": 0.563300037557088,
+        "signal_domain": 0.0
+      },
+      "lower_edge_q95_bins": 0.20600028258514405,
+      "upper_edge_q95_bins": 0.41993214118957517,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": 0.8954514754366301,
+      "channel_power_q95_db": 0.5079934390721839,
+      "peak_power_q95_db": 0.5004501943689199,
+      "domain_correct_count": 128,
+      "domain_wrong_count": 0,
+      "automatic_span_success_count": 0,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 3,
+          "field_uncertain": 125,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 125,
+          "reason_counts": {
+            "span_edge_clipping": 31,
+            "obw_temporal_instability": 94
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        }
+      }
+    },
+    {
+      "family_id": "nfm",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 8,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 127
+      },
+      "q95_errors": {
+        "emission_center_frequency": 0.4936044784164429,
+        "carrier_line_frequency": 4.067163754760742,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 0.8159098422119087,
+        "signal_domain": 0.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 0.5171134931906494,
+      "peak_power_q95_db": 0.8159098422119087,
+      "domain_correct_count": 127,
+      "domain_wrong_count": 0,
+      "automatic_span_success_count": 0,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 8,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 120,
+          "field_failed_gate": 120,
+          "reason_counts": {
+            "carrier_line_absent": 120
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "span_edge_clipping": 29,
+            "obw_temporal_instability": 99
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 127,
+          "field_uncertain": 1,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 1,
+          "reason_counts": {
+            "fsk_evidence,analog_evidence": 1
+          }
+        }
+      }
+    },
+    {
+      "family_id": "ook",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 112,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 7
+      },
+      "q95_errors": {
+        "emission_center_frequency": 0.43185171464538574,
+        "carrier_line_frequency": 0.07011030358123779,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 3.008285383346788,
+        "signal_domain": 1.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 2.2335868103322625,
+      "peak_power_q95_db": 3.008285383346788,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 7,
+      "automatic_span_success_count": 32,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 112,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 16,
+          "field_failed_gate": 16,
+          "reason_counts": {
+            "carrier_line_absent": 16
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "obw_temporal_instability": 109,
+            "span_edge_clipping": 19
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 7,
+          "field_uncertain": 121,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 121,
+          "reason_counts": {
+            "conflicting_or_weak_evidence": 121
+          }
+        }
+      }
+    },
+    {
+      "family_id": "two_fsk",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 106
+      },
+      "q95_errors": {
+        "emission_center_frequency": 2.9530460487442016,
+        "carrier_line_frequency": null,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 1.9037224900861247,
+        "signal_domain": 1.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 0.3346588401028505,
+      "peak_power_q95_db": 1.9037224900861247,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 106,
+      "automatic_span_success_count": 0,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 6,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 122,
+          "field_failed_gate": 122,
+          "reason_counts": {
+            "carrier_line_absent": 122
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "obw_temporal_instability": 121,
+            "span_edge_clipping": 7
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 106,
+          "field_uncertain": 22,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 22,
+          "reason_counts": {
+            "fsk_evidence,analog_evidence": 22
+          }
+        }
+      }
+    },
+    {
+      "family_id": "bpsk",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 128
+      },
+      "q95_errors": {
+        "emission_center_frequency": 0.4774946316680908,
+        "carrier_line_frequency": null,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 2.578158571074969,
+        "signal_domain": 1.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 0.5343211498747138,
+      "peak_power_q95_db": 2.578158571074969,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 128,
+      "automatic_span_success_count": 38,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 128,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "carrier_line_absent": 128
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "span_edge_clipping": 14,
+            "obw_temporal_instability": 114
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        }
+      }
+    },
+    {
+      "family_id": "qpsk",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 128
+      },
+      "q95_errors": {
+        "emission_center_frequency": 1.7820157452697754,
+        "carrier_line_frequency": null,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 1.5043534466938056,
+        "signal_domain": 1.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 0.3345734120259074,
+      "peak_power_q95_db": 1.5043534466938056,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 128,
+      "automatic_span_success_count": 1,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 128,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "carrier_line_absent": 128
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "obw_temporal_instability": 125,
+            "span_edge_clipping": 3
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        }
+      }
+    },
+    {
+      "family_id": "wideband_noise_like",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 26,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 0
+      },
+      "q95_errors": {
+        "emission_center_frequency": 2.7878404586410523,
+        "carrier_line_frequency": null,
+        "occupied_bandwidth": 0.005703106064561874,
+        "uncalibrated_power_dbfs": 1.0656961583911055,
+        "signal_domain": null
+      },
+      "lower_edge_q95_bins": 0.5749783004074097,
+      "upper_edge_q95_bins": 0.36564466094970705,
+      "span_robustness_q95_bins": 0.358706421295166,
+      "temporal_edge_q95_bins": 1.9299001411354766,
+      "channel_power_q95_db": 0.6720017945777954,
+      "peak_power_q95_db": 1.0656961583911055,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 0,
+      "automatic_span_success_count": 0,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 128,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "carrier_line_absent": 128
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 26,
+          "field_uncertain": 102,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 102,
+          "reason_counts": {
+            "obw_temporal_instability": 102
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 124,
+          "field_uncertain": 4,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 4,
+          "reason_counts": {
+            "conflicting_or_weak_evidence": 4
+          }
+        }
+      }
+    },
+    {
+      "family_id": "burst_qpsk",
+      "trial_count": 128,
+      "valid_counts": {
+        "emission_center_frequency": 128,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 128,
+        "signal_domain": 128
+      },
+      "q95_errors": {
+        "emission_center_frequency": 2.361567037742615,
+        "carrier_line_frequency": null,
+        "occupied_bandwidth": null,
+        "uncalibrated_power_dbfs": 2.0491986451433597,
+        "signal_domain": 1.0
+      },
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "temporal_edge_q95_bins": null,
+      "channel_power_q95_db": 0.40398625176704783,
+      "peak_power_q95_db": 2.0491986451433597,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 128,
+      "automatic_span_success_count": 0,
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 128,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "carrier_line_absent": 128
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 0,
+          "field_uncertain": 4,
+          "field_insufficient_quality": 124,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "span_edge_clipping": 4,
+            "temporal_excess_missing": 124
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 128,
+          "field_math_reached": 128,
+          "field_valid": 128,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 0,
+          "reason_counts": {}
+        }
+      }
+    }
+  ],
+  "field_decisions": {
+    "emission_center_frequency": {
+      "status": "failed",
+      "valid_count": 1024,
+      "trial_count": 1024,
+      "valid_rate": 1.0,
+      "q95_error": 2.1554557595214843,
+      "q95_maximum": 1.0,
+      "valid_rate_minimum": 0.9
+    },
+    "carrier_line_frequency": {
+      "status": "failed",
+      "valid_count": 248,
+      "trial_count": 384,
+      "valid_rate": 0.6458333333333334,
+      "q95_error": 0.08016941427612305,
+      "q95_maximum": 1.0,
+      "valid_rate_minimum": 0.9,
+      "false_carrier_count": 6,
+      "false_carrier_rate": 0.009375,
+      "abstention_rate": 0.990625
+    },
+    "occupied_bandwidth": {
+      "status": "failed",
+      "valid_count": 29,
+      "trial_count": 1024,
+      "valid_rate": 0.0283203125,
+      "q95_error": 0.017973796268181175,
+      "q95_maximum": 0.2,
+      "valid_rate_minimum": 0.95,
+      "lower_edge_q95_bins": 0.5749783004074097,
+      "upper_edge_q95_bins": 0.41993214118957517,
+      "span_robustness_q95_bins": 0.358706421295166,
+      "temporal_edge_q95_bins": 1.9299001411354766,
+      "clipping_count": 107
+    },
+    "uncalibrated_power_dbfs": {
+      "status": "failed",
+      "valid_count": 1024,
+      "trial_count": 1024,
+      "valid_rate": 1.0,
+      "q95_error": 2.1513145179658864,
+      "q95_maximum": 1.5,
+      "valid_rate_minimum": 0.95,
+      "channel_power_q95_db": 1.033579311966431,
+      "peak_power_q95_db": 2.1307485387782776,
+      "six_db": {
+        "snr_db": 6.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 6,
+        "channel_power_q95_db": 0.907949590636818,
+        "peak_power_q95_db": 1.8614971623489893,
+        "channel_power_median_db": 0.8480230798974819,
+        "peak_power_median_db": 1.4037529559700914,
+        "domain_trial_count": 896,
+        "domain_definite_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 1,
+        "domain_wrong_rate": 0.0011160714285714285,
+        "domain_abstention_rate": 0.9988839285714286,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 5,
+            "channel_power_q95_db": 0.8748978011952921,
+            "peak_power_q95_db": 1.8614971623489893,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 1,
+            "channel_power_q95_db": 0.907949590636818,
+            "peak_power_q95_db": 0.9676803268776233,
+            "domain_trial_count": 128,
+            "domain_definite_count": 1,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 1
+          }
+        ]
+      },
+      "zero_db": {
+        "snr_db": 0.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 0,
+        "channel_power_q95_db": null,
+        "peak_power_q95_db": null,
+        "channel_power_median_db": null,
+        "peak_power_median_db": null,
+        "domain_trial_count": 896,
+        "domain_definite_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_wrong_rate": 0.0,
+        "domain_abstention_rate": 1.0,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          }
+        ]
+      }
+    },
+    "signal_domain": {
+      "trial_count": 896,
+      "valid_count": 752,
+      "correct_definite_rate": 0.2845982142857143,
+      "wrong_definite_rate": 0.5546875,
+      "ambiguous_rejection_rate": 0.03125,
+      "six_db": {
+        "snr_db": 6.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 6,
+        "channel_power_q95_db": 0.907949590636818,
+        "peak_power_q95_db": 1.8614971623489893,
+        "channel_power_median_db": 0.8480230798974819,
+        "peak_power_median_db": 1.4037529559700914,
+        "domain_trial_count": 896,
+        "domain_definite_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 1,
+        "domain_wrong_rate": 0.0011160714285714285,
+        "domain_abstention_rate": 0.9988839285714286,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 5,
+            "channel_power_q95_db": 0.8748978011952921,
+            "peak_power_q95_db": 1.8614971623489893,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 1,
+            "channel_power_q95_db": 0.907949590636818,
+            "peak_power_q95_db": 0.9676803268776233,
+            "domain_trial_count": 128,
+            "domain_definite_count": 1,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 1
+          }
+        ]
+      },
+      "zero_db": {
+        "snr_db": 0.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 0,
+        "channel_power_q95_db": null,
+        "peak_power_q95_db": null,
+        "channel_power_median_db": null,
+        "peak_power_median_db": null,
+        "domain_trial_count": 896,
+        "domain_definite_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_wrong_rate": 0.0,
+        "domain_abstention_rate": 1.0,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          }
+        ]
+      },
+      "minus_six_db": {
+        "snr_db": -6.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 0,
+        "channel_power_q95_db": null,
+        "peak_power_q95_db": null,
+        "channel_power_median_db": null,
+        "peak_power_median_db": null,
+        "domain_trial_count": 896,
+        "domain_definite_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_wrong_rate": 0.0,
+        "domain_abstention_rate": 1.0,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          }
+        ]
+      },
+      "status": "failed"
+    },
+    "automatic_span": {
+      "success_count": 71,
+      "trial_count": 1024,
+      "success_rate": 0.0693359375,
+      "close_success_count": 0,
+      "close_trial_count": 128,
+      "close_separation_rate": 0.0,
+      "cross_match_count": 0,
+      "status": "failed"
+    }
+  },
+  "diagnostics": {
+    "false_carrier_count": 6,
+    "carrier_nonapplicable_trials": 640,
+    "quality_state_counts": {
+      "valid": 1024
+    },
+    "stage_counters": {
+      "emission_center_frequency": {
+        "total": 1024,
+        "intent_valid": 1024,
+        "operator_span_received": 1024,
+        "common_quality_passed": 1024,
+        "field_math_reached": 1024,
+        "field_valid": 1024,
+        "field_uncertain": 0,
+        "field_insufficient_quality": 0,
+        "field_not_observed": 0,
+        "field_failed_gate": 0,
+        "reason_counts": {}
+      },
+      "carrier_line_frequency": {
+        "total": 1024,
+        "intent_valid": 1024,
+        "operator_span_received": 1024,
+        "common_quality_passed": 1024,
+        "field_math_reached": 1024,
+        "field_valid": 254,
+        "field_uncertain": 0,
+        "field_insufficient_quality": 0,
+        "field_not_observed": 770,
+        "field_failed_gate": 770,
+        "reason_counts": {
+          "carrier_line_absent": 770
+        }
+      },
+      "occupied_bandwidth": {
+        "total": 1024,
+        "intent_valid": 1024,
+        "operator_span_received": 1024,
+        "common_quality_passed": 1024,
+        "field_math_reached": 1024,
+        "field_valid": 29,
+        "field_uncertain": 871,
+        "field_insufficient_quality": 124,
+        "field_not_observed": 0,
+        "field_failed_gate": 995,
+        "reason_counts": {
+          "span_edge_clipping": 107,
+          "obw_temporal_instability": 764,
+          "temporal_excess_missing": 124
+        }
+      },
+      "uncalibrated_power_dbfs": {
+        "total": 1024,
+        "intent_valid": 1024,
+        "operator_span_received": 1024,
+        "common_quality_passed": 1024,
+        "field_math_reached": 1024,
+        "field_valid": 1024,
+        "field_uncertain": 0,
+        "field_insufficient_quality": 0,
+        "field_not_observed": 0,
+        "field_failed_gate": 0,
+        "reason_counts": {}
+      },
+      "signal_domain": {
+        "total": 1024,
+        "intent_valid": 1024,
+        "operator_span_received": 1024,
+        "common_quality_passed": 1024,
+        "field_math_reached": 1024,
+        "field_valid": 876,
+        "field_uncertain": 148,
+        "field_insufficient_quality": 0,
+        "field_not_observed": 0,
+        "field_failed_gate": 148,
+        "reason_counts": {
+          "fsk_evidence,analog_evidence": 23,
+          "conflicting_or_weak_evidence": 125
+        }
+      }
+    },
+    "clipping_count": 107,
+    "noise_sequences": 128,
+    "noise_frames_per_sequence": 32,
+    "noise_total_frames": 4096,
+    "noise_numeric_false_valid_count": 0,
+    "noise_domain_definite_count": 0,
+    "snr_conditions": [
+      {
+        "snr_db": 6.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 6,
+        "channel_power_q95_db": 0.907949590636818,
+        "peak_power_q95_db": 1.8614971623489893,
+        "channel_power_median_db": 0.8480230798974819,
+        "peak_power_median_db": 1.4037529559700914,
+        "domain_trial_count": 896,
+        "domain_definite_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 1,
+        "domain_wrong_rate": 0.0011160714285714285,
+        "domain_abstention_rate": 0.9988839285714286,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 5,
+            "channel_power_q95_db": 0.8748978011952921,
+            "peak_power_q95_db": 1.8614971623489893,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 1,
+            "channel_power_q95_db": 0.907949590636818,
+            "peak_power_q95_db": 0.9676803268776233,
+            "domain_trial_count": 128,
+            "domain_definite_count": 1,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 1
+          }
+        ]
+      },
+      {
+        "snr_db": 0.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 0,
+        "channel_power_q95_db": null,
+        "peak_power_q95_db": null,
+        "channel_power_median_db": null,
+        "peak_power_median_db": null,
+        "domain_trial_count": 896,
+        "domain_definite_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_wrong_rate": 0.0,
+        "domain_abstention_rate": 1.0,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          }
+        ]
+      },
+      {
+        "snr_db": -6.0,
+        "power_trial_count": 1024,
+        "power_valid_count": 0,
+        "channel_power_q95_db": null,
+        "peak_power_q95_db": null,
+        "channel_power_median_db": null,
+        "peak_power_median_db": null,
+        "domain_trial_count": 896,
+        "domain_definite_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_wrong_rate": 0.0,
+        "domain_abstention_rate": 1.0,
+        "family_results": [
+          {
+            "family_id": "am",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "nfm",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "ook",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "two_fsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "bpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "wideband_noise_like",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 0,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          },
+          {
+            "family_id": "burst_qpsk",
+            "power_trial_count": 128,
+            "power_valid_count": 0,
+            "channel_power_q95_db": null,
+            "peak_power_q95_db": null,
+            "domain_trial_count": 128,
+            "domain_definite_count": 0,
+            "domain_correct_count": 0,
+            "domain_wrong_count": 0
+          }
+        ]
+      }
+    ],
+    "forced_measurement_noise": {
+      "contract": "confirmed-style-intent-same-ownership-v1",
+      "trial_count": 128,
+      "frames_per_trial": 4,
+      "field_valid_counts": {
+        "emission_center_frequency": 0,
+        "carrier_line_frequency": 0,
+        "occupied_bandwidth": 0,
+        "uncalibrated_power_dbfs": 0,
+        "signal_domain": 0
+      },
+      "stage_counters": {
+        "emission_center_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 0,
+          "field_math_reached": 0,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 128,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "insufficient_excess_power": 128
+          }
+        },
+        "carrier_line_frequency": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 0,
+          "field_math_reached": 0,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 128,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "insufficient_excess_power": 128
+          }
+        },
+        "occupied_bandwidth": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 0,
+          "field_math_reached": 0,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 128,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "insufficient_excess_power": 128
+          }
+        },
+        "uncalibrated_power_dbfs": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 0,
+          "field_math_reached": 0,
+          "field_valid": 0,
+          "field_uncertain": 0,
+          "field_insufficient_quality": 128,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "insufficient_excess_power": 128
+          }
+        },
+        "signal_domain": {
+          "total": 128,
+          "intent_valid": 128,
+          "operator_span_received": 128,
+          "common_quality_passed": 0,
+          "field_math_reached": 0,
+          "field_valid": 0,
+          "field_uncertain": 128,
+          "field_insufficient_quality": 0,
+          "field_not_observed": 0,
+          "field_failed_gate": 128,
+          "reason_counts": {
+            "insufficient_excess_power": 128
+          }
+        }
+      }
+    }
+  },
+  "method_lock_sha256": "cc8427a5a0ca67f9b905a2e2446f99ea877124d2367cb8945c08183e35b94728",
+  "protocol_revision": "independent-fields-v2"
+}

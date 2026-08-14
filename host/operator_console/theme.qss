@@ -17,10 +17,34 @@ QSplitter::handle:vertical {
     height: 8px;
 }
 
-QFrame#header, QFrame#metadataPanel, QFrame#controls {
+QFrame#header, QFrame#metadataPanel, QFrame#analysisPanel, QFrame#controls {
     background: #121922;
     border: 1px solid #27313D;
     border-radius: 4px;
+}
+
+QTabWidget::pane {
+    border: 1px solid #27313D;
+    border-radius: 4px;
+    background: #0B0F14;
+}
+
+QTabBar::tab {
+    background: #121922;
+    color: #98A7B7;
+    border: 1px solid #27313D;
+    padding: 8px 18px;
+    min-width: 120px;
+}
+
+QTabBar::tab:selected {
+    color: #E8EEF5;
+    border-bottom-color: #3A9DFF;
+}
+
+QScrollArea#operationScroll, QScrollArea#analysisScroll {
+    background: transparent;
+    border: 0;
 }
 
 QLabel#applicationTitle {

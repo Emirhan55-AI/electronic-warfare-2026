@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "comparison_id": "phase04e1-operator-assisted-parameters",
+  "status": "failed",
+  "automatic_span_validated": false,
+  "validated_fields": [],
+  "field_decisions": [
+    {
+      "field": "automatic_span",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "emission_center_frequency",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "carrier_line_frequency",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "occupied_bandwidth",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "uncalibrated_power_dbfs",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "signal_domain",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    }
+  ],
+  "method_lock_sha256": "85c8766ef40bb3759eac8620e769a63e345b08e106e32c97f192dd9782feb912"
+}

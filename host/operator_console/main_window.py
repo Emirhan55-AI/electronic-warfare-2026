@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QSplitter,
+    QScrollArea,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -27,7 +29,7 @@ from reference.sigmf.contract import ContractReport
 from reference.detection import DetectionEvent, DetectionFrameResult
 from reference.parameters import EventParameterEstimate, ParameterFrameResult
 
-from .spectrum_view import SpectrumView
+from .spectrum_view import AnalysisSpectrumView, SpectrumView
 from .ui_text import TEXT
 
 
@@ -69,7 +71,8 @@ class MainWindow(QMainWindow):
         self.notification.hide()
 
         self.spectrum_view = SpectrumView()
-        metadata_panel = self._build_metadata_panel()
+        self.spectrum_view.setMinimumSize(700, 300)
+        metadata_panel = self._scroll_panel(self._build_metadata_panel(), "operationScroll")
         main_splitter = QSplitter(Qt.Orientation.Horizontal)
         main_splitter.setObjectName("mainSplitter")
         main_splitter.addWidget(self.spectrum_view)
@@ -80,14 +83,24 @@ class MainWindow(QMainWindow):
         main_splitter.setChildrenCollapsible(False)
 
         controls = self._build_controls()
+        operation = QWidget()
+        operation_layout = QVBoxLayout(operation)
+        operation_layout.setContentsMargins(0, 0, 0, 0)
+        operation_layout.setSpacing(8)
+        operation_layout.addWidget(main_splitter, 1)
+        operation_layout.addWidget(controls)
+        analysis = self._build_analysis_workspace()
+        self.workspace_tabs = QTabWidget()
+        self.workspace_tabs.setObjectName("workspaceTabs")
+        self.workspace_tabs.addTab(operation, TEXT["operation_workspace"])
+        self.workspace_tabs.addTab(analysis, TEXT["analysis_workspace"])
         central = QWidget()
         layout = QVBoxLayout(central)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
         layout.addWidget(header)
         layout.addWidget(self.notification)
-        layout.addWidget(main_splitter, 1)
-        layout.addWidget(controls)
+        layout.addWidget(self.workspace_tabs, 1)
         self.setCentralWidget(central)
         self.show_empty()
 
@@ -121,6 +134,7 @@ class MainWindow(QMainWindow):
             value_label = QLabel("—")
             value_label.setObjectName("metadataValue")
             value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            value_label.setWordWrap(True)
             grid.addWidget(caption_label, row, 0)
             grid.addWidget(value_label, row, 1)
             self.metadata_values[key] = value_label
@@ -151,41 +165,94 @@ class MainWindow(QMainWindow):
         self.detection_note.setObjectName("detectionNote")
         self.detection_note.setWordWrap(True)
         layout.addWidget(self.detection_note)
-        parameter_heading = QLabel(TEXT["core_parameters"])
-        parameter_heading.setObjectName("sectionTitle")
-        layout.addWidget(parameter_heading)
-        self.parameter_state = QLabel(TEXT["no_parameter"])
-        self.parameter_state.setObjectName("parameterState")
-        self.parameter_state.setWordWrap(True)
-        layout.addWidget(self.parameter_state)
-        parameter_grid = QGridLayout()
-        parameter_grid.setHorizontalSpacing(10)
-        parameter_grid.setVerticalSpacing(3)
-        self.parameter_values: dict[str, QLabel] = {}
-        for row, (key, caption) in enumerate(
-            (
-                ("frequency", TEXT["estimated_frequency"]),
-                ("bandwidth", TEXT["estimated_bandwidth"]),
-                ("power", TEXT["relative_power"]),
-                ("snr", TEXT["in_band_snr"]),
-                ("domain", TEXT["signal_domain"]),
-            )
-        ):
-            caption_label = QLabel(caption)
-            caption_label.setObjectName("metadataCaption")
-            value_label = QLabel("—")
-            value_label.setObjectName("parameterValue")
-            value_label.setWordWrap(True)
-            parameter_grid.addWidget(caption_label, row, 0)
-            parameter_grid.addWidget(value_label, row, 1)
-            self.parameter_values[key] = value_label
-        parameter_grid.setColumnStretch(1, 1)
-        layout.addLayout(parameter_grid)
-        note = QLabel(TEXT["uncalibrated"])
-        note.setObjectName("calibrationNote")
-        note.setWordWrap(True)
-        layout.addWidget(note)
+        layout.addStretch(1)
         return panel
+
+    @staticmethod
+    def _scroll_panel(panel: QWidget, name: str) -> QScrollArea:
+        scroll = QScrollArea()
+        scroll.setObjectName(name)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(panel)
+        scroll.setMinimumWidth(280)
+        scroll.setMaximumWidth(390)
+        return scroll
+
+    def _build_analysis_workspace(self) -> QWidget:
+        self.analysis_spectrum = AnalysisSpectrumView()
+        panel = QFrame()
+        panel.setObjectName("analysisPanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(8)
+        heading = QLabel(TEXT["analysis_workspace"])
+        heading.setObjectName("sectionTitle")
+        layout.addWidget(heading)
+        self.analysis_event_value = QLabel(TEXT["select_confirmed_event"])
+        self.analysis_event_value.setWordWrap(True)
+        self.analysis_event_value.setAccessibleDescription(TEXT["select_confirmed_event"])
+        layout.addWidget(self.analysis_event_value)
+        self.span_value = QLabel(TEXT["no_analysis_span"])
+        self.span_value.setWordWrap(True)
+        layout.addWidget(self.span_value)
+        self.measurement_state = QLabel(TEXT["measurement_not_started"])
+        self.parameter_state = QLabel(TEXT["no_parameter"])
+        self.measurement_state.setObjectName("parameterState")
+        self.measurement_state.setWordWrap(True)
+        layout.addWidget(self.measurement_state)
+        grid = QGridLayout()
+        self.parameter_values = {}
+        fields = (
+            ("emission_center", TEXT["emission_center"]),
+            ("carrier_line", TEXT["carrier_line"]),
+            ("lower_edge", TEXT["lower_band_edge"]),
+            ("upper_edge", TEXT["upper_band_edge"]),
+            ("bandwidth", TEXT["occupied_bandwidth"]),
+            ("peak_power", TEXT["peak_power"]),
+            ("channel_power", TEXT["channel_power"]),
+            ("domain", TEXT["signal_domain"]),
+        )
+        for row, (key, caption) in enumerate(fields):
+            label = QLabel(caption)
+            label.setObjectName("metadataCaption")
+            label.setWordWrap(True)
+            value = QLabel(TEXT["not_validated"])
+            value.setObjectName("parameterValue")
+            value.setWordWrap(True)
+            grid.addWidget(label, row, 0)
+            grid.addWidget(value, row, 1)
+            self.parameter_values[key] = value
+        grid.setColumnStretch(1, 1)
+        layout.addLayout(grid)
+        self.quality_value = QLabel(TEXT["quality_not_available"])
+        self.quality_value.setWordWrap(True)
+        layout.addWidget(self.quality_value)
+        calibration = QLabel(TEXT["uncalibrated_e1"])
+        calibration.setObjectName("calibrationNote")
+        calibration.setWordWrap(True)
+        layout.addWidget(calibration)
+        button_row = QHBoxLayout()
+        self.measure_button = QPushButton(TEXT["start_measurement"])
+        self.measure_button.setObjectName("primaryButton")
+        self.measure_button.setEnabled(False)
+        self.clear_measurement_button = QPushButton(TEXT["clear_measurement"])
+        button_row.addWidget(self.measure_button)
+        button_row.addWidget(self.clear_measurement_button)
+        layout.addLayout(button_row)
+        layout.addStretch(1)
+        scroll = self._scroll_panel(panel, "analysisScroll")
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.addWidget(self.analysis_spectrum)
+        splitter.addWidget(scroll)
+        splitter.setSizes([1000, 340])
+        splitter.setStretchFactor(0, 1)
+        splitter.setChildrenCollapsible(False)
+        workspace = QWidget()
+        outer = QVBoxLayout(workspace)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(splitter)
+        return workspace
 
     def _build_controls(self) -> QFrame:
         controls = QFrame()
@@ -313,59 +380,14 @@ class MainWindow(QMainWindow):
         self.detection_note.setText(TEXT["detection_detail"])
 
     def clear_parameters(self) -> None:
+        self.measurement_state.setText(TEXT["measurement_not_started"])
         self.parameter_state.setText(TEXT["no_parameter"])
         for value in self.parameter_values.values():
-            value.setText("—")
+            value.setText(TEXT["not_validated"])
+        self.quality_value.setText(TEXT["quality_not_available"])
 
     def set_parameter_result(self, result: ParameterFrameResult | None) -> None:
-        if result is None or not result.events:
-            self.clear_parameters()
-            return
-        estimate = result.events[0]
-        self.parameter_state.setText(TEXT["parameter_event"].format(event_id=estimate.event_id))
-        if (
-            estimate.frequency.observed_carrier_state == "valid"
-            and estimate.frequency.observed_carrier_frequency_hz is not None
-        ):
-            frequency = estimate.frequency.observed_carrier_frequency_hz
-            self.parameter_values["frequency"].setText(
-                f"{TEXT['observed_carrier']}: {self._frequency(frequency)}"
-            )
-        elif (
-            estimate.frequency.spectral_center_state == "valid"
-            and estimate.frequency.spectral_center_frequency_hz is not None
-        ):
-            frequency = estimate.frequency.spectral_center_frequency_hz
-            self.parameter_values["frequency"].setText(
-                f"{TEXT['spectral_center']}: {self._frequency(frequency)}"
-            )
-        else:
-            state = estimate.frequency.spectral_center_state
-            if state == "valid":
-                state = "insufficient_quality"
-            self.parameter_values["frequency"].setText(TEXT[state])
-        if estimate.bandwidth.bandwidth_state != "valid" or estimate.bandwidth.bandwidth_hz is None:
-            state = estimate.bandwidth.bandwidth_state
-            self.parameter_values["bandwidth"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
-        else:
-            bandwidth_khz = self.locale.toString(estimate.bandwidth.bandwidth_hz / 1000.0, "f", 1)
-            self.parameter_values["bandwidth"].setText(f"{bandwidth_khz} kHz")
-        if estimate.power.relative_power_state != "valid" or estimate.power.signal_power_dbfs is None:
-            state = estimate.power.relative_power_state
-            self.parameter_values["power"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
-        else:
-            value = self.locale.toString(estimate.power.signal_power_dbfs, "f", 1)
-            self.parameter_values["power"].setText(f"{value} dBFS")
-        if estimate.power.snr_state != "valid" or estimate.power.snr_db is None:
-            state = estimate.power.snr_state
-            self.parameter_values["snr"].setText(TEXT[state if state != "valid" else "insufficient_quality"])
-        else:
-            self.parameter_values["snr"].setText(self.locale.toString(estimate.power.snr_db, "f", 1) + " dB")
-        self.parameter_values["domain"].setText(
-            estimate.signal_domain.value
-            if estimate.signal_domain.state == "valid"
-            else TEXT[estimate.signal_domain.state]
-        )
+        del result
 
     def set_detection_result(self, result: DetectionFrameResult) -> None:
         active = list(result.active_events)
@@ -389,8 +411,11 @@ class MainWindow(QMainWindow):
             item = QListWidgetItem(self._event_text(event))
             item.setToolTip(self._event_tooltip(event))
             item.setData(Qt.ItemDataRole.UserRole, event.event_id)
+            item.setData(Qt.ItemDataRole.UserRole + 1, event.state)
+            if event.state != "confirmed" or not event.observed_this_frame:
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            item.setData(Qt.ItemDataRole.AccessibleDescriptionRole, self._event_tooltip(event))
             self.detection_list.addItem(item)
-
         notes: list[str] = [TEXT["detection_detail"]]
         if result.dropped_candidates:
             notes.append(TEXT["candidate_limit"].format(count=result.dropped_candidates))
@@ -400,6 +425,63 @@ class MainWindow(QMainWindow):
         if hidden:
             notes.append(TEXT["events_hidden"].format(count=hidden))
         self.detection_note.setText(" ".join(notes))
+
+    def set_analysis_event(self, event: DetectionEvent | None) -> None:
+        if event is None:
+            self.analysis_event_value.setText(TEXT["select_confirmed_event"])
+            self.measure_button.setEnabled(False)
+            return
+        self.analysis_event_value.setText(self._event_text(event))
+        self.analysis_event_value.setToolTip(self._event_tooltip(event))
+        self.measure_button.setEnabled(event.state == "confirmed" and event.observed_this_frame)
+
+    def set_analysis_span(self, lower: int, upper: int, provenance: str) -> None:
+        label = TEXT[provenance]
+        self.span_value.setText(f"{lower}–{upper} bin · {label}")
+        self.clear_measurement_result()
+
+    def clear_analysis(self) -> None:
+        self.set_analysis_event(None)
+        self.span_value.setText(TEXT["no_analysis_span"])
+        self.analysis_spectrum.clear_span()
+        self.clear_measurement_result()
+
+    def clear_measurement_result(self) -> None:
+        self.clear_parameters()
+
+    def set_measurement_busy(self) -> None:
+        self.measurement_state.setText(TEXT["measurement_running"])
+        self.measure_button.setEnabled(False)
+
+    def set_operator_measurement(self, result: object, validated_fields: tuple[str, ...]) -> None:
+        from reference.parameters import OperatorAssistedParameterResult
+        if not isinstance(result, OperatorAssistedParameterResult):
+            self.clear_measurement_result()
+            return
+        self.measurement_state.setText(TEXT["measurement_complete"] if result.quality.state == "valid" else TEXT["measurement_failed"])
+        mapping = {
+            "emission_center": ("emission_center_frequency", result.emission_center_frequency),
+            "carrier_line": ("carrier_line_frequency", result.carrier_line_frequency),
+            "lower_edge": ("occupied_bandwidth", result.lower_band_edge),
+            "upper_edge": ("occupied_bandwidth", result.upper_band_edge),
+            "bandwidth": ("occupied_bandwidth", result.occupied_bandwidth),
+            "peak_power": ("uncalibrated_power_dbfs", result.peak_power_dbfs_per_bin),
+            "channel_power": ("uncalibrated_power_dbfs", result.channel_power_dbfs),
+            "domain": ("signal_domain", result.signal_domain),
+        }
+        for key, (capability, field) in mapping.items():
+            if capability not in validated_fields:
+                self.parameter_values[key].setText(TEXT["not_validated"])
+            elif field.state != "valid" or field.value is None:
+                self.parameter_values[key].setText(TEXT.get(field.state, TEXT["measurement_failed"]))
+            elif field.unit == "Hz":
+                self.parameter_values[key].setText(self._frequency(float(field.value)) if key not in {"bandwidth"} else self.locale.toString(float(field.value) / 1000.0, "f", 2) + " kHz")
+            elif isinstance(field.value, float):
+                self.parameter_values[key].setText(self.locale.toString(field.value, "f", 2) + (f" {field.unit}" if field.unit else ""))
+            else:
+                self.parameter_values[key].setText(str(field.value))
+        reasons = ", ".join(TEXT.get(reason, reason) for reason in result.quality.reasons) if result.quality.reasons else TEXT["quality_passed"]
+        self.quality_value.setText(reasons)
 
     def _event_text(self, event: DetectionEvent) -> str:
         label = TEXT[event.state]
@@ -475,3 +557,12 @@ class MainWindow(QMainWindow):
         if value is None:
             return "—"
         return self.locale.toString(float(value) / 1_000_000.0, "f", 3) + " MS/s"
+
+    def keyPressEvent(self, event: object) -> None:
+        key = event.key()  # type: ignore[attr-defined]
+        if self.workspace_tabs.currentIndex() == 1 and key in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+            step = 4 if event.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1  # type: ignore[attr-defined]
+            self.analysis_spectrum.nudge(-step if key == Qt.Key.Key_Left else step)
+            event.accept()  # type: ignore[attr-defined]
+            return
+        super().keyPressEvent(event)  # type: ignore[arg-type]

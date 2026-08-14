@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
@@ -33,7 +34,9 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
         self.assertEqual(9, len(VERIFY.PHASE04_SUCCESS_ONLY_FILES))
         self.assertEqual(26, len(VERIFY.APPROVED_PHASE04_D1_FILES))
-        self.assertEqual(72, len(VERIFY.APPROVED_PHASE04_FILES))
+        self.assertEqual(47, len(VERIFY.APPROVED_PHASE04_E1_FILES))
+        self.assertEqual(1, len(VERIFY.PHASE04_E1_SUCCESS_ONLY_FILES))
+        self.assertEqual(120, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -52,6 +55,23 @@ class RepositoryContractTests(unittest.TestCase):
         visual = set(VERIFY.PHASE04_SUCCESS_ONLY_FILES) - {"profiles/phase04/operation-default.json"}
         present = visual & VERIFY._repository_files()
         self.assertIn(present, (set(), visual))
+
+    def test_phase04e1_failed_evaluation_has_no_validated_profile(self) -> None:
+        expected_evidence = {
+            "results/evidence/phase04e1/golden-parameters.json",
+            "results/evidence/phase04e1/binding-results.json",
+            "results/evidence/phase04e1/oos-results.json",
+            "results/evidence/phase04e1/parameter-comparison.json",
+            "results/evidence/phase04e1/verification-summary.json",
+            "results/evidence/phase04e1/visual-summary.json",
+        }
+        self.assertTrue(expected_evidence <= set(VERIFY.APPROVED_PHASE04_E1_FILES))
+        self.assertFalse((ROOT / "profiles/phase04e1/operation-default.json").exists())
+        comparison = json.loads(
+            (ROOT / "results/evidence/phase04e1/parameter-comparison.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("failed", comparison["status"])
+        self.assertEqual([], comparison["validated_fields"])
 
     def test_phase06_direction_does_not_add_rtl_early(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")

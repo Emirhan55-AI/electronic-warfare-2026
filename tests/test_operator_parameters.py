@@ -8,6 +8,7 @@ import unittest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import numpy as np
+from PySide6.QtWidgets import QLabel
 
 from host.operator_console.application import build_application
 from reference.parameters.models import (
@@ -62,15 +63,21 @@ class OperatorParameterTests(unittest.TestCase):
         result = ParameterFrameResult(3, (event,), 67840, 1152, 1792)
         self.window.set_parameter_result(result)
         visible = " ".join(value.text() for value in self.window.parameter_values.values())
-        self.assertIn("Spektral merkez", visible)
-        self.assertIn("dBFS", visible)
+        labels = " ".join(label.text() for label in self.window.findChildren(QLabel))
+        self.assertIn("Henüz doğrulanmadı", visible)
+        self.assertIn("Tepe Gücü", labels)
+        self.assertIn("Kanal Gücü", labels)
+        calibration = self.window.findChild(type(self.window.quality_value), "calibrationNote")
+        self.assertIsNotNone(calibration)
+        self.assertIn("dBFS", calibration.text())
         self.assertNotIn("dBm", visible)
+        self.assertNotIn("dBm", labels)
         self.assertNotIn("nominal", visible.casefold())
 
     def test_clear_parameters_is_honest(self) -> None:
         self.window.clear_parameters()
         self.assertIn("yok", self.window.parameter_state.text().casefold())
-        self.assertTrue(all(value.text() == "—" for value in self.window.parameter_values.values()))
+        self.assertTrue(all(value.text() == "Henüz doğrulanmadı" for value in self.window.parameter_values.values()))
 
     def test_nonvalid_fields_never_render_numeric_values_or_band_overlay(self) -> None:
         event = EventParameterEstimate(

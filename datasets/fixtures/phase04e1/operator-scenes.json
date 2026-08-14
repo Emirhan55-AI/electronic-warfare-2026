@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "catalog_id": "phase04e1-operator-scenes-v1",
+  "index_order": "fftshift",
+  "common": {
+    "frame_length": 4096,
+    "sample_rate_hz": 8000000,
+    "center_frequency_hz": 100000000,
+    "binding_seed": 20260910,
+    "oos_seed": 20260911,
+    "frames_per_measurement": 4,
+    "operator_span_truth_margin_bins_per_side": 12,
+    "span_perturbation_bins": [-4, 0, 4]
+  },
+  "families": [
+    {"id": "am", "scene_id": "am-carrier", "domain": "Analog", "carrier_line_applicable": true},
+    {"id": "nfm", "scene_id": "nfm", "domain": "Analog", "carrier_line_applicable": true},
+    {"id": "ook", "scene_id": "ook", "domain": "Sayısal", "carrier_line_applicable": true},
+    {"id": "two_fsk", "scene_id": "two-fsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "bpsk", "scene_id": "bpsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "qpsk", "scene_id": "qpsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "wideband_noise_like", "scene_id": "wideband-noise-like", "domain": "Belirsiz", "carrier_line_applicable": false},
+    {"id": "burst_qpsk", "scene_id": "burst-qpsk", "domain": "Sayısal", "carrier_line_applicable": false, "active_frames": [2, 3, 4, 5]}
+  ],
+  "isolation_scene": {"id": "close_am_qpsk", "scene_id": "close-am-qpsk"},
+  "negative_scene": {"id": "noise_only", "scene_id": "noise-only"}
+}

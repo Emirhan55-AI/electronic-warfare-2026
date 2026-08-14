@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-E1",
+  "status": "passed",
+  "validated_fields": [],
+  "checks": [
+    {
+      "id": "independent-fields-v2-lock",
+      "status": "passed"
+    },
+    {
+      "id": "invalid-protocol-run1-archive",
+      "status": "passed"
+    },
+    {
+      "id": "golden-parameters",
+      "status": "passed"
+    },
+    {
+      "id": "binding-results",
+      "status": "passed"
+    },
+    {
+      "id": "oos-results",
+      "status": "passed"
+    },
+    {
+      "id": "parameter-comparison",
+      "status": "passed"
+    },
+    {
+      "id": "field_scoped_profile_binding",
+      "status": "passed"
+    },
+    {
+      "id": "persistent_payload_bound",
+      "status": "passed",
+      "bytes": 34084
+    },
+    {
+      "id": "external_bounded_integration",
+      "status": "skipped",
+      "frames": 0
+    }
+  ],
+  "contracts": {
+    "acceptance_sha256": "569d3a5dfab11a9c8121130516d46abba3a9dfbf4e990216f3e6ab62ace60598",
+    "operator_scenes_sha256": "b8cf7337f92fafc9ef145c4a8753e8a2e64f9901d14ed7dfa6d55597e73acd15",
+    "method_lock_sha256": "cc8427a5a0ca67f9b905a2e2446f99ea877124d2367cb8945c08183e35b94728",
+    "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67",
+    "implementation_manifest_sha256": "c1ef40c74a20be8a53bf4fb13f55f491e532baa7aec38d7f0916eed396c02673"
+  },
+  "claim_boundary": "Kayıtlı/sentetik I/Q ve operatörce onaylanan span; canlı RF, dBm ve tamamlanmış PHASE-04 iddiası yoktur."
+}

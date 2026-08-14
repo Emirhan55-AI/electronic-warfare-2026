@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "contract_id": "phase04e1-operator-assisted-acceptance-v1",
+  "status": "locked-before-evaluation",
+  "authority": {
+    "specified_by_competition": false,
+    "gate_class": "project_internal_engineering",
+    "results_must_not_change_thresholds": true
+  },
+  "pre_binding_invariants": {
+    "simplex_sum_absolute_tolerance": 1e-12,
+    "simplex_nonnegative_tolerance": 1e-15,
+    "noise_rectification_bias_allowed": false,
+    "maximum_persistent_payload_bytes": 34084,
+    "maximum_worker_count": 1,
+    "maximum_pending_intents": 1
+  },
+  "binding": {
+    "trials_per_family": 128,
+    "main_snr_db": 12.0,
+    "power_secondary_snr_db": 6.0,
+    "zero_snr_db": 0.0,
+    "abstention_snr_db": -6.0,
+    "noise_sequences": 128,
+    "noise_frames_per_sequence": 32,
+    "automatic_span": {"isolated_success_minimum": 0.95, "close_separation_minimum": 0.95, "cross_match_maximum": 0.0},
+    "emission_center_frequency": {"global_valid_minimum": 0.90, "family_valid_minimum": 0.85, "q95_error_bins_maximum": 1.0},
+    "carrier_line_frequency": {"global_valid_minimum": 0.90, "family_valid_minimum": 0.85, "q95_error_bins_maximum": 1.0, "false_carrier_rate_maximum": 0.02, "abstention_rate_minimum": 0.90},
+    "occupied_bandwidth": {"global_valid_minimum": 0.95, "family_valid_minimum": 0.90, "relative_q95_maximum": 0.20, "edge_q95_bins_maximum": 2.0, "clipping_count_maximum": 0, "temporal_q95_bins_maximum": 2.0},
+    "span_robustness": {"perturbation_bins": [-4, 0, 4], "edge_difference_q95_bins_maximum": 1.0},
+    "uncalibrated_power_dbfs": {"global_valid_minimum": 0.95, "family_valid_minimum": 0.90, "q95_error_db_maximum": 1.5, "zero_snr_median_error_db_maximum": 2.0},
+    "signal_domain": {"global_correct_definite_minimum": 0.85, "family_correct_definite_minimum": 0.75, "global_wrong_definite_maximum": 0.02, "family_wrong_definite_maximum": 0.05, "ambiguous_rejection_minimum": 0.90, "zero_snr_wrong_definite_maximum": 0.05, "low_snr_abstention_minimum": 0.90, "noise_definite_count_maximum": 0},
+    "noise_numeric_false_valid_count_maximum": 0
+  },
+  "oos": {
+    "trials_per_family": 32,
+    "noise_sequences": 32,
+    "noise_frames_per_sequence": 32,
+    "automatic_span": {"family_success_count_minimum": 31, "cross_match_count_maximum": 0},
+    "emission_center_frequency": {"family_valid_count_minimum": 28, "q95_error_bins_maximum": 1.0},
+    "carrier_line_frequency": {"family_valid_count_minimum": 28, "q95_error_bins_maximum": 1.0, "false_carrier_count_maximum": 1},
+    "occupied_bandwidth": {"family_valid_count_minimum": 31, "relative_q95_maximum": 0.20, "edge_q95_bins_maximum": 2.0, "clipping_count_maximum": 0},
+    "span_robustness": {"edge_difference_q95_bins_maximum": 1.0},
+    "uncalibrated_power_dbfs": {"family_valid_count_minimum": 31, "q95_error_db_maximum": 1.5},
+    "signal_domain": {"family_correct_count_minimum": 24, "wrong_count_maximum": 1, "noise_definite_count_maximum": 0},
+    "noise_numeric_false_valid_count_maximum": 0
+  },
+  "quantile_method": "nearest_rank"
+}
