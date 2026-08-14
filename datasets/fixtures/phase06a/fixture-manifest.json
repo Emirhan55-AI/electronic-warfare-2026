@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06A",
+  "claim_boundary": "Bit-doğru sentetik/fixture vektörleridir; RTL simülasyon veya FPGA sonucu değildir.",
+  "source": {
+    "file": "datasets/fixtures/phase01/known-tone-ci8.sigmf-data",
+    "sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "frames": 4
+  },
+  "files": [
+    {
+      "file": "axis-input.hex",
+      "sha256": "c11a03516e4f920b42ed1fe48c7af9aa83141a4fef894d84a36622204339b20a",
+      "bytes": 81920
+    },
+    {
+      "file": "axis-expected.mem",
+      "sha256": "b90b439feaca88b39ebdec359f2cd5a936caa7c78e8a86807d864cd0254c4f75",
+      "bytes": 76
+    },
+    {
+      "file": "golden-vectors.json",
+      "sha256": "1661c3f2aaa758e8c40ba3dce2e285cca3fb0aac15f0cec07c00974b1142ce32",
+      "bytes": 3011
+    }
+  ]
+}

@@ -31,6 +31,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE04_FILES)
             | set(VERIFY.APPROVED_PHASE08A_FILES)
             | set(VERIFY.APPROVED_PHASE05_FILES)
+            | set(VERIFY.APPROVED_PHASE06A_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -41,6 +42,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(120, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
+        self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -77,17 +79,25 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual("failed", comparison["status"])
         self.assertEqual([], comparison["validated_fields"])
 
-    def test_phase06_direction_does_not_add_rtl_early(self) -> None:
+    def test_phase06a_adds_only_the_approved_rtl_foundation(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         for text in ("SystemVerilog", "AXI4-Stream", "PHASE-03 `regional`", "AMD/Xilinx FFT IP"):
             self.assertIn(text, roadmap)
-        self.assertEqual([], list(ROOT.rglob("*.sv")))
+        self.assertEqual(
+            {
+                "rtl/phase06a/rtl/phase06a_pkg.sv",
+                "rtl/phase06a/rtl/axis_skid_buffer.sv",
+                "rtl/phase06a/rtl/axis_ci8_frame_stats.sv",
+                "rtl/phase06a/tb/tb_axis_ci8_frame_stats.sv",
+            },
+            {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
+        )
         self.assertEqual([], list(ROOT.rglob("*.svh")))
 
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         for text in (
-            "Mevcut ana açık fazlar: PHASE-04 ve PHASE-05",
+            "Mevcut ana açık fazlar: PHASE-04 ve PHASE-06",
             "PHASE-08A",
             "PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez",
             "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı",

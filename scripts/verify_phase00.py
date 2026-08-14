@@ -323,6 +323,33 @@ APPROVED_PHASE05_FILES = (
     "tests/test_phase05_verifier.py",
 )
 
+APPROVED_PHASE06A_FILES = (
+    "datasets/fixtures/phase06a/axis-expected.mem",
+    "datasets/fixtures/phase06a/axis-input.hex",
+    "datasets/fixtures/phase06a/fixture-manifest.json",
+    "datasets/fixtures/phase06a/golden-vectors.json",
+    "docs/decisions/ADR-0011-SYSTEMVERILOG-RTL-FOUNDATION.md",
+    "docs/interfaces/RTL_FRAME_STATS_CONTRACT.md",
+    "reference/rtl/__init__.py",
+    "reference/rtl/frame_stats.py",
+    "reference/rtl/vectors.py",
+    "results/evidence/phase06a/fixed-point-contract.json",
+    "results/evidence/phase06a/golden-frame-results.json",
+    "results/evidence/phase06a/python-model-result.json",
+    "results/evidence/phase06a/rtl-simulation.json",
+    "results/evidence/phase06a/toolchain.json",
+    "results/evidence/phase06a/verification-summary.json",
+    "rtl/phase06a/rtl/axis_ci8_frame_stats.sv",
+    "rtl/phase06a/rtl/axis_skid_buffer.sv",
+    "rtl/phase06a/rtl/phase06a_pkg.sv",
+    "rtl/phase06a/tb/tb_axis_ci8_frame_stats.sv",
+    "scripts/generate_phase06a_vectors.py",
+    "scripts/verify_phase06a.py",
+    "tests/test_phase06a_model.py",
+    "tests/test_phase06a_vectors.py",
+    "tests/test_phase06a_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -377,6 +404,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE04_FILES)
         | set(APPROVED_PHASE08A_FILES)
         | set(APPROVED_PHASE05_FILES)
+        | set(APPROVED_PHASE06A_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -458,7 +486,7 @@ def check_roadmap() -> dict[str, object]:
     phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(14)]
     ordered = all(position >= 0 for position in phase_positions) and phase_positions == sorted(phase_positions)
     baseline_present = "| PHASE-00 | Repository ve mühendislik temeli |" in text
-    current_phase_present = "**Mevcut ana açık fazlar: PHASE-04 ve PHASE-05**" in text
+    current_phase_present = "**Mevcut ana açık fazlar: PHASE-04 ve PHASE-06**" in text
     return _result(
         "phase-roadmap",
         ordered and baseline_present and current_phase_present,
@@ -473,7 +501,7 @@ def check_readme_truthfulness() -> dict[str, object]:
     required = (
         "phase-00 repository temelini kurmuştur",
         "phase-04 parametre doğrulaması açık kalırken",
-        "phase-05 — sinyal izleme ve analog dinleme",
+        "phase-06a — systemverilog rtl temeli",
         "gerçek cihaz, canlı i/q ve canlı analog dinleme henüz çalıştırılmamış",
         "rf yayın",
     )
@@ -509,7 +537,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

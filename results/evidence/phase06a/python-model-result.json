@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06A",
+  "status": "passed",
+  "frame_results": [
+    {
+      "frame_index": 0,
+      "total_energy": 40855552,
+      "peak_power": 10082,
+      "peak_index": 2,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "frame_index": 1,
+      "total_energy": 40855552,
+      "peak_power": 10082,
+      "peak_index": 2,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "frame_index": 2,
+      "total_energy": 40855552,
+      "peak_power": 10082,
+      "peak_index": 2,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "frame_index": 3,
+      "total_energy": 40855552,
+      "peak_power": 10082,
+      "peak_index": 2,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    }
+  ],
+  "corner_vectors": [
+    {
+      "vector_id": "all_zero",
+      "total_energy": 0,
+      "peak_power": 0,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "vector_id": "all_minimum",
+      "total_energy": 134217728,
+      "peak_power": 32768,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "vector_id": "all_maximum",
+      "total_energy": 132128768,
+      "peak_power": 32258,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "vector_id": "alternating_extrema",
+      "total_energy": 133173248,
+      "peak_power": 32768,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "vector_id": "single_impulse",
+      "total_energy": 32768,
+      "peak_power": 32768,
+      "peak_index": 137,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    {
+      "vector_id": "equal_two_peaks",
+      "total_energy": 64516,
+      "peak_power": 32258,
+      "peak_index": 23,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    }
+  ],
+  "protocol_vectors": {
+    "early_tlast": {
+      "total_energy": 3,
+      "peak_power": 1,
+      "peak_index": 0,
+      "sample_count": 3,
+      "protocol_error": true,
+      "error_code": 1
+    },
+    "missing_tlast": {
+      "total_energy": 0,
+      "peak_power": 0,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": true,
+      "error_code": 2
+    },
+    "late_tlast_recoveries": 1,
+    "after_recovery": {
+      "total_energy": 0,
+      "peak_power": 0,
+      "peak_index": 0,
+      "sample_count": 4096,
+      "protocol_error": false,
+      "error_code": 0
+    },
+    "expected_error_codes": {
+      "early_tlast": 1,
+      "missing_tlast": 2
+    }
+  }
+}

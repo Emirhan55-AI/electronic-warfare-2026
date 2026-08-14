@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06A",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "vectors",
+      "status": "passed"
+    },
+    {
+      "id": "rtl_sources",
+      "status": "passed"
+    },
+    {
+      "id": "historical_integrity",
+      "status": "passed"
+    },
+    {
+      "id": "python_model",
+      "status": "passed"
+    },
+    {
+      "id": "rtl_simulation",
+      "status": "passed"
+    }
+  ],
+  "historical_integrity": {
+    "files": 83,
+    "status": "passed"
+  },
+  "hardware_status": "not_exercised",
+  "fft_status": "not_implemented",
+  "detector_rtl_status": "not_implemented",
+  "claim_boundary": "PHASE-06A yalnız ci8/AXI4-Stream frame-istatistik temelidir; FFT, sentez ve FPGA sonucu değildir."
+}

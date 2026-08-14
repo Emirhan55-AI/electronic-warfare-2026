@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06A",
+  "input": {
+    "datatype": "ci8",
+    "layout": "tdata[7:0]=I,tdata[15:8]=Q",
+    "component_range": [
+      -128,
+      127
+    ]
+  },
+  "frame_length": 4096,
+  "widths": {
+    "sample_power": 16,
+    "frame_energy": 28,
+    "peak_index": 12,
+    "sample_count": 13
+  },
+  "maxima": {
+    "component_square": 16384,
+    "sample_power": 32768,
+    "frame_energy": 134217728
+  },
+  "overflow_policy": "mathematical_width_no_saturation",
+  "peak_tie_break": "first_index"
+}

@@ -6,5 +6,6 @@
 - `pipeline/`, allowlist bloklarından doğrulanmış işlem profilini kurar; PHASE-04 ve E1 alan-bazlı comparison/digest bağlarını doğrular ve geçersiz bağda PHASE-03 Operasyon zincirine döner.
 - `parameters/`, PHASE-04 geçerlilik modeli ve başarısızlık deneylerinin yanında E1 confirmed-olay span önerisini, dört bounded frame ölçümünü, taşıyıcı çizgisi/emisyon merkezi/OBW99/dBFS/sınırlı alan kurallarını ve `34.084 byte` kalıcı payload sınırını içerir. E1 profili yalnız doğrulanan alanları kurabilir; mevcut karşılaştırmada doğrulanan alan yoktur.
 - `monitoring/`, operatör seçimli AM/NFM için bounded DDC, FIR kanal süzme, frame-sürekli NFM faz farkı, 48 kHz mono ses, PCM16/WAV ve deterministik fixture/evaluation sözleşmesini içerir.
+- `rtl/`, PHASE-06A `ci8` AXI4-Stream frame-istatistik bloğunun yalnız tam sayı kullanan bit-doğru Python golden modelini ve deterministik HDL vektör üretimini içerir.
 
-Bu modeller ilerideki FPGA karşılaştırması içindir; PL iç sabit nokta biçimini tanımlamaz. PHASE-04 sonuçları yalnız katalogdaki sentetik ailelerde ve kayıtlı I/Q çalışma yolunda doğrulanabilir; genel gerçek dünya sınıflandırması, kalibre edilmiş RF gücü veya canlı RF işlevi değildir.
+PHASE-06A modeli yalnız frame-istatistik bloğunun açık bit genişliklerini tanımlar; sonraki FFT/detector PL biçimlerini belirlemez. PHASE-04 sonuçları yalnız katalogdaki sentetik ailelerde ve kayıtlı I/Q çalışma yolunda doğrulanabilir; genel gerçek dünya sınıflandırması, kalibre edilmiş RF gücü veya canlı RF işlevi değildir.

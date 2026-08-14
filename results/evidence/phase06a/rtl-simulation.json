@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06A",
+  "status": "passed",
+  "reason": "self_checking_testbench",
+  "simulator": "iverilog",
+  "rtl_compile": "passed",
+  "rtl_simulation": "passed",
+  "golden_equivalence": "passed",
+  "bounded_log": "PHASE-06A TB COVERAGE: input_stalls=11 result_stalls=12\nPHASE-06A TB PASS: 14 result checked\n<repository>\\rtl\\phase06a\\tb\\tb_axis_ci8_frame_stats.sv:312: $finish called at 606460000 (1ps)",
+  "hardware_status": "not_exercised",
+  "hardware": "not_exercised",
+  "synthesis": "not_exercised",
+  "timing": "not_exercised",
+  "resource_utilization": "not_exercised",
+  "claim_boundary": "Bu sonuç yalnız RTL simülasyonudur; sentez veya FPGA sonucu değildir."
+}
