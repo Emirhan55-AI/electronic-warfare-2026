@@ -175,7 +175,38 @@ PHASE04_SUCCESS_ONLY_FILES = (
     "results/evidence/phase04/parameters-valid-1920x1080-scale150.png",
 )
 
-APPROVED_PHASE04_FILES = APPROVED_PHASE04_BASE_FILES + PHASE04_SUCCESS_ONLY_FILES
+APPROVED_PHASE04_D1_FILES = (
+    "datasets/fixtures/phase04d1/acceptance-gates.json",
+    "datasets/fixtures/phase04d1/clean-reference.json",
+    "datasets/fixtures/phase04d1/evaluation-lock.json",
+    "datasets/fixtures/phase04d1/method-lock.json",
+    "datasets/fixtures/phase04d1/obw99-scenes.json",
+    "datasets/fixtures/phase04d1/reference-contract.json",
+    "docs/decisions/ADR-0007-OCCUPIED-BANDWIDTH-SEMANTICS.md",
+    "docs/interfaces/OCCUPIED_BANDWIDTH_CONTRACT.md",
+    "reference/parameters/obw99.py",
+    "reference/parameters/obw99_evaluation.py",
+    "reference/parameters/obw99_reference.py",
+    "scripts/generate_phase04d1_reference.py",
+    "scripts/lock_phase04d1_evaluation.py",
+    "scripts/lock_phase04d1_method.py",
+    "scripts/run_phase04d1_evaluation.py",
+    "scripts/verify_phase04d1.py",
+    "results/evidence/phase04d1/golden-obw99.json",
+    "results/evidence/phase04d1/obw99-binding-results.json",
+    "results/evidence/phase04d1/obw99-comparison.json",
+    "results/evidence/phase04d1/obw99-oos-results.json",
+    "results/evidence/phase04d1/verification-summary.json",
+    "tests/test_phase04d1_evaluation.py",
+    "tests/test_phase04d1_estimator.py",
+    "tests/test_phase04d1_method_lock.py",
+    "tests/test_phase04d1_reference.py",
+    "tests/test_phase04d1_verifier.py",
+)
+
+APPROVED_PHASE04_FILES = (
+    APPROVED_PHASE04_BASE_FILES + PHASE04_SUCCESS_ONLY_FILES + APPROVED_PHASE04_D1_FILES
+)
 
 EXPECTED_TOOLS = (
     "Git",

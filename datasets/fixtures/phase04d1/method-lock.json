@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-D1E",
+  "status": "locked-pre-binding",
+  "comparison_id": "phase04-d1-obw99-selection-v1",
+  "method": {
+    "method_id": "obw.direct-cumulative-99-v1",
+    "block_id": "analysis.occupied-bandwidth/v1",
+    "output_type": "parameters.occupied-bandwidth/v1",
+    "temporal_depth": 4,
+    "initial_margin_bins": 32,
+    "expansion_step_bins": 16,
+    "maximum_analysis_bins": 256,
+    "edge_guard_bins": 4,
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4,
+    "minimum_excess_to_noise_ratio": 10.0,
+    "maximum_active_events": 64,
+    "maximum_history_bytes": 659456
+  },
+  "contracts": {
+    "adr_0007_sha256": "78e922071d7abd75d8083b9fd777d2e67744719766cb57c2c27d67d12c0e7a1c",
+    "interface_contract_sha256": "cc0a17843d1c2382bc881adfb772cc9ebcdba67dc360f3d2e41b45f1d0458c37",
+    "acceptance_gates_sha256": "f91b9a3b11668ea59aeaeee917fefb91d2a1578e4b29da5d043a91ae4acce302",
+    "reference_contract_sha256": "0fbf3aa69d32ff3a14de4157cba72697002d3d0fb22f97ff482bc064e1710837",
+    "scene_catalog_sha256": "1b9e3ee7372d2dc99d63ca237903ff6f74b6ce400b91ae363310bf91dd93219f",
+    "clean_reference_sha256": "53c216931243a5ee451a05182ca7e78fc3f9cc213fb55885f6efb5d982df5fd7",
+    "clean_reference_generator_sha256": "68c79bb69818d4070447fdf218934ffb75770863a7c2fa8b660d600078396caa",
+    "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "noise_calibration": {
+    "status": "passed",
+    "pipeline": "phase02-periodic-hann-fft-psd",
+    "estimator": "median_reference_psd_div_ln2",
+    "calibration_seed": 20260820,
+    "validation_seed": 20260821,
+    "calibration_frames": 8192,
+    "validation_frames": 8192,
+    "batch_size": 64,
+    "ci_method": "normal_95_over_batch_means",
+    "reference_blocks_shifted_inclusive": [
+      [
+        1976,
+        2007
+      ],
+      [
+        2089,
+        2120
+      ]
+    ],
+    "reference_guard_bins": 4,
+    "uncorrected_calibration_mean_ratio": 1.0200865526584892,
+    "uncorrected_calibration_variance": 0.051669017407184034,
+    "correction_factor": 0.9803089722081515,
+    "corrected_validation_mean_ratio": 0.9955280795277999,
+    "corrected_validation_variance": 0.04701067957246433,
+    "corrected_validation_ci95": [
+      0.9908119074997472,
+      1.0002442515558525
+    ],
+    "corrected_validation_ci95_half_width": 0.00471617202805267,
+    "corrected_validation_bias": -0.0044719204722001304,
+    "exact_pfa_claimed": false,
+    "binding_or_oos_inputs_used": false
+  },
+  "implementation_manifest": {
+    "identity_sha256": "8929148659febde57d3f0eeaa9e676d805fa52e0e584f512f2967865aafab91d",
+    "sources": [
+      {
+        "path": "reference/parameters/obw99.py",
+        "sha256": "25871e08b33e36961ac928d440485ad5202e3fa08a769308081364b7d9e2923c"
+      },
+      {
+        "path": "reference/parameters/obw99_reference.py",
+        "sha256": "cc8245653326ece4219c2100e55f0e96248b9bc396d199f1c79d522c7a655cf4"
+      },
+      {
+        "path": "scripts/generate_phase04d1_reference.py",
+        "sha256": "68c79bb69818d4070447fdf218934ffb75770863a7c2fa8b660d600078396caa"
+      }
+    ]
+  },
+  "statistics": {
+    "q95_method": "nearest_rank",
+    "q95_rank_formula": "ceil(0.95 * N)",
+    "invalid_expected_valid_result": "valid_rate_failure",
+    "negative_populations_in_valid_rate": false
+  },
+  "populations": {
+    "supported_family_ids": [
+      "am",
+      "nfm",
+      "ook",
+      "two_fsk",
+      "bpsk",
+      "qpsk",
+      "wideband_noise_like",
+      "burst_qpsk"
+    ],
+    "binding_snr_db": 12.0,
+    "binding_trials_per_family": 128,
+    "oos_trials_per_family": 32,
+    "binding_base_seed": 20260830,
+    "oos_base_seed": 20260831,
+    "noise_sequences": 128,
+    "noise_frames_per_sequence": 32,
+    "close_pair_trials": 128
+  },
+  "binding_or_oos_executed": false,
+  "identity_sha256": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527"
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "catalog_id": "phase04d1-obw99-scenes-v1",
+  "status": "accepted",
+  "index_order": "fftshift",
+  "measurement": "occupied_bandwidth_99",
+  "common": {
+    "frame_length": 4096,
+    "sample_rate_hz": 8000000,
+    "center_frequency_hz": 100000000,
+    "clean_power_dbfs": -18.0,
+    "binding_snr_db": 12.0,
+    "binding_trials_per_family": 128,
+    "oos_trials_per_family": 32,
+    "binding_base_seed": 20260830,
+    "oos_base_seed": 20260831,
+    "noise_sequences": 128,
+    "noise_frames_per_sequence": 32,
+    "close_pair_trials": 128,
+    "temporal_frames": 4,
+    "q95_method": "nearest_rank",
+    "q95_rank_formula": "ceil(0.95 * N)",
+    "negative_populations_excluded_from_valid_rate": true
+  },
+  "clean_reference": {
+    "active_frames": 256,
+    "checkpoints": [
+      64,
+      128,
+      256
+    ],
+    "zero_padding_factor": 8,
+    "burst_pattern": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "supported_families": [
+    {
+      "family_id": "am",
+      "source_scene_id": "am-carrier",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "nfm",
+      "source_scene_id": "nfm",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "ook",
+      "source_scene_id": "ook",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "two_fsk",
+      "source_scene_id": "two-fsk",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "bpsk",
+      "source_scene_id": "bpsk",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "qpsk",
+      "source_scene_id": "qpsk",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "wideband_noise_like",
+      "source_scene_id": "wideband-noise-like",
+      "active_policy": "continuous"
+    },
+    {
+      "family_id": "burst_qpsk",
+      "source_scene_id": "burst-qpsk",
+      "active_policy": "burst_pattern_active_only"
+    }
+  ],
+  "isolation_populations": [
+    {
+      "population_id": "close_am_qpsk",
+      "source_scene_id": "close-am-qpsk",
+      "role": "separation_and_cross_match"
+    }
+  ],
+  "negative_populations": [
+    {
+      "population_id": "noise_only",
+      "source_scene_id": "noise-only",
+      "role": "confirmed_false_valid"
+    }
+  ],
+  "excluded_from_capability_claim": [
+    "tone",
+    "dsb_sc",
+    "mixed_boundary",
+    "unknown_signal_families"
+  ],
+  "canonical_serialization": {
+    "encoding": "UTF-8",
+    "line_endings": "LF",
+    "indent_spaces": 2,
+    "timestamp_forbidden": true,
+    "absolute_path_forbidden": true,
+    "final_newline_required": true
+  }
+}

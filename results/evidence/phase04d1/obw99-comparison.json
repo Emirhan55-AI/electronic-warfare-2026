@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-D1F",
+  "role": "comparison",
+  "comparison_id": "phase04-d1-obw99-selection-v1",
+  "evaluation_lock_sha256": "f30c6dfa4827f76d433a3ef5185887904fdd127dc63fbd90171c06897eee0a55",
+  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "status": "failed",
+  "binding_status": "failed",
+  "oos_status": "failed",
+  "capability_candidate": false,
+  "failed_gates": [
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "global",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "am",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "nfm",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "ook",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "two_fsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "bpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "wideband_noise_like",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_valid_rate",
+      "scope": "burst_qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "obw_relative_error_q95",
+      "scope": "global",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "lower_edge_absolute_error_q95_bins",
+      "scope": "global",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "upper_edge_absolute_error_q95_bins",
+      "scope": "global",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "analysis_window_clipping_rate",
+      "scope": "global",
+      "measured": 0.8779296875,
+      "operator": "==",
+      "expected": 0.0,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "close_pair_separation_rate",
+      "scope": "close_pair",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.95,
+      "status": "failed"
+    },
+    {
+      "role": "binding",
+      "id": "temporal_edge_stability_q95_bins",
+      "scope": "global",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "am",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "nfm",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "ook",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "two_fsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "bpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "wideband_noise_like",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_valid_rate",
+      "scope": "burst_qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_analysis_window_clipping_rate",
+      "scope": "global",
+      "measured": 0.8828125,
+      "operator": "==",
+      "expected": 0.0,
+      "status": "failed"
+    },
+    {
+      "role": "oos",
+      "id": "oos_close_pair_separation_rate",
+      "scope": "close_pair",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    }
+  ],
+  "universal_signal_support_claimed": false,
+  "live_hackrf_performance_claimed": false,
+  "full_source_hashed": false
+}

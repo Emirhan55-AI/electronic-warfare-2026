@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-D1F",
+  "role": "verification-summary",
+  "comparison_id": "phase04-d1-obw99-selection-v1",
+  "evaluation_lock_sha256": "f30c6dfa4827f76d433a3ef5185887904fdd127dc63fbd90171c06897eee0a55",
+  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "status": "failed",
+  "failure_class": "algorithmic_failed",
+  "binding_status": "failed",
+  "oos_status": "failed",
+  "capability_candidate": false,
+  "failed_gate_count": 57,
+  "artifact_hashes": {
+    "binding_results_sha256": "ecf69860ec84c510058423117b18b62ed473d5f21e9ef737b181c9958ef27758",
+    "oos_results_sha256": "928d7ab0de856bb148b3a821b93636002f193dd69255c13dfe949129ce56aaa1",
+    "comparison_sha256": "f36276e7d87cea707583d744965cb3b71020b5b01a5642d10a64b562b20bbefa",
+    "golden_sha256": "5790947d9b6b904e57178f4f234141c63b7604b9c2a1c0fbeac2abc3025cd4d7"
+  },
+  "protected_evidence_modified": false,
+  "phase04_profile_created": false,
+  "universal_signal_support_claimed": false,
+  "live_hackrf_performance_claimed": false,
+  "full_source_hashed": false
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-D1F",
+  "status": "locked-pre-run",
+  "comparison_id": "phase04-d1-obw99-selection-v1",
+  "inputs": {
+    "acceptance_gates_sha256": "f91b9a3b11668ea59aeaeee917fefb91d2a1578e4b29da5d043a91ae4acce302",
+    "reference_contract_sha256": "0fbf3aa69d32ff3a14de4157cba72697002d3d0fb22f97ff482bc064e1710837",
+    "scene_catalog_sha256": "1b9e3ee7372d2dc99d63ca237903ff6f74b6ce400b91ae363310bf91dd93219f",
+    "parameter_scene_catalog_sha256": "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
+    "clean_reference_sha256": "53c216931243a5ee451a05182ca7e78fc3f9cc213fb55885f6efb5d982df5fd7",
+    "method_lock_sha256": "2bda499ea878f5bf89dac8f0b9662387309a566b16dbba3cd74ac065166ee06d",
+    "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "implementation_manifest": {
+    "identity_sha256": "f589d3213545d0d979416ea9d03eb0f7dd862f12d5052cedf390baf9aee11f3e",
+    "sources": [
+      {
+        "path": "reference/parameters/obw99_evaluation.py",
+        "sha256": "656ca2790f3852e121c1d109a4d061f80209fb3eafc703f0c621b5127bb472b0"
+      },
+      {
+        "path": "scripts/lock_phase04d1_evaluation.py",
+        "sha256": "72828bc4ed11f594972fd61679d03cd976e7b9b12a44c795fec860e769dc96be"
+      },
+      {
+        "path": "scripts/run_phase04d1_evaluation.py",
+        "sha256": "47596ad0357717de4c79c7e1a59af7da43bfacdc81db53d680507e0709c9ad6c"
+      },
+      {
+        "path": "scripts/verify_phase04d1.py",
+        "sha256": "2de6914e8b8f55b139644b85b98668c186dc8a06ed70cc499a1a3b7222eb7885"
+      }
+    ]
+  },
+  "statistics": {
+    "q95_method": "nearest_rank",
+    "q95_rank_formula": "ceil(0.95 * N)"
+  },
+  "populations": {
+    "supported_family_ids": [
+      "am",
+      "nfm",
+      "ook",
+      "two_fsk",
+      "bpsk",
+      "qpsk",
+      "wideband_noise_like",
+      "burst_qpsk"
+    ],
+    "binding_base_seed": 20260830,
+    "binding_trials_per_family": 128,
+    "binding_snr_db": 12.0,
+    "oos_base_seed": 20260831,
+    "oos_trials_per_family": 32,
+    "close_pair_population": "close_am_qpsk",
+    "negative_population": "noise_only",
+    "noise_sequences_binding": 128,
+    "noise_frames_per_sequence": 32
+  },
+  "dynamic_timing_used_for_decision": false
+}

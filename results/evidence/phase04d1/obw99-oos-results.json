@@ -1,0 +1,744 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-D1F",
+  "role": "oos",
+  "comparison_id": "phase04-d1-obw99-selection-v1",
+  "evaluation_lock_sha256": "f30c6dfa4827f76d433a3ef5185887904fdd127dc63fbd90171c06897eee0a55",
+  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "status": "failed",
+  "base_seed": 20260831,
+  "snr_db": 12.0,
+  "families": [
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "insufficient_quality": 1,
+        "uncertain": 31
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 31,
+        "insufficient_excess_power": 1
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 31,
+      "clipping_rate": 0.96875,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "am"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "uncertain": 32
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 32
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 32,
+      "clipping_rate": 1.0,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "nfm"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "insufficient_quality": 16,
+        "uncertain": 16
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 16,
+        "insufficient_excess_power": 15,
+        "no_valid_obw99_output": 1
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 16,
+      "clipping_rate": 0.5,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "ook"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "uncertain": 32
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 32,
+        "insufficient_excess_power": 1
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 32,
+      "clipping_rate": 1.0,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "two_fsk"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "insufficient_quality": 12,
+        "uncertain": 20
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 20,
+        "insufficient_excess_power": 12
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 20,
+      "clipping_rate": 0.625,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "bpsk"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "uncertain": 32
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 32
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 32,
+      "clipping_rate": 1.0,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "qpsk"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "uncertain": 32
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 32
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 32,
+      "clipping_rate": 1.0,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "wideband_noise_like"
+    },
+    {
+      "trial_count": 32,
+      "valid_count": 0,
+      "invalid_or_abstention_count": 32,
+      "state_counts": {
+        "insufficient_quality": 1,
+        "uncertain": 31
+      },
+      "quality_reason_counts": {
+        "candidate_not_isolated": 31,
+        "insufficient_excess_power": 1
+      },
+      "valid_rate": 0.0,
+      "clipping_count": 31,
+      "clipping_rate": 0.96875,
+      "relative_obw_error": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "lower_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "upper_edge_error_bins": {
+        "count": 0,
+        "rank": null,
+        "q95": null,
+        "minimum": null,
+        "maximum": null,
+        "mean": null
+      },
+      "temporal_stability": {
+        "contract_maximum_native_bins": 1.0,
+        "valid_outputs_are_internally_gated": true,
+        "certified_q95_upper_bound_bins": null
+      },
+      "family_id": "burst_qpsk"
+    }
+  ],
+  "close_pair": {
+    "trial_count": 32,
+    "separated_count": 0,
+    "separation_rate": 0.0,
+    "cross_match_count": 0,
+    "cross_match_rate": 0.0
+  },
+  "noise_only": {
+    "sequence_count": 32,
+    "frames_per_sequence": 32,
+    "frame_count": 1024,
+    "confirmed_event_frames": 0,
+    "false_valid_frames": 0,
+    "false_valid_rate": 0.0
+  },
+  "gate_results": [
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "am",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "am",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "nfm",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "nfm",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "ook",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "ook",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "two_fsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "two_fsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "bpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "bpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "wideband_noise_like",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "wideband_noise_like",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_valid_rate",
+      "scope": "burst_qpsk",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_obw_relative_error_q95",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 0.2,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_lower_edge_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_family_upper_edge_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_temporal_edge_stability_q95_bins",
+      "scope": "burst_qpsk",
+      "measured": null,
+      "operator": "<=",
+      "expected": 1.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_analysis_window_clipping_rate",
+      "scope": "global",
+      "measured": 0.8828125,
+      "operator": "==",
+      "expected": 0.0,
+      "status": "failed"
+    },
+    {
+      "id": "oos_close_pair_separation_rate",
+      "scope": "close_pair",
+      "measured": 0.0,
+      "operator": ">=",
+      "expected": 0.96875,
+      "status": "failed"
+    },
+    {
+      "id": "oos_close_pair_cross_match_count",
+      "scope": "close_pair",
+      "measured": 0,
+      "operator": "==",
+      "expected": 0,
+      "status": "passed"
+    },
+    {
+      "id": "oos_noise_confirmed_false_valid_count",
+      "scope": "noise_only",
+      "measured": 0,
+      "operator": "==",
+      "expected": 0,
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04d1-clean-obw99-reference-v1",
+  "status": "passed",
+  "measurement": "occupied_bandwidth_99",
+  "sample_rate_hz": 8000000.0,
+  "center_frequency_hz": 100000000.0,
+  "fft_length": 4096,
+  "zero_padding_factor": 8,
+  "occupied_power_fraction": 0.99,
+  "families": [
+    {
+      "family_id": "am",
+      "source_scene_id": "am-carrier",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 1788.869825045894,
+          "upper_shifted_native_bin": 1806.630174954106,
+          "lower_offset_hz": -506113.622957238,
+          "upper_offset_hz": -471425.439542762,
+          "lower_frequency_hz": 99493886.37704276,
+          "upper_frequency_hz": 99528574.56045724,
+          "occupied_bandwidth_hz": 34688.183414477
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 1788.869795945438,
+          "upper_shifted_native_bin": 1806.630204054562,
+          "lower_offset_hz": -506113.679794067,
+          "upper_offset_hz": -471425.382705933,
+          "lower_frequency_hz": 99493886.32020593,
+          "upper_frequency_hz": 99528574.61729407,
+          "occupied_bandwidth_hz": 34688.297088134
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 1788.869823434012,
+          "upper_shifted_native_bin": 1806.630176565988,
+          "lower_offset_hz": -506113.626105445,
+          "upper_offset_hz": -471425.436394555,
+          "lower_frequency_hz": 99493886.37389456,
+          "upper_frequency_hz": 99528574.56360544,
+          "occupied_bandwidth_hz": 34688.18971089
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 1788.869823434012,
+        "upper_shifted_native_bin": 1806.630176565988,
+        "lower_offset_hz": -506113.626105445,
+        "upper_offset_hz": -471425.436394555,
+        "lower_frequency_hz": 99493886.37389456,
+        "upper_frequency_hz": 99528574.56360544,
+        "occupied_bandwidth_hz": 34688.18971089
+      },
+      "edge_convergence_native_bins": 2.7488574e-05,
+      "maximum_zero_padding_power_error": 6.56721910685866e-16
+    },
+    {
+      "family_id": "nfm",
+      "source_scene_id": "nfm",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 2423.096537455831,
+          "upper_shifted_native_bin": 2441.403385815577,
+          "lower_offset_hz": 732610.42471842,
+          "upper_offset_hz": 768365.987921049,
+          "lower_frequency_hz": 100732610.42471842,
+          "upper_frequency_hz": 100768365.98792104,
+          "occupied_bandwidth_hz": 35755.563202629
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 2423.096582990618,
+          "upper_shifted_native_bin": 2441.403435934327,
+          "lower_offset_hz": 732610.513653551,
+          "upper_offset_hz": 768366.085809233,
+          "lower_frequency_hz": 100732610.51365355,
+          "upper_frequency_hz": 100768366.08580923,
+          "occupied_bandwidth_hz": 35755.572155682
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 2423.096599873038,
+          "upper_shifted_native_bin": 2441.403389822763,
+          "lower_offset_hz": 732610.546627027,
+          "upper_offset_hz": 768365.995747583,
+          "lower_frequency_hz": 100732610.54662703,
+          "upper_frequency_hz": 100768365.99574758,
+          "occupied_bandwidth_hz": 35755.449120557
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 2423.096599873038,
+        "upper_shifted_native_bin": 2441.403389822763,
+        "lower_offset_hz": 732610.546627027,
+        "upper_offset_hz": 768365.995747583,
+        "lower_frequency_hz": 100732610.54662703,
+        "upper_frequency_hz": 100768365.99574758,
+        "occupied_bandwidth_hz": 35755.449120557
+      },
+      "edge_convergence_native_bins": 4.6111564e-05,
+      "maximum_zero_padding_power_error": 4.37814607123911e-16
+    },
+    {
+      "family_id": "ook",
+      "source_scene_id": "ook",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 1526.568872475202,
+          "upper_shifted_native_bin": 1544.732639970857,
+          "lower_offset_hz": -1018420.170946872,
+          "upper_offset_hz": -982944.062556919,
+          "lower_frequency_hz": 98981579.82905313,
+          "upper_frequency_hz": 99017055.93744308,
+          "occupied_bandwidth_hz": 35476.108389952
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 1526.550436159121,
+          "upper_shifted_native_bin": 1544.750874431716,
+          "lower_offset_hz": -1018456.179376717,
+          "upper_offset_hz": -982908.448375555,
+          "lower_frequency_hz": 98981543.82062328,
+          "upper_frequency_hz": 99017091.55162445,
+          "occupied_bandwidth_hz": 35547.731001162
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 1526.554632581184,
+          "upper_shifted_native_bin": 1544.746990428816,
+          "lower_offset_hz": -1018447.983239876,
+          "upper_offset_hz": -982916.034318718,
+          "lower_frequency_hz": 98981552.01676013,
+          "upper_frequency_hz": 99017083.96568128,
+          "occupied_bandwidth_hz": 35531.948921158
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 1526.554632581184,
+        "upper_shifted_native_bin": 1544.746990428816,
+        "lower_offset_hz": -1018447.983239876,
+        "upper_offset_hz": -982916.034318718,
+        "lower_frequency_hz": 98981552.01676013,
+        "upper_frequency_hz": 99017083.96568128,
+        "occupied_bandwidth_hz": 35531.948921158
+      },
+      "edge_convergence_native_bins": 0.004196422063,
+      "maximum_zero_padding_power_error": 7.22035029552936e-16
+    },
+    {
+      "family_id": "two_fsk",
+      "source_scene_id": "two-fsk",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 2733.240397393598,
+          "upper_shifted_native_bin": 2763.297098552871,
+          "lower_offset_hz": 1338360.15115937,
+          "upper_offset_hz": 1397064.645611076,
+          "lower_frequency_hz": 101338360.15115938,
+          "upper_frequency_hz": 101397064.64561108,
+          "occupied_bandwidth_hz": 58704.494451706
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 2733.20859457336,
+          "upper_shifted_native_bin": 2763.266502180485,
+          "lower_offset_hz": 1338298.036276094,
+          "upper_offset_hz": 1397004.887071259,
+          "lower_frequency_hz": 101338298.03627609,
+          "upper_frequency_hz": 101397004.88707125,
+          "occupied_bandwidth_hz": 58706.850795165
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 2733.226932090111,
+          "upper_shifted_native_bin": 2763.212342545346,
+          "lower_offset_hz": 1338333.851738499,
+          "upper_offset_hz": 1396899.106533878,
+          "lower_frequency_hz": 101338333.8517385,
+          "upper_frequency_hz": 101396899.10653389,
+          "occupied_bandwidth_hz": 58565.254795379
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 2733.226932090111,
+        "upper_shifted_native_bin": 2763.212342545346,
+        "lower_offset_hz": 1338333.851738499,
+        "upper_offset_hz": 1396899.106533878,
+        "lower_frequency_hz": 101338333.8517385,
+        "upper_frequency_hz": 101396899.10653389,
+        "occupied_bandwidth_hz": 58565.254795379
+      },
+      "edge_convergence_native_bins": 0.054159635139,
+      "maximum_zero_padding_power_error": 2.18907303561955e-16
+    },
+    {
+      "family_id": "bpsk",
+      "source_scene_id": "bpsk",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 1138.241704310823,
+          "upper_shifted_native_bin": 1157.05605178374,
+          "lower_offset_hz": -1776871.671267924,
+          "upper_offset_hz": -1740124.898859883,
+          "lower_frequency_hz": 98223128.32873207,
+          "upper_frequency_hz": 98259875.10114011,
+          "occupied_bandwidth_hz": 36746.77240804
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 1138.186538217552,
+          "upper_shifted_native_bin": 1157.115899470074,
+          "lower_offset_hz": -1776979.417543843,
+          "upper_offset_hz": -1740008.008847512,
+          "lower_frequency_hz": 98223020.58245616,
+          "upper_frequency_hz": 98259991.9911525,
+          "occupied_bandwidth_hz": 36971.408696331
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 1138.167009893868,
+          "upper_shifted_native_bin": 1157.134150385084,
+          "lower_offset_hz": -1777017.55880104,
+          "upper_offset_hz": -1739972.362529132,
+          "lower_frequency_hz": 98222982.44119896,
+          "upper_frequency_hz": 98260027.63747087,
+          "occupied_bandwidth_hz": 37045.196271908
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 1138.167009893868,
+        "upper_shifted_native_bin": 1157.134150385084,
+        "lower_offset_hz": -1777017.55880104,
+        "upper_offset_hz": -1739972.362529132,
+        "lower_frequency_hz": 98222982.44119896,
+        "upper_frequency_hz": 98260027.63747087,
+        "occupied_bandwidth_hz": 37045.196271908
+      },
+      "edge_convergence_native_bins": 0.019528323684,
+      "maximum_zero_padding_power_error": 6.53235754345329e-16
+    },
+    {
+      "family_id": "qpsk",
+      "source_scene_id": "qpsk",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 3129.519616268874,
+          "upper_shifted_native_bin": 3166.853112853933,
+          "lower_offset_hz": 2112343.000525143,
+          "upper_offset_hz": 2185259.986042837,
+          "lower_frequency_hz": 102112343.00052515,
+          "upper_frequency_hz": 102185259.98604284,
+          "occupied_bandwidth_hz": 72916.985517694
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 3129.617893004516,
+          "upper_shifted_native_bin": 3166.989404414187,
+          "lower_offset_hz": 2112534.947274446,
+          "upper_offset_hz": 2185526.18049646,
+          "lower_frequency_hz": 102112534.94727445,
+          "upper_frequency_hz": 102185526.18049645,
+          "occupied_bandwidth_hz": 72991.233222014
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 3129.585922264505,
+          "upper_shifted_native_bin": 3166.972768490282,
+          "lower_offset_hz": 2112472.504422862,
+          "upper_offset_hz": 2185493.688457582,
+          "lower_frequency_hz": 102112472.50442286,
+          "upper_frequency_hz": 102185493.68845758,
+          "occupied_bandwidth_hz": 73021.18403472
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 3129.585922264505,
+        "upper_shifted_native_bin": 3166.972768490282,
+        "lower_offset_hz": 2112472.504422862,
+        "upper_offset_hz": 2185493.688457582,
+        "lower_frequency_hz": 102112472.50442286,
+        "upper_frequency_hz": 102185493.68845758,
+        "occupied_bandwidth_hz": 73021.18403472
+      },
+      "edge_convergence_native_bins": 0.031970740011,
+      "maximum_zero_padding_power_error": 6.58791628598565e-16
+    },
+    {
+      "family_id": "wideband_noise_like",
+      "source_scene_id": "wideband-noise-like",
+      "active_policy": "continuous",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 2467.901376837499,
+          "upper_shifted_native_bin": 2563.069400117057,
+          "lower_offset_hz": 820119.87663574,
+          "upper_offset_hz": 1005994.922103627,
+          "lower_frequency_hz": 100820119.87663575,
+          "upper_frequency_hz": 101005994.92210363,
+          "occupied_bandwidth_hz": 185875.045467887
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 2467.919303608605,
+          "upper_shifted_native_bin": 2563.074940208946,
+          "lower_offset_hz": 820154.889860556,
+          "upper_offset_hz": 1006005.742595598,
+          "lower_frequency_hz": 100820154.88986056,
+          "upper_frequency_hz": 101006005.7425956,
+          "occupied_bandwidth_hz": 185850.852735041
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 2467.928573251984,
+          "upper_shifted_native_bin": 2563.091371857959,
+          "lower_offset_hz": 820172.994632782,
+          "upper_offset_hz": 1006037.835660076,
+          "lower_frequency_hz": 100820172.99463278,
+          "upper_frequency_hz": 101006037.83566007,
+          "occupied_bandwidth_hz": 185864.841027295
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 2467.928573251984,
+        "upper_shifted_native_bin": 2563.091371857959,
+        "lower_offset_hz": 820172.994632782,
+        "upper_offset_hz": 1006037.835660076,
+        "lower_frequency_hz": 100820172.99463278,
+        "upper_frequency_hz": 101006037.83566007,
+        "occupied_bandwidth_hz": 185864.841027295
+      },
+      "edge_convergence_native_bins": 0.016431649013,
+      "maximum_zero_padding_power_error": 4.50964365091025e-16
+    },
+    {
+      "family_id": "burst_qpsk",
+      "source_scene_id": "burst-qpsk",
+      "active_policy": "burst_pattern_active_only",
+      "active_frames": 256,
+      "checkpoints": [
+        {
+          "active_frames": 64,
+          "lower_shifted_native_bin": 2629.454484332058,
+          "upper_shifted_native_bin": 2666.707912099469,
+          "lower_offset_hz": 1135653.289711051,
+          "upper_offset_hz": 1208413.890819275,
+          "lower_frequency_hz": 101135653.28971106,
+          "upper_frequency_hz": 101208413.89081928,
+          "occupied_bandwidth_hz": 72760.601108223
+        },
+        {
+          "active_frames": 128,
+          "lower_shifted_native_bin": 2629.581062130489,
+          "upper_shifted_native_bin": 2666.770249079313,
+          "lower_offset_hz": 1135900.511973611,
+          "upper_offset_hz": 1208535.642733033,
+          "lower_frequency_hz": 101135900.5119736,
+          "upper_frequency_hz": 101208535.64273304,
+          "occupied_bandwidth_hz": 72635.130759422
+        },
+        {
+          "active_frames": 256,
+          "lower_shifted_native_bin": 2629.541438920078,
+          "upper_shifted_native_bin": 2666.85727390667,
+          "lower_offset_hz": 1135823.122890778,
+          "upper_offset_hz": 1208705.613098965,
+          "lower_frequency_hz": 101135823.12289077,
+          "upper_frequency_hz": 101208705.61309896,
+          "occupied_bandwidth_hz": 72882.490208187
+        }
+      ],
+      "truth": {
+        "lower_shifted_native_bin": 2629.541438920078,
+        "upper_shifted_native_bin": 2666.85727390667,
+        "lower_offset_hz": 1135823.122890778,
+        "upper_offset_hz": 1208705.613098965,
+        "lower_frequency_hz": 101135823.12289077,
+        "upper_frequency_hz": 101208705.61309896,
+        "occupied_bandwidth_hz": 72882.490208187
+      },
+      "edge_convergence_native_bins": 0.087024827357,
+      "maximum_zero_padding_power_error": 6.69075280479777e-16
+    }
+  ],
+  "contracts": {
+    "scenes_sha256": "1b9e3ee7372d2dc99d63ca237903ff6f74b6ce400b91ae363310bf91dd93219f",
+    "reference_contract_sha256": "0fbf3aa69d32ff3a14de4157cba72697002d3d0fb22f97ff482bc064e1710837"
+  }
+}

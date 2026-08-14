@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "contract_id": "phase04d1-obw99-reference-proposal",
+  "phase": "PHASE-04-D1B",
+  "status": "accepted",
+  "measurement": {
+    "name": "occupied_bandwidth_99",
+    "occupied_power_fraction": 0.99,
+    "lower_cumulative_fraction": 0.005,
+    "upper_cumulative_fraction": 0.995
+  },
+  "clean_reference": {
+    "iq_source": "long_noise_free_deterministic_iq",
+    "sample_rate_source": "scene_or_runtime_metadata",
+    "fft_length": 4096,
+    "window": "periodic_hann",
+    "phase02_power_normalization_required": true,
+    "active_frames": 256,
+    "convergence_checkpoints_frames": [
+      64,
+      128,
+      256
+    ],
+    "burst_segments": "active_only",
+    "zero_padding_factor": 8,
+    "zero_padded_grid_length": 32768,
+    "zero_padding_purpose": "edge_interpolation_only",
+    "zero_padding_creates_new_physical_information": false,
+    "edge_convergence_max_native_bins": 0.125,
+    "edge_convergence_comparison": "128_frame_edges_vs_256_frame_edges",
+    "power_conservation_relative_tolerance": 1e-10,
+    "near_zero_power_absolute_tolerance_fs_squared": 1e-12,
+    "byte_identity_required": false,
+    "analytic_nominal_formulas_are_truth": false
+  },
+  "runtime_estimator_proposal": {
+    "method_id": "obw.direct-cumulative-99-v1",
+    "candidate_source": "phase03_confirmed_and_observed_event",
+    "ground_truth_inputs_forbidden": [
+      "scene_id",
+      "modulation_label",
+      "nominal_center_frequency",
+      "snr_label",
+      "reference_band_edges"
+    ],
+    "noise_estimator": {
+      "method": "median_reference_psd_div_ln2",
+      "reference_cells_per_side": 32,
+      "total_reference_cells": 64,
+      "independent_noise_calibration_required_before_method_lock": true,
+      "hann_correlation_bias_must_be_reported": true,
+      "binding_results_must_not_fit_correction": true
+    },
+    "excess_psd": "max(psd_minus_noise, 0)",
+    "temporal_psd_average_frames": 4,
+    "temporal_average_policy": "sliding_mean_of_consecutive_confirmed_and_observed_frames",
+    "fractional_edge_interpolation": "linear_between_adjacent_native_cumulative_bins"
+  },
+  "noise_calibration_contract": {
+    "calibration_seed": 20260820,
+    "validation_seed": 20260821,
+    "calibration_frames": 8192,
+    "validation_frames": 8192,
+    "batch_size": 64,
+    "ci_method": "normal_95_over_batch_means",
+    "reference_blocks_shifted_inclusive": [
+      [
+        1976,
+        2007
+      ],
+      [
+        2089,
+        2120
+      ]
+    ],
+    "analysis_span_shifted_inclusive": [
+      2012,
+      2084
+    ],
+    "reference_guard_bins": 4,
+    "uncorrected_estimator": "median_reference_psd_div_ln2",
+    "correction_source": "independent_calibration_mean_inverse",
+    "validation_corrected_mean_bias_absolute_maximum": 0.005,
+    "validation_ci95_half_width_maximum": 0.005,
+    "validation_ci95_must_include_one": true,
+    "exact_pfa_claimed": false,
+    "binding_or_oos_inputs_allowed": false
+  },
+  "analysis_span": {
+    "shifted_safe_lower_bin_inclusive": 20,
+    "shifted_safe_upper_bin_inclusive": 4075,
+    "initial_margin_bins_per_side": 32,
+    "expansion_step_bins_per_side": 16,
+    "maximum_analysis_width_bins": 256,
+    "analysis_edge_guard_bins": 4,
+    "reference_guard_bins": 4,
+    "reference_cells_per_side": 32,
+    "neighbor_policy": {
+      "boundary": "midpoint_to_nearest_confirmed_candidate",
+      "reserved_bins": 4,
+      "crossing_allowed": false,
+      "unresolved_edge_state": "uncertain"
+    },
+    "expansion_trigger": {
+      "edge_quantile_inside_guard": true,
+      "edge_guard_excess_fraction_greater_than": 0.005,
+      "sides_evaluated_independently": true
+    },
+    "stop_conditions": [
+      "both_edge_guards_clear",
+      "maximum_analysis_width_reached",
+      "neighbor_boundary_reached",
+      "shifted_safe_boundary_reached"
+    ],
+    "unresolved_at_bounded_stop_state": "uncertain",
+    "clipped_result_may_be_valid": false
+  },
+  "quality": {
+    "minimum_integrated_excess_to_noise_ratio": 10.0,
+    "ratio_unit": "linear_power_ratio",
+    "equivalent_db": 10.0,
+    "ground_truth_snr_label_used": false,
+    "below_minimum_state": "insufficient_quality",
+    "temporal_edge_stability": {
+      "frames": 4,
+      "metric": "maximum_absolute_lower_or_upper_edge_deviation_from_four_frame_median",
+      "maximum_native_bins": 1.0,
+      "failure_state": "insufficient_quality"
+    },
+    "candidate_not_isolated_state": "uncertain"
+  },
+  "temporal_state": {
+    "minimum_consecutive_confirmed_observed_frames": 4,
+    "first_confirmed_frame_state": "insufficient_quality",
+    "public_valid_before_minimum": false,
+    "reset_on": [
+      "miss",
+      "seek",
+      "nonconsecutive_frame",
+      "source_generation_change",
+      "profile_generation_change",
+      "setting_generation_change",
+      "owner_change",
+      "split",
+      "merge"
+    ],
+    "split_history_inheritance": false,
+    "merge_history_policy": "clear_all_involved_events"
+  },
+  "bounded_memory": {
+    "maximum_active_events": 64,
+    "maximum_analysis_width_bins": 256,
+    "psd_dtype": "float64",
+    "psd_ring_frames_per_event": 4,
+    "psd_ring_bytes_per_event": 8192,
+    "running_sum_bytes_per_event": 2048,
+    "edge_history_bytes_per_event": 64,
+    "total_bytes_per_event": 10304,
+    "total_bytes_for_64_events": 659456,
+    "raw_iq_history_stored": false
+  },
+  "fpga_portability_notes": {
+    "runtime_arrays_are_bounded": true,
+    "loops_have_static_maxima": true,
+    "zero_padded_reference_grid_is_runtime_required": false,
+    "floating_point_python_is_golden_reference_only": true,
+    "fixed_point_width_is_decided_here": false,
+    "systemverilog_is_implemented_here": false
+  },
+  "constant_metadata": [
+    {
+      "id": "fft_length",
+      "value": 4096,
+      "source": "project_internal",
+      "rationale": "Uses the existing PHASE-02 native spectrum contract without introducing a second runtime resolution.",
+      "memory_and_compute": "One 4096-point spectrum per observed frame; no additional runtime FFT is required.",
+      "fft_relation": "Defines one native bin as sample_rate_hz / 4096.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not change after user approval in response to binding or OOS results."
+    },
+    {
+      "id": "sample_rate_behavior",
+      "value": "metadata_or_runtime_configuration",
+      "source": "project_internal",
+      "rationale": "Preserves HackRF-compatible operation at multiple sample rates and avoids an 8 MS/s algorithm constant.",
+      "memory_and_compute": "Only frequency-axis scaling changes; array sizes remain fixed by fft_length.",
+      "fft_relation": "All bin-to-Hz conversion uses sample_rate_hz / 4096.",
+      "fpga_bounded": true,
+      "lock_intent": "The source of sample rate must not be replaced with a hard-coded value."
+    },
+    {
+      "id": "clean_reference_active_frames",
+      "value": 256,
+      "source": "project_internal",
+      "rationale": "Provides a long deterministic average while retaining explicit 64/128-frame convergence checks.",
+      "memory_and_compute": "Frames are streamed into one accumulator; 256 frames are not retained together.",
+      "fft_relation": "Every frame uses the same 4096-point periodic-Hann grid.",
+      "fpga_bounded": true,
+      "lock_intent": "Must be fixed before reference generation and must not be extended after seeing estimator error."
+    },
+    {
+      "id": "convergence_checkpoints_frames",
+      "value": [
+        64,
+        128,
+        256
+      ],
+      "source": "project_internal",
+      "rationale": "Separates early, intermediate and final deterministic PSD averages without relying on one terminal result.",
+      "memory_and_compute": "Three edge snapshots; the PSD accumulator is shared.",
+      "fft_relation": "Checkpoints compare fractional edges expressed back in native bins.",
+      "fpga_bounded": true,
+      "lock_intent": "Checkpoint indices are fixed before reference generation."
+    },
+    {
+      "id": "edge_convergence_max_native_bins",
+      "value": 0.125,
+      "source": "project_internal",
+      "rationale": "Matches one step of the 8-times interpolated reference grid and tests numerical convergence rather than RF resolution.",
+      "memory_and_compute": "Two edge differences between the 128- and 256-frame snapshots.",
+      "fft_relation": "One eighth of a native bin; it is not claimed as new physical resolution.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be relaxed after reference or estimator results are observed."
+    },
+    {
+      "id": "zero_padding_factor",
+      "value": 8,
+      "source": "project_internal",
+      "rationale": "Provides deterministic cumulative-edge interpolation while explicitly adding no new physical information.",
+      "memory_and_compute": "Reference-only 32768-point grid; runtime uses native bins and local interpolation.",
+      "fft_relation": "Creates 0.125-native-bin reference-grid steps with total-power conservation checks.",
+      "fpga_bounded": true,
+      "lock_intent": "Reference factor is fixed before any clean-reference result is produced."
+    },
+    {
+      "id": "runtime_temporal_depth",
+      "value": 4,
+      "source": "project_internal",
+      "rationale": "Requires repeat observation before publishing a band and supports a four-frame stability metric.",
+      "memory_and_compute": "Four bounded PSD arrays per active event.",
+      "fft_relation": "Does not alter frequency resolution; it reduces frame-to-frame variance.",
+      "fpga_bounded": true,
+      "lock_intent": "Must be fixed before runtime estimator implementation."
+    },
+    {
+      "id": "initial_margin_bins_per_side",
+      "value": 32,
+      "source": "project_internal",
+      "rationale": "Starts outside the detected hull with room for unresolved occupied-energy tails while remaining local.",
+      "memory_and_compute": "Adds at most 64 bins before any controlled expansion.",
+      "fft_relation": "64 native bins total initial margin; Hz extent scales with sample rate.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be tuned from binding family outcomes."
+    },
+    {
+      "id": "expansion_step_bins_per_side",
+      "value": 16,
+      "source": "project_internal",
+      "rationale": "Balances bounded incremental observation against large discontinuous span changes.",
+      "memory_and_compute": "At most sixteen new bins are admitted on each triggered side per step.",
+      "fft_relation": "Step size is defined on the native shifted grid.",
+      "fpga_bounded": true,
+      "lock_intent": "Must remain fixed through binding and OOS evaluation."
+    },
+    {
+      "id": "maximum_analysis_width_bins",
+      "value": 256,
+      "source": "project_internal",
+      "rationale": "Provides a hard upper bound and prevents one candidate from consuming an unbounded spectrum region.",
+      "memory_and_compute": "Caps each stored PSD vector at 2048 bytes in float64.",
+      "fft_relation": "One sixteenth of the 4096-bin spectrum; Hz width scales with sample rate.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not grow after a clipped binding result."
+    },
+    {
+      "id": "analysis_edge_guard_bins",
+      "value": 4,
+      "source": "project_internal",
+      "rationale": "Detects cumulative energy that remains unresolved at an analysis boundary.",
+      "memory_and_compute": "Eight comparisons per expansion decision.",
+      "fft_relation": "Guard is evaluated in native bins before fractional interpolation.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be reduced to suppress clipping failures."
+    },
+    {
+      "id": "reference_cells_per_side",
+      "value": 32,
+      "source": "project_internal",
+      "rationale": "Provides a symmetric 64-cell robust noise sample outside the candidate span.",
+      "memory_and_compute": "Sixty-four scalar PSD values per active frame; no full-spectrum copy.",
+      "fft_relation": "Cells are native FFT bins and retain Hann-neighbor correlation for calibration checks.",
+      "fpga_bounded": true,
+      "lock_intent": "Must be fixed before independent noise calibration."
+    },
+    {
+      "id": "reference_guard_bins",
+      "value": 4,
+      "source": "project_internal",
+      "rationale": "Separates candidate-edge leakage from reference noise cells without an unbounded exclusion zone.",
+      "memory_and_compute": "Eight excluded native bins in total.",
+      "fft_relation": "Guard distance is measured on the native shifted grid.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be widened after observing a difficult family."
+    },
+    {
+      "id": "nearest_candidate_boundary_policy",
+      "value": "midpoint_with_four_bin_reserve",
+      "source": "project_internal",
+      "rationale": "Prevents analysis expansion from silently absorbing a neighboring confirmed emitter.",
+      "memory_and_compute": "Constant-time nearest-neighbor boundary calculation over the bounded active-event list.",
+      "fft_relation": "Midpoint and reserve are expressed in native shifted bins.",
+      "fpga_bounded": true,
+      "lock_intent": "Ownership boundary must not change using ground truth or scene labels."
+    },
+    {
+      "id": "minimum_integrated_excess_to_noise_ratio",
+      "value": 10.0,
+      "source": "project_internal",
+      "rationale": "Requires observed integrated excess to dominate the locally estimated noise before publishing two cumulative edges.",
+      "memory_and_compute": "One bounded reduction over at most 256 bins.",
+      "fft_relation": "Integrated over the selected native bins; it is not a ground-truth SNR label.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be lowered after binding abstentions are observed."
+    },
+    {
+      "id": "temporal_edge_stability_max_native_bins",
+      "value": 1.0,
+      "source": "project_internal",
+      "rationale": "Prevents publication when either edge moves beyond the native resolvable scale during the required observation window.",
+      "memory_and_compute": "Median and maximum deviation over four lower/upper edge pairs.",
+      "fft_relation": "Uses native bins rather than the finer clean-reference grid.",
+      "fpga_bounded": true,
+      "lock_intent": "Must not be relaxed from runtime or benchmark results."
+    },
+    {
+      "id": "history_reset_policy",
+      "value": "reset_on_miss_seek_nonconsecutive_generation_owner_split_or_merge",
+      "source": "project_internal",
+      "rationale": "Prevents samples from different emissions, owners or stream generations from forming one synthetic temporal measurement.",
+      "memory_and_compute": "Bounded state deletion; no replay or retained raw I/Q.",
+      "fft_relation": "Does not alter resolution; protects temporal provenance.",
+      "fpga_bounded": true,
+      "lock_intent": "Reset events are part of the method identity and cannot change after results."
+    }
+  ],
+  "lock_sequence": [
+    "user_approves_reference_and_acceptance_contracts",
+    "independent_clean_reference_and_noise_calibration_pass",
+    "method_constants_are_locked_before_binding",
+    "single_binding_run",
+    "single_locked_oos_run",
+    "capability_profile_only_if_all_mandatory_gates_pass"
+  ],
+  "canonical_serialization": {
+    "encoding": "UTF-8",
+    "line_endings": "LF",
+    "indent_spaces": 2,
+    "timestamp_forbidden": true,
+    "absolute_path_forbidden": true,
+    "final_newline_required": true
+  }
+}
