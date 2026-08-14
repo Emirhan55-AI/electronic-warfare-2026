@@ -31,6 +31,13 @@ from reference.parameters import (
     ParameterFrameResult,
     suggest_analysis_span,
 )
+from reference.monitoring import (
+    AnalogMonitor,
+    AnalogMonitorConfig,
+    AnalogMonitorResult,
+    ListeningIntent,
+    write_wav,
+)
 from reference.pipeline import (
     ProcessingProfile,
     RuntimeFrameResult,
@@ -45,6 +52,7 @@ from reference.spectrum import (
     SpectrumResult,
 )
 
+from .audio_playback import AudioPlayback
 from .main_window import MainWindow
 from .ui_text import ERROR_TEXT, TEXT
 
@@ -67,6 +75,62 @@ class MeasurementTaskSignals(QObject):
 class AcquisitionTaskSignals(QObject):
     completed = Signal(int, str, object)
     failed = Signal(int, str, str)
+
+
+class ListeningTaskSignals(QObject):
+    completed = Signal(object, object)
+    failed = Signal(object, str)
+
+
+class WavExportTaskSignals(QObject):
+    completed = Signal(object)
+    failed = Signal(object, str)
+
+
+class ListeningTask(QRunnable):
+    """Read and demodulate exactly four frames outside the UI thread."""
+
+    def __init__(self, intent: ListeningIntent, source: object) -> None:
+        super().__init__()
+        self.intent = intent
+        self.source = source
+        self.signals = ListeningTaskSignals()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            frames = tuple(self.source.read_frame(self.intent.start_frame + offset) for offset in range(4))
+            config = AnalogMonitorConfig(
+                self.intent.mode,
+                float(self.source.sample_rate_hz),
+                self.intent.center_offset_hz,
+                self.intent.channel_bandwidth_hz,
+            )
+            result = AnalogMonitor().process(frames, config, volume=self.intent.volume)
+        except Exception as exc:
+            self.signals.failed.emit(self.intent.generation_key, str(getattr(exc, "code", "insufficient_audio")))
+            return
+        self.signals.completed.emit(self.intent.generation_key, result)
+
+
+class WavExportTask(QRunnable):
+    """Write one already-bounded PCM payload outside the UI thread."""
+
+    def __init__(self, generation_key: object, destination: Path, pcm16: bytes) -> None:
+        super().__init__()
+        self.generation_key = generation_key
+        self.destination = destination
+        self.pcm16 = pcm16
+        self.signals = WavExportTaskSignals()
+
+    @Slot()
+    def run(self) -> None:
+        try:
+            write_wav(self.destination, self.pcm16)
+        except Exception as exc:
+            self.signals.failed.emit(self.generation_key, str(getattr(exc, "code", "wav_write_failed")))
+            return
+        self.signals.completed.emit(self.generation_key)
 
 
 class AcquisitionTask(QRunnable):
@@ -231,6 +295,7 @@ class OperatorController(QObject):
         test_backend_factory: Callable[[], HackRFBackend] = DeterministicMockBackend,
         profile: ProcessingProfile | None = None,
         verified_binding: VerifiedProfileBinding | None = None,
+        audio_playback: AudioPlayback | None = None,
     ) -> None:
         super().__init__(window)
         self.window = window
@@ -254,6 +319,7 @@ class OperatorController(QObject):
             self.profile_fallback_code = None
         self.runtime_pipeline = RuntimePipeline(self.profile, verified_binding=self.verified_binding)
         self.e1_capability = load_phase04e1_capability()
+        self.audio_playback = audio_playback or AudioPlayback(self)
         self.processor = self.runtime_pipeline.processor
         self.averager = ExponentialPowerAverager(alpha=0.2)
         self.current_index = 0
@@ -266,6 +332,11 @@ class OperatorController(QObject):
         self._pending_open: tuple[int, Path, Path | None, Literal["standard", "explicit"]] | None = None
         self._pending_measurement: MeasurementIntent | None = None
         self._pending_acquisition: tuple[int, Literal["probe", "capture", "test_capture"], HackRFBackend, RXConfig] | None = None
+        self._pending_listening: ListeningIntent | None = None
+        self._listening_intent: ListeningIntent | None = None
+        self._listening_result: AnalogMonitorResult | None = None
+        self._listening_revision = 0
+        self._source_is_fixture = False
         self._measurement_intent: MeasurementIntent | None = None
         self._selected_event_id: int | None = None
         self._span: AnalysisSpan | None = None
@@ -307,6 +378,16 @@ class OperatorController(QObject):
         window.analysis_spectrum.span_changed.connect(self._analysis_span_changed)
         window.measure_button.clicked.connect(self.request_measurement)
         window.clear_measurement_button.clicked.connect(self.clear_analysis)
+        window.prepare_listening_button.clicked.connect(self.request_listening)
+        window.play_audio_button.clicked.connect(self.play_listening)
+        window.pause_audio_button.clicked.connect(self.pause_listening)
+        window.stop_audio_button.clicked.connect(self.stop_listening)
+        window.export_wav_button.clicked.connect(self.export_listening_wav)
+        window.demod_combo.currentIndexChanged.connect(self._listening_config_changed)
+        window.listen_offset_spin.valueChanged.connect(self._listening_config_changed)
+        window.listen_bandwidth_spin.valueChanged.connect(self._listening_config_changed)
+        window.listen_volume_slider.valueChanged.connect(self._listening_config_changed)
+        window.set_audio_availability(self.audio_playback.available)
         self._show_profile_summary()
         if self.profile_fallback_code is not None:
             self.window.show_warning(TEXT["phase04_fallback"])
@@ -317,7 +398,7 @@ class OperatorController(QObject):
 
     @property
     def pending_intent_count(self) -> int:
-        return 1 if self._refresh_pending or self._pending_open is not None or self._pending_measurement is not None or self._pending_acquisition is not None else 0
+        return 1 if self._refresh_pending or self._pending_open is not None or self._pending_measurement is not None or self._pending_acquisition is not None or self._pending_listening is not None else 0
 
     @Slot()
     def activate_selected_source(self) -> None:
@@ -334,6 +415,7 @@ class OperatorController(QObject):
         if self._active_acquisition_backend is not None:
             self._active_acquisition_backend.cancel()
         self._pending_acquisition = None
+        self._pending_listening = None
         self._hackrf_device_ready = False
         if self.source is not None:
             self.source.close()  # type: ignore[attr-defined]
@@ -391,6 +473,7 @@ class OperatorController(QObject):
             self._pending_acquisition = request
             self._pending_open = None
             self._pending_measurement = None
+            self._pending_listening = None
             self._refresh_pending = False
             self.coalesced_request_count += 1
             self.max_pending_intents = max(self.max_pending_intents, 1)
@@ -528,9 +611,13 @@ class OperatorController(QObject):
         self.last_detection = None
         self.last_parameters = None
         self.clear_analysis()
+        self.clear_listening()
         self.averager.reset()
         self.runtime_pipeline.detection.reset()
         self.window.set_source(label, source.report)  # type: ignore[attr-defined]
+        metadata_path = getattr(source, "metadata_path", None)
+        self._source_is_fixture = metadata_path is not None and "phase05" in Path(metadata_path).parts
+        self.window.set_fixture_source(self._source_is_fixture)
         self.window.finish_opening(source_available=True)
 
     @Slot(int, str, object)
@@ -735,6 +822,11 @@ class OperatorController(QObject):
             self._pending_measurement = None
             self._start_measurement(intent)
             return True
+        if self._pending_listening is not None:
+            intent = self._pending_listening
+            self._pending_listening = None
+            self._start_listening(intent)
+            return True
         return False
 
     @Slot()
@@ -850,6 +942,7 @@ class OperatorController(QObject):
         self.window.clear_parameters()
         self.window.spectrum_view.clear_detection_overlay()
         self.clear_analysis()
+        self.clear_listening()
         if clear_history:
             self.window.spectrum_view.clear_history()
 
@@ -898,11 +991,13 @@ class OperatorController(QObject):
         items = self.window.detection_list.selectedItems()
         if not items or self.last_detection is None or self.last_result is None:
             self.clear_analysis()
+            self.clear_listening()
             return
         event_id = int(items[0].data(Qt.ItemDataRole.UserRole))
         event = next((item for item in self.last_detection.active_events if item.event_id == event_id), None)
         if event is None or event.state != "confirmed" or not event.observed_this_frame:
             self.clear_analysis()
+            self.clear_listening()
             return
         self._selected_event_id = event_id
         self._span_revision += 1
@@ -916,6 +1011,11 @@ class OperatorController(QObject):
                 lower = max(20, upper - 7)
             span = AnalysisSpan(lower, upper, "operator_adjusted", self._span_revision)
         self.window.set_analysis_event(event)
+        self.window.set_listening_event(
+            event,
+            offset_hz=float(event.region.peak_frequency_hz - self.last_result.center_frequency_hz),
+        )
+        self.window.listening_spectrum.set_spectrum(self.last_result.display)
         self.window.measure_button.setEnabled(self.e1_capability is not None)
         self.window.analysis_spectrum.set_spectrum(self.last_result.display)
         if span is None:
@@ -929,12 +1029,17 @@ class OperatorController(QObject):
     def _refresh_selected_event(self) -> None:
         if self.last_detection is None:
             self.clear_analysis()
+            self.clear_listening()
             return
         event = next((item for item in self.last_detection.active_events if item.event_id == self._selected_event_id), None)
         if event is None or event.state != "confirmed" or not event.observed_this_frame:
             self.clear_analysis()
+            self.clear_listening()
             return
         self.window.set_analysis_event(event)
+        if self.last_result is not None:
+            self.window.set_listening_event(event)
+            self.window.listening_spectrum.set_spectrum(self.last_result.display)
         self.window.measure_button.setEnabled(self.e1_capability is not None)
 
     @Slot(int, int)
@@ -1026,11 +1131,181 @@ class OperatorController(QObject):
         self._dispatch_pending_intent()
 
     @Slot()
+    def _listening_config_changed(self, *_: object) -> None:
+        self._listening_revision += 1
+        self._listening_result = None
+        self.audio_playback.stop()
+        self.window.listening_state.setText(TEXT["listening_not_prepared"])
+        self.window.play_audio_button.setEnabled(False)
+        self.window.pause_audio_button.setEnabled(False)
+        self.window.stop_audio_button.setEnabled(False)
+        self.window.export_wav_button.setEnabled(False)
+        if self._selected_event_id is not None:
+            self.window.prepare_listening_button.setEnabled(True)
+
+    @Slot()
+    def request_listening(self) -> bool:
+        if self.source is None or self._selected_event_id is None or self.last_detection is None:
+            return False
+        event = next(
+            (item for item in self.last_detection.active_events if item.event_id == self._selected_event_id),
+            None,
+        )
+        if event is None or event.state != "confirmed" or not event.observed_this_frame:
+            self.window.listening_state.setText(TEXT["listening_failed"])
+            return False
+        if self.current_index + 4 > int(self.source.frame_count):
+            self.window.listening_state.setText(ERROR_TEXT["insufficient_iq"])
+            return False
+        try:
+            mode = str(self.window.demod_combo.currentData())
+            config = AnalogMonitorConfig(
+                mode,  # type: ignore[arg-type]
+                float(self.source.sample_rate_hz),
+                self.window.listen_offset_spin.value() * 1000.0,
+                self.window.listen_bandwidth_spin.value() * 1000.0,
+            )
+        except Exception as exc:
+            code = str(getattr(exc, "code", "invalid_channel_bandwidth"))
+            self.window.listening_state.setText(ERROR_TEXT.get(code, TEXT["listening_failed"]))
+            return False
+        intent = ListeningIntent(
+            self.generation,
+            self.generation,
+            self._configuration_generation,
+            int(event.event_id),
+            int(event.seen_count) + self._listening_revision,
+            self.current_index,
+            config.mode,
+            config.center_offset_hz,
+            config.channel_bandwidth_hz,
+            self.window.listen_volume_slider.value() / 100.0,
+        )
+        self._listening_intent = intent
+        self.window.set_listening_busy()
+        if self._active_tasks:
+            self._pending_open = None
+            self._pending_acquisition = None
+            self._pending_measurement = None
+            self._pending_listening = intent
+            self._refresh_pending = False
+            self.coalesced_request_count += 1
+            self.max_pending_intents = max(self.max_pending_intents, 1)
+            self.task_counters_changed.emit()
+            return True
+        self._start_listening(intent)
+        return True
+
+    def _start_listening(self, intent: ListeningIntent) -> None:
+        assert self.source is not None
+        task = ListeningTask(intent, self.source)
+        task.signals.completed.connect(self._listening_completed)
+        task.signals.failed.connect(self._listening_failed)
+        self._active_tasks = 1
+        self.requested_task_count += 1
+        self.max_concurrent_tasks = max(self.max_concurrent_tasks, self._active_tasks)
+        self.thread_pool.start(task)
+        self.task_counters_changed.emit()
+
+    @Slot(object, object)
+    def _listening_completed(self, generation_key: object, result: object) -> None:
+        self._active_tasks = 0
+        self.completed_task_count += 1
+        if (
+            self._listening_intent is None
+            or generation_key != self._listening_intent.generation_key
+            or self._closing
+        ):
+            self.stale_results_rejected += 1
+        elif isinstance(result, AnalogMonitorResult):
+            self._listening_result = result
+            self.audio_playback.load(result.pcm16)
+            self.window.set_listening_result(result, audio_available=self.audio_playback.available)
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot(object, str)
+    def _listening_failed(self, generation_key: object, code: str) -> None:
+        self._active_tasks = 0
+        self.failed_task_count += 1
+        if self._listening_intent is not None and generation_key == self._listening_intent.generation_key:
+            self.window.listening_state.setText(ERROR_TEXT.get(code, TEXT["listening_failed"]))
+            self.window.prepare_listening_button.setEnabled(self._selected_event_id is not None)
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot()
+    def play_listening(self) -> None:
+        if not self.audio_playback.play():
+            self.window.set_audio_availability(False)
+
+    @Slot()
+    def pause_listening(self) -> None:
+        self.audio_playback.pause()
+
+    @Slot()
+    def stop_listening(self) -> None:
+        self.audio_playback.stop()
+
+    @Slot()
+    def export_listening_wav(self) -> bool:
+        if self._listening_result is None or self._listening_intent is None or self._active_tasks:
+            return False
+        filename, _ = QFileDialog.getSaveFileName(
+            self.window,
+            TEXT["export_wav"],
+            "dinleme.wav",
+            TEXT["wav_filter"],
+        )
+        if not filename:
+            return False
+        task = WavExportTask(
+            self._listening_intent.generation_key,
+            Path(filename),
+            self._listening_result.pcm16,
+        )
+        task.signals.completed.connect(self._wav_export_completed)
+        task.signals.failed.connect(self._wav_export_failed)
+        self._active_tasks = 1
+        self.requested_task_count += 1
+        self.max_concurrent_tasks = max(self.max_concurrent_tasks, self._active_tasks)
+        self.thread_pool.start(task)
+        self.task_counters_changed.emit()
+        return True
+
+    @Slot(object)
+    def _wav_export_completed(self, generation_key: object) -> None:
+        self._active_tasks = 0
+        if self._listening_intent is None or generation_key != self._listening_intent.generation_key:
+            self.stale_results_rejected += 1
+        else:
+            self.window.show_warning(TEXT["wav_saved"])
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot(object, str)
+    def _wav_export_failed(self, generation_key: object, code: str) -> None:
+        self._active_tasks = 0
+        if self._listening_intent is not None and generation_key == self._listening_intent.generation_key:
+            self.window.show_error(ERROR_TEXT.get(code, ERROR_TEXT["wav_write_failed"]))
+        self.task_counters_changed.emit()
+        self._dispatch_pending_intent()
+
+    @Slot()
+    def clear_listening(self) -> None:
+        self._pending_listening = None
+        self._listening_intent = None
+        self._listening_result = None
+        self.audio_playback.stop()
+        self.window.clear_listening()
+
+    @Slot()
     def clear_analysis(self) -> None:
         self._selected_event_id = None
         self._span = None
         self._measurement_intent = None
         self._pending_measurement = None
+        self._pending_listening = None
         self.window.clear_analysis()
 
     @staticmethod
@@ -1048,10 +1323,12 @@ class OperatorController(QObject):
         self._pending_open = None
         self._pending_acquisition = None
         self._pending_measurement = None
+        self._pending_listening = None
         self._measurement_intent = None
         self._refresh_pending = False
         self.playback_timer.stop()
         self.acquisition_backend.close()
+        self.audio_playback.close()
         if self._active_acquisition_backend is not None:
             self._active_acquisition_backend.close()
         self.thread_pool.waitForDone()

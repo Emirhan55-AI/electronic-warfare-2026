@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-05",
+  "status": "passed",
+  "hardware_status": "not_exercised",
+  "live_rx_status": "not_exercised",
+  "screenshots": [
+    {
+      "file": "no-source-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "state": "no_source"
+    },
+    {
+      "file": "am-ready-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "am_ready"
+    },
+    {
+      "file": "nfm-ready-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "nfm_ready"
+    },
+    {
+      "file": "noise-no-event-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "noise_no_event"
+    },
+    {
+      "file": "audio-unavailable-1366x768.png",
+      "width": 1366,
+      "height": 768,
+      "state": "audio_unavailable"
+    },
+    {
+      "file": "am-ready-1920x1080-scale150.png",
+      "width": 1920,
+      "height": 1080,
+      "state": "scale150"
+    }
+  ],
+  "byte_equality_gate": false
+}

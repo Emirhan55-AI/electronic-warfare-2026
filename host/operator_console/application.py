@@ -17,6 +17,7 @@ from PySide6.QtWidgets import QApplication
 
 from reference.pipeline import ProcessingProfile, VerifiedProfileBinding
 from host.acquisition import HackRFBackend
+from .audio_playback import AudioPlayback
 
 from .controller import OperatorController
 from .main_window import MainWindow
@@ -64,6 +65,7 @@ def build_application(
     verified_binding: VerifiedProfileBinding | None = None,
     acquisition_backend: HackRFBackend | None = None,
     test_backend_factory: Callable[[], HackRFBackend] | None = None,
+    audio_playback: AudioPlayback | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
     app.setApplicationName("Elektronik Harp Operatör Konsolu")
@@ -77,6 +79,7 @@ def build_application(
         "profile": profile,
         "verified_binding": verified_binding,
         "acquisition_backend": acquisition_backend,
+        "audio_playback": audio_playback,
     }
     if test_backend_factory is not None:
         controller_kwargs["test_backend_factory"] = test_backend_factory

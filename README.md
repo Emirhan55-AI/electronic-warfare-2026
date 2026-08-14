@@ -16,17 +16,17 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-Mevcut faz **PHASE-04 — Çekirdek teknik parametre çıkarımı** aşamasıdır. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuş, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını getirmiş, PHASE-03 kayıtlı/sentetik I/Q için `regional` detector kullanan doğrulanmış tespit profilini oluşturmuştur.
+PHASE-04 parametre doğrulaması açık kalırken resmî **PHASE-05 — Sinyal izleme ve analog dinleme** uygulaması kayıtlı/sentetik I/Q kapsamında yürütülür. PHASE-00 repository temelini kurmuştur; PHASE-01 `ci8`/`ci16_le` SigMF giriş sözleşmesini ve deterministik fixture'ı oluşturmuş, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını getirmiş, PHASE-03 kayıtlı/sentetik I/Q için `regional` detector kullanan doğrulanmış tespit profilini oluşturmuştur.
 
 PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
 
-İşlevler yalnız kayıtlı veya sentetik I/Q üzerinde floating-point referans işlemedir. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve RF performansı henüz çalıştırılmamış ve kanıtlanmamıştır. RF alma/verme yeteneği, dBm, FPGA/PL, ZedBoard aktarımı, dinleme/demodülasyon, yön/konum, karıştırma veya aldatma iddiası değildir. Arayüzde bu yeteneklere ait sahte durum bulunmaz.
+PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, FPGA/PL, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
 
 ## Dizinler
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
 - `rtl/`: İleride geliştirilecek FPGA veri yolu; henüz RTL uygulaması içermez.
-- `reference/`: SigMF/spektrum, detector/temporal olay ve PHASE-04 frame-local ile operatör destekli parametre modelleri; E1 alanları yalnız alan-bazlı profil bağı geçerse etkinleşir.
+- `reference/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre modelleri ve Qt-bağımsız bounded AM/NFM analog monitoring referansı.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
 - `host/acquisition/`: HackRF-1 için Qt/DSP bağımsız gerçek CLI ve deterministik test backend'leri, bounded `ci8` capture ve süreç güvenliği.
@@ -37,6 +37,7 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 - `datasets/fixtures/phase03/`: Detector bağımsız, sayısal parametreleri sabit sentetik sahne kataloğu.
 - `profiles/phase03/`: Benchmark sonucuyla kurulan doğrulanmış Operasyon işlem profili.
 - `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
+- `datasets/fixtures/phase05/`: Gerçek RF olmayan deterministik AM, NFM ve noise-only SigMF dinleme fixture'ları.
 - `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
 - `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector/parametre seçicileri ve gerçek UI renderer'ları.
 - `tests/`: Repository, SigMF, DSP, detector/parametre istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
@@ -46,6 +47,7 @@ PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli g
 - `results/evidence/phase03/`: Detector karşılaştırması, golden tespit, sabit doğrulama özeti ve yedi gerçek UI görüntüsü.
 - `results/evidence/phase04/`: Başarılı veya başarısız parametre karşılaştırması ile golden/doğrulama özeti; yedi gerçek UI görüntüsü yalnız tam başarıda üretilir.
 - `results/evidence/phase04e1/`: E1 golden ölçümleri, binding/OOS ham sonuçları, alan kararları, doğrulama özeti ve gerçek fallback arayüz görselleri.
+- `results/evidence/phase05/`: Fixture hashleri, AM/NFM clean ve 20 dB golden ölçümleri, doğrulama özeti ve Dinleme UI kanıtları.
 - `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
 
 ## Doğrulama
@@ -55,5 +57,7 @@ python -B scripts/generate_phase01_fixture.py --check
 python -B scripts/select_phase04_profile.py --evaluate
 python -B scripts/select_phase04_profile.py --check
 python -B scripts/verify_phase04.py --check
+python -B scripts/generate_phase05_fixtures.py --check
+python -B scripts/verify_phase05.py --check
 python -B -m unittest discover -s tests -v
 ```

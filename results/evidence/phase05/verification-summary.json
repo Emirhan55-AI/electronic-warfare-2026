@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-05",
+  "status": "passed",
+  "hardware_status": "not_exercised",
+  "live_rx_status": "not_exercised",
+  "runtime_profile": "phase03-operation-default",
+  "detector": "detector.regional",
+  "checks": [
+    {
+      "id": "am-clean",
+      "status": "passed"
+    },
+    {
+      "id": "nfm-clean",
+      "status": "passed"
+    },
+    {
+      "id": "am-snr20",
+      "status": "passed"
+    },
+    {
+      "id": "nfm-snr20",
+      "status": "passed"
+    },
+    {
+      "id": "noise-only",
+      "status": "passed"
+    },
+    {
+      "id": "external-ism",
+      "status": "skipped"
+    },
+    {
+      "id": "live-hackrf-audio",
+      "status": "skipped"
+    }
+  ],
+  "claim_boundary": "Kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM; canlı HackRF ve otomatik modülasyon sınıflandırması değildir.",
+  "historical_integrity": {
+    "files": 73,
+    "status": "passed"
+  }
+}

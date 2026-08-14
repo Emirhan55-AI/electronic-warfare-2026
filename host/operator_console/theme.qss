@@ -72,7 +72,7 @@ QLabel#sourceValue {
     font-size: 9pt;
 }
 
-QLabel#calibrationNote {
+QLabel#calibrationNote, QLabel#fixtureLiveWarning {
     background: #0E151D;
     border: 1px solid #27313D;
     border-radius: 4px;
@@ -164,6 +164,29 @@ QFrame#hackrfPanel {
     border: 1px solid #27313D;
     border-radius: 4px;
     padding: 8px;
+}
+
+QFrame#listeningPanel {
+    background: #111923;
+    border: 1px solid #27313D;
+    border-radius: 4px;
+}
+
+QLabel#listeningState {
+    color: #C8D4E0;
+    padding: 7px 0;
+}
+
+QSlider::groove:horizontal {
+    height: 4px;
+    background: #27313D;
+}
+
+QSlider::handle:horizontal {
+    width: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+    background: #3A9DFF;
 }
 
 QLabel#hackrfStatus {

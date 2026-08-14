@@ -288,6 +288,41 @@ APPROVED_PHASE08A_FILES = (
     "results/evidence/phase08a/tools-missing-1920x1080-scale150.png",
 )
 
+APPROVED_PHASE05_FILES = (
+    "datasets/fixtures/phase05/am-tone-ci8.sigmf-data",
+    "datasets/fixtures/phase05/am-tone-ci8.sigmf-meta",
+    "datasets/fixtures/phase05/fixture-manifest.json",
+    "datasets/fixtures/phase05/nfm-tone-ci8.sigmf-data",
+    "datasets/fixtures/phase05/nfm-tone-ci8.sigmf-meta",
+    "datasets/fixtures/phase05/noise-only-ci8.sigmf-data",
+    "datasets/fixtures/phase05/noise-only-ci8.sigmf-meta",
+    "docs/decisions/ADR-0010-RECORDED-ANALOG-MONITORING.md",
+    "docs/interfaces/ANALOG_MONITORING_CONTRACT.md",
+    "host/operator_console/audio_playback.py",
+    "reference/monitoring/__init__.py",
+    "reference/monitoring/dsp.py",
+    "reference/monitoring/evaluation.py",
+    "reference/monitoring/fixtures.py",
+    "reference/monitoring/models.py",
+    "results/evidence/phase05/am-ready-1366x768.png",
+    "results/evidence/phase05/am-ready-1920x1080-scale150.png",
+    "results/evidence/phase05/audio-unavailable-1366x768.png",
+    "results/evidence/phase05/fixture-manifest.json",
+    "results/evidence/phase05/golden-monitoring.json",
+    "results/evidence/phase05/nfm-ready-1366x768.png",
+    "results/evidence/phase05/noise-no-event-1366x768.png",
+    "results/evidence/phase05/no-source-1280x720.png",
+    "results/evidence/phase05/verification-summary.json",
+    "results/evidence/phase05/visual-summary.json",
+    "scripts/generate_phase05_fixtures.py",
+    "scripts/render_phase05_ui.py",
+    "scripts/verify_phase05.py",
+    "tests/test_operator_listening.py",
+    "tests/test_phase05_fixtures.py",
+    "tests/test_phase05_monitoring.py",
+    "tests/test_phase05_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -341,12 +376,13 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE03_FILES)
         | set(APPROVED_PHASE04_FILES)
         | set(APPROVED_PHASE08A_FILES)
+        | set(APPROVED_PHASE05_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
         "minimal-file-tree",
         not unexpected,
-        "repository contains the PHASE-00 baseline and approved PHASE-01/02/03/04 paths"
+        "repository contains the PHASE-00 baseline and approved later-phase paths"
         if not unexpected
         else "unexpected files: " + ", ".join(unexpected),
     )
@@ -422,7 +458,7 @@ def check_roadmap() -> dict[str, object]:
     phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(14)]
     ordered = all(position >= 0 for position in phase_positions) and phase_positions == sorted(phase_positions)
     baseline_present = "| PHASE-00 | Repository ve mühendislik temeli |" in text
-    current_phase_present = "**Mevcut faz: PHASE-" in text
+    current_phase_present = "**Mevcut ana açık fazlar: PHASE-04 ve PHASE-05**" in text
     return _result(
         "phase-roadmap",
         ordered and baseline_present and current_phase_present,
@@ -436,15 +472,16 @@ def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
         "phase-00 repository temelini kurmuştur",
-        "mevcut faz **phase-04",
-        "çekirdek teknik parametre çıkarımı",
-        "rf alma/verme",
+        "phase-04 parametre doğrulaması açık kalırken",
+        "phase-05 — sinyal izleme ve analog dinleme",
+        "gerçek cihaz, canlı i/q ve canlı analog dinleme henüz çalıştırılmamış",
+        "rf yayın",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README preserves the PHASE-00 baseline and truthful PHASE-04/RF claims"
+        "README preserves the baseline and truthful PHASE-04/05/RF claims"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
@@ -472,7 +509,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",
@@ -491,7 +528,7 @@ def check_no_future_sources() -> dict[str, object]:
     return _result(
         "no-future-phase-sources",
         not unexpected,
-        "implementation directories contain only approved PHASE-01/02/03/04 additions"
+        "implementation directories contain only approved later-phase additions"
         if not unexpected
         else "future-phase files found: " + ", ".join(sorted(unexpected)),
     )

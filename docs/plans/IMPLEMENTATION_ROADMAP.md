@@ -9,7 +9,7 @@ Fazlar sıralıdır; bir fazın çıkış kapısı doğrulanmadan ve kullanıcı
 | PHASE-02 | Referans spektrum DSP zinciri | Bounded çerçeveleme, Hann, 4096 FFT, güç/PSD ve üstel ortalama floating-point çıktıları deterministik vektörlerle doğrulanır; aynı gerçek sonuçları gösteren kalıcı Türkçe operatör uygulamasının ilk sürümü iki ekran ölçeğinde geçer. |
 | PHASE-03 | Sinyal tespiti | Bölgesel, CA-CFAR ve OS-CFAR adayları sabit sahnelerde karşılaştırılır; bütün zorunlu kapıları geçen kanonik yöntem, allowlist bloklarından kurulan doğrulanmış profille kayıtlı/sentetik I/Q üzerinde kaba aday ve bounded temporal olay üretir. |
 | PHASE-04 | Parametre çıkarımı | Operatörce onaylanan izole span içinde taşıyıcı çizgisi, emisyon merkezi, OBW99, kalibre edilmemiş göreli güç ve sınırlı Analog/Sayısal/Belirsiz alanları kendi binding ve OOS kapılarını geçer; yalnız geçen alanlar digest bağlı allowlist profiliyle etkinleşir. R1/R2/D1 ve E1 geçmeyen sonuçları yeniden üretilebilir mühendislik kanıtı olarak korunur; PHASE-04 tüm çekirdek alanlar doğrulanana kadar açık kalır. |
-| PHASE-05 | Sinyal izleme ve analog dinleme | İzinli kayıtlı analog sinyaller izlenir ve seçilen demodülasyon zinciri tekrarlanabilir testlerde doğrulanır; ilgili bloklar Akış Tasarımı alanına eklenir. |
+| PHASE-05 | Sinyal izleme ve analog dinleme | Kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM zinciri, bounded 48 kHz mono ses ve WAV çıktısı deterministik golden testlerle doğrulanır. |
 | PHASE-06 | FPGA RTL DSP zinciri | Özel RTL dili SystemVerilog ve blok arayüzü AXI4-Stream olur; ilk RTL tespit bloğu PHASE-03 `regional` detectorüdür. Python/NumPy modeli golden referans kalır, AMD/Xilinx FFT IP değerlendirilir; her PL bloğunun sabit nokta, gecikme, kaynak ve RTL sonucu ayrıca doğrulanır. Görsel profilin otomatik HDL ürettiği iddia edilmez. |
 | PHASE-07 | PC–ZedBoard veri aktarımı | Kayıtlı I/Q verisi PC'den Ethernet, ZedBoard PS, DDR/AXI DMA ve PL yoluyla bütünlük ve hız kanıtıyla aktarılır. |
 | PHASE-08 | HackRF-1 canlı I/Q ve ED entegrasyonu | HackRF-1 canlı kaynak bloğu uçtan uca ED zincirine ulaşır ve kontrollü alma senaryolarında beklenen adayları üretir. |
@@ -25,8 +25,10 @@ ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla ba
 
 KTR yarışma görevlerinin kaynağı olarak korunur; eski donanımın teknik performans hedefleri bağlayıcı değildir. Referans mimari 2× HackRF One, ZedBoard ve laptoptur.
 
-**Mevcut faz: PHASE-04**
+**Mevcut ana açık fazlar: PHASE-04 ve PHASE-05**
+
+PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini uygular; bu başlangıç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. Gerçek canlı HackRF dinleme, PHASE-06/07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.
 
 ## Erken hazırlık istisnası: PHASE-08A
 
-PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-05–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.
+PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.

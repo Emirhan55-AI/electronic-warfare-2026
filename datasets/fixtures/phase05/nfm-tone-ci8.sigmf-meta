@@ -1,0 +1,16 @@
+{
+  "global": {
+    "core:version": "1.0.0",
+    "core:datatype": "ci8",
+    "core:sample_rate": 192000,
+    "core:num_channels": 1,
+    "core:description": "Deterministik PHASE-05 sentetik test kaynağı; gerçek RF kaydı değildir."
+  },
+  "captures": [
+    {
+      "core:sample_start": 0,
+      "core:frequency": 100000000
+    }
+  ],
+  "annotations": []
+}

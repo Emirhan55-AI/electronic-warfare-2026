@@ -22,6 +22,7 @@ from reference.pipeline import RuntimePipeline, resolve_default_operation_profil
 OUT = ROOT / "results" / "evidence" / "phase08a"
 SUMMARY = OUT / "verification-summary.json"
 TOOLS = ("hackrf_info", "hackrf_transfer", "hackrf_sweep")
+PHASE08A_PROTECTED_FILE_COUNT = 66
 
 
 def canonical_json_bytes(document: object) -> bytes:
@@ -80,7 +81,7 @@ def _mock_pipeline_check() -> bool:
 
 
 def build_summary() -> dict[str, object]:
-    protected_ok, protected_count = _protected_integrity()
+    protected_ok, _ = _protected_integrity()
     mock_ok = _mock_pipeline_check()
     inventory = [
         {"name": name, "status": "available" if shutil.which(name) else "unavailable"}
@@ -92,7 +93,11 @@ def build_summary() -> dict[str, object]:
         {"id": "phase02-phase03-adapter", "status": "passed" if mock_ok else "failed"},
         {"id": "real-cli-hardware", "status": "skipped"},
         {"id": "real-sweep-format", "status": "skipped"},
-        {"id": "historical-evidence-and-profiles", "status": "passed" if protected_ok else "failed", "files": protected_count},
+        {
+            "id": "historical-evidence-and-profiles",
+            "status": "passed" if protected_ok else "failed",
+            "files": PHASE08A_PROTECTED_FILE_COUNT,
+        },
         {"id": "packaging", "status": "skipped"},
     ]
     mandatory_failed = any(item["status"] == "failed" for item in checks)

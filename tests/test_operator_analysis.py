@@ -31,11 +31,12 @@ class OperatorAnalysisTests(unittest.TestCase):
         context = MeasurementContext(1, 1, 1, 1, 4, (True, True, True, True), (owner,))
         return MeasurementIntent(1, 1, 1, 1, 4, 0, span, context)
 
-    def test_two_workspaces_and_scrollable_panels_exist(self) -> None:
+    def test_workspaces_and_scrollable_panels_exist(self) -> None:
         window = MainWindow()
-        self.assertEqual(window.workspace_tabs.count(), 2)
+        self.assertEqual(window.workspace_tabs.count(), 3)
         self.assertEqual(window.workspace_tabs.tabText(0), "Operasyon")
         self.assertEqual(window.workspace_tabs.tabText(1), "Sinyal Analizi")
+        self.assertEqual(window.workspace_tabs.tabText(2), "Dinleme")
         self.assertTrue(window.findChild(type(window.workspace_tabs), "workspaceTabs") is not None)
         window.close()
 

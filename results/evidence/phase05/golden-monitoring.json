@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-05",
+  "status": "passed",
+  "clean": {
+    "am": {
+      "sample_rate_hz": 48000,
+      "finite": true,
+      "pcm_clipping_count": 0,
+      "dominant_tone_hz": 3000.0,
+      "tone_error_hz": 0.0,
+      "evaluation_fft_bin_hz": 11.71875,
+      "normalized_correlation": 0.9999987441978684,
+      "audio_samples": 4000,
+      "pcm_sha256": "c11d0d537bd44924b69227c49fe04a0175ef856815e0def9df6081e1cc5f7808",
+      "deterministic_pcm": true,
+      "confirmed_event": true,
+      "passed": true
+    },
+    "nfm": {
+      "sample_rate_hz": 48000,
+      "finite": true,
+      "pcm_clipping_count": 0,
+      "dominant_tone_hz": 2003.90625,
+      "tone_error_hz": 3.90625,
+      "evaluation_fft_bin_hz": 11.71875,
+      "normalized_correlation": 0.9959165385564376,
+      "audio_samples": 3999,
+      "pcm_sha256": "9b95f09e0ad2ecacc5f43077585a9e1206ba3f62aabb281151752f211c0d9b1c",
+      "deterministic_pcm": true,
+      "confirmed_event": true,
+      "passed": true
+    }
+  },
+  "snr_20_db": {
+    "am": {
+      "sample_rate_hz": 48000,
+      "finite": true,
+      "pcm_clipping_count": 0,
+      "dominant_tone_hz": 3000.0,
+      "tone_error_hz": 0.0,
+      "evaluation_fft_bin_hz": 11.71875,
+      "normalized_correlation": 0.998765456066181,
+      "audio_samples": 4000,
+      "pcm_sha256": "7818e989ded5ae5b677ffe9385057e2ce1d20e8f17085eedd721190f7e50f4b3",
+      "snr_db": 20.0,
+      "passed": true
+    },
+    "nfm": {
+      "sample_rate_hz": 48000,
+      "finite": true,
+      "pcm_clipping_count": 0,
+      "dominant_tone_hz": 2003.90625,
+      "tone_error_hz": 3.90625,
+      "evaluation_fft_bin_hz": 11.71875,
+      "normalized_correlation": 0.9957284015363462,
+      "audio_samples": 3999,
+      "pcm_sha256": "9047285d07eddc0754a161b12772b2cf3338d0b6f46dfa4962d07e5ca704d36c",
+      "snr_db": 20.0,
+      "passed": true
+    }
+  },
+  "noise_only": {
+    "frames": 4,
+    "confirmed_events": 0,
+    "playback_enabled": false,
+    "passed": true
+  },
+  "gates": {
+    "audio_sample_rate_hz": 48000,
+    "clean_correlation_minimum": 0.95,
+    "snr20_correlation_minimum": 0.8,
+    "clean_tone_error_bins_maximum": 1,
+    "snr20_tone_error_bins_maximum": 2,
+    "pcm_clipping_count_maximum": 0
+  }
+}

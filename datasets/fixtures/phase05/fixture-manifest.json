@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-05",
+  "claim_boundary": "Deterministik sentetik I/Q; gerçek RF kaydı değildir.",
+  "fixtures": [
+    {
+      "fixture_id": "am-tone-ci8",
+      "mode": "am",
+      "datatype": "ci8",
+      "sample_rate_hz": 192000,
+      "center_frequency_hz": 100000000,
+      "complex_samples": 32768,
+      "frame_length": 4096,
+      "frame_count": 8,
+      "carrier_offset_hz": 24000.0,
+      "audio_tone_hz": 3000.0,
+      "channel_bandwidth_hz": 16000.0,
+      "modulation_index": 0.55,
+      "seed": 20260501,
+      "data_sha256": "10c8209e72d0e201d76626eb52bfb3dec758cb4ebf4642e4d4e5a41c68ba2c74",
+      "data_sha512": "9458ad11fe48cc3b8a0f7272e21794d38c7e17e29f64d6b59045473a7412a8c3643a0fd55e98dd189f6c88a8f9ac4a60404d2e0c16feba9eaa0d707af9ea16f8",
+      "metadata_sha256": "e740c5e5bb3c814b921eaa8fd8bd223af57876cfb022d7df5bddf095742f42af"
+    },
+    {
+      "fixture_id": "nfm-tone-ci8",
+      "mode": "nfm",
+      "datatype": "ci8",
+      "sample_rate_hz": 192000,
+      "center_frequency_hz": 100000000,
+      "complex_samples": 32768,
+      "frame_length": 4096,
+      "frame_count": 8,
+      "carrier_offset_hz": -24000.0,
+      "audio_tone_hz": 2000.0,
+      "channel_bandwidth_hz": 16000.0,
+      "modulation_index": 2.5,
+      "seed": 20260502,
+      "data_sha256": "9c7a169bca7bda456a16221aa190b276b0f6e1c8381787872dd0670d805a4470",
+      "data_sha512": "2839326c21a67e0908a6f38244e50e0ec61e1a4263b1f81399093c7456568dc274cff2edd906314bc307418b3da44a5b13d82eba9787394bd2dc40d6a2e60961",
+      "metadata_sha256": "e740c5e5bb3c814b921eaa8fd8bd223af57876cfb022d7df5bddf095742f42af"
+    },
+    {
+      "fixture_id": "noise-only-ci8",
+      "mode": "noise",
+      "datatype": "ci8",
+      "sample_rate_hz": 192000,
+      "center_frequency_hz": 100000000,
+      "complex_samples": 32768,
+      "frame_length": 4096,
+      "frame_count": 8,
+      "carrier_offset_hz": 0.0,
+      "audio_tone_hz": null,
+      "channel_bandwidth_hz": 16000.0,
+      "modulation_index": 0.0,
+      "seed": 20260503,
+      "data_sha256": "451f9514093ec4b61d8be171d59a98d58be2f27d37cd086c33a03b10626a12af",
+      "data_sha512": "5006f58b5cef621997a1ebd63c20cd87a6615c48da8fb8f01e922496e2cb4b6a9b4cd46250c4cc4f9580be9873769421c0b819a0de23e15dd06bf8d1237a411a",
+      "metadata_sha256": "e740c5e5bb3c814b921eaa8fd8bd223af57876cfb022d7df5bddf095742f42af"
+    }
+  ]
+}

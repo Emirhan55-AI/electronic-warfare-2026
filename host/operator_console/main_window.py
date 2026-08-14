@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QPushButton,
     QSizePolicy,
+    QSlider,
     QSpinBox,
     QSplitter,
     QScrollArea,
@@ -102,6 +103,7 @@ class MainWindow(QMainWindow):
         self.workspace_tabs.setObjectName("workspaceTabs")
         self.workspace_tabs.addTab(operation, TEXT["operation_workspace"])
         self.workspace_tabs.addTab(analysis, TEXT["analysis_workspace"])
+        self.workspace_tabs.addTab(self._build_listening_workspace(), TEXT["listening_workspace"])
         central = QWidget()
         layout = QVBoxLayout(central)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -379,14 +381,101 @@ class MainWindow(QMainWindow):
         layout.setColumnStretch(8, 1)
         return controls
 
+    def _build_listening_workspace(self) -> QWidget:
+        self.listening_spectrum = AnalysisSpectrumView()
+        panel = QFrame()
+        panel.setObjectName("listeningPanel")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(8)
+        heading = QLabel(TEXT["listening_workspace"])
+        heading.setObjectName("sectionTitle")
+        layout.addWidget(heading)
+        self.listening_source_value = QLabel(TEXT["no_source"])
+        self.listening_source_value.setWordWrap(True)
+        layout.addWidget(self.listening_source_value)
+        self.listening_event_value = QLabel(TEXT["listening_select_event"])
+        self.listening_event_value.setWordWrap(True)
+        layout.addWidget(self.listening_event_value)
+        grid = QGridLayout()
+        self.demod_combo = QComboBox()
+        self.demod_combo.addItem("AM", "am")
+        self.demod_combo.addItem(TEXT["nfm"], "nfm")
+        self.listen_offset_spin = QDoubleSpinBox()
+        self.listen_offset_spin.setRange(-100_000.0, 100_000.0)
+        self.listen_offset_spin.setDecimals(3)
+        self.listen_offset_spin.setSuffix(" kHz")
+        self.listen_bandwidth_spin = QDoubleSpinBox()
+        self.listen_bandwidth_spin.setRange(2.0, 200.0)
+        self.listen_bandwidth_spin.setDecimals(1)
+        self.listen_bandwidth_spin.setValue(16.0)
+        self.listen_bandwidth_spin.setSuffix(" kHz")
+        self.listen_volume_slider = QSlider(Qt.Orientation.Horizontal)
+        self.listen_volume_slider.setRange(0, 100)
+        self.listen_volume_slider.setValue(80)
+        for row, (caption, widget) in enumerate(
+            (
+                (TEXT["demodulation"], self.demod_combo),
+                (TEXT["listening_offset"], self.listen_offset_spin),
+                (TEXT["listening_bandwidth"], self.listen_bandwidth_spin),
+                (TEXT["volume"], self.listen_volume_slider),
+            )
+        ):
+            label = QLabel(caption)
+            label.setWordWrap(True)
+            grid.addWidget(label, row, 0)
+            grid.addWidget(widget, row, 1)
+        layout.addLayout(grid)
+        self.listening_state = QLabel(TEXT["listening_not_prepared"])
+        self.listening_state.setObjectName("listeningState")
+        self.listening_state.setWordWrap(True)
+        layout.addWidget(self.listening_state)
+        self.audio_backend_state = QLabel(TEXT["audio_backend_pending"])
+        self.audio_backend_state.setWordWrap(True)
+        layout.addWidget(self.audio_backend_state)
+        self.fixture_live_warning = QLabel()
+        self.fixture_live_warning.setObjectName("fixtureLiveWarning")
+        self.fixture_live_warning.setWordWrap(True)
+        self.fixture_live_warning.hide()
+        layout.addWidget(self.fixture_live_warning)
+        self.prepare_listening_button = QPushButton(TEXT["prepare_listening"])
+        self.prepare_listening_button.setObjectName("primaryButton")
+        self.play_audio_button = QPushButton(TEXT["play_audio"])
+        self.pause_audio_button = QPushButton(TEXT["pause_audio"])
+        self.stop_audio_button = QPushButton(TEXT["stop_audio"])
+        self.export_wav_button = QPushButton(TEXT["export_wav"])
+        buttons = QGridLayout()
+        buttons.addWidget(self.prepare_listening_button, 0, 0, 1, 2)
+        buttons.addWidget(self.play_audio_button, 1, 0)
+        buttons.addWidget(self.pause_audio_button, 1, 1)
+        buttons.addWidget(self.stop_audio_button, 2, 0)
+        buttons.addWidget(self.export_wav_button, 2, 1)
+        layout.addLayout(buttons)
+        layout.addStretch(1)
+        scroll = self._scroll_panel(panel, "listeningScroll")
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.addWidget(self.listening_spectrum)
+        splitter.addWidget(scroll)
+        splitter.setSizes([1000, 340])
+        splitter.setStretchFactor(0, 1)
+        splitter.setChildrenCollapsible(False)
+        workspace = QWidget()
+        outer = QVBoxLayout(workspace)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(splitter)
+        self.clear_listening()
+        return workspace
+
     def show_empty(self) -> None:
         self.source_value.setText(TEXT["no_source"])
+        self.listening_source_value.setText(TEXT["no_source"])
         for value in self.metadata_values.values():
             value.setText("—")
         self.state_value.setText(TEXT["empty"])
         self.spectrum_view.clear_all()
         self.clear_detections()
         self.clear_parameters()
+        self.clear_listening()
         self.set_source_controls_enabled(False)
         self.hide_notification()
 
@@ -457,6 +546,7 @@ class MainWindow(QMainWindow):
 
     def set_source(self, filename: str, report: ContractReport) -> None:
         self.source_value.setText(Path(filename).name)
+        self.listening_source_value.setText(Path(filename).name)
         self.metadata_values["center_frequency"].setText(self._frequency(report.center_frequency))
         self.metadata_values["sample_rate"].setText(self._sample_rate(report.sample_rate))
         self.metadata_values["datatype"].setText(report.source_datatype or "—")
@@ -559,6 +649,60 @@ class MainWindow(QMainWindow):
         self.span_value.setText(TEXT["no_analysis_span"])
         self.analysis_spectrum.clear_span()
         self.clear_measurement_result()
+
+    def set_listening_event(self, event: DetectionEvent | None, *, offset_hz: float | None = None) -> None:
+        if event is None or event.state != "confirmed" or not event.observed_this_frame:
+            self.listening_event_value.setText(TEXT["listening_select_event"])
+            self.prepare_listening_button.setEnabled(False)
+            return
+        self.listening_event_value.setText(self._event_tooltip(event))
+        self.listening_event_value.setToolTip(self._event_tooltip(event))
+        if offset_hz is not None:
+            with QSignalBlocker(self.listen_offset_spin):
+                self.listen_offset_spin.setValue(offset_hz / 1000.0)
+        self.prepare_listening_button.setEnabled(True)
+
+    def clear_listening(self) -> None:
+        self.listening_event_value.setText(TEXT["listening_select_event"])
+        self.listening_state.setText(TEXT["listening_not_prepared"])
+        self.prepare_listening_button.setEnabled(False)
+        self.play_audio_button.setEnabled(False)
+        self.pause_audio_button.setEnabled(False)
+        self.stop_audio_button.setEnabled(False)
+        self.export_wav_button.setEnabled(False)
+        if hasattr(self, "listening_spectrum"):
+            self.listening_spectrum.clear_span()
+
+    def set_listening_busy(self) -> None:
+        self.listening_state.setText(TEXT["listening_preparing"])
+        for button in (
+            self.prepare_listening_button,
+            self.play_audio_button,
+            self.pause_audio_button,
+            self.stop_audio_button,
+            self.export_wav_button,
+        ):
+            button.setEnabled(False)
+
+    def set_listening_result(self, result: object, *, audio_available: bool) -> None:
+        tone = float(getattr(result, "dominant_tone_hz"))
+        self.listening_state.setText(
+            TEXT["listening_ready"].format(tone_hz=self.locale.toString(tone, "f", 1))
+        )
+        self.prepare_listening_button.setEnabled(True)
+        self.play_audio_button.setEnabled(audio_available)
+        self.pause_audio_button.setEnabled(audio_available)
+        self.stop_audio_button.setEnabled(audio_available)
+        self.export_wav_button.setEnabled(True)
+
+    def set_audio_availability(self, available: bool) -> None:
+        self.audio_backend_state.setText(
+            TEXT["audio_backend_ready"] if available else TEXT["audio_backend_unavailable"]
+        )
+
+    def set_fixture_source(self, active: bool) -> None:
+        self.fixture_live_warning.setVisible(active)
+        self.fixture_live_warning.setText(TEXT["fixture_not_live"] if active else "")
 
     def clear_measurement_result(self) -> None:
         self.clear_parameters()
