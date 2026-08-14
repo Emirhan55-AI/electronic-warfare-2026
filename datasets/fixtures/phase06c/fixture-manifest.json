@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "claim_boundary": "Wrapper transport stub is not an FFT; real AMD FFT IP is not exercised.",
+  "source": {
+    "file": "datasets/fixtures/phase06b/axis-expected.mem",
+    "sha256": "1c96ff1698f4344758a3f42fe3af88e0cf26cf7edd91448cb85b73dbca8dcd48",
+    "representative_samples": 4096
+  },
+  "files": [
+    {
+      "file": "axis-input.mem",
+      "sha256": "c7d90f2de77a59831c873e1b380c882c101e4828185b968b4c722ac3fcb69ace",
+      "bytes": 368640
+    },
+    {
+      "file": "fft-expected.mem",
+      "sha256": "dc8d9222cae5e4e26159ef6a39b1246fdab9fb0089dcaaca04f89ab5d7fa37ce",
+      "bytes": 696320
+    },
+    {
+      "file": "stub-expected.mem",
+      "sha256": "c2d941a7388acbe04aa7f876a3b20cfc775af4168bf3c3310e05d5576bdc2ae4",
+      "bytes": 696320
+    },
+    {
+      "file": "golden-vectors.json",
+      "sha256": "88955ea4a306fe6f0924656f8d9e8215feb8145a690590ffdf2ba64e247078c3",
+      "bytes": 11486
+    }
+  ]
+}

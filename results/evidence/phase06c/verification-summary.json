@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "title": "4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "vectors",
+      "status": "passed"
+    },
+    {
+      "id": "deterministic_vectors",
+      "status": "passed"
+    },
+    {
+      "id": "rtl_sources",
+      "status": "passed"
+    },
+    {
+      "id": "architecture_decision",
+      "status": "passed"
+    },
+    {
+      "id": "numerical_contract",
+      "status": "passed"
+    },
+    {
+      "id": "python_model",
+      "status": "passed"
+    },
+    {
+      "id": "historical_integrity",
+      "status": "passed"
+    },
+    {
+      "id": "wrapper_simulation",
+      "status": "passed"
+    }
+  ],
+  "historical_integrity": {
+    "files": 97,
+    "status": "passed"
+  },
+  "deterministic_result": {
+    "vectors": "passed",
+    "wrapper_compile_and_simulation_rerun": "passed",
+    "comparison": "byte_identical"
+  },
+  "proven": [
+    "architecture decision",
+    "external numerical/scaling/ordering contract",
+    "Python numerical characterization",
+    "vendor-independent wrapper AXI/config/reset/TLAST/index/event behavior"
+  ],
+  "real_amd_fft_ip": "not_exercised",
+  "vivado": "not_exercised_unavailable",
+  "xsim": "not_exercised_unavailable",
+  "amd_ip_generation": "not_exercised",
+  "xci": "not_created",
+  "synthesis": "not_exercised",
+  "implementation": "not_exercised",
+  "timing": "not_exercised",
+  "resource_utilization": "not_exercised",
+  "hardware": "not_exercised",
+  "linear_power": "not_implemented",
+  "psd": "not_implemented",
+  "regional_detector_rtl": "not_implemented",
+  "ui_capability_change": false,
+  "phase04e1_behavior_change": false,
+  "claim_boundary": "PHASE-06C is an architecture/contract/wrapper foundation, not functional AMD FFT RTL."
+}

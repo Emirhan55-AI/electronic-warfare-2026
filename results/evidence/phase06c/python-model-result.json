@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "status": "passed",
+  "algorithmic_reference": "PHASE-02 NumPy unscaled forward FFT",
+  "quantized_model": "idealized convergent-rounded 29-bit Q15 external contract",
+  "amd_c_model": "not_exercised",
+  "frame_count": 10,
+  "sample_count": 40960,
+  "vector_ids": [
+    "zero",
+    "impulse",
+    "positive_dc",
+    "negative_dc",
+    "single_tone",
+    "two_tone",
+    "multiple_tones",
+    "alternating_extrema",
+    "complex_extrema",
+    "representative_hann"
+  ],
+  "selected_peak_indices": {
+    "zero": 0,
+    "impulse": 0,
+    "positive_dc": 0,
+    "negative_dc": 0,
+    "single_tone": 256,
+    "two_tone": 128,
+    "multiple_tones": 64,
+    "alternating_extrema": 2048,
+    "complex_extrema": 0,
+    "representative_hann": 256
+  },
+  "fixture_hashes": [
+    {
+      "file": "axis-input.mem",
+      "sha256": "c7d90f2de77a59831c873e1b380c882c101e4828185b968b4c722ac3fcb69ace",
+      "bytes": 368640
+    },
+    {
+      "file": "fft-expected.mem",
+      "sha256": "dc8d9222cae5e4e26159ef6a39b1246fdab9fb0089dcaaca04f89ab5d7fa37ce",
+      "bytes": 696320
+    },
+    {
+      "file": "stub-expected.mem",
+      "sha256": "c2d941a7388acbe04aa7f876a3b20cfc775af4168bf3c3310e05d5576bdc2ae4",
+      "bytes": 696320
+    },
+    {
+      "file": "golden-vectors.json",
+      "sha256": "88955ea4a306fe6f0924656f8d9e8215feb8145a690590ffdf2ba64e247078c3",
+      "bytes": 11486
+    }
+  ]
+}

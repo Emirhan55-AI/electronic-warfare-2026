@@ -34,6 +34,14 @@ from .hann_window import (
     window_frame,
     window_word,
 )
+from .fft_model import (
+    architecture_decision_study,
+    build_numerical_study,
+    quantized_unscaled_fft,
+    selected_ip_configuration,
+    sign_extend_input_word,
+    unpack_fft_word,
+)
 
 __all__ = [
     "ENERGY_WIDTH",
@@ -66,4 +74,10 @@ __all__ = [
     "window_component",
     "window_frame",
     "window_word",
+    "architecture_decision_study",
+    "build_numerical_study",
+    "quantized_unscaled_fft",
+    "selected_ip_configuration",
+    "sign_extend_input_word",
+    "unpack_fft_word",
 ]

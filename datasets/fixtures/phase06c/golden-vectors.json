@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "claim_boundary": "Idealized numerical FFT vectors and non-FFT transport-stub vectors; not AMD IP output.",
+  "frame_length": 4096,
+  "frame_count": 10,
+  "total_samples": 40960,
+  "input_format": "signed SQ1.15 I/Q in 32-bit low-I/high-Q AXI payload",
+  "fft_output_format": "signed 29-bit Q15 I/Q sign-extended into 32-bit lanes, 64-bit payload",
+  "fft_output_order": "natural unshifted k=0..4095",
+  "vectors": [
+    {
+      "vector_id": "zero",
+      "frame_index": 0,
+      "sample_offset": 0,
+      "sample_count": 4096,
+      "input_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+      "fft_output_sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479",
+      "peak_index_unshifted": 0,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "impulse",
+      "frame_index": 1,
+      "sample_offset": 4096,
+      "sample_count": 4096,
+      "input_sha256": "b35ddd887cc3742f54f4888e3549ab32fce7f362535699f72426b8d2115a82c3",
+      "fft_output_sha256": "b1f5f3738c3ea2dd2c7246df0a25fd9d9744c1d6bfd03640f9ab0adbef610d52",
+      "peak_index_unshifted": 0,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000007fff"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000007fff"
+        }
+      ]
+    },
+    {
+      "vector_id": "positive_dc",
+      "frame_index": 2,
+      "sample_offset": 8192,
+      "sample_count": 4096,
+      "input_sha256": "fbb3031fc0b7a08dcd440e90d762d2acaeb12b88f61c1e34c57209b118ae6e4c",
+      "fft_output_sha256": "e5979caf764143e3a9333fee21133b9ce9fcb511144acfb6d339f3074fc9f0b5",
+      "peak_index_unshifted": 0,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "0000000004000000"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "negative_dc",
+      "frame_index": 3,
+      "sample_offset": 12288,
+      "sample_count": 4096,
+      "input_sha256": "66a9f6207c9a196534af3d2f943be779af88b3aa1958f3b173b9e8bce2256a82",
+      "fft_output_sha256": "457266d2fb2c7c13b2b6674729a418505e9cd3b8b7a91034e46b074de07f6214",
+      "peak_index_unshifted": 0,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "00000000fc000000"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "single_tone",
+      "frame_index": 4,
+      "sample_offset": 16384,
+      "sample_count": 4096,
+      "input_sha256": "4b11ebfe4598654ae89f2ae85d91eed4d07038d4c148c15309b24eb1473c85d6",
+      "fft_output_sha256": "5be3c6aef031b68a64e44c5a0ce531cafb3f70648d8d9f80f1a7a2c50c6c5f70",
+      "peak_index_unshifted": 256,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000005ffff65"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "two_tone",
+      "frame_index": 5,
+      "sample_offset": 20480,
+      "sample_count": 4096,
+      "input_sha256": "37c5c02600bc76e60ec040fdda5912d2960a825a11ad72cf923f595ce99f2b33",
+      "fft_output_sha256": "279e81c86e34307f5e7a70c3f204fe5b1d0c5a337ed5aaff311dc1133a1b7fc1",
+      "peak_index_unshifted": 128,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "00000080ffffff80"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000004000007"
+        },
+        {
+          "bin": 256,
+          "word": "0000010900000045"
+        },
+        {
+          "bin": 512,
+          "word": "00974ef301e9215b"
+        },
+        {
+          "bin": 1024,
+          "word": "00000080ffffff80"
+        },
+        {
+          "bin": 2048,
+          "word": "ffffff8000000080"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "multiple_tones",
+      "frame_index": 6,
+      "sample_offset": 24576,
+      "sample_count": 4096,
+      "input_sha256": "1f5ab280a6f0c5acd49f3928e21ba6e8a6151bd9ee7eee30e36661615c30b56d",
+      "fft_output_sha256": "cf6b911fe87d50e4d8d0903b898ae57adf9e1c459d9f3830f4434f9a28583d5f",
+      "peak_index_unshifted": 64,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "00000001fffffff6"
+        },
+        {
+          "bin": 1,
+          "word": "00000003fffffff0"
+        },
+        {
+          "bin": 64,
+          "word": "fffffff30266665b"
+        },
+        {
+          "bin": 128,
+          "word": "0000001effffffec"
+        },
+        {
+          "bin": 256,
+          "word": "ffffffee00000005"
+        },
+        {
+          "bin": 512,
+          "word": "0000000100000005"
+        },
+        {
+          "bin": 1024,
+          "word": "ff607e9001794417"
+        },
+        {
+          "bin": 2048,
+          "word": "ffffffd70000000a"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000bfffffff6"
+        }
+      ]
+    },
+    {
+      "vector_id": "alternating_extrema",
+      "frame_index": 7,
+      "sample_offset": 28672,
+      "sample_count": 4096,
+      "input_sha256": "94f0c0a93aeffaef267a317a825fa4039af33b05a12cd8d7771592e30baa6a87",
+      "fft_output_sha256": "827f56c807161255fa805dce15aed0f5d8b43d1aba40009e4f315f6f45f1158b",
+      "peak_index_unshifted": 2048,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "fffff800fffff800"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "07fff800f8000800"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "complex_extrema",
+      "frame_index": 8,
+      "sample_offset": 32768,
+      "sample_count": 4096,
+      "input_sha256": "65d443eeece26e59870186161dc4ce5e28b5d7fe8a0c2e27cfe82d07011b41c8",
+      "fft_output_sha256": "2d5371d93218ece7ab8fe377ce51d1e631d989fecf1d7d6b4c473e48bdc5e552",
+      "peak_index_unshifted": 0,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "f800000007fff000"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 128,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 256,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 512,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 1024,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000000"
+        },
+        {
+          "bin": 4095,
+          "word": "0000000000000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "representative_hann",
+      "frame_index": 9,
+      "sample_offset": 36864,
+      "sample_count": 4096,
+      "input_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f",
+      "fft_output_sha256": "d157c91af09ff5df8d6a73055ac0c0a32fee84eb089b57d1787f6f281908e15c",
+      "peak_index_unshifted": 256,
+      "selected_outputs": [
+        {
+          "bin": 0,
+          "word": "00000000fffffff6"
+        },
+        {
+          "bin": 1,
+          "word": "0000000000000014"
+        },
+        {
+          "bin": 64,
+          "word": "0000000000000008"
+        },
+        {
+          "bin": 128,
+          "word": "00000000fffffffa"
+        },
+        {
+          "bin": 256,
+          "word": "00000000031ef98b"
+        },
+        {
+          "bin": 512,
+          "word": "00000000ffffffea"
+        },
+        {
+          "bin": 1024,
+          "word": "00000000fffffffe"
+        },
+        {
+          "bin": 2048,
+          "word": "0000000000000006"
+        },
+        {
+          "bin": 4095,
+          "word": "00000000ffffffe5"
+        }
+      ]
+    }
+  ]
+}

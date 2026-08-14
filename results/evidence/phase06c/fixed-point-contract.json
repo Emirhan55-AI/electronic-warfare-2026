@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "input": {
+    "payload_width": 32,
+    "component_width": 16,
+    "fractional_bits": 15,
+    "format": "signed SQ1.15",
+    "layout": "tdata[15:0]=I,tdata[31:16]=Q"
+  },
+  "transform": {
+    "length": 4096,
+    "direction": "forward",
+    "normalization": "unscaled",
+    "input_order": "natural n=0..4095",
+    "output_order": "natural unshifted k=0..4095"
+  },
+  "output": {
+    "component_width": 29,
+    "container_width": 32,
+    "fractional_bits": 15,
+    "format": "signed 29-bit two's-complement, 15 fractional bits; repository notation SQ14.15",
+    "numeric_range": "[-8192, 8192 - 2^-15]",
+    "payload_width": 64,
+    "layout": "tdata[31:0]=I,tdata[63:32]=Q",
+    "lane_padding": "bits[31:29] equal bit[28] for each lane"
+  },
+  "theoretical_growth_bits": 13,
+  "growth_definition": {
+    "dft_accumulation_bits": 12,
+    "complex_rotation_guard_bits": 1,
+    "vendor_width_increase_bits": 13,
+    "vendor_rule": "16 + log2(4096) + 1 = 29"
+  },
+  "phase_factor_width": 24,
+  "rounding": "convergent",
+  "configuration": {
+    "expected_logical_word": "0x01",
+    "meaning": "channel 0 FWD_INV bit 0 = 1 (forward)",
+    "wrapper_logical_bus_width": 8,
+    "generated_ip_bus_width": "not_verified",
+    "generated_ip_port_map": "not_verified"
+  },
+  "xk_index": {
+    "logical_width": 12,
+    "range": "0..4095",
+    "wrapper_port_width": 12,
+    "generated_tuser_width": "not_verified; PG109 requires zero-padding to a byte boundary"
+  },
+  "power_width": "not_frozen",
+  "vendor_accuracy": "not_exercised"
+}

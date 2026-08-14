@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "product_guide": {
+    "document": "AMD Fast Fourier Transform LogiCORE IP Product Guide (PG109)",
+    "version": "9.1",
+    "release": "2026.1",
+    "source": "https://docs.amd.com/r/en-US/2026.1/pg109-xfft/Pipelined-Streaming-I/O",
+    "local_copy_available": false
+  },
+  "candidates": [
+    {
+      "id": "custom_systemverilog_fft",
+      "selected": false,
+      "development_risk": "high",
+      "verification_burden": "high",
+      "zynq_7000_compatibility": "possible_but_unproven",
+      "axi4_stream": "must_be_designed_and_verified",
+      "n4096_fixed_point": "must_be_designed_and_verified",
+      "throughput": "high_design_risk",
+      "ordering_scaling": "fully_custom",
+      "integration_complexity": "high",
+      "resource_measurement": "requires_future_vivado"
+    },
+    {
+      "id": "amd_xilinx_fft_logicore",
+      "selected": true,
+      "development_risk": "lower_after_vendor_ip_verification",
+      "verification_burden": "wrapper_plus_vendor_model",
+      "zynq_7000_compatibility": "listed_by_pg109; exact_part_and_generated_configuration_unverified",
+      "axi4_stream": "native",
+      "n4096_fixed_point": "supported_by_product_guide",
+      "throughput": "continuous_with_pipelined_streaming_and_waitstates",
+      "ordering_scaling": "configurable",
+      "integration_complexity": "moderate_and_vendor_tool_dependent",
+      "resource_measurement": "available_in_future_vivado_flow"
+    }
+  ],
+  "selection": "amd_xilinx_fft_logicore",
+  "selection_boundary": "architecture selected; real IP generation, C-model and XSim verification not exercised",
+  "official_pg109_cross_check": {
+    "status": "passed_for_documented_capabilities",
+    "document_release_date": "2026-07-17",
+    "verified_from_guide": [
+      "Zynq-7000 family listed",
+      "N=4096 and single-channel standard-sample-rate fixed point supported",
+      "Pipelined Streaming I/O and Non-Realtime AXI wait states supported",
+      "unscaled arithmetic, convergent rounding, 24-bit phase factors and natural output supported",
+      "29-bit output rule for 16-bit N=4096 unscaled input",
+      "logical XK_INDEX width 12 with byte padding",
+      "FWD_INV channel-0 bit 0 equals forward when set",
+      "TLAST is checked for events and does not control input framing"
+    ],
+    "expected_to_be_verified_in_vivado": [
+      "exact ZedBoard part and generated IP availability",
+      "generated config TDATA width and complete port map",
+      "generated output TDATA/TUSER physical widths and padding",
+      "actual AMD numerical behavior, latency, resources and timing"
+    ]
+  },
+  "selected_configuration": {
+    "channels": 1,
+    "transform_length": 4096,
+    "runtime_configurable_transform_length": false,
+    "direction": "forward_only_system_policy",
+    "architecture": "pipelined_streaming_io",
+    "mode": "non_realtime",
+    "input_component_width": 16,
+    "phase_factor_width": 24,
+    "output_order": "natural_unshifted_k0_to_k4095",
+    "arithmetic": "unscaled_full_precision_fixed_point",
+    "rounding": "convergent_rounding",
+    "rounding_boundary": "legal PG109 selection; not every internal word-length reduction uses convergent rounding",
+    "output_component_width": 29,
+    "output_container_width": 32,
+    "output_payload_width": 64,
+    "xk_index": "enabled_12_bit",
+    "blk_exp": "disabled_not_applicable",
+    "ovflo": "disabled_not_applicable_to_unscaled_full_precision",
+    "configuration_payload": "0x01_forward",
+    "configuration_payload_status": "expected_logical_channel0_fwd_inv_bit0",
+    "wrapper_logical_config_width": 8,
+    "generated_ip_config_bus_width": "not_verified_until_vivado_ip_generation",
+    "configuration_policy": "issued_once_after_each_reset_before_input_acceptance; no runtime reconfiguration",
+    "configuration_to_first_input": "at_least_one_clock_after_config_handshake",
+    "generated_ip_port_map": "not_verified_until_vivado_ip_generation",
+    "cyclic_prefix": "disabled",
+    "xk_index_logical_width": 12,
+    "generated_tuser_width": "not_verified; PG109 requires byte padding",
+    "device_support": "PG109_lists_Zynq_7000; exact_generated_part_configuration_not_verified",
+    "reset_assumption": "PG109_aresetn_active_for_at_least_two_cycles; generated_port_presence_not_verified"
+  }
+}

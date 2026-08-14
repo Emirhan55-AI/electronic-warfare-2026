@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "algorithmic_reference": "PHASE-02 NumPy unscaled forward FFT",
+  "frame_count": 10,
+  "metric_definition": {
+    "reference": "NumPy float64 unscaled FFT of exact signed Q15 integer codes",
+    "unit": "one signed input-component integer code equals one input LSB",
+    "population": "81920 pooled real/imaginary output components",
+    "maximum": "maximum absolute component error",
+    "rms": "sqrt(mean(component_error_squared)) over the pooled component population",
+    "rounding": "numpy.rint convergent ties-to-even",
+    "scaled_candidates": "metrics are calculated after restoring the candidate scale/exponent",
+    "randomness": "none"
+  },
+  "candidate_arithmetic": [
+    {
+      "id": "unscaled_full_precision",
+      "selected": true,
+      "output_component_width": 29,
+      "output_fraction_bits": 15,
+      "output_payload_width": 64,
+      "maximum_theoretical_growth_bits": 13,
+      "overflow_possible_with_frozen_input_contract": false,
+      "metrics": {
+        "maximum_component_error_input_lsb": 0.499977714954,
+        "rms_component_error_input_lsb": 0.112176869342
+      },
+      "downstream_power_consequence": "wide exact-square candidate; power width remains unfrozen"
+    },
+    {
+      "id": "scaled_fixed_point",
+      "selected": false,
+      "output_component_width": 16,
+      "total_right_shift": 13,
+      "illustrative_schedule": "six pipelined stage-pairs shifted by [3,2,2,2,2,2]",
+      "overflow_in_study": false,
+      "metrics_after_inverse_scale": {
+        "maximum_component_error_input_lsb": 4096.0,
+        "rms_component_error_input_lsb": 39.887732249434
+      },
+      "error_interpretation": "A 13-bit right shift has an 8192-input-LSB quantization step after scale restoration; ties-to-even rounding therefore permits the observed half-step 4096-LSB maximum error.",
+      "downstream_power_consequence": "narrower payload but fixed normalization dependency"
+    },
+    {
+      "id": "block_floating_point",
+      "selected": false,
+      "output_component_width": 16,
+      "block_exponents": {
+        "zero": 0,
+        "impulse": 0,
+        "positive_dc": 12,
+        "negative_dc": 12,
+        "single_tone": 12,
+        "two_tone": 12,
+        "multiple_tones": 11,
+        "alternating_extrema": 13,
+        "complex_extrema": 13,
+        "representative_hann": 11
+      },
+      "overflow_in_study": false,
+      "metrics_after_exponent_restore": {
+        "maximum_component_error_input_lsb": 4096.0,
+        "rms_component_error_input_lsb": 24.897415258157
+      },
+      "error_interpretation": "Frames using exponent 13 have an 8192-input-LSB restored quantization step; the observed 4096-LSB maximum is its half-step rounding bound, not overflow or wrap.",
+      "downstream_power_consequence": "per-frame exponent must accompany power and detector state"
+    }
+  ],
+  "phase_factor_study": [
+    {
+      "phase_factor_width": 16,
+      "maximum_component_error_input_lsb": 582.463001541793,
+      "maximum_frame_rms_component_error_input_lsb": 15.788982882392,
+      "model_boundary": "radix2_quantized_twiddle_proxy_not_amd_c_model"
+    },
+    {
+      "phase_factor_width": 20,
+      "maximum_component_error_input_lsb": 96.639638252556,
+      "maximum_frame_rms_component_error_input_lsb": 1.371685879831,
+      "model_boundary": "radix2_quantized_twiddle_proxy_not_amd_c_model"
+    },
+    {
+      "phase_factor_width": 24,
+      "maximum_component_error_input_lsb": 9.210386157036,
+      "maximum_frame_rms_component_error_input_lsb": 0.130357613489,
+      "model_boundary": "radix2_quantized_twiddle_proxy_not_amd_c_model"
+    },
+    {
+      "phase_factor_width": 32,
+      "maximum_component_error_input_lsb": 0.020844125227,
+      "maximum_frame_rms_component_error_input_lsb": 0.000369806781,
+      "model_boundary": "radix2_quantized_twiddle_proxy_not_amd_c_model"
+    }
+  ],
+  "phase_factor_planning_criterion": {
+    "maximum_component_error_input_lsb": 16.0,
+    "maximum_frame_rms_component_error_input_lsb": 0.25,
+    "origin": "PHASE-06C architecture-selection planning baseline; not a pre-existing repository acceptance gate",
+    "scope": "architectural radix-2 proxy only; real AMD C-model acceptance remains future work"
+  },
+  "selected_phase_factor_width": 24,
+  "selection_reason": "Unscaled full precision preserves the PHASE-02 normalization relationship and deterministic Q15 binary point; 29-bit components cover the vendor full-precision growth rule. A 24-bit phase factor materially reduces the architectural proxy error without imposing the 32-bit candidate width.",
+  "vendor_accuracy_boundary": "Actual AMD numerical behavior remains unproven until matching C-model/XSim execution."
+}

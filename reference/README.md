@@ -8,5 +8,6 @@
 - `monitoring/`, operatör seçimli AM/NFM için bounded DDC, FIR kanal süzme, frame-sürekli NFM faz farkı, 48 kHz mono ses, PCM16/WAV ve deterministik fixture/evaluation sözleşmesini içerir.
 - `rtl/`, PHASE-06A `ci8` AXI4-Stream frame-istatistik bloğunun yalnız tam sayı kullanan bit-doğru Python golden modelini ve deterministik HDL vektör üretimini içerir.
 - `rtl/hann_window.py` ve `rtl/hann_vectors.py`, PHASE-02 float64 periyodik Hann dizisinden dondurulmuş UQ1.15 katsayı üretir; donanım sonucunu integer çarpım, açık yuvarlama ve SQ1.15 çıkışla bit-doğru modeller.
+- `rtl/fft_model.py` ve `rtl/fft_vectors.py`, PHASE-06C için PHASE-02 unscaled forward FFT'yi SQ1.15 giriş/29-bit Q15 çıkış sınırında idealize eder, scaling adaylarını nicel karşılaştırır ve wrapper transport stub vektörünü matematiksel FFT golden'ından ayrı tutar.
 
-PHASE-06B modeli yalnız Hann ve FFT-facing giriş biçimini tanımlar; gerçek FFT ölçeklemesini, FFT sonrası gücü veya detector PL biçimini belirlemez. PHASE-04 sonuçları yalnız katalogdaki sentetik ailelerde ve kayıtlı I/Q çalışma yolunda doğrulanabilir; genel gerçek dünya sınıflandırması, kalibre edilmiş RF gücü veya canlı RF işlevi değildir.
+PHASE-06C Python modeli seçilen dış FFT sayısal sözleşmesini karakterize eder fakat AMD C-model değildir. Gerçek vendor FFT sonucu, FFT sonrası güç ve detector PL biçimi uygulanmamıştır. PHASE-04 sonuçları yalnız katalogdaki sentetik ailelerde ve kayıtlı I/Q çalışma yolunda doğrulanabilir; genel gerçek dünya sınıflandırması, kalibre edilmiş RF gücü veya canlı RF işlevi değildir.

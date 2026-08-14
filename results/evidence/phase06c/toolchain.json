@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06C",
+  "purpose": "Read-only discovery; no installation, AMD IP generation, synthesis or hardware access.",
+  "tools": [
+    {
+      "name": "vivado",
+      "status": "unavailable",
+      "detail": "required commands not found on PATH"
+    },
+    {
+      "name": "xsim",
+      "status": "unavailable",
+      "detail": "required commands not found on PATH"
+    },
+    {
+      "name": "iverilog",
+      "status": "available",
+      "detail": "required commands available",
+      "version": "Icarus Verilog version 13.0 (stable) (v13_0)"
+    },
+    {
+      "name": "vvp",
+      "status": "available",
+      "detail": "required commands available",
+      "version": "Icarus Verilog runtime version 13.0 (stable) (v13_0)"
+    }
+  ],
+  "product_guide_assumption": "AMD PG109 v9.1 / Vivado 2026.1; no local guide copy or installed Vivado"
+}

@@ -33,6 +33,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE05_FILES)
             | set(VERIFY.APPROVED_PHASE06A_FILES)
             | set(VERIFY.APPROVED_PHASE06B_FILES)
+            | set(VERIFY.APPROVED_PHASE06C_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -45,6 +46,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
+        self.assertEqual(26, len(VERIFY.APPROVED_PHASE06C_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -94,6 +96,10 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06b/rtl/phase06b_pkg.sv",
                 "rtl/phase06b/rtl/axis_hann_window.sv",
                 "rtl/phase06b/tb/tb_axis_hann_window.sv",
+                "rtl/phase06c/rtl/phase06c_pkg.sv",
+                "rtl/phase06c/rtl/axis_fft_wrapper.sv",
+                "rtl/phase06c/tb/fft_ip_transport_stub.sv",
+                "rtl/phase06c/tb/tb_axis_fft_wrapper.sv",
             },
             {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
         )
@@ -107,6 +113,15 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("UQ1.15", contract)
         self.assertIn("SQ1.15", contract)
         self.assertIn("gerçek fft", contract.casefold())
+
+    def test_phase06c_is_wrapper_only_and_real_amd_ip_remains_unexercised(self) -> None:
+        roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
+        contract = (ROOT / "docs" / "interfaces" / "RTL_FFT_INTERFACE_CONTRACT.md").read_text(encoding="utf-8")
+        self.assertIn("PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli", roadmap)
+        self.assertIn("transport stub", contract)
+        self.assertIn("Gerçek AMD IP generation/simulation", contract)
+        self.assertIn("64 bit", contract)
+        self.assertIn("natural unshifted", contract)
 
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")

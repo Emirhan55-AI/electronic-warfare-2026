@@ -7,3 +7,7 @@ Bu temel FFT, Hann, detector, DMA, Ethernet, canlı HackRF veya kart üstü ZedB
 `phase06b/`, PHASE-06A `axis_skid_buffer` altyapısını kullanarak signed `ci8` örnekleri dondurulmuş UQ1.15 periyodik Hann katsayılarıyla çarpar ve bileşen başına SQ1.15 olan 32 bit AXI4-Stream çıkış üretir. Çekirdek hazır downstream altında çevrim başına bir örnek ve bir çevrim kabulden-valid gecikmesi hedefler; gerçek sonuç yalnız self-checking RTL simülasyonuyla raporlanır.
 
 PHASE-06B gerçek 4096 FFT, AMD/Xilinx IP, FFT sonrası güç veya `regional` detector değildir. Katsayı belleği deterministik izlenen `.mem` verisidir; otomatik HDL üretimi değildir. Sentez, implementation, timing, resource utilization ve ZedBoard çalışması ayrıca doğrulanmadan mevcut sayılmaz.
+
+`phase06c/`, fixed 4096 forward/natural-order/unscaled full-precision AMD FFT mimari varsayımını çevreleyen vendor-independent AXI/config/event wrapper'ını içerir. Üretim wrapper'ı gerçek IP'yi instantiate etmez. Testbench'teki `fft_ip_transport_stub` yalnız sample sırası ve kontrol plumbing'i için sign-extension cevabı verir; FFT hesaplamaz.
+
+PHASE-06C Icarus sonucu yalnız wrapper simulation'dır. Gerçek AMD FFT IP generation, XCI, C-model/XSim, vendor latency, lineer güç, detector, synthesis, implementation, timing, resource utilization ve ZedBoard çalışması ayrıca doğrulanmadan mevcut sayılmaz.
