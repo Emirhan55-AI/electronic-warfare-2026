@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "status": "passed",
+  "algorithm_reference": "PHASE-02 NumPy float64 periodic Hann",
+  "bit_true_model": "integer coefficient lookup, multiply, ties-away rounding and SQ1.15 packing",
+  "hardware_result_path_uses_floating_point": false,
+  "coefficient_count": 4096,
+  "vector_frame_count": 10,
+  "vector_sample_count": 40960,
+  "edge_cases": [
+    {
+      "id": "zero_first",
+      "sample_index": 0,
+      "coefficient": 0,
+      "output_word": "00000000",
+      "output_i": 0,
+      "output_q": 0
+    },
+    {
+      "id": "minimum_center",
+      "sample_index": 2048,
+      "coefficient": 32768,
+      "output_word": "80008000",
+      "output_i": -32768,
+      "output_q": -32768
+    },
+    {
+      "id": "maximum_center",
+      "sample_index": 2048,
+      "coefficient": 32768,
+      "output_word": "7f007f00",
+      "output_i": 32512,
+      "output_q": 32512
+    },
+    {
+      "id": "alternating_minimum",
+      "sample_index": 2047,
+      "coefficient": 32768,
+      "output_word": "80008000",
+      "output_i": -32768,
+      "output_q": -32768
+    },
+    {
+      "id": "impulse_137",
+      "sample_index": 137,
+      "coefficient": 360,
+      "output_word": "fe98fe98",
+      "output_i": -360,
+      "output_q": -360
+    },
+    {
+      "id": "constant_complex_center",
+      "sample_index": 2048,
+      "coefficient": 32768,
+      "output_word": "4000c000",
+      "output_i": -16384,
+      "output_q": 16384
+    },
+    {
+      "id": "last_coefficient",
+      "sample_index": 4095,
+      "coefficient": 0,
+      "output_word": "00000000",
+      "output_i": 0,
+      "output_q": 0
+    }
+  ]
+}

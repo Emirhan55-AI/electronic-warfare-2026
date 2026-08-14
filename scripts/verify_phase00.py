@@ -350,6 +350,34 @@ APPROVED_PHASE06A_FILES = (
     "tests/test_phase06a_verifier.py",
 )
 
+APPROVED_PHASE06B_FILES = (
+    "datasets/fixtures/phase06b/axis-expected.mem",
+    "datasets/fixtures/phase06b/axis-input.hex",
+    "datasets/fixtures/phase06b/fixture-manifest.json",
+    "datasets/fixtures/phase06b/golden-vectors.json",
+    "datasets/fixtures/phase06b/hann-coefficients.mem",
+    "docs/decisions/ADR-0012-FIXED-POINT-HANN-FFT-BOUNDARY.md",
+    "docs/interfaces/RTL_HANN_WINDOW_CONTRACT.md",
+    "reference/rtl/hann_vectors.py",
+    "reference/rtl/hann_window.py",
+    "results/evidence/phase06b/fixed-point-contract.json",
+    "results/evidence/phase06b/golden-frame-results.json",
+    "results/evidence/phase06b/latency.json",
+    "results/evidence/phase06b/python-model-result.json",
+    "results/evidence/phase06b/rtl-simulation.json",
+    "results/evidence/phase06b/toolchain.json",
+    "results/evidence/phase06b/verification-summary.json",
+    "results/evidence/phase06b/word-length-study.json",
+    "rtl/phase06b/rtl/axis_hann_window.sv",
+    "rtl/phase06b/rtl/phase06b_pkg.sv",
+    "rtl/phase06b/tb/tb_axis_hann_window.sv",
+    "scripts/generate_phase06b_vectors.py",
+    "scripts/verify_phase06b.py",
+    "tests/test_phase06b_model.py",
+    "tests/test_phase06b_vectors.py",
+    "tests/test_phase06b_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -405,6 +433,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE08A_FILES)
         | set(APPROVED_PHASE05_FILES)
         | set(APPROVED_PHASE06A_FILES)
+        | set(APPROVED_PHASE06B_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -501,7 +530,7 @@ def check_readme_truthfulness() -> dict[str, object]:
     required = (
         "phase-00 repository temelini kurmuştur",
         "phase-04 parametre doğrulaması açık kalırken",
-        "phase-06a — systemverilog rtl temeli",
+        "phase-06b — sabit nokta hann pencereleme ve fft arayüz temeli",
         "gerçek cihaz, canlı i/q ve canlı analog dinleme henüz çalıştırılmamış",
         "rf yayın",
     )
@@ -537,7 +566,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

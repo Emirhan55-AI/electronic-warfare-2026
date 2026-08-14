@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "claim_boundary": "Sabit nokta Hann katsayıları ve bit-doğru vektörlerdir; FFT, sentez veya FPGA sonucu değildir.",
+  "source": {
+    "file": "datasets/fixtures/phase01/known-tone-ci8.sigmf-data",
+    "sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "frames": 4
+  },
+  "files": [
+    {
+      "file": "hann-coefficients.mem",
+      "sha256": "d8c409a859dc5483e7cf4f63de885273fa0ea31d8ff423115feec12415ff7f3f",
+      "bytes": 10245
+    },
+    {
+      "file": "axis-input.hex",
+      "sha256": "aca192c3ad2e3e0a338b1db218cc0564b3664cf24f98737af12f3543f26d90fe",
+      "bytes": 204800
+    },
+    {
+      "file": "axis-expected.mem",
+      "sha256": "1c96ff1698f4344758a3f42fe3af88e0cf26cf7edd91448cb85b73dbca8dcd48",
+      "bytes": 368640
+    },
+    {
+      "file": "golden-vectors.json",
+      "sha256": "e537cbb8b9a93e0c3211ac70b432a68b71b30b0af77f127cc65301e99faaba69",
+      "bytes": 10312
+    }
+  ]
+}

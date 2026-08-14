@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "input": {
+    "datatype": "ci8",
+    "format": "SQ1.7",
+    "layout": "tdata[7:0]=I,tdata[15:8]=Q"
+  },
+  "frame_length": 4096,
+  "coefficient": {
+    "format": "UQ1.15",
+    "width": 16,
+    "scale": 32768,
+    "rom_values": 2049,
+    "quantization": "floor(w*32768+0.5)"
+  },
+  "product": {
+    "width": 25,
+    "fractional_bits": 22
+  },
+  "output": {
+    "format": "SQ1.15",
+    "component_width": 16,
+    "payload_width": 32,
+    "layout": "tdata[15:0]=I,tdata[31:16]=Q"
+  },
+  "output_shift": 7,
+  "shift_semantics": "unsigned magnitude right shift followed by sign restoration",
+  "rounding": "nearest_ties_away_from_zero",
+  "truncation": "only_after_explicit_rounding",
+  "overflow": "mathematically_bounded_no_saturation_no_wrap"
+}

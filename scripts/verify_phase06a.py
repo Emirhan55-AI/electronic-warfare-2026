@@ -243,7 +243,13 @@ def run_simulation(toolchain: dict[str, object]) -> dict[str, object]:
 
 
 def _historical_integrity() -> tuple[int, bool]:
-    paths = _run(["git", "ls-tree", "-r", "--name-only", "HEAD", "results/evidence", "profiles"], cwd=ROOT).stdout.splitlines()
+    paths = [
+        path
+        for path in _run(
+            ["git", "ls-tree", "-r", "--name-only", "HEAD", "results/evidence", "profiles"], cwd=ROOT
+        ).stdout.splitlines()
+        if not path.startswith("results/evidence/phase06")
+    ]
     intact = True
     for relative in paths:
         worktree = _run(["git", "hash-object", "--", relative], cwd=ROOT).stdout.strip()

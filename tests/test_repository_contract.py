@@ -32,6 +32,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE08A_FILES)
             | set(VERIFY.APPROVED_PHASE05_FILES)
             | set(VERIFY.APPROVED_PHASE06A_FILES)
+            | set(VERIFY.APPROVED_PHASE06B_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -43,6 +44,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
+        self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -89,10 +91,22 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06a/rtl/axis_skid_buffer.sv",
                 "rtl/phase06a/rtl/axis_ci8_frame_stats.sv",
                 "rtl/phase06a/tb/tb_axis_ci8_frame_stats.sv",
+                "rtl/phase06b/rtl/phase06b_pkg.sv",
+                "rtl/phase06b/rtl/axis_hann_window.sv",
+                "rtl/phase06b/tb/tb_axis_hann_window.sv",
             },
             {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
         )
         self.assertEqual([], list(ROOT.rglob("*.svh")))
+
+    def test_phase06b_is_hann_only_and_keeps_fft_for_later(self) -> None:
+        roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
+        contract = (ROOT / "docs" / "interfaces" / "RTL_HANN_WINDOW_CONTRACT.md").read_text(encoding="utf-8")
+        self.assertIn("PHASE-06B — Sabit Nokta Hann Pencereleme ve FFT Arayüz Temeli", roadmap)
+        self.assertIn("Gerçek 4096 nokta FFT", roadmap)
+        self.assertIn("UQ1.15", contract)
+        self.assertIn("SQ1.15", contract)
+        self.assertIn("gerçek fft", contract.casefold())
 
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")

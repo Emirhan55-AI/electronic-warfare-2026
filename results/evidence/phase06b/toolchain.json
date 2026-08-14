@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "purpose": "Salt-okunur araç keşfidir; kurulum, sentez veya donanım erişimi yapmaz.",
+  "tools": [
+    {
+      "name": "vivado",
+      "status": "unavailable",
+      "detail": "required commands not found on PATH"
+    },
+    {
+      "name": "xsim",
+      "status": "unavailable",
+      "detail": "required commands not found on PATH"
+    },
+    {
+      "name": "iverilog",
+      "status": "available",
+      "detail": "required commands available",
+      "version": "Icarus Verilog version 13.0 (stable) (v13_0)"
+    },
+    {
+      "name": "vvp",
+      "status": "available",
+      "detail": "required commands available",
+      "version": "Icarus Verilog runtime version 13.0 (stable) (v13_0)"
+    }
+  ]
+}

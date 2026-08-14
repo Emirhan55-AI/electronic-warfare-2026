@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "status": "passed",
+  "definition": "accepted input rising edge to first corresponding output-valid rising edge",
+  "core_latency_cycles": 1,
+  "ready_throughput_samples_per_cycle": 1,
+  "backpressure_completion_bound": "unbounded_by_contract",
+  "measurement": "self_checking_testbench"
+}

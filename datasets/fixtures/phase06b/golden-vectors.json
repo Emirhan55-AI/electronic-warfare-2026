@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "frame_length": 4096,
+  "frame_count": 10,
+  "total_samples": 40960,
+  "coefficient_format": "UQ1.15",
+  "output_component_format": "SQ1.15",
+  "output_component_width": 16,
+  "output_word_width": 32,
+  "rounding": "nearest_ties_away_from_zero",
+  "overflow": "mathematically_bounded_no_saturation_no_wrap",
+  "vectors": [
+    {
+      "vector_id": "phase01_frame_0",
+      "frame_index": 0,
+      "sample_offset": 0,
+      "sample_count": 4096,
+      "input_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+      "output_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "0001ffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "ff95fefd"
+        },
+        {
+          "sample_index": 2047,
+          "word": "da005c00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00006400"
+        },
+        {
+          "sample_index": 2049,
+          "word": "26005c00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "phase01_frame_1",
+      "frame_index": 1,
+      "sample_offset": 4096,
+      "sample_count": 4096,
+      "input_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+      "output_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "0001ffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "ff95fefd"
+        },
+        {
+          "sample_index": 2047,
+          "word": "da005c00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00006400"
+        },
+        {
+          "sample_index": 2049,
+          "word": "26005c00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "phase01_frame_2",
+      "frame_index": 2,
+      "sample_offset": 8192,
+      "sample_count": 4096,
+      "input_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+      "output_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "0001ffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "ff95fefd"
+        },
+        {
+          "sample_index": 2047,
+          "word": "da005c00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00006400"
+        },
+        {
+          "sample_index": 2049,
+          "word": "26005c00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "phase01_frame_3",
+      "frame_index": 3,
+      "sample_offset": 12288,
+      "sample_count": 4096,
+      "input_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+      "output_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "0001ffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "ff95fefd"
+        },
+        {
+          "sample_index": 2047,
+          "word": "da005c00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00006400"
+        },
+        {
+          "sample_index": 2049,
+          "word": "26005c00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "all_zero",
+      "frame_index": 4,
+      "sample_offset": 16384,
+      "sample_count": 4096,
+      "input_sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47",
+      "output_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 137,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 2047,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 2049,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "all_minimum",
+      "frame_index": 5,
+      "sample_offset": 20480,
+      "sample_count": 4096,
+      "input_sha256": "e78ff88013c3fd671404fefcf0e73bd7a80bf08e6cec8fde0327ca6365718132",
+      "output_sha256": "c66d6f371fce1fa56d3e886c5c37f3a6ea71f660a5f5412cab6eec01e007c60c",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "ffffffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "fe98fe98"
+        },
+        {
+          "sample_index": 2047,
+          "word": "80008000"
+        },
+        {
+          "sample_index": 2048,
+          "word": "80008000"
+        },
+        {
+          "sample_index": 2049,
+          "word": "80008000"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "all_maximum",
+      "frame_index": 6,
+      "sample_offset": 24576,
+      "sample_count": 4096,
+      "input_sha256": "7dc96599b6c8f64e73484ba4308cff5ba8b13d1f270e7327c085a32df559ebf8",
+      "output_sha256": "b6c09c9bfec11a664d7f1ed0158b784e1723a062762039e7fea9db0283f5b6bd",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "00010001"
+        },
+        {
+          "sample_index": 137,
+          "word": "01650165"
+        },
+        {
+          "sample_index": 2047,
+          "word": "7f007f00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "7f007f00"
+        },
+        {
+          "sample_index": 2049,
+          "word": "7f007f00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "alternating_extrema",
+      "frame_index": 7,
+      "sample_offset": 28672,
+      "sample_count": 4096,
+      "input_sha256": "200216e70451f71f55d3d873be2c3cc9edf01a07ce437bb66c3d5427e0c7e05e",
+      "output_sha256": "e0dc7b2c274fe3fe3c59a8f241734ec2364444899fc4ed18dad70a82aca75b6b",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "ffffffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "01650165"
+        },
+        {
+          "sample_index": 2047,
+          "word": "7f007f00"
+        },
+        {
+          "sample_index": 2048,
+          "word": "80008000"
+        },
+        {
+          "sample_index": 2049,
+          "word": "7f007f00"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "single_impulse",
+      "frame_index": 8,
+      "sample_offset": 32768,
+      "sample_count": 4096,
+      "input_sha256": "670cff7e8e3584775b7240b238847cbd341ee47e04053762ada302279cbf4547",
+      "output_sha256": "8ce09dd0696dca8fa1c28e2025eaeb0a8379dfae87d95375ddad3f28bc3ba96e",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 137,
+          "word": "fe98fe98"
+        },
+        {
+          "sample_index": 2047,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 2048,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 2049,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    },
+    {
+      "vector_id": "constant_complex",
+      "frame_index": 9,
+      "sample_offset": 36864,
+      "sample_count": 4096,
+      "input_sha256": "d98b3adb3772a6347b43e8bab1939dd36cb724526500d5e812226560b75c16d7",
+      "output_sha256": "6d8cea08a842d7d52a4a0b17346bb3868ae3efa38842c5a0ea04598ab9511114",
+      "selected_outputs": [
+        {
+          "sample_index": 0,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 1,
+          "word": "00000000"
+        },
+        {
+          "sample_index": 6,
+          "word": "0001ffff"
+        },
+        {
+          "sample_index": 137,
+          "word": "00b4ff4c"
+        },
+        {
+          "sample_index": 2047,
+          "word": "4000c000"
+        },
+        {
+          "sample_index": 2048,
+          "word": "4000c000"
+        },
+        {
+          "sample_index": 2049,
+          "word": "4000c000"
+        },
+        {
+          "sample_index": 4095,
+          "word": "00000000"
+        }
+      ]
+    }
+  ]
+}

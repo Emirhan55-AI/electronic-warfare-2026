@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "algorithm_reference": "PHASE-02 periodic_hann float64",
+  "candidate_formats": [
+    {
+      "fractional_bits": 10,
+      "coefficient_bits": 11,
+      "unique_quantized_values": 1025,
+      "zero_coefficient_count": 57,
+      "maximum_coefficient": 1024,
+      "maximum_coefficient_error": 0.00048749616992349587,
+      "rms_coefficient_error": 0.00027985534698459944,
+      "maximum_output_error_fs": 0.0004989463951584616,
+      "rms_output_error_fs": 0.00016179740682789826,
+      "enumerated_rms_signal_to_error_ratio_db": 66.78980152874777
+    },
+    {
+      "fractional_bits": 12,
+      "coefficient_bits": 13,
+      "unique_quantized_values": 1839,
+      "zero_coefficient_count": 29,
+      "maximum_coefficient": 4096,
+      "maximum_coefficient_error": 0.0001218639836613189,
+      "rms_coefficient_error": 7.153118048412689e-05,
+      "maximum_output_error_fs": 0.00013517563785229308,
+      "rms_output_error_fs": 4.221126128071704e-05,
+      "enumerated_rms_signal_to_error_ratio_db": 78.46066608117445
+    },
+    {
+      "fractional_bits": 14,
+      "coefficient_bits": 15,
+      "unique_quantized_values": 1997,
+      "zero_coefficient_count": 15,
+      "maximum_coefficient": 16384,
+      "maximum_coefficient_error": 3.0481624418043918e-05,
+      "rms_coefficient_error": 1.7584449977655515e-05,
+      "maximum_output_error_fs": 4.461706835789947e-05,
+      "rms_output_error_fs": 1.3443033952796763e-05,
+      "enumerated_rms_signal_to_error_ratio_db": 88.39928675375988
+    },
+    {
+      "fractional_bits": 15,
+      "coefficient_bits": 16,
+      "unique_quantized_values": 2023,
+      "zero_coefficient_count": 11,
+      "maximum_coefficient": 32768,
+      "maximum_coefficient_error": 1.5251686208472837e-05,
+      "rms_coefficient_error": 8.693498779472143e-06,
+      "maximum_output_error_fs": 3.0386208056731867e-05,
+      "rms_output_error_fs": 1.012389739870253e-05,
+      "enumerated_rms_signal_to_error_ratio_db": 90.86227796175984
+    },
+    {
+      "fractional_bits": 16,
+      "coefficient_bits": 17,
+      "unique_quantized_values": 2037,
+      "zero_coefficient_count": 7,
+      "maximum_coefficient": 65536,
+      "maximum_coefficient_error": 7.620568057808974e-06,
+      "rms_coefficient_error": 4.365255712445962e-06,
+      "maximum_output_error_fs": 2.2879357120308974e-05,
+      "rms_output_error_fs": 9.148075660856616e-06,
+      "enumerated_rms_signal_to_error_ratio_db": 91.7426377069634
+    }
+  ],
+  "selected_format": "UQ1.15 coefficient, SQ1.15 output",
+  "metric_definitions": {
+    "enumerated_rms_signal_to_error_ratio_db": "20*log10(rms(PHASE-02 float64 outputs)/rms(SQ1.15 error)) over all 256 signed ci8 component values and all 4096 Hann indices; this is not a measured SNR, SINAD, SQNR or ENOB claim",
+    "output_error_fs": "SQ1.15 result minus PHASE-02 float64 result, normalized to full scale"
+  },
+  "selection_reason": "16 bit katsayı ROM'u ve 16 bit FFT-facing bileşenle 3.04e-5 FS altında maksimum hata; 17 bit UQ1.16 yalnız sınırlı ek doğruluk sağlar.",
+  "selected_characterization": {
+    "fractional_bits": 15,
+    "coefficient_bits": 16,
+    "unique_quantized_values": 2023,
+    "zero_coefficient_count": 11,
+    "maximum_coefficient": 32768,
+    "maximum_coefficient_error": 1.5251686208472837e-05,
+    "rms_coefficient_error": 8.693498779472143e-06,
+    "maximum_output_error_fs": 3.0386208056731867e-05,
+    "rms_output_error_fs": 1.012389739870253e-05,
+    "enumerated_rms_signal_to_error_ratio_db": 90.86227796175984
+  },
+  "periodic_hann": {
+    "equation": "0.5-0.5*cos(2*pi*n/4096)",
+    "full_coefficient_count": 4096,
+    "symmetric_rom_count": 2049,
+    "floating_first": 0.0,
+    "floating_second": 5.882741490603749e-07,
+    "floating_center": 1.0,
+    "floating_last": 5.882741490603749e-07,
+    "quantized_first": 0,
+    "quantized_second": 0,
+    "quantized_center": 32768,
+    "quantized_last": 0,
+    "floating_coherent_gain": 0.5,
+    "quantized_coherent_gain": 0.5,
+    "floating_mean_square": 0.375,
+    "quantized_mean_square": 0.3750006391273928
+  }
+}

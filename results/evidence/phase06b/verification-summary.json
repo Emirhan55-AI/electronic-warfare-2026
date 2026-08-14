@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06B",
+  "title": "Sabit Nokta Hann Pencereleme ve FFT Arayüz Temeli",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "vectors",
+      "status": "passed"
+    },
+    {
+      "id": "rtl_sources",
+      "status": "passed"
+    },
+    {
+      "id": "python_model",
+      "status": "passed"
+    },
+    {
+      "id": "word_length_study",
+      "status": "passed"
+    },
+    {
+      "id": "deterministic_vectors",
+      "status": "passed"
+    },
+    {
+      "id": "historical_integrity",
+      "status": "passed"
+    },
+    {
+      "id": "rtl_simulation",
+      "status": "passed"
+    }
+  ],
+  "historical_integrity": {
+    "files": 89,
+    "status": "passed"
+  },
+  "deterministic_result": {
+    "vectors": "passed",
+    "rtl_compile_and_simulation_rerun": "passed",
+    "comparison": "byte_identical"
+  },
+  "algorithm_reference": "PHASE-02 floating-point NumPy Hann",
+  "bit_true_model": "PHASE-06B integer Python model",
+  "rtl": "PHASE-06B synthesizable vendor-independent SystemVerilog Hann",
+  "fft_status": "not_implemented",
+  "amd_xilinx_fft_ip_status": "not_integrated",
+  "regional_detector_rtl_status": "not_implemented",
+  "hardware_status": "not_exercised",
+  "synthesis_status": "not_exercised",
+  "implementation_status": "not_exercised",
+  "timing_status": "not_exercised",
+  "resource_utilization_status": "not_exercised",
+  "claim_boundary": "PHASE-06B yalnız sabit nokta Hann ve FFT-facing AXI temelidir."
+}

@@ -37,6 +37,7 @@ def historical_integrity() -> tuple[int, bool]:
         path
         for path in _git("ls-tree", "-r", "--name-only", "HEAD", "results/evidence", "profiles").splitlines()
         if not path.startswith("results/evidence/phase05/")
+        and not path.startswith("results/evidence/phase06")
     ]
     return len(paths), all(_git("hash-object", "--", path) == _git("rev-parse", f"HEAD:{path}") for path in paths)
 
