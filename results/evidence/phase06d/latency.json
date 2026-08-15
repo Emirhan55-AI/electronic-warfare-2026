@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "core_first_input_accept_to_first_output_valid_cycles": 8346,
+  "wrapper_first_input_accept_to_first_output_transfer_cycles": 8348,
+  "final_input_accept_to_final_output_transfer_cycles_with_deterministic_backpressure": 11264,
+  "final_core_input_accept_to_final_core_output_valid_cycles": 11262,
+  "final_wrapper_input_accept_to_final_wrapper_output_valid_cycles": 11264,
+  "clock_period_ns_in_behavioral_testbench": 10,
+  "claim_boundary": "Behavioral simulation cycle counts; not timing closure, Fmax or hardware throughput."
+}

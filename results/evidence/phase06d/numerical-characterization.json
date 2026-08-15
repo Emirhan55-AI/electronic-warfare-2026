@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "amd_cmodel_vs_phase06c_idealized_model": {
+    "role": "characterization_only_not_bit_equivalence_gate",
+    "components": 81920,
+    "maximum_absolute_component_error_input_lsb": 54,
+    "rms_component_error_input_lsb": 3.354680586276,
+    "nonzero_component_differences": 11482
+  },
+  "amd_cmodel_vs_phase02_numpy": {
+    "role": "algorithmic_structure_cross_check_not_bit_equivalence_gate",
+    "forward_direction": "passed",
+    "natural_unshifted_order": "passed",
+    "unscaled_relationship": "passed",
+    "broad_magnitude_phase_consistency": "passed",
+    "zero_frame": "passed",
+    "records": [
+      {
+        "vector_id": "zero",
+        "status": "passed",
+        "amd_peak_bin": 0,
+        "numpy_peak_bin": 0,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "impulse",
+        "status": "passed",
+        "amd_peak_bin": 0,
+        "numpy_peak_bin": 0,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "positive_dc",
+        "status": "passed",
+        "amd_peak_bin": 0,
+        "numpy_peak_bin": 0,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "negative_dc",
+        "status": "passed",
+        "amd_peak_bin": 0,
+        "numpy_peak_bin": 0,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "single_tone",
+        "status": "passed",
+        "amd_peak_bin": 256,
+        "numpy_peak_bin": 256,
+        "maximum_component_error_input_lsb": 4.246738143265
+      },
+      {
+        "vector_id": "two_tone",
+        "status": "passed",
+        "amd_peak_bin": 128,
+        "numpy_peak_bin": 128,
+        "maximum_component_error_input_lsb": 4.504039093852
+      },
+      {
+        "vector_id": "multiple_tones",
+        "status": "passed",
+        "amd_peak_bin": 64,
+        "numpy_peak_bin": 64,
+        "maximum_component_error_input_lsb": 33.495771560859
+      },
+      {
+        "vector_id": "alternating_extrema",
+        "status": "passed",
+        "amd_peak_bin": 2048,
+        "numpy_peak_bin": 2048,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "complex_extrema",
+        "status": "passed",
+        "amd_peak_bin": 0,
+        "numpy_peak_bin": 0,
+        "maximum_component_error_input_lsb": 0.0
+      },
+      {
+        "vector_id": "representative_hann",
+        "status": "passed",
+        "amd_peak_bin": 256,
+        "numpy_peak_bin": 256,
+        "maximum_component_error_input_lsb": 54.489107091287
+      },
+      {
+        "vector_id": "negative_frequency_tone",
+        "status": "passed",
+        "amd_peak_bin": 3712,
+        "numpy_peak_bin": 3712,
+        "maximum_component_error_input_lsb": 2.979385740589
+      }
+    ]
+  }
+}

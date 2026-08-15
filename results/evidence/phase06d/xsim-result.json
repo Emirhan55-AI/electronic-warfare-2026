@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "simulator": "XSim 2025.2 behavioral",
+  "real_generated_amd_fft_ip": true,
+  "transport_stub_used": false,
+  "compile": "passed",
+  "elaboration": "passed",
+  "simulation": "passed",
+  "samples_checked": 45056,
+  "capture_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191",
+  "deterministic_rerun": "passed",
+  "deterministic_comparison": "two fresh generation/elaboration/simulation runs produced identical metrics and capture bytes",
+  "backpressure_payload_stability": "passed",
+  "configuration_handshakes": 6,
+  "input_gated_until_configuration": "passed",
+  "consecutive_frames": "passed",
+  "output_tlast_index_alignment": "passed",
+  "physical_tuser_padding": "zero",
+  "physical_data_lane_padding": "sign_extension"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "reference": "AMD FFT v9.1 bit-accurate C model",
+  "result": "real generated AMD FFT v9.1 XSim output",
+  "frames": 11,
+  "complex_samples": 45056,
+  "components": 90112,
+  "tolerance_integer_codes": 0,
+  "mismatched_words": 0,
+  "mismatched_components": 0,
+  "maximum_absolute_component_error": 0,
+  "rms_component_error": 0.0,
+  "first_mismatch": null,
+  "reference_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191",
+  "xsim_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191"
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "generation_flow": "scripts/generate_phase06d_ip.tcl using scripts/phase06d_ip_config.tcl",
+  "target_part": "xc7z020clg484-1",
+  "vlnv": "xilinx.com:ip:xfft:9.1",
+  "core_revision": 15,
+  "xci_sha256": "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4",
+  "xci_bytes": 25538,
+  "xci_unmodified_vivado_product": true,
+  "machine_specific_absolute_paths_present": false,
+  "exact_configuration_properties": {
+    "CONFIG.channels": "1",
+    "CONFIG.transform_length": "4096",
+    "CONFIG.run_time_configurable_transform_length": "false",
+    "CONFIG.implementation_options": "pipelined_streaming_io",
+    "CONFIG.throttle_scheme": "nonrealtime",
+    "CONFIG.target_clock_frequency": "250",
+    "CONFIG.target_data_throughput": "50",
+    "CONFIG.super_sample_rates": "1",
+    "CONFIG.data_format": "fixed_point",
+    "CONFIG.input_width": "16",
+    "CONFIG.phase_factor_width": "24",
+    "CONFIG.scaling_options": "unscaled",
+    "CONFIG.rounding_modes": "convergent_rounding",
+    "CONFIG.output_ordering": "natural_order",
+    "CONFIG.xk_index": "true",
+    "CONFIG.cyclic_prefix_insertion": "false",
+    "CONFIG.ovflo": "false",
+    "CONFIG.butterfly_type": "use_luts",
+    "CONFIG.complex_mult_type": "use_mults_resources",
+    "CONFIG.memory_options_data": "block_ram",
+    "CONFIG.memory_options_phase_factors": "block_ram",
+    "CONFIG.memory_options_reorder": "block_ram",
+    "CONFIG.memory_options_hybrid": "false",
+    "CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors": "5",
+    "CONFIG.blocking_run_time_configuration": "false",
+    "CONFIG.systolicfft_inv": "false",
+    "CONFIG.aresetn": "true",
+    "CONFIG.aclken": "false"
+  },
+  "generated_product_manifest": [
+    {
+      "role": "canonical IP configuration",
+      "artifact": "phase06d_fft_4096.xci",
+      "repository": "tracked"
+    },
+    {
+      "role": "vendor simulation wrapper",
+      "artifact": "phase06d_fft_4096.vhd",
+      "repository": "transient build"
+    },
+    {
+      "role": "compiled vendor simulation libraries",
+      "artifact": "Vivado precompiled IP libraries",
+      "repository": "tool installation"
+    },
+    {
+      "role": "XSim snapshot and wave database",
+      "artifact": "behavioral run products",
+      "repository": "transient build"
+    }
+  ],
+  "generated_products_policy": "transient HDL and simulation products remain under ignored build/phase06d",
+  "synthesis": "not_exercised"
+}

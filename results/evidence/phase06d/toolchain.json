@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "vivado": "2025.2 64-bit SW build 6299465 IP build 6300035",
+  "xsim": "2025.2",
+  "fft_ip": "xilinx.com:ip:xfft:9.1 revision 15",
+  "cmodel": "AMD FFT v9.1 bit-accurate Windows 64-bit distribution",
+  "cpp_compiler": "Microsoft C/C++ 19.44 via Visual Studio Build Tools 2022",
+  "target_part": "xc7z020clg484-1",
+  "installation_performed": false,
+  "machine_specific_paths_recorded": false
+}

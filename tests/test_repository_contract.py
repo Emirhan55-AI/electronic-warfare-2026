@@ -34,6 +34,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE06A_FILES)
             | set(VERIFY.APPROVED_PHASE06B_FILES)
             | set(VERIFY.APPROVED_PHASE06C_FILES)
+            | set(VERIFY.APPROVED_PHASE06D_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -47,6 +48,8 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
         self.assertEqual(26, len(VERIFY.APPROVED_PHASE06C_FILES))
+        self.assertEqual(2, len(VERIFY.APPROVED_PHASE06D_PLANNING_FILES))
+        self.assertEqual(30, len(VERIFY.APPROVED_PHASE06D_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -100,6 +103,8 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06c/rtl/axis_fft_wrapper.sv",
                 "rtl/phase06c/tb/fft_ip_transport_stub.sv",
                 "rtl/phase06c/tb/tb_axis_fft_wrapper.sv",
+                "rtl/phase06d/rtl/amd_xfft_adapter.sv",
+                "rtl/phase06d/tb/tb_phase06d_fft_vendor.sv",
             },
             {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
         )
@@ -122,6 +127,33 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertIn("Gerçek AMD IP generation/simulation", contract)
         self.assertIn("64 bit", contract)
         self.assertIn("natural unshifted", contract)
+
+    def test_phase06d_is_real_vendor_functional_verification_only(self) -> None:
+        roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
+        decision = (
+            ROOT / "docs" / "decisions" / "ADR-0014-PHASE06D-VENDOR-VERIFICATION-GATE.md"
+        ).read_text(encoding="utf-8")
+        gate = json.loads(
+            (ROOT / "results" / "evidence" / "phase06d" / "toolchain-gate.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertIn("PHASE-06D — Gerçek AMD FFT IP Entegrasyonu ve Vendor Doğrulaması", roadmap)
+        self.assertIn("Synthesis, implementation", decision)
+        self.assertIn("bit-eşit", decision)
+        self.assertEqual("planning_toolchain_gate", gate["evidence_kind"])
+        self.assertEqual("READY", gate["implementation_readiness"])
+        self.assertFalse(gate["ip_catalog"]["generated_ip"])
+        self.assertFalse(gate["ip_catalog"]["xci_created"])
+        xci_files = list(ROOT.rglob("*.xci"))
+        self.assertEqual(1, len(xci_files))
+        summary = json.loads(
+            (ROOT / "results" / "evidence" / "phase06d" / "verification-summary.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual("passed", summary["overall"])
+        self.assertEqual("not_exercised", summary["synthesis"])
 
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "title": "Gerçek AMD FFT IP Entegrasyonu ve Vendor Doğrulaması",
+  "overall": "passed",
+  "checks": [
+    {
+      "id": "fixtures",
+      "status": "passed"
+    },
+    {
+      "id": "xci",
+      "status": "passed"
+    },
+    {
+      "id": "cmodel",
+      "status": "passed"
+    },
+    {
+      "id": "xsim",
+      "status": "passed"
+    },
+    {
+      "id": "golden_equivalence",
+      "status": "passed"
+    },
+    {
+      "id": "deterministic_rerun",
+      "status": "passed"
+    },
+    {
+      "id": "numerical_structure",
+      "status": "passed"
+    },
+    {
+      "id": "interface_events",
+      "status": "passed"
+    },
+    {
+      "id": "throughput_accounting",
+      "status": "passed"
+    }
+  ],
+  "proven": [
+    "Vivado-generated AMD FFT v9.1 XCI and physical port/config contract",
+    "AMD bit-accurate C-model to real-IP XSim zero-tolerance equivalence",
+    "AXI4-Stream backpressure stability, consecutive frames, TLAST/index and reset/event behavior"
+  ],
+  "synthesis": "not_exercised",
+  "implementation": "not_exercised",
+  "timing": "not_exercised",
+  "resource_utilization": "not_exercised",
+  "hardware": "not_exercised",
+  "linear_power": "not_implemented",
+  "psd": "not_implemented",
+  "regional_detector_rtl": "not_implemented",
+  "ui_capability_change": false,
+  "phase04e1_behavior_change": false
+}

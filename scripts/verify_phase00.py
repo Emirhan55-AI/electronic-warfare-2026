@@ -407,6 +407,42 @@ APPROVED_PHASE06C_FILES = (
     "tests/test_phase06c_verifier.py",
 )
 
+APPROVED_PHASE06D_PLANNING_FILES = (
+    "docs/decisions/ADR-0014-PHASE06D-VENDOR-VERIFICATION-GATE.md",
+    "results/evidence/phase06d/toolchain-gate.json",
+)
+
+APPROVED_PHASE06D_FILES = APPROVED_PHASE06D_PLANNING_FILES + (
+    "datasets/fixtures/phase06d/axis-input.mem",
+    "datasets/fixtures/phase06d/cmodel-expected.mem",
+    "datasets/fixtures/phase06d/fixture-manifest.json",
+    "datasets/fixtures/phase06d/golden-vectors.json",
+    "docs/interfaces/RTL_AMD_FFT_BINDING_CONTRACT.md",
+    "reference/rtl/amd_xfft_cmodel_driver.cpp",
+    "reference/rtl/phase06d_vectors.py",
+    "results/evidence/phase06d/cmodel-result.json",
+    "results/evidence/phase06d/fixed-point-contract.json",
+    "results/evidence/phase06d/generated-ip.json",
+    "results/evidence/phase06d/golden-equivalence.json",
+    "results/evidence/phase06d/interface-events.json",
+    "results/evidence/phase06d/latency.json",
+    "results/evidence/phase06d/numerical-characterization.json",
+    "results/evidence/phase06d/throughput.json",
+    "results/evidence/phase06d/toolchain.json",
+    "results/evidence/phase06d/verification-summary.json",
+    "results/evidence/phase06d/xsim-result.json",
+    "rtl/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci",
+    "rtl/phase06d/rtl/amd_xfft_adapter.sv",
+    "rtl/phase06d/tb/tb_phase06d_fft_vendor.sv",
+    "scripts/generate_phase06d_ip.tcl",
+    "scripts/generate_phase06d_vectors.py",
+    "scripts/phase06d_ip_config.tcl",
+    "scripts/run_phase06d_xsim.tcl",
+    "scripts/verify_phase06d.py",
+    "tests/test_phase06d_vectors.py",
+    "tests/test_phase06d_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -464,6 +500,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06A_FILES)
         | set(APPROVED_PHASE06B_FILES)
         | set(APPROVED_PHASE06C_FILES)
+        | set(APPROVED_PHASE06D_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -596,7 +633,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

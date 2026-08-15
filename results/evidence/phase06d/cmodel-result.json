@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "compile": "passed",
+  "execution": "passed",
+  "deterministic_rerun": "passed",
+  "vendor_api": "AMD FFT v9.1 bit-accurate C model",
+  "vendor_archive_sha256": "e5825a15c8ce9cfc8337540fea1765bb873df0cd3377b9cb3348f7682216db0c",
+  "driver_source_sha256": "1237e7c5a1dea212060086f65bc06f4db02f5bdc78c21206ec4e04396982bdda",
+  "configuration": "N=4096 fixed-point pipelined unscaled, 16-bit input, 24-bit twiddle, convergent rounding, forward",
+  "frames": 11,
+  "samples": 45056,
+  "output_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191",
+  "output_bytes": 765952,
+  "output_format": "signed 29-bit Q15 I/Q sign-extended into low/high 32-bit lanes"
+}

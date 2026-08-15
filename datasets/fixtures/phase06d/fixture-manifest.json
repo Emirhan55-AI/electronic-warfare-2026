@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "claim_boundary": "Fixture provenance only; C-model and XSim outputs are verified separately.",
+  "source": {
+    "file": "datasets/fixtures/phase06c/axis-input.mem",
+    "sha256": "c7d90f2de77a59831c873e1b380c882c101e4828185b968b4c722ac3fcb69ace",
+    "inherited_bytes": 368640,
+    "inherited_frames": 10
+  },
+  "files": [
+    {
+      "file": "axis-input.mem",
+      "sha256": "5cb41ef1e06ae9e32e31e2feba482c63e31823d0276a9ac5e9b7cbc103eed140",
+      "bytes": 405504
+    },
+    {
+      "file": "golden-vectors.json",
+      "sha256": "4d32581ee127986629aceb2b3ac74e430ae85b8c092d765bbaa7504e0b272052",
+      "bytes": 2899
+    }
+  ]
+}

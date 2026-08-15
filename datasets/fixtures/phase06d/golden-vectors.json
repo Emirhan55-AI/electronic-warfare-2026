@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "claim_boundary": "AMD FFT input vectors only; expected output is produced by the installed bit-accurate C model.",
+  "frame_length": 4096,
+  "frame_count": 11,
+  "total_samples": 45056,
+  "input_format": "signed SQ1.15 low-I/high-Q in a 32-bit AXI payload",
+  "inherited_phase06c_frame_count": 10,
+  "vectors": [
+    {
+      "vector_id": "zero",
+      "frame_index": 0,
+      "sample_offset": 0,
+      "sample_count": 4096,
+      "input_sha256": "4fe7b59af6de3b665b67788cc2f99892ab827efae3a467342b3bb4e3bc8e5bfe"
+    },
+    {
+      "vector_id": "impulse",
+      "frame_index": 1,
+      "sample_offset": 4096,
+      "sample_count": 4096,
+      "input_sha256": "b35ddd887cc3742f54f4888e3549ab32fce7f362535699f72426b8d2115a82c3"
+    },
+    {
+      "vector_id": "positive_dc",
+      "frame_index": 2,
+      "sample_offset": 8192,
+      "sample_count": 4096,
+      "input_sha256": "fbb3031fc0b7a08dcd440e90d762d2acaeb12b88f61c1e34c57209b118ae6e4c"
+    },
+    {
+      "vector_id": "negative_dc",
+      "frame_index": 3,
+      "sample_offset": 12288,
+      "sample_count": 4096,
+      "input_sha256": "66a9f6207c9a196534af3d2f943be779af88b3aa1958f3b173b9e8bce2256a82"
+    },
+    {
+      "vector_id": "single_tone",
+      "frame_index": 4,
+      "sample_offset": 16384,
+      "sample_count": 4096,
+      "input_sha256": "4b11ebfe4598654ae89f2ae85d91eed4d07038d4c148c15309b24eb1473c85d6"
+    },
+    {
+      "vector_id": "two_tone",
+      "frame_index": 5,
+      "sample_offset": 20480,
+      "sample_count": 4096,
+      "input_sha256": "37c5c02600bc76e60ec040fdda5912d2960a825a11ad72cf923f595ce99f2b33"
+    },
+    {
+      "vector_id": "multiple_tones",
+      "frame_index": 6,
+      "sample_offset": 24576,
+      "sample_count": 4096,
+      "input_sha256": "1f5ab280a6f0c5acd49f3928e21ba6e8a6151bd9ee7eee30e36661615c30b56d"
+    },
+    {
+      "vector_id": "alternating_extrema",
+      "frame_index": 7,
+      "sample_offset": 28672,
+      "sample_count": 4096,
+      "input_sha256": "94f0c0a93aeffaef267a317a825fa4039af33b05a12cd8d7771592e30baa6a87"
+    },
+    {
+      "vector_id": "complex_extrema",
+      "frame_index": 8,
+      "sample_offset": 32768,
+      "sample_count": 4096,
+      "input_sha256": "65d443eeece26e59870186161dc4ce5e28b5d7fe8a0c2e27cfe82d07011b41c8"
+    },
+    {
+      "vector_id": "representative_hann",
+      "frame_index": 9,
+      "sample_offset": 36864,
+      "sample_count": 4096,
+      "input_sha256": "1ebd5058f1549d684bf05ec74bbb234309aa7ef24d535d32e06d47ae785d311f"
+    },
+    {
+      "vector_id": "negative_frequency_tone",
+      "frame_index": 10,
+      "sample_offset": 40960,
+      "sample_count": 4096,
+      "input_sha256": "efb8794c7c36246ac394c32a3899914f3b3403cb8c97bc1920ff8a91cbee542a",
+      "signed_bin": -384,
+      "natural_order_bin": 3712,
+      "amplitude": 0.625,
+      "phase_radians": 0.125
+    }
+  ]
+}

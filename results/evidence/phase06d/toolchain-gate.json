@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "title": "Gerçek AMD FFT IP Entegrasyonu ve Vendor Doğrulaması",
+  "evidence_kind": "planning_toolchain_gate",
+  "status": "ready_for_implementation",
+  "repository_baseline": {
+    "branch": "master",
+    "head": "2a7b89e43e3d181ed59dfe4283c1cc17b36bd80c",
+    "origin_master": "2a7b89e43e3d181ed59dfe4283c1cc17b36bd80c",
+    "ahead": 0,
+    "behind": 0,
+    "working_tree_before_planning": "clean"
+  },
+  "planning_baseline": {
+    "vivado": "2026.1",
+    "product_guide": "PG109 v9.1",
+    "status": "historical PHASE-06C planning assumption"
+  },
+  "detected_toolchain": {
+    "installation_root": "C:\\AMDDesignTools\\2025.2\\Vivado",
+    "settings_script": "C:\\AMDDesignTools\\2025.2\\Vivado\\settings64.bat",
+    "tools_on_default_path": false,
+    "vivado": {
+      "status": "available",
+      "version": "2025.2",
+      "architecture": "64-bit",
+      "sw_build": 6299465,
+      "ip_build": 6300035,
+      "version_check": "Vivado Tcl version -short"
+    },
+    "xvlog": {
+      "status": "available",
+      "version": "2025.2"
+    },
+    "xelab": {
+      "status": "available",
+      "version": "2025.2"
+    },
+    "xsim": {
+      "status": "available",
+      "version": "2025.2"
+    }
+  },
+  "ip_catalog": {
+    "status": "available",
+    "query_context": "in-memory Vivado project",
+    "ip_definition_count": 662,
+    "fft_vlnv": "xilinx.com:ip:xfft:9.1",
+    "fft_definition_count": 1,
+    "generated_ip": false,
+    "xci_created": false
+  },
+  "device_support": {
+    "status": "available",
+    "zynq_part_count": 165,
+    "verified_catalog_part": "xc7z020clg484-1",
+    "exact_phase_target_part": "must be frozen and recorded by the real generation flow"
+  },
+  "amd_fft_c_model": {
+    "status": "available_and_smoke_tested",
+    "package": "xfft_v9_1_bitacc_cmodel_nt64.zip",
+    "package_sha256": "e5825a15c8ce9cfc8337540fea1765bb873df0cd3377b9cb3348f7682216db0c",
+    "included_runtime": [
+      "libIp_xfft_v9_1_bitacc_cmodel.dll",
+      "libIp_floating_point_v7_1_bitacc_cmodel.dll",
+      "libgmp.dll",
+      "libmpfr.dll"
+    ],
+    "header_declares_bit_accurate_model": true,
+    "compiler": "Microsoft Visual C/C++ 19.44.35228 x64",
+    "vendor_sample_compile": "passed",
+    "vendor_sample_execution": "passed",
+    "vendor_sample_result": "Outputs from simulation are correct",
+    "phase06d_vectors_executed": false
+  },
+  "version_policy": {
+    "actual_vivado": "2025.2",
+    "actual_fft_ip": "9.1 Rev. 15",
+    "planning_vivado": "2026.1",
+    "decision": "controlled PHASE-06D binding to the installed 2025.2 toolchain",
+    "reason": "required simulator, Zynq-7000 device data, FFT IP v9.1 and bit-accurate C-model are present and directly verified",
+    "must_revalidate_on_generated_ip": [
+      "exact target part",
+      "selected parameter combination",
+      "s_axis_config_tdata width, FWD_INV location and padding",
+      "input and output TDATA widths and packing",
+      "m_axis_data_tuser width, XK_INDEX location and padding",
+      "reset and configuration startup behavior",
+      "TLAST and event timing",
+      "real numerical behavior and latency"
+    ]
+  },
+  "acceptance_policy": {
+    "amd_c_model_vs_xsim": "bit-exact full complex integer output for identical input codes and generated configuration; zero tolerance",
+    "amd_c_model_vs_phase06c_model": "full-output diagnostic max/RMS error plus ordering, scale, range and structural checks; PHASE-06C proxy limits are not acceptance gates",
+    "amd_vs_phase02_numpy": "full-output diagnostic error metrics plus forward direction, natural-bin placement, unscaled magnitude and deterministic vector structure checks",
+    "policy_frozen_before_phase06d_numerical_results": true
+  },
+  "required_vectors": {
+    "immutable_phase06c": [
+      "zero",
+      "impulse",
+      "positive_dc",
+      "negative_dc",
+      "single_tone",
+      "two_tone",
+      "multiple_tones",
+      "alternating_extrema",
+      "complex_extrema",
+      "representative_hann"
+    ],
+    "new_phase06d": [
+      "negative_frequency_exact_bin_tone"
+    ]
+  },
+  "blockers": [],
+  "implementation_readiness": "READY",
+  "not_exercised": [
+    "real AMD FFT IP generation",
+    "XCI creation",
+    "generated HDL products",
+    "PHASE-06D vector execution in AMD C-model",
+    "wrapper plus generated core XSim",
+    "real FFT numerical equivalence",
+    "real FFT latency",
+    "synthesis",
+    "implementation",
+    "timing",
+    "resource utilization",
+    "ZedBoard",
+    "linear power",
+    "PSD",
+    "regional detector RTL",
+    "UI changes",
+    "PHASE-04-E1 capability changes"
+  ],
+  "claim_boundary": "Planning and toolchain readiness only; no real FFT IP artifact or functional PHASE-06D result exists."
+}

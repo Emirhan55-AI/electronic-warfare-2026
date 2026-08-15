@@ -20,6 +20,7 @@ dist/
 *.wdb
 *.vcd
 *.fst
+dfx_runtime.txt
 .Xil/
 xsim.dir/
 

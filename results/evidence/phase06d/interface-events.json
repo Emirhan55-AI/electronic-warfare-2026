@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06D",
+  "status": "passed",
+  "event_pulse_totals_across_all_scenarios": {
+    "frame_started_pulses": 17,
+    "tlast_unexpected_pulses": 2,
+    "tlast_missing_pulses": 2,
+    "status_channel_halt_pulses": 0,
+    "data_in_channel_halt_pulses": 6618,
+    "data_out_channel_halt_pulses": 1225
+  },
+  "event_cycle_observations": {
+    "early_tlast_unexpected": 68705,
+    "missing_tlast": 84916,
+    "late_tlast_missing": 93137,
+    "late_tlast_unexpected": 93138,
+    "pulse_width_cycles": 1
+  },
+  "correct_tlast": "passed",
+  "early_tlast": {
+    "status": "passed",
+    "triggering_transfer": "accepted sample index 100, followed by correct TLAST at index 4095",
+    "expected_event": "event_tlast_unexpected"
+  },
+  "missing_tlast": {
+    "status": "passed",
+    "triggering_transfer": "accepted sample index 4095 with TLAST low",
+    "expected_event": "event_tlast_missing"
+  },
+  "late_tlast": {
+    "status": "passed",
+    "triggering_transfers": "TLAST low at index 4095 then TLAST high at next frame index 0",
+    "expected_events": [
+      "event_tlast_missing",
+      "event_tlast_unexpected"
+    ]
+  },
+  "midframe_reset": "passed",
+  "reset_clears_wrapper_configuration_and_sticky_events": "passed",
+  "post_reset_reconfiguration_and_clean_frame": "passed",
+  "status_channel": "not physically emitted by this generated unscaled configuration; halt event port remains present and observed low",
+  "event_pulse_duration": "one cycle for TLAST unexpected/missing events",
+  "sticky_capture_during_output_stall": "passed; malformed-frame scenarios keep downstream ready low while wrapper captures vendor events"
+}
