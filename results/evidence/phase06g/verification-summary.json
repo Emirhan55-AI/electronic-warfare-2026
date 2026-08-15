@@ -1,0 +1,23 @@
+{
+  "algorithm_contract": "passed",
+  "architecture_study": "passed",
+  "bitstream": "not_generated",
+  "cell_grouping": "not_implemented",
+  "deterministic_rerun": "passed",
+  "fixed_point_study": "passed",
+  "hardware": "not_exercised",
+  "implementation": "not_run",
+  "live_hackrf": "not_exercised",
+  "median_definition": "passed",
+  "overall": "passed",
+  "parameter_extraction_rtl": "not_implemented",
+  "phase": "PHASE-06G",
+  "phase03_non_boundary_decisions": "passed",
+  "post_detector_timing_100mhz": "not_verified",
+  "python_bit_true": "passed",
+  "resource_feasibility": "passed",
+  "rtl_bit_exact": "passed",
+  "rtl_compile": "passed",
+  "rtl_simulation": "passed",
+  "temporal_confirmation": "not_implemented"
+}

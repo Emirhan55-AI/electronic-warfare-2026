@@ -1,0 +1,16 @@
+{
+  "bit_true_mismatches": 0,
+  "frames": 5,
+  "phase": "PHASE-06G",
+  "phase03_decision_mismatches": 0,
+  "samples": 20480,
+  "source": "frozen normalized PHASE-06F real AMD FFT linear-power output",
+  "status": "passed",
+  "vector_ids": [
+    "real_phase06f_single_tone",
+    "real_phase06f_negative_frequency_tone",
+    "real_phase06f_multiple_tones",
+    "real_phase06f_two_tone",
+    "real_phase06f_representative_hann"
+  ]
+}

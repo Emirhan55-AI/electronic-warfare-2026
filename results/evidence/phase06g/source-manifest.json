@@ -1,0 +1,28 @@
+{
+  "files": {
+    "datasets/fixtures/phase06g/axis-power-input.mem": "6a3628f74f1c5e77a518823b349690a021486bddfcf25915a8d54f9f64f5e64e",
+    "datasets/fixtures/phase06g/detector-expected.mem": "f0461f9f2bf0e0119adc897cde447416931fd7a052bc90af609a5ac66f7ab4ce",
+    "datasets/fixtures/phase06g/fixture-manifest.json": "6a2a224e3761979c9e2875b8020f8abced65ced183592ce14a5da056d132d0b7",
+    "datasets/fixtures/phase06g/golden-vectors.json": "b81e1b91e2ad0e1420469344818314d0de033372906f84d78079f7aab31736af",
+    "docs/decisions/ADR-0017-PHASE06G-REGIONAL-DETECTOR.md": "58a4769d50b80dea4c6dabd342a12d3f6e1a9162d723b6312a4f17b4ec28df22",
+    "docs/interfaces/RTL_REGIONAL_DETECTOR_CONTRACT.md": "33a1a35fc600fdcfc71d32a24e03ee9843ad2dae1de09849d5fb4d512e7dda47",
+    "reference/rtl/detector_vectors.py": "a530b8bf1ca68811b213f7604eee51eec0f8eb61785110734f4c18d88da0d8e8",
+    "reference/rtl/regional_detector.py": "f04cce4e5c8cb313018db557b6b73cb1605f55584573c27878403524b204b8f7",
+    "rtl/phase06g/rtl/axis_regional_detector.sv": "f6813bc43380e2b090b938de8ef39c84c79064462992e5a8099dcc64bfe167f1",
+    "rtl/phase06g/rtl/phase06g_detector_synthesis_top.sv": "1ecf20a5aa5d8f6d22e147ba047481533a702e09b347181db848bf140404ad23",
+    "rtl/phase06g/rtl/phase06g_pkg.sv": "876f809d6ee78af777e080c6be257cbf542a86570663c0408c266c10bfc7c062",
+    "rtl/phase06g/tb/tb_axis_regional_detector.sv": "6190984c946437618cdee00dc3b1185dc88928b6b310e3b115b9590b3eddc37b",
+    "scripts/generate_phase06g_vectors.py": "e4044bdd728187b6c0d902eb1fbbea4bf2f89f58219c4597814e9c20ae2bd934",
+    "scripts/run_phase06g_synthesis.tcl": "806dce91757ef48c15ab54131e79165127463988f9910a657abe347879cbe0a2",
+    "scripts/verify_phase06g.py": "0cf972545c6e15b812862a82726b6ac7b5216d9b84128947d767acdb9f47d39c",
+    "tests/test_phase06g_model.py": "02800fd178d7c5f68cf92b94e464c28e0682815149df1a603f1566c59eff719a",
+    "tests/test_phase06g_vectors.py": "7b8ecc140ee72537ffd684462cb0c1592b505e6f1967285e75a28a639afabe46",
+    "tests/test_phase06g_verifier.py": "31d59261ccde41b57475927578e101b8fe1c8638961b5dbd5c0e007686970dff"
+  },
+  "frozen_phase06f_source": {
+    "path": "datasets/fixtures/phase06f/real-power-expected.mem",
+    "sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed"
+  },
+  "phase": "PHASE-06G",
+  "status": "passed"
+}

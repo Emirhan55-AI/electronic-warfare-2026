@@ -1,0 +1,42 @@
+{
+  "capacity_exceeded": false,
+  "detector_contribution": {
+    "bram_tiles": 6.5,
+    "dsp": 8,
+    "ff": 352,
+    "lut": 959,
+    "utilization_percent": {
+      "bram_tiles": 4.64,
+      "dsp": 3.64,
+      "ff": 0.33,
+      "lut": 1.8
+    }
+  },
+  "device_capacity": {
+    "bram_tiles": 140.0,
+    "dsp": 220,
+    "ff": 106400,
+    "lut": 53200
+  },
+  "hardware": "not_exercised",
+  "implementation": "not_run_for_phase06g",
+  "integrated_top": "real PHASE-06E FFT wrapper/IP + PHASE-06F power + PHASE-06G detector",
+  "phase": "PHASE-06G",
+  "post_detector_timing_100mhz": "not_verified",
+  "run_type": "targeted synthesis-only feasibility",
+  "status": "passed",
+  "target_part": "xc7z020clg484-1",
+  "tool": "Vivado 2025.2",
+  "total": {
+    "bram_tiles": 21.0,
+    "dsp": 46,
+    "ff": 7957,
+    "lut": 5275,
+    "utilization_percent": {
+      "bram_tiles": 15.0,
+      "dsp": 20.91,
+      "ff": 7.48,
+      "lut": 9.92
+    }
+  }
+}

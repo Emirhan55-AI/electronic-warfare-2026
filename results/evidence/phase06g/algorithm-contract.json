@@ -1,0 +1,33 @@
+{
+  "center_exclusion_when_disabled": 2048,
+  "decision": "evaluated and power > threshold",
+  "default_evaluate_center": true,
+  "default_pfa": 0.0001,
+  "excluded_shifted_bins": [
+    [
+      0,
+      19
+    ],
+    [
+      4076,
+      4095
+    ]
+  ],
+  "frame_length": 4096,
+  "malformed_frame": "discard with sticky error; resynchronize at known boundary or next TLAST",
+  "median": "arithmetic mean of sorted elements 127 and 128; represented as exact median_twice",
+  "noise": "median / ln(2)",
+  "pfa_values": [
+    0.001,
+    0.0001,
+    1e-05
+  ],
+  "phase": "PHASE-06G",
+  "region_size": 256,
+  "regions": 16,
+  "shift_mapping": "shifted_index = natural_index XOR 0x800",
+  "source_of_truth": "reference/detection/cfar.py regional detector",
+  "status": "passed",
+  "threshold": "noise * (-ln(Pfa))",
+  "zero_region": "zero noise, zero threshold, strict comparison keeps zero undetected"
+}

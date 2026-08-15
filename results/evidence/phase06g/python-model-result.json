@@ -1,0 +1,10 @@
+{
+  "bit_true_self_consistency": "passed",
+  "frames": 20,
+  "model": "independent Python arbitrary-precision integer regional detector",
+  "phase": "PHASE-06G",
+  "real_phase06f_frames": 5,
+  "samples": 81920,
+  "status": "passed",
+  "synthetic_frames": 15
+}

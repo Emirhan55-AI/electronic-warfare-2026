@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-06G",
+  "status": "passed",
+  "classification": "PRE-EXISTING ENVIRONMENT-SENSITIVE PERFORMANCE GATE",
+  "baseline_commit": "5eaee83cf192db29e6548fb43ad78d1a01aa7584",
+  "trigger_observation": {
+    "rendered_frames_30fps": 19,
+    "threshold": 20,
+    "python_access_violation": false,
+    "test_completed_normally": true
+  },
+  "environment": {
+    "python": "3.13.7",
+    "numpy": "2.2.6",
+    "scipy": "1.16.0",
+    "pyside6": "6.10.2",
+    "qt_platform_from_test": "offscreen",
+    "qt_scale_factor_override": null,
+    "display_resolutions": [
+      "1920x1080",
+      "1440x900"
+    ],
+    "concurrent_repository_test_processes": 0,
+    "concurrent_vivado_batch_or_xsim_processes": 0,
+    "unrelated_idle_vivado_gui_excluded": true
+  },
+  "baseline": {
+    "clean_worktree": true,
+    "exact_head": "5eaee83cf192db29e6548fb43ad78d1a01aa7584",
+    "runs": [
+      {
+        "run": 1,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.636254299985012,
+        "wall_seconds": 5.954,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 16, "achieved_fps": 10.275337955463154, "maximum_heartbeat_gap_ms": 73.60159998643212, "waterfall_rows": 16, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 27, "achieved_fps": 22.876332835416658, "maximum_heartbeat_gap_ms": 51.84990001725964, "waterfall_rows": 28, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 2,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.226580200018361,
+        "wall_seconds": 4.46,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 9.994937562810597, "maximum_heartbeat_gap_ms": 67.08619999699295, "waterfall_rows": 16, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 26, "achieved_fps": 22.31490344673012, "maximum_heartbeat_gap_ms": 61.48549998761155, "waterfall_rows": 27, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 3,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.2926546999951825,
+        "wall_seconds": 4.461,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 10.002950870559637, "maximum_heartbeat_gap_ms": 65.69139999919571, "waterfall_rows": 16, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 29, "achieved_fps": 23.280746014095467, "maximum_heartbeat_gap_ms": 52.717899990966544, "waterfall_rows": 29, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 4,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.4533072000194807,
+        "wall_seconds": 4.818,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 10.037293564265399, "maximum_heartbeat_gap_ms": 78.55790000758134, "waterfall_rows": 15, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 27, "achieved_fps": 21.801858173132818, "maximum_heartbeat_gap_ms": 54.92039999808185, "waterfall_rows": 28, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 5,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.347675800003344,
+        "wall_seconds": 4.554,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 9.981026069626845, "maximum_heartbeat_gap_ms": 67.11880001239479, "waterfall_rows": 15, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 26, "achieved_fps": 20.159420697104252, "maximum_heartbeat_gap_ms": 56.44480002229102, "waterfall_rows": 27, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      }
+    ]
+  },
+  "candidate": {
+    "functional_ui_source_changed": false,
+    "runs": [
+      {
+        "run": 1,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.3049177000066265,
+        "wall_seconds": 5.299,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 9.97860088950094, "maximum_heartbeat_gap_ms": 70.67359998472966, "waterfall_rows": 15, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 20, "achieved_fps": 17.37193841642397, "maximum_heartbeat_gap_ms": 72.0529000100214, "waterfall_rows": 21, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 2,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.1689107999845874,
+        "wall_seconds": 4.667,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 9.999445031813323, "maximum_heartbeat_gap_ms": 58.473899989621714, "waterfall_rows": 15, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 24, "achieved_fps": 19.429661703597557, "maximum_heartbeat_gap_ms": 78.26330000534654, "waterfall_rows": 25, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 3,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.3932183000142686,
+        "wall_seconds": 4.855,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 10.020898583597567, "maximum_heartbeat_gap_ms": 87.17519999481738, "waterfall_rows": 15, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 25, "achieved_fps": 21.025541827802765, "maximum_heartbeat_gap_ms": 59.64539997512475, "waterfall_rows": 26, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 4,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.202669899998,
+        "wall_seconds": 4.422,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 15, "achieved_fps": 10.012600858840555, "maximum_heartbeat_gap_ms": 62.74579997989349, "waterfall_rows": 16, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 26, "achieved_fps": 22.624895078554786, "maximum_heartbeat_gap_ms": 58.04599999100901, "waterfall_rows": 26, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      },
+      {
+        "run": 5,
+        "exit_status": 0,
+        "test_passed": true,
+        "test_elapsed_seconds": 3.2150336999911815,
+        "wall_seconds": 4.271,
+        "ten_fps": {"target_fps": 10, "rendered_frames": 16, "achieved_fps": 10.040715099411859, "maximum_heartbeat_gap_ms": 68.08189998264425, "waterfall_rows": 16, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0},
+        "thirty_fps": {"target_fps": 30, "rendered_frames": 29, "achieved_fps": 23.923759769490257, "maximum_heartbeat_gap_ms": 52.05749999731779, "waterfall_rows": 29, "maximum_concurrent_tasks": 1, "maximum_pending_intents": 0, "active_tasks_after_stop": 0}
+      }
+    ]
+  },
+  "policy": {
+    "runs_per_side": 5,
+    "regression_test": "one-sided Mann-Whitney U, candidate less than baseline",
+    "alpha": 0.05,
+    "ordinary_suite_timing": "informational and printed; every run must render at least one frame while deterministic logical queue, waterfall, and cleanup bounds remain mandatory",
+    "material_regression": "under matched clean A/B conditions, candidate median below baseline median and p-value below alpha",
+    "all_queue_heartbeat_cleanup_bounds_mandatory_per_run": true
+  },
+  "full_suite_policy_probe": {
+    "candidate_median_rendered_frames": 18,
+    "ten_fps_maximum_heartbeat_gap_ms": 300.43010000372306,
+    "context": "ordinary full unittest suite load, not matched clean A/B conditions",
+    "result": "confirmed that absolute throughput and scheduler-time floors are environment-sensitive; deterministic logical bounds remain mandatory"
+  },
+  "evaluation": {
+    "status": "passed",
+    "baseline_counts": [27, 26, 29, 27, 26],
+    "candidate_counts": [20, 24, 25, 26, 29],
+    "baseline_minimum": 26,
+    "baseline_maximum": 29,
+    "baseline_median": 27.0,
+    "candidate_minimum": 20,
+    "candidate_maximum": 29,
+    "candidate_median": 25.0,
+    "mann_whitney_u": 5.5,
+    "one_sided_p_value": 0.08330369701416329,
+    "alpha": 0.05,
+    "material_regression": false
+  }
+}

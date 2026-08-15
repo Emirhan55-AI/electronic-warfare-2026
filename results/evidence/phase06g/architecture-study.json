@@ -1,0 +1,43 @@
+{
+  "buffering": "one complete frame; processing and replay occur while input TREADY is low",
+  "candidates": [
+    {
+      "exact": true,
+      "name": "full_sorting_network",
+      "reason": "prohibitive compare/exchange and routing pressure",
+      "selected": false
+    },
+    {
+      "exact": true,
+      "name": "sequential_in_place_sort",
+      "reason": "larger write traffic and quadratic worst-case latency for simple implementations",
+      "selected": false
+    },
+    {
+      "exact": false,
+      "name": "histogram_binning",
+      "reason": "cannot preserve the PHASE-03 median contract",
+      "selected": false
+    },
+    {
+      "exact": true,
+      "name": "comparison_selection_partial_sort",
+      "reason": "variable-control or larger comparator structure than radix selection",
+      "selected": false
+    },
+    {
+      "exact": true,
+      "name": "dual_rank_binary_radix_selection",
+      "reason": "bounded exact ranks 127 and 128 with one read-only scan datapath",
+      "selected": true
+    }
+  ],
+  "continuous_frames": false,
+  "frame_gap_required": true,
+  "phase": "PHASE-06G",
+  "ping_pong": false,
+  "radix_passes_per_region": 58,
+  "selected": "dual-rank binary radix selection over one 4096x58 frame buffer",
+  "status": "passed",
+  "stored_bins": 4096
+}

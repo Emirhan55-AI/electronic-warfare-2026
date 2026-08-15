@@ -1,0 +1,199 @@
+{
+  "candidates": [
+    {
+      "fractional_bits": 12,
+      "noise_absolute_error": -6.8087763963387e-05,
+      "noise_integer": 5909,
+      "pfa": [
+        {
+          "combined_absolute_error": 3.6027837913010785e-05,
+          "combined_integer": 40820,
+          "pfa": 0.001,
+          "threshold_absolute_error": -4.04352321368151e-05,
+          "threshold_integer": 28294
+        },
+        {
+          "combined_absolute_error": -0.00011472329944872683,
+          "combined_integer": 54426,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 0.00010884677381817198,
+          "threshold_integer": 37726
+        },
+        {
+          "combined_absolute_error": -2.133381181224081e-05,
+          "combined_integer": 68033,
+          "pfa": 1e-05,
+          "threshold_absolute_error": 1.398815477138271e-05,
+          "threshold_integer": 47157
+        }
+      ]
+    },
+    {
+      "fractional_bits": 16,
+      "noise_absolute_error": -7.052607713387005e-06,
+      "noise_integer": 94548,
+      "pfa": [
+        {
+          "combined_absolute_error": 5.510259788010785e-06,
+          "combined_integer": 653118,
+          "pfa": 0.001,
+          "threshold_absolute_error": 5.341135050684898e-06,
+          "threshold_integer": 452707
+        },
+        {
+          "combined_absolute_error": 7.347013051273166e-06,
+          "combined_integer": 870824,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 2.0352503806719824e-06,
+          "threshold_integer": 603609
+        },
+        {
+          "combined_absolute_error": -6.0750227497408105e-06,
+          "combined_integer": 1088529,
+          "pfa": 1e-05,
+          "threshold_absolute_error": -1.2706342911172896e-06,
+          "threshold_integer": 754511
+        }
+      ]
+    },
+    {
+      "fractional_bits": 20,
+      "noise_absolute_error": -3.7688749854325465e-07,
+      "noise_integer": 1512775,
+      "pfa": [
+        {
+          "combined_absolute_error": -2.117861104267149e-07,
+          "combined_integer": 10449882,
+          "pfa": 0.001,
+          "threshold_absolute_error": -3.809108477526024e-07,
+          "threshold_integer": 7243306
+        },
+        {
+          "combined_absolute_error": -2.8238147997683427e-07,
+          "combined_integer": 13933176,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 1.2790174785948238e-07,
+          "threshold_integer": 9657742
+        },
+        {
+          "combined_absolute_error": -3.5297685130331047e-07,
+          "combined_integer": 17416470,
+          "pfa": 1e-05,
+          "threshold_absolute_error": -3.1695997471103965e-07,
+          "threshold_integer": 12072177
+        }
+      ]
+    },
+    {
+      "fractional_bits": 24,
+      "noise_absolute_error": -1.92596298909109e-08,
+      "noise_integer": 24204406,
+      "pfa": [
+        {
+          "combined_absolute_error": 2.6632468674847587e-08,
+          "combined_integer": 167198116,
+          "pfa": 0.001,
+          "threshold_absolute_error": -2.3282979100258672e-08,
+          "threshold_integer": 115892902
+        },
+        {
+          "combined_absolute_error": 1.5641743900118854e-08,
+          "combined_integer": 222930821,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 8.692458308701134e-09,
+          "threshold_integer": 154523870
+        },
+        {
+          "combined_absolute_error": 4.651017349033282e-09,
+          "combined_integer": 278663526,
+          "pfa": 1e-05,
+          "threshold_absolute_error": -1.8936750834086524e-08,
+          "threshold_integer": 193154837
+        }
+      ]
+    },
+    {
+      "fractional_bits": 28,
+      "noise_absolute_error": -6.331783986013306e-10,
+      "noise_integer": 387270501,
+      "pfa": [
+        {
+          "combined_absolute_error": 5.554365856141885e-10,
+          "combined_integer": 2675169849,
+          "pfa": 0.001,
+          "threshold_absolute_error": -9.312373094871873e-10,
+          "threshold_integer": 1854286438
+        },
+        {
+          "combined_absolute_error": 7.405827062711978e-10,
+          "combined_integer": 3566893132,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 1.2418777117773061e-09,
+          "threshold_integer": 2472381918
+        },
+        {
+          "combined_absolute_error": 9.257270505713677e-10,
+          "combined_integer": 4458616415,
+          "pfa": 1e-05,
+          "threshold_absolute_error": -3.1029934177695395e-10,
+          "threshold_integer": 3090477397
+        }
+      ]
+    },
+    {
+      "fractional_bits": 32,
+      "noise_absolute_error": 6.531353236027826e-11,
+      "noise_integer": 6196328019,
+      "pfa": [
+        {
+          "combined_absolute_error": 8.977529830644926e-11,
+          "combined_integer": 42802717582,
+          "pfa": 0.001,
+          "threshold_absolute_error": 8.526512829121202e-14,
+          "threshold_integer": 29668583012
+        },
+        {
+          "combined_absolute_error": 4.2090775309588935e-11,
+          "combined_integer": 57070290109,
+          "pfa": 0.0001,
+          "threshold_absolute_error": 7.772449350795796e-11,
+          "threshold_integer": 39558110683
+        },
+        {
+          "combined_absolute_error": -5.595524044110789e-12,
+          "combined_integer": 71337862636,
+          "pfa": 1e-05,
+          "threshold_absolute_error": -7.746869812308432e-11,
+          "threshold_integer": 49447638353
+        }
+      ]
+    }
+  ],
+  "implementation": "single combined median-to-threshold coefficient; noise computed separately",
+  "maximum_fixture_threshold_integer_error": 670282240.0,
+  "maximum_real_phase06f_threshold_integer_error": 0.4875611612078501,
+  "phase": "PHASE-06G",
+  "rounding": "unsigned round-to-nearest, exact half upward",
+  "selected": {
+    "combined_integers": [
+      167198116,
+      222930821,
+      278663526
+    ],
+    "fractional_bits": 24,
+    "noise_integer": 24204406,
+    "pfa_values": [
+      0.001,
+      0.0001,
+      1e-05
+    ],
+    "threshold_integers": [
+      115892902,
+      154523870,
+      193154837
+    ]
+  },
+  "selected_fractional_bits": 24,
+  "selection_policy": "Smallest candidate with combined-threshold relative error below 3e-9, noise relative error below 2e-8, zero non-boundary decision mismatches on the frozen detector fixture, and bit-exact RTL equivalence.",
+  "status": "passed"
+}

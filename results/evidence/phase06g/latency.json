@@ -1,0 +1,10 @@
+{
+  "continuous_frame_support": false,
+  "frame_gap_required": true,
+  "input_collect_samples_per_cycle": 1,
+  "last_input_to_first_output_clock_intervals": 476131,
+  "phase": "PHASE-06G",
+  "ping_pong_buffer": false,
+  "post_detector_timing_100mhz": "not_verified",
+  "status": "passed"
+}

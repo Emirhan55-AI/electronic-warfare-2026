@@ -490,6 +490,43 @@ APPROVED_PHASE06F_FILES = (
     "tests/test_phase06f_verifier.py",
 )
 
+APPROVED_PHASE06G_FILES = (
+    "datasets/fixtures/phase06g/axis-power-input.mem",
+    "datasets/fixtures/phase06g/detector-expected.mem",
+    "datasets/fixtures/phase06g/fixture-manifest.json",
+    "datasets/fixtures/phase06g/golden-vectors.json",
+    "docs/decisions/ADR-0017-PHASE06G-REGIONAL-DETECTOR.md",
+    "docs/decisions/ADR-0018-UI-PERFORMANCE-BASELINE-POLICY.md",
+    "docs/interfaces/RTL_REGIONAL_DETECTOR_CONTRACT.md",
+    "reference/rtl/detector_vectors.py",
+    "reference/rtl/regional_detector.py",
+    "results/evidence/phase06g/algorithm-contract.json",
+    "results/evidence/phase06g/architecture-study.json",
+    "results/evidence/phase06g/coefficient-study.json",
+    "results/evidence/phase06g/integration.json",
+    "results/evidence/phase06g/latency.json",
+    "results/evidence/phase06g/phase03-comparison.json",
+    "results/evidence/phase06g/python-model-result.json",
+    "results/evidence/phase06g/resource-feasibility.json",
+    "results/evidence/phase06g/rtl-simulation.json",
+    "results/evidence/phase06g/source-manifest.json",
+    "results/evidence/phase06g/toolchain.json",
+    "results/evidence/phase06g/ui-performance-characterization.json",
+    "results/evidence/phase06g/verification-summary.json",
+    "rtl/phase06g/rtl/axis_regional_detector.sv",
+    "rtl/phase06g/rtl/phase06g_detector_synthesis_top.sv",
+    "rtl/phase06g/rtl/phase06g_pkg.sv",
+    "rtl/phase06g/tb/tb_axis_regional_detector.sv",
+    "scripts/generate_phase06g_vectors.py",
+    "scripts/run_phase06g_synthesis.tcl",
+    "scripts/verify_phase06g.py",
+    "scripts/verify_ui_performance.py",
+    "tests/test_phase06g_model.py",
+    "tests/test_phase06g_vectors.py",
+    "tests/test_phase06g_verifier.py",
+    "tests/test_ui_performance_policy.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -550,6 +587,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06D_FILES)
         | set(APPROVED_PHASE06E_FILES)
         | set(APPROVED_PHASE06F_FILES)
+        | set(APPROVED_PHASE06G_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -682,7 +720,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

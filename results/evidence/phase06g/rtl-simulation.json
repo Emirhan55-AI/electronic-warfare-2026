@@ -1,0 +1,32 @@
+{
+  "build_location": "external_temporary_directory",
+  "checked_results": 81920,
+  "compile": "passed",
+  "coverage": [
+    "median",
+    "noise",
+    "threshold",
+    "evaluation_mask",
+    "decision",
+    "natural_shifted_index",
+    "tlast",
+    "reset_partial_frame",
+    "backpressure_payload_stability",
+    "consecutive_frames",
+    "region_boundaries",
+    "malformed_early_missing_late_tlast",
+    "no_drop_no_duplication"
+  ],
+  "deterministic_rerun": "passed",
+  "input_stalls": 9215056,
+  "last_input_to_first_output_cycles": 476131,
+  "malformed_frames_checked": 4,
+  "mismatch_count": 0,
+  "normalized_output_sha256": "4b13e9e7ca6105079e08d6ae22116d6d087839574f2b0b8b79887b1fb87f0751",
+  "output_stalls": 13659,
+  "payload_stability_checks": 13659,
+  "phase": "PHASE-06G",
+  "simulation": "passed",
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed"
+}
