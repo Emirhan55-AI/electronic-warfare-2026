@@ -19,7 +19,7 @@ Referans donanım; geniş bant omni antenleri, alt/orta bant teleskobik anteni, 
 
 ## Hedef veri ve geliştirme akışı
 
-Hedef veri yolu `SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. Geliştirme önce kayıtlı ve tekrarlanabilir SigMF verisiyle başlayacak, ilgili fazların çıkış kapıları geçildikten sonra HackRF-1 canlı I/Q akışına ilerleyecektir. Bu aktarım zinciri PHASE-00'da uygulanmaz.
+Hedef giriş veri yolu `SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. Sparse sonuç dönüş yolu `ZedBoard PL → versioned candidate AXI packet → AXI DMA S2MM → PS DDR → ZedBoard PS temporal/control → PC display` olarak ayrılır; PC kritik algoritma motoru değildir. Geliştirme önce kayıtlı ve tekrarlanabilir SigMF verisiyle başlar; gerçek DMA/PetaLinux ve HackRF ancak ilgili acceptance fazlarında uygulanır.
 
 ED işlevleri sinyal tespitinden başlayarak parametre çıkarımı, yön bulma, konum ve dinlemeye doğru sıralı geliştirilecektir. ET işlevleri ancak ED aşamaları doğrulandıktan ve güvenli, kontrollü, izinli RF test düzeni sağlandıktan sonra ele alınacaktır.
 

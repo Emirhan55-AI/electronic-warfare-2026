@@ -559,6 +559,39 @@ APPROVED_PHASE06H_FILES = (
     "tests/test_phase06h_verifier.py",
 )
 
+APPROVED_PHASE06I_FILES = (
+    "datasets/fixtures/phase06i/candidate-axis-input.mem",
+    "datasets/fixtures/phase06i/fixture-manifest.json",
+    "datasets/fixtures/phase06i/golden-vectors.json",
+    "datasets/fixtures/phase06i/transport-axis64-expected.mem",
+    "datasets/fixtures/phase06i/transport-packets.bin",
+    "docs/decisions/ADR-0020-PHASE06I-PL-PS-CANDIDATE-TRANSPORT.md",
+    "docs/interfaces/PL_PS_CANDIDATE_TRANSPORT_ABI.md",
+    "reference/ps/__init__.py",
+    "reference/ps/candidate_transport.py",
+    "reference/ps/transport_vectors.py",
+    "ps/README.md",
+    "ps/phase06i/include/phase06i_transport_abi.h",
+    "ps/phase06i/src/phase06i_decode.c",
+    "results/evidence/phase06i/abi-contract.json",
+    "results/evidence/phase06i/architecture.json",
+    "results/evidence/phase06i/physical-parameter-boundary.json",
+    "results/evidence/phase06i/python-abi-result.json",
+    "results/evidence/phase06i/rtl-simulation.json",
+    "results/evidence/phase06i/source-manifest.json",
+    "results/evidence/phase06i/temporal-boundary.json",
+    "results/evidence/phase06i/toolchain.json",
+    "results/evidence/phase06i/verification-summary.json",
+    "rtl/phase06i/rtl/axis_candidate_packetizer.sv",
+    "rtl/phase06i/rtl/phase06i_pkg.sv",
+    "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv",
+    "scripts/generate_phase06i_vectors.py",
+    "scripts/verify_phase06i.py",
+    "tests/test_phase06i_transport.py",
+    "tests/test_phase06i_vectors.py",
+    "tests/test_phase06i_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -621,6 +654,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06F_FILES)
         | set(APPROVED_PHASE06G_FILES)
         | set(APPROVED_PHASE06H_FILES)
+        | set(APPROVED_PHASE06I_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -752,8 +786,8 @@ def check_rf_boundaries() -> dict[str, object]:
 
 
 def check_no_future_sources() -> dict[str, object]:
-    implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | {
+    implementation_directories = ("rtl", "reference", "verification", "host", "datasets", "ps")
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

@@ -1,0 +1,26 @@
+{
+  "dma_instantiated": false,
+  "loss_policy": "AXI backpressure; malformed packet is explicitly status-marked and rejected by PS; no silent drop",
+  "maximum_frame_bytes": 54144,
+  "partition": {
+    "candidate_association": "PS_LATER",
+    "candidate_transport_packetization": "PL",
+    "center_frequency_conversion": "PS_LATER",
+    "coarse_span_conversion": "PS_LATER",
+    "host_ui_delivery": "PS_LATER_PC_DISPLAY_ONLY",
+    "logging": "PS_LATER",
+    "power_noise_threshold_conversion": "PS_LATER",
+    "temporal_2_of_3": "PS_LATER"
+  },
+  "phase": "PHASE-06I",
+  "reason": "variable sparse packets, 54144-byte proven maximum, low CPU copy overhead, Linux-friendly descriptor/IRQ flow",
+  "recommended_ddr_buffers": 2,
+  "recommended_total_ddr_bytes": 108288,
+  "rejected": {
+    "axi4_lite_polling": "up to 1352 records/frame creates excessive register transactions and CPU polling",
+    "axi_fifo_only": "useful elastic component but does not by itself provide bounded DDR ownership or Linux DMA completion",
+    "unframed_dma": "lacks explicit version/frame/count/CRC integrity boundary"
+  },
+  "selected": "AXI4-Stream packetizer to interrupt-driven AXI DMA S2MM bounded DDR buffers",
+  "status": "passed"
+}

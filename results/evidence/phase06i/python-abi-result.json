@@ -1,0 +1,10 @@
+{
+  "decoded_candidates": 1772,
+  "frame_id_boundary": "passed",
+  "frames": 13,
+  "malformed_version_length_crc_reserved_tests": "passed",
+  "mismatches": 0,
+  "packet_bytes": 71712,
+  "phase": "PHASE-06I",
+  "status": "passed"
+}

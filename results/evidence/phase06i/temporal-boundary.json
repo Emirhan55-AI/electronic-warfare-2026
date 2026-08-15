@@ -1,0 +1,23 @@
+{
+  "association": "previous span expanded by 2 bins; require positive overlap",
+  "empty_frame": "one miss for every active track",
+  "expiry": "two consecutive missing frames",
+  "implementation": "not_implemented_due_to_ps_toolchain",
+  "max_active_tracks": 64,
+  "max_ended_history": 128,
+  "nonconsecutive_frame": "reset all temporal state",
+  "pair_tie_order": [
+    "descending overlap",
+    "ascending peak displacement",
+    "event ID",
+    "current start bin",
+    "current index"
+  ],
+  "peak_power_role": "admission ranking by peak-to-noise only",
+  "pfa_threshold_match_inputs": false,
+  "phase": "PHASE-06I",
+  "placement": "Zynq PS",
+  "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+  "status": "defined_deferred",
+  "window": "per-track deque maxlen 3; confirm when sum >= 2"
+}

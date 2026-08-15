@@ -1,0 +1,16 @@
+{
+  "arm_cross_compiler": "not_found",
+  "arm_target_execution": "not_exercised",
+  "board_deployment": "not_available",
+  "device_tree_workflow": "not_defined",
+  "host_c_compiler": "not_found",
+  "petalinux": "not_found",
+  "phase": "PHASE-06I",
+  "portable_c_source": "prepared_not_compiled",
+  "ps_toolchain": "not_ready",
+  "rtl_simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed",
+  "sysroot": "not_found",
+  "vitis_installation": "partial_files_present_cli_not_callable",
+  "vivado": "2025.2"
+}

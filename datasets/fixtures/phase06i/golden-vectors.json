@@ -1,0 +1,104 @@
+{
+  "abi_version": 1,
+  "frame_count": 13,
+  "frames": [
+    {
+      "candidate_count": 0,
+      "crc32": "00000000",
+      "frame_id": 0,
+      "packet_bytes": 64,
+      "vector_id": "no_candidate"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "c62f7f0f",
+      "frame_id": 1,
+      "packet_bytes": 104,
+      "vector_id": "one_bin"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "fddad67e",
+      "frame_id": 2,
+      "packet_bytes": 104,
+      "vector_id": "multi_bin"
+    },
+    {
+      "candidate_count": 2,
+      "crc32": "649a918c",
+      "frame_id": 3,
+      "packet_bytes": 144,
+      "vector_id": "two_separated"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "c494d358",
+      "frame_id": 4,
+      "packet_bytes": 104,
+      "vector_id": "one_missing_bin_bridged"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "d5af09fd",
+      "frame_id": 5,
+      "packet_bytes": 104,
+      "vector_id": "region_boundary"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "45ddb97f",
+      "frame_id": 6,
+      "packet_bytes": 104,
+      "vector_id": "equal_peak_first_wins"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "10a28fe0",
+      "frame_id": 7,
+      "packet_bytes": 104,
+      "vector_id": "first_evaluated"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "70db3d67",
+      "frame_id": 8,
+      "packet_bytes": 104,
+      "vector_id": "last_evaluated"
+    },
+    {
+      "candidate_count": 3,
+      "crc32": "51eca1ca",
+      "frame_id": 9,
+      "packet_bytes": 184,
+      "vector_id": "shifted_half_order"
+    },
+    {
+      "candidate_count": 1,
+      "crc32": "7d018725",
+      "frame_id": 10,
+      "packet_bytes": 104,
+      "vector_id": "center_exclusion_bridged"
+    },
+    {
+      "candidate_count": 1352,
+      "crc32": "6ea77c94",
+      "frame_id": 11,
+      "packet_bytes": 54144,
+      "vector_id": "maximum_candidate_count"
+    },
+    {
+      "candidate_count": 407,
+      "crc32": "12203582",
+      "frame_id": 12,
+      "packet_bytes": 16344,
+      "vector_id": "real_phase06g_representative_hann"
+    }
+  ],
+  "input_candidate_axis_records": 1773,
+  "maximum_frame_bytes": 54144,
+  "output_axis64_beats": 8964,
+  "packet_stream_bytes": 71712,
+  "phase": "PHASE-06I",
+  "semantic_candidates": 1772,
+  "status": "passed"
+}

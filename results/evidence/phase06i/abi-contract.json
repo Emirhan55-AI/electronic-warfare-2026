@@ -1,0 +1,15 @@
+{
+  "axis_width_bits": 64,
+  "candidate_record_bytes": 40,
+  "empty_frame": "header empty flag, zero records, trailer count zero",
+  "endianness": "little",
+  "frame_id": "uint32 modulo 2^32 reset to zero",
+  "header_bytes": 32,
+  "integrity": "length, duplicate frame ID, candidate count, status and IEEE payload CRC32",
+  "maximum_candidates": 1352,
+  "maximum_packet_bytes": 54144,
+  "phase": "PHASE-06I",
+  "status": "passed",
+  "trailer_bytes": 32,
+  "version": 1
+}

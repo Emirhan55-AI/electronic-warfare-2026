@@ -1,0 +1,31 @@
+{
+  "files": {
+    "datasets/fixtures/phase06i/candidate-axis-input.mem": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2",
+    "datasets/fixtures/phase06i/fixture-manifest.json": "735e2fe52a0ac8518e793d3d612e6f291de50b5ea2c23e9f9d8be7ff0cee8baf",
+    "datasets/fixtures/phase06i/golden-vectors.json": "be340e335e60710bcfb340a5029416017d18e0b91569a5dc6369eebb96884637",
+    "datasets/fixtures/phase06i/transport-axis64-expected.mem": "5e93de0c247f71b332ac6f0e0df3dcbfa5d631815bed2e8379916eba990ee3c3",
+    "datasets/fixtures/phase06i/transport-packets.bin": "2bc4393c4b760cb930194410329792deb06d12de0073e8894ce782e38fc24000",
+    "docs/decisions/ADR-0020-PHASE06I-PL-PS-CANDIDATE-TRANSPORT.md": "ee8b340420b6bb8bfc6db95145590db93e3e8535251128ca7a9b77bf8e294e31",
+    "docs/interfaces/PL_PS_CANDIDATE_TRANSPORT_ABI.md": "ae522cb8ca58508fc5fa2363ee53d7c26ca0c2b5d105a50a79117fa004dc3cc3",
+    "ps/README.md": "9c2cac73b834420c40bde49617da639fe9662c31d0642e67e8faee3c63971711",
+    "ps/phase06i/include/phase06i_transport_abi.h": "150c664e20019650cdbb49e111cd7d4d124219f66800d3b2c14579b2405c4b07",
+    "ps/phase06i/src/phase06i_decode.c": "8bb7946aaeccd8a4cd618b526d0ad3967ee24b3b386e3d48cee7f1a0d63cb727",
+    "reference/ps/__init__.py": "300669b9e12d551ae63680f357a51b6456c763219f5029e200bc98157746ce81",
+    "reference/ps/candidate_transport.py": "6b696dc03ba586cf018c00c387879b45c0a397aa020123ce0dc3c71d107c00bb",
+    "reference/ps/transport_vectors.py": "e3c957e8cc59ed381f17670c40c865a03f1a305e2bf45e0f0aecca0434c9ea46",
+    "rtl/phase06i/rtl/axis_candidate_packetizer.sv": "f6c1fa26587195818a81aa82a211ae974c50b8066cbb30a328f7d84e886bccbc",
+    "rtl/phase06i/rtl/phase06i_pkg.sv": "fcdac2667aecac51b5724ebace3b2c86f8c621ceabcf3ed9e0a4e43423ef0b34",
+    "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv": "d237b2589c97b2aad243d76451c2fd7c48e293d41d2dbf9e5dff39755e646521",
+    "scripts/generate_phase06i_vectors.py": "992ecd0aa40e32b550b60544e6b3b267e93b8132bca9e9d097fb220d2f8ae847",
+    "scripts/verify_phase06i.py": "09b365acdcd2e24e8fbc77b56dfa39c4b77a46b0aca8c9fff5255cffd4eb8e02",
+    "tests/test_phase06i_transport.py": "7b75f05c35f24552edc3fce43f81abde5d888582eba2d4a561fc2be484b3bb30",
+    "tests/test_phase06i_vectors.py": "44ee61365c57bf712bf1fabf35a4abf208a169a2a64867dd36bbab1497d4dd04",
+    "tests/test_phase06i_verifier.py": "55dad692d6c554302520a21a219565f6711723379754c6c67d9b5367704060a9"
+  },
+  "frozen_phase06h_source": {
+    "path": "datasets/fixtures/phase06h/candidate-expected.mem",
+    "sha256": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2"
+  },
+  "phase": "PHASE-06I",
+  "status": "passed"
+}

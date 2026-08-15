@@ -39,6 +39,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE06F_FILES)
             | set(VERIFY.APPROVED_PHASE06G_FILES)
             | set(VERIFY.APPROVED_PHASE06H_FILES)
+            | set(VERIFY.APPROVED_PHASE06I_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -58,6 +59,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06F_FILES))
         self.assertEqual(34, len(VERIFY.APPROVED_PHASE06G_FILES))
         self.assertEqual(29, len(VERIFY.APPROVED_PHASE06H_FILES))
+        self.assertEqual(30, len(VERIFY.APPROVED_PHASE06I_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -126,6 +128,9 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06h/rtl/axis_candidate_grouping.sv",
                 "rtl/phase06h/rtl/phase06h_candidate_synthesis_top.sv",
                 "rtl/phase06h/tb/tb_axis_candidate_grouping.sv",
+                "rtl/phase06i/rtl/phase06i_pkg.sv",
+                "rtl/phase06i/rtl/axis_candidate_packetizer.sv",
+                "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv",
             },
             {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
         )

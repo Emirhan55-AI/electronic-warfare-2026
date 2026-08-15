@@ -1,0 +1,26 @@
+{
+  "files": {
+    "candidate-axis-input.mem": {
+      "bytes": 104607,
+      "sha256": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2"
+    },
+    "golden-vectors.json": {
+      "bytes": 2306,
+      "sha256": "be340e335e60710bcfb340a5029416017d18e0b91569a5dc6369eebb96884637"
+    },
+    "transport-axis64-expected.mem": {
+      "bytes": 161352,
+      "sha256": "5e93de0c247f71b332ac6f0e0df3dcbfa5d631815bed2e8379916eba990ee3c3"
+    },
+    "transport-packets.bin": {
+      "bytes": 71712,
+      "sha256": "2bc4393c4b760cb930194410329792deb06d12de0073e8894ce782e38fc24000"
+    }
+  },
+  "frozen_phase06h_source": {
+    "path": "datasets/fixtures/phase06h/candidate-expected.mem",
+    "sha256": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2"
+  },
+  "phase": "PHASE-06I",
+  "status": "passed"
+}

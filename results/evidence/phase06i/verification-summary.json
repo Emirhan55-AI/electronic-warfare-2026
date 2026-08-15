@@ -1,0 +1,22 @@
+{
+  "arm_target_execution": "not_exercised",
+  "candidate_loss": 0,
+  "deterministic_rerun": "passed",
+  "dma_ip_driver": "not_implemented",
+  "duplicate_records": 0,
+  "hardware": "not_exercised",
+  "live_hackrf": "not_exercised",
+  "overall": "passed",
+  "pc_independent_zynq_system": "not_complete",
+  "phase": "PHASE-06I",
+  "phase06g_continuous_frame_acceptance": "not_supported",
+  "portable_c_abi_layout": "source_verified_not_compiled",
+  "post_detector_timing_100mhz": "not_verified",
+  "ps_toolchain": "not_ready",
+  "python_decode": "passed",
+  "rtl_byte_exact": "passed",
+  "rtl_compile": "passed",
+  "rtl_simulation": "passed",
+  "temporal_confirmation": "not_implemented",
+  "transport_abi": "passed"
+}
