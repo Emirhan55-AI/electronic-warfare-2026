@@ -16,11 +16,11 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-PHASE-04 parametre doğrulaması açık kalırken **PHASE-06I — PL→PS Aday Paket Transportu ve Sürümlemeli ABI** uygulanmıştır. PHASE-06H'nin bounded candidate stream'i 32-byte header, 40-byte candidate record ve 32-byte trailer içeren little-endian ABI v1 packet'ına dönüştürülür. Python encode/decode ile Icarus packetizer 13 packet/8.964 AXI64 beat'te byte-exact doğrulanmıştır. Hedef sınır interrupt-driven AXI DMA S2MM ve iki bounded DDR buffer'dır; DMA IP/driver, PetaLinux, ARM execution, bitstream ve kart/hardware çalıştırılmamıştır. PHASE-00 repository temelini kurmuştur; PHASE-01 deterministik giriş fixture'ını, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını, PHASE-03 ise kayıtlı/sentetik I/Q için doğrulanmış `regional` detector profilini oluşturmuştur.
+PHASE-04 parametre doğrulaması açık kalırken **PHASE-06J — Zynq PS Temporal Aday Doğrulama ve Frame Association** uygulanmıştır. PHASE-06I'nin 32-byte header, 40-byte record ve 32-byte trailer içeren little-endian ABI v1 packet'ı strict C decoder ile tüketilir; authoritative PHASE-03 2-of-3 association state machine'i 64 active/128 ended ring sınırıyla portable C11 PS çekirdeğine taşınmıştır. Host compile/link ve 10 sequence/33 frame/1.501 candidate record Python↔C karşılaştırması sıfır mismatch ile geçmiştir. Hedef sahiplik Zynq PS'dedir; gerçek DMA/driver, PetaLinux, ARM execution, bitstream ve kart/hardware çalıştırılmamıştır. PHASE-00 repository temelini kurmuştur; PHASE-01 deterministik giriş fixture'ını, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını, PHASE-03 ise kayıtlı/sentetik I/Q için doğrulanmış `regional` detector profilini oluşturmuştur.
 
 PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
 
-PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-06F exact lineer power, PHASE-06G exact bölgesel detector, PHASE-06H coarse candidate grouping ve PHASE-06I DMA-facing packetizer işlevsel RTL sonuçlarıdır. PHASE-06I gerçek DMA veya PS execution değildir; post-detector 100 MHz timing **doğrulanmamıştır**. PetaLinux/ARM toolchain hazır değildir; temporal 2/3, precise bandwidth/physical-frequency/PHASE-04 extraction, bitstream veya kart üstü sonuç yoktur. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
+PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-06F exact lineer power, PHASE-06G exact bölgesel detector, PHASE-06H coarse grouping, PHASE-06I DMA-facing packetizer ve PHASE-06J host-verified PS temporal çekirdek sonuçlarıdır. Gerçek DMA veya ARM execution yoktur; post-detector 100 MHz timing **doğrulanmamıştır**. PetaLinux/ARM toolchain hazır değildir; precise bandwidth/physical-frequency/PHASE-04 extraction, bitstream veya kart üstü sonuç yoktur. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
 
 Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli**.
 
@@ -36,7 +36,8 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `rtl/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
 - `rtl/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
 - `rtl/phase06i/`: PHASE-06H adaylarını sürümlemeli little-endian DMA-facing 64-bit AXI4-Stream packet'larına dönüştüren vendor-independent packetizer ve self-checking testbench.
-- `ps/phase06i/`: Aynı ABI'nin portable C layout/decoder kaynakları; henüz host/ARM compiler veya ZedBoard üzerinde çalıştırılmamıştır.
+- `ps/phase06i/`: Candidate transport ABI v1 C layout'u ve ilk shape decoder kaynağı.
+- `ps/phase06j/`: ABI v1'i byte-wise strict doğrulayan, bounded PHASE-03 2-of-3 association state machine'ini uygulayan ve host'ta gerçek compile/link edilmiş portable C11 PS çekirdeği; ARM/ZedBoard üzerinde çalıştırılmamıştır.
 - `reference/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
@@ -57,6 +58,7 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `datasets/fixtures/phase06g/`: On beş sentetik detector frame'i ve beş frozen PHASE-06F gerçek-power frame'inden türetilen bit-exact detector giriş/çıkış vektörleri.
 - `datasets/fixtures/phase06h/`: On iki sentetik grouping frame'i ile bir frozen PHASE-06G gerçek-detector frame'inin bit-exact candidate giriş/çıkış vektörleri.
 - `datasets/fixtures/phase06i/`: Frozen PHASE-06H candidate stream'inden üretilen ABI packet binary'si ve 64-bit AXI golden beat'leri.
+- `datasets/fixtures/phase06j/`: Temporal 1/3, 2/3, 3/3, movement, ambiguity, expiry, reset, uint32 wrap ve 1352-candidate sınırı için PHASE-06I ABI packet sequence'leri ve authoritative Python golden olayları.
 - `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
 - `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector/parametre seçicileri ve gerçek UI renderer'ları.
 - `tests/`: Repository, SigMF, DSP, detector/parametre istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
@@ -76,6 +78,7 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `results/evidence/phase06g/`: PHASE-03 matematik/median sözleşmesi, katsayı ve mimari çalışması, bit-exact Python/Icarus sonucu, gerçek-power entegrasyonu ve targeted synthesis-only resource fizibilitesi; post-detector timing veya hardware kanıtı değildir.
 - `results/evidence/phase06h/`: Authoritative grouping sözleşmesi, bit-exact Python/Icarus candidate sonucu, determinism, throughput ve standalone targeted synthesis-only resource fizibilitesi; implementation, timing veya hardware kanıtı değildir.
 - `results/evidence/phase06i/`: Transport seçimi, ABI, Python decode, byte-exact Icarus packetizer, toolchain ve dürüst deferred PS/temporal sınırı; DMA/PetaLinux/hardware kanıtı değildir.
+- `results/evidence/phase06j/`: Portable C11 host build/link, strict ABI decoder, Python↔C temporal semantic eşdeğerliği, bounded bellek/karmaşıklık ve dürüst blocked PetaLinux/ARM/hardware sınırı.
 - `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
 
 ## Doğrulama
@@ -101,6 +104,8 @@ python -B scripts/generate_phase06h_vectors.py --check
 python -B scripts/verify_phase06h.py --check
 python -B scripts/generate_phase06i_vectors.py --check
 python -B scripts/verify_phase06i.py --check
+python -B scripts/generate_phase06j_vectors.py --check
+python -B scripts/verify_phase06j.py --check
 python -B scripts/verify_ui_performance.py --check
 python -B -m unittest discover -s tests -v
 ```

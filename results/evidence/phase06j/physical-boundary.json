@@ -1,0 +1,11 @@
+{
+  "absolute_frequency": "RF_center + frequency_offset",
+  "coarse_span_hz": "span_bins * sample_rate / 4096; not precise bandwidth",
+  "dbfs_or_dbm": "not_implemented_without normalization/calibration contract",
+  "frequency_offset": "(shifted_bin - 2048) * sample_rate / 4096",
+  "owner": "Zynq PS",
+  "phase": "PHASE-06J",
+  "precise_occupied_bandwidth": "not_implemented",
+  "reason": "PHASE-06I ABI carries bins but not runtime RF center frequency or sample rate",
+  "status": "deferred_separate_phase"
+}

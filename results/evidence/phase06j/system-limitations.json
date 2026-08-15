@@ -1,0 +1,14 @@
+{
+  "arm_execution": "not_exercised",
+  "dma_ip_driver_device_tree": "not_implemented",
+  "live_hackrf": "not_exercised",
+  "new_pl_logic": "none",
+  "pc_independent_system": "not_complete",
+  "petalinux": "blocked",
+  "phase": "PHASE-06J",
+  "phase06g_continuous_throughput": "not_supported",
+  "phase06g_required_frame_gap_clocks": 476131,
+  "real_pl_ps_hardware_path": "not_verified",
+  "worst_case_admission_comparisons_per_frame_upper_bound": 84512,
+  "worst_case_pair_comparisons_per_frame_upper_bound": 5537792
+}

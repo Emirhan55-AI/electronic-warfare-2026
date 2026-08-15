@@ -1,0 +1,28 @@
+{
+  "authoritative_temporal_source": {
+    "path": "reference/detection/pipeline.py",
+    "sha256": "19f1defb4b07cdcff5b58b00dec8c52aea8ce32c96a23c868294b3e7cef5c9cc"
+  },
+  "files": {
+    "datasets/fixtures/phase06j/fixture-manifest.json": "6319da3bc8ccc04d860338885155856a60d0085e5523f83f915cddce633301d5",
+    "datasets/fixtures/phase06j/golden-sequences.json": "8ca4d38eb69239f913ad7a8938f7b58d3880a2416a9d4e78a89b481c03499f62",
+    "datasets/fixtures/phase06j/packets.bin": "b83c706cb29b633bbf53431f93ade1e0f2b76347589d4c9dce142533691cfeda",
+    "docs/decisions/ADR-0021-PHASE06J-PS-TEMPORAL-CONFIRMATION.md": "df8d23877a14de5c7bcff28953f800e55f1c0264f066352388b2ba380f492da4",
+    "docs/interfaces/PS_TEMPORAL_CANDIDATE_CONTRACT.md": "e43e3d2479b9365529739cdd3580d968c3ad15c1849f440bfb683c3f18b5e5f2",
+    "ps/phase06j/include/phase06j_temporal.h": "7754e885faa843ab1c38b663fff24cb1a4aedfa607d0f0439e8a6252e30f4932",
+    "ps/phase06j/src/phase06j_temporal.c": "54809e09dce4b06de7d1b2edbaa9722a4377f367f9546bcf5c6b8f1714aae8c0",
+    "reference/ps/temporal_confirmation.py": "b92f8286e900e2d4a2aad752b5c750f41b2f0223b1e73e737fba21b4cbbef19f",
+    "reference/ps/temporal_vectors.py": "a90d0906e65192834627a6e4325f090b3ad93d4bcf0b7628334ece982f8bc58e",
+    "scripts/generate_phase06j_vectors.py": "76fa9300e81c1c19eb7dae7449b8b913bc5adb4e84a53352d87f55475e135f8d",
+    "scripts/verify_phase06j.py": "e88a29a6b231912a5b2a1bf94e7d996bc09dd97d8590018f917b94a44ed4fa4b",
+    "tests/test_phase06j_model.py": "58acd08f5aca8d3760e7210f598da52f1ebac64110e728d4b59119f66e02a82f",
+    "tests/test_phase06j_vectors.py": "bc0c9266cf1ae022f2c17cb6b7771043c783fce47a2251a9399245999de68967",
+    "tests/test_phase06j_verifier.py": "7904d826cc0242bc114d196d6632d9220be50c8137014b6aec5e53a5977fc6a2"
+  },
+  "frozen_phase06i_packet_source": {
+    "path": "datasets/fixtures/phase06i/transport-packets.bin",
+    "sha256": "2bc4393c4b760cb930194410329792deb06d12de0073e8894ce782e38fc24000"
+  },
+  "phase": "PHASE-06J",
+  "status": "passed"
+}

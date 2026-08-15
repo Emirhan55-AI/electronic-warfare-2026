@@ -1,0 +1,18 @@
+{
+  "files": {
+    "golden-sequences.json": {
+      "bytes": 335916,
+      "sha256": "8ca4d38eb69239f913ad7a8938f7b58d3880a2416a9d4e78a89b481c03499f62"
+    },
+    "packets.bin": {
+      "bytes": 62152,
+      "sha256": "b83c706cb29b633bbf53431f93ade1e0f2b76347589d4c9dce142533691cfeda"
+    }
+  },
+  "frozen_phase06i_source": {
+    "path": "datasets/fixtures/phase06i/transport-packets.bin",
+    "sha256": "2bc4393c4b760cb930194410329792deb06d12de0073e8894ce782e38fc24000"
+  },
+  "phase": "PHASE-06J",
+  "status": "passed"
+}

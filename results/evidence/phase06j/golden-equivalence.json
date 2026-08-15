@@ -1,0 +1,15 @@
+{
+  "active_event_outputs": 346,
+  "candidate_records_checked": 1501,
+  "confirmed_event_outputs": 9,
+  "ended_event_outputs": 132,
+  "frame_count": 33,
+  "frame_result_bytes": 8724,
+  "malformed_packet_checks": 6,
+  "mismatch_count": 0,
+  "phase": "PHASE-06J",
+  "rejected_packet_state_unchanged_checks": 1,
+  "sequence_count": 10,
+  "state_bytes": 13352,
+  "status": "passed"
+}

@@ -1,0 +1,15 @@
+{
+  "arm_build": "blocked_toolchain",
+  "arm_cross_compiler": "not_found",
+  "arm_execution": "not_exercised",
+  "device_tree_workflow": "not_defined",
+  "host_c": "ready_and_exercised",
+  "petalinux": "not_found",
+  "petalinux_project": "not_found",
+  "phase": "PHASE-06J",
+  "status": "partial",
+  "sysroot": "not_found",
+  "wsl": "Ubuntu 22.04 WSL2 present without build tools",
+  "xsa": "not_found",
+  "zedboard_bsp": "not_found"
+}

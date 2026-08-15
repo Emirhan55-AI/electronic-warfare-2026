@@ -599,6 +599,31 @@ APPROVED_TEST_INFRASTRUCTURE_FILES = (
     "tests/test_qt_test_support.py",
 )
 
+APPROVED_PHASE06J_FILES = (
+    "datasets/fixtures/phase06j/fixture-manifest.json",
+    "datasets/fixtures/phase06j/golden-sequences.json",
+    "datasets/fixtures/phase06j/packets.bin",
+    "docs/decisions/ADR-0021-PHASE06J-PS-TEMPORAL-CONFIRMATION.md",
+    "docs/interfaces/PS_TEMPORAL_CANDIDATE_CONTRACT.md",
+    "ps/phase06j/include/phase06j_temporal.h",
+    "ps/phase06j/src/phase06j_temporal.c",
+    "reference/ps/temporal_confirmation.py",
+    "reference/ps/temporal_vectors.py",
+    "results/evidence/phase06j/algorithm-contract.json",
+    "results/evidence/phase06j/golden-equivalence.json",
+    "results/evidence/phase06j/host-build.json",
+    "results/evidence/phase06j/physical-boundary.json",
+    "results/evidence/phase06j/source-manifest.json",
+    "results/evidence/phase06j/system-limitations.json",
+    "results/evidence/phase06j/toolchain.json",
+    "results/evidence/phase06j/verification-summary.json",
+    "scripts/generate_phase06j_vectors.py",
+    "scripts/verify_phase06j.py",
+    "tests/test_phase06j_model.py",
+    "tests/test_phase06j_vectors.py",
+    "tests/test_phase06j_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -663,6 +688,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06H_FILES)
         | set(APPROVED_PHASE06I_FILES)
         | set(APPROVED_TEST_INFRASTRUCTURE_FILES)
+        | set(APPROVED_PHASE06J_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -795,7 +821,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets", "ps")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

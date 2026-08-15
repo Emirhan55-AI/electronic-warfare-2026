@@ -1,0 +1,22 @@
+{
+  "admission": "descending peak-to-noise ratio, then peak bin, start bin, input index",
+  "association": "previous inclusive span expanded by 2 bins; positive overlap required",
+  "confirmation": "2 observations in a per-track 3-frame deque; confirmed state is sticky",
+  "discontinuity": "reset before current frame",
+  "empty_frame": "one miss for every active track",
+  "expiry": "two consecutive missing frames",
+  "maximum_active_tracks": 64,
+  "maximum_ended_history": 128,
+  "pair_order": [
+    "descending overlap",
+    "ascending peak displacement",
+    "event ID",
+    "current start bin",
+    "current index"
+  ],
+  "phase": "PHASE-06J",
+  "placement": "Zynq PS portable core",
+  "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+  "status": "passed",
+  "uint32_wrap": "FFFFFFFF to 00000000 is consecutive"
+}

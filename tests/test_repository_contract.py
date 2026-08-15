@@ -41,6 +41,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE06H_FILES)
             | set(VERIFY.APPROVED_PHASE06I_FILES)
             | set(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES)
+            | set(VERIFY.APPROVED_PHASE06J_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -62,6 +63,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(29, len(VERIFY.APPROVED_PHASE06H_FILES))
         self.assertEqual(30, len(VERIFY.APPROVED_PHASE06I_FILES))
         self.assertEqual(4, len(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES))
+        self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

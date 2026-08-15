@@ -1,0 +1,11 @@
+{
+  "absolute_paths_recorded": false,
+  "compile": "passed",
+  "compiler_family": "MSVC C11",
+  "frame_result_bytes": 8724,
+  "language": "portable C11",
+  "link": "passed",
+  "phase": "PHASE-06J",
+  "state_bytes": 13352,
+  "status": "passed"
+}

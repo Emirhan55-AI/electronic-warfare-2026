@@ -1,0 +1,14 @@
+{
+  "abi_decoder": "passed",
+  "arm_cross_compile": "blocked_toolchain",
+  "arm_execution": "not_exercised",
+  "hardware": "not_exercised",
+  "host_c_build": "passed",
+  "live_hackrf": "not_exercised",
+  "mismatch_count": 0,
+  "overall": "passed",
+  "phase": "PHASE-06J",
+  "physical_parameter_conversion": "not_implemented",
+  "python_c_temporal_equivalence": "passed",
+  "real_dma": "not_implemented"
+}

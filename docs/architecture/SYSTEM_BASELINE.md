@@ -2,7 +2,7 @@
 
 ## Durum
 
-Bu belge PHASE-00 sistem hedefini tanımlar. Burada açıklanan veri yolları ve işleme yetenekleri henüz doğrulanmamış hedeflerdir; çalışan bir DSP veya RF sistemi mevcut değildir.
+Bu belge PHASE-00 sistem hedefini tanımlar. PHASE-06A–J ile DSP/transport/PS temporal bileşenleri ayrı katmanlarda doğrulanmıştır; fakat gerçek DMA, PetaLinux/ARM execution, bitstream/kart ve canlı RF yolu tamamlanmadığı için çalışan uçtan uca DSP veya RF sistemi mevcut değildir.
 
 ## Fiziksel bileşenler ve görev ayrımı
 
@@ -19,7 +19,7 @@ Referans donanım; geniş bant omni antenleri, alt/orta bant teleskobik anteni, 
 
 ## Hedef veri ve geliştirme akışı
 
-Hedef giriş veri yolu `SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. Sparse sonuç dönüş yolu `ZedBoard PL → versioned candidate AXI packet → AXI DMA S2MM → PS DDR → ZedBoard PS temporal/control → PC display` olarak ayrılır; PC kritik algoritma motoru değildir. Geliştirme önce kayıtlı ve tekrarlanabilir SigMF verisiyle başlar; gerçek DMA/PetaLinux ve HackRF ancak ilgili acceptance fazlarında uygulanır.
+Hedef giriş veri yolu `SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. Sparse sonuç dönüş yolu `ZedBoard PL → versioned candidate AXI packet → AXI DMA S2MM → PS DDR → ZedBoard PS temporal/control → PC display` olarak ayrılır; PC kritik algoritma motoru değildir. PHASE-06J temporal çekirdeği host'ta doğrulanmış portable C11 kaynağıdır ve hedef sahipliği PS'dedir; gerçek DMA/PetaLinux/ARM ve HackRF ancak ilgili acceptance fazlarında uygulanır.
 
 ED işlevleri sinyal tespitinden başlayarak parametre çıkarımı, yön bulma, konum ve dinlemeye doğru sıralı geliştirilecektir. ET işlevleri ancak ED aşamaları doğrulandıktan ve güvenli, kontrollü, izinli RF test düzeni sağlandıktan sonra ele alınacaktır.
 
