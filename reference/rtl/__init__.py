@@ -42,6 +42,20 @@ from .fft_model import (
     sign_extend_input_word,
     unpack_fft_word,
 )
+from .fft_power import (
+    COMPONENT_MAX as FFT_POWER_COMPONENT_MAX,
+    COMPONENT_MIN as FFT_POWER_COMPONENT_MIN,
+    POWER_FRACTION_BITS as FFT_POWER_FRACTION_BITS,
+    POWER_MAX_REACHABLE as FFT_POWER_MAX_REACHABLE,
+    POWER_WIDTH as FFT_POWER_WIDTH,
+    SQUARE_WIDTH as FFT_POWER_SQUARE_WIDTH,
+    linear_power,
+    pack_fft_word as pack_fft_power_input_word,
+    power_from_fft_word,
+    power_real_value,
+    unpack_fft_word as unpack_fft_power_input_word,
+    width_proof as fft_power_width_proof,
+)
 
 __all__ = [
     "ENERGY_WIDTH",
@@ -80,4 +94,16 @@ __all__ = [
     "selected_ip_configuration",
     "sign_extend_input_word",
     "unpack_fft_word",
+    "FFT_POWER_COMPONENT_MAX",
+    "FFT_POWER_COMPONENT_MIN",
+    "FFT_POWER_FRACTION_BITS",
+    "FFT_POWER_MAX_REACHABLE",
+    "FFT_POWER_WIDTH",
+    "FFT_POWER_SQUARE_WIDTH",
+    "linear_power",
+    "pack_fft_power_input_word",
+    "power_from_fft_word",
+    "power_real_value",
+    "unpack_fft_power_input_word",
+    "fft_power_width_proof",
 ]

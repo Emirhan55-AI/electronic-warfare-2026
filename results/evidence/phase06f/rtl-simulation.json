@@ -1,0 +1,29 @@
+{
+  "build_location": "external_temporary_directory",
+  "checked_results": 45068,
+  "compile": "passed",
+  "coverage": [
+    "exact_integer",
+    "extrema",
+    "reset",
+    "backpressure",
+    "payload_stability",
+    "tlast",
+    "xk_index",
+    "consecutive_frames",
+    "no_drop",
+    "no_duplication"
+  ],
+  "deterministic_rerun": "passed",
+  "edge_results": 12,
+  "input_stall_cycles": 11520,
+  "latency_cycles": 2,
+  "mismatch_count": 0,
+  "normalized_output_sha256": "907059ee70af5be4a286287ac9d322b893052921e6c2fa4a8344873cb32b543f",
+  "output_stall_cycles": 11520,
+  "phase": "PHASE-06F",
+  "real_amd_fft_results": 45056,
+  "simulation": "passed",
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed"
+}

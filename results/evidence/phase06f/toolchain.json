@@ -1,0 +1,9 @@
+{
+  "hardware": "not_exercised",
+  "phase": "PHASE-06F",
+  "python": "3.13.7",
+  "rtl_language": "SystemVerilog",
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed",
+  "vivado": "not_run_for_phase06f"
+}

@@ -1,0 +1,11 @@
+{
+  "edge_samples": 12,
+  "maximum_result": 36027697524113408,
+  "mismatch_count": 0,
+  "model": "independent Python arbitrary-precision integer square-and-sum",
+  "phase": "PHASE-06F",
+  "reachable_contract_maximum": 144115188075855872,
+  "real_amd_fft_samples": 45056,
+  "status": "passed",
+  "total_samples": 45068
+}

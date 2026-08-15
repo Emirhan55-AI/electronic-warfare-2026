@@ -1,0 +1,18 @@
+{
+  "files": {
+    "datasets/fixtures/phase06f/edge-expected.mem": "1e9c8e51b9cadcf2ea896b8a3ac22810e5d124f58faf879b7b70891d0243125d",
+    "datasets/fixtures/phase06f/edge-input.mem": "4637dbc6cde8b2fcf21d4fbf37bf74849fa00821785337e0874b72d8628a5685",
+    "datasets/fixtures/phase06f/fixture-manifest.json": "b335767ea26fe90210b6589a8ea0a902f9da8c94f5c084269c093e021704e622",
+    "datasets/fixtures/phase06f/golden-vectors.json": "5920ce76d5567f23fe7870a1697be8426cfad971e1bcf9f404ab05c5dccb3e59",
+    "datasets/fixtures/phase06f/real-power-expected.mem": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed",
+    "docs/decisions/ADR-0016-PHASE06F-FFT-LINEAR-POWER.md": "7e1f693d8981f44173ca79b922ec3957179ef3451e74f022065328f8e286f082",
+    "docs/interfaces/RTL_FFT_POWER_CONTRACT.md": "0b70670e46fddd595cda423cc72a49ad968762c43485429d9b9208fbf8528961",
+    "reference/rtl/fft_power.py": "dd92c83d2757b1b414760e1efc218c4a54e332378978936580fe6352504ef190",
+    "reference/rtl/power_vectors.py": "9077c77d3a61c2f1d9d860890ad6690c0e72dad46b2a4bbe3c79d31dfbe435c3",
+    "rtl/phase06f/rtl/axis_fft_linear_power.sv": "a8a62a27927d2471b9498dc1ad9ee8ade4baf1be1dc7865a0a0d9ff3447bc19e",
+    "rtl/phase06f/tb/tb_axis_fft_linear_power.sv": "817df985141c9866e7a58dfdac2f898aac65748b9331451a407c39b1df0aa2db",
+    "scripts/generate_phase06f_vectors.py": "96bd605091b0df78bbd1c4bb328cd8b80fb879a7ec8862e2e6980d9fea5d7106"
+  },
+  "phase": "PHASE-06F",
+  "status": "passed"
+}

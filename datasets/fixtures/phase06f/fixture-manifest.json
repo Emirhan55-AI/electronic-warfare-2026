@@ -1,0 +1,26 @@
+{
+  "external_source": {
+    "path": "datasets/fixtures/phase06d/cmodel-expected.mem",
+    "sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191"
+  },
+  "files": {
+    "edge-expected.mem": {
+      "bytes": 192,
+      "sha256": "1e9c8e51b9cadcf2ea896b8a3ac22810e5d124f58faf879b7b70891d0243125d"
+    },
+    "edge-input.mem": {
+      "bytes": 204,
+      "sha256": "4637dbc6cde8b2fcf21d4fbf37bf74849fa00821785337e0874b72d8628a5685"
+    },
+    "golden-vectors.json": {
+      "bytes": 2836,
+      "sha256": "5920ce76d5567f23fe7870a1697be8426cfad971e1bcf9f404ab05c5dccb3e59"
+    },
+    "real-power-expected.mem": {
+      "bytes": 720896,
+      "sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed"
+    }
+  },
+  "phase": "PHASE-06F",
+  "status": "passed"
+}

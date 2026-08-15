@@ -1,0 +1,16 @@
+{
+  "bitstream": "not_generated",
+  "deterministic_rerun": "passed",
+  "golden_equivalence": "passed",
+  "hardware": "not_exercised",
+  "live_hackrf": "not_exercised",
+  "overall": "passed",
+  "phase": "PHASE-06F",
+  "post_power_synthesis": "not_exercised",
+  "post_power_timing_100mhz": "not_reverified",
+  "psd": "not_implemented",
+  "python_model": "passed",
+  "regional_detector_rtl": "not_implemented",
+  "rtl_compile": "passed",
+  "rtl_simulation": "passed"
+}

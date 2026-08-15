@@ -1,0 +1,24 @@
+{
+  "component_integer_maximum": 268435455,
+  "component_integer_minimum": -268435456,
+  "fractional_bits": 30,
+  "input_format": "SQ14.15",
+  "mathematical_overflow": false,
+  "maximum_positive_square": 72057593501057025,
+  "minimum_negative_square": 72057594037927936,
+  "output_format": "UQ28.30",
+  "phase": "PHASE-06F",
+  "reachable_output_integer_range": [
+    0,
+    144115188075855872
+  ],
+  "rounding": "none",
+  "saturation": "none",
+  "single_square_minimum_unsigned_width": 57,
+  "square_width": 57,
+  "status": "passed",
+  "sum_minimum_unsigned_width": 58,
+  "sum_width": 58,
+  "truncation": "none",
+  "worst_case_exact_sum": 144115188075855872
+}

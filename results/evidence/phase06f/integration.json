@@ -1,0 +1,11 @@
+{
+  "frames": 11,
+  "input": "canonical normalized real PHASE-06D AMD FFT C-model/XSim-equivalent output",
+  "input_path": "datasets/fixtures/phase06d/cmodel-expected.mem",
+  "input_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191",
+  "mismatch_count": 0,
+  "phase": "PHASE-06F",
+  "power_output_sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed",
+  "samples": 45056,
+  "status": "passed"
+}

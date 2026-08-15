@@ -1,0 +1,112 @@
+{
+  "boundary_proof": {
+    "component_integer_maximum": 268435455,
+    "component_integer_minimum": -268435456,
+    "input_format": "SQ14.15",
+    "mathematical_overflow": false,
+    "maximum_positive_square": 72057593501057025,
+    "minimum_negative_square": 72057594037927936,
+    "output_format": "UQ28.30",
+    "rounding": "none",
+    "saturation": "none",
+    "single_square_minimum_unsigned_width": 57,
+    "sum_minimum_unsigned_width": 58,
+    "truncation": "none",
+    "worst_case_exact_sum": 144115188075855872
+  },
+  "edge_vectors": [
+    {
+      "i_integer": 0,
+      "id": "zero",
+      "power_integer": 0,
+      "q_integer": 0
+    },
+    {
+      "i_integer": 268435455,
+      "id": "i_max_positive",
+      "power_integer": 72057593501057025,
+      "q_integer": 0
+    },
+    {
+      "i_integer": -268435456,
+      "id": "i_min_negative",
+      "power_integer": 72057594037927936,
+      "q_integer": 0
+    },
+    {
+      "i_integer": 0,
+      "id": "q_max_positive",
+      "power_integer": 72057593501057025,
+      "q_integer": 268435455
+    },
+    {
+      "i_integer": 0,
+      "id": "q_min_negative",
+      "power_integer": 72057594037927936,
+      "q_integer": -268435456
+    },
+    {
+      "i_integer": 268435455,
+      "id": "both_max_positive",
+      "power_integer": 144115187002114050,
+      "q_integer": 268435455
+    },
+    {
+      "i_integer": -268435456,
+      "id": "both_min_negative",
+      "power_integer": 144115188075855872,
+      "q_integer": -268435456
+    },
+    {
+      "i_integer": -268435456,
+      "id": "mixed_extrema",
+      "power_integer": 144115187538984961,
+      "q_integer": 268435455
+    },
+    {
+      "i_integer": 1234567,
+      "id": "equal_positive",
+      "power_integer": 3048311354978,
+      "q_integer": 1234567
+    },
+    {
+      "i_integer": -1234567,
+      "id": "equal_negative",
+      "power_integer": 3048311354978,
+      "q_integer": -1234567
+    },
+    {
+      "i_integer": 1,
+      "id": "small_mixed",
+      "power_integer": 2,
+      "q_integer": -1
+    },
+    {
+      "i_integer": -2,
+      "id": "small_signed",
+      "power_integer": 13,
+      "q_integer": 3
+    }
+  ],
+  "equation": "P_int = I_int^2 + Q_int^2",
+  "input_format": "signed 29-bit SQ14.15 per component in sign-extended 32-bit lanes",
+  "output_format": "unsigned 58-bit UQ28.30",
+  "phase": "PHASE-06F",
+  "real_amd_fft": {
+    "frames": 11,
+    "includes": [
+      "zero",
+      "impulse",
+      "dc",
+      "exact_bin_tone",
+      "negative_frequency_tone",
+      "two_tone",
+      "representative_hann"
+    ],
+    "power_sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed",
+    "samples": 45056,
+    "source": "datasets/fixtures/phase06d/cmodel-expected.mem",
+    "source_sha256": "b2eddf029b6c712f6accd017aabcde482271817cb28246d7b90152a75c7ab191"
+  },
+  "status": "passed"
+}

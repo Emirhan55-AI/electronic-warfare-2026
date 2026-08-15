@@ -1,0 +1,12 @@
+{
+  "phase": "PHASE-06F",
+  "post_power_timing": "not_reverified",
+  "registered_stages": [
+    "operand",
+    "square",
+    "sum_output"
+  ],
+  "status": "passed",
+  "steady_state_samples_per_cycle": 1,
+  "unstalled_input_accept_to_output_valid_clock_intervals": 2
+}
