@@ -1,0 +1,15 @@
+{
+  "authoritative_model": "DetectionPipeline._group",
+  "compared_fields": [
+    "start_bin",
+    "end_bin",
+    "peak_bin",
+    "peak_power",
+    "local_noise_power",
+    "threshold_power"
+  ],
+  "field_mismatches": 0,
+  "phase": "PHASE-06H",
+  "status": "passed",
+  "synthetic_frames": 12
+}

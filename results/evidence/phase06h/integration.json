@@ -1,0 +1,10 @@
+{
+  "bit_true_mismatches": 0,
+  "frames": 1,
+  "phase": "PHASE-06H",
+  "source": "frozen PHASE-06G detector result derived from frozen real PHASE-06F Hann frame",
+  "status": "passed",
+  "vector_ids": [
+    "real_phase06g_representative_hann"
+  ]
+}

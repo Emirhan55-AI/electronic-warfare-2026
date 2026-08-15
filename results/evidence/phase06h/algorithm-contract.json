@@ -1,0 +1,14 @@
+{
+  "coarse_span": "end-start+1; not precise bandwidth",
+  "empty_axis_packet": "one candidate_valid=0 TLAST=1 sentinel",
+  "input_order": "PHASE-06G natural ascending",
+  "max_gap_bins": 1,
+  "maximum_index_delta_within_candidate": 2,
+  "output_order": "shifted ascending",
+  "peak_metadata": "exact power, regional noise and threshold from peak cell",
+  "peak_tie": "first maximum; lower shifted bin wins",
+  "phase": "PHASE-06H",
+  "source_of_truth": "reference/detection/pipeline.py DetectionPipeline._group",
+  "start_end": "first and last detected shifted bins, inclusive",
+  "status": "passed"
+}

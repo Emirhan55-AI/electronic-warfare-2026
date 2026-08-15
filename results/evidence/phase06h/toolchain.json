@@ -1,0 +1,12 @@
+{
+  "hardware": "not_exercised",
+  "implementation": "not_run",
+  "phase": "PHASE-06H",
+  "python": "3.13.7",
+  "rtl_language": "SystemVerilog",
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed",
+  "target_part": "xc7z020clg484-1",
+  "vivado": "2025.2",
+  "vivado_run": "real targeted synthesis-only"
+}

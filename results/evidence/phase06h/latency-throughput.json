@@ -1,0 +1,11 @@
+{
+  "candidate_ram_depth_per_half": 676,
+  "continuous_frame_support": false,
+  "frame_gap_required": true,
+  "input_collect_records_per_cycle": 1,
+  "last_input_to_first_output_clock_intervals": 9,
+  "maximum_candidates_per_frame": 1352,
+  "phase": "PHASE-06H",
+  "post_detector_timing_100mhz": "not_verified",
+  "status": "passed"
+}

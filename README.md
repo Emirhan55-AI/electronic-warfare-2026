@@ -16,11 +16,13 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-PHASE-04 parametre doğrulaması açık kalırken **PHASE-06G — PHASE-03 Bölgesel Detector RTL ve Sabit Nokta Sözleşmesi** uygulanmıştır. PHASE-06A–F SystemVerilog/AXI frame, sabit nokta Hann, gerçek AMD FFT, Vivado implementation ve exact 58 bit `I²+Q²` temelini kurmuştur; bu zincirde **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli** adı ve sınırı korunur. PHASE-06G, 16×256 shifted bölgede exact even medianı, sabit nokta noise/threshold'u ve strict detector kararını bağımsız Python modeli ile Icarus RTL arasında 20 frame/81.920 hücrede bit-exact doğrulamıştır. Gerçek FFT+power+detector top'un targeted Vivado synthesis sonucu 5.275 LUT, 7.957 FF, 21 BRAM tile ve 46 DSP'dir; cihaz kapasitesi aşılmamıştır. Bu sonuç implementation veya timing closure değildir. Bitstream üretilmemiş ve kart/hardware çalıştırılmamıştır. PHASE-00 repository temelini kurmuştur; PHASE-01 deterministik giriş fixture'ını, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını, PHASE-03 ise kayıtlı/sentetik I/Q için doğrulanmış `regional` detector profilini oluşturmuştur.
+PHASE-04 parametre doğrulaması açık kalırken **PHASE-06H — Tespit Hücresi Gruplama ve Aday Metadata RTL** uygulanmıştır. PHASE-06A–F SystemVerilog/AXI frame, sabit nokta Hann, gerçek AMD FFT, Vivado implementation ve exact 58 bit `I²+Q²` temelini; PHASE-06G exact bölgesel detectorü kurmuştur. PHASE-06H, `DetectionPipeline._group` davranışını shifted bin alanında kaba aday start/end/peak, exact peak power ve peak-region noise/threshold metadata'sına dönüştürür. Bağımsız Python modeli ile Icarus RTL 13 frame/1.773 AXI candidate record'da bit-exact doğrulanmış; standalone targeted Vivado synthesis 879 LUT, 251 FF, 6 BRAM tile ve 0 DSP kullanmıştır. Bu sonuç implementation veya timing closure değildir. Bitstream üretilmemiş ve kart/hardware çalıştırılmamıştır. PHASE-00 repository temelini kurmuştur; PHASE-01 deterministik giriş fixture'ını, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını, PHASE-03 ise kayıtlı/sentetik I/Q için doğrulanmış `regional` detector profilini oluşturmuştur.
 
 PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
 
-PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-06C'nin Icarus transport stub'ı matematiksel FFT değildir; gerçek FFT sonucu PHASE-06D vendor C-model/XSim kanıtına dayanır. PHASE-06E yalnız FFT top synthesis/place-route/timing/resource sonucudur; PHASE-06F exact lineer power, PHASE-06G exact bölgesel detector işlevsel RTL sonucudur. PHASE-06G resource koşusu synthesis-only'dir; post-detector 100 MHz timing **doğrulanmamıştır**. Cell grouping, temporal 2/3, parameter extraction RTL, bitstream veya kart üstü FPGA sonucu yoktur. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
+PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-06C'nin Icarus transport stub'ı matematiksel FFT değildir; gerçek FFT sonucu PHASE-06D vendor C-model/XSim kanıtına dayanır. PHASE-06E yalnız FFT top synthesis/place-route/timing/resource sonucudur; PHASE-06F exact lineer power, PHASE-06G exact bölgesel detector ve PHASE-06H coarse candidate grouping işlevsel RTL sonuçlarıdır. PHASE-06H resource koşusu standalone synthesis-only'dir; post-detector 100 MHz timing **doğrulanmamıştır**. Temporal 2/3, precise bandwidth/physical-frequency/PHASE-04 parameter extraction RTL, PL→PS entegrasyonu, bitstream veya kart üstü FPGA sonucu yoktur. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
+
+Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli**.
 
 ## Dizinler
 
@@ -32,6 +34,7 @@ PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik 
 - `rtl/phase06e/`: Gerçek wrapper/IP zinciri için synthesis top'u, 100 MHz logical-boundary XDC'si ve registered-ready AXI input slice testbench'i.
 - `rtl/phase06f/`: Signed 29 bit FFT I/Q alanlarından 58 bit unsigned exact lineer power üreten pipelined AXI4-Stream RTL ve self-checking Icarus testbench'i.
 - `rtl/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
+- `rtl/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
 - `reference/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
@@ -50,6 +53,7 @@ PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik 
 - `datasets/fixtures/phase06d/`: PHASE-06C girişlerini byte-değişmez devralan, negatif frekans tone ekleyen 11 frame ve AMD bit-accurate C-model tam kompleks sonucu.
 - `datasets/fixtures/phase06f/`: Power extrema vektörleri ve PHASE-06D gerçek FFT sonuçlarından exact integer power golden'ı; PSD normalization içermez.
 - `datasets/fixtures/phase06g/`: On beş sentetik detector frame'i ve beş frozen PHASE-06F gerçek-power frame'inden türetilen bit-exact detector giriş/çıkış vektörleri.
+- `datasets/fixtures/phase06h/`: On iki sentetik grouping frame'i ile bir frozen PHASE-06G gerçek-detector frame'inin bit-exact candidate giriş/çıkış vektörleri.
 - `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
 - `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector/parametre seçicileri ve gerçek UI renderer'ları.
 - `tests/`: Repository, SigMF, DSP, detector/parametre istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
@@ -67,6 +71,7 @@ PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik 
 - `results/evidence/phase06e/`: Vivado 2025.2 synthesis, routed implementation, timing, kaynak, warning sınıflandırması ve AXI boundary testinin normalized kanıtları; raw proje veya hardware kanıtı değildir.
 - `results/evidence/phase06f/`: Exact genişlik kanıtı, bağımsız Python sonucu, gerçek FFT entegrasyonu, Icarus AXI/latency ve determinism kanıtları; post-power timing veya hardware kanıtı değildir.
 - `results/evidence/phase06g/`: PHASE-03 matematik/median sözleşmesi, katsayı ve mimari çalışması, bit-exact Python/Icarus sonucu, gerçek-power entegrasyonu ve targeted synthesis-only resource fizibilitesi; post-detector timing veya hardware kanıtı değildir.
+- `results/evidence/phase06h/`: Authoritative grouping sözleşmesi, bit-exact Python/Icarus candidate sonucu, determinism, throughput ve standalone targeted synthesis-only resource fizibilitesi; implementation, timing veya hardware kanıtı değildir.
 - `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
 
 ## Doğrulama
@@ -88,6 +93,8 @@ python -B scripts/generate_phase06f_vectors.py --check
 python -B scripts/verify_phase06f.py --check
 python -B scripts/generate_phase06g_vectors.py --check
 python -B scripts/verify_phase06g.py --check
+python -B scripts/generate_phase06h_vectors.py --check
+python -B scripts/verify_phase06h.py --check
 python -B scripts/verify_ui_performance.py --check
 python -B -m unittest discover -s tests -v
 ```

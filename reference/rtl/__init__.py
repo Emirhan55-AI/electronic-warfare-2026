@@ -74,6 +74,16 @@ from .regional_detector import (
     regional_fixed_values,
     shifted_to_natural,
 )
+from .candidate_grouping import (
+    HALF_MAX_CANDIDATES,
+    MAX_CANDIDATES,
+    MAX_GAP_BINS,
+    AxisCandidateRecord,
+    CandidateRecord,
+    architecture_study as candidate_grouping_architecture_study,
+    axis_candidate_records,
+    group_detector_cells,
+)
 
 __all__ = [
     "ENERGY_WIDTH",
@@ -140,4 +150,12 @@ __all__ = [
     "natural_to_shifted",
     "regional_fixed_values",
     "shifted_to_natural",
+    "HALF_MAX_CANDIDATES",
+    "MAX_CANDIDATES",
+    "MAX_GAP_BINS",
+    "AxisCandidateRecord",
+    "CandidateRecord",
+    "candidate_grouping_architecture_study",
+    "axis_candidate_records",
+    "group_detector_cells",
 ]

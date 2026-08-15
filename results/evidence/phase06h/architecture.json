@@ -1,0 +1,15 @@
+{
+  "authoritative_order": "shifted ascending; low-half candidates precede high-half candidates",
+  "axis_empty_frame": "one candidate_valid=0 TLAST=1 sentinel",
+  "candidate_ram_depth_per_half": 676,
+  "continuous_input_while_outputting": false,
+  "input_order": "PHASE-06G natural ascending; shifted order is high half then low half",
+  "maximum_candidates_per_frame": 1352,
+  "maximum_derivation": "ceil(2028 evaluated bins / 3) per half for max_gap_bins=1",
+  "new_cell_frame_ram": false,
+  "phase": "PHASE-06H",
+  "selected": "natural-order single-pass grouping with two bounded half-frame candidate RAMs",
+  "semantic_empty_frame": "zero candidates",
+  "status": "passed",
+  "upstream_continuous_frame_support": false
+}

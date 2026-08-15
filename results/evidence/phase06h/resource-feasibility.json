@@ -1,0 +1,31 @@
+{
+  "candidate_ram_inference": "two 676x94 logical RAMs mapped to six RAMB36E1",
+  "device_capacity": {
+    "bram_tiles": 140.0,
+    "dsp": 220,
+    "ff": 106400,
+    "lut": 53200
+  },
+  "fabric_capacity_exceeded": false,
+  "hardware": "not_exercised",
+  "implementation": "not_run",
+  "phase": "PHASE-06H",
+  "post_route_timing": "not_verified",
+  "resources": {
+    "bram_tiles": 6.0,
+    "dsp": 0,
+    "ff": 251,
+    "lut": 879,
+    "utilization_percent": {
+      "bram_tiles": 4.29,
+      "dsp": 0.0,
+      "ff": 0.24,
+      "lut": 1.65
+    }
+  },
+  "run_type": "standalone candidate-grouping targeted synthesis-only feasibility",
+  "standalone_top_io": "abstract verification ports exceed package pins; not a physical integration top",
+  "status": "passed",
+  "target_part": "xc7z020clg484-1",
+  "tool": "Vivado 2025.2"
+}

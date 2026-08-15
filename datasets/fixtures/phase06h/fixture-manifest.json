@@ -1,0 +1,22 @@
+{
+  "files": {
+    "axis-detector-input.mem": {
+      "bytes": 3620864,
+      "sha256": "c4abed935b2f71fbc848b11938076f5b3b82598299947c621d2636b3013415b9"
+    },
+    "candidate-expected.mem": {
+      "bytes": 104607,
+      "sha256": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2"
+    },
+    "golden-vectors.json": {
+      "bytes": 452677,
+      "sha256": "a3acbfa85f51246a8a8a4f9c4580d93df7b6849f050edc353a664c7818f806b8"
+    }
+  },
+  "frozen_phase06g_source": {
+    "path": "datasets/fixtures/phase06g/detector-expected.mem",
+    "sha256": "f0461f9f2bf0e0119adc897cde447416931fd7a052bc90af609a5ac66f7ab4ce"
+  },
+  "phase": "PHASE-06H",
+  "status": "passed"
+}

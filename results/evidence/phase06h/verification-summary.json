@@ -1,0 +1,22 @@
+{
+  "authoritative_phase03_grouping": "passed",
+  "bitstream": "not_generated",
+  "continuous_pipeline": "not_supported",
+  "deterministic_rerun": "passed",
+  "golden_equivalence": "passed",
+  "hardware": "not_exercised",
+  "implementation": "not_run",
+  "live_hackrf": "not_exercised",
+  "overall": "passed",
+  "petalinux_ps_integration": "not_implemented",
+  "phase": "PHASE-06H",
+  "phase04_parameter_extraction_rtl": "not_implemented",
+  "physical_frequency_or_db": "not_implemented",
+  "post_detector_timing_100mhz": "not_verified",
+  "precise_bandwidth": "not_implemented",
+  "python_bit_true": "passed",
+  "resource_feasibility": "passed",
+  "rtl_compile": "passed",
+  "rtl_simulation": "passed",
+  "temporal_confirmation": "not_implemented"
+}

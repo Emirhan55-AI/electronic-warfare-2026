@@ -1,0 +1,29 @@
+{
+  "files": {
+    "datasets/fixtures/phase06h/axis-detector-input.mem": "c4abed935b2f71fbc848b11938076f5b3b82598299947c621d2636b3013415b9",
+    "datasets/fixtures/phase06h/candidate-expected.mem": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2",
+    "datasets/fixtures/phase06h/fixture-manifest.json": "3b044aa8c475cef60b253403a96eb23f37f6e00c984f93ea04e07ccb50c72912",
+    "datasets/fixtures/phase06h/golden-vectors.json": "a3acbfa85f51246a8a8a4f9c4580d93df7b6849f050edc353a664c7818f806b8",
+    "docs/decisions/ADR-0019-PHASE06H-CANDIDATE-GROUPING-BOUNDARY.md": "007dacfaab05b6e86ff0f167bfc294acee6bd9e58b121eb9a5f65e2307fda753",
+    "docs/interfaces/RTL_CANDIDATE_GROUPING_CONTRACT.md": "d41a64e1aded584cd93bee3672550a3db123cf86cc18d843e1b25aa4d02510a0",
+    "reference/rtl/candidate_grouping.py": "791b22f7151a5db98fdf397a33b1d7802eabcdd254dfd211497f4605384ad8ec",
+    "reference/rtl/candidate_vectors.py": "a18f9f003ffeb9f2a28ad461964179ba13b41e1667db6ca584ed104fca07b715",
+    "rtl/phase06h/rtl/axis_candidate_grouping.sv": "c2c4335c8f54410189782ae5bd8d2002112f71b2f667540f8483a0cdd97cef9d",
+    "rtl/phase06h/rtl/phase06h_candidate_ram.sv": "255c81155fb602cd66f96d30360f357ef449b704c463a0b11af9c9c9c767b944",
+    "rtl/phase06h/rtl/phase06h_candidate_synthesis_top.sv": "c3924a6c116e373df0eb561687952576dfff5faaf62ba2f8d943f709bb448f64",
+    "rtl/phase06h/rtl/phase06h_pkg.sv": "d536952c73e6a754d2671ab1970325aa4cc2b787380925cc409d2d8b7c299286",
+    "rtl/phase06h/tb/tb_axis_candidate_grouping.sv": "0df1295d73094c7f5a66f66d61daa6d46b81c2d0dd0f09aeb71a1d805dfd9179",
+    "scripts/generate_phase06h_vectors.py": "dd95b490d1a85663f2b498d09851c8da65835f3b9530e211ed43b49dc81560a5",
+    "scripts/run_phase06h_synthesis.tcl": "cac11165ba8b9947d7e531cf31be7b743a66406e24c3af82132c9a992f49f93b",
+    "scripts/verify_phase06h.py": "a678f9a8878d565b7b8e7209e4be637dc4e3687cdd2b4b84c0a35494593e81f8",
+    "tests/test_phase06h_model.py": "1aa6ad92feaaf64ed6c83e6a2b049253e3097f9ef753e59810ec3f0cfc2cf168",
+    "tests/test_phase06h_vectors.py": "7a0c2586cd191992d15377f878f7ecd4e4900803e4e1258f89afc8c61b5b437c",
+    "tests/test_phase06h_verifier.py": "647f5b2302659c64971c5df32ade553a13b415db5bd79435d747591d9a0b27a8"
+  },
+  "frozen_phase06g_source": {
+    "path": "datasets/fixtures/phase06g/detector-expected.mem",
+    "sha256": "f0461f9f2bf0e0119adc897cde447416931fd7a052bc90af609a5ac66f7ab4ce"
+  },
+  "phase": "PHASE-06H",
+  "status": "passed"
+}
