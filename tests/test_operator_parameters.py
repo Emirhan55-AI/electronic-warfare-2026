@@ -20,6 +20,7 @@ from reference.parameters.models import (
     SignalDomainEstimate,
 )
 from reference.pipeline import VerifiedProfileBinding, build_phase04_profile
+from qt_test_support import isolate_qt_module
 
 
 METHODS = {
@@ -108,6 +109,10 @@ class OperatorParameterTests(unittest.TestCase):
         self.window.spectrum_view.last_x_mhz = np.arange(4096, dtype=np.float64)
         self.window.spectrum_view._update_parameter_overlay(result)
         self.assertFalse(self.window.spectrum_view.parameter_overlay.isVisible())
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":

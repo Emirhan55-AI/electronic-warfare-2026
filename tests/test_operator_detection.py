@@ -12,6 +12,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from host.operator_console.application import build_application  # noqa: E402
+from qt_test_support import isolate_qt_module  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,6 +82,10 @@ class OperatorDetectionTests(unittest.TestCase):
             self.assertLessEqual(len(self.controller.last_detection.active_events), 64)
             self.assertLessEqual(len(self.controller.last_detection.ended_history), 128)
         self.assertLessEqual(self.window.detection_list.count(), 12)
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":

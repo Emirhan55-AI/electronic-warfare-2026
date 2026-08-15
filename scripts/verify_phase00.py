@@ -592,6 +592,13 @@ APPROVED_PHASE06I_FILES = (
     "tests/test_phase06i_verifier.py",
 )
 
+APPROVED_TEST_INFRASTRUCTURE_FILES = (
+    "docs/testing/QT_NATIVE_TEST_POLICY.md",
+    "scripts/verify_qt_lifecycle.py",
+    "tests/qt_test_support.py",
+    "tests/test_qt_test_support.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -655,6 +662,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06G_FILES)
         | set(APPROVED_PHASE06H_FILES)
         | set(APPROVED_PHASE06I_FILES)
+        | set(APPROVED_TEST_INFRASTRUCTURE_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -787,7 +795,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets", "ps")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

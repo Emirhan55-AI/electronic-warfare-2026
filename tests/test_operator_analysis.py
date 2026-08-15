@@ -18,6 +18,7 @@ from host.operator_console.main_window import MainWindow
 from reference.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent
 from reference.parameters.scenes import generate_parameter_scene
 from reference.spectrum import SpectrumProcessor
+from qt_test_support import dispose_qt_fixture, isolate_qt_module
 
 
 class OperatorAnalysisTests(unittest.TestCase):
@@ -117,6 +118,13 @@ class OperatorAnalysisTests(unittest.TestCase):
         heartbeat = QTimer()
         heartbeat.setInterval(5)
         heartbeat.timeout.connect(lambda: heartbeats.append(1))
+        self.addCleanup(
+            dispose_qt_fixture,
+            app,
+            controller=controller,
+            window=window,
+            timers=(heartbeat,),
+        )
         heartbeat.start()
         self.assertTrue(controller.request_measurement())
         self.assertTrue(controller.request_measurement())
@@ -131,8 +139,10 @@ class OperatorAnalysisTests(unittest.TestCase):
         self.assertEqual(1, controller.max_pending_intents)
         self.assertEqual(0, controller.active_task_count)
         self.assertEqual(0, controller.pending_intent_count)
-        controller.close()
-        window.close()
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":

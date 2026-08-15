@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QApplication, QScrollArea
 from host.operator_console.application import build_application
 from host.operator_console.audio_playback import AudioPlayback
 from host.operator_console.ui_text import TEXT
+from qt_test_support import isolate_qt_module
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,6 +117,10 @@ class OperatorListeningTests(unittest.TestCase):
         self.assertTrue(scroll.widgetResizable())
         controller.close()
         window.close()
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":

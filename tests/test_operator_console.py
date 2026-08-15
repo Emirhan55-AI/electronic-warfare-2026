@@ -25,6 +25,7 @@ from host.operator_console.main_window import MainWindow  # noqa: E402
 from host.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
 from reference.spectrum import SigMFFrameSource  # noqa: E402
 from reference.pipeline import ResolvedOperationProfile, load_profile  # noqa: E402
+from qt_test_support import isolate_qt_module  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -386,6 +387,10 @@ class OperatorConsoleTests(unittest.TestCase):
             required = label.fontMetrics().horizontalAdvance(label.text())
             self.assertLessEqual(required, label.contentsRect().width() + 2, label.text())
         self.window.resize(1440, 900)
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":

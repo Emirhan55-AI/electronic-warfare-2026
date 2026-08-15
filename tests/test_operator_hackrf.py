@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 from host.acquisition import DeterministicMockBackend, RealHackRFBackend
 from host.operator_console.application import build_application
 from host.operator_console.ui_text import TEXT
+from qt_test_support import isolate_qt_module
 
 
 class OperatorHackRFTests(unittest.TestCase):
@@ -101,6 +102,10 @@ class OperatorHackRFTests(unittest.TestCase):
             text = (root / relative).read_text(encoding="utf-8")
             self.assertNotIn("import subprocess", text)
             self.assertNotIn("subprocess.", text)
+
+
+def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:
+    return isolate_qt_module(__name__, tests)
 
 
 if __name__ == "__main__":
