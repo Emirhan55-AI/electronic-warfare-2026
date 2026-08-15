@@ -1,0 +1,109 @@
+{
+  "fft_ip_post_route": {
+    "distributed_ram_luts": 47,
+    "dsp48": 30,
+    "flip_flops": 7167,
+    "lut_as_logic": 2664,
+    "ramb18": 27,
+    "ramb36": 1,
+    "shift_register_luts": 1082,
+    "slice_luts": 3793
+  },
+  "phase": "PHASE-06E",
+  "post_route": {
+    "block_ram_tiles": {
+      "available": 140,
+      "used": 14.5,
+      "utilization_percent": 10.36
+    },
+    "bufg": {
+      "available": 32,
+      "used": 1,
+      "utilization_percent": 3.13
+    },
+    "dsp48": {
+      "available": 220,
+      "used": 30,
+      "utilization_percent": 13.64
+    },
+    "flip_flops": {
+      "available": 106400,
+      "used": 7278,
+      "utilization_percent": 6.84
+    },
+    "lut_as_logic": {
+      "available": 53200,
+      "used": 2715,
+      "utilization_percent": 5.1
+    },
+    "lutram": {
+      "available": 17400,
+      "used": 1129,
+      "utilization_percent": 6.49
+    },
+    "ramb18": {
+      "available": 280,
+      "used": 27,
+      "utilization_percent": 9.64
+    },
+    "ramb36": {
+      "available": 140,
+      "used": 1,
+      "utilization_percent": 0.71
+    },
+    "slice_luts": {
+      "available": 53200,
+      "used": 3844,
+      "utilization_percent": 7.23
+    }
+  },
+  "post_synthesis": {
+    "block_ram_tiles": {
+      "available": 140,
+      "used": 14.5,
+      "utilization_percent": 10.36
+    },
+    "bufg": {
+      "available": 32,
+      "used": 1,
+      "utilization_percent": 3.13
+    },
+    "dsp48": {
+      "available": 220,
+      "used": 30,
+      "utilization_percent": 13.64
+    },
+    "flip_flops": {
+      "available": 106400,
+      "used": 7385,
+      "utilization_percent": 6.94
+    },
+    "lut_as_logic": {
+      "available": 53200,
+      "used": 2764,
+      "utilization_percent": 5.2
+    },
+    "lutram": {
+      "available": 17400,
+      "used": 1294,
+      "utilization_percent": 7.44
+    },
+    "ramb18": {
+      "available": 280,
+      "used": 27,
+      "utilization_percent": 9.64
+    },
+    "ramb36": {
+      "available": 140,
+      "used": 1,
+      "utilization_percent": 0.71
+    },
+    "slice_luts": {
+      "available": 53200,
+      "used": 4058,
+      "utilization_percent": 7.63
+    }
+  },
+  "status": "passed",
+  "target_part": "xc7z020clg484-1"
+}

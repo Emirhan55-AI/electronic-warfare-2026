@@ -1,0 +1,17 @@
+{
+  "files": {
+    "docs/decisions/ADR-0015-PHASE06E-VIVADO-IMPLEMENTATION-GATE.md": "00c9bb0b4978e4ae2534dfff318247a1de8e22f4eecebbb0b4ee3718b336e90f",
+    "docs/interfaces/RTL_VIVADO_IMPLEMENTATION_CONTRACT.md": "3c51f7855eca98a5c69bf96ae154e969370077caaa83cd5d0d7da4f48b1a1306",
+    "rtl/phase06a/rtl/axis_skid_buffer.sv": "b96dde6d5a415fd3ed428a0b7e09d60441ac09c1708d2c6c44fb42a566de66d9",
+    "rtl/phase06c/rtl/axis_fft_wrapper.sv": "30e08fb10d2705daa1b64685087839dbe3b6c4343448080def5baae340600c5e",
+    "rtl/phase06c/rtl/phase06c_pkg.sv": "f3150511107c4a7f2b568cdb3a83ef7a5100a295144e94d6975b221278c6b24e",
+    "rtl/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci": "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4",
+    "rtl/phase06d/rtl/amd_xfft_adapter.sv": "20db16f85679aad817b771b7e2172143ec4ef3895e383b87362e6046399f6216",
+    "rtl/phase06e/constraints/phase06e_fft_100mhz.xdc": "0d0bddd4b747c7a3b1ba25dd69de759347880150f5695733d40cd59095f20aee",
+    "rtl/phase06e/rtl/phase06e_fft_implementation_top.sv": "f33e94c0d80fdb27a45d0e2e7e51a5d7d414feccb8d28cda65ae86ced6da2a31",
+    "rtl/phase06e/tb/tb_phase06e_axis_input_register_slice.sv": "11b0c588a780e7a887899544eb8c44966ce538cc9ac67ed2aaccd19b08f89c7f",
+    "scripts/run_phase06e_vivado.tcl": "048d7596e33d8dbf948da4dfda572c16794053ecf2b13288876b68b5c119f1a4"
+  },
+  "phase": "PHASE-06E",
+  "status": "passed"
+}

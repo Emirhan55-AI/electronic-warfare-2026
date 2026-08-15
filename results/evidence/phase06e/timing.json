@@ -1,0 +1,22 @@
+{
+  "cdc_paths": 0,
+  "generated_clocks": 0,
+  "hold": {
+    "failing_endpoints": 0,
+    "ths_ns": 0.0,
+    "total_endpoints": 22812,
+    "whs_ns": 0.05
+  },
+  "period_ns": 10.0,
+  "phase": "PHASE-06E",
+  "primary_clocks": 1,
+  "project_clock_mhz": 100,
+  "setup": {
+    "failing_endpoints": 0,
+    "tns_ns": 0.0,
+    "total_endpoints": 22812,
+    "wns_ns": 0.037
+  },
+  "status": "passed",
+  "unconstrained_or_incomplete_constraint_checks": 0
+}

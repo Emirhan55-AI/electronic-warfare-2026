@@ -1,0 +1,11 @@
+{
+  "ip_build": 6300035,
+  "ip_revision": 15,
+  "ip_vlnv": "xilinx.com:ip:xfft:9.1",
+  "phase": "PHASE-06E",
+  "software_build": 6299465,
+  "status": "passed",
+  "target_part": "xc7z020clg484-1",
+  "tool": "Vivado",
+  "version": "2025.2"
+}

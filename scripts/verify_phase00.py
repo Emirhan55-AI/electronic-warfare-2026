@@ -443,6 +443,26 @@ APPROVED_PHASE06D_FILES = APPROVED_PHASE06D_PLANNING_FILES + (
     "tests/test_phase06d_verifier.py",
 )
 
+APPROVED_PHASE06E_FILES = (
+    "docs/decisions/ADR-0015-PHASE06E-VIVADO-IMPLEMENTATION-GATE.md",
+    "docs/interfaces/RTL_VIVADO_IMPLEMENTATION_CONTRACT.md",
+    "results/evidence/phase06e/implementation.json",
+    "results/evidence/phase06e/resource-utilization.json",
+    "results/evidence/phase06e/rtl-boundary-test.json",
+    "results/evidence/phase06e/source-manifest.json",
+    "results/evidence/phase06e/synthesis.json",
+    "results/evidence/phase06e/timing.json",
+    "results/evidence/phase06e/toolchain.json",
+    "results/evidence/phase06e/verification-summary.json",
+    "results/evidence/phase06e/warnings.json",
+    "rtl/phase06e/constraints/phase06e_fft_100mhz.xdc",
+    "rtl/phase06e/rtl/phase06e_fft_implementation_top.sv",
+    "rtl/phase06e/tb/tb_phase06e_axis_input_register_slice.sv",
+    "scripts/run_phase06e_vivado.tcl",
+    "scripts/verify_phase06e.py",
+    "tests/test_phase06e_verifier.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -501,6 +521,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06B_FILES)
         | set(APPROVED_PHASE06C_FILES)
         | set(APPROVED_PHASE06D_FILES)
+        | set(APPROVED_PHASE06E_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -633,7 +654,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

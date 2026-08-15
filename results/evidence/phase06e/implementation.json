@@ -1,0 +1,43 @@
+{
+  "iterations": [
+    {
+      "change": "initial_default_flow",
+      "id": "implementation1",
+      "setup_failing_endpoints": 1,
+      "status": "failed",
+      "tns_ns": -0.573,
+      "wns_ns": -0.573
+    },
+    {
+      "change": "performance_strategies",
+      "id": "implementation2",
+      "setup_failing_endpoints": 1,
+      "status": "failed",
+      "tns_ns": -0.444,
+      "wns_ns": -0.444
+    },
+    {
+      "change": "registered_ready_input_slice",
+      "id": "implementation3",
+      "setup_failing_endpoints": 5,
+      "status": "failed",
+      "tns_ns": -0.064,
+      "wns_ns": -0.02
+    },
+    {
+      "change": "existing_output_registers_packed_into_iob",
+      "id": "implementation4",
+      "setup_failing_endpoints": 0,
+      "status": "passed",
+      "tns_ns": 0.0,
+      "wns_ns": 0.037
+    }
+  ],
+  "phase": "PHASE-06E",
+  "route": {
+    "fully_routed_nets": 10093,
+    "routable_nets": 10093,
+    "routing_errors": 0
+  },
+  "status": "passed"
+}

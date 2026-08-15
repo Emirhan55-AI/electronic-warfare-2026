@@ -1,0 +1,16 @@
+{
+  "build_location": "external_temporary_directory",
+  "checked_transfers": 20,
+  "compile": "passed",
+  "phase": "PHASE-06E",
+  "scenarios": [
+    "reset",
+    "enable_gate",
+    "backpressure",
+    "payload_stability",
+    "tlast",
+    "consecutive_transfers"
+  ],
+  "simulation": "passed",
+  "status": "passed"
+}

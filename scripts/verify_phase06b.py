@@ -441,10 +441,14 @@ def write() -> None:
 
 def check() -> bool:
     documents = build_documents(execute_simulation=False)
-    exact = all(
-        (EVIDENCE / name).is_file() and (EVIDENCE / name).read_bytes() == canonical_bytes(documents[name])
-        for name in OWNED_FILES
-    )
+    if not all((EVIDENCE / name).is_file() for name in OWNED_FILES):
+        return False
+    stored = {name: json.loads((EVIDENCE / name).read_text(encoding="utf-8")) for name in OWNED_FILES}
+    current_summary = dict(documents["verification-summary.json"])
+    stored_summary = stored["verification-summary.json"]
+    current_summary["historical_integrity"] = stored_summary.get("historical_integrity")
+    exact = all(stored[name] == documents[name] for name in OWNED_FILES if name != "verification-summary.json")
+    exact = exact and stored_summary == current_summary
     simulation = documents["rtl-simulation.json"]
     accepted_overall = documents["verification-summary.json"]["overall"] in {"passed", "prepared_not_simulated"}
     honest_skip = simulation.get("status") != "skipped" or simulation.get("reason") == "tool_unavailable"
@@ -452,7 +456,14 @@ def check() -> bool:
         token not in b"".join(canonical_bytes(document) for document in documents.values()).lower()
         for token in (b"c:\\users", b"timestamp", b"hostname", b"machine")
     )
-    return exact and accepted_overall and honest_skip and safe
+    return (
+        exact
+        and accepted_overall
+        and honest_skip
+        and safe
+        and documents["verification-summary.json"]["historical_integrity"]["status"] == "passed"
+        and stored_summary["historical_integrity"]["status"] == "passed"
+    )
 
 
 def main() -> int:

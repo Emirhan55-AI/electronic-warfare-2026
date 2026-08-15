@@ -1,0 +1,16 @@
+{
+  "bitstream": "not_generated",
+  "hardware": "not_exercised",
+  "implementation": "passed",
+  "linear_power": "not_implemented",
+  "live_hackrf": "not_exercised",
+  "overall": "passed",
+  "phase": "PHASE-06E",
+  "power_analysis": "not_exercised",
+  "psd": "not_implemented",
+  "regional_detector_rtl": "not_implemented",
+  "resource_utilization": "passed",
+  "rtl_boundary_simulation": "passed",
+  "synthesis": "passed",
+  "timing": "passed"
+}

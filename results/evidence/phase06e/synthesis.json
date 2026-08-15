@@ -1,0 +1,6 @@
+{
+  "phase": "PHASE-06E",
+  "real_generated_amd_fft_ip": true,
+  "status": "passed",
+  "top": "phase06e_fft_implementation_top"
+}

@@ -1,0 +1,43 @@
+{
+  "blocking_critical_warnings": 0,
+  "blocking_errors": 0,
+  "classifications": [
+    {
+      "classification": "needs_explanation",
+      "count": 1,
+      "id": "NSTD-1",
+      "reason": "Pre-board logical top intentionally has no IOSTANDARD assignments; no bitstream or hardware claim is made.",
+      "severity": "critical_warning"
+    },
+    {
+      "classification": "needs_explanation",
+      "count": 1,
+      "id": "UCIO-1",
+      "reason": "Pre-board logical top intentionally has no package-pin LOC assignments; no bitstream or hardware claim is made.",
+      "severity": "critical_warning"
+    },
+    {
+      "classification": "needs_explanation",
+      "count": 1,
+      "id": "ZPS7-1",
+      "reason": "The minimal PL-only implementation top intentionally excludes the Zynq processing system.",
+      "severity": "warning"
+    },
+    {
+      "classification": "needs_explanation",
+      "count": 122,
+      "id": "XDCH-2",
+      "reason": "Frozen pre-board logical boundary applies identical zero-nanosecond minimum and maximum I/O delays.",
+      "severity": "warning"
+    },
+    {
+      "classification": "benign",
+      "count": 2,
+      "id": "IP_Flow-19-982",
+      "reason": "Vivado reports vendor parameter display ordering while importing the verified XCI; the XCI hash and generated core identity remain fixed.",
+      "severity": "warning"
+    }
+  ],
+  "phase": "PHASE-06E",
+  "status": "passed"
+}

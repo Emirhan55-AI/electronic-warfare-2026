@@ -35,6 +35,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE06B_FILES)
             | set(VERIFY.APPROVED_PHASE06C_FILES)
             | set(VERIFY.APPROVED_PHASE06D_FILES)
+            | set(VERIFY.APPROVED_PHASE06E_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -50,6 +51,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(26, len(VERIFY.APPROVED_PHASE06C_FILES))
         self.assertEqual(2, len(VERIFY.APPROVED_PHASE06D_PLANNING_FILES))
         self.assertEqual(30, len(VERIFY.APPROVED_PHASE06D_FILES))
+        self.assertEqual(17, len(VERIFY.APPROVED_PHASE06E_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -105,6 +107,8 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06c/tb/tb_axis_fft_wrapper.sv",
                 "rtl/phase06d/rtl/amd_xfft_adapter.sv",
                 "rtl/phase06d/tb/tb_phase06d_fft_vendor.sv",
+                "rtl/phase06e/rtl/phase06e_fft_implementation_top.sv",
+                "rtl/phase06e/tb/tb_phase06e_axis_input_register_slice.sv",
             },
             {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
         )
