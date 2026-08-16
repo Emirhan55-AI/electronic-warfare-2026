@@ -624,6 +624,53 @@ APPROVED_PHASE06J_FILES = (
     "tests/test_phase06j_verifier.py",
 )
 
+APPROVED_P0_FILES = (
+    "datasets/fixtures/p0/README.md",
+    "docs/architecture/P0_SYSTEM_ARCHITECTURE.md",
+    "docs/architecture/P0_THROUGHPUT.md",
+    "docs/decisions/ADR-0022-P0-MANDATORY-EH-CORE.md",
+    "docs/interfaces/P0_FPGA_RUNTIME_CONTRACT.md",
+    "docs/interfaces/P0_PC_ZEDBOARD_IQ_TRANSPORT.md",
+    "docs/requirements/P0_REQUIREMENT_MATRIX.md",
+    "docs/testing/P0_USER_DEMO.md",
+    "host/acquisition/rx_sources.py",
+    "ps/p0/include/p0_os_cfar.h",
+    "ps/p0/src/p0_os_cfar.c",
+    "reference/et/__init__.py",
+    "reference/et/deception.py",
+    "reference/et/mission.py",
+    "reference/et/waveforms.py",
+    "reference/p0/__init__.py",
+    "reference/p0/detection.py",
+    "reference/p0/df.py",
+    "reference/p0/fixtures.py",
+    "reference/p0/models.py",
+    "reference/p0/parameters.py",
+    "reference/p0/temporal.py",
+    "reference/p0/transport.py",
+    "results/evidence/p0/closure.json",
+    "results/evidence/p0/df-golden.json",
+    "results/evidence/p0/et-golden.json",
+    "results/evidence/p0/parameter-golden.json",
+    "results/evidence/p0/vivado-100mhz-attempt.json",
+    "results/evidence/p0/vivado-50mhz.json",
+    "rtl/p0/rtl/p0_dsp_runtime_bd.v",
+    "rtl/p0/rtl/p0_dsp_runtime_top.sv",
+    "scripts/create_p0_vivado_project.tcl",
+    "scripts/run_p0_demo.py",
+    "scripts/run_p0_vivado.tcl",
+    "scripts/verify_p0_algorithms.py",
+    "scripts/verify_p0_df.py",
+    "scripts/verify_p0_et.py",
+    "scripts/verify_p0_os_cfar.py",
+    "tests/test_p0_detection_parameters.py",
+    "tests/test_p0_df.py",
+    "tests/test_p0_et.py",
+    "tests/test_p0_operator.py",
+    "tests/test_p0_rx_sources.py",
+    "tests/test_p0_transport.py",
+)
+
 EXPECTED_TOOLS = (
     "Git",
     "Python",
@@ -659,12 +706,17 @@ def check_required_files() -> dict[str, object]:
 
 def _repository_files() -> set[str]:
     files: set[str] = set()
-    skipped_directories = {".git", "__pycache__", ".pytest_cache"}
+    skipped_directories = {
+        ".git", ".pytest_cache", ".venv", ".Xil", "__pycache__",
+        "build", "dist", "venv", "xsim.dir",
+    }
+    skipped_names = {"dfx_runtime.txt"}
+    skipped_suffixes = {".fst", ".jou", ".log", ".pyc", ".pyo", ".str", ".vcd", ".wdb"}
     for path in ROOT.rglob("*"):
         relative_parts = path.relative_to(ROOT).parts
         if any(part in skipped_directories for part in relative_parts):
             continue
-        if path.is_file() and path.suffix not in {".pyc", ".pyo"}:
+        if path.is_file() and path.name not in skipped_names and path.suffix not in skipped_suffixes:
             files.add(path.relative_to(ROOT).as_posix())
     return files
 
@@ -689,6 +741,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06I_FILES)
         | set(APPROVED_TEST_INFRASTRUCTURE_FILES)
         | set(APPROVED_PHASE06J_FILES)
+        | set(APPROVED_P0_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -770,7 +823,7 @@ def check_roadmap() -> dict[str, object]:
     phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(14)]
     ordered = all(position >= 0 for position in phase_positions) and phase_positions == sorted(phase_positions)
     baseline_present = "| PHASE-00 | Repository ve mühendislik temeli |" in text
-    current_phase_present = "**Mevcut ana açık fazlar: PHASE-04 ve PHASE-06**" in text
+    current_phase_present = "**P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06**" in text
     return _result(
         "phase-roadmap",
         ordered and baseline_present and current_phase_present,
@@ -821,7 +874,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets", "ps")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",

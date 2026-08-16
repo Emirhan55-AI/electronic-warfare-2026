@@ -87,8 +87,8 @@ TEXT = {
     "warning_default_channel": "Kanal sayısı metadata'da yok; SigMF varsayılanı olan tek kanal kullanılıyor.",
     "warning_nonstandard_name": "Metadata standart SigMF uzantısını kullanmıyor; data dosyası açıkça seçildi.",
     "warning_partial_frame": "Eksik son çerçeve işleme dışında bırakıldı.",
-    "operation_workspace": "Operasyon",
-    "analysis_workspace": "Sinyal Analizi",
+    "operation_workspace": "GÖREV · SPEKTRUM · WATERFALL · TESPİTLER",
+    "analysis_workspace": "PARAMETRELER",
     "listening_workspace": "Dinleme",
     "listening_select_event": "Dinleme için doğrulanmış bir olay seçin.",
     "demodulation": "Demodülasyon",
@@ -170,6 +170,10 @@ TEXT = {
     "vga_gain": "Baseband/VGA (dB)",
     "deterministic_source_active": "Deterministik test kaynağı etkin; canlı RF değildir.",
     "hackrf_cli_error": "HackRF aracı kontrollü bir hatayla sonlandı.",
+    "direction_finding_workspace": "YÖN BULMA",
+    "system_status_workspace": "SİSTEM DURUMU",
+    "et_workspace": "ET · KONTROLLÜ TEST",
+    "calibration_pending": "KALİBRASYON BEKLİYOR",
 }
 
 

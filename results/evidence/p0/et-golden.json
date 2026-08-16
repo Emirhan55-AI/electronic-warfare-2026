@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "waveforms": [
+    {"family": "single", "expected_offsets_hz": [4000.0], "measured_offsets_hz": [4000.0], "peak_magnitude": 0.7, "rms_magnitude": 0.6999999999999998, "status": "passed"},
+    {"family": "multiple", "expected_offsets_hz": [-8000.0, 0.0, 8000.0], "measured_offsets_hz": [-8000.0, 0.0, 8000.0], "peak_magnitude": 0.7, "rms_magnitude": 0.4041451884327383, "status": "passed"},
+    {"family": "barrage", "spectral_flatness": 0.5606726297064485, "minimum_flatness": 0.5, "peak_magnitude": 0.7000000000000001, "rms_magnitude": 0.2429335847016773, "status": "passed"}
+  ],
+  "analog_deception": [
+    {"mode": "FM", "loopback_correlation": 0.9999999999999999, "minimum_correlation": 0.999, "peak_magnitude": 0.7000000000000002, "duration_seconds": 0.25, "status": "passed"},
+    {"mode": "NFM", "loopback_correlation": 1.0, "minimum_correlation": 0.999, "peak_magnitude": 0.7000000000000002, "duration_seconds": 0.25, "status": "passed"}
+  ],
+  "safety": {"hardware_tx_locked": true, "emergency_stop_latched": true, "real_tx_backend": "not_implemented", "status": "passed"},
+  "claim_boundary": "Offline complex baseband and local loopback only; no RF transmission or RF power claim."
+}

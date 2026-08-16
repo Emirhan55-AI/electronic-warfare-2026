@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QApplication
 from host.operator_console.controller import MeasurementTask
 from host.operator_console.application import build_application
 from host.operator_console.main_window import MainWindow
+from host.operator_console.ui_text import TEXT
 from reference.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent
 from reference.parameters.scenes import generate_parameter_scene
 from reference.spectrum import SpectrumProcessor
@@ -34,10 +35,16 @@ class OperatorAnalysisTests(unittest.TestCase):
 
     def test_workspaces_and_scrollable_panels_exist(self) -> None:
         window = MainWindow()
-        self.assertEqual(window.workspace_tabs.count(), 3)
-        self.assertEqual(window.workspace_tabs.tabText(0), "Operasyon")
-        self.assertEqual(window.workspace_tabs.tabText(1), "Sinyal Analizi")
-        self.assertEqual(window.workspace_tabs.tabText(2), "Dinleme")
+        expected = (
+            TEXT["operation_workspace"],
+            TEXT["analysis_workspace"],
+            TEXT["listening_workspace"],
+            TEXT["direction_finding_workspace"],
+            TEXT["system_status_workspace"],
+            TEXT["et_workspace"],
+        )
+        self.assertEqual(window.workspace_tabs.count(), len(expected))
+        self.assertEqual(tuple(window.workspace_tabs.tabText(index) for index in range(len(expected))), expected)
         self.assertTrue(window.findChild(type(window.workspace_tabs), "workspaceTabs") is not None)
         window.close()
 

@@ -25,7 +25,22 @@ ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla ba
 
 KTR yarışma görevlerinin kaynağı olarak korunur; eski donanımın teknik performans hedefleri bağlayıcı değildir. Referans mimari 2× HackRF One, ZedBoard ve laptoptur.
 
-**Mevcut ana açık fazlar: PHASE-04 ve PHASE-06**
+## Kullanıcı onaylı P0 hızlı kontrol noktası
+
+Yol haritası fazları yeniden sıralanmadan, kullanıcı onayıyla zorunlu yarışma
+çekirdeği tek bir `P0 Mandatory EH Core` kontrol noktasında öne alınmıştır. P0;
+KTR uyumlu OS-CFAR/parametre/manuel genlik DF host kanıtını, Zynq PS↔AXI
+DMA↔Hann/FFT/güç Vivado mimarisini, görev odaklı operatör bağlarını ve yalnız
+OFFLINE/LOOPBACK sürekli karıştırma ile analog FM/NFM aldatma taban bantlarını
+tamamlar. PHASE-06A–J değiştirilmemiştir; konum, look-through ve GPS L1 P1'e
+geçilmeden bekler.
+
+Vivado 2025.2'de 50 MHz P0 tasarımı sentez, route, timing ve bitstream kapılarını
+geçmiştir. PetaLinux/ARM, canlı ZedBoard DMA, canlı HackRF ve RF TX
+çalıştırılmamıştır. Bu kontrol noktası sonraki faz için otomatik kullanıcı onayı
+oluşturmaz.
+
+**P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06**
 
 PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini doğrulamıştır; bu sonuç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. PHASE-06A–J tamamlanmış ve dondurulmuştur. PHASE-06J, PHASE-06I ABI v1 packet'ını strict tüketen bounded portable C11 PS temporal çekirdeğini host compile/link ve Python golden eşdeğerliğiyle doğrulamıştır. PetaLinux/ARM, gerçek DMA/driver/device tree, fiziksel birim dönüşümü, post-detector timing ve hardware sonucu değildir. Gerçek canlı HackRF dinleme, PHASE-07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.
 

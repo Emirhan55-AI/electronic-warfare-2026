@@ -1,0 +1,20 @@
+{
+  "tool": "Vivado v2025.2",
+  "target": "xc7z020clg484-1",
+  "clock_hz": 100000000,
+  "block_design_validation": "PASS",
+  "synthesis": "PASS",
+  "implementation": "ROUTED_FAILED_TIMING",
+  "route_failed_nets": 0,
+  "setup_wns_ns": -6.541,
+  "setup_tns_ns": -507.301,
+  "setup_failing_endpoints": 704,
+  "hold_whs_ns": 0.012,
+  "hold_failing_endpoints": 0,
+  "slice_luts": 7438,
+  "slice_registers": 10915,
+  "block_ram_tiles": 17,
+  "dsps": 40,
+  "bitstream": "NOT_ATTEMPTED_TIMING_FAILED",
+  "evidence_scope": "LOCAL_TOOL_RUN_NOT_ZEDBOARD_EXECUTION"
+}

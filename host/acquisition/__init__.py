@@ -33,3 +33,6 @@ __all__ = [
     "decode_ci8",
     "parse_sweep_fixture",
 ]
+from .rx_sources import HackRFHostRxSource, NormalizedIQFrame, ReplayRxSource, RxSource
+
+__all__ += ["HackRFHostRxSource", "NormalizedIQFrame", "ReplayRxSource", "RxSource"]

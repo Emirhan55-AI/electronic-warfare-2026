@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "algorithm": "raw amplitude argmax; no interpolation",
+  "scenes": [
+    {"fixture": "clear-single-maximum", "ground_truth_deg": 60.0, "estimated_deg": 60.0, "angular_error_deg": 0.0, "confidence": 0.7916666666666666, "df_status": "LOB HAZIR", "status": "passed"},
+    {"fixture": "flat-noisy-pattern", "ground_truth_deg": null, "estimated_deg": 180.0, "angular_error_deg": null, "confidence": 0.004444444444444508, "df_status": "BELİRSİZ MAKSİMUM", "status": "passed"},
+    {"fixture": "two-close-maxima", "ground_truth_deg": 45.0, "estimated_deg": 45.0, "angular_error_deg": 0.0, "confidence": 0.03333333333333322, "df_status": "BELİRSİZ MAKSİMUM", "status": "passed"},
+    {"fixture": "low-snr", "ground_truth_deg": 120.0, "estimated_deg": 120.0, "angular_error_deg": 0.0, "confidence": 0.04166666666666667, "df_status": "BELİRSİZ MAKSİMUM", "status": "passed"},
+    {"fixture": "missing-truth-angle", "ground_truth_deg": 180.0, "estimated_deg": 150.0, "angular_error_deg": 30.0, "confidence": 0.0777777777777779, "df_status": "BELİRSİZ MAKSİMUM", "status": "passed"},
+    {"fixture": "duplicate-angle", "ground_truth_deg": 270.0, "estimated_deg": 270.0, "angular_error_deg": 0.0, "confidence": 0.5333333333333333, "df_status": "LOB HAZIR", "status": "passed"},
+    {"fixture": "zero-360-wrap", "ground_truth_deg": 0.0, "estimated_deg": 0.0, "angular_error_deg": 0.0, "confidence": 0.19999999999999998, "df_status": "LOB HAZIR", "status": "passed"}
+  ],
+  "rms_error_deg": 12.24744871391589,
+  "claim_boundary": "Deterministic angle-power fixtures; not a calibrated antenna or live RF field test."
+}

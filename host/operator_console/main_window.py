@@ -26,10 +26,21 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+import numpy as np
+import pyqtgraph as pg
 
 from reference.sigmf.contract import ContractReport
 from reference.detection import DetectionEvent, DetectionFrameResult
 from reference.parameters import EventParameterEstimate, ParameterFrameResult
+from reference.et import (
+    AnalogDeceptionConfig,
+    AnalogDeceptionEngine,
+    ContinuousJammingConfig,
+    ContinuousJammingEngine,
+    ETMissionController,
+    SafetyMode,
+)
+from reference.p0 import DFMeasurement, ManualAmplitudeDF, P0ParameterResult
 
 from .spectrum_view import AnalysisSpectrumView, SpectrumView
 from .ui_text import TEXT
@@ -104,6 +115,9 @@ class MainWindow(QMainWindow):
         self.workspace_tabs.addTab(operation, TEXT["operation_workspace"])
         self.workspace_tabs.addTab(analysis, TEXT["analysis_workspace"])
         self.workspace_tabs.addTab(self._build_listening_workspace(), TEXT["listening_workspace"])
+        self.workspace_tabs.addTab(self._build_df_workspace(), TEXT["direction_finding_workspace"])
+        self.workspace_tabs.addTab(self._build_system_workspace(), TEXT["system_status_workspace"])
+        self.workspace_tabs.addTab(self._build_et_workspace(), TEXT["et_workspace"])
         central = QWidget()
         layout = QVBoxLayout(central)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -266,6 +280,15 @@ class MainWindow(QMainWindow):
         grid = QGridLayout()
         self.parameter_values = {}
         fields = (
+            ("p0_detection", "Tespit"),
+            ("p0_carrier", "Taşıyıcı Frekansı"),
+            ("p0_bandwidth", "Bant Genişliği"),
+            ("p0_power", "Güç Seviyesi"),
+            ("p0_snr", "SNR"),
+            ("p0_domain", "Analog/Sayısal"),
+            ("p0_region", "Peak/Bölge"),
+            ("p0_backend", "Backend"),
+            ("p0_source", "Sonuç Kaynağı"),
             ("emission_center", TEXT["emission_center"]),
             ("carrier_line", TEXT["carrier_line"]),
             ("lower_edge", TEXT["lower_band_edge"]),
@@ -314,6 +337,144 @@ class MainWindow(QMainWindow):
         outer = QVBoxLayout(workspace)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.addWidget(splitter)
+        return workspace
+
+    def _build_df_workspace(self) -> QWidget:
+        self.df_model = ManualAmplitudeDF()
+        workspace = QWidget()
+        layout = QHBoxLayout(workspace)
+        panel = QFrame()
+        panel_layout = QVBoxLayout(panel)
+        heading = QLabel("Manuel Genlik Tabanlı Yön Bulma")
+        heading.setObjectName("sectionTitle")
+        panel_layout.addWidget(heading)
+        grid = QGridLayout()
+        self.df_angle_spin = QDoubleSpinBox()
+        self.df_angle_spin.setRange(0.0, 359.9)
+        self.df_angle_spin.setSuffix("°")
+        self.df_power_spin = QDoubleSpinBox()
+        self.df_power_spin.setRange(-160.0, 20.0)
+        self.df_power_spin.setValue(-40.0)
+        self.df_power_spin.setSuffix(" dBFS")
+        self.df_frequency_spin = QDoubleSpinBox()
+        self.df_frequency_spin.setRange(1.0, 6000.0)
+        self.df_frequency_spin.setValue(145.0)
+        self.df_frequency_spin.setSuffix(" MHz")
+        self.df_confidence_spin = QDoubleSpinBox()
+        self.df_confidence_spin.setRange(0.0, 1.0)
+        self.df_confidence_spin.setSingleStep(0.05)
+        self.df_confidence_spin.setValue(0.8)
+        for row, (caption, widget) in enumerate((("Anten Açısı", self.df_angle_spin), ("Bounded Göreli Güç", self.df_power_spin), ("Frekans", self.df_frequency_spin), ("Ölçüm Güveni", self.df_confidence_spin))):
+            grid.addWidget(QLabel(caption), row, 0)
+            grid.addWidget(widget, row, 1)
+        panel_layout.addLayout(grid)
+        self.df_add_button = QPushButton("Ölçüm Noktasını Kaydet")
+        self.df_clear_button = QPushButton("DF Ölçümlerini Temizle")
+        panel_layout.addWidget(self.df_add_button)
+        panel_layout.addWidget(self.df_clear_button)
+        self.df_result_label = QLabel("LOB için en az üç farklı açı ölçün.")
+        self.df_result_label.setWordWrap(True)
+        panel_layout.addWidget(self.df_result_label)
+        self.df_points_list = QListWidget()
+        panel_layout.addWidget(self.df_points_list, 1)
+        self.df_plot = pg.PlotWidget()
+        self.df_plot.setTitle("Açı–Güç Eğrisi")
+        self.df_plot.setLabel("bottom", "Anten Açısı", units="°")
+        self.df_plot.setLabel("left", "Göreli Güç", units="dBFS")
+        self.df_plot.showGrid(x=True, y=True, alpha=0.2)
+        self.df_curve = self.df_plot.plot(pen=pg.mkPen("#3A9DFF", width=2), symbol="o")
+        layout.addWidget(self.df_plot, 1)
+        layout.addWidget(self._scroll_panel(panel, "dfScroll"))
+        self.df_add_button.clicked.connect(self._add_df_measurement)
+        self.df_clear_button.clicked.connect(self._clear_df_measurements)
+        return workspace
+
+    def _build_system_workspace(self) -> QWidget:
+        workspace = QWidget()
+        layout = QVBoxLayout(workspace)
+        heading = QLabel("P0 Sistem Durumu ve Sonuç Kaynağı")
+        heading.setObjectName("sectionTitle")
+        layout.addWidget(heading)
+        self.system_status_values: dict[str, QLabel] = {}
+        rows = (
+            ("processing", "Algoritma Yürütücüsü", "HOST REFERENCE · host üzerinde doğrulama"),
+            ("fpga", "ZedBoard FPGA", "FUTURE ZEDBOARD HARDWARE · kartta çalıştırılmadı"),
+            ("transport", "PC↔ZedBoard Taşıması", "BAĞLI DEĞİL · yerel loopback hazır"),
+            ("hackrf", "HackRF-1 RX", "BLOCKED_TOOLCHAIN · araçlar bulunamadı"),
+            ("petalinux", "PetaLinux / ARM", "BLOCKED / ÇALIŞTIRILMADI"),
+            ("calibration", "RF Güç Kalibrasyonu", TEXT["calibration_pending"]),
+            ("et", "HackRF-2 TX", "HARDWARE_TX_LOCKED · OFFLINE/LOOPBACK"),
+        )
+        grid = QGridLayout()
+        for row, (key, caption, value) in enumerate(rows):
+            label = QLabel(value)
+            label.setWordWrap(True)
+            grid.addWidget(QLabel(caption), row, 0)
+            grid.addWidget(label, row, 1)
+            self.system_status_values[key] = label
+        layout.addLayout(grid)
+        layout.addStretch(1)
+        return workspace
+
+    def _build_et_workspace(self) -> QWidget:
+        self.et_mission = ETMissionController()
+        self.jamming_engine = ContinuousJammingEngine()
+        self.deception_engine = AnalogDeceptionEngine()
+        workspace = QWidget()
+        layout = QVBoxLayout(workspace)
+        controls = QGridLayout()
+        self.et_mode_combo = QComboBox()
+        self.et_mode_combo.addItem("OFFLINE", SafetyMode.OFFLINE)
+        self.et_mode_combo.addItem("LOOPBACK", SafetyMode.LOOPBACK)
+        self.et_mode_combo.addItem("CABLED_LAB · KİLİTLİ", SafetyMode.CABLED_LAB)
+        self.et_mode_combo.addItem("HARDWARE_TX_LOCKED", SafetyMode.HARDWARE_TX_LOCKED)
+        self.et_family_combo = QComboBox()
+        for label, value in (("Tekli", "single"), ("Çoklu", "multiple"), ("Barrage", "barrage")):
+            self.et_family_combo.addItem(label, value)
+        self.et_duration_spin = QDoubleSpinBox()
+        self.et_duration_spin.setRange(0.1, 30.0)
+        self.et_duration_spin.setValue(1.0)
+        self.et_duration_spin.setSuffix(" s")
+        self.et_jam_start = QPushButton("Sürekli Karıştırma · Başlat")
+        self.et_jam_stop = QPushButton("Durdur")
+        self.et_deception_mode = QComboBox()
+        self.et_deception_mode.addItems(["NFM", "FM"])
+        self.et_audio_scenario = QComboBox()
+        self.et_audio_scenario.addItems(["1 kHz kayıtlı test senaryosu", "Konuşma bandı çoklu ton senaryosu"])
+        self.et_audio_level = QDoubleSpinBox()
+        self.et_audio_level.setRange(0.1, 0.9)
+        self.et_audio_level.setValue(0.7)
+        self.et_deception_start = QPushButton("Analog Aldatma · Başlat")
+        self.et_deception_stop = QPushButton("Durdur")
+        rows = (("Güvenlik Modu", self.et_mode_combo), ("Karıştırma Türü", self.et_family_combo), ("Görev Süresi", self.et_duration_spin), ("Ses/Scenario", self.et_audio_scenario), ("FM/NFM", self.et_deception_mode), ("Çıkış Normalizasyonu", self.et_audio_level))
+        for row, (caption, widget) in enumerate(rows):
+            controls.addWidget(QLabel(caption), row, 0)
+            controls.addWidget(widget, row, 1)
+        controls.addWidget(self.et_jam_start, 0, 2)
+        controls.addWidget(self.et_jam_stop, 1, 2)
+        controls.addWidget(self.et_deception_start, 3, 2)
+        controls.addWidget(self.et_deception_stop, 4, 2)
+        self.et_emergency_stop = QPushButton("ACİL DURDURMA")
+        controls.addWidget(self.et_emergency_stop, 5, 2)
+        self.et_state_label = QLabel("HAZIR · Donanım TX yolu uygulanmadı")
+        self.et_state_label.setWordWrap(True)
+        layout.addLayout(controls)
+        layout.addWidget(self.et_state_label)
+        plots = QHBoxLayout()
+        self.et_waveform_plot = pg.PlotWidget()
+        self.et_waveform_plot.setTitle("Kompleks Taban Bant Önizleme · I")
+        self.et_waveform_curve = self.et_waveform_plot.plot(pen=pg.mkPen("#3A9DFF"))
+        self.et_spectrum_plot = pg.PlotWidget()
+        self.et_spectrum_plot.setTitle("Spektrum Önizleme")
+        self.et_spectrum_curve = self.et_spectrum_plot.plot(pen=pg.mkPen("#FFB020"))
+        plots.addWidget(self.et_waveform_plot)
+        plots.addWidget(self.et_spectrum_plot)
+        layout.addLayout(plots, 1)
+        self.et_jam_start.clicked.connect(self._start_jamming_preview)
+        self.et_jam_stop.clicked.connect(self._stop_et_mission)
+        self.et_deception_start.clicked.connect(self._start_deception_preview)
+        self.et_deception_stop.clicked.connect(self._stop_et_mission)
+        self.et_emergency_stop.clicked.connect(self._emergency_stop_et)
         return workspace
 
     def _build_controls(self) -> QFrame:
@@ -740,6 +901,123 @@ class MainWindow(QMainWindow):
                 self.parameter_values[key].setText(str(field.value))
         reasons = ", ".join(TEXT.get(reason, reason) for reason in result.quality.reasons) if result.quality.reasons else TEXT["quality_passed"]
         self.quality_value.setText(reasons)
+
+    def set_p0_parameter_result(self, result: P0ParameterResult | None) -> None:
+        """Bind only immutable P0 result fields; no placeholder is presented as a result."""
+        if result is None:
+            for key in ("p0_detection", "p0_carrier", "p0_bandwidth", "p0_power", "p0_snr", "p0_domain", "p0_region", "p0_backend", "p0_source"):
+                self.parameter_values[key].setText(TEXT["not_validated"])
+            return
+        locale = self.locale
+        self.parameter_values["p0_detection"].setText("Doğrulanmış" if result.confirmed else "Doğrulanmamış")
+        self.parameter_values["p0_carrier"].setText(self._frequency(result.carrier_frequency_hz))
+        self.parameter_values["p0_bandwidth"].setText(locale.toString(result.bandwidth_hz / 1000.0, "f", 3) + " kHz")
+        self.parameter_values["p0_power"].setText(locale.toString(result.relative_power_dbfs, "f", 2) + " dBFS · " + result.calibration_state)
+        self.parameter_values["p0_snr"].setText(locale.toString(result.snr_db, "f", 2) + " dB")
+        self.parameter_values["p0_domain"].setText(result.signal_domain)
+        self.parameter_values["p0_region"].setText(f"{result.candidate.start_bin}–{result.candidate.end_bin} · peak {result.candidate.peak_bin}")
+        self.parameter_values["p0_backend"].setText(result.backend)
+        self.parameter_values["p0_source"].setText(result.provenance)
+        self.quality_value.setText(" · ".join(result.classification_reasons))
+
+    def set_p0_detection_summary(self, result: P0ParameterResult) -> None:
+        self.detection_list.clear()
+        state = "Doğrulanmış" if result.confirmed else "Doğrulanmamış"
+        item = QListWidgetItem(
+            f"P0 · {state} · {self._frequency(result.carrier_frequency_hz)} · SNR {self.locale.toString(result.snr_db, 'f', 1)} dB"
+        )
+        item.setToolTip(
+            f"OS-CFAR bölgesi {result.candidate.start_bin}–{result.candidate.end_bin}; "
+            f"peak {result.candidate.peak_bin}; kaynak {result.provenance}; backend {result.backend}"
+        )
+        self.detection_list.addItem(item)
+        self.detection_state.setText(f"1 {state.casefold()} · P0 OS-CFAR")
+        self.detection_note.setText("Yetkili P0 kararı: PS hedefli OS-CFAR · Bu demo HOST REFERENCE sonucudur.")
+
+    def _add_df_measurement(self) -> None:
+        measurement = DFMeasurement.create(
+            angle_deg=self.df_angle_spin.value(),
+            relative_power_db=self.df_power_spin.value(),
+            frequency_hz=self.df_frequency_spin.value() * 1_000_000.0,
+            confidence=self.df_confidence_spin.value(),
+        )
+        self.df_model.add(measurement)
+        self.df_points_list.addItem(f"{measurement.angle_deg:.1f}° · {measurement.relative_power_db:.2f} dBFS · güven {measurement.confidence:.2f}")
+        points = self.df_model.measurements
+        self.df_curve.setData([item.angle_deg for item in points], [item.relative_power_db for item in points])
+        estimate = self.df_model.estimate()
+        self.df_result_label.setText(
+            f"{estimate.status} · Ham maksimum/LOB: {estimate.raw_maximum_angle_deg:.1f}° · "
+            f"Güven: {estimate.confidence:.2f} · {estimate.measurement_count} ölçüm"
+        )
+
+    def _clear_df_measurements(self) -> None:
+        self.df_model.clear()
+        self.df_points_list.clear()
+        self.df_curve.setData([], [])
+        self.df_result_label.setText("LOB için en az üç farklı açı ölçün.")
+
+    def _selected_et_mode(self) -> SafetyMode:
+        mode = self.et_mode_combo.currentData()
+        return mode if isinstance(mode, SafetyMode) else SafetyMode(str(mode))
+
+    def _start_jamming_preview(self) -> None:
+        duration = self.et_duration_spin.value()
+        family = str(self.et_family_combo.currentData())
+        offsets = {"single": (4_000.0,), "multiple": (-8_000.0, 0.0, 8_000.0), "barrage": (0.0,)}[family]
+        try:
+            self.et_mission.set_mode(self._selected_et_mode())
+            self.et_mission.start(duration_seconds=duration, detail=f"continuous/{family}")
+            preview_duration = min(duration, 0.1)
+            result = self.jamming_engine.generate(ContinuousJammingConfig(family, 48_000, preview_duration, offsets))
+            self._plot_et_preview(result.samples, result.sample_rate_hz)
+            self.et_state_label.setText(f"{self.et_mission.state} · {family} · OFFLINE taban bant önizlemesi · RF TX yok")
+        except (ValueError, RuntimeError, PermissionError) as exc:
+            self.et_state_label.setText(f"GÜVENLİK KİLİDİ · {exc}")
+
+    def _start_deception_preview(self) -> None:
+        duration = self.et_duration_spin.value()
+        audio_rate = 48_000
+        preview_duration = min(duration, 0.25)
+        time = np.arange(round(audio_rate * preview_duration), dtype=np.float64) / audio_rate
+        if self.et_audio_scenario.currentIndex() == 0:
+            audio = np.sin(2.0 * np.pi * 1_000.0 * time)
+        else:
+            audio = 0.65 * np.sin(2.0 * np.pi * 700.0 * time) + 0.35 * np.sin(2.0 * np.pi * 1_900.0 * time)
+        try:
+            self.et_mission.set_mode(self._selected_et_mode())
+            self.et_mission.start(duration_seconds=duration, detail=f"analog/{self.et_deception_mode.currentText()}")
+            result = self.deception_engine.generate(
+                audio,
+                AnalogDeceptionConfig(
+                    mode=self.et_deception_mode.currentText(),
+                    duration_seconds=preview_duration,
+                    output_peak=self.et_audio_level.value(),
+                ),
+            )
+            self._plot_et_preview(result.samples, result.sample_rate_hz)
+            self.et_state_label.setText(
+                f"{self.et_mission.state} · {result.mode} analog aldatma · loopback korelasyonu {result.loopback_correlation:.4f} · RF TX yok"
+            )
+        except (ValueError, RuntimeError, PermissionError) as exc:
+            self.et_state_label.setText(f"GÜVENLİK KİLİDİ · {exc}")
+
+    def _plot_et_preview(self, samples: np.ndarray, sample_rate_hz: float) -> None:
+        visible = np.asarray(samples[: min(samples.size, 2048)])
+        self.et_waveform_curve.setData(np.arange(visible.size) / sample_rate_hz * 1000.0, visible.real)
+        fft_size = min(4096, samples.size)
+        spectrum = np.abs(np.fft.fftshift(np.fft.fft(samples[:fft_size]))) ** 2
+        frequencies = np.fft.fftshift(np.fft.fftfreq(fft_size, d=1.0 / sample_rate_hz)) / 1000.0
+        spectrum_db = 10.0 * np.log10(np.maximum(spectrum / max(float(np.max(spectrum)), 1e-30), 1e-12))
+        self.et_spectrum_curve.setData(frequencies, spectrum_db)
+
+    def _stop_et_mission(self) -> None:
+        self.et_mission.stop()
+        self.et_state_label.setText("DURDURULDU · RF TX yok")
+
+    def _emergency_stop_et(self) -> None:
+        self.et_mission.emergency_stop()
+        self.et_state_label.setText("ACİL DURDURMA · Fail-closed kilit etkin")
 
     def _event_text(self, event: DetectionEvent) -> str:
         label = TEXT[event.state]

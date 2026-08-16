@@ -4,7 +4,7 @@ Bu repository, TEKNOFEST 2026 Elektronik Harp Yarışması için FPGA merkezli b
 
 ## Referans sistem
 
-Bağlayıcı donanım 2 adet HackRF One + PortaPack H2, bir ZedBoard Zynq-7000 (P/N 410-248), laptop, geniş bant omni antenler, alt/orta bant teleskobik anten, FOX 727 dual-band Yagi, üst bant yönlü UWB antenler, GPS L1 aktif anteni ve gerekli RF kablo/adaptörlerinden oluşur.
+Bağlayıcı donanım 2 adet HackRF One + PortaPack H2, bir ZedBoard Zynq-7000 (P/N 410-248), iki bilgisayar, 2 adet Quectel YE0003AA geniş bant omni anten, Diamond SRH-789 teleskobik anten, FOX-727 çift bant Yagi, 800 MHz–6 GHz UWB yönlü anten, 2,4–10,5 GHz yönlü TEM anten ve mevcut RF kablo/adaptör/zayıflatıcılarından oluşur. Anten kullanımı HackRF'ın desteklediği RF aralığıyla sınırlıdır; listede olmayan GNSS veya eski KTR BOM donanımı mevcut kabul edilmez.
 
 Hedef veri yolu şöyledir:
 
@@ -16,11 +16,11 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-PHASE-04 parametre doğrulaması açık kalırken **PHASE-06J — Zynq PS Temporal Aday Doğrulama ve Frame Association** uygulanmıştır. PHASE-06I'nin 32-byte header, 40-byte record ve 32-byte trailer içeren little-endian ABI v1 packet'ı strict C decoder ile tüketilir; authoritative PHASE-03 2-of-3 association state machine'i 64 active/128 ended ring sınırıyla portable C11 PS çekirdeğine taşınmıştır. Host compile/link ve 10 sequence/33 frame/1.501 candidate record Python↔C karşılaştırması sıfır mismatch ile geçmiştir. Hedef sahiplik Zynq PS'dedir; gerçek DMA/driver, PetaLinux, ARM execution, bitstream ve kart/hardware çalıştırılmamıştır. PHASE-00 repository temelini kurmuştur; PHASE-01 deterministik giriş fixture'ını, PHASE-02 spektrum golden modelini ve Türkçe operatör uygulamasını, PHASE-03 ise kayıtlı/sentetik I/Q için doğrulanmış `regional` detector profilini oluşturmuştur.
+PHASE-04 parametre doğrulaması açık kalırken kullanıcı onaylı **P0 Mandatory EH Core — ED Algorithms, FPGA Runtime and Operator Integration** hızlı kontrol noktası uygulanmıştır. P0; açık parametreli KTR uyumlu OS-CFAR, 2-of-3 doğrulama, taşıyıcı/bant/göreli dBFS/SNR, açıklanabilir Analog/Sayısal/Belirsiz ayrımı, manuel genlik DF, CRC'li PC→ZedBoard IQ sözleşmesi, Türkçe operatör arayüzü ve iletimsiz/loopback ET taban bant motorlarını kapsar. Portable C OS-CFAR host'ta derlenip Python ile 32.768 hücrede sıfır mismatch vermiş; 7 ED, 7 DF, tekli/çoklu/barrage ve FM/NFM loopback fixture kapıları geçmiştir. Bu P0 referansı nihai çalışma zamanı sahibi olarak PS/ARM'ı korur; ARM execution değildir.
 
-PHASE-04; spektral merkez/gözlenmiş taşıyıcı, bant sınırları, göreli güç/bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı için sabit sahne ve yöntem karşılaştırması uygular. R1, R2 ve D1 başarısızlık kanıtları tarihsel olarak korunur. E1 çalışması confirmed olaya bağlı, operatörce açıkça onaylanan span içinde dört bounded frame kullanan alan-bazlı ölçüm altyapısını ve iki çalışma alanlı arayüzü kurmuştur; ancak binding ve OOS kapılarında hiçbir alan doğrulanmamıştır. Bu nedenle `phase04e1` profili yoktur, parametre sayıları gösterilmez ve çalışma zamanı yalnız doğrulanmış PHASE-03 `regional` tespit profiline döner. İşlem frame-local'dır; kesintisiz kanal alıcısı veya genel modülasyon tanıma değildir.
+Kanonik Vivado 2025.2 tasarımı Zynq PS, AXI DMA, DDR HP yolu, MM2S→Hann→4096 AMD FFT→lineer güç→S2MM, saat/reset ve iki DMA interruptını gerçek blok tasarımında bağlar. İlk 100 MHz denemesi WNS −6,541 ns ile dürüstçe başarısız kaydedilmiş ve bitstream üretmemiştir. HackRF'ın 20 MS/s sınırını 2,5 kat aşan 50 MHz çalışma hedefi WNS +0,258 ns, TNS 0, WHS +0,025 ns ve sıfır route hatasıyla kapanmış; bitstream üretilmiştir. Bu sonuç Vivado sentez/route kanıtıdır; PetaLinux, driver, canlı DMA veya kartta yürütüm değildir.
 
-PHASE-05, operatörün açıkça seçtiği AM veya NFM zinciriyle deterministik kayıtlı I/Q'dan bounded 48 kHz mono ses ve WAV üretir; otomatik modülasyon sınıflandırması yapmaz. PHASE-06F exact lineer power, PHASE-06G exact bölgesel detector, PHASE-06H coarse grouping, PHASE-06I DMA-facing packetizer ve PHASE-06J host-verified PS temporal çekirdek sonuçlarıdır. Gerçek DMA veya ARM execution yoktur; post-detector 100 MHz timing **doğrulanmamıştır**. PetaLinux/ARM toolchain hazır değildir; precise bandwidth/physical-frequency/PHASE-04 extraction, bitstream veya kart üstü sonuç yoktur. PHASE-08A kapsamında HackRF-1 RX için bounded, mock edilebilir host acquisition adaptörü hazırlanmıştır; gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın, dBm, ZedBoard aktarımı, yön/konum, karıştırma veya aldatma iddiası yoktur.
+PHASE-00 repository temelini kurmuştur; PHASE-01–06J tarihsel kanıtları korunur. PHASE-04 R1/R2/D1/E1 başarısızlık kanıtları ve `phase04e1` profilinin yokluğu değiştirilmemiştir; P0 ayrı, açık sözleşmeli zorunlu çekirdektir. PHASE-05 kayıtlı AM/NFM dinleme sonucu korunur. PetaLinux hazır değildir, ARM ve ZedBoard DMA çalıştırılmamıştır. PHASE-08A/P0 RX soyutlaması hazırdır; HackRF araçları bulunmadığından `BLOCKED_TOOLCHAIN` durumundadır ve gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın yapılmamış, gerçek TX backend'i eklenmemiş, dBm veya RF etki iddiası üretilmemiştir.
 
 Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli**.
 
@@ -36,8 +36,10 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `rtl/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
 - `rtl/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
 - `rtl/phase06i/`: PHASE-06H adaylarını sürümlemeli little-endian DMA-facing 64-bit AXI4-Stream packet'larına dönüştüren vendor-independent packetizer ve self-checking testbench.
+- `rtl/p0/`: PHASE-06B/D/F bloklarını yeniden kullanan kanonik AXI4-Stream Hann→FFT→güç runtime top'u ve Vivado modül-reference sarmalayıcısı.
 - `ps/phase06i/`: Candidate transport ABI v1 C layout'u ve ilk shape decoder kaynağı.
 - `ps/phase06j/`: ABI v1'i byte-wise strict doğrulayan, bounded PHASE-03 2-of-3 association state machine'ini uygulayan ve host'ta gerçek compile/link edilmiş portable C11 PS çekirdeği; ARM/ZedBoard üzerinde çalıştırılmamıştır.
+- `ps/p0/`: Açık konfigürasyonlu OS-CFAR ve aday gruplama için portable C11 PS hedef çekirdeği; host'ta doğrulanmış, ARM'de çalıştırılmamıştır.
 - `reference/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
 - `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
 - `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
@@ -80,6 +82,7 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `results/evidence/phase06i/`: Transport seçimi, ABI, Python decode, byte-exact Icarus packetizer, toolchain ve dürüst deferred PS/temporal sınırı; DMA/PetaLinux/hardware kanıtı değildir.
 - `results/evidence/phase06j/`: Portable C11 host build/link, strict ABI decoder, Python↔C temporal semantic eşdeğerliği, bounded bellek/karmaşıklık ve dürüst blocked PetaLinux/ARM/hardware sınırı.
 - `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
+- `results/evidence/p0/`: ED/DF/ET golden sonuçları, başarısız 100 MHz denemesi ve geçen 50 MHz Vivado/bitstream kanıtı.
 
 ## Doğrulama
 
@@ -106,6 +109,10 @@ python -B scripts/generate_phase06i_vectors.py --check
 python -B scripts/verify_phase06i.py --check
 python -B scripts/generate_phase06j_vectors.py --check
 python -B scripts/verify_phase06j.py --check
+python -B scripts/verify_p0_algorithms.py --check
+python -B scripts/verify_p0_df.py
+python -B scripts/verify_p0_et.py
+python -B scripts/verify_p0_os_cfar.py
 python -B scripts/verify_ui_performance.py --check
 python -B -m unittest discover -s tests -v
 ```

@@ -42,6 +42,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE06I_FILES)
             | set(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES)
             | set(VERIFY.APPROVED_PHASE06J_FILES)
+            | set(VERIFY.APPROVED_P0_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -64,6 +65,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(30, len(VERIFY.APPROVED_PHASE06I_FILES))
         self.assertEqual(4, len(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES))
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
+        self.assertEqual(44, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -135,10 +137,11 @@ class RepositoryContractTests(unittest.TestCase):
                 "rtl/phase06i/rtl/phase06i_pkg.sv",
                 "rtl/phase06i/rtl/axis_candidate_packetizer.sv",
                 "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv",
+                "rtl/p0/rtl/p0_dsp_runtime_top.sv",
             },
-            {path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*.sv")},
+            {path for path in VERIFY._repository_files() if path.endswith(".sv")},
         )
-        self.assertEqual([], list(ROOT.rglob("*.svh")))
+        self.assertEqual([], [path for path in VERIFY._repository_files() if path.endswith(".svh")])
 
     def test_phase06b_is_hann_only_and_keeps_fft_for_later(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
@@ -175,7 +178,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual("READY", gate["implementation_readiness"])
         self.assertFalse(gate["ip_catalog"]["generated_ip"])
         self.assertFalse(gate["ip_catalog"]["xci_created"])
-        xci_files = list(ROOT.rglob("*.xci"))
+        xci_files = [path for path in VERIFY._repository_files() if path.endswith(".xci")]
         self.assertEqual(1, len(xci_files))
         summary = json.loads(
             (ROOT / "results" / "evidence" / "phase06d" / "verification-summary.json").read_text(
@@ -188,7 +191,7 @@ class RepositoryContractTests(unittest.TestCase):
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         for text in (
-            "Mevcut ana açık fazlar: PHASE-04 ve PHASE-06",
+            "P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06",
             "PHASE-08A",
             "PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez",
             "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı",

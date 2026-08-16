@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "tool": "Vivado v2025.2 build 6299465",
+  "target": "xc7z020clg484-1",
+  "clock_hz": 50000000,
+  "block_design_validation": "PASS",
+  "synthesis": "PASS",
+  "implementation": "ROUTE_DESIGN_COMPLETE",
+  "route": {
+    "routable_nets": 16757,
+    "fully_routed_nets": 16757,
+    "routing_errors": 0
+  },
+  "timing": {
+    "setup_wns_ns": 0.258,
+    "setup_tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "hold_whs_ns": 0.025,
+    "hold_ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "check_timing_max_issue_count": 0
+  },
+  "post_route_resources": {
+    "slice_luts": 7342,
+    "slice_lut_utilization_percent": 13.80,
+    "slice_registers": 10870,
+    "slice_register_utilization_percent": 10.22,
+    "block_ram_tiles": 17,
+    "block_ram_utilization_percent": 12.14,
+    "dsps": 40,
+    "dsp_utilization_percent": 18.18
+  },
+  "drc_errors": 0,
+  "methodology_warnings": {
+    "LUTAR-1": 3,
+    "scope": "AMD AXI interconnect protocol-converter generated logic"
+  },
+  "bitstream": {
+    "status": "PASS",
+    "relative_path": "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
+    "bytes": 4045693,
+    "sha256": "5f69fa3f60849ada80a7a01e279bf56c5af6691431931d0af428a4d63e58af3a"
+  },
+  "throughput": {
+    "cycles_per_frame_steady_state": 4096,
+    "maximum_frames_per_second": 12207.03125,
+    "maximum_complex_samples_per_second": 50000000,
+    "hackrf_20msps_arithmetic_margin_ratio": 2.5
+  },
+  "claim_boundary": "Local Vivado tool proof only; not PetaLinux, ARM, live DMA, ZedBoard execution, or live HackRF evidence."
+}
