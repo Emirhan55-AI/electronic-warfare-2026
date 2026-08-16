@@ -16,7 +16,7 @@ Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT �
 
 ## Mevcut durum
 
-PHASE-04 parametre doğrulaması açık kalırken kullanıcı onaylı **P0 Mandatory EH Core — ED Algorithms, FPGA Runtime and Operator Integration** hızlı kontrol noktası uygulanmıştır. P0; açık parametreli KTR uyumlu OS-CFAR, 2-of-3 doğrulama, taşıyıcı/bant/göreli dBFS/SNR, açıklanabilir Analog/Sayısal/Belirsiz ayrımı, manuel genlik DF, CRC'li PC→ZedBoard IQ sözleşmesi, Türkçe operatör arayüzü ve iletimsiz/loopback ET taban bant motorlarını kapsar. Portable C OS-CFAR host'ta derlenip Python ile 32.768 hücrede sıfır mismatch vermiş; 7 ED, 7 DF, tekli/çoklu/barrage ve FM/NFM loopback fixture kapıları geçmiştir. Bu P0 referansı nihai çalışma zamanı sahibi olarak PS/ARM'ı korur; ARM execution değildir.
+PHASE-04 parametre doğrulaması açık kalırken kullanıcı onaylı **P0 Mandatory EH Core — ED Algorithms, FPGA Runtime and Operator Integration** hızlı kontrol noktası uygulanmıştır. Block A'da KTR'nin OS-CFAR yöntem niyeti sayısal mühendislik profilinden ayrılmış; `Pfa=1e-4` için alpha `8.58014304069906` deterministik türetilmiş, empirical FAR ölçülmüş, kaba adaydan ayrı gürültü-referanslı bant estimatorü ve üç hakem replay modu eklenmiştir. Portable C OS-CFAR host'ta Python ile 32.768 hücrede sıfır mismatch verir; parametre, DF, offline ET ve Qt kapıları ayrı kanıtlarla izlenir. Bu P0 referansı nihai çalışma zamanı sahibi olarak PS/ARM'ı korur; ARM execution veya canlı HackRF değildir.
 
 Kanonik Vivado 2025.2 tasarımı Zynq PS, AXI DMA, DDR HP yolu, MM2S→Hann→4096 AMD FFT→lineer güç→S2MM, saat/reset ve iki DMA interruptını gerçek blok tasarımında bağlar. İlk 100 MHz denemesi WNS −6,541 ns ile dürüstçe başarısız kaydedilmiş ve bitstream üretmemiştir. HackRF'ın 20 MS/s sınırını 2,5 kat aşan 50 MHz çalışma hedefi WNS +0,258 ns, TNS 0, WHS +0,025 ns ve sıfır route hatasıyla kapanmış; bitstream üretilmiştir. Bu sonuç Vivado sentez/route kanıtıdır; PetaLinux, driver, canlı DMA veya kartta yürütüm değildir.
 
@@ -110,6 +110,9 @@ python -B scripts/verify_phase06i.py --check
 python -B scripts/generate_phase06j_vectors.py --check
 python -B scripts/verify_phase06j.py --check
 python -B scripts/verify_p0_algorithms.py --check
+python -B scripts/verify_p0_detector_profile.py --check
+python -B scripts/verify_p0_bandwidth.py --check
+python -B scripts/verify_p0_judge_workflow.py --check
 python -B scripts/verify_p0_df.py
 python -B scripts/verify_p0_et.py
 python -B scripts/verify_p0_os_cfar.py

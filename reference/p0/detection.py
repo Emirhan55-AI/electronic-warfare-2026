@@ -1,4 +1,4 @@
-"""KTR-aligned ordered-statistic CFAR detector for the P0 PS boundary."""
+"""Ordered-statistic CFAR method and canonical P0 engineering profile."""
 
 from __future__ import annotations
 
@@ -10,16 +10,104 @@ import numpy.typing as npt
 from .models import CandidateRegion
 
 
-@dataclass(frozen=True)
-class OSCFARConfig:
-    """Explicit P0 profile values; none are claimed as constants from the KTR."""
+def os_cfar_false_alarm_probability(
+    coefficient: float,
+    reference_count: int,
+    order_statistic_rank: int,
+) -> float:
+    """Return exponential-noise OS-CFAR Pfa for an ascending order statistic.
 
-    reference_cells_per_side: int = 16
-    guard_cells_per_side: int = 4
-    order_statistic_rank: int = 24
-    threshold_coefficient: float = 7.5
+    The model assumes independent, identically distributed square-law power
+    samples. The coefficient multiplies the kth-smallest reference sample.
+    """
+
+    if not np.isfinite(coefficient) or coefficient <= 0:
+        raise ValueError("coefficient must be finite and positive")
+    if reference_count < 1 or not 1 <= order_statistic_rank <= reference_count:
+        raise ValueError("reference count or order-statistic rank is invalid")
+    probability = 1.0
+    for index in range(order_statistic_rank):
+        remaining = float(reference_count - index)
+        probability *= remaining / (remaining + coefficient)
+    return probability
+
+
+def derive_os_cfar_threshold_coefficient(
+    desired_pfa: float,
+    reference_count: int,
+    order_statistic_rank: int,
+) -> float:
+    """Deterministically solve the exponential OS-CFAR Pfa equation."""
+
+    if not np.isfinite(desired_pfa) or not 0.0 < desired_pfa < 1.0:
+        raise ValueError("desired_pfa must be finite and in (0, 1)")
+    if reference_count < 1 or not 1 <= order_statistic_rank <= reference_count:
+        raise ValueError("reference count or order-statistic rank is invalid")
+    low, high = 0.0, 1.0
+    while os_cfar_false_alarm_probability(high, reference_count, order_statistic_rank) > desired_pfa:
+        high *= 2.0
+    for _ in range(160):
+        midpoint = (low + high) / 2.0
+        if os_cfar_false_alarm_probability(midpoint, reference_count, order_statistic_rank) > desired_pfa:
+            low = midpoint
+        else:
+            high = midpoint
+    return (low + high) / 2.0
+
+
+def order_statistic_expected_ratio(reference_count: int, order_statistic_rank: int) -> float:
+    """Return E[X_(k)] / mean for iid exponential power samples."""
+
+    if reference_count < 1 or not 1 <= order_statistic_rank <= reference_count:
+        raise ValueError("reference count or order-statistic rank is invalid")
+    return float(sum(1.0 / (reference_count - index) for index in range(order_statistic_rank)))
+
+
+@dataclass(frozen=True)
+class P0DetectorProfile:
+    """Named engineering profile; only the OS-CFAR method comes from KTR intent."""
+
+    name: str
+    reference_cells_per_side: int
+    guard_cells_per_side: int
+    order_statistic_rank: int
+    desired_pfa: float
     maximum_gap_bins: int = 1
     edge_policy: str = "require_full_window"
+    comparison_rule: str = "strict_greater_than"
+
+    @property
+    def reference_count(self) -> int:
+        return 2 * self.reference_cells_per_side
+
+    @property
+    def threshold_coefficient(self) -> float:
+        return derive_os_cfar_threshold_coefficient(
+            self.desired_pfa,
+            self.reference_count,
+            self.order_statistic_rank,
+        )
+
+
+P0_DETECTOR_PROFILE = P0DetectorProfile(
+    name="P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    reference_cells_per_side=16,
+    guard_cells_per_side=4,
+    order_statistic_rank=24,
+    desired_pfa=1e-4,
+)
+
+
+@dataclass(frozen=True)
+class OSCFARConfig:
+    """Explicit P0 engineering values; none are constants from the KTR."""
+
+    reference_cells_per_side: int = P0_DETECTOR_PROFILE.reference_cells_per_side
+    guard_cells_per_side: int = P0_DETECTOR_PROFILE.guard_cells_per_side
+    order_statistic_rank: int = P0_DETECTOR_PROFILE.order_statistic_rank
+    threshold_coefficient: float = P0_DETECTOR_PROFILE.threshold_coefficient
+    maximum_gap_bins: int = P0_DETECTOR_PROFILE.maximum_gap_bins
+    edge_policy: str = P0_DETECTOR_PROFILE.edge_policy
 
     def __post_init__(self) -> None:
         reference_total = 2 * self.reference_cells_per_side

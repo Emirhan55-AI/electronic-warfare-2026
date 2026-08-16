@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "checkpoint": "P0 Mandatory Closure Block A",
+  "status": "passed",
+  "canonical_frequency_unit": "Hz",
+  "ui_frequency_unit": "MHz with explicit x1,000,000 conversion",
+  "fixture": {
+    "id": "nfm-like",
+    "source": "two-frame deterministic replay with independent second-frame noise",
+    "live_hardware": false
+  },
+  "demonstrations": [
+    {
+      "demo": "DEMO-A",
+      "ui_label": "BİLİNMEYEN FREKANS",
+      "request_mode": "UNKNOWN",
+      "request_bounds_hz": null,
+      "examined_windows": [
+        "p0-nfm-replay-window"
+      ],
+      "execution_status": "COMPLETED_SIGNAL_FOUND",
+      "measurement": {
+        "detected_count": 1,
+        "confirmed": true,
+        "carrier_frequency_hz": 100090003.13515045,
+        "lower_frequency_hz": 100088875.0,
+        "upper_frequency_hz": 100091125.0,
+        "bandwidth_hz": 2250.0,
+        "bandwidth_method": "occupied_power_fallback",
+        "coarse_candidate_bandwidth_hz": 3250.0,
+        "relative_power_dbfs": -4.44042241025482,
+        "snr_db": 35.63159113494225,
+        "signal_domain": "Analog",
+        "calibration_state": "KALİBRASYON BEKLİYOR",
+        "provenance": "REPLAY",
+        "backend": "REPLAY/HOST -> UNKNOWN -> P0 OS-CFAR",
+        "status": "passed"
+      }
+    },
+    {
+      "demo": "DEMO-B",
+      "ui_label": "HAKEM BANT BİLDİRDİ",
+      "request_mode": "JUDGE_BAND",
+      "request_bounds_hz": [
+        100080000.0,
+        100100000.0
+      ],
+      "examined_windows": [
+        "p0-nfm-replay-window"
+      ],
+      "execution_status": "COMPLETED_SIGNAL_FOUND",
+      "measurement": {
+        "detected_count": 1,
+        "confirmed": true,
+        "carrier_frequency_hz": 100090003.13515045,
+        "lower_frequency_hz": 100088875.0,
+        "upper_frequency_hz": 100091125.0,
+        "bandwidth_hz": 2250.0,
+        "bandwidth_method": "occupied_power_fallback",
+        "coarse_candidate_bandwidth_hz": 3250.0,
+        "relative_power_dbfs": -4.44042241025482,
+        "snr_db": 35.63159113494225,
+        "signal_domain": "Analog",
+        "calibration_state": "KALİBRASYON BEKLİYOR",
+        "provenance": "REPLAY",
+        "backend": "REPLAY/HOST -> JUDGE_BAND -> P0 OS-CFAR",
+        "status": "passed"
+      }
+    },
+    {
+      "demo": "DEMO-C",
+      "ui_label": "HAKEM FREKANS BİLDİRDİ",
+      "request_mode": "JUDGE_FREQUENCY",
+      "request_bounds_hz": [
+        100065000.0,
+        100115000.0
+      ],
+      "examined_windows": [
+        "p0-nfm-replay-window"
+      ],
+      "execution_status": "COMPLETED_SIGNAL_FOUND",
+      "measurement": {
+        "detected_count": 1,
+        "confirmed": true,
+        "carrier_frequency_hz": 100090003.13515045,
+        "lower_frequency_hz": 100088875.0,
+        "upper_frequency_hz": 100091125.0,
+        "bandwidth_hz": 2250.0,
+        "bandwidth_method": "occupied_power_fallback",
+        "coarse_candidate_bandwidth_hz": 3250.0,
+        "relative_power_dbfs": -4.44042241025482,
+        "snr_db": 35.63159113494225,
+        "signal_domain": "Analog",
+        "calibration_state": "KALİBRASYON BEKLİYOR",
+        "provenance": "REPLAY",
+        "backend": "REPLAY/HOST -> JUDGE_FREQUENCY -> P0 OS-CFAR",
+        "status": "passed"
+      }
+    }
+  ],
+  "negative_cases": {
+    "band_excluding_signal": {
+      "status": "COMPLETED_NO_SIGNAL",
+      "detected_count": 0
+    },
+    "wrong_exact_frequency": {
+      "status": "COMPLETED_NO_SIGNAL",
+      "detected_count": 0
+    },
+    "invalid_inputs": [
+      {
+        "case": "not-finite",
+        "rejected": true,
+        "message": "Frekans değerleri sonlu sayılar olmalıdır."
+      },
+      {
+        "case": "reversed-band",
+        "rejected": true,
+        "message": "Alt frekans üst frekanstan küçük ve alıcı sınırları içinde olmalıdır."
+      },
+      {
+        "case": "out-of-range",
+        "rejected": true,
+        "message": "Merkez frekans alıcı sınırlarının dışındadır."
+      },
+      {
+        "case": "excessive-span",
+        "rejected": true,
+        "message": "Hakem bant aralığı desteklenen azami spanı aşıyor."
+      }
+    ]
+  },
+  "claim_boundary": "Replay/host competition workflow; HackRF scan/tune and live RF are not exercised."
+}

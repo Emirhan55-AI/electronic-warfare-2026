@@ -1,17 +1,336 @@
 {
   "schema_version": 1,
+  "checkpoint": "P0 Mandatory EH Core",
   "status": "passed",
-  "profile": {"reference_cells_per_side": 16, "guard_cells_per_side": 4, "order_statistic_rank": 24, "threshold_coefficient": 7.5, "source": "P0 test configuration; not a KTR constant"},
+  "profile_parameters": {
+    "name": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    "method_source": "KTR method intent: local adaptive OS-CFAR",
+    "engineering_profile_source": "P0 validated engineering configuration; not KTR constants",
+    "reference_cells_per_side": 16,
+    "guard_cells_per_side": 4,
+    "order_statistic_rank": 24,
+    "desired_pfa": 0.0001,
+    "threshold_coefficient": 8.58014304069906,
+    "edge_policy": "require_full_window",
+    "comparison_rule": "strict_greater_than"
+  },
   "scenes": [
-    {"fixture": "single-tone", "truth_hz": 100040000.0, "measured_hz": 100040000.01683468, "frequency_error_hz": 0.016834676265716553, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 750.0, "measured_bandwidth_hz": 750.0, "bandwidth_error_hz": 0.0, "bandwidth_tolerance_hz": 300.0, "power_dbfs": -6.937761092780381, "snr_db": 70.44635872078445, "status": "passed"},
-    {"fixture": "am-like", "truth_hz": 100060000.0, "measured_hz": 100060000.14453524, "frequency_error_hz": 0.14453524351119995, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 2000.0, "measured_bandwidth_hz": 2750.0, "bandwidth_error_hz": 750.0, "bandwidth_tolerance_hz": 1000.0, "power_dbfs": -8.401593734342313, "snr_db": 61.3859485316733, "expected_domain": "Analog", "measured_domain": "Analog", "status": "passed"},
-    {"fixture": "nfm-like", "truth_hz": 100090000.0, "measured_hz": 100090003.15774198, "frequency_error_hz": 3.157741978764534, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 2400.0, "measured_bandwidth_hz": 3250.0, "bandwidth_error_hz": 850.0, "bandwidth_tolerance_hz": 1250.0, "power_dbfs": -4.4421376481242, "snr_db": 35.710974179547826, "expected_domain": "Analog", "measured_domain": "Analog", "status": "passed"},
-    {"fixture": "digital-ook-burst", "truth_hz": 99920000.0, "measured_hz": 99920000.23584916, "frequency_error_hz": 0.23584915697574615, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 2000.0, "measured_bandwidth_hz": 1750.0, "bandwidth_error_hz": -250.0, "bandwidth_tolerance_hz": 1000.0, "power_dbfs": -7.972371876288641, "snr_db": 17.74034905495878, "expected_domain": "Sayısal", "measured_domain": "Sayısal", "status": "passed"},
-    {"fixture": "wideband-noise-like", "truth_hz": 100085190.40274665, "measured_hz": 100085779.13328409, "frequency_error_hz": 588.7305374443531, "frequency_tolerance_hz": 1000.0, "truth_bandwidth_hz": 20250.0, "measured_bandwidth_hz": 20250.0, "bandwidth_error_hz": 0.0, "bandwidth_tolerance_hz": 500.0, "power_dbfs": -6.8402436538120135, "snr_db": 68.36965105595606, "expected_domain": "Belirsiz", "measured_domain": "Belirsiz", "status": "passed"},
-    {"fixture": "two-adjacent-signals-a", "truth_hz": 99970000.0, "measured_hz": 99969999.97517781, "frequency_error_hz": -0.024822190403938293, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 750.0, "measured_bandwidth_hz": 750.0, "bandwidth_error_hz": 0.0, "bandwidth_tolerance_hz": 300.0, "power_dbfs": -6.933947957996488, "snr_db": 72.15725182072543, "status": "passed"},
-    {"fixture": "two-adjacent-signals-b", "truth_hz": 99976000.0, "measured_hz": 99975999.96049674, "frequency_error_hz": -0.03950326144695282, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": 750.0, "measured_bandwidth_hz": 750.0, "bandwidth_error_hz": 0.0, "bandwidth_tolerance_hz": 300.0, "power_dbfs": -9.897403236563699, "snr_db": 67.82468851368905, "status": "passed"},
-    {"fixture": "weak-near-threshold", "truth_hz": 100020000.0, "measured_hz": 100020000.00000001, "frequency_error_hz": 1.4901161193847656e-08, "frequency_tolerance_hz": 300.0, "truth_bandwidth_hz": null, "measured_bandwidth_hz": 250.0, "power_dbfs": -66.9658094065478, "snr_db": 8.13009143525887, "status": "passed"}
+    {
+      "fixture": "single-tone",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100040000.0,
+          "measured_frequency_hz": 100040000.01683468,
+          "frequency_error_hz": 0.016834676265716553,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 750.0,
+          "measured_bandwidth_hz": 750.0,
+          "bandwidth_error_hz": 0.0,
+          "bandwidth_absolute_error_hz": 0.0,
+          "bandwidth_relative_error": 0.0,
+          "bandwidth_tolerance_hz": 300.0,
+          "bandwidth_tolerance_bins": 1.2,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 1250.0,
+          "occupied_bandwidth_hz": 750.0,
+          "coarse_candidate_bandwidth_hz": 750.0,
+          "relative_power_dbfs": -6.937761092780381,
+          "snr_db": 70.44635872078445,
+          "expected_domain": null,
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "am-like",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100060000.0,
+          "measured_frequency_hz": 100060000.14453524,
+          "frequency_error_hz": 0.14453524351119995,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 2000.0,
+          "measured_bandwidth_hz": 2750.0,
+          "bandwidth_error_hz": 750.0,
+          "bandwidth_absolute_error_hz": 750.0,
+          "bandwidth_relative_error": 0.375,
+          "bandwidth_tolerance_hz": 1000.0,
+          "bandwidth_tolerance_bins": 4.0,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 3250.0,
+          "occupied_bandwidth_hz": 2750.0,
+          "coarse_candidate_bandwidth_hz": 2750.0,
+          "relative_power_dbfs": -8.401593734342313,
+          "snr_db": 61.3859485316733,
+          "expected_domain": "Analog",
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "nfm-like",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100090000.0,
+          "measured_frequency_hz": 100090003.15774198,
+          "frequency_error_hz": 3.157741978764534,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 2400.0,
+          "measured_bandwidth_hz": 2250.0,
+          "bandwidth_error_hz": -150.0,
+          "bandwidth_absolute_error_hz": 150.0,
+          "bandwidth_relative_error": 0.0625,
+          "bandwidth_tolerance_hz": 1250.0,
+          "bandwidth_tolerance_bins": 5.0,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 3750.0,
+          "occupied_bandwidth_hz": 2250.0,
+          "coarse_candidate_bandwidth_hz": 3250.0,
+          "relative_power_dbfs": -4.4421376481242,
+          "snr_db": 35.710974179547826,
+          "expected_domain": "Analog",
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "digital-ook-burst",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 99920000.0,
+          "measured_frequency_hz": 99920000.23584916,
+          "frequency_error_hz": 0.23584915697574615,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 2000.0,
+          "measured_bandwidth_hz": 1750.0,
+          "bandwidth_error_hz": -250.0,
+          "bandwidth_absolute_error_hz": 250.0,
+          "bandwidth_relative_error": 0.125,
+          "bandwidth_tolerance_hz": 1000.0,
+          "bandwidth_tolerance_bins": 4.0,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 3250.0,
+          "occupied_bandwidth_hz": 1750.0,
+          "coarse_candidate_bandwidth_hz": 1750.0,
+          "relative_power_dbfs": -7.972371876288641,
+          "snr_db": 17.74034905495878,
+          "expected_domain": "Sayısal",
+          "measured_domain": "Sayısal",
+          "classification_reasons": [
+            "Düz spektrum ve kesikli zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "wideband-noise-like",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100085190.40274665,
+          "measured_frequency_hz": 100085779.13328409,
+          "frequency_error_hz": 588.7305374443531,
+          "frequency_tolerance_hz": 1000.0,
+          "expected_bandwidth_hz": 20250.0,
+          "measured_bandwidth_hz": 21250.0,
+          "bandwidth_error_hz": 1000.0,
+          "bandwidth_absolute_error_hz": 1000.0,
+          "bandwidth_relative_error": 0.04938271604938271,
+          "bandwidth_tolerance_hz": 1000.0,
+          "bandwidth_tolerance_bins": 4.0,
+          "bandwidth_method": "threshold_edges",
+          "threshold_bandwidth_hz": 21250.0,
+          "occupied_bandwidth_hz": 19500.0,
+          "coarse_candidate_bandwidth_hz": 20250.0,
+          "relative_power_dbfs": -6.8402436538120135,
+          "snr_db": 68.36965105595606,
+          "expected_domain": "Belirsiz",
+          "measured_domain": "Belirsiz",
+          "classification_reasons": [
+            "Spektrum gürültü benzeri düz"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "digital-rectangular-spectrum",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100000000.0,
+          "measured_frequency_hz": 99999997.999669,
+          "frequency_error_hz": -2.000330999493599,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 5250.0,
+          "measured_bandwidth_hz": 5250.0,
+          "bandwidth_error_hz": 0.0,
+          "bandwidth_absolute_error_hz": 0.0,
+          "bandwidth_relative_error": 0.0,
+          "bandwidth_tolerance_hz": 750.0,
+          "bandwidth_tolerance_bins": 3.0,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 6250.0,
+          "occupied_bandwidth_hz": 5250.0,
+          "coarse_candidate_bandwidth_hz": 5250.0,
+          "relative_power_dbfs": -26.48178203203646,
+          "snr_db": 56.0254391546501,
+          "expected_domain": null,
+          "measured_domain": "Belirsiz",
+          "classification_reasons": [
+            "Açıklanabilir özellikler tutarlı çoğunluk üretmedi"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "two-adjacent-signals",
+      "target_detection_count": 2,
+      "expected_target_count": 2,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 99970000.0,
+          "measured_frequency_hz": 99969999.97517781,
+          "frequency_error_hz": -0.024822190403938293,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 750.0,
+          "measured_bandwidth_hz": 750.0,
+          "bandwidth_error_hz": 0.0,
+          "bandwidth_absolute_error_hz": 0.0,
+          "bandwidth_relative_error": 0.0,
+          "bandwidth_tolerance_hz": 300.0,
+          "bandwidth_tolerance_bins": 1.2,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 1250.0,
+          "occupied_bandwidth_hz": 750.0,
+          "coarse_candidate_bandwidth_hz": 750.0,
+          "relative_power_dbfs": -6.933947957996488,
+          "snr_db": 72.15725182072543,
+          "expected_domain": null,
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        },
+        {
+          "ground_truth_frequency_hz": 99976000.0,
+          "measured_frequency_hz": 99975999.96049674,
+          "frequency_error_hz": -0.03950326144695282,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 750.0,
+          "measured_bandwidth_hz": 750.0,
+          "bandwidth_error_hz": 0.0,
+          "bandwidth_absolute_error_hz": 0.0,
+          "bandwidth_relative_error": 0.0,
+          "bandwidth_tolerance_hz": 300.0,
+          "bandwidth_tolerance_bins": 1.2,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 1250.0,
+          "occupied_bandwidth_hz": 750.0,
+          "coarse_candidate_bandwidth_hz": 750.0,
+          "relative_power_dbfs": -9.897403236563699,
+          "snr_db": 67.82468851368905,
+          "expected_domain": null,
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "fixture": "weak-near-threshold",
+      "target_detection_count": 1,
+      "expected_target_count": 1,
+      "measurements": [
+        {
+          "ground_truth_frequency_hz": 100020000.0,
+          "measured_frequency_hz": 100020000.0,
+          "frequency_error_hz": 0.0,
+          "frequency_tolerance_hz": 300.0,
+          "expected_bandwidth_hz": 750.0,
+          "measured_bandwidth_hz": 250.0,
+          "bandwidth_error_hz": -500.0,
+          "bandwidth_absolute_error_hz": 500.0,
+          "bandwidth_relative_error": 0.6666666666666666,
+          "bandwidth_tolerance_hz": 500.0,
+          "bandwidth_tolerance_bins": 2.0,
+          "bandwidth_method": "occupied_power_fallback",
+          "threshold_bandwidth_hz": 750.0,
+          "occupied_bandwidth_hz": 250.0,
+          "coarse_candidate_bandwidth_hz": 250.0,
+          "relative_power_dbfs": -66.01090953985766,
+          "snr_db": 9.084995754524076,
+          "expected_domain": null,
+          "measured_domain": "Analog",
+          "classification_reasons": [
+            "Sürekli anlık frekans veya zarf davranışı"
+          ],
+          "confirmed": true,
+          "calibration": "KALİBRASYON BEKLİYOR",
+          "status": "passed",
+          "failure_condition": null
+        }
+      ],
+      "status": "passed"
+    }
   ],
-  "calibration": "KALİBRASYON BEKLİYOR",
   "claim_boundary": "Deterministic synthetic host fixtures; not RF calibration, ARM, ZedBoard, or live HackRF evidence."
 }

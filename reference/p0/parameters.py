@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
+from .bandwidth import BandwidthEstimator
 from .models import CandidateRegion, P0ParameterResult, Provenance
 
 
@@ -23,6 +24,7 @@ class ParameterProfile:
 class ParameterExtractor:
     def __init__(self, profile: ParameterProfile | None = None) -> None:
         self.profile = profile or ParameterProfile()
+        self.bandwidth_estimator = BandwidthEstimator()
 
     def extract(
         self,
@@ -36,6 +38,7 @@ class ParameterExtractor:
         confirmed: bool,
         provenance: Provenance,
         backend: str,
+        neighboring_candidates: tuple[CandidateRegion, ...] = (),
     ) -> P0ParameterResult:
         samples = np.asarray(iq, dtype=np.complex128)
         power = np.asarray(shifted_power, dtype=np.float64)
@@ -58,8 +61,13 @@ class ParameterExtractor:
         if weight_sum <= 0:
             raise ValueError("candidate has no positive power")
         carrier = float(np.sum(region_frequencies * region_power) / weight_sum)
-        lower = float(frequencies[start] - sample_rate_hz / samples.size / 2.0)
-        upper = float(frequencies[end] + sample_rate_hz / samples.size / 2.0)
+        bandwidth = self.bandwidth_estimator.estimate(
+            shifted_power=power,
+            sample_rate_hz=sample_rate_hz,
+            center_frequency_hz=center_frequency_hz,
+            candidate=candidate,
+            neighboring_candidates=neighboring_candidates,
+        )
 
         noise_total = candidate.noise_power_per_bin * candidate.bin_count
         signal_power_raw = max(weight_sum - noise_total, np.finfo(np.float64).tiny)
@@ -76,9 +84,15 @@ class ParameterExtractor:
             candidate=candidate,
             confirmed=confirmed,
             carrier_frequency_hz=carrier,
-            lower_frequency_hz=lower,
-            upper_frequency_hz=upper,
-            bandwidth_hz=upper - lower,
+            lower_frequency_hz=bandwidth.lower_frequency_hz,
+            upper_frequency_hz=bandwidth.upper_frequency_hz,
+            bandwidth_hz=bandwidth.bandwidth_hz,
+            bandwidth_method=bandwidth.method,
+            threshold_bandwidth_hz=bandwidth.threshold_bandwidth_hz,
+            occupied_bandwidth_hz=bandwidth.occupied_bandwidth_hz,
+            coarse_candidate_lower_frequency_hz=bandwidth.coarse_lower_frequency_hz,
+            coarse_candidate_upper_frequency_hz=bandwidth.coarse_upper_frequency_hz,
+            coarse_candidate_bandwidth_hz=bandwidth.coarse_bandwidth_hz,
             relative_power_linear=relative_linear,
             relative_power_dbfs=float(relative_dbfs),
             snr_db=float(snr_db),

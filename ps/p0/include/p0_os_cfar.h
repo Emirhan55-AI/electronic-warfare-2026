@@ -38,6 +38,15 @@ typedef struct {
     double threshold_power;
 } p0_candidate_region_t;
 
+P0_API int p0_os_cfar_threshold_coefficient(
+    double desired_pfa,
+    uint32_t reference_count,
+    uint32_t order_statistic_rank,
+    double *coefficient
+);
+
+P0_API int p0_os_cfar_canonical_config(p0_os_cfar_config_t *config);
+
 P0_API int p0_os_cfar_process(
     const double *power,
     size_t power_count,

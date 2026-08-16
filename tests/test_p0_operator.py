@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 
 from host.operator_console.main_window import MainWindow
 from reference.et import SafetyMode
+from reference.p0 import SearchMode
 from scripts.run_p0_demo import populate
 from qt_test_support import isolate_qt_module
 
@@ -32,7 +33,7 @@ class P0OperatorTests(unittest.TestCase):
         combined = " ".join(labels)
         for required in ("GÖREV", "SPEKTRUM", "WATERFALL", "TESPİTLER", "PARAMETRELER", "YÖN BULMA", "SİSTEM DURUMU"):
             self.assertIn(required, combined)
-        self.assertEqual("HOST REFERENCE", self.window.parameter_values["p0_source"].text())
+        self.assertIn(self.window.parameter_values["p0_source"].text(), {"HOST REFERENCE", "REPLAY"})
         self.assertIn("REPLAY", self.window.parameter_values["p0_backend"].text())
         self.assertIn("KALİBRASYON BEKLİYOR", self.window.parameter_values["p0_power"].text())
         self.assertNotIn("FPGA RESULT", self.window.parameter_values["p0_source"].text())
@@ -46,6 +47,22 @@ class P0OperatorTests(unittest.TestCase):
         self.window.et_mode_combo.setCurrentIndex(index)
         self.window._start_jamming_preview()
         self.assertIn("GÜVENLİK KİLİDİ", self.window.et_state_label.text())
+
+    def test_three_judge_modes_execute_real_replay_backend_and_validate_input(self) -> None:
+        self.assertEqual(self.window.search_mode_combo.count(), 3)
+        for index, mode in enumerate((SearchMode.UNKNOWN, SearchMode.JUDGE_BAND, SearchMode.JUDGE_FREQUENCY)):
+            self.window.search_mode_combo.setCurrentIndex(index)
+            self.window.search_start_button.click()
+            self.app.processEvents()
+            self.assertIsNotNone(self.window.last_search_result)
+            assert self.window.last_search_result is not None
+            self.assertIs(self.window.last_search_result.request.mode, mode)
+            self.assertEqual(len(self.window.last_search_result.parameters), 1)
+        self.window.search_mode_combo.setCurrentIndex(1)
+        self.window.judge_band_lower_spin.setValue(100.100)
+        self.window.judge_band_upper_spin.setValue(100.080)
+        self.window.search_start_button.click()
+        self.assertIn("GEÇERSİZ GİRDİ", self.window.active_search_mode_label.text())
 
 
 def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:

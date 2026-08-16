@@ -4,10 +4,33 @@ import unittest
 
 import numpy as np
 
-from reference.p0 import CandidateRegion, OSCFARConfig, OSCFARDetector, ParameterExtractor
+from reference.p0 import (
+    P0_DETECTOR_PROFILE,
+    CandidateRegion,
+    OSCFARConfig,
+    OSCFARDetector,
+    ParameterExtractor,
+    derive_os_cfar_threshold_coefficient,
+    os_cfar_false_alarm_probability,
+)
 
 
 class P0DetectionTests(unittest.TestCase):
+    def test_canonical_profile_is_pfa_derived_and_not_legacy_7_5(self) -> None:
+        profile = P0_DETECTOR_PROFILE
+        coefficient = derive_os_cfar_threshold_coefficient(
+            profile.desired_pfa,
+            profile.reference_count,
+            profile.order_statistic_rank,
+        )
+        self.assertAlmostEqual(coefficient, 8.58014304069906, places=14)
+        self.assertNotEqual(coefficient, 7.5)
+        self.assertAlmostEqual(
+            os_cfar_false_alarm_probability(coefficient, profile.reference_count, profile.order_statistic_rank),
+            profile.desired_pfa,
+            places=16,
+        )
+
     def test_os_cfar_uses_strict_decision_and_full_window_edges(self) -> None:
         power = np.ones(128, dtype=np.float64)
         power[64] = 7.5
@@ -60,6 +83,32 @@ class P0ParameterTests(unittest.TestCase):
         self.assertGreater(result.snr_db, 60.0)
         self.assertEqual(result.calibration_state, "KALİBRASYON BEKLİYOR")
         self.assertEqual(result.provenance, "HOST REFERENCE")
+
+    def test_nfm_bandwidth_is_new_estimator_not_coarse_candidate_span(self) -> None:
+        from reference.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
+
+        fixture = next(item for item in build_fixtures() if item.fixture_id == "nfm-like")
+        window = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(FRAME_LENGTH) / FRAME_LENGTH)
+        power = np.abs(np.fft.fftshift(np.fft.fft(fixture.iq * window))) ** 2
+        detection = OSCFARDetector().process(power, frame_id=0)
+        expected_bin = FRAME_LENGTH // 2 + round(90_000.0 / (SAMPLE_RATE_HZ / FRAME_LENGTH))
+        candidate = min(detection.candidates, key=lambda item: abs(item.peak_bin - expected_bin))
+        result = ParameterExtractor().extract(
+            frame_id=0,
+            iq=fixture.iq,
+            shifted_power=power,
+            sample_rate_hz=SAMPLE_RATE_HZ,
+            center_frequency_hz=CENTER_FREQUENCY_HZ,
+            candidate=candidate,
+            confirmed=True,
+            provenance="HOST REFERENCE",
+            backend="test",
+            neighboring_candidates=detection.candidates,
+        )
+        self.assertEqual(result.bandwidth_method, "occupied_power_fallback")
+        self.assertEqual(result.bandwidth_hz, 2250.0)
+        self.assertEqual(result.coarse_candidate_bandwidth_hz, 3250.0)
+        self.assertNotEqual(result.bandwidth_hz, result.coarse_candidate_bandwidth_hz)
 
 
 if __name__ == "__main__":

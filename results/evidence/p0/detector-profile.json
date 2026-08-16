@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "checkpoint": "P0 Mandatory Closure Block A",
+  "status": "passed",
+  "method": {
+    "ktr_intent": "OS-CFAR local adaptive detection",
+    "ktr_numeric_constants": "not specified"
+  },
+  "engineering_profile": {
+    "name": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    "reference_cells_per_side": 16,
+    "guard_cells_per_side": 4,
+    "reference_count": 32,
+    "order_statistic_rank": 24,
+    "desired_pfa": 0.0001,
+    "threshold_coefficient": 8.58014304069906,
+    "theoretical_pfa_recomputed": 9.99999999999999e-05,
+    "edge_policy": "require_full_window",
+    "comparison_rule": "strict_greater_than",
+    "coefficient_equation": "Pfa(alpha)=product(i=0..k-1)((N-i)/(N-i+alpha))"
+  },
+  "deterministic_scenarios": [
+    {
+      "scenario": "noise-only",
+      "target_bins": [],
+      "detected_target_count": 0,
+      "total_detection_count": 0,
+      "candidate_count": 0,
+      "status": "passed"
+    },
+    {
+      "scenario": "single-strong-narrow",
+      "target_bins": [
+        2048
+      ],
+      "detected_target_count": 1,
+      "total_detection_count": 1,
+      "candidate_count": 1,
+      "status": "passed"
+    },
+    {
+      "scenario": "weak-near-threshold",
+      "target_bins": [
+        2048
+      ],
+      "detected_target_count": 1,
+      "total_detection_count": 1,
+      "candidate_count": 1,
+      "status": "passed"
+    },
+    {
+      "scenario": "two-adjacent-signals",
+      "target_bins": [
+        1800,
+        1805
+      ],
+      "detected_target_count": 2,
+      "total_detection_count": 3,
+      "candidate_count": 3,
+      "status": "passed"
+    },
+    {
+      "scenario": "wide-signal",
+      "target_bins": [
+        2396,
+        2397,
+        2398,
+        2399,
+        2400,
+        2401,
+        2402,
+        2403,
+        2404
+      ],
+      "detected_target_count": 9,
+      "total_detection_count": 9,
+      "candidate_count": 1,
+      "status": "passed"
+    },
+    {
+      "scenario": "edge-signal",
+      "target_bins": [
+        20
+      ],
+      "detected_target_count": 1,
+      "total_detection_count": 1,
+      "candidate_count": 1,
+      "status": "passed"
+    },
+    {
+      "scenario": "multiple-local-interferers",
+      "target_bins": [
+        2000
+      ],
+      "detected_target_count": 1,
+      "total_detection_count": 8,
+      "candidate_count": 3,
+      "status": "passed"
+    },
+    {
+      "scenario": "changing-local-noise-floor",
+      "target_bins": [
+        1024,
+        3072
+      ],
+      "detected_target_count": 2,
+      "total_detection_count": 3,
+      "candidate_count": 3,
+      "status": "passed"
+    }
+  ],
+  "empirical_false_alarm": {
+    "distribution_assumption": "independent identically distributed exponential square-law power",
+    "frame_count": 256,
+    "evaluated_cell_count": 1038336,
+    "false_alarm_count": 95,
+    "configured_pfa": 0.0001,
+    "observed_false_alarm_probability": 9.1492541913215e-05,
+    "confidence_method": "two-sided 99% Wilson interval",
+    "confidence_lower": 7.029883509434694e-05,
+    "confidence_upper": 0.00011907497080798152,
+    "acceptance": "configured Pfa must lie inside the finite-sample 99% interval",
+    "status": "passed"
+  },
+  "claim_boundary": "Host mathematical evidence under the stated exponential-noise model; not live RF, ARM, or ZedBoard execution."
+}

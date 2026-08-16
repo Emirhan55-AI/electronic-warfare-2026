@@ -14,19 +14,26 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from host.operator_console.application import build_application
-from reference.p0 import OSCFARDetector, ParameterExtractor, TemporalConfirmation
-from reference.p0.fixtures import CENTER_FREQUENCY_HZ, SAMPLE_RATE_HZ, build_fixtures
+from reference.p0 import (
+    P0_DETECTOR_PROFILE,
+    OSCFARDetector,
+    ParameterExtractor,
+    TemporalConfirmation,
+)
+from reference.p0.fixtures import CENTER_FREQUENCY_HZ, SAMPLE_RATE_HZ, build_fixtures, build_judge_demo_engine
 from reference.spectrum import SpectrumProcessor
 
 
 def populate(window: object) -> None:
     fixture = next(item for item in build_fixtures() if item.fixture_id == "nfm-like")
+    window.set_p0_search_engine(build_judge_demo_engine())
     spectrum = SpectrumProcessor().process(
         fixture.iq,
         sample_rate_hz=SAMPLE_RATE_HZ,
         center_frequency_hz=CENTER_FREQUENCY_HZ,
     )
-    shifted_power = np.abs(np.fft.fftshift(np.fft.fft(fixture.iq * np.hanning(fixture.iq.size)))) ** 2
+    periodic_hann = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(fixture.iq.size, dtype=np.float64) / fixture.iq.size)
+    shifted_power = np.abs(np.fft.fftshift(np.fft.fft(fixture.iq * periodic_hann))) ** 2
     detection = OSCFARDetector().process(shifted_power, frame_id=0)
     expected_bin = fixture.iq.size // 2 + round(90_000.0 / (SAMPLE_RATE_HZ / fixture.iq.size))
     candidate = min(detection.candidates, key=lambda item: abs(item.peak_bin - expected_bin))
@@ -44,6 +51,7 @@ def populate(window: object) -> None:
         confirmed=confirmed,
         provenance="HOST REFERENCE",
         backend="REPLAY → p0.os_cfar + p0.parameters",
+        neighboring_candidates=detection.candidates,
     )
     window.source_value.setText("P0 deterministik NFM-benzeri replay")
     window.metadata_values["center_frequency"].setText("100,000 MHz")
@@ -52,7 +60,11 @@ def populate(window: object) -> None:
     window.metadata_values["frame_length"].setText("4096 karmaşık örnek")
     window.metadata_values["frame_position"].setText("2 / 2")
     window.metadata_values["channel"].setText("1")
-    window.set_profile_summary("P0 OS-CFAR · G=4 · R=16/yan · rank=24/32 · α=7,5", validated=True)
+    window.set_profile_summary(
+        f"{P0_DETECTOR_PROFILE.name} · G=4 · R=16/yan · rank=24/32 · "
+        f"Pfa=1e-4 · α={P0_DETECTOR_PROFILE.threshold_coefficient:.6f}",
+        validated=True,
+    )
     for _ in range(16):
         window.spectrum_view.update_spectrum(spectrum.display, spectrum.display)
     window.analysis_spectrum.set_spectrum(spectrum.display)

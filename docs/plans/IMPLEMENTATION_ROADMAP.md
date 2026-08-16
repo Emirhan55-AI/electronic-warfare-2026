@@ -40,6 +40,15 @@ geçmiştir. PetaLinux/ARM, canlı ZedBoard DMA, canlı HackRF ve RF TX
 çalıştırılmamıştır. Bu kontrol noktası sonraki faz için otomatik kullanıcı onayı
 oluşturmaz.
 
+### P0 Mandatory Closure Block A
+
+Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık
+nokta kapatılır: exponential-noise Pfa denkleminden türetilen adlı OS-CFAR
+mühendislik profili, kaba aday spanından ayrı gürültü-referanslı bant estimatorü
+ve ortak acquisition sözleşmesi üzerinden çalışan `UNKNOWN`, `JUDGE_BAND`,
+`JUDGE_FREQUENCY` hakem modları. Bu blok PHASE-06A–J RTL'yi, Vivado tasarımını,
+HackRF/PetaLinux/ET/DF donanım kapsamını değiştirmez ve P1'e geçiş onayı değildir.
+
 **P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06**
 
 PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini doğrulamıştır; bu sonuç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. PHASE-06A–J tamamlanmış ve dondurulmuştur. PHASE-06J, PHASE-06I ABI v1 packet'ını strict tüketen bounded portable C11 PS temporal çekirdeğini host compile/link ve Python golden eşdeğerliğiyle doğrulamıştır. PetaLinux/ARM, gerçek DMA/driver/device tree, fiziksel birim dönüşümü, post-detector timing ve hardware sonucu değildir. Gerçek canlı HackRF dinleme, PHASE-07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.

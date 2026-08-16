@@ -1,47 +1,48 @@
 {
-  "schema_version": 1,
-  "checkpoint": "P0 Mandatory EH Core — ED Algorithms, FPGA Runtime and Operator Integration",
+  "schema_version": 2,
+  "checkpoint": "P0 Mandatory Closure Block A — Detector, Bandwidth and Judge Workflow",
   "status": "passed",
   "software_closure": {
-    "p0_algorithm_golden": "PASS",
-    "p0_df_golden": "PASS",
-    "p0_et_golden": "PASS",
+    "canonical_detector_profile": "PASS_PFA_DERIVED_ALPHA_8.58014304069906",
+    "empirical_false_alarm": "PASS_95_OF_1038336_CELLS_99_PERCENT_WILSON_CONTAINS_CONFIGURED_PFA",
     "python_c_os_cfar_equivalence": "PASS_32768_CELLS_ZERO_MISMATCH",
-    "phase06j": "PASS",
-    "phase06a_through_phase06j_regression": "PASS",
-    "full_unittest": "PASS_322_TESTS_1_EXTERNAL_SKIP",
+    "bandwidth_ground_truth": "PASS_9_RECORDS_250_HZ_PER_BIN",
+    "judge_workflow": "PASS_UNKNOWN_BAND_FREQUENCY_AND_NEGATIVE_INPUTS",
+    "mandatory_parameter_regression": "PASS",
+    "p0_df_golden": "PASS",
+    "p0_et_offline_golden": "PASS",
+    "phase05_regression": "PASS_12_TESTS",
+    "phase06a_through_phase06j_regression": "PASS_102_TESTS",
+    "operator_tests": "PASS",
+    "full_unittest": "PASS_329_TESTS_1_EXTERNAL_DATASET_SKIP",
     "qt_lifecycle": "PASS_20_OF_20",
-    "ui_performance_policy": "PASS",
-    "repository_contract": "PASS",
-    "demo_smoke": "PASS",
-    "git_diff_check": "PASS"
+    "repository_contract": "PASS_15_TESTS",
+    "git_diff_check": "PASS",
+    "transient_scan": "PASS"
   },
-  "vivado_closure": {
-    "tool": "Vivado 2025.2",
-    "target": "xc7z020clg484-1",
-    "block_design_validation": "PASS",
-    "synthesis": "PASS",
-    "implementation": "PASS",
-    "timing": "PASS",
-    "bitstream": "PASS",
-    "evidence": "results/evidence/p0/vivado-50mhz.json"
+  "functional_fpga_files_changed": false,
+  "vivado_rebuild": {
+    "status": "NOT_REQUIRED",
+    "reason": "Block A changes only host/reference/C software, evidence, tests, documentation and minimal operator UI wiring; no RTL, XDC, IP, block-design or Vivado script changed.",
+    "retained_evidence": "results/evidence/p0/vivado-50mhz.json"
   },
   "hardware_execution": {
-    "petalinux": "BLOCKED_NOT_REQUIRED_FOR_CHECKPOINT",
+    "petalinux": "NOT_EXECUTED_NOT_REQUIRED_FOR_BLOCK_A",
     "arm": "NOT_EXECUTED",
     "live_zedboard_dma": "NOT_EXECUTED",
-    "live_hackrf_rx": "BLOCKED_TOOLCHAIN",
-    "hackrf2_tx": "NOT_IMPLEMENTED_OFFLINE_LOOPBACK_ONLY"
+    "live_hackrf_rx": "NOT_EXECUTED_TOOLCHAIN_UNAVAILABLE",
+    "power_calibration": "NOT_EXECUTED",
+    "df_field_test": "NOT_EXECUTED",
+    "et_hardware_tx": "NOT_EXECUTED_OFFLINE_LOOPBACK_ONLY"
   },
   "proof_levels": {
-    "algorithm_verified_on_host": true,
+    "detector_profile_verified_on_host": true,
+    "bandwidth_verified_on_deterministic_host_fixtures": true,
+    "judge_workflow_verified_on_replay_host_backend": true,
     "rtl_regression_verified": true,
-    "vivado_synthesized": true,
-    "vivado_routed": true,
-    "bitstream_generated": true,
     "run_on_zedboard": false,
     "live_hackrf": false
   },
-  "previous_head": "5e54569d57eb957fb435e1980b0a604f06888abe",
-  "claim_boundary": "No dBm, RF effectiveness, PetaLinux, ARM, live DMA, ZedBoard execution, live HackRF, or RF transmission claim."
+  "previous_head": "182e8adbe2ed199be8faf726e9c41611090b51c1",
+  "claim_boundary": "No dBm, live RF, HackRF scan/tune, PetaLinux, ARM, DMA, ZedBoard execution, DF field, ET RF transmission or new FPGA implementation claim."
 }

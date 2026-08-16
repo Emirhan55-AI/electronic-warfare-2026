@@ -33,6 +33,12 @@ class P0ParameterResult:
     lower_frequency_hz: float
     upper_frequency_hz: float
     bandwidth_hz: float
+    bandwidth_method: Literal["threshold_edges", "occupied_power_fallback"]
+    threshold_bandwidth_hz: float
+    occupied_bandwidth_hz: float
+    coarse_candidate_lower_frequency_hz: float
+    coarse_candidate_upper_frequency_hz: float
+    coarse_candidate_bandwidth_hz: float
     relative_power_linear: float
     relative_power_dbfs: float
     snr_db: float

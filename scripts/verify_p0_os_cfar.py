@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0 import OSCFARConfig, OSCFARDetector
+from reference.p0 import P0_DETECTOR_PROFILE, OSCFARConfig, OSCFARDetector
 
 
 class Config(ctypes.Structure):
@@ -75,8 +75,29 @@ def verify() -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="p0-os-cfar-") as raw:
         library_path, compiler = _compile(Path(raw))
         library = ctypes.CDLL(str(library_path))
+        canonical = library.p0_os_cfar_canonical_config
+        canonical.argtypes = [ctypes.POINTER(Config)]
+        canonical.restype = ctypes.c_int
+        derived = library.p0_os_cfar_threshold_coefficient
+        derived.argtypes = [ctypes.c_double, ctypes.c_uint32, ctypes.c_uint32, ctypes.POINTER(ctypes.c_double)]
+        derived.restype = ctypes.c_int
         function = library.p0_os_cfar_process
         function.restype = ctypes.c_int
+        c_cfg = Config()
+        if canonical(ctypes.byref(c_cfg)) != 0:
+            raise RuntimeError("C canonical profile construction failed")
+        independently_derived = ctypes.c_double()
+        if derived(P0_DETECTOR_PROFILE.desired_pfa, 32, 24, ctypes.byref(independently_derived)) != 0:
+            raise RuntimeError("C coefficient derivation failed")
+        profile_mismatch = int(
+            c_cfg.reference != cfg.reference_cells_per_side
+            or c_cfg.guard != cfg.guard_cells_per_side
+            or c_cfg.rank != cfg.order_statistic_rank
+            or c_cfg.gap != cfg.maximum_gap_bins
+            or c_cfg.coefficient != cfg.threshold_coefficient
+            or independently_derived.value != cfg.threshold_coefficient
+        )
+        mismatch_count += profile_mismatch
         for frame_id, power in enumerate(frames):
             expected = OSCFARDetector(cfg).process(power, frame_id=frame_id)
             detections = np.zeros(power.size, dtype=np.uint8)
@@ -84,7 +105,6 @@ def verify() -> dict[str, object]:
             threshold = np.empty(power.size, dtype=np.float64)
             candidates = (Candidate * 4096)()
             count = ctypes.c_size_t()
-            c_cfg = Config(cfg.reference_cells_per_side, cfg.guard_cells_per_side, cfg.order_statistic_rank, cfg.threshold_coefficient, cfg.maximum_gap_bins)
             status = function(
                 power.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), power.size, ctypes.byref(c_cfg),
                 detections.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),
@@ -99,10 +119,25 @@ def verify() -> dict[str, object]:
             wanted = [(item.start_bin, item.end_bin, item.peak_bin) for item in expected.candidates]
             mismatch_count += int(observed != wanted)
         handle = library._handle
+        coefficient_difference = independently_derived.value - cfg.threshold_coefficient
         del function
+        del derived
+        del canonical
         del library
         _ctypes.FreeLibrary(handle)
-    return {"phase": "P0", "status": "passed" if mismatch_count == 0 else "failed", "compiler": compiler, "frames": len(frames), "cells": len(frames) * 4096, "mismatch_count": mismatch_count, "arm_execution": "not_exercised"}
+    return {
+        "phase": "P0",
+        "status": "passed" if mismatch_count == 0 else "failed",
+        "compiler": compiler,
+        "profile_name": P0_DETECTOR_PROFILE.name,
+        "desired_pfa": P0_DETECTOR_PROFILE.desired_pfa,
+        "threshold_coefficient": cfg.threshold_coefficient,
+        "c_python_coefficient_difference": coefficient_difference,
+        "frames": len(frames),
+        "cells": len(frames) * 4096,
+        "mismatch_count": mismatch_count,
+        "arm_execution": "not_exercised",
+    }
 
 
 def main() -> int:

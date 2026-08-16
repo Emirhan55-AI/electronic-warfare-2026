@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSlider,
     QSpinBox,
+    QStackedWidget,
     QSplitter,
     QScrollArea,
     QTabWidget,
@@ -40,7 +41,15 @@ from reference.et import (
     ETMissionController,
     SafetyMode,
 )
-from reference.p0 import DFMeasurement, ManualAmplitudeDF, P0ParameterResult
+from reference.p0 import (
+    DFMeasurement,
+    ManualAmplitudeDF,
+    P0ParameterResult,
+    P0SearchEngine,
+    SearchExecutionResult,
+    SearchMode,
+    SearchRequest,
+)
 
 from .spectrum_view import AnalysisSpectrumView, SpectrumView
 from .ui_text import TEXT
@@ -102,12 +111,16 @@ class MainWindow(QMainWindow):
         main_splitter.setStretchFactor(1, 0)
         main_splitter.setChildrenCollapsible(False)
 
+        self.p0_search_engine: P0SearchEngine | None = None
+        self.last_search_result: SearchExecutionResult | None = None
+        search_workflow = self._build_search_workflow()
         controls = self._build_controls()
         operation = QWidget()
         operation_layout = QVBoxLayout(operation)
         operation_layout.setContentsMargins(0, 0, 0, 0)
         operation_layout.setSpacing(8)
         operation_layout.addWidget(main_splitter, 1)
+        operation_layout.addWidget(search_workflow)
         operation_layout.addWidget(controls)
         analysis = self._build_analysis_workspace()
         self.workspace_tabs = QTabWidget()
@@ -283,6 +296,10 @@ class MainWindow(QMainWindow):
             ("p0_detection", "Tespit"),
             ("p0_carrier", "Taşıyıcı Frekansı"),
             ("p0_bandwidth", "Bant Genişliği"),
+            ("p0_lower", "Alt Sinyal Sınırı"),
+            ("p0_upper", "Üst Sinyal Sınırı"),
+            ("p0_bandwidth_method", "Bant Ölçüm Yöntemi"),
+            ("p0_coarse_span", "Kaba Aday Aralığı"),
             ("p0_power", "Güç Seviyesi"),
             ("p0_snr", "SNR"),
             ("p0_domain", "Analog/Sayısal"),
@@ -541,6 +558,66 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.center_checkbox, 2, 4, 1, 3)
         layout.setColumnStretch(8, 1)
         return controls
+
+    def _build_search_workflow(self) -> QFrame:
+        panel = QFrame()
+        panel.setObjectName("searchWorkflow")
+        layout = QGridLayout(panel)
+        layout.setContentsMargins(14, 8, 14, 8)
+        layout.setHorizontalSpacing(10)
+        layout.addWidget(QLabel("ARAMA MODU"), 0, 0)
+        self.search_mode_combo = QComboBox()
+        self.search_mode_combo.addItem("Bilinmeyen Frekans", SearchMode.UNKNOWN)
+        self.search_mode_combo.addItem("Hakem Bant Bildirdi", SearchMode.JUDGE_BAND)
+        self.search_mode_combo.addItem("Hakem Frekans Bildirdi", SearchMode.JUDGE_FREQUENCY)
+        layout.addWidget(self.search_mode_combo, 0, 1)
+
+        self.search_inputs = QStackedWidget()
+        unknown_page = QLabel("Replay tarama planındaki bütün tuning pencereleri analiz edilir.")
+        unknown_page.setWordWrap(True)
+        self.search_inputs.addWidget(unknown_page)
+
+        band_page = QWidget()
+        band_layout = QHBoxLayout(band_page)
+        band_layout.setContentsMargins(0, 0, 0, 0)
+        self.judge_band_lower_spin = QDoubleSpinBox()
+        self.judge_band_upper_spin = QDoubleSpinBox()
+        for widget in (self.judge_band_lower_spin, self.judge_band_upper_spin):
+            widget.setRange(1.0, 6000.0)
+            widget.setDecimals(6)
+            widget.setSuffix(" MHz")
+        self.judge_band_lower_spin.setValue(100.080)
+        self.judge_band_upper_spin.setValue(100.100)
+        band_layout.addWidget(QLabel("Alt Frekans"))
+        band_layout.addWidget(self.judge_band_lower_spin)
+        band_layout.addWidget(QLabel("Üst Frekans"))
+        band_layout.addWidget(self.judge_band_upper_spin)
+        self.search_inputs.addWidget(band_page)
+
+        frequency_page = QWidget()
+        frequency_layout = QHBoxLayout(frequency_page)
+        frequency_layout.setContentsMargins(0, 0, 0, 0)
+        self.judge_frequency_spin = QDoubleSpinBox()
+        self.judge_frequency_spin.setRange(1.0, 6000.0)
+        self.judge_frequency_spin.setDecimals(6)
+        self.judge_frequency_spin.setSuffix(" MHz")
+        self.judge_frequency_spin.setValue(100.090)
+        frequency_layout.addWidget(QLabel("Merkez Frekans"))
+        frequency_layout.addWidget(self.judge_frequency_spin)
+        self.search_inputs.addWidget(frequency_page)
+        layout.addWidget(self.search_inputs, 0, 2, 1, 2)
+
+        self.search_start_button = QPushButton("Taramayı Başlat")
+        self.search_start_button.setEnabled(False)
+        layout.addWidget(self.search_start_button, 0, 4)
+        self.active_search_mode_label = QLabel("REPLAY BACKEND BEKLENİYOR")
+        self.active_search_mode_label.setWordWrap(True)
+        layout.addWidget(self.active_search_mode_label, 1, 0, 1, 5)
+        layout.setColumnStretch(3, 1)
+        self.search_mode_combo.currentIndexChanged.connect(self._search_mode_changed)
+        self.search_start_button.clicked.connect(self._start_competition_search)
+        self._search_mode_changed(0)
+        return panel
 
     def _build_listening_workspace(self) -> QWidget:
         self.listening_spectrum = AnalysisSpectrumView()
@@ -905,13 +982,23 @@ class MainWindow(QMainWindow):
     def set_p0_parameter_result(self, result: P0ParameterResult | None) -> None:
         """Bind only immutable P0 result fields; no placeholder is presented as a result."""
         if result is None:
-            for key in ("p0_detection", "p0_carrier", "p0_bandwidth", "p0_power", "p0_snr", "p0_domain", "p0_region", "p0_backend", "p0_source"):
+            for key in ("p0_detection", "p0_carrier", "p0_bandwidth", "p0_lower", "p0_upper", "p0_bandwidth_method", "p0_coarse_span", "p0_power", "p0_snr", "p0_domain", "p0_region", "p0_backend", "p0_source"):
                 self.parameter_values[key].setText(TEXT["not_validated"])
             return
         locale = self.locale
         self.parameter_values["p0_detection"].setText("Doğrulanmış" if result.confirmed else "Doğrulanmamış")
         self.parameter_values["p0_carrier"].setText(self._frequency(result.carrier_frequency_hz))
         self.parameter_values["p0_bandwidth"].setText(locale.toString(result.bandwidth_hz / 1000.0, "f", 3) + " kHz")
+        self.parameter_values["p0_lower"].setText(self._frequency(result.lower_frequency_hz))
+        self.parameter_values["p0_upper"].setText(self._frequency(result.upper_frequency_hz))
+        method_text = {
+            "threshold_edges": "Yerel gürültü/eşik sınırları",
+            "occupied_power_fallback": "Gürültü-referanslı %98 occupied-power fallback",
+        }[result.bandwidth_method]
+        self.parameter_values["p0_bandwidth_method"].setText(method_text)
+        self.parameter_values["p0_coarse_span"].setText(
+            locale.toString(result.coarse_candidate_bandwidth_hz / 1000.0, "f", 3) + " kHz"
+        )
         self.parameter_values["p0_power"].setText(locale.toString(result.relative_power_dbfs, "f", 2) + " dBFS · " + result.calibration_state)
         self.parameter_values["p0_snr"].setText(locale.toString(result.snr_db, "f", 2) + " dB")
         self.parameter_values["p0_domain"].setText(result.signal_domain)
@@ -933,6 +1020,66 @@ class MainWindow(QMainWindow):
         self.detection_list.addItem(item)
         self.detection_state.setText(f"1 {state.casefold()} · P0 OS-CFAR")
         self.detection_note.setText("Yetkili P0 kararı: PS hedefli OS-CFAR · Bu demo HOST REFERENCE sonucudur.")
+
+    def set_p0_search_engine(self, engine: P0SearchEngine | None) -> None:
+        """Install a hardware-independent search backend without changing UI wiring."""
+
+        self.p0_search_engine = engine
+        self.last_search_result = None
+        self.search_start_button.setEnabled(engine is not None)
+        self.active_search_mode_label.setText(
+            "HAZIR · REPLAY/HOST · Canlı HackRF taraması değildir."
+            if engine is not None
+            else "REPLAY BACKEND BEKLENİYOR"
+        )
+
+    def _search_mode_changed(self, index: int) -> None:
+        self.search_inputs.setCurrentIndex(max(0, min(index, self.search_inputs.count() - 1)))
+
+    def _selected_search_request(self) -> SearchRequest:
+        raw_mode = self.search_mode_combo.currentData()
+        mode = raw_mode if isinstance(raw_mode, SearchMode) else SearchMode(str(raw_mode))
+        if mode is SearchMode.UNKNOWN:
+            return SearchRequest.unknown()
+        if mode is SearchMode.JUDGE_BAND:
+            return SearchRequest.judge_band_mhz(
+                self.judge_band_lower_spin.value(),
+                self.judge_band_upper_spin.value(),
+            )
+        if mode is SearchMode.JUDGE_FREQUENCY:
+            return SearchRequest.judge_frequency_mhz(self.judge_frequency_spin.value())
+        raise ValueError("Desteklenmeyen arama modu seçildi.")
+
+    def _start_competition_search(self) -> None:
+        if self.p0_search_engine is None:
+            self.active_search_mode_label.setText("ARAMA BAŞLATILAMADI · Replay/backend bağlı değil.")
+            return
+        try:
+            request = self._selected_search_request()
+            result = self.p0_search_engine.execute(request)
+        except ValueError as exc:
+            self.active_search_mode_label.setText(f"GEÇERSİZ GİRDİ · {exc}")
+            return
+        self.last_search_result = result
+        mode_text = {
+            SearchMode.UNKNOWN: "BİLİNMEYEN FREKANS",
+            SearchMode.JUDGE_BAND: "HAKEM BANT BİLDİRDİ",
+            SearchMode.JUDGE_FREQUENCY: "HAKEM FREKANS BİLDİRDİ",
+        }[request.mode]
+        if result.parameters:
+            primary = result.parameters[0]
+            self.set_p0_parameter_result(primary)
+            self.set_p0_detection_summary(primary)
+            self.active_search_mode_label.setText(
+                f"TAMAMLANDI · {mode_text} · {len(result.examined_window_ids)} pencere · "
+                f"{len(result.parameters)} doğrulanmış sinyal · REPLAY/HOST"
+            )
+        else:
+            self.set_p0_parameter_result(None)
+            self.clear_detections()
+            self.active_search_mode_label.setText(
+                f"TAMAMLANDI · {mode_text} · SİNYAL DOĞRULANMADI · REPLAY/HOST"
+            )
 
     def _add_df_measurement(self) -> None:
         measurement = DFMeasurement.create(
