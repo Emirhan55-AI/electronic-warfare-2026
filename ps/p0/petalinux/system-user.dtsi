@@ -1,0 +1,13 @@
+/include/ "system-conf.dtsi"
+
+/ {
+};
+
+&usb0 {
+    status = "okay";
+};
+
+&axi_dma_0 {
+    compatible = "teknofest,p0-axi-dma-1.0";
+    status = "okay";
+};

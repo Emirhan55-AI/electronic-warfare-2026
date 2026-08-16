@@ -18,8 +18,8 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay/host modları PASS; B0 disconnected/tool/serial/host-processing durumları hazır; canlı HackRF yok |
 | PC↔ZedBoard taşıma | Bounded sıralı IQ çerçeveleri, bütünlük ve istatistik | Bilgisayar-1 Ethernet; ZedBoard PS | Eksik | PC sözleşmesi/loopback tam; ZedBoard sunucusu ve canlı ağ çalıştırılmadı |
 | HackRF-1 RX | Replay ile aynı normalize IQ frame sözleşmesi | HackRF-1 USB→Bilgisayar-1 | Kısmi | B0 host toolchain READY; seri-temelli RX argv, bounded queue ve üç tuning planı unit-test PASS; cihaz bağlı değil, seri atanmadı, canlı RX yok |
-| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Vivado sentez/route/timing/bitstream geçti; kartta çalıştırılmadı |
-| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | BD validate geçti; gerçek bloklar bağlı; PetaLinux/driver/DMA çalıştırılmadı |
+| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Güncel 50 MHz length-width-16 Vivado sentez/route/timing/bitstream ve XSA geçti; kartta çalıştırılmadı |
+| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | SG/DRE kapalı, MM2S 8192 ve S2MM 32768 byte sözleşmeli donanım; coherent-buffer driver/device tree/rootfs/boot artifact derlemesi geçti; fiziksel DMA çalıştırılmadı |
 
 ## KTR Donanım Sapma Kaydı
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -19,6 +20,22 @@ SPEC.loader.exec_module(VERIFY)
 
 
 class RepositoryContractTests(unittest.TestCase):
+    def test_p0_dma_length_field_covers_one_power_frame(self) -> None:
+        vivado_tcl = (ROOT / "scripts" / "create_p0_vivado_project.tcl").read_text(
+            encoding="utf-8"
+        )
+        properties = {
+            name: int(value)
+            for name, value in re.findall(r"CONFIG\.(c_[a-z0-9_]+) \{(\d+)\}", vivado_tcl)
+        }
+        input_frame_bytes = 4096 * (properties["c_m_axis_mm2s_tdata_width"] // 8)
+        output_frame_bytes = 4096 * (properties["c_s_axis_s2mm_tdata_width"] // 8)
+        maximum_dma_length = (1 << properties["c_sg_length_width"]) - 1
+
+        self.assertEqual(8192, input_frame_bytes)
+        self.assertEqual(32768, output_frame_bytes)
+        self.assertGreaterEqual(maximum_dma_length, output_frame_bytes)
+
     def test_phase00_baseline_files_remain_required(self) -> None:
         self.assertEqual(19, len(VERIFY.REQUIRED_FILES))
 
@@ -65,7 +82,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(30, len(VERIFY.APPROVED_PHASE06I_FILES))
         self.assertEqual(4, len(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES))
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
-        self.assertEqual(62, len(VERIFY.APPROVED_P0_FILES))
+        self.assertEqual(69, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

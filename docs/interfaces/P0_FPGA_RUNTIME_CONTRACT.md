@@ -27,9 +27,29 @@ beat'lerini DDR'a taşır. OS-CFAR, gruplama, temporal doğrulama ve fiziksel pa
 çıkarımı PS/ARM sahibidir. PHASE-06G/H/I doğrulanmış hızlandırıcıları korunur fakat
 P0 DMA zincirinde yer almaz.
 
+Direct-mode DMA sözleşmesi SG kapalı ve DRE kapalı olarak kalır. Bir giriş frame'i
+`4096×16 bit = 8192 byte`, bir çıkış frame'i `4096×64 bit = 32768 byte` olur.
+AXI DMA buffer-length alanı 16 bittir; `65535 byte` üst sınırı iki frame boyunu da
+temsil eder. 14 bitlik tarihsel yapılandırmanın `16383 byte` üst sınırı tek S2MM
+paketini temsil edemediğinden güncel kabul platformu değildir.
+
+`p0_dma_client` çekirdek sürücüsü 8192 ve 32768 byte'lık DMA-coherent tamponların
+sahibidir ve iki DMA adresinde de 8-byte hizalamayı zorunlu tutar. Her çalıştırmada
+DMA resetlenir, S2MM kanalına hedef adres ile 32768-byte length yazılarak alıcı
+önce hazırlanır, ardından MM2S kanalına kaynak adres ile 8192-byte length yazılır.
+İki kanal ayrı kesmelerle IOC/error tamamlanması, 5 saniye timeout ve AXI DMA
+`DMAIntErr`, `DMASlvErr`, `DMADecErr` ile SG hata bitleri açısından denetlenir.
+Kullanıcı aracı yalnız tam 8192-byte giriş ve tam 32768-byte çıkış kabul eder.
+
+PetaLinux 2025.2 hedef derlemesi; özel device-tree compatible değeri,
+`/dev/p0-dma` sağlayan modül, `p0-dma-run` aracı, otomatik modül yükleme kaydı ve
+HackRF/OpenSSH/udev bağımlılıklarıyla tamamlanmıştır. Bu, boot edilebilir yazılım
+hazırlığıdır; kartta boot, fiziksel `S2MM_LENGTH=32768`, DMA IOC veya sayısal golden
+henüz çalıştırılmamıştır.
+
 ## Hata ve iddia sınırı
 
 Eksik giriş `TKEEP` değeri sticky hata üretir. FFT olayları PHASE-06C sözleşmesinin
-sticky durum bitlerinde korunur. DMA completion yalnız interrupt/driver tarafından
-ileride doğrulanabilir; blok tasarımının varlığı PetaLinux, driver, kart çalışması
-veya canlı HackRF sonucu değildir.
+sticky durum bitlerinde korunur. Driver ve boot artifact'larının derlenmiş olması
+kart çalışması, fiziksel DMA completion, FPGA golden veya canlı HackRF sonucu
+değildir; bunlar yalnız gerçek UART ve runtime çıktısıyla kabul edilebilir.

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "date": "2026-08-16",
+  "host": "emirhan-virtual-machine",
+  "tool": "PetaLinux 2025.2",
+  "project": "/home/emirhan/projects/electronic-warfare-zedboard",
+  "hardware_import": {
+    "xsa_sha256_windows": "9cc6da79b1d66eb0e1d5fb6818d3664b1df138d2f9f9db076bf1cfc57bc71ad4",
+    "xsa_sha256_linux": "9cc6da79b1d66eb0e1d5fb6818d3664b1df138d2f9f9db076bf1cfc57bc71ad4",
+    "dma_length_width_bits": 16,
+    "dma_base_address": "0x40400000",
+    "interrupts": [29, 30]
+  },
+  "device_tree": {
+    "status": "passed",
+    "compatible": "teknofest,p0-axi-dma-1.0",
+    "sg_length_width": 16,
+    "mm2s_channel": true,
+    "s2mm_channel": true,
+    "system_dtb_sha256": "8f7b689687f01bc7c57ee3a029f690fd3297ba790d40a6a53defa9e041e44556",
+    "informational_warnings": [
+      "unit_address_vs_reg on generated AXI DMA child channel nodes"
+    ]
+  },
+  "dma_runtime": {
+    "driver_source_sha256": "b461ee0f13146678cd88482c67afbe1cb8e7e9481c0ae5a71b00fd4b24131ec9",
+    "input_bytes": 8192,
+    "output_bytes": 32768,
+    "buffer_owner": "kernel DMA-coherent allocation",
+    "minimum_enforced_alignment_bytes": 8,
+    "start_order": ["S2MM", "MM2S"],
+    "component_build": "passed",
+    "component_tasks": "5535/5535",
+    "rootfs_files": [
+      "/etc/modules-load.d/p0_dma_client.conf",
+      "/lib/modules/6.12.40-xilinx-g31626ef92ff1/updates/p0_dma_client.ko",
+      "/usr/bin/p0-dma-run"
+    ]
+  },
+  "preserved_rootfs_components": [
+    "hackrf 2026.01.3",
+    "libusb-1.0-0 1.0.27",
+    "eudev 3.2.14",
+    "openssh 9.6p1"
+  ],
+  "full_build": {
+    "status": "passed",
+    "tasks": "6052/6052",
+    "informational_warnings": [
+      "/tftpboot was unavailable, so optional TFTP copy was skipped",
+      "PetaLinux and XSCT deprecation notices"
+    ]
+  },
+  "boot_artifacts": {
+    "BOOT.BIN": {
+      "bytes": 5195024,
+      "sha256": "490545470f8655e81834c178b0635503679fd1d5d077093d28d8cb0c84ec0a9e"
+    },
+    "boot.scr": {
+      "bytes": 3830,
+      "sha256": "4c7ed60cad10872084bf727b2c9ab0eca9eab992635cf3abf67dfe7ed9cc7807"
+    },
+    "image.ub": {
+      "bytes": 23902887,
+      "sha256": "bc87f369620f013648f9eb489d6f39b64bf0ebdd15d90e29786d618c84023652"
+    },
+    "rootfs.ext4": {
+      "bytes": 88269824,
+      "sha256": "abe07473c179fdf8bf038f83ab474b0a7dc220c189b1cf77e5d4f2c74cf22218"
+    },
+    "rootfs.cpio.gz.u-boot_sha256": "5717167d8b2e7e1079a41687de73b231ff3dc31e454b99f673dba9970adbf9df",
+    "system.bit_sha256": "29d1c033fe489b3153fd5e3bf9477271863bd74dfab71bcc5d4740c196860b3f"
+  },
+  "physical_execution": {
+    "board_boot": "not_executed",
+    "s2mm_length_32768": "not_executed",
+    "known_frame": "not_executed",
+    "fpga_golden": "not_executed",
+    "live_hackrf_to_fpga": "not_executed",
+    "ui": "not_executed"
+  },
+  "claim_boundary": "Bootable artifacts and target binaries are built; no ZedBoard boot, physical DMA, FPGA numerical golden, live HackRF, or UI result is claimed."
+}

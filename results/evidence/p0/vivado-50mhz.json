@@ -1,37 +1,58 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "passed",
   "tool": "Vivado v2025.2 build 6299465",
   "target": "xc7z020clg484-1",
   "clock_hz": 50000000,
+  "dma": {
+    "scatter_gather": false,
+    "mm2s_enabled": true,
+    "s2mm_enabled": true,
+    "dre_enabled": false,
+    "length_width_bits": 16,
+    "maximum_length_bytes": 65535,
+    "input_frame_bytes": 8192,
+    "output_frame_bytes": 32768,
+    "base_address": "0x40400000",
+    "mm2s_stream_bits": 16,
+    "s2mm_stream_bits": 64
+  },
   "block_design_validation": "PASS",
   "synthesis": "PASS",
   "implementation": "ROUTE_DESIGN_COMPLETE",
   "route": {
-    "routable_nets": 16757,
-    "fully_routed_nets": 16757,
+    "routable_nets": 16815,
+    "fully_routed_nets": 16815,
     "routing_errors": 0
   },
   "timing": {
-    "setup_wns_ns": 0.258,
+    "setup_wns_ns": 0.578,
     "setup_tns_ns": 0.0,
     "setup_failing_endpoints": 0,
-    "hold_whs_ns": 0.025,
+    "hold_whs_ns": 0.006,
     "hold_ths_ns": 0.0,
     "hold_failing_endpoints": 0,
     "check_timing_max_issue_count": 0
   },
   "post_route_resources": {
-    "slice_luts": 7342,
-    "slice_lut_utilization_percent": 13.80,
-    "slice_registers": 10870,
-    "slice_register_utilization_percent": 10.22,
+    "slice_luts": 7366,
+    "slice_lut_utilization_percent": 13.85,
+    "slice_registers": 10902,
+    "slice_register_utilization_percent": 10.25,
     "block_ram_tiles": 17,
     "block_ram_utilization_percent": 12.14,
     "dsps": 40,
     "dsp_utilization_percent": 18.18
   },
   "drc_errors": 0,
+  "drc_warnings": {
+    "DPIP-1": 18,
+    "DPOP-1": 6,
+    "DPOP-2": 10,
+    "PDCN-1569": 3,
+    "REQP-1839": 8,
+    "RTSTAT-10": 1
+  },
   "methodology_warnings": {
     "LUTAR-1": 3,
     "scope": "AMD AXI interconnect protocol-converter generated logic"
@@ -40,7 +61,19 @@
     "status": "PASS",
     "relative_path": "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
     "bytes": 4045693,
-    "sha256": "5f69fa3f60849ada80a7a01e279bf56c5af6691431931d0af428a4d63e58af3a"
+    "sha256": "29d1c033fe489b3153fd5e3bf9477271863bd74dfab71bcc5d4740c196860b3f"
+  },
+  "hardware_platform": {
+    "relative_path": "build/p0/hardware/p0_system_50mhz.xsa",
+    "bytes": 534833,
+    "xsa_sha256": "9cc6da79b1d66eb0e1d5fb6818d3664b1df138d2f9f9db076bf1cfc57bc71ad4",
+    "hwh_sha256": "b594d2bc1900ab7a2660eac09fd766841996a5e7283c9565765a49565c3216cc"
+  },
+  "historical_invalid_for_current_packet": {
+    "length_width_bits": 14,
+    "maximum_length_bytes": 16383,
+    "xsa_sha256": "85fa9ccca46d468b9d219a715265219aa4fdb61f623bb82ac720fea5e755ff66",
+    "bitstream_sha256": "5f69fa3f60849ada80a7a01e279bf56c5af6691431931d0af428a4d63e58af3a"
   },
   "throughput": {
     "cycles_per_frame_steady_state": 4096,
@@ -48,5 +81,5 @@
     "maximum_complex_samples_per_second": 50000000,
     "hackrf_20msps_arithmetic_margin_ratio": 2.5
   },
-  "claim_boundary": "Local Vivado tool proof only; not PetaLinux, ARM, live DMA, ZedBoard execution, or live HackRF evidence."
+  "claim_boundary": "Local Vivado/XSA build proof only; not ARM boot, live DMA, ZedBoard execution, FPGA numerical golden, or live HackRF evidence."
 }

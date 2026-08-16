@@ -35,8 +35,10 @@ OFFLINE/LOOPBACK sürekli karıştırma ile analog FM/NFM aldatma taban bantlar�
 tamamlar. PHASE-06A–J değiştirilmemiştir; konum, look-through ve GPS L1 P1'e
 geçilmeden bekler.
 
-Vivado 2025.2'de 50 MHz P0 tasarımı sentez, route, timing ve bitstream kapılarını
-geçmiştir. PetaLinux/ARM, canlı ZedBoard DMA, canlı HackRF ve RF TX
+Vivado 2025.2'de 50 MHz P0 tasarımı, 32768-byte S2MM paketi için zorunlu 16-bit
+DMA length alanıyla sentez, route, timing, bitstream ve XSA kapılarını geçmiştir.
+PetaLinux 2025.2 device tree, coherent-buffer DMA modülü, rootfs ve boot artifact
+derlemesi tamamlanmıştır. ARM/kart boot, canlı ZedBoard DMA, canlı HackRF ve RF TX
 çalıştırılmamıştır. Bu kontrol noktası sonraki faz için otomatik kullanıcı onayı
 oluşturmaz.
 

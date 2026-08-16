@@ -57,6 +57,11 @@ puts "P0:BITSTREAM_STATUS=$bit_status"
 if {![string match "*Complete*" $bit_status]} {
   error "P0 bitstream generation failed: $bit_status"
 }
+set hardware_root [file join $repository_root build p0 hardware]
+file mkdir $hardware_root
+set xsa_file [file join $hardware_root p0_system_50mhz.xsa]
+write_hw_platform -fixed -include_bit -force -file $xsa_file
+puts "P0:XSA=$xsa_file"
 puts "P0:REPORTS=$report_root"
 close_project
 exit
