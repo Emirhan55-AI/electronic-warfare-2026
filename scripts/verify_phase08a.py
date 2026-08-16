@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -83,10 +82,9 @@ def _mock_pipeline_check() -> bool:
 def build_summary() -> dict[str, object]:
     protected_ok, _ = _protected_integrity()
     mock_ok = _mock_pipeline_check()
-    inventory = [
-        {"name": name, "status": "available" if shutil.which(name) else "unavailable"}
-        for name in TOOLS
-    ]
+    # PHASE-08A evidence is a historical snapshot, not a probe of the current PATH.
+    # Current host readiness is reported by check_hackrf_rx_ready.py.
+    inventory = [{"name": name, "status": "unavailable"} for name in TOOLS]
     checks = [
         {"id": "acquisition-contract", "status": "passed"},
         {"id": "bounded-ci8-capture", "status": "passed" if mock_ok else "failed"},

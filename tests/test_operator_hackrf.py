@@ -9,7 +9,16 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication
 
-from host.acquisition import DeterministicMockBackend, RealHackRFBackend
+from host.acquisition import (
+    CaptureResult,
+    DeterministicMockBackend,
+    DeviceIdentity,
+    DeviceStatus,
+    EDRXDeviceConfig,
+    RealHackRFBackend,
+    ToolInventory,
+    ToolStatus,
+)
 from host.operator_console.application import build_application
 from host.operator_console.ui_text import TEXT
 from qt_test_support import isolate_qt_module
@@ -41,6 +50,95 @@ class OperatorHackRFTests(unittest.TestCase):
         controller.probe_hackrf()
         self._drain(controller)
         self.assertIn(TEXT["hackrf_tools_missing"], window.hackrf_status.text())
+        self.assertFalse(window.hackrf_start_button.isEnabled())
+        controller.close()
+        window.close()
+
+    def test_ready_tools_without_device_or_serial_remain_truthfully_disconnected(self) -> None:
+        class PreparedBackend:
+            backend_kind = "real"
+
+            def discover_tools(self, *, inspect_help: bool = False) -> ToolInventory:
+                del inspect_help
+                return ToolInventory(
+                    (
+                        ToolStatus("hackrf_info", "available", True),
+                        ToolStatus("hackrf_transfer", "available", True, ("-d", "-r", "-f", "-s", "-n", "-a", "-l", "-g")),
+                        ToolStatus("hackrf_sweep", "available", True),
+                    )
+                )
+
+            def discover_device(self, cancellation=None) -> DeviceStatus:
+                del cancellation
+                return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+
+            def capture(self, config, cancellation=None) -> CaptureResult:
+                raise AssertionError("capture must not run without a device")
+
+            def coarse_sweep(self, cancellation=None):
+                raise AssertionError("sweep is outside B0 UI readiness")
+
+            def cancel(self) -> None:
+                pass
+
+            def close(self) -> None:
+                pass
+
+        _, window, controller = build_application([], acquisition_backend=PreparedBackend())  # type: ignore[arg-type]
+        window.source_type_combo.setCurrentIndex(1)
+        controller.probe_hackrf()
+        self._drain(controller)
+        self.assertEqual("Hazır", window.system_status_values["hackrf_tools"].text())
+        self.assertEqual("Bağlı Değil", window.system_status_values["hackrf"].text())
+        self.assertEqual("Atanmadı", window.system_status_values["serial"].text())
+        self.assertEqual("Durduruldu", window.system_status_values["rx"].text())
+        self.assertEqual("Bilgisayar Referansı", window.system_status_values["processing"].text())
+        self.assertEqual("Kullanılmıyor", window.system_status_values["zedboard"].text())
+        self.assertEqual("Kullanılmıyor", window.system_status_values["fpga"].text())
+        self.assertFalse(window.hackrf_start_button.isEnabled())
+        controller.close()
+        window.close()
+
+    def test_one_device_without_assigned_serial_never_enables_capture(self) -> None:
+        serial = "0000000000000000123456789abcdef0"
+
+        class OneDeviceBackend:
+            backend_kind = "real"
+
+            def discover_tools(self, *, inspect_help: bool = False) -> ToolInventory:
+                del inspect_help
+                return ToolInventory(
+                    (
+                        ToolStatus("hackrf_info", "available", True),
+                        ToolStatus("hackrf_transfer", "available", True, ("-d", "-r", "-f", "-s", "-n", "-a", "-l", "-g")),
+                    )
+                )
+
+            def discover_device(self, cancellation=None) -> DeviceStatus:
+                del cancellation
+                return DeviceStatus("ONE_DEVICE", 1, devices=(DeviceIdentity(serial),))
+
+            def capture(self, config, cancellation=None):
+                raise AssertionError("unassigned serial must block capture")
+
+            def coarse_sweep(self, cancellation=None):
+                raise AssertionError("sweep is outside B0 UI readiness")
+
+            def cancel(self) -> None:
+                pass
+
+            def close(self) -> None:
+                pass
+
+        _, window, controller = build_application(
+            [],
+            acquisition_backend=OneDeviceBackend(),  # type: ignore[arg-type]
+            ed_rx_config=EDRXDeviceConfig(),
+        )
+        window.source_type_combo.setCurrentIndex(1)
+        controller.probe_hackrf()
+        self._drain(controller)
+        self.assertIn("seri kimliği atanmadı", window.hackrf_status.text())
         self.assertFalse(window.hackrf_start_button.isEnabled())
         controller.close()
         window.close()

@@ -13,6 +13,7 @@ from typing import Callable
 from .contracts import (
     AcquisitionError,
     CaptureResult,
+    DeviceIdentity,
     DeviceStatus,
     RXConfig,
     SweepBin,
@@ -24,7 +25,7 @@ from .process import SafeProcessRunner
 
 
 TOOL_NAMES = ("hackrf_info", "hackrf_transfer", "hackrf_sweep")
-TRANSFER_OPTIONS = ("-r", "-f", "-s", "-n", "-a", "-l", "-g")
+TRANSFER_OPTIONS = ("-d", "-r", "-f", "-s", "-n", "-a", "-l", "-g")
 MAX_SWEEP_POINTS = 4096
 MAX_SWEEP_BYTES = 262_144
 
@@ -33,6 +34,61 @@ def _help_options(payload: bytes) -> tuple[str, ...]:
     text = payload.decode("utf-8", errors="replace")
     found = set(re.findall(r"(?<![\w-])-[A-Za-z](?![\w-])", text))
     return tuple(sorted(found))
+
+
+def parse_hackrf_info(payload: bytes) -> tuple[DeviceIdentity, ...]:
+    """Parse bounded `hackrf_info` identity fields without selecting USB index zero."""
+
+    text = payload.decode("utf-8", errors="replace")
+    serial_matches = list(re.finditer(r"(?im)^\s*Serial number:\s*([^\s]+)\s*$", text))
+    devices: list[DeviceIdentity] = []
+    for index, match in enumerate(serial_matches):
+        start = match.start()
+        end = serial_matches[index + 1].start() if index + 1 < len(serial_matches) else len(text)
+        block = text[start:end]
+
+        def field(pattern: str) -> str | None:
+            found = re.search(pattern, block, flags=re.IGNORECASE | re.MULTILINE)
+            return found.group(1).strip() if found else None
+
+        serial = match.group(1).strip()
+        if not 8 <= len(serial) <= 64 or any(character not in "0123456789abcdefABCDEF" for character in serial):
+            raise AcquisitionError("device_output_unrecognized", "HackRF seri kimliği güvenle çözümlenemedi.")
+        devices.append(
+            DeviceIdentity(
+                serial=serial,
+                board_id=field(r"^\s*Board ID Number:\s*(.+)$"),
+                firmware_version=field(r"^\s*Firmware Version:\s*(.+)$"),
+                part_id=field(r"^\s*Part ID Number:\s*(.+)$"),
+            )
+        )
+    return tuple(devices)
+
+
+def build_receive_argv(executable: str, config: RXConfig, destination: Path) -> list[str]:
+    """Build the sole production HackRF command path: serial-bound bounded RX."""
+
+    if config.device_serial is None:
+        raise AcquisitionError("device_serial_unassigned", "ED_RX HackRF seri kimliği henüz atanmadı.")
+    return [
+        executable,
+        "-d",
+        config.device_serial,
+        "-r",
+        str(destination),
+        "-f",
+        str(config.center_frequency_hz),
+        "-s",
+        str(config.sample_rate_hz),
+        "-n",
+        str(config.sample_count),
+        "-a",
+        "1" if config.rf_amplifier else "0",
+        "-l",
+        str(config.lna_gain_db),
+        "-g",
+        str(config.vga_gain_db),
+    ]
 
 
 def parse_sweep_fixture(payload: bytes, *, maximum_points: int = MAX_SWEEP_POINTS) -> tuple[SweepBin, ...]:
@@ -92,12 +148,12 @@ class RealHackRFBackend:
                 tools.append(ToolStatus(name, "unavailable"))
                 continue
             if not inspect_help:
-                tools.append(ToolStatus(name, "available", False))
+                tools.append(ToolStatus(name, "available", False, (), path))
                 continue
             try:
                 result = self.runner.run([path, "-h"], timeout_seconds=2.0)
             except AcquisitionError:
-                tools.append(ToolStatus(name, "unverified"))
+                tools.append(ToolStatus(name, "unverified", executable_path=path))
                 continue
             payload = result.stdout + b"\n" + result.stderr
             options = _help_options(payload)
@@ -105,7 +161,7 @@ class RealHackRFBackend:
             verified = result.returncode in {0, 1} and bool(
                 options if name != "hackrf_info" else ("hackrf_info" in help_text or "usage" in help_text)
             )
-            tools.append(ToolStatus(name, "available" if verified else "unverified", verified, options))
+            tools.append(ToolStatus(name, "available" if verified else "unverified", verified, options, path))
         self._inventory = ToolInventory(tuple(tools))
         return self._inventory
 
@@ -114,19 +170,26 @@ class RealHackRFBackend:
         info = inventory.get("hackrf_info")
         path = self.which("hackrf_info")
         if info.state != "available" or path is None:
-            return DeviceStatus("not_exercised", reason_code="tools_unavailable")
+            return DeviceStatus("TOOLCHAIN_UNAVAILABLE", reason_code="tools_unavailable")
         token = cancellation or self._cancel_event
         try:
             result = self.runner.run([path], timeout_seconds=3.0, cancellation=token)
         except AcquisitionError as exc:
-            return DeviceStatus("error", reason_code=exc.code)
-        output = (result.stdout + b"\n" + result.stderr).decode("utf-8", errors="replace").casefold()
-        if result.returncode != 0 or "no hackrf boards found" in output or "hackrf_open() failed" in output:
-            return DeviceStatus("not_found", reason_code="device_not_found")
-        count = output.count("serial number") or output.count("board id number")
-        if count < 1:
-            return DeviceStatus("error", reason_code="device_output_unrecognized")
-        return DeviceStatus("ready", device_count=count)
+            return DeviceStatus("DEVICE_ERROR", reason_code=exc.code)
+        payload = result.stdout + b"\n" + result.stderr
+        output = payload.decode("utf-8", errors="replace").casefold()
+        if "no hackrf boards found" in output or "hackrf_open() failed" in output:
+            return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+        if result.returncode != 0:
+            return DeviceStatus("DEVICE_ERROR", reason_code="device_probe_failed")
+        try:
+            devices = parse_hackrf_info(payload)
+        except AcquisitionError as exc:
+            return DeviceStatus("DEVICE_ERROR", reason_code=exc.code)
+        if not devices:
+            return DeviceStatus("DEVICE_ERROR", reason_code="device_output_unrecognized")
+        state = "ONE_DEVICE" if len(devices) == 1 else "MULTIPLE_DEVICES"
+        return DeviceStatus(state, len(devices), devices=devices)
 
     def capture(self, config: RXConfig, cancellation: threading.Event | None = None) -> CaptureResult:
         inventory = self._inventory or self.discover_tools(inspect_help=True)
@@ -142,23 +205,7 @@ class RealHackRFBackend:
             import os
 
             os.close(descriptor)
-            argv = [
-                path,
-                "-r",
-                str(capture_path),
-                "-f",
-                str(config.center_frequency_hz),
-                "-s",
-                str(config.sample_rate_hz),
-                "-n",
-                str(config.sample_count),
-                "-a",
-                "1" if config.rf_amplifier else "0",
-                "-l",
-                str(config.lna_gain_db),
-                "-g",
-                str(config.vga_gain_db),
-            ]
+            argv = build_receive_argv(path, config, capture_path)
             result = self.runner.run(argv, timeout_seconds=10.0, cancellation=cancellation or self._cancel_event)
             if result.returncode != 0:
                 raise AcquisitionError("capture_process_failed", "HackRF capture aracı başarısız oldu.")
@@ -201,7 +248,7 @@ class DeterministicMockBackend:
 
     def discover_device(self, cancellation: threading.Event | None = None) -> DeviceStatus:
         del cancellation
-        return DeviceStatus("not_exercised", reason_code="deterministic_test_source")
+        return DeviceStatus("NOT_EXERCISED", reason_code="deterministic_test_source")
 
     def capture(self, config: RXConfig, cancellation: threading.Event | None = None) -> CaptureResult:
         if self._cancelled or (cancellation is not None and cancellation.is_set()):

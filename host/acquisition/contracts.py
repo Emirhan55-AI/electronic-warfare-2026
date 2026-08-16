@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 import threading
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal, Protocol
 
 
 ToolState = Literal["available", "unavailable", "unverified"]
-DeviceState = Literal["ready", "not_found", "not_exercised", "error"]
+DeviceState = Literal[
+    "TOOLCHAIN_UNAVAILABLE",
+    "NO_DEVICE",
+    "ONE_DEVICE",
+    "MULTIPLE_DEVICES",
+    "DEVICE_ERROR",
+    "NOT_EXERCISED",
+]
 OperationState = Literal["passed", "failed", "cancelled", "not_exercised"]
 
 
@@ -26,6 +35,7 @@ class ToolStatus:
     state: ToolState
     help_verified: bool = False
     supported_options: tuple[str, ...] = ()
+    executable_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -37,8 +47,17 @@ class ToolInventory:
 
     @property
     def receive_available(self) -> bool:
-        item = self.get("hackrf_transfer")
-        return item.state == "available" and item.help_verified
+        info = self.get("hackrf_info")
+        transfer = self.get("hackrf_transfer")
+        return all(item.state == "available" and item.help_verified for item in (info, transfer))
+
+
+@dataclass(frozen=True)
+class DeviceIdentity:
+    serial: str
+    board_id: str | None = None
+    firmware_version: str | None = None
+    part_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -46,6 +65,53 @@ class DeviceStatus:
     state: DeviceState
     device_count: int = 0
     reason_code: str | None = None
+    devices: tuple[DeviceIdentity, ...] = ()
+
+
+@dataclass(frozen=True)
+class EDRXDeviceConfig:
+    role: Literal["ED_RX"] = "ED_RX"
+    device_type: Literal["HackRF One"] = "HackRF One"
+    serial: str | None = None
+    search_ranges_hz: tuple[tuple[int, int], ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.role != "ED_RX" or self.device_type != "HackRF One":
+            raise AcquisitionError("device_config_invalid", "HackRF rolü ED_RX ve cihaz türü HackRF One olmalıdır.")
+        if self.serial is not None:
+            serial = self.serial.strip()
+            if not 8 <= len(serial) <= 64 or any(character not in "0123456789abcdefABCDEF" for character in serial):
+                raise AcquisitionError("invalid_device_serial", "HackRF seri kimliği geçerli onaltılık biçimde olmalıdır.")
+        for lower, upper in self.search_ranges_hz:
+            if not 1_000_000 <= lower < upper <= 6_000_000_000:
+                raise AcquisitionError("invalid_search_range", "HackRF arama aralığı alıcı sınırlarının dışındadır.")
+
+
+def load_ed_rx_config(path: Path | None = None) -> EDRXDeviceConfig:
+    config_path = path or Path(__file__).resolve().parents[2] / "config" / "p0" / "hackrf_ed_rx.json"
+    try:
+        document = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise AcquisitionError("device_config_unreadable", "ED_RX HackRF yapılandırması okunamadı.") from exc
+    if not isinstance(document, dict):
+        raise AcquisitionError("device_config_invalid", "ED_RX HackRF yapılandırması nesne olmalıdır.")
+    ranges = document.get("search_ranges_hz", [])
+    if not isinstance(ranges, list):
+        raise AcquisitionError("device_config_invalid", "HackRF arama aralıkları liste olmalıdır.")
+    parsed_ranges: list[tuple[int, int]] = []
+    for item in ranges:
+        if not isinstance(item, dict) or set(item) != {"lower_frequency_hz", "upper_frequency_hz"}:
+            raise AcquisitionError("device_config_invalid", "HackRF arama aralığı alt ve üst Hz alanları gerektirir.")
+        lower, upper = item["lower_frequency_hz"], item["upper_frequency_hz"]
+        if isinstance(lower, bool) or isinstance(upper, bool) or not isinstance(lower, int) or not isinstance(upper, int):
+            raise AcquisitionError("device_config_invalid", "HackRF arama sınırları tam sayı Hz olmalıdır.")
+        parsed_ranges.append((lower, upper))
+    return EDRXDeviceConfig(
+        role=document.get("role"),
+        device_type=document.get("device_type"),
+        serial=document.get("serial"),
+        search_ranges_hz=tuple(parsed_ranges),
+    )
 
 
 @dataclass(frozen=True)
@@ -56,6 +122,7 @@ class RXConfig:
     rf_amplifier: bool = False
     lna_gain_db: int = 16
     vga_gain_db: int = 16
+    device_serial: str | None = None
 
     def __post_init__(self) -> None:
         values = (self.center_frequency_hz, self.sample_rate_hz, self.sample_count, self.lna_gain_db, self.vga_gain_db)
@@ -71,6 +138,10 @@ class RXConfig:
             raise AcquisitionError("invalid_lna_gain", "IF/LNA kazancı 0–40 dB arasında 8 dB adımlı olmalıdır.")
         if self.vga_gain_db not in range(0, 63, 2):
             raise AcquisitionError("invalid_vga_gain", "Baseband/VGA kazancı 0–62 dB arasında 2 dB adımlı olmalıdır.")
+        if self.device_serial is not None:
+            serial = self.device_serial.strip()
+            if not 8 <= len(serial) <= 64 or any(character not in "0123456789abcdefABCDEF" for character in serial):
+                raise AcquisitionError("invalid_device_serial", "HackRF seri kimliği geçerli onaltılık biçimde olmalıdır.")
 
 
 @dataclass(frozen=True)

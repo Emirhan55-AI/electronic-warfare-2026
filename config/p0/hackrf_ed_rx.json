@@ -1,0 +1,6 @@
+{
+  "role": "ED_RX",
+  "device_type": "HackRF One",
+  "serial": null,
+  "search_ranges_hz": []
+}

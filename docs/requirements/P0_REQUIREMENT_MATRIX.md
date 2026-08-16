@@ -15,9 +15,9 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | Genlik tabanlı yön bulma | Açı başına göreli güç; ham maksimum LOB ve güven | Bilgisayar-1, HackRF-1, yönlü anten; manuel dönüş | Eksik | Tam host model/UI — 7 fixture geçti; canlı saha ölçümü yok |
 | Sürekli karıştırma | Tekli, çoklu ve barrage taban bant dalga şekilleri | Bilgisayar-2; P0'da iletimsiz/loopback | Eksik | Tam P0 taban bant/UI — spektrum doğrulandı; TX kilitli |
 | Analog telsiz aldatma | Ses normalizasyonu/bant sınırlama, FM/NFM kompleks taban bant | Bilgisayar-2; P0'da iletimsiz/loopback | Kısmi | Tam P0 taban bant/UI — FM/NFM loopback geçti; TX kilitli |
-| ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay/host `UNKNOWN`/`JUDGE_BAND`/`JUDGE_FREQUENCY` ve yeni bant binding PASS; canlı HackRF yok |
+| ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay/host modları PASS; B0 disconnected/tool/serial/host-processing durumları hazır; canlı HackRF yok |
 | PC↔ZedBoard taşıma | Bounded sıralı IQ çerçeveleri, bütünlük ve istatistik | Bilgisayar-1 Ethernet; ZedBoard PS | Eksik | PC sözleşmesi/loopback tam; ZedBoard sunucusu ve canlı ağ çalıştırılmadı |
-| HackRF-1 RX | Replay ile aynı normalize IQ frame sözleşmesi | HackRF-1 USB→Bilgisayar-1 | Kısmi | Soyutlama/mock tam; `BLOCKED_TOOLCHAIN`, canlı HackRF yok |
+| HackRF-1 RX | Replay ile aynı normalize IQ frame sözleşmesi | HackRF-1 USB→Bilgisayar-1 | Kısmi | B0 host toolchain READY; seri-temelli RX argv, bounded queue ve üç tuning planı unit-test PASS; cihaz bağlı değil, seri atanmadı, canlı RX yok |
 | Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Vivado sentez/route/timing/bitstream geçti; kartta çalıştırılmadı |
 | Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | BD validate geçti; gerçek bloklar bağlı; PetaLinux/driver/DMA çalıştırılmadı |
 

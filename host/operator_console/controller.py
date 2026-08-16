@@ -16,10 +16,12 @@ from host.acquisition import (
     CaptureResult,
     DeterministicMockBackend,
     DeviceStatus,
+    EDRXDeviceConfig,
     HackRFBackend,
     RXConfig,
     RealHackRFBackend,
     ToolInventory,
+    load_ed_rx_config,
 )
 from reference.detection import DetectionFrameResult
 from reference.parameters import (
@@ -160,7 +162,7 @@ class AcquisitionTask(QRunnable):
                 device = (
                     self.backend.discover_device(self.closing_event)
                     if inventory.receive_available
-                    else DeviceStatus("not_exercised", reason_code="tools_unavailable")
+                    else DeviceStatus("NOT_EXERCISED", reason_code="tools_unavailable")
                 )
                 result: object = (inventory, device)
             else:
@@ -292,6 +294,7 @@ class OperatorController(QObject):
         *,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
         acquisition_backend: HackRFBackend | None = None,
+        ed_rx_config: EDRXDeviceConfig | None = None,
         test_backend_factory: Callable[[], HackRFBackend] = DeterministicMockBackend,
         profile: ProcessingProfile | None = None,
         verified_binding: VerifiedProfileBinding | None = None,
@@ -307,6 +310,7 @@ class OperatorController(QObject):
         self.source: object | None = None
         self.source_factory = source_factory
         self.acquisition_backend = acquisition_backend or RealHackRFBackend()
+        self.ed_rx_config = ed_rx_config or load_ed_rx_config()
         self.test_backend_factory = test_backend_factory
         if profile is None:
             resolved = resolve_default_operation_profile()
@@ -348,6 +352,7 @@ class OperatorController(QObject):
         self._hackrf_device_ready = False
         self._active_acquisition_backend: HackRFBackend | None = None
         self.playing = False
+        self.window.set_hackrf_configuration(self.ed_rx_config.serial)
 
         self.requested_task_count = 0
         self.completed_task_count = 0
@@ -430,7 +435,7 @@ class OperatorController(QObject):
             return False
         self._hackrf_device_ready = False
         self.window.set_hackrf_state("searching")
-        config = RXConfig(**self.window.hackrf_settings)
+        config = RXConfig(**self.window.hackrf_settings, device_serial=self.ed_rx_config.serial)
         return self._queue_acquisition("probe", self.acquisition_backend, config)
 
     @Slot()
@@ -438,7 +443,7 @@ class OperatorController(QObject):
         if self._closing or self.window.source_kind != "hackrf" or not self._hackrf_device_ready:
             return False
         try:
-            config = RXConfig(**self.window.hackrf_settings)
+            config = RXConfig(**self.window.hackrf_settings, device_serial=self.ed_rx_config.serial)
         except AcquisitionError as exc:
             self.window.show_error(ERROR_TEXT.get(exc.code, TEXT["source_error"]))
             return False
@@ -632,13 +637,19 @@ class OperatorController(QObject):
         if operation == "probe":
             inventory, device = result  # type: ignore[misc]
             assert isinstance(inventory, ToolInventory) and isinstance(device, DeviceStatus)
-            if not inventory.receive_available:
+            if not inventory.receive_available or device.state == "TOOLCHAIN_UNAVAILABLE":
                 self.window.set_hackrf_state("tools_missing")
-            elif device.state == "ready":
-                self._hackrf_device_ready = True
-                self.window.set_hackrf_state("device_ready")
-            elif device.state == "not_found":
+            elif device.state == "NO_DEVICE":
                 self.window.set_hackrf_state("device_missing")
+            elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"}:
+                serial = self.ed_rx_config.serial
+                if serial is None:
+                    self.window.set_hackrf_state("serial_unassigned")
+                elif any(identity.serial.casefold() == serial.casefold() for identity in device.devices):
+                    self._hackrf_device_ready = True
+                    self.window.set_hackrf_state("device_ready")
+                else:
+                    self.window.set_hackrf_state("configured_device_missing")
             else:
                 self.window.set_hackrf_state("cli_error")
         else:
@@ -650,6 +661,10 @@ class OperatorController(QObject):
                 self.window.set_hackrf_state("test_source")
                 self.window.show_warning(TEXT["deterministic_source_active"])
             else:
+                self.window.set_hackrf_runtime(
+                    center_frequency_hz=result.config.center_frequency_hz,
+                    sample_rate_hz=result.config.sample_rate_hz,
+                )
                 self.window.set_hackrf_state("live")
             self.request_current_frame()
         self.task_counters_changed.emit()

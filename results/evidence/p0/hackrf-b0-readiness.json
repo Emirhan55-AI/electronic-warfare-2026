@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "checkpoint": "P0 Block B0 — HackRF Host Toolchain and Live-RX Readiness",
+  "status": "B0_READY",
+  "computer": {
+    "operating_system": "Windows 11 Home 10.0.26200 64-bit",
+    "python": "3.13.7 64-bit",
+    "python_executable": "C:\\Users\\emirhan55\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "package_managers_audited": ["winget", "Chocolatey", "MSYS2/pacman"],
+    "ucrt64_bin_already_on_path": true,
+    "preexisting_hackrf_toolchain": false
+  },
+  "installation": {
+    "source": "MSYS2 UCRT64 package built from Great Scott Gadgets HackRF upstream",
+    "package": "mingw-w64-ucrt-x86_64-hackrf",
+    "package_version": "2026.01.2-1",
+    "hackrf_info_version": "2026.01.2",
+    "libhackrf_version": "2026.01.2 (0.9.1)",
+    "libusb_package_version": "1.0.30-1",
+    "install_root": "C:\\msys64\\ucrt64",
+    "path_changed": false
+  },
+  "self_test": {
+    "hackrf_info": "READY_NO_DEVICE",
+    "hackrf_info_exit_code": 1,
+    "hackrf_info_exact_output": "hackrf_info version: 2026.01.2\r\nlibhackrf version: 2026.01.2 (0.9.1)\r\nNo HackRF boards found.",
+    "hackrf_transfer_help": "READY_RX_OPTIONS_VERIFIED",
+    "hackrf_transfer_help_exit_code": 0,
+    "required_receive_options": ["-d", "-r", "-f", "-s", "-n", "-a", "-l", "-g"],
+    "hackrf_sweep": "INSTALLED_OPTIONAL",
+    "dll_dependencies": "RESOLVED",
+    "resolved_dlls": ["libhackrf.dll", "libusb-1.0.dll", "libwinpthread-1.dll"],
+    "present_vid_1d50_count": 0
+  },
+  "device": {
+    "physical_hackrf": "NOT_CONNECTED",
+    "discovery_state": "NO_DEVICE",
+    "serial": "UNASSIGNED",
+    "bounded_rx": "NOT_EXECUTED"
+  },
+  "software_readiness": {
+    "typed_discovery_states": "READY",
+    "serial_bound_rx_argv": "READY",
+    "normalized_ci8_frames": "READY_UNIT_TEST_ONLY",
+    "bounded_worker_queue": "READY_UNIT_TEST_ONLY",
+    "judge_frequency_plan": "READY_UNIT_TEST_ONLY",
+    "judge_band_plan": "READY_UNIT_TEST_ONLY",
+    "unknown_scan_plan": "READY_REQUIRES_CONFIGURED_RANGES",
+    "frequency_mapping": "READY_UNIT_TEST_ONLY",
+    "truthful_disconnected_ui": "READY_UNIT_TEST_ONLY",
+    "hardware_acceptance_script": "scripts/check_hackrf_rx_ready.py"
+  },
+  "safety": {
+    "receive_only": true,
+    "transmit_api_exposed": false,
+    "transmit_executed": false
+  },
+  "claim_boundary": "Host toolchain and deterministic software readiness only; no physical HackRF RX, live IQ, RF accuracy, ZedBoard, FPGA or TX proof."
+}

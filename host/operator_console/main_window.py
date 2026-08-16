@@ -414,10 +414,18 @@ class MainWindow(QMainWindow):
         layout.addWidget(heading)
         self.system_status_values: dict[str, QLabel] = {}
         rows = (
-            ("processing", "Algoritma Yürütücüsü", "HOST REFERENCE · host üzerinde doğrulama"),
-            ("fpga", "ZedBoard FPGA", "FUTURE ZEDBOARD HARDWARE · kartta çalıştırılmadı"),
-            ("transport", "PC↔ZedBoard Taşıması", "BAĞLI DEĞİL · yerel loopback hazır"),
-            ("hackrf", "HackRF-1 RX", "BLOCKED_TOOLCHAIN · araçlar bulunamadı"),
+            ("source", "Veri Kaynağı", "HackRF-1 Canlı RX · Etkin değil"),
+            ("hackrf_tools", "HackRF Araçları", "Denetlenmedi"),
+            ("hackrf", "HackRF-1", "Bağlı Değil"),
+            ("serial", "Seri", "Atanmadı"),
+            ("center", "Merkez Frekans", "—"),
+            ("sampling", "Örnekleme", "—"),
+            ("rx", "RX", "Durduruldu"),
+            ("dropped", "Dropped", "0"),
+            ("processing", "İşleme", "Bilgisayar Referansı"),
+            ("zedboard", "ZedBoard", "Kullanılmıyor"),
+            ("fpga", "FPGA Sonucu", "Kullanılmıyor"),
+            ("transport", "PC↔ZedBoard Taşıması", "Bağlı Değil"),
             ("petalinux", "PetaLinux / ARM", "BLOCKED / ÇALIŞTIRILMADI"),
             ("calibration", "RF Güç Kalibrasyonu", TEXT["calibration_pending"]),
             ("et", "HackRF-2 TX", "HARDWARE_TX_LOCKED · OFFLINE/LOOPBACK"),
@@ -732,6 +740,8 @@ class MainWindow(QMainWindow):
             "tools_missing": TEXT["hackrf_tools_missing"] + " · " + TEXT["live_rx_unavailable"],
             "searching": TEXT["device_searching"],
             "device_missing": TEXT["hackrf_device_missing"] + " · " + TEXT["live_rx_unavailable"],
+            "serial_unassigned": "HackRF bulundu; ED_RX seri kimliği atanmadı. Canlı alım kapalı.",
+            "configured_device_missing": "Yapılandırılmış ED_RX seri kimliği bağlı cihazlar arasında bulunamadı.",
             "device_ready": TEXT["device_ready"],
             "capture_starting": TEXT["capture_starting"],
             "live": TEXT["live_capture"],
@@ -755,6 +765,33 @@ class MainWindow(QMainWindow):
             self.hackrf_amp_checkbox,
         ):
             widget.setEnabled(ready)
+
+        tools_ready = state not in {"acceptance_pending", "tools_missing"}
+        self.system_status_values["hackrf_tools"].setText("Hazır" if tools_ready else "Kullanılamıyor" if state == "tools_missing" else "Denetlenmedi")
+        if state in {"device_ready", "capture_starting", "live", "stopped"}:
+            self.system_status_values["hackrf"].setText("Bağlı")
+        elif state == "serial_unassigned":
+            self.system_status_values["hackrf"].setText("Cihaz Bulundu · Seri Seçimi Gerekli")
+        elif state == "configured_device_missing":
+            self.system_status_values["hackrf"].setText("Yapılandırılmış Cihaz Bağlı Değil")
+        else:
+            self.system_status_values["hackrf"].setText("Bağlı Değil")
+        self.system_status_values["rx"].setText("Aktif" if state == "live" else "Durduruldu")
+        self.system_status_values["source"].setText(
+            "HackRF-1 Canlı RX" if state == "live" else "HackRF-1 Canlı RX · Etkin değil"
+        )
+        if state in {"device_missing", "tools_missing", "acceptance_pending"}:
+            self.system_status_values["center"].setText("—")
+            self.system_status_values["sampling"].setText("—")
+
+    def set_hackrf_configuration(self, serial: str | None) -> None:
+        self._configured_hackrf_serial = serial
+        self.system_status_values["serial"].setText(serial if serial is not None else "Atanmadı")
+
+    def set_hackrf_runtime(self, *, center_frequency_hz: int, sample_rate_hz: int, dropped_frames: int = 0) -> None:
+        self.system_status_values["center"].setText(self._frequency(float(center_frequency_hz)))
+        self.system_status_values["sampling"].setText(self._sample_rate(float(sample_rate_hz)))
+        self.system_status_values["dropped"].setText(str(dropped_frames))
 
     @property
     def source_kind(self) -> str:

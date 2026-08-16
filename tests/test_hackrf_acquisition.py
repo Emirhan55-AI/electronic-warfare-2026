@@ -15,6 +15,9 @@ from host.acquisition import (
     RealHackRFBackend,
     SafeProcessRunner,
     decode_ci8,
+    build_receive_argv,
+    load_ed_rx_config,
+    parse_hackrf_info,
     parse_sweep_fixture,
 )
 from host.acquisition.process import ProcessResult
@@ -22,13 +25,14 @@ from host.acquisition.process import ProcessResult
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-data"
+SERIAL = "0000000000000000123456789abcdef0"
 
 
 class FakeRunner:
     def __init__(self, payload: bytes = b"", *, returncode: int = 0, help_payload: bytes | None = None) -> None:
         self.payload = payload
         self.returncode = returncode
-        self.help_payload = help_payload or b"Usage: hackrf_info -r -f -s -n -a -l -g"
+        self.help_payload = help_payload or b"Usage: hackrf_info -d -r -f -s -n -a -l -g"
         self.calls: list[list[str]] = []
         self.capture_path: Path | None = None
         self.active = False
@@ -40,7 +44,13 @@ class FakeRunner:
         if "-r" in argv:
             self.capture_path = Path(argv[argv.index("-r") + 1])
             self.capture_path.write_bytes(self.payload)
-        return ProcessResult(self.returncode, b"Board ID Number: 2\nSerial number: redacted", b"", False, False)
+        return ProcessResult(
+            self.returncode,
+            f"Found HackRF\nSerial number: {SERIAL}\nBoard ID Number: 2 (HackRF One)".encode(),
+            b"",
+            False,
+            False,
+        )
 
     def close(self) -> None:
         self.active = False
@@ -56,6 +66,12 @@ class HackRFAcquisitionTests(unittest.TestCase):
         self.assertEqual(4, source.frame_count)
         self.assertEqual((4096,), source.read_frame(3).shape)
         source.close()
+
+    def test_ci8_preserves_interleaved_i_then_q_order_and_scale(self) -> None:
+        samples = decode_ci8(bytes((0x80, 0x7F, 0xFF, 0x01, 0x00, 0x00)), expected_complex_samples=3)
+        self.assertEqual(complex(-1.0, 127 / 128), samples[0])
+        self.assertEqual(complex(-1 / 128, 1 / 128), samples[1])
+        self.assertEqual(0j, samples[2])
 
     def test_ci8_rejects_odd_short_and_long_payloads(self) -> None:
         with self.assertRaisesRegex(AcquisitionError, "I/Q"):
@@ -77,14 +93,51 @@ class HackRFAcquisitionTests(unittest.TestCase):
         backend = RealHackRFBackend(which=lambda _: None)
         inventory = backend.discover_tools(inspect_help=True)
         self.assertTrue(all(item.state == "unavailable" for item in inventory.tools))
-        self.assertEqual("not_exercised", backend.discover_device().state)
+        self.assertEqual("TOOLCHAIN_UNAVAILABLE", backend.discover_device().state)
 
         runner = FakeRunner()
         paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}
         ready = RealHackRFBackend(runner=runner, which=paths.get)
         ready.discover_tools(inspect_help=True)
         runner.run = lambda *args, **kwargs: ProcessResult(1, b"No HackRF boards found", b"", False, False)  # type: ignore[method-assign]
-        self.assertEqual("not_found", ready.discover_device().state)
+        self.assertEqual("NO_DEVICE", ready.discover_device().state)
+
+    def test_device_discovery_distinguishes_one_multiple_and_error(self) -> None:
+        paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}
+        runner = FakeRunner()
+        backend = RealHackRFBackend(runner=runner, which=paths.get)
+        backend.discover_tools(inspect_help=True)
+        one = backend.discover_device()
+        self.assertEqual("ONE_DEVICE", one.state)
+        self.assertEqual(SERIAL, one.devices[0].serial)
+        payload = (
+            f"Found HackRF\nSerial number: {SERIAL}\nBoard ID Number: 2 (HackRF One)\n"
+            "Found HackRF\nSerial number: 0000000000000000fedcba9876543210\nBoard ID Number: 2 (HackRF One)"
+        ).encode()
+        runner.run = lambda *args, **kwargs: ProcessResult(0, payload, b"", False, False)  # type: ignore[method-assign]
+        multiple = backend.discover_device()
+        self.assertEqual("MULTIPLE_DEVICES", multiple.state)
+        self.assertEqual(2, multiple.device_count)
+        self.assertEqual(2, len(parse_hackrf_info(payload)))
+        runner.run = lambda *args, **kwargs: ProcessResult(0, b"unexpected", b"", False, False)  # type: ignore[method-assign]
+        self.assertEqual("DEVICE_ERROR", backend.discover_device().state)
+
+    def test_ed_rx_config_is_unassigned_and_receive_argv_is_rx_only(self) -> None:
+        identity = load_ed_rx_config()
+        self.assertEqual("ED_RX", identity.role)
+        self.assertEqual("HackRF One", identity.device_type)
+        self.assertIsNone(identity.serial)
+        with self.assertRaisesRegex(AcquisitionError, "atanmadı"):
+            build_receive_argv("hackrf_transfer", RXConfig(), Path("capture.ci8"))
+        argv = build_receive_argv(
+            "hackrf_transfer",
+            RXConfig(device_serial=SERIAL),
+            Path("capture.ci8"),
+        )
+        self.assertEqual(SERIAL, argv[argv.index("-d") + 1])
+        self.assertIn("-r", argv)
+        for prohibited in ("-t", "-x", "-c", "-R"):
+            self.assertNotIn(prohibited, argv)
 
     def test_malformed_help_and_unexpected_exit_do_not_enable_capture(self) -> None:
         paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}
@@ -99,7 +152,7 @@ class HackRFAcquisitionTests(unittest.TestCase):
         failed = RealHackRFBackend(runner=runner, which=paths.get)
         failed._inventory = RealHackRFBackend(runner=FakeRunner(), which=paths.get).discover_tools(inspect_help=True)
         with self.assertRaises(AcquisitionError) as process_failed:
-            failed.capture(RXConfig())
+            failed.capture(RXConfig(device_serial=SERIAL))
         self.assertEqual("capture_process_failed", process_failed.exception.code)
         self.assertFalse(runner.capture_path.exists())  # type: ignore[union-attr]
 
@@ -109,9 +162,10 @@ class HackRFAcquisitionTests(unittest.TestCase):
         paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}
         backend = RealHackRFBackend(runner=runner, which=paths.get)
         backend.discover_tools(inspect_help=True)
-        result = backend.capture(RXConfig())
+        result = backend.capture(RXConfig(device_serial=SERIAL))
         self.assertEqual(payload, result.payload)
         self.assertEqual("0", runner.calls[-1][runner.calls[-1].index("-a") + 1])
+        self.assertEqual(SERIAL, runner.calls[-1][runner.calls[-1].index("-d") + 1])
         self.assertIsNotNone(runner.capture_path)
         self.assertFalse(runner.capture_path.exists())  # type: ignore[union-attr]
 
@@ -122,7 +176,7 @@ class HackRFAcquisitionTests(unittest.TestCase):
             backend = RealHackRFBackend(runner=runner, which=paths.get)
             backend.discover_tools(inspect_help=True)
             with self.assertRaises(AcquisitionError) as failure:
-                backend.capture(RXConfig())
+                backend.capture(RXConfig(device_serial=SERIAL))
             self.assertEqual(code, failure.exception.code)
             self.assertFalse(runner.capture_path.exists())  # type: ignore[union-attr]
 
@@ -146,7 +200,7 @@ class HackRFAcquisitionTests(unittest.TestCase):
             backend = RealHackRFBackend(runner=runner, which=paths.get)
             backend.discover_tools(inspect_help=True)
             with self.assertRaises(AcquisitionError) as interrupted:
-                backend.capture(RXConfig())
+                backend.capture(RXConfig(device_serial=SERIAL))
             self.assertEqual(code, interrupted.exception.code)
             self.assertFalse(runner.capture_path.exists())  # type: ignore[union-attr]
 

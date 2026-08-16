@@ -23,6 +23,14 @@ from .search import (
     SearchRequest,
     TuningWindow,
 )
+from .hackrf_search import (
+    HackRFSearchBackend,
+    HackRFSearchPlanner,
+    HackRFTuningPlan,
+    HackRFTuningProfile,
+    HackRFTuningWindowPlan,
+    shifted_absolute_frequency_axis,
+)
 from .temporal import TemporalConfirmation, TrackedCandidate
 from .transport import (
     BoundedIQQueue,
@@ -63,6 +71,12 @@ __all__ = [
     "SearchExecutionResult",
     "SearchMode",
     "SearchRequest",
+    "HackRFSearchBackend",
+    "HackRFSearchPlanner",
+    "HackRFTuningPlan",
+    "HackRFTuningProfile",
+    "HackRFTuningWindowPlan",
+    "shifted_absolute_frequency_axis",
     "TransportError",
     "TransportStats",
     "TemporalConfirmation",

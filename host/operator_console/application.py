@@ -16,7 +16,7 @@ from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
 from reference.pipeline import ProcessingProfile, VerifiedProfileBinding
-from host.acquisition import HackRFBackend
+from host.acquisition import EDRXDeviceConfig, HackRFBackend
 from .audio_playback import AudioPlayback
 
 from .controller import OperatorController
@@ -64,6 +64,7 @@ def build_application(
     profile: ProcessingProfile | None = None,
     verified_binding: VerifiedProfileBinding | None = None,
     acquisition_backend: HackRFBackend | None = None,
+    ed_rx_config: EDRXDeviceConfig | None = None,
     test_backend_factory: Callable[[], HackRFBackend] | None = None,
     audio_playback: AudioPlayback | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
@@ -79,6 +80,7 @@ def build_application(
         "profile": profile,
         "verified_binding": verified_binding,
         "acquisition_backend": acquisition_backend,
+        "ed_rx_config": ed_rx_config,
         "audio_playback": audio_playback,
     }
     if test_backend_factory is not None:
