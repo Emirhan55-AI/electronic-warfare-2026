@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "evidence_id": "p0-training-functional-acceptance-v1",
+  "status": "PASS",
+  "correctness_levels": {
+    "detection": "INDEPENDENTLY VERIFIED",
+    "parameter_extraction": "INDEPENDENTLY VERIFIED",
+    "am_nfm_listening": "INDEPENDENTLY VERIFIED",
+    "synthetic_df": "INDEPENDENTLY VERIFIED",
+    "physical_df": "NOT EXECUTED"
+  },
+  "results": {
+    "detection_noise_truth": {
+      "fixture": "seeded-exponential-noise-64x4096",
+      "seed": 20260816,
+      "expected_pfa_per_cut": 0.0001,
+      "evaluated_cells": 259584,
+      "false_detections": 23,
+      "actual_empirical_pfa": 8.860330374753452e-05,
+      "absolute_tolerance": 0.00025,
+      "status": "PASS"
+    },
+    "detection_and_parameters": {
+      "fixture": "nfm-like",
+      "fixture_sha256": "7aa19d7241cf7c5fae2848dfa56eefd7bae200660eeb5a9b929b2d3f24f456c6",
+      "input_truth": {
+        "signal_present": true,
+        "carrier_frequency_hz": 100090000.0,
+        "reference_bandwidth_hz": 2400.0,
+        "amplitude": 0.6,
+        "amplitude_dbfs": -4.436974992327128,
+        "class": "Analog"
+      },
+      "expected": {
+        "carrier_tolerance_hz": 300.0,
+        "bandwidth_tolerance_hz": 1250.0,
+        "power_tolerance_db": 0.25,
+        "snr_db_range": [
+          30.0,
+          40.0
+        ]
+      },
+      "actual_algorithm": {
+        "os_cfar_detected": true,
+        "temporally_confirmed": true,
+        "carrier_frequency_hz": 100090003.13494618,
+        "bandwidth_hz": 2250.0,
+        "channel_power_dbfs": -4.441077659310037,
+        "snr_db": 35.70355857566173,
+        "class": "Analog"
+      },
+      "errors": {
+        "carrier_hz": 3.134946182370186,
+        "bandwidth_hz": -150.0,
+        "power_db": -0.004102666982908509
+      },
+      "status": "PASS"
+    },
+    "am_audio": {
+      "fixture": "am-tone-ci8",
+      "fixture_sha256": "10c8209e72d0e201d76626eb52bfb3dec758cb4ebf4642e4d4e5a41c68ba2c74",
+      "input_truth": {
+        "mode": "AM",
+        "audio_tone_hz": 3000.0,
+        "carrier_offset_hz": 24000.0,
+        "iq_sample_rate_hz": 192000.0
+      },
+      "expected": {
+        "audio_sample_rate_hz": 48000,
+        "channels": 1,
+        "tone_tolerance_hz": 12.0,
+        "correlation_minimum": 0.95,
+        "duration_tolerance_s": 0.003
+      },
+      "actual_algorithm": {
+        "audio_sample_rate_hz": 48000,
+        "channels": 1,
+        "audio_samples": 4000,
+        "duration_s": 0.08333333333333333,
+        "finite": true,
+        "peak": 1.0,
+        "rms": 0.7059887740305354,
+        "clipping_count": 0,
+        "canonical_dominant_tone_hz": 3000.0
+      },
+      "independent_oracle": {
+        "dominant_tone_hz": 3000.0,
+        "normalized_correlation": 0.9999987441931041
+      },
+      "errors": {
+        "tone_hz": 0.0,
+        "duration_s": 0.0
+      },
+      "status": "PASS",
+      "pcm16_sha256": "c11d0d537bd44924b69227c49fe04a0175ef856815e0def9df6081e1cc5f7808",
+      "wav_sha256": "4fdff5a0d9894bd96b7ad0d4167e0d62b7e6a39a2303e672387a5f02f269d50e",
+      "human_listening_wav": "build/acceptance/audio/am-tone-ci8-listen.wav",
+      "human_listening_note": "Kanonik 83 ms alıcı çıktısının 24 kez art arda tekrarı; yeni ses üretilmez."
+    },
+    "nfm_audio": {
+      "fixture": "nfm-tone-ci8",
+      "fixture_sha256": "9c7a169bca7bda456a16221aa190b276b0f6e1c8381787872dd0670d805a4470",
+      "input_truth": {
+        "mode": "NFM",
+        "audio_tone_hz": 2000.0,
+        "carrier_offset_hz": -24000.0,
+        "iq_sample_rate_hz": 192000.0
+      },
+      "expected": {
+        "audio_sample_rate_hz": 48000,
+        "channels": 1,
+        "tone_tolerance_hz": 12.0,
+        "correlation_minimum": 0.95,
+        "duration_tolerance_s": 0.003
+      },
+      "actual_algorithm": {
+        "audio_sample_rate_hz": 48000,
+        "channels": 1,
+        "audio_samples": 3999,
+        "duration_s": 0.0833125,
+        "finite": true,
+        "peak": 1.0,
+        "rms": 0.7735075781682156,
+        "clipping_count": 0,
+        "canonical_dominant_tone_hz": 2003.90625
+      },
+      "independent_oracle": {
+        "dominant_tone_hz": 2003.90625,
+        "normalized_correlation": 0.9959165509378892
+      },
+      "errors": {
+        "tone_hz": 3.90625,
+        "duration_s": -2.083333333333104e-05
+      },
+      "status": "PASS",
+      "pcm16_sha256": "9b95f09e0ad2ecacc5f43077585a9e1206ba3f62aabb281151752f211c0d9b1c",
+      "wav_sha256": "49fa67ce2e4f390f0139f395d28d7e7c4e4e9f4d7def05257197ac4dfce8cc45",
+      "human_listening_wav": "build/acceptance/audio/nfm-tone-ci8-listen.wav",
+      "human_listening_note": "Kanonik 83 ms alıcı çıktısının 24 kez art arda tekrarı; yeni ses üretilmez."
+    },
+    "df": [
+      {
+        "fixture": "host-synthetic-bearing-75",
+        "fixture_sha256": "658b57340f6c68ca901e17c785a52bccce3b3ef207902505b1978a4b44458157",
+        "input_truth": {
+          "bearing_deg": 75.0,
+          "measurement_count": 24
+        },
+        "expected": {
+          "angular_error_tolerance_deg": 7.5
+        },
+        "independent_oracle": {
+          "measured_argmax_deg": 75.0
+        },
+        "actual_algorithm": {
+          "estimated_bearing_deg": 75.0,
+          "confidence": 0.46528590533410347,
+          "quality": "LOB HAZIR"
+        },
+        "errors": {
+          "circular_angular_error_deg": 0.0
+        },
+        "status": "PASS"
+      },
+      {
+        "fixture": "host-synthetic-bearing-210",
+        "fixture_sha256": "2d1c692e3fe8f81ba4ad3f9a72d2c221e2383f4a1950071e211d33a872a602b8",
+        "input_truth": {
+          "bearing_deg": 210.0,
+          "measurement_count": 24
+        },
+        "expected": {
+          "angular_error_tolerance_deg": 7.5
+        },
+        "independent_oracle": {
+          "measured_argmax_deg": 210.0
+        },
+        "actual_algorithm": {
+          "estimated_bearing_deg": 210.0,
+          "confidence": 0.5014981109124674,
+          "quality": "LOB HAZIR"
+        },
+        "errors": {
+          "circular_angular_error_deg": 0.0
+        },
+        "status": "PASS"
+      },
+      {
+        "fixture": "host-synthetic-bearing-355",
+        "fixture_sha256": "939a2f0c98646ce775081bafab95776cffdafed1105d3191c4a6a74de56a3984",
+        "input_truth": {
+          "bearing_deg": 355.0,
+          "measurement_count": 24
+        },
+        "expected": {
+          "angular_error_tolerance_deg": 10.0
+        },
+        "independent_oracle": {
+          "measured_argmax_deg": 0.0
+        },
+        "actual_algorithm": {
+          "estimated_bearing_deg": 0.0,
+          "confidence": 0.21097822136378994,
+          "quality": "LOB HAZIR"
+        },
+        "errors": {
+          "circular_angular_error_deg": 5.0
+        },
+        "status": "PASS"
+      }
+    ],
+    "ui_binding": {
+      "parameters": {
+        "backend_carrier_hz": 100090003.13494618,
+        "expected_formatted_carrier": "100,090 MHz",
+        "actual_carrier": "100,090 MHz",
+        "actual_bandwidth": "2,25 kHz",
+        "actual_snr": "35,7 dB",
+        "actual_class": "Analog",
+        "status": "PASS"
+      },
+      "listening_am": {
+        "actual_mode": "AM",
+        "actual_carrier": "100,024 MHz",
+        "actual_iq_rate": "0,192 MS/s",
+        "actual_audio_rate": "48,0 kHz mono PCM16",
+        "actual_backend": "REPLAY / HOST · NumPy PHASE-05",
+        "status": "PASS"
+      },
+      "listening_nfm": {
+        "actual_mode": "NFM",
+        "actual_carrier": "99,976 MHz",
+        "actual_iq_rate": "0,192 MS/s",
+        "actual_audio_rate": "48,0 kHz mono PCM16",
+        "actual_backend": "REPLAY / HOST · NumPy PHASE-05",
+        "status": "PASS"
+      },
+      "df": {
+        "actual_result": "EĞİTİM / ALGORİTMA TESTİ · hata 0.0° · LOB HAZIR",
+        "actual_relative_bearing": "75°",
+        "actual_source": "HOST/SYNTHETIC",
+        "plot_points": 24,
+        "status": "PASS"
+      }
+    }
+  },
+  "claim_boundary": "Deterministik HOST/REPLAY doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir."
+}

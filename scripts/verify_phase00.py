@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -636,9 +637,25 @@ APPROVED_P0_FILES = (
     "docs/interfaces/P0_JUDGE_SEARCH_CONTRACT.md",
     "docs/interfaces/P0_HACKRF_B0_READINESS.md",
     "docs/interfaces/P0_PC_ZEDBOARD_IQ_TRANSPORT.md",
+    "docs/learning/AMPLITUDE_DIRECTION_FINDING.md",
+    "docs/learning/ANALOG_RADIO_RECEIVER.md",
     "docs/requirements/P0_REQUIREMENT_MATRIX.md",
     "docs/testing/P0_USER_DEMO.md",
     "host/acquisition/rx_sources.py",
+    "host/operator_console/map_direction.py",
+    "host/operator_console/map_providers.py",
+    "host/operator_console/pc_location.py",
+    "host/operator_console/map_assets/README.md",
+    "host/operator_console/map_assets/map.html",
+    "host/operator_console/map_assets/licenses/MAPLIBRE-GL-JS-BSD-3-CLAUSE.txt",
+    "host/operator_console/map_assets/licenses/PMTILES-BSD-3-CLAUSE.txt",
+    "host/operator_console/map_assets/maplibre/maplibre-gl-worker.mjs",
+    "host/operator_console/map_assets/maplibre/maplibre-gl.css",
+    "host/operator_console/map_assets/maplibre/maplibre-gl.js",
+    "host/operator_console/map_assets/maplibre/maplibre-gl.mjs",
+    "host/operator_console/map_assets/maplibre/maplibre-gl-shared.mjs",
+    "host/operator_console/map_assets/pmtiles/pmtiles.js",
+    "host/operator_console/map_assets/styles/competition-style.template.json",
     "ps/p0/include/p0_os_cfar.h",
     "ps/p0/include/p0_dma_uapi.h",
     "ps/p0/petalinux/Makefile",
@@ -655,8 +672,11 @@ APPROVED_P0_FILES = (
     "reference/p0/bandwidth.py",
     "reference/p0/detection.py",
     "reference/p0/df.py",
+    "reference/p0/df_fixtures.py",
+    "reference/p0/field_df.py",
     "reference/p0/fixtures.py",
     "reference/p0/hackrf_search.py",
+    "reference/p0/map_direction.py",
     "reference/p0/models.py",
     "reference/p0/parameters.py",
     "reference/p0/search.py",
@@ -670,6 +690,7 @@ APPROVED_P0_FILES = (
     "results/evidence/p0/judge-workflow.json",
     "results/evidence/p0/hackrf-b0-readiness.json",
     "results/evidence/p0/parameter-golden.json",
+    "results/evidence/p0/training-functional-acceptance-v1.json",
     "results/evidence/p0/petalinux-dma-length16-build.json",
     "results/evidence/p0/vivado-100mhz-attempt.json",
     "results/evidence/p0/vivado-50mhz.json",
@@ -686,14 +707,72 @@ APPROVED_P0_FILES = (
     "scripts/verify_p0_et.py",
     "scripts/verify_p0_judge_workflow.py",
     "scripts/verify_p0_os_cfar.py",
+    "scripts/verify_p0_training_acceptance.py",
     "tests/test_p0_detection_parameters.py",
     "tests/test_p0_df.py",
+    "tests/test_p0_field_df.py",
     "tests/test_p0_et.py",
     "tests/test_p0_hackrf_search.py",
+    "tests/test_p0_map_direction.py",
+    "tests/test_operator_map_direction.py",
+    "tests/test_map_providers.py",
     "tests/test_p0_operator.py",
     "tests/test_p0_rx_sources.py",
     "tests/test_p0_search.py",
     "tests/test_p0_transport.py",
+    "tests/test_p0_training_acceptance.py",
+)
+
+# The ET console extension is explicitly limited to deterministic local models
+# and validation metadata.  It is not a phase-completion or RF-TX approval.
+APPROVED_ET_OFFLINE_FILES = (
+    "docs/decisions/ADR-0023-ET-OFFLINE-TASK-CONSOLE.md",
+    "reference/et/gnss.py",
+    "reference/et/interleaved.py",
+    "reference/et/results.py",
+    "results/evidence/et-offline/analog-nfm-loopback-1920x1080.png",
+    "results/evidence/et-offline/continuous-barrage-1920x1080.png",
+    "results/evidence/et-offline/continuous-multiple-1920x1080.png",
+    "results/evidence/et-offline/gnss-validation-1920x1080.png",
+    "results/evidence/et-offline/interleaved-timeline-1920x1080.png",
+    "tests/test_et_offline_models.py",
+    "tests/test_operator_et.py",
+)
+
+# APP sağlamlaştırma çalışması mevcut PHASE sırasını ilerletmez.  Bu dosyalar
+# yalnız repository/ürün sınırını ve sonraki onay kapılarını tanımlar.
+APPROVED_APP_HARDENING_FILES = (
+    "config/app/product-package.json",
+    "docs/decisions/ADR-0024-PRODUCT-VERIFICATION-RUNTIME-BOUNDARY.md",
+    "docs/plans/APP_HARDENING_WORK_PACKAGES.md",
+    "docs/reviews/APP_CODE_REVIEW_BASELINE.md",
+    "docs/reviews/REPOSITORY_DISPOSITION.md",
+    "docs/reviews/UI_REFERENCE_RESEARCH.md",
+    "host/acquisition/mock.py",
+    "host/operator_console/laboratory.py",
+    "tests/test_operator_product_boundary.py",
+)
+
+# P0 kart güvenlik sınırı ile gerçek, operatörce sağlanan kayıtların çevrimdışı
+# analizi.  Yerel kayıt byte'ları bu listede değildir ve release'e girmez.
+APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
+    "ps/p0/include/p0_fclk_guard_logic.h",
+    "ps/p0/include/p0_fclk_guard_uapi.h",
+    "ps/p0/petalinux/p0-fclk-guard.Makefile",
+    "ps/p0/petalinux/p0-fclk-guard_1.0.bb",
+    "ps/p0/petalinux/p0-fclk-guardctl_1.0.bb",
+    "ps/p0/src/p0_fclk_guard.c",
+    "ps/p0/src/p0_fclk_guardctl.c",
+    "reference/p0/recorded_df.py",
+    "reference/p0/two_point_df.py",
+    "reference/sigmf/hackrf.py",
+    "results/evidence/p0/fclk-guard-build.json",
+    "scripts/analyze_hackrf_amplitude_df.py",
+    "scripts/wrap_hackrf_iq_as_sigmf.py",
+    "tests/p0/test_p0_fclk_guard_logic.c",
+    "tests/p0/test_p0_fclk_guard_source.py",
+    "tests/test_hackrf_recorded_integration.py",
+    "tests/test_two_point_df.py",
 )
 
 EXPECTED_TOOLS = (
@@ -741,6 +820,8 @@ def _repository_files() -> set[str]:
         relative_parts = path.relative_to(ROOT).parts
         if any(part in skipped_directories for part in relative_parts):
             continue
+        if relative_parts[:3] == ("datasets", "external", "local"):
+            continue
         if path.is_file() and path.name not in skipped_names and path.suffix not in skipped_suffixes:
             files.add(path.relative_to(ROOT).as_posix())
     return files
@@ -767,6 +848,9 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_TEST_INFRASTRUCTURE_FILES)
         | set(APPROVED_PHASE06J_FILES)
         | set(APPROVED_P0_FILES)
+        | set(APPROVED_ET_OFFLINE_FILES)
+        | set(APPROVED_APP_HARDENING_FILES)
+        | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
     )
     unexpected = sorted(_repository_files() - allowed)
     return _result(
@@ -899,7 +983,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("rtl", "reference", "verification", "host", "datasets", "ps")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | {
         "rtl/README.md",
         "reference/README.md",
         "verification/README.md",
@@ -911,6 +995,8 @@ def check_no_future_sources() -> dict[str, object]:
         for path in (ROOT / directory).rglob("*"):
             if path.is_file():
                 relative = path.relative_to(ROOT).as_posix()
+                if path.relative_to(ROOT).parts[:3] == ("datasets", "external", "local"):
+                    continue
                 if "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}:
                     continue
                 if relative not in allowed:
@@ -988,7 +1074,14 @@ def run_checks() -> list[dict[str, object]]:
     return results
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="PHASE-00 repository sözleşmesini doğrula")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Tarihsel kanıt dosyasını değiştirmeden yalnız doğrulama yap",
+    )
+    args = parser.parse_args(argv)
     checks = run_checks()
     passed = all(check["status"] == "passed" for check in checks)
     payload = {
@@ -997,15 +1090,19 @@ def main() -> int:
         "overall": "passed" if passed else "failed",
         "checks": checks,
     }
-    SUMMARY.parent.mkdir(parents=True, exist_ok=True)
-    SUMMARY.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
+    if not args.check:
+        SUMMARY.parent.mkdir(parents=True, exist_ok=True)
+        SUMMARY.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
     for check in checks:
         print(f"[{check['status'].upper()}] {check['id']}: {check['detail']}")
-    print(f"Verification summary written to {SUMMARY}")
+    if args.check:
+        print("Salt-okunur doğrulama tamamlandı; tarihsel kanıt değiştirilmedi.")
+    else:
+        print(f"Verification summary written to {SUMMARY}")
     return 0 if passed else 1
 
 

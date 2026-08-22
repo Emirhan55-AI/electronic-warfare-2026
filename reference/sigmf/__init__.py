@@ -7,6 +7,7 @@ from .contract import (
     decode_iq_pairs,
     inspect_sigmf,
 )
+from .hackrf import HACKRF_REPLAY_DESCRIPTION, HackRFSigMFWrapError, wrap_hackrf_iq_as_sigmf
 
 __all__ = [
     "ContractIssue",
@@ -14,4 +15,7 @@ __all__ = [
     "ContractValidationError",
     "decode_iq_pairs",
     "inspect_sigmf",
+    "HACKRF_REPLAY_DESCRIPTION",
+    "HackRFSigMFWrapError",
+    "wrap_hackrf_iq_as_sigmf",
 ]

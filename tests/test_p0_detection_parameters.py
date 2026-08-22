@@ -80,6 +80,8 @@ class P0ParameterTests(unittest.TestCase):
         self.assertAlmostEqual(result.bandwidth_hz, 3.0 * sample_rate / count, places=6)
         self.assertAlmostEqual(result.relative_power_linear, 0.25, places=12)
         self.assertAlmostEqual(result.relative_power_dbfs, 20.0 * np.log10(0.5), places=10)
+        self.assertAlmostEqual(result.peak_power_dbfs_per_bin, 20.0 * np.log10(0.5), places=10)
+        self.assertAlmostEqual(result.channel_power_dbfs, result.relative_power_dbfs, places=12)
         self.assertGreater(result.snr_db, 60.0)
         self.assertEqual(result.calibration_state, "KALİBRASYON BEKLİYOR")
         self.assertEqual(result.provenance, "HOST REFERENCE")

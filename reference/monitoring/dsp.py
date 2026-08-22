@@ -17,7 +17,7 @@ from .models import AnalogMonitorConfig, AnalogMonitorResult, MonitoringError
 AUDIO_SAMPLE_RATE_HZ = 48_000
 MAX_IQ_FRAMES = 4
 FRAME_LENGTH = 4096
-MAX_AUDIO_SECONDS = 10
+MAX_AUDIO_SECONDS = 20
 MAX_AUDIO_SAMPLES = AUDIO_SAMPLE_RATE_HZ * MAX_AUDIO_SECONDS
 CHANNEL_TAPS = 129
 AUDIO_TAPS = 65
@@ -174,9 +174,105 @@ class AnalogMonitor:
             quality_code="passed",
         )
 
+    def process_continuous(
+        self,
+        blocks: npt.ArrayLike | tuple[npt.ArrayLike, ...] | list[npt.ArrayLike],
+        config: AnalogMonitorConfig,
+        *,
+        volume: float = 1.0,
+    ) -> AnalogMonitorResult:
+        """Demodulate one 5–10 s contiguous recording while retaining stream state.
+
+        The NCO, both FIR delay lines, decimator phase and discriminator's previous
+        complex sample remain continuous across every supplied block.
+        """
+        if isinstance(blocks, np.ndarray) and blocks.ndim == 1:
+            input_blocks = (np.asarray(blocks, dtype=np.complex128),)
+        else:
+            input_blocks = tuple(np.asarray(block, dtype=np.complex128) for block in blocks)  # type: ignore[arg-type]
+        if not input_blocks or any(block.ndim != 1 or block.size == 0 for block in input_blocks):
+            raise MonitoringError("insufficient_iq", "Kesintisiz dinleme için I/Q örnekleri gerekli.")
+        total = sum(block.size for block in input_blocks)
+        if total < int(math.ceil(5.0 * config.sample_rate_hz)):
+            raise MonitoringError("insufficient_iq", "Dinleme için en az beş saniyelik kesintisiz I/Q gerekli.")
+        if total > int(math.floor(MAX_AUDIO_SECONDS * config.sample_rate_hz)):
+            raise MonitoringError("audio_limit", "Kesintisiz dinleme süresi yirmi saniyeyi aşamaz.")
+        if any(not np.all(np.isfinite(block.real)) or not np.all(np.isfinite(block.imag)) for block in input_blocks):
+            raise MonitoringError("nonfinite_iq", "I/Q örneklerinde NaN veya Inf bulundu.")
+
+        # First decimate from the capture rate with a stateful anti-alias FIR.
+        decimation = max(1, int(config.sample_rate_hz // 200_000.0))
+        intermediate_rate = config.sample_rate_hz / decimation
+        anti_alias = _lowpass(min(80_000.0, intermediate_rate * 0.42), config.sample_rate_hz, CHANNEL_TAPS)
+        channel = _lowpass(min(config.channel_bandwidth_hz * 0.45, intermediate_rate * 0.45), intermediate_rate, CHANNEL_TAPS)
+        anti_state = np.zeros(CHANNEL_TAPS - 1, dtype=np.complex128)
+        channel_state = np.zeros(CHANNEL_TAPS - 1, dtype=np.complex128)
+        phase = 0
+        decimator_index = 0
+        previous: complex | None = None
+        baseband_parts: list[npt.NDArray[np.float64]] = []
+        channel_power_sum = 0.0
+        channel_power_count = 0
+
+        for block in input_blocks:
+            indices = phase + np.arange(block.size, dtype=np.float64)
+            mixed = block * np.exp(-2j * np.pi * config.center_offset_hz * indices / config.sample_rate_hz)
+            phase += block.size
+            anti_filtered = np.convolve(np.concatenate((anti_state, mixed)), anti_alias, mode="valid")
+            anti_state = np.asarray(mixed[-(CHANNEL_TAPS - 1):], dtype=np.complex128)
+            positions = np.arange(decimator_index, decimator_index + anti_filtered.size)
+            decimated = anti_filtered[positions % decimation == 0]
+            decimator_index += anti_filtered.size
+            if not decimated.size:
+                continue
+            filtered = np.convolve(np.concatenate((channel_state, decimated)), channel, mode="valid")
+            channel_state = np.asarray(decimated[-(CHANNEL_TAPS - 1):], dtype=np.complex128)
+            channel_power_sum += float(np.vdot(filtered, filtered).real)
+            channel_power_count += filtered.size
+            if config.mode == "am":
+                baseband_parts.append(np.abs(filtered))
+            else:
+                extended = filtered if previous is None else np.concatenate((np.asarray([previous]), filtered))
+                baseband_parts.append(np.angle(extended[1:] * np.conj(extended[:-1])) * intermediate_rate / (2.0 * np.pi))
+                previous = complex(filtered[-1])
+
+        if not baseband_parts:
+            raise MonitoringError("insufficient_iq", "Kesintisiz kanaldan ses örneği üretilemedi.")
+        baseband = np.concatenate(baseband_parts)
+        baseband -= float(np.mean(baseband))  # DC/audio offset removal, before resampling.
+        audio = _resample_linear(baseband, intermediate_rate)
+        audio_cutoff = min(15_000.0, max(3_000.0, config.channel_bandwidth_hz * 0.42), 0.45 * AUDIO_SAMPLE_RATE_HZ)
+        audio = np.convolve(audio, _lowpass(audio_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS), mode="same")
+        # Discard the causal filter warm-up once, never at each capture block.
+        audio = audio[AUDIO_TAPS - 1 :]
+        audio -= float(np.mean(audio))
+        if audio.size < 128 or audio.size > MAX_AUDIO_SAMPLES or not np.all(np.isfinite(audio)):
+            raise MonitoringError("insufficient_audio", "Bounded ve sonlu ses sonucu üretilemedi.")
+        peak = float(np.max(np.abs(audio), initial=0.0))
+        if peak <= np.finfo(np.float64).eps:
+            raise MonitoringError("insufficient_audio", "Demodüle edilen ses enerjisi yetersizdir.")
+        # One global normalization is applied only after the full contiguous buffer.
+        audio = audio / peak
+        pcm, clipping = pcm16_bytes(audio, volume)
+        readonly = _readonly(audio)
+        power = channel_power_sum / max(channel_power_count, 1)
+        return AnalogMonitorResult(
+            mode=config.mode,
+            sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
+            audio=readonly,
+            pcm16=pcm,
+            dominant_tone_hz=dominant_tone_hz(readonly),
+            clipping_count=clipping,
+            input_frame_count=0,
+            input_complex_samples=total,
+            transient_guard_input_samples=CHANNEL_TAPS - 1,
+            quality_code="passed",
+            rf_power_dbfs=10.0 * math.log10(max(power, np.finfo(np.float64).tiny)),
+        )
+
 
 class AudioRingBuffer:
-    """Bounded PCM16 ring retaining at most ten seconds."""
+    """Bounded PCM16 ring retaining at most twenty seconds."""
 
     def __init__(self, maximum_samples: int = MAX_AUDIO_SAMPLES) -> None:
         if not 1 <= maximum_samples <= MAX_AUDIO_SAMPLES:

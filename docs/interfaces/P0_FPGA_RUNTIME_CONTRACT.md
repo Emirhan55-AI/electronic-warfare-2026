@@ -44,8 +44,11 @@ Kullanıcı aracı yalnız tam 8192-byte giriş ve tam 32768-byte çıkış kabu
 PetaLinux 2025.2 hedef derlemesi; özel device-tree compatible değeri,
 `/dev/p0-dma` sağlayan modül, `p0-dma-run` aracı, otomatik modül yükleme kaydı ve
 HackRF/OpenSSH/udev bağımlılıklarıyla tamamlanmıştır. Bu, boot edilebilir yazılım
-hazırlığıdır; kartta boot, fiziksel `S2MM_LENGTH=32768`, DMA IOC veya sayısal golden
-henüz çalıştırılmamıştır.
+hazırlığıdır. Deprecated `petalinux-package --boot` ile ayrıca paketlenen ilk
+`BOOT.BIN` fiziksel A/B testinde UART-sessiz başarısız olmuş, aynı kartta eski imaj
+yeniden boot etmiştir. PetaLinux-native `xilinx-bootbin` hedefiyle üretilen recovery
+imajı statik Bootgen denetiminden geçmiştir fakat henüz kartta çalıştırılmamıştır.
+Fiziksel `S2MM_LENGTH=32768`, DMA IOC ve sayısal golden henüz çalıştırılmamıştır.
 
 ## Hata ve iddia sınırı
 

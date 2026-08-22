@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from host.acquisition import BoundedCI8FrameSource, DeterministicMockBackend, RXConfig
+from host.acquisition import BoundedCI8FrameSource, RXConfig
+from host.acquisition.mock import DeterministicMockBackend
 from reference.pipeline import RuntimePipeline, resolve_default_operation_profile
 
 

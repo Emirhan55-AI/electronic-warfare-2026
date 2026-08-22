@@ -3,13 +3,14 @@ from __future__ import annotations
 import os
 import time
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import numpy as np
-from PySide6.QtCore import QEventLoop, QThread, QThreadPool, QTimer
+from PySide6.QtCore import QEventLoop, QThread, QThreadPool, QTimer, Qt
 from PySide6.QtWidgets import QApplication
 
 from host.operator_console.controller import MeasurementTask
@@ -39,9 +40,8 @@ class OperatorAnalysisTests(unittest.TestCase):
             TEXT["operation_workspace"],
             TEXT["analysis_workspace"],
             TEXT["listening_workspace"],
-            TEXT["direction_finding_workspace"],
+            "Yön",
             TEXT["system_status_workspace"],
-            TEXT["et_workspace"],
         )
         self.assertEqual(window.workspace_tabs.count(), len(expected))
         self.assertEqual(tuple(window.workspace_tabs.tabText(index) for index in range(len(expected))), expected)
@@ -146,6 +146,125 @@ class OperatorAnalysisTests(unittest.TestCase):
         self.assertEqual(1, controller.max_pending_intents)
         self.assertEqual(0, controller.active_task_count)
         self.assertEqual(0, controller.pending_intent_count)
+
+    def test_confirmed_replay_selection_persists_and_p0_measurement_updates_ui(self) -> None:
+        fixture = Path(__file__).resolve().parents[1] / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.sigmf-meta"
+        app, window, controller = build_application([])
+        self.addCleanup(dispose_qt_fixture, app, controller=controller, window=window)
+
+        def drain(timeout: float = 5.0) -> None:
+            deadline = time.perf_counter() + timeout
+            while (controller.active_task_count or controller.pending_intent_count) and time.perf_counter() < deadline:
+                app.processEvents()
+                time.sleep(0.002)
+            self.assertEqual(0, controller.active_task_count)
+            self.assertEqual(0, controller.pending_intent_count)
+
+        controller.open_source(fixture)
+        drain()
+        for frame_index in range(1, 4):
+            controller.current_index = frame_index
+            controller.request_current_frame()
+            drain()
+
+        self.assertTrue(window.search_start_button.isEnabled())
+        window.search_mode_combo.setCurrentIndex(0)
+        window.search_start_button.click()
+        self.assertGreater(len(window.last_search_result.parameters), 0)
+        window.search_mode_combo.setCurrentIndex(1)
+        window.judge_band_lower_spin.setValue(100.010)
+        window.judge_band_upper_spin.setValue(100.040)
+        window.search_start_button.click()
+        self.assertGreater(len(window.last_search_result.parameters), 0)
+        window.search_mode_combo.setCurrentIndex(2)
+        window.judge_frequency_spin.setValue(100.024)
+        window.search_start_button.click()
+        self.assertGreater(len(window.last_search_result.parameters), 0)
+        canonical_count = window.detection_list.count()
+        window.judge_frequency_spin.setValue(200.0)
+        window.search_start_button.click()
+        self.assertEqual((), window.last_search_result.parameters)
+        self.assertEqual(canonical_count, window.detection_list.count())
+        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        self.assertEqual(TEXT["not_validated"], window.parameter_values["emission_center"].text())
+        self.assertEqual("SigMF / Replay · Aktif", window.system_status_values["source"].text())
+        self.assertIn("doğrulanmadı", window.system_status_values["fpga"].text())
+
+        confirmed_rows = [
+            row
+            for row in range(window.detection_list.count())
+            if window.detection_list.item(row).data(Qt.ItemDataRole.UserRole + 1) == "confirmed"
+        ]
+        self.assertGreaterEqual(len(confirmed_rows), 2)
+        window.detection_list.setCurrentRow(confirmed_rows[0])
+        app.processEvents()
+        first_event_id = controller._selected_event_id
+        self.assertIsNotNone(first_event_id)
+        self.assertTrue(window.measure_button.isEnabled())
+        self.assertEqual(4096, window.analysis_spectrum.curve.xData.size)
+        np.testing.assert_allclose(
+            window.analysis_spectrum.curve.yData,
+            controller.last_result.display.bin_power_dbfs,
+        )
+        self.assertEqual(
+            window.analysis_spectrum.curve.xData.size,
+            window.analysis_spectrum.curve.yData.size,
+        )
+        self.assertTrue(np.all(np.diff(window.analysis_spectrum.curve.xData) > 0.0))
+        self.assertTrue(np.all(np.isfinite(window.analysis_spectrum.curve.yData)))
+        lower, upper = window.analysis_spectrum.region.getRegion()
+        carrier = window.analysis_spectrum.carrier_marker.value()
+        self.assertLess(lower, carrier)
+        self.assertLess(carrier, upper)
+
+        window.workspace_tabs.setCurrentIndex(1)
+        controller.current_index = 4
+        controller.request_current_frame()
+        drain()
+        self.assertEqual(first_event_id, controller._selected_event_id)
+        self.assertEqual(1, len(window.detection_list.selectedItems()))
+        self.assertTrue(window.measure_button.isEnabled())
+        self.assertEqual(4096, window.analysis_spectrum.curve.xData.size)
+
+        window.measure_button.click()
+        drain()
+        self.assertIn("tamamlandı", window.measurement_state.text())
+        self.assertIn("Sonuçlar güncellendi", window.parameter_state.text())
+        self.assertEqual("REPLAY", window.parameter_values["p0_source"].text())
+        self.assertIn("dBFS/bin", window.parameter_values["p0_peak_power"].text())
+        self.assertIn("KALİBRASYON BEKLİYOR", window.parameter_values["p0_power"].text())
+        self.assertNotEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        self.assertEqual(4096, window.analysis_spectrum.curve.xData.size)
+        self.assertLess(
+            window.analysis_spectrum.lower_marker.value(),
+            window.analysis_spectrum.carrier_marker.value(),
+        )
+        self.assertLess(
+            window.analysis_spectrum.carrier_marker.value(),
+            window.analysis_spectrum.upper_marker.value(),
+        )
+
+        second_row = next(
+            row
+            for row in confirmed_rows[1:]
+            if int(window.detection_list.item(row).data(Qt.ItemDataRole.UserRole)) != first_event_id
+        )
+        window.detection_list.setCurrentRow(second_row)
+        app.processEvents()
+        self.assertNotEqual(first_event_id, controller._selected_event_id)
+        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        controller.clear_analysis()
+        self.assertEqual(0, window.analysis_spectrum.last_x_data.size)
+        self.assertEqual(TEXT["select_confirmed_event"], window.analysis_event_value.text())
+
+    def test_measurement_without_selection_is_visible_and_never_fabricates_output(self) -> None:
+        app, window, controller = build_application([])
+        self.addCleanup(dispose_qt_fixture, app, controller=controller, window=window)
+        self.assertFalse(controller.request_measurement())
+        self.assertEqual(TEXT["measurement_no_selection"], window.measurement_state.text())
+        self.assertTrue(
+            all(value.text() == TEXT["not_validated"] for value in window.parameter_values.values())
+        )
 
 
 def load_tests(_: unittest.TestLoader, tests: unittest.TestSuite, __: str | None) -> unittest.TestSuite:

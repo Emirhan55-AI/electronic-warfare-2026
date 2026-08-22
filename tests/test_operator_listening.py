@@ -51,7 +51,7 @@ class OperatorListeningTests(unittest.TestCase):
         confirmed = [
             row
             for row in range(window.detection_list.count())
-            if "Doğrulanmış" in window.detection_list.item(row).text()
+            if "Hazır" in window.detection_list.item(row).text()
         ]
         self.assertTrue(confirmed)
         window.detection_list.setCurrentRow(confirmed[0])
@@ -66,6 +66,11 @@ class OperatorListeningTests(unittest.TestCase):
         self._drain(controller)
         self.assertIsNotNone(controller._listening_result)
         self.assertEqual(48_000, controller._listening_result.sample_rate_hz)
+        self.assertEqual("AM", window.listening_values["mode"].text())
+        self.assertIn("REPLAY / HOST", window.listening_values["backend"].text())
+        self.assertIn("mono PCM16", window.listening_values["audio_rate"].text())
+        self.assertNotEqual("—", window.listening_values["duration"].text())
+        self.assertNotEqual("—", window.listening_values["levels"].text())
         self.assertFalse(window.play_audio_button.isEnabled())
         self.assertTrue(window.export_wav_button.isEnabled())
         self.assertIn(TEXT["audio_backend_unavailable"], window.audio_backend_state.text())
@@ -111,7 +116,7 @@ class OperatorListeningTests(unittest.TestCase):
             window.export_wav_button.text(),
             window.demod_combo.itemText(1),
         )
-        self.assertEqual(("Dinleme", "Hazırla", "WAV Dışa Aktar", "Dar Bant FM (NFM)"), labels)
+        self.assertEqual(("Dinleme", "Dinle", "WAV Dışa Aktar", "Dar Bant FM (NFM)"), labels)
         scroll = window.findChild(QScrollArea, "listeningScroll")
         self.assertIsNotNone(scroll)
         self.assertTrue(scroll.widgetResizable())

@@ -4,7 +4,7 @@ import unittest
 import time
 
 from host.acquisition.contracts import AcquisitionError, CaptureResult, RXConfig
-from host.acquisition.hackrf import DeterministicMockBackend
+from host.acquisition.mock import DeterministicMockBackend
 from host.acquisition.rx_sources import HackRFHostRxSource
 
 

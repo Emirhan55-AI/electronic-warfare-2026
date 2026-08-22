@@ -26,3 +26,9 @@ xsim.dir/
 
 # Local external datasets and extracted real-data slices
 datasets/external/local/
+
+# Locally playable host-acceptance audio artifacts
+build/acceptance/audio/
+
+# Operator-supplied competition-area offline basemap
+host/operator_console/map_assets/pmtiles/*.pmtiles

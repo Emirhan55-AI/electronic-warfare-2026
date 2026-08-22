@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import deque
 
 import numpy as np
 import pyqtgraph as pg
@@ -25,36 +24,42 @@ class SpectrumView(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        pg.setConfigOption("background", "#0B0F14")
-        pg.setConfigOption("foreground", "#98A7B7")
-        pg.setConfigOption("antialias", False)
+        pg.setConfigOption("background", "#060A0F")
+        pg.setConfigOption("foreground", "#8BA2B8")
+        pg.setConfigOption("antialias", True)
         pg.setConfigOption("useOpenGL", False)
         pg.setConfigOption("imageAxisOrder", "row-major")
 
         self._axis_mode = "offset"
         self._metric = "bin"
-        self._waterfall_rows: deque[np.ndarray] = deque(maxlen=self.MAX_WATERFALL_ROWS)
+        # Ring buffer: pre-allocated (MAX_ROWS, N_bins) — avoids np.stack each frame.
+        # _ring_head counts total appended rows; _ring_fill tracks rows filled so far.
+        self._ring_buf: np.ndarray = np.full(
+            (self.MAX_WATERFALL_ROWS, 1), -140.0, dtype=np.float32
+        )  # resized on first real row
+        self._ring_head: int = 0
+        self._ring_fill: int = 0
         self.last_x_mhz = np.array([], dtype=np.float64)
         self.last_line_values = np.array([], dtype=np.float64)
         self.last_waterfall_values = np.empty((0, 0), dtype=np.float32)
 
         self.spectrum_plot = pg.PlotWidget()
         self.spectrum_plot.setObjectName("spectrumPlot")
-        self.spectrum_plot.setTitle(TEXT["spectrum"], color="#E8EEF5", size="11pt")
-        self.spectrum_plot.showGrid(x=True, y=True, alpha=0.16)
+        self.spectrum_plot.setTitle(TEXT["spectrum"], color="#E2EEF8", size="10.5pt")
+        self.spectrum_plot.showGrid(x=True, y=True, alpha=0.08)
         self.spectrum_plot.setMenuEnabled(False)
         self.spectrum_plot.setMouseEnabled(x=True, y=True)
-        self.spectrum_curve = self.spectrum_plot.plot(pen=pg.mkPen("#3A9DFF", width=1.5))
+        self.spectrum_curve = self.spectrum_plot.plot(pen=pg.mkPen("#38BDF8", width=1.2))
         self.noise_curve = self.spectrum_plot.plot(
-            pen=pg.mkPen("#7F8D9C", width=1.0, style=Qt.PenStyle.DashLine)
+            pen=pg.mkPen("#64748B", width=1.0, style=Qt.PenStyle.DashLine)
         )
         self.threshold_curve = self.spectrum_plot.plot(
-            pen=pg.mkPen("#F2C46D", width=1.2)
+            pen=pg.mkPen("#F59E0B", width=1.3)
         )
         self.peak_markers = pg.ScatterPlotItem(
             size=7,
-            pen=pg.mkPen("#FFB454", width=1.0),
-            brush=pg.mkBrush(255, 180, 84, 130),
+            pen=pg.mkPen("#F59E0B", width=1.0),
+            brush=pg.mkBrush(245, 158, 11, 140),
         )
         self.spectrum_plot.addItem(self.peak_markers)
         self.region_overlays: list[pg.LinearRegionItem] = []
@@ -62,8 +67,8 @@ class SpectrumView(QWidget):
             overlay = pg.LinearRegionItem(
                 values=(0.0, 0.0),
                 movable=False,
-                pen=pg.mkPen("#FFB454", width=0.8),
-                brush=pg.mkBrush(255, 180, 84, 28),
+                pen=pg.mkPen("#F59E0B", width=0.8),
+                brush=pg.mkBrush(245, 158, 11, 25),
             )
             overlay.setZValue(-5)
             overlay.hide()
@@ -72,8 +77,8 @@ class SpectrumView(QWidget):
         self.parameter_overlay = pg.LinearRegionItem(
             values=(0.0, 0.0),
             movable=False,
-            pen=pg.mkPen("#4DB6AC", width=1.2),
-            brush=pg.mkBrush(77, 182, 172, 24),
+            pen=pg.mkPen("#10B981", width=1.2),
+            brush=pg.mkBrush(16, 185, 129, 25),
         )
         self.parameter_overlay.hide()
         self.spectrum_plot.addItem(self.parameter_overlay)
@@ -85,8 +90,8 @@ class SpectrumView(QWidget):
 
         self.waterfall_plot = pg.PlotWidget()
         self.waterfall_plot.setObjectName("waterfallPlot")
-        self.waterfall_plot.setTitle(TEXT["waterfall"], color="#E8EEF5", size="11pt")
-        self.waterfall_plot.showGrid(x=True, y=False, alpha=0.12)
+        self.waterfall_plot.setTitle(TEXT["waterfall"], color="#E2EEF8", size="10.5pt")
+        self.waterfall_plot.showGrid(x=True, y=False, alpha=0.06)
         self.waterfall_plot.setMenuEnabled(False)
         self.waterfall_plot.setMouseEnabled(x=True, y=False)
         self.waterfall_plot.setLabel("left", TEXT["history_frame"])
@@ -96,13 +101,17 @@ class SpectrumView(QWidget):
             self.waterfall_plot,
             TEXT["empty_history"],
         )
+        # Perceptually uniform viridis-based colormap; levels are driven by real
+        # backend intensity values (bin_power_dbfs -140..0 dBFS).
         color_map = pg.ColorMap(
-            np.array([0.0, 0.55, 1.0]),
+            np.linspace(0.0, 1.0, 5),
             np.array(
                 [
-                    [11, 15, 20, 255],
-                    [20, 63, 94, 255],
-                    [58, 157, 255, 255],
+                    [ 68,   1,  84, 255],  # derin mor  — düşük güç
+                    [ 59,  82, 139, 255],  # koyu mavi
+                    [ 33, 145, 140, 255],  # teal
+                    [ 94, 201,  98, 255],  # yeşil
+                    [253, 231,  37, 255],  # sarı       — tepe güç
                 ],
                 dtype=np.ubyte,
             ),
@@ -113,7 +122,9 @@ class SpectrumView(QWidget):
         splitter.setOrientation(Qt.Orientation.Vertical)
         splitter.addWidget(self.spectrum_plot)
         splitter.addWidget(self.waterfall_plot)
-        splitter.setSizes([430, 230])
+        splitter.setSizes([560, 240])
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 1)
         splitter.setChildrenCollapsible(False)
 
         layout = QVBoxLayout(self)
@@ -153,7 +164,7 @@ class SpectrumView(QWidget):
 
     @property
     def waterfall_count(self) -> int:
-        return len(self._waterfall_rows)
+        return self._ring_fill
 
     def set_axis_mode(self, mode: str) -> None:
         if mode not in {"offset", "absolute"}:
@@ -208,10 +219,32 @@ class SpectrumView(QWidget):
         self._update_parameter_overlay(parameter_result)
 
         if append_waterfall:
-            self._waterfall_rows.append(np.asarray(waterfall, dtype=np.float32).copy())
-        if self._waterfall_rows:
+            new_row = np.asarray(waterfall, dtype=np.float32)
+            n_cols = new_row.shape[0]
+            # Resize ring buffer lazily when first real data arrives or bin count changes.
+            if self._ring_buf.shape[1] != n_cols:
+                self._ring_buf = np.full(
+                    (self.MAX_WATERFALL_ROWS, n_cols), -140.0, dtype=np.float32
+                )
+                self._ring_head = 0
+                self._ring_fill = 0
+            slot = self._ring_head % self.MAX_WATERFALL_ROWS
+            self._ring_buf[slot] = new_row
+            self._ring_head += 1
+            self._ring_fill = min(self._ring_fill + 1, self.MAX_WATERFALL_ROWS)
+        if self._ring_fill > 0:
             self._set_history_available(True)
-            image = np.stack(tuple(self._waterfall_rows), axis=0)
+            # Build ordered view: newest row at bottom (highest index).
+            n = self._ring_fill
+            rows = self.MAX_WATERFALL_ROWS
+            if n == rows:
+                # Full buffer: oldest row is one past current head.
+                start = self._ring_head % rows
+                image = np.concatenate(
+                    [self._ring_buf[start:], self._ring_buf[:start]], axis=0
+                )
+            else:
+                image = self._ring_buf[:n].copy()
             self.last_waterfall_values = image
             levels = (-140.0, 0.0) if self._metric == "bin" else (-180.0, 0.0)
             self.waterfall_image.setImage(image, autoLevels=False, levels=levels)
@@ -304,7 +337,10 @@ class SpectrumView(QWidget):
         self.parameter_overlay.show()
 
     def clear_history(self) -> None:
-        self._waterfall_rows.clear()
+        self._ring_head = 0
+        self._ring_fill = 0
+        # Zero the ring buffer in-place so stale data cannot leak across sessions.
+        self._ring_buf[:] = -140.0
         self.last_waterfall_values = np.empty((0, 0), dtype=np.float32)
         self.waterfall_image.clear()
         self._set_history_available(False)
@@ -323,6 +359,7 @@ class AnalysisSpectrumView(QWidget):
     """Focused spectrum with a bounded, draggable operator span."""
 
     span_changed = Signal(int, int)
+    carrier_selected = Signal(float)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -334,6 +371,18 @@ class AnalysisSpectrumView(QWidget):
         self.plot.showGrid(x=True, y=True, alpha=0.16)
         self.plot.setMenuEnabled(False)
         self.curve = self.plot.plot(pen=pg.mkPen("#3A9DFF", width=1.5))
+        self.band_region = pg.LinearRegionItem(
+            values=(0.0, 0.0), movable=False,
+            pen=pg.mkPen("#35B8D1", width=0.8), brush=pg.mkBrush(53, 184, 209, 22),
+        )
+        self.plot.addItem(self.band_region)
+        self.band_region.hide()
+        self.lower_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#35B8D1", width=1.0))
+        self.carrier_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#F2C46D", width=1.4))
+        self.upper_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#35B8D1", width=1.0))
+        for marker in (self.lower_marker, self.carrier_marker, self.upper_marker):
+            self.plot.addItem(marker)
+            marker.hide()
         self.region = pg.LinearRegionItem(
             values=(0.0, 0.0), movable=True,
             pen=pg.mkPen("#4DB6AC", width=1.5), brush=pg.mkBrush(77, 182, 172, 40),
@@ -342,16 +391,43 @@ class AnalysisSpectrumView(QWidget):
         self.region.hide()
         self.region.sigRegionChangeFinished.connect(self._region_finished)
         self._frequencies = np.array([], dtype=np.float64)
+        self.last_x_data = np.array([], dtype=np.float64)
+        self.last_y_data = np.array([], dtype=np.float64)
         self._bin_spacing_mhz = 0.0
         self._blocking = False
+        self.plot.scene().sigMouseClicked.connect(self._carrier_clicked)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.plot)
 
     def set_spectrum(self, display: SpectrumDisplay) -> None:
-        self._frequencies = np.asarray(display.frequency_absolute_hz / 1_000_000.0, dtype=np.float64)
+        frequencies = np.asarray(display.frequency_absolute_hz / 1_000_000.0, dtype=np.float64)
+        power = np.asarray(display.bin_power_dbfs, dtype=np.float64)
+        valid = np.isfinite(frequencies) & np.isfinite(power)
+        if frequencies.size != power.size or not np.any(valid):
+            self.clear_span()
+            return
+        self._frequencies = frequencies
+        self.last_x_data = frequencies[valid]
+        self.last_y_data = power[valid]
         self._bin_spacing_mhz = float(self._frequencies[1] - self._frequencies[0])
-        self.curve.setData(self._frequencies, display.bin_power_dbfs)
+        self.curve.setData(self.last_x_data, self.last_y_data)
+
+    def set_event_markers(self, *, lower_hz: float, carrier_hz: float, upper_hz: float) -> None:
+        """Render verified event bounds on the existing real spectrum curve."""
+        lower, carrier, upper = (float(value) / 1_000_000.0 for value in (lower_hz, carrier_hz, upper_hz))
+        if not lower < carrier < upper:
+            return
+        self.lower_marker.setValue(lower)
+        self.carrier_marker.setValue(carrier)
+        self.upper_marker.setValue(upper)
+        self.band_region.setRegion((lower, upper))
+        for item in (self.lower_marker, self.carrier_marker, self.upper_marker, self.band_region):
+            item.show()
+
+    def clear_event_markers(self) -> None:
+        for item in (self.lower_marker, self.carrier_marker, self.upper_marker, self.band_region):
+            item.hide()
 
     def set_span(self, lower_bin: int, upper_bin: int) -> None:
         if self._frequencies.size != 4096:
@@ -370,6 +446,9 @@ class AnalysisSpectrumView(QWidget):
         self.region.hide()
         self.curve.clear()
         self._frequencies = np.array([], dtype=np.float64)
+        self.last_x_data = np.array([], dtype=np.float64)
+        self.last_y_data = np.array([], dtype=np.float64)
+        self.clear_event_markers()
 
     def nudge(self, amount_bins: int) -> None:
         if not self.region.isVisible() or self._bin_spacing_mhz == 0.0:
@@ -391,3 +470,17 @@ class AnalysisSpectrumView(QWidget):
             upper = lower + 511
         self.set_span(lower, upper)
         self.span_changed.emit(lower, upper)
+
+    def _carrier_clicked(self, event: object) -> None:
+        if self._frequencies.size == 0:
+            return
+        position = getattr(event, "scenePos", lambda: None)()
+        if position is None:
+            return
+        point = self.plot.getPlotItem().vb.mapSceneToView(position)
+        frequency_mhz = float(point.x())
+        index = int(np.argmin(np.abs(self._frequencies - frequency_mhz)))
+        selected = float(self._frequencies[index])
+        self.carrier_marker.setValue(selected)
+        self.carrier_marker.show()
+        self.carrier_selected.emit(selected * 1_000_000.0)

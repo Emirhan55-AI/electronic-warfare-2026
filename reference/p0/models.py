@@ -41,6 +41,8 @@ class P0ParameterResult:
     coarse_candidate_bandwidth_hz: float
     relative_power_linear: float
     relative_power_dbfs: float
+    peak_power_dbfs_per_bin: float
+    channel_power_dbfs: float
     snr_db: float
     signal_domain: SignalDomain
     classification_reasons: tuple[str, ...]
