@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import generate_phase01_fixture as fixture  # noqa: E402
 
-from reference.sigmf.contract import decode_iq_pairs, inspect_sigmf  # noqa: E402
+from algorithms.sigmf.contract import decode_iq_pairs, inspect_sigmf  # noqa: E402
 
 
 class Phase01FixtureTests(unittest.TestCase):

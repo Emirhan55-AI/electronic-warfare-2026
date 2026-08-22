@@ -177,7 +177,7 @@ def _internal_render(state: str, logical_width: int, logical_height: int, output
     from PySide6.QtGui import QFontMetrics, QImage
     from PySide6.QtWidgets import QApplication, QLabel
 
-    from host.operator_console.application import build_application
+    from app.operator_console.application import build_application
 
     app, window, controller = build_application(["phase02-render"])
     temporary: tempfile.TemporaryDirectory[str] | None = None

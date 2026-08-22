@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from reference.parameters import (
+from algorithms.parameters import (
     AnalysisSpan,
     MeasurementCandidate,
     MeasurementContext,
@@ -14,9 +14,9 @@ from reference.parameters import (
     OperatorMeasurementProcessor,
     project_to_simplex,
 )
-from reference.parameters.scenes import generate_parameter_scene
-from reference.parameters.operator_evaluation import _new_stage_counters, _record_stage_counters
-from reference.spectrum import SpectrumProcessor
+from algorithms.parameters.scenes import generate_parameter_scene
+from algorithms.parameters.operator_evaluation import _new_stage_counters, _record_stage_counters
+from algorithms.spectrum import SpectrumProcessor
 
 
 class Phase04E1AlgorithmTests(unittest.TestCase):
@@ -75,7 +75,7 @@ class Phase04E1AlgorithmTests(unittest.TestCase):
         psd = np.ones(4096)
         psd[1900:1932] += 20.0
         samples = tuple(np.ones(4096, dtype=np.complex128) for _ in range(4))
-        with patch("reference.parameters.operator_assisted.classify_domain", return_value=("Analog", 1.0, ())):
+        with patch("algorithms.parameters.operator_assisted.classify_domain", return_value=("Analog", 1.0, ())):
             result = OperatorMeasurementProcessor().measure(self.intent(span), samples, self.synthetic_spectra((psd,) * 4))
         self.assertEqual("uncertain", result.occupied_bandwidth.state)
         self.assertEqual("span_edge_clipping", result.occupied_bandwidth.reason)

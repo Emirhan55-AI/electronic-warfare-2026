@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from reference.parameters.r2 import (
+from algorithms.parameters.r2 import (
     HANN_CORRECTION,
     HANN_EXPECTED_CI95,
     IID_TRIMMED_MEAN_CORRECTION,

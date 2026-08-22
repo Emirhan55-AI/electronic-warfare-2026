@@ -4,12 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from host.operator_console.map_providers import MapProviderMode, select_map_providers
+from app.operator_console.map_providers import MapProviderMode, select_map_providers
 
 
 class MapProviderTests(unittest.TestCase):
     def test_local_map_assets_use_maplibre_and_never_define_a_target_position(self) -> None:
-        root = Path(__file__).resolve().parents[1] / "host" / "operator_console" / "map_assets"
+        root = Path(__file__).resolve().parents[1] / "app" / "operator_console" / "map_assets"
         page = (root / "map.html").read_text(encoding="utf-8")
         self.assertIn("./maplibre/maplibre-gl.js", page)
         self.assertIn("Tahmini geliş doğrultusu", page)

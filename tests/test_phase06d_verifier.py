@@ -32,7 +32,7 @@ class Phase06DVerifierTests(unittest.TestCase):
             self.assertEqual("not_exercised", summary[boundary])
 
     def test_adapter_is_thin_and_real_ip_is_instantiated(self) -> None:
-        adapter = (ROOT / "rtl" / "phase06d" / "rtl" / "amd_xfft_adapter.sv").read_text(encoding="utf-8")
+        adapter = (ROOT / "algorithms" / "fpga" / "phase06d" / "rtl" / "amd_xfft_adapter.sv").read_text(encoding="utf-8")
         self.assertIn("phase06d_fft_4096 fft_ip", adapter)
         self.assertIn("amd_m_axis_data_tuser[11:0]", adapter)
         self.assertNotIn("fft_ip_transport_stub", adapter)

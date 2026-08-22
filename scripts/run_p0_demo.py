@@ -13,16 +13,16 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from host.operator_console.laboratory import build_laboratory_application
-from reference.monitoring import AnalogMonitor, AnalogMonitorConfig
-from reference.p0 import (
+from app.operator_console.laboratory import build_laboratory_application
+from algorithms.monitoring import AnalogMonitor, AnalogMonitorConfig
+from algorithms.p0 import (
     P0_DETECTOR_PROFILE,
     OSCFARDetector,
     ParameterExtractor,
     TemporalConfirmation,
 )
-from reference.p0.fixtures import CENTER_FREQUENCY_HZ, SAMPLE_RATE_HZ, build_fixtures, build_judge_demo_engine
-from reference.spectrum import SigMFFrameSource, SpectrumProcessor
+from algorithms.p0.fixtures import CENTER_FREQUENCY_HZ, SAMPLE_RATE_HZ, build_fixtures, build_judge_demo_engine
+from algorithms.spectrum import SigMFFrameSource, SpectrumProcessor
 
 
 PHASE05_FIXTURES = ROOT / "datasets" / "fixtures" / "phase05"

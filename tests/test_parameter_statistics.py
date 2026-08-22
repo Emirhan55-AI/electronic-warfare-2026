@@ -6,7 +6,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from reference.parameters.evaluation import (
+from algorithms.parameters.evaluation import (
     _band_pairs,
     _gate_applicability,
     _paired_bootstrap_difference,
@@ -15,7 +15,7 @@ from reference.parameters.evaluation import (
     evaluate_parameter_methods,
     phase04_implementation_manifest,
 )
-from reference.parameters.scenes import load_parameter_catalog
+from algorithms.parameters.scenes import load_parameter_catalog
 
 
 class ParameterStatisticsTests(unittest.TestCase):
@@ -69,8 +69,8 @@ class ParameterStatisticsTests(unittest.TestCase):
             return [empty] * len(contexts), [list(trace) for _ in contexts]
 
         no_choice = (None, {"status": "failed", "reason": "test", "comparisons": []})
-        with patch("reference.parameters.evaluation._run_shared_band_sequence", side_effect=sequence_side_effect), patch(
-            "reference.parameters.evaluation._choose", return_value=no_choice
+        with patch("algorithms.parameters.evaluation._run_shared_band_sequence", side_effect=sequence_side_effect), patch(
+            "algorithms.parameters.evaluation._choose", return_value=no_choice
         ):
             records, _, _ = _band_pairs(load_parameter_catalog(), trials=1, full=False)
         self.assertEqual(records[0]["noise_unique_false_event_count"], 1)
@@ -137,8 +137,8 @@ class ParameterStatisticsTests(unittest.TestCase):
 
     def test_downstream_is_not_called_when_band_stage_fails(self) -> None:
         failed = ([{"eligible": False}], None, {"status": "failed", "reason": "test", "comparisons": []})
-        with patch("reference.parameters.evaluation._band_pairs", return_value=failed), patch(
-            "reference.parameters.evaluation._frequency_pairs"
+        with patch("algorithms.parameters.evaluation._band_pairs", return_value=failed), patch(
+            "algorithms.parameters.evaluation._frequency_pairs"
         ) as frequency:
             payload, selected = evaluate_parameter_methods(full=False)
         frequency.assert_not_called()

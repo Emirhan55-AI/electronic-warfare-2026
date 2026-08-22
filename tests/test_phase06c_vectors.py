@@ -6,7 +6,7 @@ import json
 import unittest
 from pathlib import Path
 
-from reference.rtl.fft_vectors import build_vector_files
+from algorithms.rtl.fft_vectors import build_vector_files
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -3,9 +3,9 @@ from __future__ import annotations
 import unittest
 import time
 
-from host.acquisition.contracts import AcquisitionError, CaptureResult, RXConfig
-from host.acquisition.mock import DeterministicMockBackend
-from host.acquisition.rx_sources import HackRFHostRxSource
+from platforms.acquisition.contracts import AcquisitionError, CaptureResult, RXConfig
+from platforms.acquisition.mock import DeterministicMockBackend
+from platforms.acquisition.rx_sources import HackRFHostRxSource
 
 
 class P0RxSourceTests(unittest.TestCase):

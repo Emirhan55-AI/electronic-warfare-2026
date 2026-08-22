@@ -9635,6 +9635,6 @@
       "sequence_id": "maximum_candidate_frame"
     }
   ],
-  "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+  "source": "algorithms/detection/pipeline.py DetectionPipeline._update_tracks",
   "status": "passed"
 }

@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0 import P0_DETECTOR_PROFILE, OSCFARConfig, OSCFARDetector
+from algorithms.p0 import P0_DETECTOR_PROFILE, OSCFARConfig, OSCFARDetector
 
 
 class Config(ctypes.Structure):
@@ -46,8 +46,8 @@ def _msvc() -> tuple[Path, Path] | None:
 
 
 def _compile(directory: Path) -> tuple[Path, str]:
-    source = ROOT / "ps" / "p0" / "src" / "p0_os_cfar.c"
-    include = ROOT / "ps" / "p0" / "include"
+    source = ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_os_cfar.c"
+    include = ROOT / "platforms" / "embedded" / "p0" / "include"
     if (msvc := _msvc()) is not None:
         vcvars, compiler = msvc
         output = directory / "p0_os_cfar.dll"

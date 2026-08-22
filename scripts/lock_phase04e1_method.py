@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.operator_assisted import OperatorMeasurementProcessor
-from reference.parameters.operator_reference import (
+from algorithms.parameters.operator_assisted import OperatorMeasurementProcessor
+from algorithms.parameters.operator_reference import (
     ACCEPTANCE_PATH,
     METHOD_LOCK_PATH,
     PHASE03_PROFILE_PATH,

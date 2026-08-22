@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from reference.detection import DetectionPipeline, DetectorConfig, LinearPowerDetector
-from reference.parameters import (
+from algorithms.detection import DetectionPipeline, DetectorConfig, LinearPowerDetector
+from algorithms.parameters import (
     BandEdgeHistoryStore,
     MethodSelection,
     ParameterExtractor,
@@ -17,7 +17,7 @@ from reference.parameters import (
     generate_parameter_scene,
     load_parameter_catalog,
 )
-from reference.spectrum import SpectrumProcessor
+from algorithms.spectrum import SpectrumProcessor
 
 
 METHOD = "band.temporal-morphology-envelope-v1"

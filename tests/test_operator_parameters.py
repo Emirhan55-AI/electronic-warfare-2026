@@ -10,8 +10,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import numpy as np
 from PySide6.QtWidgets import QLabel
 
-from host.operator_console.application import build_application
-from reference.parameters.models import (
+from app.operator_console.application import build_application
+from algorithms.parameters.models import (
     BandwidthEstimate,
     EventParameterEstimate,
     FrequencyEstimate,
@@ -19,7 +19,7 @@ from reference.parameters.models import (
     RelativePowerEstimate,
     SignalDomainEstimate,
 )
-from reference.pipeline import VerifiedProfileBinding, build_phase04_profile
+from algorithms.pipeline import VerifiedProfileBinding, build_phase04_profile
 from qt_test_support import isolate_qt_module
 
 

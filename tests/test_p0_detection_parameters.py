@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from reference.p0 import (
+from algorithms.p0 import (
     P0_DETECTOR_PROFILE,
     CandidateRegion,
     OSCFARConfig,
@@ -87,7 +87,7 @@ class P0ParameterTests(unittest.TestCase):
         self.assertEqual(result.provenance, "HOST REFERENCE")
 
     def test_nfm_bandwidth_is_new_estimator_not_coarse_candidate_span(self) -> None:
-        from reference.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
+        from algorithms.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
 
         fixture = next(item for item in build_fixtures() if item.fixture_id == "nfm-like")
         window = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(FRAME_LENGTH) / FRAME_LENGTH)

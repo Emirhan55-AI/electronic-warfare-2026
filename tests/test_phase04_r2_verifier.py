@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import scripts.verify_phase04_r2 as verifier
-from reference.parameters.evaluation import canonical_json_bytes, evaluate_phase04_r2
+from algorithms.parameters.evaluation import canonical_json_bytes, evaluate_phase04_r2
 
 
 ROOT = Path(__file__).resolve().parents[1]

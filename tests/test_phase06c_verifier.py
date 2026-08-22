@@ -37,11 +37,11 @@ class Phase06CVerifierTests(unittest.TestCase):
         self.assertEqual(before, {name: (VERIFY.EVIDENCE / name).read_bytes() for name in VERIFY.OWNED_FILES})
 
     def test_production_wrapper_has_no_custom_fft_or_vendor_primitive(self) -> None:
-        source = (ROOT / "rtl" / "phase06c" / "rtl" / "axis_fft_wrapper.sv").read_text(encoding="utf-8").casefold()
+        source = (ROOT / "algorithms" / "fpga" / "phase06c" / "rtl" / "axis_fft_wrapper.sv").read_text(encoding="utf-8").casefold()
         for token in ("$cos", "$sin", "butterfly", "unisim", "xpm_", "xfft", "real ", "shortreal"):
             self.assertNotIn(token, source)
         for suffix in ("*.xci", "*.xdc", "*.vhd", "*.vhdl"):
-            self.assertEqual([], list((ROOT / "rtl" / "phase06c").rglob(suffix)))
+            self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06c").rglob(suffix)))
 
     def test_testbench_checks_wrapper_control_not_fft_function(self) -> None:
         text = VERIFY.TESTBENCH.read_text(encoding="utf-8")

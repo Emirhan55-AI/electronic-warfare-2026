@@ -29,7 +29,7 @@ class Phase06FVerifierTests(unittest.TestCase):
         self.assertEqual("passed", simulation["deterministic_rerun"])
 
     def test_rtl_extracts_29_bits_and_preserves_axi_metadata(self) -> None:
-        rtl = (ROOT / "rtl/phase06f/rtl/axis_fft_linear_power.sv").read_text(encoding="utf-8")
+        rtl = (ROOT / "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv").read_text(encoding="utf-8")
         self.assertIn("s_axis_tdata[28:0]", rtl)
         self.assertIn("s_axis_tdata[60:32]", rtl)
         self.assertIn("stage2_last <= stage1_last", rtl)

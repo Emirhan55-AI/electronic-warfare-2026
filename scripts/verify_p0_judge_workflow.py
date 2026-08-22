@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0 import P0SearchEngine, SearchRequest
-from reference.p0.fixtures import build_judge_demo_engine
+from algorithms.p0 import P0SearchEngine, SearchRequest
+from algorithms.p0.fixtures import build_judge_demo_engine
 
 
 EVIDENCE_PATH = ROOT / "results" / "evidence" / "p0" / "judge-workflow.json"

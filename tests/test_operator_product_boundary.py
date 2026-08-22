@@ -17,7 +17,7 @@ MANIFEST = ROOT / "config" / "app" / "product-package.json"
 class OperatorProductBoundaryTests(unittest.TestCase):
     def test_product_manifest_excludes_validation_surfaces(self) -> None:
         document = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual("host.operator_console.__main__", document["entry_point"])
+        self.assertEqual("app.operator_console.__main__", document["entry_point"])
         self.assertEqual("product", document["application_mode"])
         self.assertEqual(
             {
@@ -31,10 +31,10 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         )
         excluded = set(document["excluded_paths"])
         for required in (
-            "host/acquisition/mock.py",
-            "host/operator_console/laboratory.py",
-            "reference/et",
-            "reference/p0/df_fixtures.py",
+            "platforms/acquisition/mock.py",
+            "app/operator_console/laboratory.py",
+            "algorithms/et",
+            "algorithms/p0/df_fixtures.py",
             "datasets",
             "results",
             "scripts",
@@ -43,12 +43,12 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             self.assertIn(required, excluded)
 
     def test_deploy_spec_enforces_the_same_import_boundary(self) -> None:
-        spec = (ROOT / "host" / "operator_console" / "pysidedeploy.spec").read_text(encoding="utf-8")
+        spec = (ROOT / "app" / "operator_console" / "pysidedeploy.spec").read_text(encoding="utf-8")
         for module in (
-            "host.acquisition.mock",
-            "host.operator_console.laboratory",
-            "reference.et",
-            "reference.p0.df_fixtures",
+            "platforms.acquisition.mock",
+            "app.operator_console.laboratory",
+            "algorithms.et",
+            "algorithms.p0.df_fixtures",
         ):
             self.assertIn(f"--nofollow-import-to={module}", spec)
 
@@ -58,7 +58,7 @@ import json
 import os
 import sys
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-from host.operator_console.application import build_application
+from app.operator_console.application import build_application
 app, window, controller = build_application(["product-boundary-test"])
 payload = {
     "sources": [window.source_type_combo.itemData(i) for i in range(window.source_type_combo.count())],
@@ -67,7 +67,7 @@ payload = {
     "laboratory_mode": window.laboratory_mode,
     "has_training_control": hasattr(window, "df_training_button") or hasattr(window, "map_training_button"),
     "has_et_workspace": hasattr(window, "et_workspace"),
-    "lab_modules": sorted(name for name in sys.modules if name == "reference.et" or name.startswith("reference.et.") or name in {"host.acquisition.mock", "reference.p0.df_fixtures"}),
+    "lab_modules": sorted(name for name in sys.modules if name == "algorithms.et" or name.startswith("algorithms.et.") or name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures"}),
 }
 controller.close()
 window.close()
@@ -97,9 +97,9 @@ print(json.dumps(payload, ensure_ascii=False))
 
     def test_product_sources_have_no_hardcoded_demo_recording_path(self) -> None:
         for relative in (
-            "host/operator_console/application.py",
-            "host/operator_console/controller.py",
-            "host/operator_console/main_window.py",
+            "app/operator_console/application.py",
+            "app/operator_console/controller.py",
+            "app/operator_console/main_window.py",
         ):
             text = (ROOT / relative).read_text(encoding="utf-8")
             self.assertNotIn("video_data/", text, relative)

@@ -19,14 +19,14 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
-from host.operator_console.application import build_application
-from host.operator_console.ui_text import ERROR_TEXT, TEXT
-from reference.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent, OperatorMeasurementProcessor
-from reference.parameters.operator_reference import build_golden_reference, canonical_json_bytes
-from reference.parameters.scenes import generate_parameter_scene
-from reference.pipeline import RuntimePipeline, load_profile
-from reference.pipeline.profile import load_phase04e1_capability
-from reference.spectrum import SpectrumProcessor
+from app.operator_console.application import build_application
+from app.operator_console.ui_text import ERROR_TEXT, TEXT
+from algorithms.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent, OperatorMeasurementProcessor
+from algorithms.parameters.operator_reference import build_golden_reference, canonical_json_bytes
+from algorithms.parameters.scenes import generate_parameter_scene
+from algorithms.pipeline import RuntimePipeline, load_profile
+from algorithms.pipeline.profile import load_phase04e1_capability
+from algorithms.spectrum import SpectrumProcessor
 
 
 OUT = ROOT / "results" / "evidence" / "phase04e1"
@@ -97,7 +97,7 @@ def _apply_state(window: object, state: str) -> None:
         window.measure_button.setEnabled(capability is not None)
     if state in {"auto_span", "confirmed"}:
         window.workspace_tabs.setCurrentIndex(1)
-        auto = None if confirmed is None else __import__("reference.parameters", fromlist=["suggest_analysis_span"]).suggest_analysis_span(confirmed, detections[detection_index].active_events)
+        auto = None if confirmed is None else __import__("algorithms.parameters", fromlist=["suggest_analysis_span"]).suggest_analysis_span(confirmed, detections[detection_index].active_events)
         if auto is not None:
             window.analysis_spectrum.set_span(auto.lower_shifted_bin, auto.upper_shifted_bin)
             window.set_analysis_span(auto.lower_shifted_bin, auto.upper_shifted_bin, "auto_suggested")

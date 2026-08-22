@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.obw99_evaluation import EVALUATION_LOCK_PATH, evidence_hash, verify_evaluation_lock
-from reference.parameters.obw99_reference import load_json, sha256_file
+from algorithms.parameters.obw99_evaluation import EVALUATION_LOCK_PATH, evidence_hash, verify_evaluation_lock
+from algorithms.parameters.obw99_reference import load_json, sha256_file
 from scripts.run_phase04d1_evaluation import FILES
 
 

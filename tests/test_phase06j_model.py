@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.ps.temporal_confirmation import (
+from algorithms.ps.temporal_confirmation import (
     ASSOCIATION_TOLERANCE_BINS,
     CONFIRMATIONS_REQUIRED,
     CONFIRMATION_WINDOW,
@@ -11,7 +11,7 @@ from reference.ps.temporal_confirmation import (
     MAX_ENDED_HISTORY,
     AuthoritativeTemporalOracle,
 )
-from reference.ps.temporal_vectors import scenario_packets
+from algorithms.ps.temporal_vectors import scenario_packets
 
 
 class Phase06JModelTests(unittest.TestCase):

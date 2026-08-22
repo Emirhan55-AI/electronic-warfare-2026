@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0.bandwidth import BandwidthProfile
-from reference.p0.fixtures import FRAME_LENGTH, SAMPLE_RATE_HZ
+from algorithms.p0.bandwidth import BandwidthProfile
+from algorithms.p0.fixtures import FRAME_LENGTH, SAMPLE_RATE_HZ
 from scripts.verify_p0_algorithms import evaluate as evaluate_algorithms
 
 

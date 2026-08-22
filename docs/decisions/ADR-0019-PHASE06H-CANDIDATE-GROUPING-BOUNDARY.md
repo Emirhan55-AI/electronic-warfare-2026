@@ -6,7 +6,7 @@ Kabul edildi.
 
 ## Kaynak algoritma
 
-Bağlayıcı davranış `reference/detection/pipeline.py` içindeki `DetectionPipeline._group` yöntemidir. Shifted sıradaki detected hücreler arasında index farkı en fazla iki ise aynı kaba adayda kalır; bu, `max_gap_bins=1` ile arada en fazla bir detected-olmayan binin köprülenmesidir. Başlangıç ve bitiş ilk/son detected bindir. Peak, exact power'ın ilk maksimumudur. Noise ve threshold peak hücresinden alınır.
+Bağlayıcı davranış `algorithms/detection/pipeline.py` içindeki `DetectionPipeline._group` yöntemidir. Shifted sıradaki detected hücreler arasında index farkı en fazla iki ise aynı kaba adayda kalır; bu, `max_gap_bins=1` ile arada en fazla bir detected-olmayan binin köprülenmesidir. Başlangıç ve bitiş ilk/son detected bindir. Peak, exact power'ın ilk maksimumudur. Noise ve threshold peak hücresinden alınır.
 
 ## PL/PS kararı
 

@@ -6,13 +6,13 @@ import copy
 import unittest
 from pathlib import Path
 
-from reference.parameters.obw99_evaluation import (
+from algorithms.parameters.obw99_evaluation import (
     _binding_decision,
     _oos_decision,
     summarize_expected_trials,
     verify_evaluation_lock,
 )
-from reference.parameters.obw99_reference import load_json
+from algorithms.parameters.obw99_reference import load_json
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -84,7 +84,7 @@ class Phase04D1EvaluationTests(unittest.TestCase):
         verify_evaluation_lock(lock)
 
     def test_evaluator_does_not_pass_labels_to_runtime_estimator(self) -> None:
-        source = (ROOT / "reference/parameters/obw99_evaluation.py").read_text(encoding="utf-8")
+        source = (ROOT / "algorithms/parameters/obw99_evaluation.py").read_text(encoding="utf-8")
         start = source.index("estimator.process(")
         end = source.index("\n        )", start) + len("\n        )")
         call = source[start:end]

@@ -8,7 +8,7 @@
   "peak_metadata": "exact power, regional noise and threshold from peak cell",
   "peak_tie": "first maximum; lower shifted bin wins",
   "phase": "PHASE-06H",
-  "source_of_truth": "reference/detection/pipeline.py DetectionPipeline._group",
+  "source_of_truth": "algorithms/detection/pipeline.py DetectionPipeline._group",
   "start_end": "first and last detected shifted bins, inclusive",
   "status": "passed"
 }

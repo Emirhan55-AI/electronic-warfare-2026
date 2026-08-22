@@ -5,7 +5,7 @@ import hashlib
 import unittest
 from pathlib import Path
 
-from reference.parameters.operator_evaluation import compare
+from algorithms.parameters.operator_evaluation import compare
 
 
 ROOT = Path(__file__).resolve().parents[1]

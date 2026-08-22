@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from reference.sigmf.contract import ContractValidationError, decode_iq_pairs, inspect_sigmf
+from algorithms.sigmf.contract import ContractValidationError, decode_iq_pairs, inspect_sigmf
 
 
 class SigMFContractTests(unittest.TestCase):

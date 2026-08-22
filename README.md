@@ -27,23 +27,23 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 ## Dizinler
 
 - `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
-- `rtl/phase06a/`: Vendor-bağımsız SystemVerilog AXI4-Stream giriş ve frame-istatistik kaynakları ile self-checking testbench; FFT/detector veya kart projesi içermez.
-- `rtl/phase06b/`: Vendor-bağımsız sabit nokta Hann datapath'i ve sample-by-sample self-checking testbench; gerçek FFT veya detector içermez.
-- `rtl/phase06c/`: Gelecekteki AMD FFT'nin abstract portlarına bağlanan vendor-independent AXI/config/event wrapper'ı ve yalnız test amaçlı non-FFT transport stub'ı.
-- `rtl/phase06d/`: Vivado-generated gerçek AMD FFT v9.1 XCI'si, ince fiziksel-port adapter'ı ve gerçek IP kullanan XSim testbench'i.
-- `rtl/phase06e/`: Gerçek wrapper/IP zinciri için synthesis top'u, 100 MHz logical-boundary XDC'si ve registered-ready AXI input slice testbench'i.
-- `rtl/phase06f/`: Signed 29 bit FFT I/Q alanlarından 58 bit unsigned exact lineer power üreten pipelined AXI4-Stream RTL ve self-checking Icarus testbench'i.
-- `rtl/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
-- `rtl/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
-- `rtl/phase06i/`: PHASE-06H adaylarını sürümlemeli little-endian DMA-facing 64-bit AXI4-Stream packet'larına dönüştüren vendor-independent packetizer ve self-checking testbench.
-- `rtl/p0/`: PHASE-06B/D/F bloklarını yeniden kullanan kanonik AXI4-Stream Hann→FFT→güç runtime top'u ve Vivado modül-reference sarmalayıcısı.
-- `ps/phase06i/`: Candidate transport ABI v1 C layout'u ve ilk shape decoder kaynağı.
-- `ps/phase06j/`: ABI v1'i byte-wise strict doğrulayan, bounded PHASE-03 2-of-3 association state machine'ini uygulayan ve host'ta gerçek compile/link edilmiş portable C11 PS çekirdeği; ARM/ZedBoard üzerinde çalıştırılmamıştır.
-- `ps/p0/`: Açık konfigürasyonlu OS-CFAR ve aday gruplama için portable C11 PS hedef çekirdeği; host'ta doğrulanmış, ARM'de çalıştırılmamıştır.
-- `reference/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
-- `verification/`: Gelecekteki model ve RTL doğrulama varlıkları için ayrılmış alan.
-- `host/`: Türkçe kalıcı operatör uygulamasının spektrum, tespit ve kalibre edilmemiş parametre sürümü.
-- `host/acquisition/`: HackRF-1 için Qt/DSP bağımsız gerçek CLI ve deterministik test backend'leri, bounded `ci8` capture ve süreç güvenliği.
+- `algorithms/fpga/phase06a/`: Vendor-bağımsız SystemVerilog AXI4-Stream giriş ve frame-istatistik kaynakları ile self-checking testbench; FFT/detector veya kart projesi içermez.
+- `algorithms/fpga/phase06b/`: Vendor-bağımsız sabit nokta Hann datapath'i ve sample-by-sample self-checking testbench; gerçek FFT veya detector içermez.
+- `algorithms/fpga/phase06c/`: Gelecekteki AMD FFT'nin abstract portlarına bağlanan vendor-independent AXI/config/event wrapper'ı ve yalnız test amaçlı non-FFT transport stub'ı.
+- `algorithms/fpga/phase06d/`: Vivado-generated gerçek AMD FFT v9.1 XCI'si, ince fiziksel-port adapter'ı ve gerçek IP kullanan XSim testbench'i.
+- `algorithms/fpga/phase06e/`: Gerçek wrapper/IP zinciri için synthesis top'u, 100 MHz logical-boundary XDC'si ve registered-ready AXI input slice testbench'i.
+- `algorithms/fpga/phase06f/`: Signed 29 bit FFT I/Q alanlarından 58 bit unsigned exact lineer power üreten pipelined AXI4-Stream RTL ve self-checking Icarus testbench'i.
+- `algorithms/fpga/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
+- `algorithms/fpga/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
+- `algorithms/fpga/phase06i/`: PHASE-06H adaylarını sürümlemeli little-endian DMA-facing 64-bit AXI4-Stream packet'larına dönüştüren vendor-independent packetizer ve self-checking testbench.
+- `algorithms/fpga/p0/`: PHASE-06B/D/F bloklarını yeniden kullanan kanonik AXI4-Stream Hann→FFT→güç runtime top'u ve Vivado modül-reference sarmalayıcısı.
+- `platforms/embedded/phase06i/`: Candidate transport ABI v1 C layout'u ve ilk shape decoder kaynağı.
+- `platforms/embedded/phase06j/`: ABI v1'i byte-wise strict doğrulayan, bounded PHASE-03 2-of-3 association state machine'ini uygulayan ve host'ta gerçek compile/link edilmiş portable C11 PS çekirdeği; ARM/ZedBoard üzerinde çalıştırılmamıştır.
+- `platforms/embedded/p0/`: Açık konfigürasyonlu OS-CFAR ve aday gruplama için portable C11 PS hedef çekirdeği; host'ta doğrulanmış, ARM'de çalıştırılmamıştır.
+- `algorithms/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
+- `app/`: Türkçe operatör uygulaması, sunum katmanı ve ürün giriş noktası.
+- `verification/`: Katman sınırı sözleşmesi ile kökteki faz testleri, doğrulama araçları, fixture'lar ve kanıtların sahiplik tanımı.
+- `platforms/acquisition/`: HackRF-1 için Qt/DSP bağımsız gerçek CLI ve deterministik test backend'leri, bounded `ci8` capture ve süreç güvenliği.
 - `datasets/fixtures/phase04/`: Geçerlilik matrisi, seed, yöntem sırası ve sabit başarı kapılarını içeren parametre sahne kataloğu.
 - `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
 - `datasets/fixtures/phase04e1/`: E1 acceptance kapıları, operatör-span sahneleri ve sonuçlardan önce kilitlenen yöntem sözleşmesi.

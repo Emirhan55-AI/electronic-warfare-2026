@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl.fft_power import (
+from algorithms.rtl.fft_power import (
     COMPONENT_MAX,
     COMPONENT_MIN,
     POWER_MAX_REACHABLE,

@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 import unittest
 
-from reference.p0 import analyze_two_point_hackrf_df
+from algorithms.p0 import analyze_two_point_hackrf_df
 
 
 class TwoPointRecordedDFTests(unittest.TestCase):

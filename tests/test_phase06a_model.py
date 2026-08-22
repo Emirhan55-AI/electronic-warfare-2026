@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl import (
+from algorithms.rtl import (
     ERROR_EARLY_TLAST,
     ERROR_MISSING_TLAST,
     FRAME_LENGTH,

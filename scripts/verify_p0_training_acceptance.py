@@ -20,17 +20,17 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QLocale
 from PySide6.QtWidgets import QApplication
 
-from host.operator_console.main_window import MainWindow
-from reference.monitoring import AnalogMonitor, AnalogMonitorConfig, wav_bytes, write_wav
-from reference.p0 import (
+from app.operator_console.main_window import MainWindow
+from algorithms.monitoring import AnalogMonitor, AnalogMonitorConfig, wav_bytes, write_wav
+from algorithms.p0 import (
     ManualAmplitudeDF,
     OSCFARDetector,
     ParameterExtractor,
     TemporalConfirmation,
 )
-from reference.p0.df_fixtures import build_df_acceptance_scenes
-from reference.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
-from reference.spectrum import SigMFFrameSource
+from algorithms.p0.df_fixtures import build_df_acceptance_scenes
+from algorithms.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
+from algorithms.spectrum import SigMFFrameSource
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "p0" / "training-functional-acceptance-v1.json"
@@ -209,7 +209,7 @@ def _df_rows() -> list[dict[str, object]]:
     rows = []
     for scene in build_df_acceptance_scenes():
         model = ManualAmplitudeDF()
-        from reference.p0 import DFMeasurement
+        from algorithms.p0 import DFMeasurement
         for index, (angle, power, confidence) in enumerate(scene.measurements):
             model.add(DFMeasurement.create(angle_deg=angle, relative_power_db=power, frequency_hz=145_000_000.0, confidence=confidence, timestamp_utc=f"2026-01-01T00:00:{index:02d}Z"))
         result = model.estimate()

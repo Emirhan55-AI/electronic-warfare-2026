@@ -3,7 +3,7 @@ from __future__ import annotations
 import struct
 import unittest
 
-from reference.ps.candidate_transport import (
+from algorithms.ps.candidate_transport import (
     ABI_VERSION,
     HEADER_BYTES,
     MAX_FRAME_BYTES,
@@ -12,8 +12,8 @@ from reference.ps.candidate_transport import (
     decode_packet,
     encode_packet,
 )
-from reference.rtl.candidate_grouping import group_detector_cells
-from reference.rtl.candidate_vectors import grouping_vectors
+from algorithms.rtl.candidate_grouping import group_detector_cells
+from algorithms.rtl.candidate_vectors import grouping_vectors
 
 
 class Phase06ITransportTests(unittest.TestCase):

@@ -9,28 +9,28 @@
     "scene_catalog_sha256": "1b9e3ee7372d2dc99d63ca237903ff6f74b6ce400b91ae363310bf91dd93219f",
     "parameter_scene_catalog_sha256": "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
     "clean_reference_sha256": "53c216931243a5ee451a05182ca7e78fc3f9cc213fb55885f6efb5d982df5fd7",
-    "method_lock_sha256": "2bda499ea878f5bf89dac8f0b9662387309a566b16dbba3cd74ac065166ee06d",
+    "method_lock_sha256": "eb9fac873b216d8563977151fa48153bab3fd2def833db505d1b32aa36461002",
     "phase03_profile_sha256": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
   },
-  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "method_lock_identity": "d4bb19f37f5e9a5f7aa37c24c1e257b9611ce5be793e361919cadebda02d4b51",
   "implementation_manifest": {
-    "identity_sha256": "f589d3213545d0d979416ea9d03eb0f7dd862f12d5052cedf390baf9aee11f3e",
+    "identity_sha256": "98f42fdc3efafae1d99433b1ea1d0a7848edf9bb1c5b49af90e24a947a308370",
     "sources": [
       {
-        "path": "reference/parameters/obw99_evaluation.py",
-        "sha256": "656ca2790f3852e121c1d109a4d061f80209fb3eafc703f0c621b5127bb472b0"
+        "path": "algorithms/parameters/obw99_evaluation.py",
+        "sha256": "ce83eaf4f0bc0a2eab2f9bca92b0caa6156ac62567748e00aad9bd6789544795"
       },
       {
         "path": "scripts/lock_phase04d1_evaluation.py",
-        "sha256": "72828bc4ed11f594972fd61679d03cd976e7b9b12a44c795fec860e769dc96be"
+        "sha256": "15b5cbb3c557d2ba179231b0d6e8f46d822789da25eb1a1524efc7abb931dbc0"
       },
       {
         "path": "scripts/run_phase04d1_evaluation.py",
-        "sha256": "47596ad0357717de4c79c7e1a59af7da43bfacdc81db53d680507e0709c9ad6c"
+        "sha256": "aed1bda7b1c47c80407a397831b1174368d2e01648a0ffd624b13328f4b99ad3"
       },
       {
         "path": "scripts/verify_phase04d1.py",
-        "sha256": "2de6914e8b8f55b139644b85b98668c186dc8a06ed70cc499a1a3b7222eb7885"
+        "sha256": "d5a4a3e404600e0a8aa16913341d8286aceacf2f32fbcf2e500c89e13c57472d"
       }
     ]
   },

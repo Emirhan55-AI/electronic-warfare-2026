@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl.detector_vectors import build_vector_files, detector_vectors
+from algorithms.rtl.detector_vectors import build_vector_files, detector_vectors
 
 
 class Phase06GVectorsTests(unittest.TestCase):

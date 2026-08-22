@@ -77,7 +77,7 @@ canlı throughput veya yarışma-wide tarama süresi iddiası değildir.
 5. Aynı readiness komutunu yeniden çalıştırıp configured serial eşleşmesini görün.
 6. `hackrf_info` ile kimliği yeniden doğrulayın.
 7. Önce bounded RX kabulü yapın; received byte/sample sayısı ve hash kanıtını alın.
-8. Ancak bundan sonra `python -B -m host.operator_console.application` ile UI'yı
+8. Ancak bundan sonra `python -B -m app.operator_console.application` ile UI'yı
    açıp `HackRF Canlı RX` kaynağını seçin.
 9. Sırayla `Hakem Frekans Bildirdi`, `Hakem Bant Bildirdi` ve bounded
    `Bilinmeyen Frekans` kabulünü çalıştırın.

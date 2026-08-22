@@ -2,7 +2,7 @@
 
 ## Yöntem ve mühendislik profili ayrımı
 
-KTR niyeti yerel uyarlamalı `OS-CFAR` yöntemidir. KTR; reference/guard hücre
+KTR niyeti yerel uyarlamalı `OS-CFAR` yöntemidir. KTR; algorithms/guard hücre
 adetlerini, sıra istatistiğini, Pfa değerini veya eşik katsayısını sayısal sabit
 olarak vermez. Aşağıdaki değerler KTR sabiti değil, P0 için doğrulanan mühendislik
 profilidir.

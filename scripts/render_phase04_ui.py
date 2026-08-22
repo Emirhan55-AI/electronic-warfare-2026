@@ -21,11 +21,11 @@ if str(ROOT) not in sys.path:
 from PySide6.QtCore import QRect  # noqa: E402
 from PySide6.QtGui import QImage, QPainter  # noqa: E402
 
-from host.operator_console.application import build_application  # noqa: E402
-from reference.parameters import generate_parameter_scene, load_parameter_catalog  # noqa: E402
-from reference.parameters.evaluation import canonical_json_bytes  # noqa: E402
-from reference.pipeline import RuntimePipeline, VerifiedProfileBinding, load_verified_phase04_profile  # noqa: E402
-from reference.sigmf import inspect_sigmf  # noqa: E402
+from app.operator_console.application import build_application  # noqa: E402
+from algorithms.parameters import generate_parameter_scene, load_parameter_catalog  # noqa: E402
+from algorithms.parameters.evaluation import canonical_json_bytes  # noqa: E402
+from algorithms.pipeline import RuntimePipeline, VerifiedProfileBinding, load_verified_phase04_profile  # noqa: E402
+from algorithms.sigmf import inspect_sigmf  # noqa: E402
 
 
 PROFILE = ROOT / "profiles" / "phase04" / "operation-default.json"

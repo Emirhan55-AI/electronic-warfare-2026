@@ -23,7 +23,7 @@
   "functional_fpga_files_changed": false,
   "vivado_rebuild": {
     "status": "NOT_REQUIRED",
-    "reason": "Block A changes only host/reference/C software, evidence, tests, documentation and minimal operator UI wiring; no RTL, XDC, IP, block-design or Vivado script changed.",
+    "reason": "Block A changes only host/algorithms/C software, evidence, tests, documentation and minimal operator UI wiring; no RTL, XDC, IP, block-design or Vivado script changed.",
     "retained_evidence": "results/evidence/p0/vivado-50mhz.json"
   },
   "hardware_execution": {

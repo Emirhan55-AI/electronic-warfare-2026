@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.fft_model import (
+from algorithms.rtl.fft_model import (
     CONFIG_FORWARD_FIXED,
     FRAME_LENGTH,
     INPUT_COMPONENT_WIDTH,
@@ -34,7 +34,7 @@ from reference.rtl.fft_model import (
     architecture_decision_study,
     selected_ip_configuration,
 )
-from reference.rtl.fft_vectors import build_vector_files
+from algorithms.rtl.fft_vectors import build_vector_files
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase06c"
@@ -50,11 +50,11 @@ OWNED_FILES = (
     "verification-summary.json",
 )
 RTL_SOURCES = (
-    ROOT / "rtl" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
-    ROOT / "rtl" / "phase06c" / "rtl" / "phase06c_pkg.sv",
-    ROOT / "rtl" / "phase06c" / "rtl" / "axis_fft_wrapper.sv",
-    ROOT / "rtl" / "phase06c" / "tb" / "fft_ip_transport_stub.sv",
-    ROOT / "rtl" / "phase06c" / "tb" / "tb_axis_fft_wrapper.sv",
+    ROOT / "algorithms" / "fpga" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
+    ROOT / "algorithms" / "fpga" / "phase06c" / "rtl" / "phase06c_pkg.sv",
+    ROOT / "algorithms" / "fpga" / "phase06c" / "rtl" / "axis_fft_wrapper.sv",
+    ROOT / "algorithms" / "fpga" / "phase06c" / "tb" / "fft_ip_transport_stub.sv",
+    ROOT / "algorithms" / "fpga" / "phase06c" / "tb" / "tb_axis_fft_wrapper.sv",
 )
 TESTBENCH = RTL_SOURCES[-1]
 MSYS2_UCRT64_BIN = Path("C:/msys64/ucrt64/bin")

@@ -3,8 +3,8 @@
   "phase": "PHASE-04-D1F",
   "role": "verification-summary",
   "comparison_id": "phase04-d1-obw99-selection-v1",
-  "evaluation_lock_sha256": "f30c6dfa4827f76d433a3ef5185887904fdd127dc63fbd90171c06897eee0a55",
-  "method_lock_identity": "d910334ca18d9369b87295f5bbab69b7684a510e5b1f4c2f7105041bc5712527",
+  "evaluation_lock_sha256": "7818ad5e94b1cd2e2f9651c2e516b0cd835ed48910e53ef7d5ecc42c5bc9284d",
+  "method_lock_identity": "d4bb19f37f5e9a5f7aa37c24c1e257b9611ce5be793e361919cadebda02d4b51",
   "status": "failed",
   "failure_class": "algorithmic_failed",
   "binding_status": "failed",
@@ -12,14 +12,15 @@
   "capability_candidate": false,
   "failed_gate_count": 57,
   "artifact_hashes": {
-    "binding_results_sha256": "ecf69860ec84c510058423117b18b62ed473d5f21e9ef737b181c9958ef27758",
-    "oos_results_sha256": "928d7ab0de856bb148b3a821b93636002f193dd69255c13dfe949129ce56aaa1",
-    "comparison_sha256": "f36276e7d87cea707583d744965cb3b71020b5b01a5642d10a64b562b20bbefa",
-    "golden_sha256": "5790947d9b6b904e57178f4f234141c63b7604b9c2a1c0fbeac2abc3025cd4d7"
+    "binding_results_sha256": "1929c86fabdb822574b20fd9ed0ad84d7d20b34a5f36d5ef9facbedd5b5e88a8",
+    "oos_results_sha256": "1b0e24959b459d6be202d3a2400c815e0cad31af6be7004dc0ee65e259ef718b",
+    "comparison_sha256": "d1b534a16e4385399cc4bb95e03da83433d09a8629aad11736190a7c7388d408",
+    "golden_sha256": "9e3b2c847f844604697e72702927f2c94b29190300998923eb6dfc15a179fa54"
   },
   "protected_evidence_modified": false,
   "phase04_profile_created": false,
   "universal_signal_support_claimed": false,
   "live_hackrf_performance_claimed": false,
-  "full_source_hashed": false
+  "full_source_hashed": false,
+  "source_layout_relocated": true
 }

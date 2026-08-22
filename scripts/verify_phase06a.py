@@ -19,14 +19,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.frame_stats import (
+from algorithms.rtl.frame_stats import (
     ENERGY_WIDTH,
     FRAME_LENGTH,
     INDEX_WIDTH,
     POWER_WIDTH,
     SAMPLE_COUNT_WIDTH,
 )
-from reference.rtl.vectors import build_vector_files
+from algorithms.rtl.vectors import build_vector_files
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase06a"
@@ -40,11 +40,11 @@ OWNED_FILES = (
     "verification-summary.json",
 )
 RTL_SOURCES = (
-    ROOT / "rtl" / "phase06a" / "rtl" / "phase06a_pkg.sv",
-    ROOT / "rtl" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
-    ROOT / "rtl" / "phase06a" / "rtl" / "axis_ci8_frame_stats.sv",
+    ROOT / "algorithms" / "fpga" / "phase06a" / "rtl" / "phase06a_pkg.sv",
+    ROOT / "algorithms" / "fpga" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
+    ROOT / "algorithms" / "fpga" / "phase06a" / "rtl" / "axis_ci8_frame_stats.sv",
 )
-TESTBENCH = ROOT / "rtl" / "phase06a" / "tb" / "tb_axis_ci8_frame_stats.sv"
+TESTBENCH = ROOT / "algorithms" / "fpga" / "phase06a" / "tb" / "tb_axis_ci8_frame_stats.sv"
 MSYS2_UCRT64_BIN = Path("C:/msys64/ucrt64/bin")
 FIXED_COMMANDS = {
     "iverilog": MSYS2_UCRT64_BIN / "iverilog.exe",

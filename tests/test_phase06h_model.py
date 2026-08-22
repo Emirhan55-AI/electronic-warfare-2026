@@ -5,15 +5,15 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from reference.detection.cfar import CellDetectionResult
-from reference.detection.pipeline import DetectionPipeline
-from reference.rtl.candidate_grouping import (
+from algorithms.detection.cfar import CellDetectionResult
+from algorithms.detection.pipeline import DetectionPipeline
+from algorithms.rtl.candidate_grouping import (
     HALF_MAX_CANDIDATES,
     MAX_CANDIDATES,
     axis_candidate_records,
     group_detector_cells,
 )
-from reference.rtl.candidate_vectors import grouping_vectors
+from algorithms.rtl.candidate_vectors import grouping_vectors
 
 
 class Phase06HModelTests(unittest.TestCase):

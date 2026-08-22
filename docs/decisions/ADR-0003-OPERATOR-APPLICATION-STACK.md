@@ -11,7 +11,7 @@ Mevcut geliştirme ortamında Python, NumPy, PySide6 ve pyqtgraph kullanılabili
 
 ## Karar
 
-Kalıcı uygulama PySide6, Qt Widgets ve pyqtgraph ile geliştirilecektir. Qt'den bağımsız `reference/spectrum` katmanı golden matematiği ve bounded SigMF kaynağını sağlar. `host/operator_console` katmanı yalnız sunum, kullanıcı etkileşimi ve worker koordinasyonundan sorumludur.
+Kalıcı uygulama PySide6, Qt Widgets ve pyqtgraph ile geliştirilecektir. Qt'den bağımsız `algorithms/spectrum` katmanı golden matematiği ve bounded SigMF kaynağını sağlar. `app/operator_console` katmanı yalnız sunum, kullanıcı etkileşimi ve worker koordinasyonundan sorumludur.
 
 Dosya okuma ve FFT tek görevli worker havuzunda çalışır. Aynı anda en fazla bir görev yürütülür; ek yenileme talepleri tek bir bekleyen niyette birleştirilir. Kaynak veya DSP ayarı değiştiğinde nesil numarası artırılır ve eski sonuçlar çizilmez.
 

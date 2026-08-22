@@ -16,7 +16,7 @@
   ],
   "phase": "PHASE-06J",
   "placement": "Zynq PS portable core",
-  "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+  "source": "algorithms/detection/pipeline.py DetectionPipeline._update_tracks",
   "status": "passed",
   "uint32_wrap": "FFFFFFFF to 00000000 is consecutive"
 }

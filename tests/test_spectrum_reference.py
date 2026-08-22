@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from reference.spectrum import (
+from algorithms.spectrum import (
     ExponentialPowerAverager,
     SigMFFrameSource,
     SpectrumConfig,

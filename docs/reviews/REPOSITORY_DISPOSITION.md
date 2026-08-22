@@ -19,7 +19,7 @@
 
 | Yüzey | Karar | Gerekçe |
 |---|---|---|
-| `DeterministicMockBackend` ve Test Kaynağı UI seçeneği | AYRILDI | Backend `host/acquisition/mock.py`, doğrulama bileşimi `host/operator_console/laboratory.py` altında; ürün import grafiği ve paket manifesti dışında. |
+| `DeterministicMockBackend` ve Test Kaynağı UI seçeneği | AYRILDI | Backend `platforms/acquisition/mock.py`, doğrulama bileşimi `app/operator_console/laboratory.py` altında; ürün import grafiği ve paket manifesti dışında. |
 | `datasets/fixtures/**` | KORU | Python, C ve RTL eşdeğerliğinin deterministik golden girdileri. |
 | `results/evidence/**` normalized JSON ve kabul görselleri | KORU/İNCELE | KTR ve faz kanıtı; yalnız güncellik ve sahiplik kontrolü yapılabilir. |
 | Eğitim DF sahneleri | AYRILDI | Algoritma kabulü için yalnız laboratuvar bileşiminde yüklenir; yayın uygulamasında eğitim modu yoktur. |
@@ -32,24 +32,24 @@
 |---|---:|---|---|
 | `docs/decisions/ADR-0023-ET-OFFLINE-TASK-CONSOLE.md` | <0,01 MiB | KORU/AYIR | Offline ET ürün sınırı kararı olarak gerekli; kapsam adı APP-C'de kesinleşmeli. |
 | `docs/learning/**` | <0,01 MiB | KORU | Mühendislik öğrenme notları; ürün paketine girmez. |
-| `host/operator_console/map_assets/**` | 2,07 MiB | KORU | MapLibre/PMTiles runtime ve lisansları; paketleme yolu düzeltilmeli. |
-| `host/operator_console/map_direction.py` | 0,01 MiB | KORU | Harita sunumu; APP-D'de `app/` sınırına taşınacak. |
-| `host/operator_console/map_providers.py` | <0,01 MiB | KORU | Harita provider sözleşmesi. |
-| `host/operator_console/pc_location.py` | <0,01 MiB | KORU | İzinli kullanıcı isteğiyle konum adaptörü. |
-| `host/operator_console/profiler.py` | <0,01 MiB | SİL ADAYI | Çalışmıyor ve kök profiler ile yineleniyor. Gerekli ölçümler tek araçta yeniden kurulacak. |
+| `app/operator_console/map_assets/**` | 2,07 MiB | KORU | MapLibre/PMTiles runtime ve lisansları; paketleme yolu düzeltilmeli. |
+| `app/operator_console/map_direction.py` | 0,01 MiB | KORU | Harita sunumu; APP-D'de `app/` sınırına taşınacak. |
+| `app/operator_console/map_providers.py` | <0,01 MiB | KORU | Harita provider sözleşmesi. |
+| `app/operator_console/pc_location.py` | <0,01 MiB | KORU | İzinli kullanıcı isteğiyle konum adaptörü. |
+| `app/operator_console/profiler.py` | <0,01 MiB | SİL ADAYI | Çalışmıyor ve kök profiler ile yineleniyor. Gerekli ölçümler tek araçta yeniden kurulacak. |
 | `prof2.py` | <0,01 MiB | SİL ADAYI | Kök çalışma dosyası; sözdizimi hatalı. |
-| `ps/p0/include/p0_fclk_guard_*.h` | 0,02 MiB | İNCELE/KORU | FCLK güvenlik sınırı; repository allowlist ve P0 sözleşmesiyle sahipliği doğrulanmalı. |
-| `ps/p0/src/p0_fclk_guard*.c` | 0,04 MiB | İNCELE/KORU | Aynı platform özelliğinin kaynakları; gereksiz olduğuna dair kanıt yok. |
-| `ps/p0/petalinux/p0-fclk-guard*` | <0,01 MiB | İNCELE/KORU | PetaLinux paketleme kaynakları; platform katmanına aday. |
-| `reference/et/gnss.py` | <0,01 MiB | AYIR | Offline metadata doğrulaması; ürün ET görev yüzeyinden ayrılmalı. |
-| `reference/et/interleaved.py` | 0,01 MiB | AYIR | Offline state machine doğrulaması. |
-| `reference/et/results.py` | <0,01 MiB | AYIR | Offline ET sonuç sözleşmesi. |
-| `reference/p0/df_fixtures.py` | <0,01 MiB | AYIR | Golden/eğitim üretimi; ürün uygulaması ithal etmemeli. |
-| `reference/p0/field_df.py` | <0,01 MiB | KORU | Saha ölçüm sözleşmesi. |
-| `reference/p0/map_direction.py` | 0,01 MiB | KORU | Sunumdan bağımsız coğrafi geometri sözleşmesi. |
-| `reference/p0/recorded_df.py` | 0,01 MiB | İNCELE/KORU | Gerçek kayıt analizi; yerel veri manifestine bağlanmalı. |
-| `reference/p0/two_point_df.py` | <0,01 MiB | İNCELE | KTR-4.5 konum fazıyla karışmamalı; yalnız iki yönlü güç kararıysa adı ve kapsamı netleştirilmeli. |
-| `reference/sigmf/hackrf.py` | <0,01 MiB | KORU | Gerçek HackRF kayıt metadata sözleşmesi. |
+| `platforms/embedded/p0/include/p0_fclk_guard_*.h` | 0,02 MiB | İNCELE/KORU | FCLK güvenlik sınırı; repository allowlist ve P0 sözleşmesiyle sahipliği doğrulanmalı. |
+| `platforms/embedded/p0/src/p0_fclk_guard*.c` | 0,04 MiB | İNCELE/KORU | Aynı platform özelliğinin kaynakları; gereksiz olduğuna dair kanıt yok. |
+| `platforms/embedded/p0/petalinux/p0-fclk-guard*` | <0,01 MiB | İNCELE/KORU | PetaLinux paketleme kaynakları; platform katmanına aday. |
+| `algorithms/et/gnss.py` | <0,01 MiB | AYIR | Offline metadata doğrulaması; ürün ET görev yüzeyinden ayrılmalı. |
+| `algorithms/et/interleaved.py` | 0,01 MiB | AYIR | Offline state machine doğrulaması. |
+| `algorithms/et/results.py` | <0,01 MiB | AYIR | Offline ET sonuç sözleşmesi. |
+| `algorithms/p0/df_fixtures.py` | <0,01 MiB | AYIR | Golden/eğitim üretimi; ürün uygulaması ithal etmemeli. |
+| `algorithms/p0/field_df.py` | <0,01 MiB | KORU | Saha ölçüm sözleşmesi. |
+| `algorithms/p0/map_direction.py` | 0,01 MiB | KORU | Sunumdan bağımsız coğrafi geometri sözleşmesi. |
+| `algorithms/p0/recorded_df.py` | 0,01 MiB | İNCELE/KORU | Gerçek kayıt analizi; yerel veri manifestine bağlanmalı. |
+| `algorithms/p0/two_point_df.py` | <0,01 MiB | İNCELE | KTR-4.5 konum fazıyla karışmamalı; yalnız iki yönlü güç kararıysa adı ve kapsamı netleştirilmeli. |
+| `algorithms/sigmf/hackrf.py` | <0,01 MiB | KORU | Gerçek HackRF kayıt metadata sözleşmesi. |
 | `results/evidence/et-offline/**` | 0,47 MiB | İNCELE/KORU | Offline doğrulama kanıtı; ADR/KTR sahipliği doğrulanmalı. |
 | `results/evidence/p0/fclk-guard-build.json` | 0,01 MiB | İNCELE/KORU | Platform build kanıtı; kaynaklarıyla aynı sahiplik kararı verilmeli. |
 | `results/evidence/p0/training-functional-acceptance-v1.json` | 0,01 MiB | KORU | Birleşik kabul kanıtı; mevcut test baseline'ında stale/FAIL. |
@@ -115,7 +115,7 @@ Paket içeriği APP-C'de otomatik allowlist testiyle doğrulanacaktır.
 2. Tekil SigMF kayıtları `datasets/external/local/video_data/` altında,
    `release_package_allowed=false` ve eksik provenance beyanıyla manifestlendi.
    Bu alan Git ve yayın paketi dışındadır.
-3. Bozuk `prof2.py`, yinelenen `host/operator_console/profiler.py`, yedi kanonik
+3. Bozuk `prof2.py`, yinelenen `app/operator_console/profiler.py`, yedi kanonik
    olmayan PHASE-08A ekran görüntüsü, Python/Xilinx cache'leri ve kök Vivado
    log/journal dosyaları kaldırıldı.
 4. `build/` altında boot, bitstream, XSA, kernel modülü ve PetaLinux çıktıları

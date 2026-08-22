@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from reference.parameters.operator_reference import (
+from algorithms.parameters.operator_reference import (
     ACCEPTANCE_PATH,
     METHOD_LOCK_PATH,
     PHASE03_PROFILE_PATH,
@@ -16,7 +16,7 @@ from reference.parameters.operator_reference import (
     load_json,
     sha256_file,
 )
-from reference.pipeline.profile import PHASE04E1_FIELDS, load_phase04e1_capability
+from algorithms.pipeline.profile import PHASE04E1_FIELDS, load_phase04e1_capability
 
 
 class Phase04E1ProfileTests(unittest.TestCase):

@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.sigmf.contract import inspect_sigmf  # noqa: E402
+from algorithms.sigmf.contract import inspect_sigmf  # noqa: E402
 
 
 DEFAULT_SAMPLE_START = 0

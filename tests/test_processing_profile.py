@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Callable
 from unittest.mock import patch
 
-from reference.pipeline import (
+from algorithms.pipeline import (
     ProfileError,
     RuntimePipeline,
     VerifiedProfileBinding,
@@ -21,7 +21,7 @@ from reference.pipeline import (
     load_verified_phase04_profile,
     resolve_default_operation_profile,
 )
-from reference.pipeline.profile import profile_from_document, profile_to_document
+from algorithms.pipeline.profile import profile_from_document, profile_to_document
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,13 +52,13 @@ class ProcessingProfileTests(unittest.TestCase):
         overall: str = "passed",
         mutate: Callable[[dict[str, Any]], None] | None = None,
     ) -> tuple[Path, Path]:
-        from reference.parameters.evaluation import (
+        from algorithms.parameters.evaluation import (
             _gate_applicability,
             canonical_json_bytes,
             phase04_implementation_manifest,
         )
-        from reference.parameters.extraction import ANALYSIS_METHODS, BANDWIDTH_METHODS
-        from reference.parameters.scenes import load_parameter_catalog
+        from algorithms.parameters.extraction import ANALYSIS_METHODS, BANDWIDTH_METHODS
+        from algorithms.parameters.scenes import load_parameter_catalog
 
         manifest = phase04_implementation_manifest()
         catalog = load_parameter_catalog()
@@ -253,8 +253,8 @@ class ProcessingProfileTests(unittest.TestCase):
             profile_path, comparison_path = self._bound_pair(directory)
             comparison_path.write_bytes(comparison_path.read_bytes() + b" ")
             with (
-                patch("reference.pipeline.profile.PHASE04_PROFILE_PATH", profile_path),
-                patch("reference.pipeline.profile.PHASE04_COMPARISON_PATH", comparison_path),
+                patch("algorithms.pipeline.profile.PHASE04_PROFILE_PATH", profile_path),
+                patch("algorithms.pipeline.profile.PHASE04_COMPARISON_PATH", comparison_path),
             ):
                 resolved = resolve_default_operation_profile()
             self.assertIsNotNone(resolved.fallback_code)

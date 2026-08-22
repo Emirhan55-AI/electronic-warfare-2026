@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from reference.ps.transport_vectors import build_vector_files
+from algorithms.ps.transport_vectors import build_vector_files
 
 
 class Phase06IVectorTests(unittest.TestCase):

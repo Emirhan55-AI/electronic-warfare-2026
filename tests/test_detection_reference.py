@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from reference.detection import (
+from algorithms.detection import (
     CellDetectionResult,
     DetectionPipeline,
     DetectorConfig,
@@ -15,8 +15,8 @@ from reference.detection import (
     ca_threshold_multiplier,
     os_threshold_multiplier,
 )
-from reference.detection.scenes import generate_scene, load_scene_catalog
-from reference.spectrum import SpectrumProcessor
+from algorithms.detection.scenes import generate_scene, load_scene_catalog
+from algorithms.spectrum import SpectrumProcessor
 
 
 class DetectionReferenceTests(unittest.TestCase):

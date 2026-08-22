@@ -11,7 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from host.operator_console.application import build_application  # noqa: E402
+from app.operator_console.application import build_application  # noqa: E402
 from qt_test_support import isolate_qt_module  # noqa: E402
 
 

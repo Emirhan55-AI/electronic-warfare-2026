@@ -8,10 +8,10 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication
 
-from host.operator_console.main_window import MainWindow
-from host.operator_console.map_direction import DirectionMapView, FALLBACK_TEXT
-from reference.p0 import AntennaReference, LocationFix, PositionSource
-from host.operator_console.ui_text import TEXT
+from app.operator_console.main_window import MainWindow
+from app.operator_console.map_direction import DirectionMapView, FALLBACK_TEXT
+from algorithms.p0 import AntennaReference, LocationFix, PositionSource
+from app.operator_console.ui_text import TEXT
 from qt_test_support import isolate_qt_module
 
 
@@ -21,7 +21,7 @@ class OperatorMapDirectionTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication(["map-direction-test"])
 
     def test_web_engine_fallback_is_clean_and_console_still_launches(self) -> None:
-        with patch("host.operator_console.map_direction.resolve_web_engine_view", return_value=None):
+        with patch("app.operator_console.map_direction.resolve_web_engine_view", return_value=None):
             window = MainWindow(laboratory_mode=True)
             self.assertTrue(window.direction_map_view.fallback_visible)
             self.assertEqual(FALLBACK_TEXT, window.direction_map_view.findChild(type(window.map_engine_label), "mapFallback").text())

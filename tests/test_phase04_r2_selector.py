@@ -9,11 +9,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from reference.parameters.evaluation import _gate_applicability, canonical_json_bytes, phase04_implementation_manifest
-from reference.parameters.r2 import build_method_lock
-from reference.parameters.scenes import load_parameter_catalog
-from reference.pipeline import RuntimePipeline, VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes
-from reference.pipeline.profile import ProfileError, load_verified_phase04_profile
+from algorithms.parameters.evaluation import _gate_applicability, canonical_json_bytes, phase04_implementation_manifest
+from algorithms.parameters.r2 import build_method_lock
+from algorithms.parameters.scenes import load_parameter_catalog
+from algorithms.pipeline import RuntimePipeline, VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes
+from algorithms.pipeline.profile import ProfileError, load_verified_phase04_profile
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -160,7 +160,7 @@ class Phase04R2SelectorTests(unittest.TestCase):
             lock = json.loads(LOCK.read_text(encoding="utf-8"))
             lock["nominal_ratios"]["seed"] += 1.0
             drifted_lock.write_bytes(canonical_json_bytes(lock))
-            with patch("reference.pipeline.profile.PHASE04_R2_METHOD_LOCK_PATH", drifted_lock):
+            with patch("algorithms.pipeline.profile.PHASE04_R2_METHOD_LOCK_PATH", drifted_lock):
                 with self.assertRaisesRegex(ProfileError, "lock"):
                     load_verified_phase04_profile(profile_path, comparison_path)
 

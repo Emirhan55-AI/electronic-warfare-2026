@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl import (
+from algorithms.rtl import (
     FRAME_LENGTH,
     build_word_length_study,
     pack_windowed_word,

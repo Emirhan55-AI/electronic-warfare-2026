@@ -9,12 +9,12 @@ python -B scripts/run_p0_demo.py
 ```
 
 Bu tarihsel script adı yalnız doğrulama uyumluluğu için korunur; kurduğu uygulama
-`host.operator_console.laboratory` bileşimidir ve yayın paketi dışındadır.
+`app.operator_console.laboratory` bileşimidir ve yayın paketi dışındadır.
 
 Gerçek SigMF/HackRF kaynaklarıyla açılan kanonik ürün komutu:
 
 ```text
-python -B -m host.operator_console
+python -B -m app.operator_console
 ```
 
 Ürün komutu test, eğitim veya offline ET değeri yüklemez. `SigMF Kaydı`
@@ -86,12 +86,12 @@ meşru bir MapLibre stili gerekiyorsa aşağıdaki ortam değişkeniyle değişt
 
 ```powershell
 $env:TEKNOFEST_MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
-python -B -m host.operator_console
+python -B -m app.operator_console
 ```
 
 Google uydu görünümü yalnız kullanıcının `TEKNOFEST_GOOGLE_MAPS_API_KEY` ortam
 değişkeniyle etkinleşir; anahtar repoya yazılmaz. Yarışma alanı çevrimdışı
-çalışacaksa `host/operator_console/map_assets/README.md` içindeki PMTiles ve
+çalışacaksa `app/operator_console/map_assets/README.md` içindeki PMTiles ve
 stil yerleştirme yönergesini uygulayın. QWebEngine, harita verisi veya yapılandırma
 bulunmazsa konsol çalışmaya devam eder ve Türkçe metinsel fallback gösterir.
 

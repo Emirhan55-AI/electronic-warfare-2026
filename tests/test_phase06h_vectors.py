@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from reference.rtl.candidate_vectors import build_vector_files, grouping_vectors
+from algorithms.rtl.candidate_vectors import build_vector_files, grouping_vectors
 
 
 class Phase06HVectorsTests(unittest.TestCase):

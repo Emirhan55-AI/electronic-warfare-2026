@@ -17,14 +17,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters import FEATURE_HISTORY_BYTES, compute_transient_guard, load_parameter_catalog  # noqa: E402
-from reference.parameters.evaluation import canonical_json_bytes  # noqa: E402
-from reference.pipeline import (  # noqa: E402
+from algorithms.parameters import FEATURE_HISTORY_BYTES, compute_transient_guard, load_parameter_catalog  # noqa: E402
+from algorithms.parameters.evaluation import canonical_json_bytes  # noqa: E402
+from algorithms.pipeline import (  # noqa: E402
     RuntimePipeline,
     VerifiedProfileBinding,
     load_verified_phase04_profile,
 )
-from reference.spectrum import SigMFFrameSource  # noqa: E402
+from algorithms.spectrum import SigMFFrameSource  # noqa: E402
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase04"

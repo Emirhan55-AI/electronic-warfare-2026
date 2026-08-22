@@ -9,15 +9,15 @@ from pathlib import Path
 
 import numpy as np
 
-from reference.detection import (
+from algorithms.detection import (
     DetectionEvent,
     DetectionFrameResult,
     DetectionRegion,
     DetectorConfig,
     LinearPowerDetector,
 )
-from reference.parameters.obw99 import OccupiedBandwidthEstimator
-from reference.spectrum import SpectrumProcessor
+from algorithms.parameters.obw99 import OccupiedBandwidthEstimator
+from algorithms.spectrum import SpectrumProcessor
 
 
 def _region(start: int, end: int, peak: int) -> DetectionRegion:
@@ -169,7 +169,7 @@ class Phase04D1EstimatorTests(unittest.TestCase):
         self.assertEqual(result.dropped_event_count, 1)
 
     def test_runtime_module_has_no_reference_or_label_input_path(self) -> None:
-        source = Path("reference/parameters/obw99.py").read_text(encoding="utf-8")
+        source = Path("algorithms/parameters/obw99.py").read_text(encoding="utf-8")
         for forbidden in ("scene_id", "modulation_label", "nominal_center_frequency", "snr_label", "clean-reference.json"):
             self.assertNotIn(forbidden, source)
 

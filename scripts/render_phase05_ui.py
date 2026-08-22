@@ -19,9 +19,9 @@ if str(ROOT) not in sys.path:
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage
 
-from host.operator_console.application import build_application
-from host.operator_console.audio_playback import AudioPlayback
-from host.operator_console.ui_text import TEXT
+from app.operator_console.application import build_application
+from app.operator_console.audio_playback import AudioPlayback
+from app.operator_console.ui_text import TEXT
 
 
 OUT = ROOT / "results" / "evidence" / "phase05"

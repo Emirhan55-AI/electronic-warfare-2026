@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.et import AnalogDeceptionConfig, AnalogDeceptionEngine, ContinuousJammingConfig, ContinuousJammingEngine, ETMissionController, SafetyMode
+from algorithms.et import AnalogDeceptionConfig, AnalogDeceptionEngine, ContinuousJammingConfig, ContinuousJammingEngine, ETMissionController, SafetyMode
 
 
 def evaluate() -> dict[str, object]:

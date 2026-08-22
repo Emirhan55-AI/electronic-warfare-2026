@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.p0 import DFMeasurement, ManualAmplitudeDF
+from algorithms.p0 import DFMeasurement, ManualAmplitudeDF
 
 
 class P0DirectionFindingTests(unittest.TestCase):

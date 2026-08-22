@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from reference.spectrum import SigMFFrameSource, SigMFSourceError, SpectrumProcessor
+from algorithms.spectrum import SigMFFrameSource, SigMFSourceError, SpectrumProcessor
 
 
 ROOT = Path(__file__).resolve().parents[1]

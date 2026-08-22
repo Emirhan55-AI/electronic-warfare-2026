@@ -20,7 +20,7 @@ if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
 from generate_phase01_fixture import check_outputs, serialized_outputs  # noqa: E402
-from reference.sigmf.contract import inspect_sigmf  # noqa: E402
+from algorithms.sigmf.contract import inspect_sigmf  # noqa: E402
 
 
 SUMMARY_PATH = ROOT / "results" / "evidence" / "phase01" / "verification-summary.json"
@@ -34,8 +34,8 @@ PHASE01_FILES = (
     "datasets/fixtures/phase01/known-tone-ci8.sigmf-meta",
     "docs/decisions/ADR-0002-SIGMF-DATA-PROFILES.md",
     "docs/interfaces/SIGMF_INPUT_CONTRACT.md",
-    "reference/sigmf/__init__.py",
-    "reference/sigmf/contract.py",
+    "algorithms/sigmf/__init__.py",
+    "algorithms/sigmf/contract.py",
     "results/evidence/phase01/external-dataset-manifest.example.json",
     "results/evidence/phase01/fixture-manifest.json",
     "results/evidence/phase01/verification-summary.json",
@@ -53,7 +53,7 @@ PHASE01_UPDATED_TEXT_FILES = (
     "datasets/README.md",
     "docs/plans/IMPLEMENTATION_ROADMAP.md",
     "docs/requirements/KTR_TRACEABILITY.md",
-    "reference/README.md",
+    "algorithms/README.md",
     "scripts/verify_phase00.py",
     "tests/test_repository_contract.py",
     "verification/README.md",
@@ -139,7 +139,7 @@ def check_fixture_contract() -> dict[str, str]:
 
 def check_standard_library_only() -> dict[str, str]:
     files = (
-        ROOT / "reference" / "sigmf" / "contract.py",
+        ROOT / "algorithms" / "sigmf" / "contract.py",
         ROOT / "scripts" / "generate_phase01_fixture.py",
         ROOT / "scripts" / "extract_external_sigmf_slice.py",
         ROOT / "scripts" / "verify_phase01.py",

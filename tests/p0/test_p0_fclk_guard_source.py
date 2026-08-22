@@ -6,10 +6,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-MODULE = ROOT / "ps" / "p0" / "src" / "p0_fclk_guard.c"
-TOOL = ROOT / "ps" / "p0" / "src" / "p0_fclk_guardctl.c"
-RECIPE = ROOT / "ps" / "p0" / "petalinux" / "p0-fclk-guard_1.0.bb"
-LOGIC = ROOT / "ps" / "p0" / "include" / "p0_fclk_guard_logic.h"
+MODULE = ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_fclk_guard.c"
+TOOL = ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_fclk_guardctl.c"
+RECIPE = ROOT / "platforms" / "embedded" / "p0" / "petalinux" / "p0-fclk-guard_1.0.bb"
+LOGIC = ROOT / "platforms" / "embedded" / "p0" / "include" / "p0_fclk_guard_logic.h"
 
 
 def function_body(source: str, name: str) -> str:
@@ -133,7 +133,7 @@ class P0FclkGuardSourceTest(unittest.TestCase):
 
     def test_axi_prerequisites_are_a_non_mmio_explicit_operation(self) -> None:
         source = MODULE.read_text(encoding="utf-8")
-        header = (ROOT / "ps" / "p0" / "include" /
+        header = (ROOT / "platforms" / "embedded" / "p0" / "include" /
                   "p0_fclk_guard_uapi.h").read_text(encoding="utf-8")
         tool = TOOL.read_text(encoding="utf-8")
         axi = function_body(source, "p0_fclk_guard_collect_axi_prereq_status")

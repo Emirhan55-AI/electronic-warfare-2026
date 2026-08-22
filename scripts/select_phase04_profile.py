@@ -15,9 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters import evaluate_parameter_methods  # noqa: E402
-from reference.parameters.evaluation import canonical_json_bytes  # noqa: E402
-from reference.pipeline import VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes  # noqa: E402
+from algorithms.parameters import evaluate_parameter_methods  # noqa: E402
+from algorithms.parameters.evaluation import canonical_json_bytes  # noqa: E402
+from algorithms.pipeline import VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes  # noqa: E402
 
 
 COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04" / "parameter-comparison.json"

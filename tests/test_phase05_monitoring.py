@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from reference.monitoring import (
+from algorithms.monitoring import (
     AUDIO_SAMPLE_RATE_HZ,
     AnalogMonitor,
     AnalogMonitorConfig,

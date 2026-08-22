@@ -22,7 +22,7 @@ kullanıcı açıkça onay vermeden sonraki paket başlatılmaz.
 | APP-A | Baseline, code review ve dosya envanteri | Mevcut test durumu, mock/golden/gerçek/generated ayrımı, dosya karar listesi ve hedef mimari belgelenir; kaynak veya veri silinmez. |
 | APP-B | Güvenli repository temizliği | Video/demo artıkları ve yalnız gösterim dosyaları kaldırılır; gerekli gerçek kayıtlar manifestli harici mühendislik veri alanına alınır; repository sözleşmesi ve zorunlu regresyonlar geçer. |
 | APP-C | Ürün ve doğrulama sınırının ayrılması | Üretim uygulaması mock backend, eğitim sahnesi veya doğrulama fixture'ı ithal etmez; offline laboratuvar araçları ayrı giriş noktasında kalır. |
-| APP-D | Dizin ve bağımlılık mimarisi | `app/`, `algorithms/`, `platform/` ve `verification/` sınırları kurulur; döngüsel/ters katman bağımlılıkları kaldırılır; KTR bağları korunur. |
+| APP-D | Dizin ve bağımlılık mimarisi | `app/`, `algorithms/`, `platforms/` ve `verification/` sınırları kurulur; döngüsel/ters katman bağımlılıkları kaldırılır; KTR bağları korunur. |
 | APP-E | UX, terminoloji ve teknoloji prototipi | Görev akışları ve sözlük dondurulur; Qt Widgets ve Qt Quick/QML prototipleri aynı veride ölçülür; teknoloji kararı tekrarlanabilir kanıtla verilir. |
 | APP-F | Yeni operatör uygulamasının uygulanması | Onaylı tasarım gerçek kaynak durumlarıyla çalışır; minimum ekran, ölçekleme, performans, erişilebilirlik ve dürüst özellik kapıları geçer. |
 
@@ -59,6 +59,17 @@ kullanıcı açıkça onay vermeden sonraki paket başlatılmaz.
 - APP-C çıkış regresyonu 438 passed, 1 kontrollü skip ve 0 failure sonucuyla
   tamamlandı. Skip, yalnız yapılandırılmamış haricî gerçek veri setine aittir;
   ürün paket sınırı veya zorunlu çalışma zamanı kapısı değildir.
+- APP-D 2026-08-23 tarihinde kullanıcı onayıyla tamamlandı. Operatör uygulaması
+  `app/`, Python referans modelleri ve synthesizable FPGA kaynakları `algorithms/`,
+  HackRF ile Zynq PS/PetaLinux adaptörleri `platforms/` altında fiziksel olarak
+  ayrıldı. `platforms` çoğul adı, Python standart kütüphanesindeki `platform`
+  modülünü gölgelememek için kullanılır. Tarihsel faz testleri, scriptleri,
+  fixture'ları ve kanıt yolları KTR izlenebilirliği için yerinde korunur;
+  sahiplikleri `verification/architecture-boundaries.json` ile tanımlanır.
+- APP-D çıkış regresyonu 441 passed, 1 kontrollü skip ve 0 failure sonucuyla
+  tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri setine aittir.
+  Katman yönü, ürün paketi, repository sözleşmesi, RTL simülasyonları, C11 PS
+  eşdeğerliği ve tarihsel kanıt güncelliği birlikte geçmiştir.
 
 Kullanıcının ürünleşme açıklamasıyla video/demo dönemi kapanmış, hedef yayın adayı
 profesyonel sistem olarak kesinleştirilmiştir.

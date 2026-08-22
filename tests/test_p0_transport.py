@@ -3,7 +3,7 @@ from __future__ import annotations
 import struct
 import unittest
 
-from reference.p0 import IQFrame, IQFrameCodec, LoopbackIQTransport, TransportError
+from algorithms.p0 import IQFrame, IQFrameCodec, LoopbackIQTransport, TransportError
 
 
 class P0TransportTests(unittest.TestCase):

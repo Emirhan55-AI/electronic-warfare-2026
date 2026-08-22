@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl.fft_model import (
+from algorithms.rtl.fft_model import (
     OUTPUT_COMPONENT_WIDTH,
     OUTPUT_WORD_WIDTH,
     PHASE_FACTOR_WIDTH,
@@ -15,7 +15,7 @@ from reference.rtl.fft_model import (
     sign_extend_input_word,
     unpack_fft_word,
 )
-from reference.rtl.fft_vectors import build_frames
+from algorithms.rtl.fft_vectors import build_frames
 
 
 class Phase06CModelTests(unittest.TestCase):

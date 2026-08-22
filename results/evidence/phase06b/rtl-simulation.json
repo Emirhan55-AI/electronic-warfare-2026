@@ -12,7 +12,7 @@
   "input_stall_cycles": 13739,
   "output_stall_cycles": 13740,
   "tlast_transfers_checked": 11,
-  "bounded_log": "PHASE-06B TB LATENCY: 1 cycle\nPHASE-06B TB COVERAGE: input_stalls=13739 output_stalls=13740 tlast=11\nPHASE-06B TB PASS: 45074 samples checked\n<repository>\\rtl\\phase06b\\tb\\tb_axis_hann_window.sv:268: $finish called at 588455000 (1ps)",
+  "bounded_log": "PHASE-06B TB LATENCY: 1 cycle\nPHASE-06B TB COVERAGE: input_stalls=13739 output_stalls=13740 tlast=11\nPHASE-06B TB PASS: 45074 samples checked\n<repository>\\algorithms\\fpga\\phase06b\\tb\\tb_axis_hann_window.sv:268: $finish called at 588455000 (1ps)",
   "hardware": "not_exercised",
   "fft": "not_implemented",
   "amd_xilinx_fft_ip": "not_integrated",

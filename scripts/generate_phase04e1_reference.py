@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.operator_reference import build_golden_reference, canonical_json_bytes
+from algorithms.parameters.operator_reference import build_golden_reference, canonical_json_bytes
 OUTPUT = ROOT / "results" / "evidence" / "phase04e1" / "golden-parameters.json"
 
 

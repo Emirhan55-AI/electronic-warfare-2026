@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.monitoring import build_fixture_files
+from algorithms.monitoring import build_fixture_files
 
 
 FIXTURE_DIR = ROOT / "datasets" / "fixtures" / "phase05"

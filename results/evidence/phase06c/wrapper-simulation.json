@@ -24,7 +24,7 @@
     "events": "all six stub event inputs asserted together for one cycle while external output is stalled; sticky result 0x3f"
   },
   "malformed_tlast_scope": "wrapper forwards input TLAST to the abstract IP and captures injected event pins; real AMD malformed-TLAST timing/output behavior is not modeled by the transport stub",
-  "bounded_log": "PHASE-06C TB LATENCY: wrapper_boundary=2 cycles\nPHASE-06C TB COVERAGE: input_stalls=13577 output_stalls=13575 tlast=11 configs=3 events=63\nPHASE-06C TB PASS: 45074 samples checked\n<repository>\\rtl\\phase06c\\tb\\tb_axis_fft_wrapper.sv:313: $finish called at 586895000 (1ps)",
+  "bounded_log": "PHASE-06C TB LATENCY: wrapper_boundary=2 cycles\nPHASE-06C TB COVERAGE: input_stalls=13577 output_stalls=13575 tlast=11 configs=3 events=63\nPHASE-06C TB PASS: 45074 samples checked\n<repository>\\algorithms\\fpga\\phase06c\\tb\\tb_axis_fft_wrapper.sv:313: $finish called at 586895000 (1ps)",
   "real_amd_fft_ip_simulation": "not_exercised",
   "amd_ip_generation": "not_exercised",
   "xci": "not_created",

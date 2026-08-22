@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.detection import (  # noqa: E402
+from algorithms.detection import (  # noqa: E402
     ALLOWED_PFA_VALUES,
     DetectorConfig,
     LinearPowerDetector,
@@ -28,9 +28,9 @@ from reference.detection import (  # noqa: E402
     os_threshold_multiplier,
     regional_threshold_multiplier,
 )
-from reference.detection.scenes import generate_scene, load_scene_catalog  # noqa: E402
-from reference.pipeline import RuntimePipeline, canonical_profile_bytes, load_profile  # noqa: E402
-from reference.spectrum import SigMFFrameSource, SpectrumProcessor  # noqa: E402
+from algorithms.detection.scenes import generate_scene, load_scene_catalog  # noqa: E402
+from algorithms.pipeline import RuntimePipeline, canonical_profile_bytes, load_profile  # noqa: E402
+from algorithms.spectrum import SigMFFrameSource, SpectrumProcessor  # noqa: E402
 
 
 COMPARISON_PATH = ROOT / "results" / "evidence" / "phase03" / "detector-comparison.json"
@@ -53,12 +53,12 @@ PHASE03_FILES = (
     "docs/interfaces/DETECTION_CONTRACT.md",
     "docs/interfaces/PROCESSING_PROFILE_CONTRACT.md",
     "profiles/phase03/operation-default.json",
-    "reference/detection/__init__.py",
-    "reference/detection/cfar.py",
-    "reference/detection/pipeline.py",
-    "reference/detection/scenes.py",
-    "reference/pipeline/__init__.py",
-    "reference/pipeline/profile.py",
+    "algorithms/detection/__init__.py",
+    "algorithms/detection/cfar.py",
+    "algorithms/detection/pipeline.py",
+    "algorithms/detection/scenes.py",
+    "algorithms/pipeline/__init__.py",
+    "algorithms/pipeline/profile.py",
     "results/evidence/phase03/detector-comparison.json",
     "results/evidence/phase03/golden-detection.json",
     "results/evidence/phase03/screenshots/confirmed-1366x768-scale100.png",
@@ -417,7 +417,7 @@ def _performance_gate() -> tuple[dict[str, str], dict[str, float | int]]:
     try:
         from PySide6.QtCore import QEventLoop, QTimer
 
-        from host.operator_console.application import build_application, run_playback_benchmark
+        from app.operator_console.application import build_application, run_playback_benchmark
 
         app, window, controller = build_application([])
         controller.open_source(FIXTURE_META)

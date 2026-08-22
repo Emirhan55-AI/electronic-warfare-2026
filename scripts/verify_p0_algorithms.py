@@ -13,9 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0 import CandidateRegion, OSCFARDetector, P0_DETECTOR_PROFILE, ParameterExtractor, TemporalConfirmation
-from reference.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
-from reference.spectrum import SpectrumProcessor
+from algorithms.p0 import CandidateRegion, OSCFARDetector, P0_DETECTOR_PROFILE, ParameterExtractor, TemporalConfirmation
+from algorithms.p0.fixtures import CENTER_FREQUENCY_HZ, FRAME_LENGTH, SAMPLE_RATE_HZ, build_fixtures
+from algorithms.spectrum import SpectrumProcessor
 
 
 EVIDENCE_PATH = ROOT / "results" / "evidence" / "p0" / "parameter-golden.json"

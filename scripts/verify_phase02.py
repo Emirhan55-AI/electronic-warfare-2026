@@ -21,9 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from host.operator_console.application import build_application, run_playback_benchmark  # noqa: E402
-from host.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
-from reference.spectrum import SigMFFrameSource, SpectrumProcessor  # noqa: E402
+from app.operator_console.application import build_application, run_playback_benchmark  # noqa: E402
+from app.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
+from algorithms.spectrum import SigMFFrameSource, SpectrumProcessor  # noqa: E402
 
 
 SUMMARY_PATH = ROOT / "results" / "evidence" / "phase02" / "verification-summary.json"
@@ -52,18 +52,18 @@ PHASE02_TEXT_FILES = (
     "requirements/phase02.txt",
     "docs/decisions/ADR-0003-OPERATOR-APPLICATION-STACK.md",
     "docs/interfaces/SPECTRUM_REFERENCE_CONTRACT.md",
-    "reference/spectrum/__init__.py",
-    "reference/spectrum/dsp.py",
-    "reference/spectrum/source.py",
-    "host/operator_console/__init__.py",
-    "host/operator_console/__main__.py",
-    "host/operator_console/application.py",
-    "host/operator_console/controller.py",
-    "host/operator_console/main_window.py",
-    "host/operator_console/pysidedeploy.spec",
-    "host/operator_console/spectrum_view.py",
-    "host/operator_console/theme.qss",
-    "host/operator_console/ui_text.py",
+    "algorithms/spectrum/__init__.py",
+    "algorithms/spectrum/dsp.py",
+    "algorithms/spectrum/source.py",
+    "app/operator_console/__init__.py",
+    "app/operator_console/__main__.py",
+    "app/operator_console/application.py",
+    "app/operator_console/controller.py",
+    "app/operator_console/main_window.py",
+    "app/operator_console/pysidedeploy.spec",
+    "app/operator_console/spectrum_view.py",
+    "app/operator_console/theme.qss",
+    "app/operator_console/ui_text.py",
     "scripts/render_phase02_ui.py",
     "scripts/verify_phase02.py",
     "tests/test_operator_console.py",
@@ -80,8 +80,8 @@ UPDATED_TEXT_FILES = (
     "README.md",
     "docs/plans/IMPLEMENTATION_ROADMAP.md",
     "docs/requirements/KTR_TRACEABILITY.md",
-    "host/README.md",
-    "reference/README.md",
+    "app/README.md",
+    "algorithms/README.md",
     "scripts/verify_phase00.py",
     "tests/test_repository_contract.py",
     "verification/README.md",

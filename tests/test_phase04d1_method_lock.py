@@ -8,8 +8,8 @@ import subprocess
 import unittest
 from pathlib import Path
 
-from reference.parameters.obw99_reference import ROOT, canonical_json_bytes
-from reference.pipeline.profile import resolve_default_operation_profile
+from algorithms.parameters.obw99_reference import ROOT, canonical_json_bytes
+from algorithms.pipeline.profile import resolve_default_operation_profile
 
 
 LOCK = ROOT / "datasets" / "fixtures" / "phase04d1" / "method-lock.json"

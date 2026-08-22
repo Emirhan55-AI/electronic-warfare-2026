@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from reference.rtl.regional_detector import (
+from algorithms.rtl.regional_detector import (
     FRAME_LENGTH,
     POWER_MAX,
     detect_frame,

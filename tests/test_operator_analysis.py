@@ -13,13 +13,13 @@ import numpy as np
 from PySide6.QtCore import QEventLoop, QThread, QThreadPool, QTimer, Qt
 from PySide6.QtWidgets import QApplication
 
-from host.operator_console.controller import MeasurementTask
-from host.operator_console.application import build_application
-from host.operator_console.main_window import MainWindow
-from host.operator_console.ui_text import TEXT
-from reference.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent
-from reference.parameters.scenes import generate_parameter_scene
-from reference.spectrum import SpectrumProcessor
+from app.operator_console.controller import MeasurementTask
+from app.operator_console.application import build_application
+from app.operator_console.main_window import MainWindow
+from app.operator_console.ui_text import TEXT
+from algorithms.parameters import AnalysisSpan, MeasurementCandidate, MeasurementContext, MeasurementIntent
+from algorithms.parameters.scenes import generate_parameter_scene
+from algorithms.spectrum import SpectrumProcessor
 from qt_test_support import dispose_qt_fixture, isolate_qt_module
 
 
@@ -103,7 +103,7 @@ class OperatorAnalysisTests(unittest.TestCase):
                 return None
 
         capability = SimpleNamespace(validated_fields=("occupied_bandwidth",), automatic_span_validated=False)
-        with patch("host.operator_console.controller.load_phase04e1_capability", return_value=capability):
+        with patch("app.operator_console.controller.load_phase04e1_capability", return_value=capability):
             app, window, controller = build_application([])
         controller.source = SlowSource()
         for frame_index, samples in enumerate(frames):

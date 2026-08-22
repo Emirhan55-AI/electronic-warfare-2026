@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "source_roots": {
+    "app": {
+      "responsibility": "Operatör uygulaması, sunum ve kullanım senaryosu bileşimi",
+      "forbidden_import_roots": []
+    },
+    "algorithms": {
+      "responsibility": "Platformdan bağımsız Python modelleri ve synthesizable FPGA algoritmaları",
+      "forbidden_import_roots": [
+        "app",
+        "platforms"
+      ]
+    },
+    "platforms": {
+      "responsibility": "HackRF, işletim sistemi, Zynq PS ve PetaLinux adaptörleri",
+      "forbidden_import_roots": [
+        "app"
+      ]
+    }
+  },
+  "verification_owned_roots": [
+    "tests",
+    "scripts",
+    "datasets/fixtures",
+    "results/evidence"
+  ],
+  "removed_legacy_roots": [
+    "host",
+    "reference",
+    "rtl",
+    "ps"
+  ]
+}

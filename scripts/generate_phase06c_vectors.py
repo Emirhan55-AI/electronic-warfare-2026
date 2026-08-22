@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.fft_vectors import build_vector_files
+from algorithms.rtl.fft_vectors import build_vector_files
 
 
 OUTPUT = ROOT / "datasets" / "fixtures" / "phase06c"

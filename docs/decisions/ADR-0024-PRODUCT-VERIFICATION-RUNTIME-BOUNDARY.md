@@ -14,7 +14,7 @@ yayın uygulamasının yetenek sınırını belirsizleştiriyor ve doğrulama fi
 
 ## Karar
 
-Kanonik ürün giriş noktası `host.operator_console.__main__` yalnız `SigMF Kaydı`
+Kanonik ürün giriş noktası `app.operator_console.__main__` yalnız `SigMF Kaydı`
 ve `HackRF Canlı RX` kaynaklarını oluşturur. Ürün bileşimi:
 
 - `DeterministicMockBackend` sınıfını import etmez,
@@ -22,7 +22,7 @@ ve `HackRF Canlı RX` kaynaklarını oluşturur. Ürün bileşimi:
 - offline ET modellerini veya ET navigasyonunu oluşturmaz,
 - yerleşik demo/video verisi ya da hardcoded kayıt yolu kullanmaz.
 
-Doğrulama bileşimi `host.operator_console.laboratory` altında ayrı giriş kurar.
+Doğrulama bileşimi `app.operator_console.laboratory` altında ayrı giriş kurar.
 Mock backend, eğitim sahneleri ve TX-kilitli offline ET yalnız bu açık laboratuvar
 bileşiminde yüklenir. Gerçek-kayıt analizleri ürün tarafında yalnız operatörün
 seçtiği SigMF/JSON dosyaları üzerinden çalışabilir.
@@ -36,6 +36,6 @@ modüllerin `sys.modules` içinde bulunmadığını doğrular.
 - Test ve golden kaynakları repository'de korunur fakat ürün paketi dışındadır.
 - Laboratuvar araçlarının kaldırılması gerekmez; sahiplikleri ve giriş noktaları
   ürün uygulamasından ayrıdır.
-- Dizinlerin `app/`, `algorithms/`, `platform/`, `verification/` olarak fiziksel
+- Dizinlerin `app/`, `algorithms/`, `platforms/`, `verification/` olarak fiziksel
   taşınması APP-D kapsamındadır; bu ADR o taşımanın bağımlılık yönünü dondurur.
 - ET/RF TX yeteneği uygulanmış veya fiziksel olarak doğrulanmış sayılmaz.

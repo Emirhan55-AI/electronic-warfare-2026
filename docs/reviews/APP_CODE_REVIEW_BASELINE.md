@@ -37,9 +37,9 @@ grafiğinden ve paket içeriğinden çıkarılacaktır.
 
 ### P0 — Ürün ve test kaynağı aynı çalışma zamanı sınırında
 
-- `host/operator_console/controller.py` içinde `DeterministicMockBackend`,
+- `app/operator_console/controller.py` içinde `DeterministicMockBackend`,
   controller'ın varsayılan test backend factory'sidir.
-- `host/operator_console/main_window.py` veri kaynağı seçicisinde
+- `app/operator_console/main_window.py` veri kaynağı seçicisinde
   `deterministic_test` seçeneğini üretim görünümünde sunar.
 - Yön bulma görünümü `video_data/df_000.sigmf-meta` ve
   `video_data/df_090.sigmf-meta` yollarına doğrudan bağlıdır.
@@ -59,7 +59,7 @@ ya da dosya onaylı kapsam dışına taşınmalıdır.
 
 ### P1 — `MainWindow` aşırı sorumluluk taşıyor
 
-`host/operator_console/main_window.py` yaklaşık 189 KiB, yaklaşık 3.900 satır ve
+`app/operator_console/main_window.py` yaklaşık 189 KiB, yaklaşık 3.900 satır ve
 170 metottur. Aynı sınıf:
 
 - altı ana çalışma alanını kurar,
@@ -74,14 +74,14 @@ regresyon maliyetini büyütür.
 
 ### P1 — Katman yönü tutarlı değil
 
-`reference/p0/hackrf_search.py`, `host.acquisition` katmanını ithal etmektedir.
+`algorithms/p0/hackrf_search.py`, `platforms.acquisition` katmanını ithal etmektedir.
 Golden/reference katmanının platform adaptörüne bağımlı olması hedeflenen
 bağımsız doğrulama sınırını bozar. Araya port/protocol sözleşmesi konulmalıdır.
 
 ### P1 — Paketlenen harita yeteneği geliştirme ortamıyla eşleşmiyor
 
 Harita görünümü çalışma zamanında `QtWebEngine` kullanmayı denerken
-`host/operator_console/pysidedeploy.spec` QtWebEngine'i dışlamaktadır. Kaynak
+`app/operator_console/pysidedeploy.spec` QtWebEngine'i dışlamaktadır. Kaynak
 uygulamada görülen haritanın paketli uygulamada bulunmaması riski vardır.
 
 ### P1 — Kullanıcı metni ve tema regresyonları
@@ -96,7 +96,7 @@ uygulamada görülen haritanın paketli uygulamada bulunmaması riski vardır.
 
 ### P2 — Profiling araçları çalışmıyor
 
-- `host/operator_console/profiler.py`, `from __future__` yerleşimi nedeniyle
+- `app/operator_console/profiler.py`, `from __future__` yerleşimi nedeniyle
   parse edilememektedir.
 - Kök dizindeki `prof2.py`, f-string sözdizimi nedeniyle çalışmamaktadır.
 - İki dosya da izlenmeyen çalışma dosyasıdır ve aynı amacı kısmen tekrarlar.

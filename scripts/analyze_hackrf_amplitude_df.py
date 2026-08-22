@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0.recorded_df import RecordedDFError, analyze_recorded_df, write_recorded_df_report
+from algorithms.p0.recorded_df import RecordedDFError, analyze_recorded_df, write_recorded_df_report
 
 
 def parse_args() -> argparse.Namespace:

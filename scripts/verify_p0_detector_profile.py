@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.p0 import P0_DETECTOR_PROFILE, OSCFARDetector, os_cfar_false_alarm_probability
+from algorithms.p0 import P0_DETECTOR_PROFILE, OSCFARDetector, os_cfar_false_alarm_probability
 
 
 EVIDENCE_PATH = ROOT / "results" / "evidence" / "p0" / "detector-profile.json"

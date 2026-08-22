@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.r2 import (  # noqa: E402
+from algorithms.parameters.r2 import (  # noqa: E402
     build_method_lock,
     canonical_json_bytes,
     hann_covariance_calibration,

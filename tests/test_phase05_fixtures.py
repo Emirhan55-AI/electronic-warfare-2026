@@ -7,8 +7,8 @@ import json
 import unittest
 from pathlib import Path
 
-from reference.monitoring import build_fixture_files
-from reference.spectrum import SigMFFrameSource
+from algorithms.monitoring import build_fixture_files
+from algorithms.spectrum import SigMFFrameSource
 
 
 ROOT = Path(__file__).resolve().parents[1]

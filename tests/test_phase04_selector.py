@@ -9,8 +9,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from reference.parameters.evaluation import canonical_json_bytes, phase04_implementation_manifest
-from reference.pipeline import (
+from algorithms.parameters.evaluation import canonical_json_bytes, phase04_implementation_manifest
+from algorithms.pipeline import (
     RuntimePipeline,
     VerifiedProfileBinding,
     build_phase04_profile,

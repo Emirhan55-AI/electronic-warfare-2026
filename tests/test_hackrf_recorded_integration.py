@@ -10,10 +10,10 @@ from pathlib import Path
 
 import numpy as np
 
-from reference.p0 import RECORDED_DF_SOURCE, RecordedDFError, RecordedDFReport, analyze_recorded_df
-from reference.sigmf import HACKRF_REPLAY_DESCRIPTION, wrap_hackrf_iq_as_sigmf
-from reference.sigmf.contract import inspect_sigmf
-from reference.spectrum import SigMFFrameSource
+from algorithms.p0 import RECORDED_DF_SOURCE, RecordedDFError, RecordedDFReport, analyze_recorded_df
+from algorithms.sigmf import HACKRF_REPLAY_DESCRIPTION, wrap_hackrf_iq_as_sigmf
+from algorithms.sigmf.contract import inspect_sigmf
+from algorithms.spectrum import SigMFFrameSource
 
 
 class HackRFRecordedIntegrationTests(unittest.TestCase):

@@ -4,13 +4,13 @@
 
 Kanonik top `phase06e_fft_implementation_top` olur. Kaynak kümesi yalnız şunlardan oluşur:
 
-- `rtl/phase06c/rtl/phase06c_pkg.sv`,
-- `rtl/phase06a/rtl/axis_skid_buffer.sv`,
-- `rtl/phase06c/rtl/axis_fft_wrapper.sv`,
-- `rtl/phase06d/rtl/amd_xfft_adapter.sv`,
-- `rtl/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci`,
-- `rtl/phase06e/rtl/phase06e_fft_implementation_top.sv`,
-- `rtl/phase06e/constraints/phase06e_fft_100mhz.xdc`.
+- `algorithms/fpga/phase06c/rtl/phase06c_pkg.sv`,
+- `algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv`,
+- `algorithms/fpga/phase06c/rtl/axis_fft_wrapper.sv`,
+- `algorithms/fpga/phase06d/rtl/amd_xfft_adapter.sv`,
+- `algorithms/fpga/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci`,
+- `algorithms/fpga/phase06e/rtl/phase06e_fft_implementation_top.sv`,
+- `algorithms/fpga/phase06e/constraints/phase06e_fft_100mhz.xdc`.
 
 Hiyerarşi dış AXI4-Stream input/output portlarını, external iki-entry registered-ready input slice'ı, wrapper içindeki 33 ve 77 bit skid buffer'ları, config/sticky-event mantığını, fiziksel adapter'ı ve gerçek AMD FFT IP'yi içerir. Registered-ready slice reset/config tamamlanmadan input kabul etmez ve AXI payload/TLAST sırasını korur. Vendor IP tek başına sentezlenip proje kaynağı olarak raporlanamaz.
 

@@ -44,11 +44,11 @@ class Phase06BVerifierTests(unittest.TestCase):
         self.assertEqual(before, {name: (VERIFY.EVIDENCE / name).read_bytes() for name in VERIFY.OWNED_FILES})
 
     def test_production_rtl_is_integer_only_vendor_neutral_and_has_no_fft(self) -> None:
-        source = (ROOT / "rtl" / "phase06b" / "rtl" / "axis_hann_window.sv").read_text(encoding="utf-8").casefold()
+        source = (ROOT / "algorithms" / "fpga" / "phase06b" / "rtl" / "axis_hann_window.sv").read_text(encoding="utf-8").casefold()
         for token in (" real ", "shortreal", "$itor", "$bitstoreal", "xilinx", "unisim", "xpm_", "fft"):
             self.assertNotIn(token, f" {source} ")
         for suffix in ("*.vhd", "*.vhdl", "*.xci", "*.xdc"):
-            self.assertEqual([], list((ROOT / "rtl" / "phase06b").rglob(suffix)))
+            self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06b").rglob(suffix)))
 
     def test_testbench_exercises_protocol_latency_and_sample_golden(self) -> None:
         text = VERIFY.TESTBENCH.read_text(encoding="utf-8")

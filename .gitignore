@@ -31,4 +31,4 @@ datasets/external/local/
 build/acceptance/audio/
 
 # Operator-supplied competition-area offline basemap
-host/operator_console/map_assets/pmtiles/*.pmtiles
+app/operator_console/map_assets/pmtiles/*.pmtiles

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from host.acquisition import RealHackRFBackend, load_ed_rx_config
+from platforms.acquisition import RealHackRFBackend, load_ed_rx_config
 
 
 def _tool_version(executable: str | None) -> dict[str, object]:

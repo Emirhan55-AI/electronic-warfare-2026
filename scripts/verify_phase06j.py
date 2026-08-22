@@ -21,8 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.ps.candidate_transport import decode_packet, encode_packet
-from reference.ps.temporal_vectors import build_all_files, canonical_bytes
+from algorithms.ps.candidate_transport import decode_packet, encode_packet
+from algorithms.ps.temporal_vectors import build_all_files, canonical_bytes
 
 
 FIXTURES = ROOT / "datasets" / "fixtures" / "phase06j"
@@ -35,10 +35,10 @@ OWNED_FILES = (
 SOURCE_FILES = (
     "docs/decisions/ADR-0021-PHASE06J-PS-TEMPORAL-CONFIRMATION.md",
     "docs/interfaces/PS_TEMPORAL_CANDIDATE_CONTRACT.md",
-    "ps/phase06j/include/phase06j_temporal.h",
-    "ps/phase06j/src/phase06j_temporal.c",
-    "reference/ps/temporal_confirmation.py",
-    "reference/ps/temporal_vectors.py",
+    "platforms/embedded/phase06j/include/phase06j_temporal.h",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c",
+    "algorithms/ps/temporal_confirmation.py",
+    "algorithms/ps/temporal_vectors.py",
     "scripts/generate_phase06j_vectors.py",
     "scripts/verify_phase06j.py",
     "tests/test_phase06j_model.py",
@@ -102,9 +102,9 @@ def _msvc() -> tuple[Path, Path] | None:
 
 
 def _compile_library(directory: Path) -> tuple[Path, str]:
-    source = ROOT / "ps" / "phase06j" / "src" / "phase06j_temporal.c"
-    include_j = ROOT / "ps" / "phase06j" / "include"
-    include_i = ROOT / "ps" / "phase06i" / "include"
+    source = ROOT / "platforms" / "embedded" / "phase06j" / "src" / "phase06j_temporal.c"
+    include_j = ROOT / "platforms" / "embedded" / "phase06j" / "include"
+    include_i = ROOT / "platforms" / "embedded" / "phase06i" / "include"
     if os.name == "nt":
         found = _msvc()
         if found is None:
@@ -322,7 +322,7 @@ def build_documents() -> dict[str, object]:
     return {
         "algorithm-contract.json": {
             "phase": "PHASE-06J", "status": "passed", "placement": "Zynq PS portable core",
-            "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+            "source": "algorithms/detection/pipeline.py DetectionPipeline._update_tracks",
             "confirmation": "2 observations in a per-track 3-frame deque; confirmed state is sticky",
             "association": "previous inclusive span expanded by 2 bins; positive overlap required",
             "pair_order": ["descending overlap", "ascending peak displacement", "event ID", "current start bin", "current index"],
@@ -366,7 +366,7 @@ def build_documents() -> dict[str, object]:
             "phase": "PHASE-06J", "status": "passed",
             "files": {name: sha256(ROOT / name) for name in SOURCE_FILES},
             "frozen_phase06i_packet_source": {"path": "datasets/fixtures/phase06i/transport-packets.bin", "sha256": sha256(ROOT / "datasets/fixtures/phase06i/transport-packets.bin")},
-            "authoritative_temporal_source": {"path": "reference/detection/pipeline.py", "sha256": sha256(ROOT / "reference/detection/pipeline.py")},
+            "authoritative_temporal_source": {"path": "algorithms/detection/pipeline.py", "sha256": sha256(ROOT / "algorithms/detection/pipeline.py")},
         },
         "verification-summary.json": {
             "phase": "PHASE-06J", "overall": "passed", "abi_decoder": "passed",

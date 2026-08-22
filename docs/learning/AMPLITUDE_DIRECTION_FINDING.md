@@ -1,7 +1,7 @@
 # Genlik Tabanlı Yön Bulma
 
-Bu not `reference/p0/df.py` içindeki manuel, non-coherent P0 yöntemini ve
-`reference/p0/df_fixtures.py` eğitim verisini açıklar. MUSIC, faz farkı veya
+Bu not `algorithms/p0/df.py` içindeki manuel, non-coherent P0 yöntemini ve
+`algorithms/p0/df_fixtures.py` eğitim verisini açıklar. MUSIC, faz farkı veya
 tek I/Q dosyasından yön çıkarımı yapılmaz.
 
 ## Fiziksel fikir

@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from reference.sigmf.contract import inspect_sigmf
+from algorithms.sigmf.contract import inspect_sigmf
 
 
 ROOT = Path(__file__).resolve().parents[1]

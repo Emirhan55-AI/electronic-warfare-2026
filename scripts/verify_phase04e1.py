@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.operator_reference import (
+from algorithms.parameters.operator_reference import (
     ACCEPTANCE_PATH,
     METHOD_LOCK_PATH,
     PHASE03_PROFILE_PATH,
@@ -24,9 +24,9 @@ from reference.parameters.operator_reference import (
     sha256_file,
     build_golden_reference,
 )
-from reference.parameters.operator_evaluation import compare
-from reference.pipeline.profile import load_phase04e1_capability
-from reference.spectrum import SigMFFrameSource, SpectrumProcessor
+from algorithms.parameters.operator_evaluation import compare
+from algorithms.pipeline.profile import load_phase04e1_capability
+from algorithms.spectrum import SigMFFrameSource, SpectrumProcessor
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase04e1"

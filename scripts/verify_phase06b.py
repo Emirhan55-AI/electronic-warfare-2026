@@ -19,9 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.frame_stats import FRAME_LENGTH
-from reference.rtl.hann_vectors import build_vector_files
-from reference.rtl.hann_window import (
+from algorithms.rtl.frame_stats import FRAME_LENGTH
+from algorithms.rtl.hann_vectors import build_vector_files
+from algorithms.rtl.hann_window import (
     COEFFICIENT_FRACTION_BITS,
     COEFFICIENT_SCALE,
     COEFFICIENT_WIDTH,
@@ -50,11 +50,11 @@ OWNED_FILES = (
     "verification-summary.json",
 )
 RTL_SOURCES = (
-    ROOT / "rtl" / "phase06b" / "rtl" / "phase06b_pkg.sv",
-    ROOT / "rtl" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
-    ROOT / "rtl" / "phase06b" / "rtl" / "axis_hann_window.sv",
+    ROOT / "algorithms" / "fpga" / "phase06b" / "rtl" / "phase06b_pkg.sv",
+    ROOT / "algorithms" / "fpga" / "phase06a" / "rtl" / "axis_skid_buffer.sv",
+    ROOT / "algorithms" / "fpga" / "phase06b" / "rtl" / "axis_hann_window.sv",
 )
-TESTBENCH = ROOT / "rtl" / "phase06b" / "tb" / "tb_axis_hann_window.sv"
+TESTBENCH = ROOT / "algorithms" / "fpga" / "phase06b" / "tb" / "tb_axis_hann_window.sv"
 MSYS2_UCRT64_BIN = Path("C:/msys64/ucrt64/bin")
 FIXED_COMMANDS = {
     "iverilog": MSYS2_UCRT64_BIN / "iverilog.exe",

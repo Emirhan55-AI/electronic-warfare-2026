@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from reference.parameters import generate_parameter_scene, load_parameter_catalog
+from algorithms.parameters import generate_parameter_scene, load_parameter_catalog
 
 
 class ParameterSceneTests(unittest.TestCase):

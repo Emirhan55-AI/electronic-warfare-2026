@@ -11,8 +11,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication
 
-from host.operator_console.main_window import MainWindow
-from reference.et import SafetyMode
+from app.operator_console.main_window import MainWindow
+from algorithms.et import SafetyMode
 from qt_test_support import isolate_qt_module
 
 

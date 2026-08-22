@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.fft_power import POWER_MAX_REACHABLE, power_from_fft_word, width_proof
-from reference.rtl.power_vectors import REAL_FFT_SOURCE, build_vector_files
+from algorithms.rtl.fft_power import POWER_MAX_REACHABLE, power_from_fft_word, width_proof
+from algorithms.rtl.power_vectors import REAL_FFT_SOURCE, build_vector_files
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase06f"
@@ -38,10 +38,10 @@ OWNED_FILES = (
 SOURCE_FILES = (
     "docs/decisions/ADR-0016-PHASE06F-FFT-LINEAR-POWER.md",
     "docs/interfaces/RTL_FFT_POWER_CONTRACT.md",
-    "reference/rtl/fft_power.py",
-    "reference/rtl/power_vectors.py",
-    "rtl/phase06f/rtl/axis_fft_linear_power.sv",
-    "rtl/phase06f/tb/tb_axis_fft_linear_power.sv",
+    "algorithms/rtl/fft_power.py",
+    "algorithms/rtl/power_vectors.py",
+    "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
+    "algorithms/fpga/phase06f/tb/tb_axis_fft_linear_power.sv",
     "scripts/generate_phase06f_vectors.py",
     "datasets/fixtures/phase06f/edge-input.mem",
     "datasets/fixtures/phase06f/edge-expected.mem",
@@ -82,8 +82,8 @@ def run_rtl_once() -> dict[str, object]:
         executable = Path(temporary) / "phase06f-power.vvp"
         compiled = subprocess.run(
             [iverilog, "-g2012", "-s", "tb_axis_fft_linear_power", "-o", str(executable),
-             str(ROOT / "rtl/phase06f/rtl/axis_fft_linear_power.sv"),
-             str(ROOT / "rtl/phase06f/tb/tb_axis_fft_linear_power.sv")],
+             str(ROOT / "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv"),
+             str(ROOT / "algorithms/fpga/phase06f/tb/tb_axis_fft_linear_power.sv")],
             cwd=ROOT, env=environment, capture_output=True, text=True, check=False,
         )
         if compiled.returncode != 0:

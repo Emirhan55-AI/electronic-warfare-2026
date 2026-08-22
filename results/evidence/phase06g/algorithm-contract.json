@@ -26,7 +26,7 @@
   "region_size": 256,
   "regions": 16,
   "shift_mapping": "shifted_index = natural_index XOR 0x800",
-  "source_of_truth": "reference/detection/cfar.py regional detector",
+  "source_of_truth": "algorithms/detection/cfar.py regional detector",
   "status": "passed",
   "threshold": "noise * (-ln(Pfa))",
   "zero_region": "zero noise, zero threshold, strict comparison keeps zero undetected"

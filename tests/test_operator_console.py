@@ -19,12 +19,12 @@ from PySide6.QtCore import QEventLoop, QThread, QTimer  # noqa: E402
 from PySide6.QtGui import QFontMetrics, QRawFont  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel  # noqa: E402
 
-from host.operator_console.application import build_application, run_playback_benchmark  # noqa: E402
-from host.operator_console.controller import OperatorController  # noqa: E402
-from host.operator_console.main_window import MainWindow  # noqa: E402
-from host.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
-from reference.spectrum import SigMFFrameSource  # noqa: E402
-from reference.pipeline import ResolvedOperationProfile, load_profile  # noqa: E402
+from app.operator_console.application import build_application, run_playback_benchmark  # noqa: E402
+from app.operator_console.controller import OperatorController  # noqa: E402
+from app.operator_console.main_window import MainWindow  # noqa: E402
+from app.operator_console.ui_text import TEXT, TURKISH_GLYPHS  # noqa: E402
+from algorithms.spectrum import SigMFFrameSource  # noqa: E402
+from algorithms.pipeline import ResolvedOperationProfile, load_profile  # noqa: E402
 from qt_test_support import isolate_qt_module  # noqa: E402
 
 
@@ -94,7 +94,7 @@ class OperatorConsoleTests(unittest.TestCase):
             None,
             "comparison_digest_mismatch",
         )
-        with patch("host.operator_console.controller.resolve_default_operation_profile", return_value=resolved):
+        with patch("app.operator_console.controller.resolve_default_operation_profile", return_value=resolved):
             controller = OperatorController(window)
         try:
             self.assertIsNone(controller.runtime_pipeline.parameters)

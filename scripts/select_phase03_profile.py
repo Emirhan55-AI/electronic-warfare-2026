@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.detection import (  # noqa: E402
+from algorithms.detection import (  # noqa: E402
     ALLOWED_PFA_VALUES,
     COST_MODELS,
     DetectionPipeline,
@@ -32,13 +32,13 @@ from reference.detection import (  # noqa: E402
     os_threshold_multiplier,
     regional_threshold_multiplier,
 )
-from reference.detection.scenes import (  # noqa: E402
+from algorithms.detection.scenes import (  # noqa: E402
     generate_scene,
     generate_temporal_frame,
     load_scene_catalog,
 )
-from reference.pipeline import build_operation_profile, canonical_profile_bytes  # noqa: E402
-from reference.spectrum import SpectrumProcessor  # noqa: E402
+from algorithms.pipeline import build_operation_profile, canonical_profile_bytes  # noqa: E402
+from algorithms.spectrum import SpectrumProcessor  # noqa: E402
 
 
 COMPARISON_PATH = ROOT / "results" / "evidence" / "phase03" / "detector-comparison.json"

@@ -2,7 +2,7 @@
 
 ## Algoritmik kaynak
 
-Bağlayıcı algoritma `reference/detection/cfar.py` içindeki PHASE-03 `regional` yöntemidir. Bir frame 4096 natural-order PHASE-06F power hücresidir. Her natural index için `shifted_index = natural_index XOR 12'h800` uygulanır; 16 shifted bölgenin her biri 256 ardışık hücre içerir.
+Bağlayıcı algoritma `algorithms/detection/cfar.py` içindeki PHASE-03 `regional` yöntemidir. Bir frame 4096 natural-order PHASE-06F power hücresidir. Her natural index için `shifted_index = natural_index XOR 12'h800` uygulanır; 16 shifted bölgenin her biri 256 ardışık hücre içerir.
 
 Bir bölgenin sıralanmış değerleri `x[0]..x[255]` ise NumPy ile aynı even-length median
 

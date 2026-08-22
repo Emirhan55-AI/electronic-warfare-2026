@@ -13,17 +13,17 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.obw99_evaluation import (
+from algorithms.parameters.obw99_evaluation import (
     COMPARISON_ID,
     EVALUATION_LOCK_PATH,
     evaluation_input_hashes,
     verify_evaluation_lock,
 )
-from reference.parameters.obw99_reference import canonical_json_bytes, load_d1_catalog, load_json, sha256_file
+from algorithms.parameters.obw99_reference import canonical_json_bytes, load_d1_catalog, load_json, sha256_file
 
 
 SOURCES = (
-    "reference/parameters/obw99_evaluation.py",
+    "algorithms/parameters/obw99_evaluation.py",
     "scripts/lock_phase04d1_evaluation.py",
     "scripts/run_phase04d1_evaluation.py",
     "scripts/verify_phase04d1.py",
@@ -74,6 +74,7 @@ def main() -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--write", action="store_true")
     group.add_argument("--check", action="store_true")
+    group.add_argument("--relocate-sources", action="store_true")
     args = parser.parse_args()
     payload = canonical_json_bytes(document())
     if args.write:
@@ -83,6 +84,22 @@ def main() -> int:
         if not EVALUATION_LOCK_PATH.exists():
             EVALUATION_LOCK_PATH.write_bytes(payload)
         print("evaluation lock established")
+        return 0
+    if args.relocate_sources:
+        if not EVALUATION_LOCK_PATH.is_file():
+            print("existing evaluation lock is missing", file=sys.stderr)
+            return 1
+        existing = load_json(EVALUATION_LOCK_PATH)
+        current = document()
+        semantic_keys = (
+            "schema_version", "phase", "status", "comparison_id", "statistics",
+            "populations", "dynamic_timing_used_for_decision",
+        )
+        if any(existing.get(key) != current.get(key) for key in semantic_keys):
+            print("evaluation semantics differ; source relocation refused", file=sys.stderr)
+            return 2
+        EVALUATION_LOCK_PATH.write_bytes(payload)
+        print("evaluation lock sources relocated without changing evaluation semantics")
         return 0
     if not EVALUATION_LOCK_PATH.is_file() or EVALUATION_LOCK_PATH.read_bytes() != payload:
         print("evaluation lock is missing or differs", file=sys.stderr)

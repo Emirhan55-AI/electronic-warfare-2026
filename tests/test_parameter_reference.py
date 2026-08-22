@@ -7,7 +7,7 @@ from dataclasses import replace
 
 import numpy as np
 
-from reference.detection import (
+from algorithms.detection import (
     DetectionEvent,
     DetectionFrameResult,
     DetectionPipeline,
@@ -15,7 +15,7 @@ from reference.detection import (
     DetectorConfig,
     LinearPowerDetector,
 )
-from reference.parameters import (
+from algorithms.parameters import (
     FEATURE_HISTORY_BYTES,
     FeatureHistoryStore,
     MethodSelection,
@@ -27,7 +27,7 @@ from reference.parameters import (
     generate_parameter_scene,
     load_parameter_catalog,
 )
-from reference.spectrum import SpectrumProcessor
+from algorithms.spectrum import SpectrumProcessor
 
 
 def _region(start: int, end: int, peak: int | None = None) -> DetectionRegion:

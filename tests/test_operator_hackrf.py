@@ -9,7 +9,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication
 
-from host.acquisition import (
+from platforms.acquisition import (
     CaptureResult,
     DeviceIdentity,
     DeviceStatus,
@@ -18,10 +18,10 @@ from host.acquisition import (
     ToolInventory,
     ToolStatus,
 )
-from host.acquisition.mock import DeterministicMockBackend
-from host.operator_console.application import build_application
-from host.operator_console.laboratory import build_laboratory_application
-from host.operator_console.ui_text import TEXT
+from platforms.acquisition.mock import DeterministicMockBackend
+from app.operator_console.application import build_application
+from app.operator_console.laboratory import build_laboratory_application
+from app.operator_console.ui_text import TEXT
 from qt_test_support import isolate_qt_module
 
 
@@ -197,7 +197,7 @@ class OperatorHackRFTests(unittest.TestCase):
         from pathlib import Path
 
         root = Path(__file__).resolve().parents[1]
-        for relative in ("host/operator_console/controller.py", "host/operator_console/main_window.py"):
+        for relative in ("app/operator_console/controller.py", "app/operator_console/main_window.py"):
             text = (root / relative).read_text(encoding="utf-8")
             self.assertNotIn("import subprocess", text)
             self.assertNotIn("subprocess.", text)

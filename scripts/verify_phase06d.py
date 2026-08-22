@@ -21,13 +21,13 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.fft_model import floating_unscaled_fft, unpack_fft_word
-from reference.rtl.phase06d_vectors import build_frames, build_vector_files
+from algorithms.rtl.fft_model import floating_unscaled_fft, unpack_fft_word
+from algorithms.rtl.phase06d_vectors import build_frames, build_vector_files
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase06d"
 FIXTURES = ROOT / "datasets" / "fixtures" / "phase06d"
-XCI = ROOT / "rtl" / "phase06d" / "ip" / "phase06d_fft_4096" / "phase06d_fft_4096.xci"
+XCI = ROOT / "algorithms" / "fpga" / "phase06d" / "ip" / "phase06d_fft_4096" / "phase06d_fft_4096.xci"
 CMODEL_EXPECTED = FIXTURES / "cmodel-expected.mem"
 CMODEL_ARCHIVE_SHA256 = "e5825a15c8ce9cfc8337540fea1765bb873df0cd3377b9cb3348f7682216db0c"
 EXPECTED_XCI_SHA256 = "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4"
@@ -71,7 +71,7 @@ def run_cmodel(cmodel_archive: Path, vcvars64: Path) -> Path:
     with zipfile.ZipFile(cmodel_archive) as archive:
         archive.extractall(vendor)
 
-    source = (ROOT / "reference" / "rtl" / "amd_xfft_cmodel_driver.cpp").resolve()
+    source = (ROOT / "algorithms" / "rtl" / "amd_xfft_cmodel_driver.cpp").resolve()
     obj = build / "amd_xfft_cmodel_driver.obj"
     executable = build / "amd_xfft_cmodel_driver.exe"
     output = build / "cmodel-output.mem"
@@ -376,7 +376,7 @@ def build_documents(first_name: str, second_name: str) -> dict[str, dict[str, ob
         "deterministic_rerun": "passed",
         "vendor_api": "AMD FFT v9.1 bit-accurate C model",
         "vendor_archive_sha256": CMODEL_ARCHIVE_SHA256,
-        "driver_source_sha256": sha256(ROOT / "reference" / "rtl" / "amd_xfft_cmodel_driver.cpp"),
+        "driver_source_sha256": sha256(ROOT / "algorithms" / "rtl" / "amd_xfft_cmodel_driver.cpp"),
         "configuration": "N=4096 fixed-point pipelined unscaled, 16-bit input, 24-bit twiddle, convergent rounding, forward",
         "frames": 11,
         "samples": len(cmodel_words),

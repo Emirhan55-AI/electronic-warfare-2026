@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.rtl.detector_vectors import build_vector_files
-from reference.rtl.regional_detector import (
+from algorithms.rtl.detector_vectors import build_vector_files
+from algorithms.rtl.regional_detector import (
     COEFFICIENT_FRACTION_BITS,
     COMBINED_COEFFICIENTS,
     NOISE_COEFFICIENT,
@@ -52,12 +52,12 @@ OWNED_FILES = (
 SOURCE_FILES = (
     "docs/decisions/ADR-0017-PHASE06G-REGIONAL-DETECTOR.md",
     "docs/interfaces/RTL_REGIONAL_DETECTOR_CONTRACT.md",
-    "reference/rtl/regional_detector.py",
-    "reference/rtl/detector_vectors.py",
-    "rtl/phase06g/rtl/phase06g_pkg.sv",
-    "rtl/phase06g/rtl/axis_regional_detector.sv",
-    "rtl/phase06g/rtl/phase06g_detector_synthesis_top.sv",
-    "rtl/phase06g/tb/tb_axis_regional_detector.sv",
+    "algorithms/rtl/regional_detector.py",
+    "algorithms/rtl/detector_vectors.py",
+    "algorithms/fpga/phase06g/rtl/phase06g_pkg.sv",
+    "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
+    "algorithms/fpga/phase06g/rtl/phase06g_detector_synthesis_top.sv",
+    "algorithms/fpga/phase06g/tb/tb_axis_regional_detector.sv",
     "scripts/generate_phase06g_vectors.py",
     "scripts/run_phase06g_synthesis.tcl",
     "scripts/verify_phase06g.py",
@@ -121,9 +121,9 @@ def run_rtl_once() -> dict[str, object]:
                 "tb_axis_regional_detector",
                 "-o",
                 str(executable),
-                str(ROOT / "rtl/phase06g/rtl/phase06g_pkg.sv"),
-                str(ROOT / "rtl/phase06g/rtl/axis_regional_detector.sv"),
-                str(ROOT / "rtl/phase06g/tb/tb_axis_regional_detector.sv"),
+                str(ROOT / "algorithms/fpga/phase06g/rtl/phase06g_pkg.sv"),
+                str(ROOT / "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv"),
+                str(ROOT / "algorithms/fpga/phase06g/tb/tb_axis_regional_detector.sv"),
             ],
             cwd=ROOT,
             env=environment,
@@ -181,6 +181,19 @@ def _validate_synthesis_reports() -> None:
     required_detector = ("| Slice LUTs*                |  959", "| Slice Registers            |  352", "| Block RAM Tile    |  6.5", "| DSPs           |    8")
     if not all(token in total_text for token in required_total) or not all(token in detector_text for token in required_detector):
         raise AssertionError("Vivado synthesis resource reports do not match the normalized resource contract")
+
+
+def _validate_stored_synthesis_evidence() -> None:
+    manifest_path = EVIDENCE / "source-manifest.json"
+    resource_path = EVIDENCE / "resource-feasibility.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    resource = json.loads(resource_path.read_text(encoding="utf-8"))
+    stored_files = manifest.get("files", {})
+    rtl_sources = tuple(name for name in SOURCE_FILES if name.startswith("algorithms/fpga/"))
+    if resource.get("status") != "passed" or resource.get("tool") != "Vivado 2025.2":
+        raise AssertionError("stored PHASE-06G synthesis evidence is not accepted")
+    if any(stored_files.get(name) != sha256(ROOT / name) for name in rtl_sources):
+        raise AssertionError("PHASE-06G RTL bytes differ from the stored synthesis manifest")
 
 
 def _resource_document() -> dict[str, object]:
@@ -287,7 +300,7 @@ def build_documents(*, execute_simulation: bool, validate_synthesis: bool) -> di
         "algorithm-contract.json": {
             "phase": "PHASE-06G",
             "status": "passed",
-            "source_of_truth": "reference/detection/cfar.py regional detector",
+            "source_of_truth": "algorithms/detection/cfar.py regional detector",
             "frame_length": 4096,
             "regions": 16,
             "region_size": 256,
@@ -329,8 +342,8 @@ def build_documents(*, execute_simulation: bool, validate_synthesis: bool) -> di
         "phase03-comparison.json": {
             "phase": "PHASE-06G",
             "status": "passed" if non_boundary_mismatches == 0 else "failed",
-            "floating_reference": "reference/detection/cfar.py float64 regional detector",
-            "fixed_reference": "reference/rtl/regional_detector.py integer bit-true detector",
+            "floating_reference": "algorithms/detection/cfar.py float64 regional detector",
+            "fixed_reference": "algorithms/rtl/regional_detector.py integer bit-true detector",
             "frames": golden["frame_count"],
             "samples": golden["samples"],
             "all_decision_mismatches": all_mismatches,
@@ -390,8 +403,13 @@ def build_documents(*, execute_simulation: bool, validate_synthesis: bool) -> di
     }
 
 
-def write() -> None:
-    documents = build_documents(execute_simulation=True, validate_synthesis=True)
+def write(*, reuse_synthesis_evidence: bool = False) -> None:
+    if reuse_synthesis_evidence:
+        _validate_stored_synthesis_evidence()
+    documents = build_documents(
+        execute_simulation=True,
+        validate_synthesis=not reuse_synthesis_evidence,
+    )
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     for name in OWNED_FILES:
         (EVIDENCE / name).write_bytes(canonical_bytes(documents[name]))
@@ -417,9 +435,12 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    parser.add_argument("--reuse-synthesis-evidence", action="store_true")
     args = parser.parse_args()
     if args.write:
-        write()
+        write(reuse_synthesis_evidence=args.reuse_synthesis_evidence)
+    elif args.reuse_synthesis_evidence:
+        parser.error("--reuse-synthesis-evidence yalnız --write ile kullanılabilir")
     passed = check()
     print(f"PHASE-06G verification: {'passed' if passed else 'failed'}")
     return 0 if passed else 1

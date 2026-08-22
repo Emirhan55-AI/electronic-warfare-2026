@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters import characterize_phase04_r2_oos  # noqa: E402
-from reference.parameters.evaluation import canonical_json_bytes  # noqa: E402
+from algorithms.parameters import characterize_phase04_r2_oos  # noqa: E402
+from algorithms.parameters.evaluation import canonical_json_bytes  # noqa: E402
 
 
 def _atomic(path: Path, data: bytes) -> None:

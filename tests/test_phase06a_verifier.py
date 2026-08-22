@@ -49,10 +49,10 @@ class Phase06AVerifierTests(unittest.TestCase):
             text = f" {path.read_text(encoding='utf-8').casefold()} "
             for token in forbidden:
                 self.assertNotIn(token, text, f"{path}: {token}")
-        self.assertEqual([], list((ROOT / "rtl" / "phase06a").rglob("*.vhd")))
-        self.assertEqual([], list((ROOT / "rtl" / "phase06a").rglob("*.vhdl")))
-        self.assertEqual([], list((ROOT / "rtl" / "phase06a").rglob("*.xci")))
-        self.assertEqual([], list((ROOT / "rtl" / "phase06a").rglob("*.xdc")))
+        self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06a").rglob("*.vhd")))
+        self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06a").rglob("*.vhdl")))
+        self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06a").rglob("*.xci")))
+        self.assertEqual([], list((ROOT / "algorithms" / "fpga" / "phase06a").rglob("*.xdc")))
 
     def test_testbench_has_required_self_checks(self) -> None:
         text = VERIFY.TESTBENCH.read_text(encoding="utf-8")

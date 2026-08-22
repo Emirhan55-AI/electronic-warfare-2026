@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.monitoring.evaluation import build_phase05_evidence, canonical_bytes
-from reference.monitoring.fixtures import build_fixture_files
+from algorithms.monitoring.evaluation import build_phase05_evidence, canonical_bytes
+from algorithms.monitoring.fixtures import build_fixture_files
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase05"

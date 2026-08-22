@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from reference.et import (
+from algorithms.et import (
     AnalogDeceptionConfig,
     AnalogDeceptionEngine,
     ContinuousJammingConfig,

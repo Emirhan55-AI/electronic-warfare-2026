@@ -14,8 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.obw99 import OccupiedBandwidthEstimator
-from reference.parameters.obw99_reference import (
+from algorithms.parameters.obw99 import OccupiedBandwidthEstimator
+from algorithms.parameters.obw99_reference import (
     ACCEPTANCE_PATH,
     ADR_PATH,
     GENERATOR_PATH,
@@ -108,6 +108,7 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--relocate-sources", action="store_true")
     args = parser.parse_args()
     try:
         payload = canonical_json_bytes(_lock_document())
@@ -121,6 +122,22 @@ def main() -> int:
         if not OUTPUT.is_file():
             OUTPUT.write_bytes(payload)
         print("method lock established")
+        return 0
+    if args.relocate_sources:
+        if not OUTPUT.is_file():
+            print("existing method lock is missing", file=sys.stderr)
+            return 1
+        existing = load_json(OUTPUT)
+        current = _lock_document()
+        semantic_keys = (
+            "schema_version", "phase", "status", "comparison_id", "method",
+            "noise_calibration", "statistics", "populations", "binding_or_oos_executed",
+        )
+        if any(existing.get(key) != current.get(key) for key in semantic_keys):
+            print("method semantics differ; source relocation refused", file=sys.stderr)
+            return 2
+        OUTPUT.write_bytes(payload)
+        print("method lock sources relocated without changing method semantics")
         return 0
     if not OUTPUT.is_file() or OUTPUT.read_bytes() != payload:
         print("method lock is missing or differs", file=sys.stderr)

@@ -4,9 +4,8 @@ import unittest
 
 import numpy as np
 
-from host.acquisition import CaptureResult
-from reference.p0 import (
-    HackRFSearchBackend,
+from platforms.acquisition import CaptureResult, HackRFSearchBackend
+from algorithms.p0 import (
     HackRFSearchPlanner,
     HackRFTuningProfile,
     P0SearchEngine,
@@ -14,7 +13,7 @@ from reference.p0 import (
     SearchRequest,
     shifted_absolute_frequency_axis,
 )
-from reference.p0.fixtures import build_judge_demo_engine
+from algorithms.p0.fixtures import build_judge_demo_engine
 
 
 SERIAL = "0000000000000000123456789abcdef0"

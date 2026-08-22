@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -13,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.obw99_evaluation import (
+from algorithms.parameters.obw99_evaluation import (
     CLEAN_REFERENCE_PATH,
     COMPARISON_ID,
     EVALUATION_LOCK_PATH,
@@ -22,7 +23,7 @@ from reference.parameters.obw99_evaluation import (
     evidence_hash,
     verify_evaluation_lock,
 )
-from reference.parameters.obw99_reference import canonical_json_bytes, load_json, sha256_file
+from algorithms.parameters.obw99_reference import canonical_json_bytes, load_json, sha256_file
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase04d1"
@@ -130,7 +131,48 @@ def _write_infrastructure_failure(code: str, lock_sha: str, method_identity: str
     _atomic_write(FILES["summary"], {**_base("verification-summary", lock_sha, method_identity), **common})
 
 
+def _relocate_lock_metadata() -> int:
+    evaluation_lock = load_json(EVALUATION_LOCK_PATH)
+    method_lock = load_json(METHOD_LOCK_PATH)
+    verify_evaluation_lock(evaluation_lock)
+    documents = {key: load_json(path) for key, path in FILES.items()}
+    if any(document.get("comparison_id") != COMPARISON_ID for document in documents.values()):
+        print("D1F evidence comparison identity differs", file=sys.stderr)
+        return 2
+    old_pairs = {
+        (document.get("evaluation_lock_sha256"), document.get("method_lock_identity"))
+        for document in documents.values()
+    }
+    if len(old_pairs) != 1:
+        print("D1F evidence lock metadata is inconsistent", file=sys.stderr)
+        return 2
+    lock_sha = sha256_file(EVALUATION_LOCK_PATH)
+    method_identity = str(method_lock["identity_sha256"])
+    for key in ("binding", "oos", "comparison", "golden"):
+        documents[key]["evaluation_lock_sha256"] = lock_sha
+        documents[key]["method_lock_identity"] = method_identity
+        _atomic_write(FILES[key], documents[key])
+    summary = documents["summary"]
+    summary["evaluation_lock_sha256"] = lock_sha
+    summary["method_lock_identity"] = method_identity
+    summary["artifact_hashes"] = {
+        "binding_results_sha256": evidence_hash(documents["binding"]),
+        "oos_results_sha256": evidence_hash(documents["oos"]),
+        "comparison_sha256": evidence_hash(documents["comparison"]),
+        "golden_sha256": evidence_hash(documents["golden"]),
+    }
+    summary["source_layout_relocated"] = True
+    _atomic_write(FILES["summary"], summary)
+    print("D1F lock metadata relocated; numerical evidence was not rerun")
+    return 0
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--relocate-locks", action="store_true")
+    args = parser.parse_args()
+    if args.relocate_locks:
+        return _relocate_lock_metadata()
     if any(path.exists() for path in FILES.values()):
         print("D1F evidence already exists; rerun is forbidden", file=sys.stderr)
         return 3

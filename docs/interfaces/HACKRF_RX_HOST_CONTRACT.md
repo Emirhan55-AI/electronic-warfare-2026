@@ -2,7 +2,7 @@
 
 ## Bileşen sınırı
 
-`host/acquisition/` Qt ve DSP import etmez. Gerçek ve deterministik test backend'leri aynı `HackRFBackend` sözleşmesini uygular. Controller yalnız bu sözleşmeyi kullanır; UI ve controller `subprocess` çağırmaz. Gerçek backend `hackrf_info`, `hackrf_transfer` ve `hackrf_sweep` dışında executable kabul etmez.
+`platforms/acquisition/` Qt ve DSP import etmez. Gerçek ve deterministik test backend'leri aynı `HackRFBackend` sözleşmesini uygular. Controller yalnız bu sözleşmeyi kullanır; UI ve controller `subprocess` çağırmaz. Gerçek backend `hackrf_info`, `hackrf_transfer` ve `hackrf_sweep` dışında executable kabul etmez.
 
 Araç keşfi dosya sistemi üzerinden yapılır. Güvenli yardım sorguları açık `argv`, `shell=False`, iki saniyelik zaman aşımı ve 32.768 byte stdout/stderr sınırıyla çalışır. Cihaz keşfi ancak operatör denetim düğmesine bastığında ve gerekli araç doğrulandığında worker içinde yapılabilir. B0'da araç self-test'i çalıştırılmış, fiziksel cihaz bulunmadığından discovery `NO_DEVICE` dönmüştür; RF alımı çalıştırılmamıştır.
 

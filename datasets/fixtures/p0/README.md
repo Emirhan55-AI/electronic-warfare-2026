@@ -1,6 +1,6 @@
 # P0 Deterministik ED Fixture Sözleşmesi
 
-`reference/p0/fixtures.py` yedi sentetik ve sabit seed'li sahne üretir: tek ton,
+`algorithms/p0/fixtures.py` yedi sentetik ve sabit seed'li sahne üretir: tek ton,
 AM-benzeri, NFM-benzeri, sayısal OOK burst, geniş bant gürültü-benzeri, iki komşu
 sinyal ve eşik yakını zayıf ton. Veriler gerçek RF kaydı değildir.
 

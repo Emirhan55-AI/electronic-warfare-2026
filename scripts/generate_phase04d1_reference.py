@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters.obw99_reference import build_clean_reference, canonical_json_bytes
+from algorithms.parameters.obw99_reference import build_clean_reference, canonical_json_bytes
 
 
 OUTPUT = ROOT / "datasets" / "fixtures" / "phase04d1" / "clean-reference.json"

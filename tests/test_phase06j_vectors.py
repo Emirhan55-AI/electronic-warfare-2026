@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from reference.ps.temporal_vectors import build_all_files
+from algorithms.ps.temporal_vectors import build_all_files
 
 
 class Phase06JVectorTests(unittest.TestCase):

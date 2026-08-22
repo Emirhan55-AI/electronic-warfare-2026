@@ -28,14 +28,14 @@ OWNED_FILES = (
     "warnings.json",
 )
 SOURCE_FILES = (
-    "rtl/phase06a/rtl/axis_skid_buffer.sv",
-    "rtl/phase06c/rtl/phase06c_pkg.sv",
-    "rtl/phase06c/rtl/axis_fft_wrapper.sv",
-    "rtl/phase06d/rtl/amd_xfft_adapter.sv",
-    "rtl/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci",
-    "rtl/phase06e/rtl/phase06e_fft_implementation_top.sv",
-    "rtl/phase06e/constraints/phase06e_fft_100mhz.xdc",
-    "rtl/phase06e/tb/tb_phase06e_axis_input_register_slice.sv",
+    "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv",
+    "algorithms/fpga/phase06c/rtl/phase06c_pkg.sv",
+    "algorithms/fpga/phase06c/rtl/axis_fft_wrapper.sv",
+    "algorithms/fpga/phase06d/rtl/amd_xfft_adapter.sv",
+    "algorithms/fpga/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci",
+    "algorithms/fpga/phase06e/rtl/phase06e_fft_implementation_top.sv",
+    "algorithms/fpga/phase06e/constraints/phase06e_fft_100mhz.xdc",
+    "algorithms/fpga/phase06e/tb/tb_phase06e_axis_input_register_slice.sv",
     "scripts/run_phase06e_vivado.tcl",
     "docs/decisions/ADR-0015-PHASE06E-VIVADO-IMPLEMENTATION-GATE.md",
     "docs/interfaces/RTL_VIVADO_IMPLEMENTATION_CONTRACT.md",
@@ -118,8 +118,8 @@ def _run_slice_test() -> dict[str, object]:
         output = Path(temporary) / "phase06e-slice.vvp"
         compile_result = subprocess.run(
             [iverilog, "-g2012", "-s", "tb_phase06e_axis_input_register_slice", "-o", str(output),
-             str(ROOT / "rtl/phase06e/rtl/phase06e_fft_implementation_top.sv"),
-             str(ROOT / "rtl/phase06e/tb/tb_phase06e_axis_input_register_slice.sv")],
+             str(ROOT / "algorithms/fpga/phase06e/rtl/phase06e_fft_implementation_top.sv"),
+             str(ROOT / "algorithms/fpga/phase06e/tb/tb_phase06e_axis_input_register_slice.sv")],
             cwd=temporary, env=environment, capture_output=True, text=True, check=False,
         )
         if compile_result.returncode != 0:
@@ -240,17 +240,34 @@ def check() -> bool:
     return passed and not any(token in b"".join((EVIDENCE / name).read_bytes() for name in OWNED_FILES).decode("utf-8") for token in forbidden)
 
 
+def refresh_source_manifest() -> None:
+    path = EVIDENCE / "source-manifest.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    stored_files = document.get("files", {})
+    implementation_sources = tuple(name for name in SOURCE_FILES if name.startswith("algorithms/fpga/"))
+    if document.get("status") != "passed" or document.get("phase") != "PHASE-06E":
+        raise AssertionError("stored PHASE-06E source manifest is not accepted")
+    if any(stored_files.get(name) != sha256(ROOT / name) for name in implementation_sources):
+        raise AssertionError("PHASE-06E implementation bytes differ from the stored Vivado manifest")
+    document["files"] = {name: sha256(ROOT / name) for name in SOURCE_FILES}
+    path.write_bytes(canonical_bytes(document))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--write", action="store_true")
-    parser.add_argument("--check", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--write", action="store_true")
+    mode.add_argument("--check", action="store_true")
+    mode.add_argument("--refresh-source-manifest", action="store_true")
     parser.add_argument("--reports", type=Path)
     args = parser.parse_args()
     if args.write:
         if args.reports is None:
             parser.error("--write requires --reports")
         write(args.reports.resolve())
-    if args.check or not args.write:
+    elif args.refresh_source_manifest:
+        refresh_source_manifest()
+    if args.check or args.refresh_source_manifest or not args.write:
         if not check():
             print("PHASE-06E verification failed")
             return 1

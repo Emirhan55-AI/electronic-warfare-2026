@@ -18,11 +18,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.ps.candidate_transport import (
+from algorithms.ps.candidate_transport import (
     ABI_VERSION, HEADER_BYTES, MAX_FRAME_BYTES, RECORD_BYTES, TRAILER_BYTES,
     architecture_study, decode_packet,
 )
-from reference.ps.transport_vectors import build_vector_files
+from algorithms.ps.transport_vectors import build_vector_files
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase06i"
 FIXTURES = ROOT / "datasets" / "fixtures" / "phase06i"
@@ -34,10 +34,10 @@ OWNED_FILES = (
 SOURCE_FILES = (
     "docs/decisions/ADR-0020-PHASE06I-PL-PS-CANDIDATE-TRANSPORT.md",
     "docs/interfaces/PL_PS_CANDIDATE_TRANSPORT_ABI.md",
-    "reference/ps/__init__.py", "reference/ps/candidate_transport.py", "reference/ps/transport_vectors.py",
-    "ps/README.md", "ps/phase06i/include/phase06i_transport_abi.h", "ps/phase06i/src/phase06i_decode.c",
-    "rtl/phase06i/rtl/phase06i_pkg.sv", "rtl/phase06i/rtl/axis_candidate_packetizer.sv",
-    "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv",
+    "algorithms/ps/__init__.py", "algorithms/ps/candidate_transport.py", "algorithms/ps/transport_vectors.py",
+    "platforms/embedded/README.md", "platforms/embedded/phase06i/include/phase06i_transport_abi.h", "platforms/embedded/phase06i/src/phase06i_decode.c",
+    "algorithms/fpga/phase06i/rtl/phase06i_pkg.sv", "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv",
+    "algorithms/fpga/phase06i/tb/tb_axis_candidate_packetizer.sv",
     "scripts/generate_phase06i_vectors.py", "scripts/verify_phase06i.py",
     "tests/test_phase06i_transport.py", "tests/test_phase06i_vectors.py", "tests/test_phase06i_verifier.py",
     "datasets/fixtures/phase06i/candidate-axis-input.mem",
@@ -83,9 +83,9 @@ def run_rtl_once() -> dict[str, object]:
         exe = Path(td) / "phase06i.vvp"
         compile_result = subprocess.run([
             iv, "-g2012", "-s", "tb_axis_candidate_packetizer", "-o", str(exe),
-            str(ROOT / "rtl/phase06i/rtl/phase06i_pkg.sv"),
-            str(ROOT / "rtl/phase06i/rtl/axis_candidate_packetizer.sv"),
-            str(ROOT / "rtl/phase06i/tb/tb_axis_candidate_packetizer.sv"),
+            str(ROOT / "algorithms/fpga/phase06i/rtl/phase06i_pkg.sv"),
+            str(ROOT / "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv"),
+            str(ROOT / "algorithms/fpga/phase06i/tb/tb_axis_candidate_packetizer.sv"),
         ], cwd=ROOT, env=env, capture_output=True, text=True, check=False)
         if compile_result.returncode:
             raise RuntimeError(compile_result.stdout + compile_result.stderr)
@@ -115,7 +115,7 @@ def _stored_rtl() -> dict[str, object]:
 
 
 def _validate_c_abi_source() -> None:
-    header = (ROOT / "ps/phase06i/include/phase06i_transport_abi.h").read_text(encoding="utf-8")
+    header = (ROOT / "platforms/embedded/phase06i/include/phase06i_transport_abi.h").read_text(encoding="utf-8")
     required = (
         "PHASE06I_ABI_VERSION 1u", "PHASE06I_MAX_FRAME_BYTES 54144u",
         "sizeof(phase06i_header_v1) == 32", "sizeof(phase06i_candidate_v1) == 40",
@@ -186,7 +186,7 @@ def build_documents(*, execute_rtl: bool) -> dict[str, object]:
         "toolchain.json": toolchain,
         "temporal-boundary.json": {
             "phase": "PHASE-06I", "status": "defined_deferred",
-            "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+            "source": "algorithms/detection/pipeline.py DetectionPipeline._update_tracks",
             "placement": "Zynq PS", "implementation": "not_implemented_due_to_ps_toolchain",
             "window": "per-track deque maxlen 3; confirm when sum >= 2",
             "association": "previous span expanded by 2 bins; require positive overlap",

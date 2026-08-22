@@ -36,9 +36,9 @@ Threshold için iki katsayılı ardışık quantization yerine `(-ln(Pfa))/ln(2)
 
 Üç bağımsız katman korunur:
 
-1. `reference/detection/cfar.py` PHASE-03 NumPy float64 algoritması,
-2. `reference/rtl/regional_detector.py` PHASE-06G integer/bit-true modeli,
-3. `rtl/phase06g/rtl/axis_regional_detector.sv` synthesizable RTL.
+1. `algorithms/detection/cfar.py` PHASE-03 NumPy float64 algoritması,
+2. `algorithms/rtl/regional_detector.py` PHASE-06G integer/bit-true modeli,
+3. `algorithms/fpga/phase06g/rtl/axis_regional_detector.sv` synthesizable RTL.
 
 Bit-true model↔RTL bütün alanlarda sıfır toleranslıdır. Float↔fixed non-boundary detector kararlarında tolerans yoktur. Exact fixed threshold ile eşit ve ±1 integer LSB boundary vektörleri ayrı raporlanır; sonuçtan sonra tolerans üretilmez.
 

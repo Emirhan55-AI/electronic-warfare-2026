@@ -11,9 +11,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication, QScrollArea
 
-from host.operator_console.application import build_application
-from host.operator_console.audio_playback import AudioPlayback
-from host.operator_console.ui_text import TEXT
+from app.operator_console.application import build_application
+from app.operator_console.audio_playback import AudioPlayback
+from app.operator_console.ui_text import TEXT
 from qt_test_support import isolate_qt_module
 
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from reference.p0 import P0SearchEngine, SearchRequest
-from reference.p0.fixtures import build_judge_demo_engine
+from algorithms.p0 import P0SearchEngine, SearchRequest
+from algorithms.p0.fixtures import build_judge_demo_engine
 
 
 def build_engine() -> P0SearchEngine:

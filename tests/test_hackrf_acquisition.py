@@ -7,7 +7,7 @@ import time
 import unittest
 from pathlib import Path
 
-from host.acquisition import (
+from platforms.acquisition import (
     AcquisitionError,
     BoundedCI8FrameSource,
     RXConfig,
@@ -19,8 +19,8 @@ from host.acquisition import (
     parse_hackrf_info,
     parse_sweep_fixture,
 )
-from host.acquisition.mock import DeterministicMockBackend
-from host.acquisition.process import ProcessResult
+from platforms.acquisition.mock import DeterministicMockBackend
+from platforms.acquisition.process import ProcessResult
 
 
 ROOT = Path(__file__).resolve().parents[1]

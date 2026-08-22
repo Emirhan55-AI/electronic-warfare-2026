@@ -17,10 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from reference.parameters import evaluate_phase04_r2  # noqa: E402
-from reference.parameters.evaluation import canonical_json_bytes, phase04_implementation_manifest  # noqa: E402
-from reference.parameters.r2 import R2_COMPARISON_ID  # noqa: E402
-from reference.pipeline import VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes  # noqa: E402
+from algorithms.parameters import evaluate_phase04_r2  # noqa: E402
+from algorithms.parameters.evaluation import canonical_json_bytes, phase04_implementation_manifest  # noqa: E402
+from algorithms.parameters.r2 import R2_COMPARISON_ID  # noqa: E402
+from algorithms.pipeline import VerifiedProfileBinding, build_phase04_profile, canonical_profile_bytes  # noqa: E402
 
 
 LOCK = ROOT / "datasets" / "fixtures" / "phase04" / "r2-method-lock.json"

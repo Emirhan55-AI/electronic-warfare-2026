@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from reference.parameters.obw99_reference import (
+from algorithms.parameters.obw99_reference import (
     build_clean_reference,
     canonical_json_bytes,
     fractional_power_edge,

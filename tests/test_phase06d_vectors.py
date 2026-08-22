@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from reference.rtl.phase06d_vectors import build_frames, build_vector_files
+from algorithms.rtl.phase06d_vectors import build_frames, build_vector_files
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -17,7 +17,7 @@
   "pfa_threshold_match_inputs": false,
   "phase": "PHASE-06I",
   "placement": "Zynq PS",
-  "source": "reference/detection/pipeline.py DetectionPipeline._update_tracks",
+  "source": "algorithms/detection/pipeline.py DetectionPipeline._update_tracks",
   "status": "defined_deferred",
   "window": "per-track deque maxlen 3; confirm when sum >= 2"
 }
