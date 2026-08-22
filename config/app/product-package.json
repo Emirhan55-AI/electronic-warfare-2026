@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entry_point": "host.operator_console.__main__",
+  "application_mode": "product",
+  "allowed_source_roots": [
+    "host/operator_console",
+    "host/acquisition",
+    "reference/detection",
+    "reference/monitoring",
+    "reference/p0",
+    "reference/parameters",
+    "reference/pipeline",
+    "reference/sigmf",
+    "reference/spectrum"
+  ],
+  "excluded_paths": [
+    "host/acquisition/mock.py",
+    "host/operator_console/laboratory.py",
+    "reference/et",
+    "reference/p0/df_fixtures.py",
+    "datasets",
+    "results",
+    "scripts",
+    "tests"
+  ],
+  "allowed_runtime_sources": [
+    "SigMF Kaydı",
+    "HackRF Canlı RX"
+  ],
+  "release_assertions": {
+    "mock_backend": false,
+    "training_mode": false,
+    "offline_et_console": false,
+    "embedded_demo_data": false,
+    "hardcoded_recording_paths": false
+  }
+}

@@ -11,7 +11,6 @@ from PySide6.QtWidgets import QApplication
 
 from host.acquisition import (
     CaptureResult,
-    DeterministicMockBackend,
     DeviceIdentity,
     DeviceStatus,
     EDRXDeviceConfig,
@@ -19,7 +18,9 @@ from host.acquisition import (
     ToolInventory,
     ToolStatus,
 )
+from host.acquisition.mock import DeterministicMockBackend
 from host.operator_console.application import build_application
+from host.operator_console.laboratory import build_laboratory_application
 from host.operator_console.ui_text import TEXT
 from qt_test_support import isolate_qt_module
 
@@ -144,7 +145,7 @@ class OperatorHackRFTests(unittest.TestCase):
         window.close()
 
     def test_deterministic_source_runs_existing_spectrum_and_detector_pipeline(self) -> None:
-        app, window, controller = build_application([])
+        app, window, controller = build_laboratory_application([])
         window.source_type_combo.setCurrentIndex(2)
         self.assertEqual("deterministic_test", window.source_kind)
         self.assertTrue(controller.open_deterministic_source())
@@ -160,7 +161,7 @@ class OperatorHackRFTests(unittest.TestCase):
         window.close()
 
     def test_pending_is_bounded_and_source_change_rejects_stale_generation(self) -> None:
-        app, window, controller = build_application([], test_backend_factory=DeterministicMockBackend)
+        app, window, controller = build_laboratory_application([], test_backend_factory=DeterministicMockBackend)
         window.source_type_combo.setCurrentIndex(2)
         controller.open_deterministic_source()
         controller.open_deterministic_source()
@@ -183,7 +184,7 @@ class OperatorHackRFTests(unittest.TestCase):
                 return super().capture(config, cancellation)  # type: ignore[arg-type]
 
         ui_thread = threading.get_ident()
-        app, window, controller = build_application([], test_backend_factory=RecordingBackend)
+        app, window, controller = build_laboratory_application([], test_backend_factory=RecordingBackend)
         window.source_type_combo.setCurrentIndex(2)
         controller.open_deterministic_source()
         self._drain(controller)

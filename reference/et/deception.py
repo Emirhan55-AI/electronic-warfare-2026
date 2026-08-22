@@ -1,4 +1,4 @@
-"""Offline FM/NFM analog-radio deception baseband and loopback verifier."""
+"""Offline AM/FM/NFM baseband generation and local loopback verification."""
 
 from __future__ import annotations
 
@@ -11,12 +11,20 @@ import numpy.typing as npt
 
 @dataclass(frozen=True)
 class AnalogDeceptionConfig:
-    mode: Literal["FM", "NFM"] = "NFM"
+    mode: Literal["AM", "FM", "NFM"] = "NFM"
     sample_rate_hz: int = 192_000
     audio_sample_rate_hz: int = 48_000
     duration_seconds: float = 2.0
     output_peak: float = 0.7
     audio_bandwidth_hz: float = 3_000.0
+
+    def __post_init__(self) -> None:
+        if self.mode not in {"AM", "FM", "NFM"}:
+            raise ValueError("only AM, FM, and NFM offline modes are supported")
+        if self.sample_rate_hz < 8_000 or self.audio_sample_rate_hz < 8_000:
+            raise ValueError("sample rates are outside the offline bound")
+        if not 0 < self.audio_bandwidth_hz < self.audio_sample_rate_hz / 2:
+            raise ValueError("voice-band filter cutoff is invalid")
 
     @property
     def deviation_hz(self) -> float:
@@ -32,6 +40,7 @@ class AnalogDeceptionResult:
     mode: str
     peak_magnitude: float
     loopback_correlation: float
+    audio_bandwidth_hz: float
     provenance: str = "OFFLINE BASEBAND"
 
 
@@ -59,10 +68,17 @@ class AnalogDeceptionEngine:
         source_axis = np.arange(normalized.size, dtype=np.float64) / config.audio_sample_rate_hz
         target_axis = np.arange(count, dtype=np.float64) / config.sample_rate_hz
         audio_up = np.interp(target_axis, source_axis, normalized, left=0.0, right=0.0)
-        phase = 2.0 * np.pi * config.deviation_hz * np.cumsum(audio_up) / config.sample_rate_hz
-        samples = config.output_peak * np.exp(1j * phase)
-        demod = np.angle(samples[1:] * np.conj(samples[:-1])) * config.sample_rate_hz / (2.0 * np.pi * config.deviation_hz)
-        correlation = float(np.corrcoef(audio_up[1:], demod)[0, 1])
+        if config.mode == "AM":
+            # A 50 % modulation index keeps the generated envelope bounded and
+            # intentionally does not represent an RF output power setting.
+            samples = config.output_peak * (0.5 + 0.5 * audio_up).astype(np.complex128)
+            demod = (np.abs(samples) / config.output_peak - 0.5) * 2.0
+            correlation = float(np.corrcoef(audio_up, demod)[0, 1])
+        else:
+            phase = 2.0 * np.pi * config.deviation_hz * np.cumsum(audio_up) / config.sample_rate_hz
+            samples = config.output_peak * np.exp(1j * phase)
+            demod = np.angle(samples[1:] * np.conj(samples[:-1])) * config.sample_rate_hz / (2.0 * np.pi * config.deviation_hz)
+            correlation = float(np.corrcoef(audio_up[1:], demod)[0, 1])
         samples = np.asarray(samples, dtype=np.complex128)
         normalized = np.asarray(normalized, dtype=np.float64)
         samples.setflags(write=False)
@@ -75,6 +91,7 @@ class AnalogDeceptionEngine:
             config.mode,
             float(np.max(np.abs(samples))),
             correlation,
+            config.audio_bandwidth_hz,
         )
 
     @staticmethod

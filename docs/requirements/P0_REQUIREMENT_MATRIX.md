@@ -12,14 +12,15 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | Güç seviyesi | Göreli lineer güç ve dBFS; kalibrasyon sözleşmesi | PS/ARM | Eksik | Tam göreli ölçüm — dBFS doğrulandı; dBm `KALİBRASYON BEKLİYOR` |
 | SNR | Aday sinyal gücü / aynı yerel gürültü kestirimi | PS/ARM | Eksik | Tam host algoritması — aynı OS-CFAR gürültü tanımı kullanıldı |
 | Analog/Sayısal | Spektral flatness, zarf, anlık frekans sürekliliği ve zaman-frekans davranışı | PS/ARM | Eksik | Tam P0 deterministic açıklanabilir sınıflandırıcı — modülasyon tanıma yok |
-| Genlik tabanlı yön bulma | Açı başına göreli güç; ham maksimum LOB ve güven | Bilgisayar-1, HackRF-1, yönlü anten; manuel dönüş | Eksik | Tam host model/UI — 7 fixture geçti; canlı saha ölçümü yok |
+| Analog telsiz dinleme | Seçili olay; DDC, kanal filtresi, AM/NFM, 48 kHz mono PCM16/WAV | Bilgisayar-1; HOST/REPLAY, ileride HackRF-1 | Kısmi | AM/NFM bilinen ses fixture'larında bağımsız ton/korelasyon oracle'ı ve UI binding PASS; canlı HackRF/audio saha kabulü yok |
+| Genlik tabanlı yön bulma | Açı başına göreli güç; ham maksimum LOB ve güven | Bilgisayar-1, HackRF-1, yönlü anten; manuel dönüş | Eksik | Host model/UI — 7 köşe fixture'ı + bağımsız üç gizli-yön eğitim sahnesi, 0/360 hata ve açık `KUZEY / 0°`/`MANUEL COĞRAFİ BAŞ` referansıyla coğrafi LOB sunumu PASS; PC konumu yalnız işletim sistemi fix döndürürse kullanılır; canlı saha ölçümü yok |
 | Sürekli karıştırma | Tekli, çoklu ve barrage taban bant dalga şekilleri | Bilgisayar-2; P0'da iletimsiz/loopback | Eksik | Tam P0 taban bant/UI — spektrum doğrulandı; TX kilitli |
 | Analog telsiz aldatma | Ses normalizasyonu/bant sınırlama, FM/NFM kompleks taban bant | Bilgisayar-2; P0'da iletimsiz/loopback | Kısmi | Tam P0 taban bant/UI — FM/NFM loopback geçti; TX kilitli |
-| ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay/host modları PASS; B0 disconnected/tool/serial/host-processing durumları hazır; canlı HackRF yok |
+| ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF, gerçek basemap üzerinde yön gösterimi ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay seçim kimliği/FFT/P0 parametre worker bağı, MapLibre gerçek harita sağlayıcı zinciri, tek seferlik PC konum isteği/manuel fallback, kaynak-doğruluk ayrımı ve geodezik tek LOB sunumu; canlı GNSS, hedef konumu ve canlı HackRF saha kabulü yok |
 | PC↔ZedBoard taşıma | Bounded sıralı IQ çerçeveleri, bütünlük ve istatistik | Bilgisayar-1 Ethernet; ZedBoard PS | Eksik | PC sözleşmesi/loopback tam; ZedBoard sunucusu ve canlı ağ çalıştırılmadı |
 | HackRF-1 RX | Replay ile aynı normalize IQ frame sözleşmesi | HackRF-1 USB→Bilgisayar-1 | Kısmi | B0 host toolchain READY; seri-temelli RX argv, bounded queue ve üç tuning planı unit-test PASS; cihaz bağlı değil, seri atanmadı, canlı RX yok |
-| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Güncel 50 MHz length-width-16 Vivado sentez/route/timing/bitstream ve XSA geçti; kartta çalıştırılmadı |
-| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | SG/DRE kapalı, MM2S 8192 ve S2MM 32768 byte sözleşmeli donanım; coherent-buffer driver/device tree/rootfs/boot artifact derlemesi geçti; fiziksel DMA çalıştırılmadı |
+| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Güncel 50 MHz length-width-16 Vivado sentez/route/timing/bitstream ve XSA geçti; ilk manuel BOOT UART-sessiz başarısız, native recovery fiziksel testi bekliyor |
+| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | SG/DRE kapalı, MM2S 8192 ve S2MM 32768 byte sözleşmeli donanım; coherent-buffer driver/device tree/rootfs derlemesi ve native bootbin statik denetimi geçti; fiziksel DMA çalıştırılmadı |
 
 ## KTR Donanım Sapma Kaydı
 
@@ -28,7 +29,7 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | ED alma | bladeRF tabanlı alıcı | HackRF-1 + Bilgisayar-1 | Evet | USB host bilgisayardır; IQ Ethernet ile ZedBoard PS'ye gider | P0 işlevi korunur; anlık bant HackRF sınırındadır |
 | FPGA işleme | Eski SDR/işlemci zinciri | ZedBoard Zynq-7000 | Evet | Hann/FFT/güç PL, karar çekirdeği PS olur | PetaLinux gelene kadar host oracle; kart çalışması ayrıca kabul edilir |
 | Yön bulma | KrakenSDR/faz uyumlu çok kanal ve motor | HackRF-1 + tek yönlü anten + manuel açı | Kısmen | MUSIC/faz/TDOA yerine KTR genlik maksimumu | Zorunlu DF sağlanır; otomatik/faz hassasiyeti iddia edilmez |
-| Konum | Çoklu LOB/ek donanım | P0 envanterinde zorunlu değil | Hayır, P1'e ertelendi | P0'da harita/konum yok | Zorunlu P0 çekirdeğini etkilemez |
+| Konum | Çoklu LOB/ek donanım | P0 envanterinde zorunlu değil | Hayır, P1'e ertelendi | P0'da yalnız sensör ve tek LOB yön gösterimi vardır; hedef konumu/çoklu LOB yok | Zorunlu P0 çekirdeğini etkilemez |
 | Sürekli ET | bladeRF veya eski TX zinciri | HackRF-2 + Bilgisayar-2 | Evet | Önce iletimsiz/loopback taban bant; TX kilitli | Dalga şekli kanıtlanır; RF etki/güç iddiası yok |
 | Analog aldatma | Eski TX platformu | HackRF-2 + Bilgisayar-2 | Evet | FM/NFM taban bant ve bounded görev nesnesi | Zorunlu algoritma gösterilir; açık alan TX yok |
 | Kontrol bilgisayarı | Raspberry Pi/dağıtık Python varsayımları | İki bağımsız bilgisayar | İşlevsel niyet evet | ED ve ET süreçleri Python durumu paylaşmaz | Operasyonel ayrım güçlenir |

@@ -10,7 +10,6 @@ from pathlib import Path
 from host.acquisition import (
     AcquisitionError,
     BoundedCI8FrameSource,
-    DeterministicMockBackend,
     RXConfig,
     RealHackRFBackend,
     SafeProcessRunner,
@@ -20,6 +19,7 @@ from host.acquisition import (
     parse_hackrf_info,
     parse_sweep_fixture,
 )
+from host.acquisition.mock import DeterministicMockBackend
 from host.acquisition.process import ProcessResult
 
 

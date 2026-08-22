@@ -15,7 +15,6 @@ from .contracts import (
     load_ed_rx_config,
 )
 from .hackrf import (
-    DeterministicMockBackend,
     RealHackRFBackend,
     build_receive_argv,
     parse_hackrf_info,
@@ -29,7 +28,6 @@ __all__ = [
     "BoundedCI8FrameSource",
     "CaptureResult",
     "DeviceIdentity",
-    "DeterministicMockBackend",
     "DeviceStatus",
     "EDRXDeviceConfig",
     "HackRFBackend",

@@ -63,6 +63,16 @@ class Phase05MonitoringTests(unittest.TestCase):
         )
         self.assertEqual(result.pcm16, joined.pcm16)
 
+    def test_continuous_nfm_retains_state_across_long_read_blocks(self) -> None:
+        spec = next(item for item in FIXTURE_SPECS if item.mode == "nfm")
+        source = np.resize(generate_iq(spec), int(192_000 * 5.1))
+        config = AnalogMonitorConfig("nfm", 192_000.0, spec.carrier_offset_hz, spec.channel_bandwidth_hz)
+        monitor = AnalogMonitor()
+        whole = monitor.process_continuous(source, config)
+        chunked = monitor.process_continuous(tuple(source[index : index + 4096] for index in range(0, source.size, 4096)), config)
+        self.assertEqual(whole.pcm16, chunked.pcm16)
+        self.assertGreaterEqual(whole.audio.size / whole.sample_rate_hz, 5.0)
+
     def test_invalid_inputs_are_rejected(self) -> None:
         spec = FIXTURE_SPECS[0]
         good = generate_iq(spec)[:4096]

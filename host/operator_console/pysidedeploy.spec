@@ -16,4 +16,4 @@ plugins = platforms,imageformats,styles
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --noinclude-qt-translations=True
+extra_args = --quiet --noinclude-qt-translations=True --nofollow-import-to=host.acquisition.mock --nofollow-import-to=host.operator_console.laboratory --nofollow-import-to=reference.et --nofollow-import-to=reference.p0.df_fixtures

@@ -5,7 +5,10 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 import re
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -20,6 +23,30 @@ SPEC.loader.exec_module(VERIFY)
 
 
 class RepositoryContractTests(unittest.TestCase):
+    def test_release_tree_excludes_local_recording_bytes(self) -> None:
+        self.assertFalse((ROOT / "video_data").exists())
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn("datasets/external/local/", gitignore)
+        self.assertFalse(
+            any(path.startswith("datasets/external/local/") for path in VERIFY._repository_files())
+        )
+
+    def test_phase00_check_mode_is_byte_read_only(self) -> None:
+        before = VERIFY.SUMMARY.read_bytes()
+        environment = os.environ.copy()
+        environment["PYTHONIOENCODING"] = "utf-8"
+        process = subprocess.run(
+            [sys.executable, "-B", str(VERIFY_PATH), "--check"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            env=environment,
+            check=False,
+        )
+        self.assertEqual(0, process.returncode, process.stdout + process.stderr)
+        self.assertEqual(before, VERIFY.SUMMARY.read_bytes())
+
     def test_p0_dma_length_field_covers_one_power_frame(self) -> None:
         vivado_tcl = (ROOT / "scripts" / "create_p0_vivado_project.tcl").read_text(
             encoding="utf-8"
@@ -60,6 +87,9 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES)
             | set(VERIFY.APPROVED_PHASE06J_FILES)
             | set(VERIFY.APPROVED_P0_FILES)
+            | set(VERIFY.APPROVED_ET_OFFLINE_FILES)
+            | set(VERIFY.APPROVED_APP_HARDENING_FILES)
+            | set(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -82,7 +112,10 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(30, len(VERIFY.APPROVED_PHASE06I_FILES))
         self.assertEqual(4, len(VERIFY.APPROVED_TEST_INFRASTRUCTURE_FILES))
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
-        self.assertEqual(69, len(VERIFY.APPROVED_P0_FILES))
+        self.assertEqual(95, len(VERIFY.APPROVED_P0_FILES))
+        self.assertEqual(11, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
+        self.assertEqual(9, len(VERIFY.APPROVED_APP_HARDENING_FILES))
+        self.assertEqual(17, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

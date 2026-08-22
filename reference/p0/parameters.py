@@ -75,6 +75,13 @@ class ParameterExtractor:
         window = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(samples.size, dtype=np.float64) / samples.size)
         relative_linear = signal_power_raw / (samples.size * float(np.sum(window * window)))
         relative_dbfs = 10.0 * np.log10(relative_linear)
+        peak_signal_power = max(
+            float(power[candidate.peak_bin]) - candidate.noise_power_per_bin,
+            np.finfo(np.float64).tiny,
+        )
+        coherent_gain = float(np.sum(window) / samples.size)
+        peak_linear = peak_signal_power / float((samples.size * coherent_gain) ** 2)
+        peak_dbfs = 10.0 * np.log10(peak_linear)
         snr_db = 10.0 * np.log10(snr_linear)
 
         features = self._features(samples, power, candidate)
@@ -95,6 +102,8 @@ class ParameterExtractor:
             coarse_candidate_bandwidth_hz=bandwidth.coarse_bandwidth_hz,
             relative_power_linear=relative_linear,
             relative_power_dbfs=float(relative_dbfs),
+            peak_power_dbfs_per_bin=float(peak_dbfs),
+            channel_power_dbfs=float(relative_dbfs),
             snr_db=float(snr_db),
             signal_domain=domain,
             classification_reasons=reasons,

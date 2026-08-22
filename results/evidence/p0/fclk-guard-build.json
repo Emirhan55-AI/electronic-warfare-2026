@@ -1,0 +1,68 @@
+{
+  "schema_version": 8,
+  "date": "2026-08-16",
+  "scope": "P0 FCLK CCF/SLCR recovery plus semantic 50 MHz classification closure",
+  "physical_execution": "A physical APPLY completed the hardware transition before this semantic-validator change; no hardware was executed for this change.",
+  "physical_input": {
+    "apply_last_stage": "APPLY_STAGE_09_DIRECT_RATE_VERIFY",
+    "apply_errno": -5,
+    "ccf_rate_hz": "99999999 -> 50000000",
+    "fpga0_clk_ctrl": "0x00200500 -> 0x00101400",
+    "direct_fclk_hz": "100000000 -> 50000000",
+    "fpga_rst_ctrl": "0x00000000 -> 0x00000001"
+  },
+  "root_cause": {
+    "apply_eio": "The earlier SLCR lock ordering issue was fixed: physical CCF set-rate now changed FPGA0_CLK_CTRL and direct FCLK0 to 50 MHz. The remaining -EIO was only the old direct verifier requiring 0x00400500 instead of accepting the legal physical 0x00101400 encoding.",
+    "restore_erange": "clk_round_rate(fclk0, 100000000) is 99999999 under the golden DT ps_clk model, so the previous exact-equality restore precheck rejected an already verified direct 100 MHz hardware state.",
+    "physical_50mhz_0x142": {
+      "0x002": "P0_FCLK_GUARD_VALIDATE_FCLK_CTRL: the previous validator required the single reference encoding 0x00400500, so it rejected the physical legal 0x00101400 encoding (SRCSEL=0, DIV0=20, DIV1=1).",
+      "0x040": "P0_FCLK_GUARD_VALIDATE_CCF_ROUND_RATE: the previous status collector set this bit unconditionally even when CCF reported an exact 50000000 Hz round result.",
+      "0x100": "P0_FCLK_GUARD_VALIDATE_CCF_ENABLED: external modules cannot inspect CCF internal enable-reference state; its unavailable observation was incorrectly treated as a 50 MHz state failure."
+    },
+    "kernel_sources": {
+      "drivers/clk/zynq/clkc.c": "8c6d138910712ce28c35f2f7c5035a20303d302895063e919ef3f9daf02ad450",
+      "drivers/clk/clk-divider.c": "579144db560d847ed7bfbffbc216bde9beed7d1ada8d0d7b7ad7dedb77b6111b"
+    }
+  },
+  "fix": {
+    "apply": "Keep FCLK0 reset asserted; unlock SLCR only around CCF clk_set_rate/clk_prepare_enable, immediately relock, then verify direct 50 MHz and tolerated CCF observation. No apply failure path releases reset.",
+    "recovery": "From verified GOLDEN_100_RESET_ASSERTED, skip clk_set_rate entirely, verify golden IO PLL/FCLK/reset/level-shifter state, balance an owned CCF enable if present, then release reset. From 50 MHz, permit only the DT-model ±1 Hz 100 MHz round result and verify direct golden hardware before reset release.",
+    "diagnostics": "ABI 6 transition diagnostics report last APPLY stage, errno, request, CCF rate, FPGA0_CLK_CTRL, direct FCLK, and FPGA reset before/after.",
+    "semantic_50mhz_validation": "Accept only documented FPGA0_CLK_CTRL source/divider fields, SRCSEL=IO PLL, nonzero one-based DIV0/DIV1, exact direct 50000000 Hz, asserted reset when required, and the existing CCF observation contract. Reserved/unrelated bits cause fail-closed rejection. CCF round-rate is now required only when the exact-round status flag is absent; unavailable CCF enable-reference observation remains visible but is not a state prerequisite. APPLY programming is unchanged."
+  },
+  "build": {
+    "petalinux": "2025.2",
+    "kernel_release": "6.12.40-xilinx-g31626ef92ff1",
+    "architecture": "ARMv7 / Zynq-7000",
+    "module_recipe": "5552 tasks succeeded",
+    "control_recipe": "1157 tasks succeeded; forced do_compile succeeded"
+  },
+  "tests": {
+    "fclk_source": "12 passed",
+    "semantic_50mhz_logic": "host C test passed: physical 0x00101400 decodes SRCSEL=0, DIV0=20, DIV1=1, direct 50000000 Hz, validates with zero 50 MHz clock errors, and classifies as 50MHZ_RESET_ASSERTED. The legal reference 0x00400500 (DIV0=5, DIV1=4) is also accepted; reserved-bit and zero-divider negatives are rejected.",
+    "phase06_host_vectors": "17 passed",
+    "phase06f_rtl_simulation": "Icarus Verilog passed: 45068 power results checked; TLAST and backpressure testbench coverage retained",
+    "physical": "not executed"
+  },
+  "artifacts": {
+    "module": {
+      "path": "build/p0/fclk-guard-50mhz-classifier-arm-transfer/p0_fclk_guard.ko",
+      "sha256": "75c2e05b51ac8c620e92ef84ac6c28711ac265c533f2332f2e21cf8c2bcafe4b",
+      "bytes": 15976,
+      "vermagic": "6.12.40-xilinx-g31626ef92ff1 SMP preempt mod_unload modversions ARMv7 p2v8"
+    },
+    "control_tool": {
+      "path": "build/p0/fclk-guard-50mhz-classifier-arm-transfer/p0-fclk-guard",
+      "sha256": "28e4206bb91bdefaa8666ca05601520e4ca0809dd2e5bcea44b1a7cd00d8f7d9",
+      "bytes": 9612,
+      "architecture": "ELF32 ARM EABI5"
+    }
+  },
+  "source_hashes": {
+    "p0_fclk_guard.c": "74ffd8d6f00e8d7252087d1e84cb9d6581b0f1d0a476a3e89311dad7c02fe7e5",
+    "p0_fclk_guard_uapi.h": "297198724ec4e519dc945093bcd87eb47f58adb38dc8005eecca8738d0fb14e0",
+    "p0_fclk_guardctl.c": "bb11517cf86b5284c6706cd99119017d2aacfcc0e5c74170691c19a4f42d167e",
+    "p0_fclk_guard_logic.h": "5df185fae26ce3ddea93b598aa0ded3791e740bf173b7bd7433f5f21bcaf45da"
+  },
+  "claim_boundary": "This is L1/L2 source, host test, exact-kernel audit, and ARM build evidence. No board command, FPGA load, DMA access, BOOT.BIN change, or RF operation occurred."
+}

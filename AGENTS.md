@@ -8,7 +8,7 @@
 - Kullanıcı tarafından oluşturulan veya değiştirilen dosyalar korunur.
 - Görev kapsamı dışındaki yeniden düzenlemeler yapılmaz.
 - Açık izin olmadan commit, tag veya push yapılmaz.
-- Genel kullanıma açık dosyalarda yapay zekâ veya ajan ifadeleri kullanılmaz.
+- Genel kullanıma açık dosyalarda geliştirme araçlarına veya otomasyon sürecine ait atıflar kullanılmaz.
 - RF yayın işlevleri yalnızca güvenli, kontrollü ve izinli test koşulları için geliştirilir.
 - Kullanıcıya görünen arayüz metinleri Türkçe ve UTF-8 olur; `ç Ç ğ Ğ ı İ ö Ö ş Ş ü Ü` karakterleri ASCII karşılıklarına çevrilmez.
 - Teknik kısaltmalar korunabilir; kullanıcıya yönelik açıklamalar Türkçe olur.

@@ -1,0 +1,11 @@
+{
+  "version": 8,
+  "name": "Yarışma alanı çevrimdışı stili",
+  "sources": {
+    "competition": {
+      "type": "vector",
+      "url": "pmtiles://competition.pmtiles"
+    }
+  },
+  "layers": []
+}

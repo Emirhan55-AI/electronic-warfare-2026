@@ -38,9 +38,11 @@ geçilmeden bekler.
 Vivado 2025.2'de 50 MHz P0 tasarımı, 32768-byte S2MM paketi için zorunlu 16-bit
 DMA length alanıyla sentez, route, timing, bitstream ve XSA kapılarını geçmiştir.
 PetaLinux 2025.2 device tree, coherent-buffer DMA modülü, rootfs ve boot artifact
-derlemesi tamamlanmıştır. ARM/kart boot, canlı ZedBoard DMA, canlı HackRF ve RF TX
-çalıştırılmamıştır. Bu kontrol noktası sonraki faz için otomatik kullanıcı onayı
-oluşturmaz.
+derlemesi tamamlanmıştır. İlk manuel-repack `BOOT.BIN` fiziksel A/B testinde
+UART-sessiz başarısız olmuş; PetaLinux-native bootbin recovery artifact'ı statik
+olarak doğrulanmış ve fiziksel tekrar testini beklemektedir. Başarılı ARM/kart boot,
+canlı ZedBoard DMA, canlı HackRF ve RF TX yoktur. Bu kontrol noktası sonraki faz
+için otomatik kullanıcı onayı oluşturmaz.
 
 ### P0 Mandatory Closure Block A
 

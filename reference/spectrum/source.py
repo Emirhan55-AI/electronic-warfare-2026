@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -50,6 +51,17 @@ class SigMFFrameSource:
         ):
             raise SigMFSourceError("incomplete_contract_report", "SigMF report lacks frame information")
         self.data_path = self._resolve_data_path(self.metadata_path, explicit_data_path, mode)
+        self.source_description = self._read_source_description()
+
+    def _read_source_description(self) -> str | None:
+        """Retain optional provenance without relaxing the SigMF contract."""
+        try:
+            document = json.loads(self.metadata_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            return None
+        global_object = document.get("global") if isinstance(document, dict) else None
+        description = global_object.get("core:description") if isinstance(global_object, dict) else None
+        return description if isinstance(description, str) else None
 
     @staticmethod
     def _resolve_data_path(
@@ -110,6 +122,45 @@ class SigMFFrameSource:
         frame = np.asarray(real + 1j * imag, dtype=np.complex128)
         frame.setflags(write=False)
         return frame
+
+    def read_samples(self, start_sample: int, sample_count: int) -> npt.NDArray[np.complex128]:
+        """Read one contiguous I/Q range without resetting a DSP stream."""
+        if (
+            not isinstance(start_sample, int)
+            or isinstance(start_sample, bool)
+            or not isinstance(sample_count, int)
+            or isinstance(sample_count, bool)
+            or start_sample < 0
+            or sample_count < 1
+        ):
+            raise SigMFSourceError("sample_range_invalid", "I/Q örnek aralığı geçersizdir.")
+        total_samples = self.frame_count * self.frame_length
+        if start_sample + sample_count > total_samples:
+            raise SigMFSourceError("sample_range_out_of_range", "I/Q örnek aralığı kayıt dışına taşıyor.")
+        assert self.report.frame_size_bytes is not None
+        bytes_per_sample = self.report.frame_size_bytes // self.frame_length
+        offset = start_sample * bytes_per_sample
+        byte_count = sample_count * bytes_per_sample
+        try:
+            with self.data_path.open("rb") as stream:
+                stream.seek(offset)
+                payload = stream.read(byte_count)
+        except OSError as exc:
+            raise SigMFSourceError("sample_read_failed", f"I/Q aralığı okunamadı: {type(exc).__name__}") from exc
+        if len(payload) != byte_count:
+            raise SigMFSourceError("short_sample_read", "I/Q aralığı eksik okundu.")
+        if self.report.source_datatype == "ci8":
+            values = np.frombuffer(payload, dtype=np.int8).reshape(-1, 2)
+            scale = 128.0
+        else:
+            values = np.frombuffer(payload, dtype=np.dtype("<i2")).reshape(-1, 2)
+            scale = 32768.0
+        result = np.asarray(
+            values[:, 0].astype(np.float64) / scale + 1j * values[:, 1].astype(np.float64) / scale,
+            dtype=np.complex128,
+        )
+        result.setflags(write=False)
+        return result
 
     def close(self) -> None:
         """Retained for source-interface symmetry; reads use scoped handles."""

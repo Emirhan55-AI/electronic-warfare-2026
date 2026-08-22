@@ -12,6 +12,25 @@ from .detection import (
     os_cfar_false_alarm_probability,
 )
 from .df import DFEstimate, DFMeasurement, ManualAmplitudeDF
+from .two_point_df import REAL_TWO_POINT_SOURCE, TwoPointDFResult, TwoPointPower, analyze_two_point_hackrf_df
+from .field_df import AntennaReference, LocationFix, PositionSource, geographic_bearing_from_manual_reference
+from .recorded_df import (
+    RECORDED_DF_SOURCE,
+    RecordedDFError,
+    RecordedDFPoint,
+    RecordedDFReport,
+    analyze_recorded_df,
+    write_recorded_df_report,
+)
+from .map_direction import (
+    DirectionPresentation,
+    GeographicLOB,
+    SensorPosition,
+    build_direction_presentation,
+    destination_point,
+    geographic_lob_geometry,
+    normalize_bearing_deg,
+)
 from .models import CandidateRegion, P0ParameterResult, Provenance
 from .parameters import ParameterExtractor, ParameterProfile
 from .search import (
@@ -48,19 +67,34 @@ __all__ = [
     "BandwidthEstimate",
     "BandwidthEstimator",
     "BandwidthProfile",
+    "AntennaReference",
     "CandidateRegion",
     "DFEstimate",
     "DFMeasurement",
+    "LocationFix",
+    "DirectionPresentation",
+    "GeographicLOB",
+    "build_direction_presentation",
+    "analyze_recorded_df",
     "IQFrame",
     "IQFrameCodec",
     "IQTransport",
     "LoopbackIQTransport",
     "ManualAmplitudeDF",
+    "REAL_TWO_POINT_SOURCE",
+    "TwoPointDFResult",
+    "TwoPointPower",
+    "analyze_two_point_hackrf_df",
+    "RECORDED_DF_SOURCE",
+    "RecordedDFError",
+    "RecordedDFPoint",
+    "RecordedDFReport",
     "OSCFARConfig",
     "OSCFARDetector",
     "OSCFARFrameResult",
     "P0DetectorProfile",
     "P0_DETECTOR_PROFILE",
+    "PositionSource",
     "P0ParameterResult",
     "P0SearchEngine",
     "ParameterExtractor",
@@ -71,6 +105,7 @@ __all__ = [
     "SearchExecutionResult",
     "SearchMode",
     "SearchRequest",
+    "SensorPosition",
     "HackRFSearchBackend",
     "HackRFSearchPlanner",
     "HackRFTuningPlan",
@@ -84,6 +119,11 @@ __all__ = [
     "TrackedCandidate",
     "TuningWindow",
     "derive_os_cfar_threshold_coefficient",
+    "destination_point",
+    "geographic_lob_geometry",
+    "geographic_bearing_from_manual_reference",
     "order_statistic_expected_ratio",
     "os_cfar_false_alarm_probability",
+    "normalize_bearing_deg",
+    "write_recorded_df_report",
 ]

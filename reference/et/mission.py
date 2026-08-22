@@ -10,6 +10,7 @@ from enum import Enum
 class SafetyMode(str, Enum):
     OFFLINE = "OFFLINE"
     LOOPBACK = "LOOPBACK"
+    REPLAY = "REPLAY"
     CABLED_LAB = "CABLED_LAB"
     HARDWARE_TX_LOCKED = "HARDWARE_TX_LOCKED"
 
@@ -25,7 +26,7 @@ class MissionLogEntry:
 
 
 class ETMissionController:
-    """Only OFFLINE/LOOPBACK can run; there is deliberately no transmit method."""
+    """Only OFFLINE/LOOPBACK/REPLAY can run; there is no transmit method."""
 
     def __init__(self, mode: SafetyMode = SafetyMode.OFFLINE, *, maximum_duration_seconds: float = 30.0) -> None:
         self.mode = mode
@@ -47,16 +48,24 @@ class ETMissionController:
             raise RuntimeError("acil durdurma kilidi sıfırlanmadan görev başlatılamaz")
         if not 0 < duration_seconds <= self.maximum_duration_seconds:
             raise ValueError("görev süresi bounded sınırı aşıyor")
-        if self.mode not in {SafetyMode.OFFLINE, SafetyMode.LOOPBACK}:
+        if self.mode not in {SafetyMode.OFFLINE, SafetyMode.LOOPBACK, SafetyMode.REPLAY}:
             self.state = "GÜVENLİK KİLİDİ"
             self._record("RED", duration_seconds, "Donanım TX P0 kabulünde kilitlidir")
-            raise PermissionError("P0 yalnız OFFLINE veya LOOPBACK göreve izin verir")
+            raise PermissionError("yalnız OFFLINE, LOOPBACK veya REPLAY göreve izin verilir")
         self.state = "ÇALIŞIYOR"
         self._record("BAŞLAT", duration_seconds, detail)
 
     def stop(self) -> None:
         self.state = "DURDURULDU"
         self._record("DURDUR", 0.0, "Operatör durdurması")
+
+    def complete(self, *, detail: str) -> None:
+        """Close a synchronous offline task without implying an RF emission."""
+
+        if self.state != "ÇALIŞIYOR":
+            raise RuntimeError("tamamlanacak çalışan görev yok")
+        self.state = "TAMAMLANDI"
+        self._record("TAMAMLA", 0.0, detail)
 
     def emergency_stop(self) -> None:
         self.emergency_stop_latched = True

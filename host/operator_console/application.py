@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import statistics
 import sys
@@ -16,7 +17,7 @@ from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
 from reference.pipeline import ProcessingProfile, VerifiedProfileBinding
-from host.acquisition import EDRXDeviceConfig, HackRFBackend
+from host.acquisition.contracts import EDRXDeviceConfig, HackRFBackend
 from .audio_playback import AudioPlayback
 
 from .controller import OperatorController
@@ -66,6 +67,7 @@ def build_application(
     acquisition_backend: HackRFBackend | None = None,
     ed_rx_config: EDRXDeviceConfig | None = None,
     test_backend_factory: Callable[[], HackRFBackend] | None = None,
+    laboratory_mode: bool = False,
     audio_playback: AudioPlayback | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
@@ -75,7 +77,7 @@ def build_application(
     app.setFont(_ui_font())
     QLocale.setDefault(QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey))
     app.setStyleSheet(STYLE_PATH.read_text(encoding="utf-8"))
-    window = MainWindow()
+    window = MainWindow(laboratory_mode=laboratory_mode)
     controller_kwargs: dict[str, object] = {
         "profile": profile,
         "verified_binding": verified_binding,
@@ -162,6 +164,10 @@ def run_playback_benchmark(
 
 
 def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
     parser = argparse.ArgumentParser(description="Türkçe SigMF spektrum inceleme uygulaması")
     parser.add_argument("--smoke-test", action="store_true", help="pencereyi kısa süre açıp kapat")
     args = parser.parse_args(argv)

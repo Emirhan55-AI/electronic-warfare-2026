@@ -90,6 +90,7 @@ class AnalogMonitorResult:
     input_complex_samples: int
     transient_guard_input_samples: int
     quality_code: str
+    rf_power_dbfs: float = float("nan")
 
     def __post_init__(self) -> None:
         if self.sample_rate_hz != 48_000:

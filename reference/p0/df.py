@@ -14,6 +14,8 @@ class DFMeasurement:
     frequency_hz: float
     timestamp_utc: str
     confidence: float
+    source: str = "REPLAY"
+    geographic_bearing_deg: float | None = None
 
     @classmethod
     def create(
@@ -24,6 +26,8 @@ class DFMeasurement:
         frequency_hz: float,
         confidence: float,
         timestamp_utc: str | None = None,
+        source: str = "REPLAY",
+        geographic_bearing_deg: float | None = None,
     ) -> "DFMeasurement":
         values = (angle_deg, relative_power_db, frequency_hz, confidence)
         if not all(math.isfinite(value) for value in values):
@@ -31,7 +35,19 @@ class DFMeasurement:
         if frequency_hz <= 0 or not 0.0 <= confidence <= 1.0:
             raise ValueError("DF frequency or confidence is invalid")
         stamp = timestamp_utc or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-        return cls(angle_deg % 360.0, relative_power_db, frequency_hz, stamp, confidence)
+        if not source.strip():
+            raise ValueError("DF measurement source is required")
+        if geographic_bearing_deg is not None and not math.isfinite(geographic_bearing_deg):
+            raise ValueError("DF geographic bearing must be finite when provided")
+        return cls(
+            angle_deg % 360.0,
+            relative_power_db,
+            frequency_hz,
+            stamp,
+            confidence,
+            source.strip(),
+            None if geographic_bearing_deg is None else geographic_bearing_deg % 360.0,
+        )
 
 
 @dataclass(frozen=True)
