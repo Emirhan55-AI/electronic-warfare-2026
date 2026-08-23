@@ -1,6 +1,6 @@
 # ADR-0003: Operatör Uygulaması Teknoloji Yığını
 
-- Durum: **Accepted**
+- Durum: **Superseded in presentation layer by ADR-0026**
 - Karar tarihi: 2026-08-13
 
 ## Bağlam

@@ -299,9 +299,9 @@ class P0MeasurementTask(QRunnable):
                 confirmed=True,
                 provenance="REPLAY",
                 backend=(
-                    "HACKRF KAYDI / REPLAY → PHASE-03 aday + P0 parametre referansı"
+                    "HACKRF KAYDI → PHASE-03 aday + P0 parametre referansı"
                     if self.intent.recorded_hackrf_replay
-                    else "REPLAY → PHASE-03 aday + P0 parametre referansı"
+                    else "SİGMF KAYDI → PHASE-03 aday + P0 parametre referansı"
                 ),
                 neighboring_candidates=neighbors,
             )
@@ -554,7 +554,7 @@ class OperatorController(QObject):
             self.source = None
         self._invalidate_processing(clear_history=True)
         self._recorded_hackrf_replay = False
-        self.window.set_replay_source_badge("SİGMF KAYDI / REPLAY")
+        self.window.set_replay_source_badge("SİGMF KAYDI")
         self.window.show_empty()
         self.window.set_acquisition_mode(mode)
 
@@ -754,7 +754,7 @@ class OperatorController(QObject):
             getattr(source, "source_description", None) == HACKRF_REPLAY_DESCRIPTION
         )
         self.window.set_replay_source_badge(
-            "HACKRF KAYDI / REPLAY" if self._recorded_hackrf_replay else "SİGMF KAYDI / REPLAY"
+            "HACKRF KAYDI" if self._recorded_hackrf_replay else "SİGMF KAYDI"
         )
         self.window.set_source(label, source.report)  # type: ignore[attr-defined]
         frame_count = int(source.frame_count)  # type: ignore[attr-defined]
@@ -936,8 +936,8 @@ class OperatorController(QObject):
         relative_power_db = float(10.0 * np.log10(np.mean(finite_power)))
         selected_kind = str(self.window.source_type_combo.currentData())
         source = {
-            "sigmf": "REPLAY",
-            "deterministic_test": "HOST/SYNTHETIC",
+            "sigmf": "KAYIT OYNATMA",
+            "deterministic_test": "YAZILIM REFERANS VERİSİ",
             "hackrf": "LIVE RX",
         }.get(selected_kind, "BİLİNMEYEN IQ KAYNAĞI")
         if selected_kind == "sigmf" and self._recorded_hackrf_replay:
@@ -1606,9 +1606,9 @@ class OperatorController(QObject):
                 ),
                 channel_bandwidth_hz=self._listening_intent.channel_bandwidth_hz,
                 backend=(
-                    "HACKRF KAYDI / ANALOG REPLAY"
+                    "HACKRF KAYDI / ANALOG DİNLEME"
                     if self._recorded_hackrf_replay
-                    else "REPLAY / HOST · NumPy PHASE-05"
+                    else "SİGMF KAYDI · NumPy PHASE-05"
                 ),
             )
             LOGGER.info(

@@ -51,7 +51,7 @@ class OperatorListeningTests(unittest.TestCase):
         confirmed = [
             row
             for row in range(window.detection_list.count())
-            if "Hazır" in window.detection_list.item(row).text()
+            if "Doğrulandı" in window.detection_list.item(row).text()
         ]
         self.assertTrue(confirmed)
         window.detection_list.setCurrentRow(confirmed[0])
@@ -67,7 +67,7 @@ class OperatorListeningTests(unittest.TestCase):
         self.assertIsNotNone(controller._listening_result)
         self.assertEqual(48_000, controller._listening_result.sample_rate_hz)
         self.assertEqual("AM", window.listening_values["mode"].text())
-        self.assertIn("REPLAY / HOST", window.listening_values["backend"].text())
+        self.assertIn("SİGMF KAYDI", window.listening_values["backend"].text())
         self.assertIn("mono PCM16", window.listening_values["audio_rate"].text())
         self.assertNotEqual("—", window.listening_values["duration"].text())
         self.assertNotEqual("—", window.listening_values["levels"].text())
@@ -84,7 +84,7 @@ class OperatorListeningTests(unittest.TestCase):
         window.demod_combo.setCurrentIndex(1)
         self.assertTrue(controller.request_listening())
         key = controller._listening_intent.generation_key
-        window.source_type_combo.setCurrentIndex(2)
+        window.source_type_combo.setCurrentIndex(1)
         self._drain(controller)
         self.assertIsNone(controller._listening_result)
         before = controller.stale_results_rejected

@@ -73,7 +73,11 @@ class DirectionPresentation:
 
     @property
     def geographic_status(self) -> str:
-        return "Coğrafi yön hesaplandı" if self.has_geographic_lob else "Bağıl yön — coğrafi azimut referansı yok"
+        return (
+            "Gerçek kuzeye göre kerteriz hesaplandı"
+            if self.has_geographic_lob
+            else "Bağıl geliş açısı — kuzey referansı yok"
+        )
 
 
 @dataclass(frozen=True)

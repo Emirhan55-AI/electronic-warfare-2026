@@ -1,4 +1,4 @@
-"""Launch the deterministic P0 ED/DF/ET operator demonstration."""
+"""Load the deterministic P0 operator validation composition."""
 
 from __future__ import annotations
 
@@ -60,14 +60,14 @@ def populate(window: object, controller: object | None = None) -> None:
         candidate=candidate,
         confirmed=confirmed,
         provenance="REPLAY",
-        backend="ALGORİTMA TESTİ · REPLAY → p0.os_cfar + p0.parameters",
+        backend="DOĞRULAMA · SİGMF KAYDI → p0.os_cfar + p0.parameters",
         neighboring_candidates=detection.candidates,
     )
-    window.source_value.setText("ALGORİTMA TESTİ · Deterministik NFM-benzeri I/Q REPLAY")
-    window.listening_source_value.setText("ANALOG DİNLEME TEST VERİSİ · NFM SigMF REPLAY")
+    window.source_value.setText("DOĞRULAMA VERİSİ · NFM-benzeri I/Q kaydı")
+    window.listening_source_value.setText("ANALOG DİNLEME DOĞRULAMASI · NFM SigMF kaydı")
     window.metadata_values["center_frequency"].setText("100,000 MHz")
     window.metadata_values["sample_rate"].setText("1,024 MS/s")
-    window.metadata_values["datatype"].setText("complex128 sentetik replay")
+    window.metadata_values["datatype"].setText("complex128 yazılım referansı")
     window.metadata_values["frame_length"].setText("4096 karmaşık örnek")
     window.metadata_values["frame_position"].setText("2 / 2")
     window.metadata_values["channel"].setText("1")
@@ -98,21 +98,21 @@ def populate(window: object, controller: object | None = None) -> None:
         source_sample_rate_hz=listening_source.sample_rate_hz,
         carrier_frequency_hz=99_976_000.0,
         channel_bandwidth_hz=16_000.0,
-        backend="ANALOG DİNLEME TEST VERİSİ · REPLAY / HOST · NumPy PHASE-05",
+        backend="ANALOG DİNLEME DOĞRULAMASI · SİGMF KAYDI · NumPy PHASE-05",
     )
     window.df_mode_combo.setCurrentIndex(window.df_mode_combo.findData("training"))
     window._load_df_training_fixture()
     window._load_map_training_scenario()
     window._start_jamming_preview()
-    window.system_status_values["source"].setText("ALGORİTMA TESTİ · REPLAY")
-    window.system_status_values["processing"].setText("HOST/REPLAY · OS-CFAR + Parametre")
+    window.system_status_values["source"].setText("DOĞRULAMA · SİGMF KAYDI")
+    window.system_status_values["processing"].setText("YAZILIM REFERANSI · OS-CFAR + Parametre")
     window.system_status_values["fpga"].setText("RTL / VIVADO DOĞRULAMA · 50 MHz timing PASS")
     window.system_status_values["zedboard"].setText("FİZİKSEL ZEDBOARD TESTİ · çalıştırılmadı")
     window.system_status_values["transport"].setText("Canlı DMA / FPGA işleme yok")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="P0 zorunlu EH çekirdeği deterministik operatör demosu")
+    parser = argparse.ArgumentParser(description="P0 zorunlu EH çekirdeği operatör doğrulaması")
     parser.add_argument("--smoke-test", action="store_true")
     args = parser.parse_args()
     app, window, controller = build_laboratory_application([sys.argv[0]])

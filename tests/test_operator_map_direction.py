@@ -42,8 +42,8 @@ class OperatorMapDirectionTests(unittest.TestCase):
         self.assertEqual(75.0, presentation.relative_antenna_angle_deg)
         self.assertEqual(15.0, presentation.geographic_azimuth_deg)
         self.assertEqual("15,0°", window.map_result_values["azimuth"].text())
-        self.assertIn("Yön çizgisi", window.map_status_label.text())
-        self.assertEqual("Yön", window.workspace_tabs.tabText(window.workspace_tabs.currentIndex()))
+        self.assertIn("Kerteriz hattı", window.map_status_label.text())
+        self.assertEqual("Yön Bulma", window.workspace_tabs.tabText(window.workspace_tabs.currentIndex()))
         self.assertEqual("Harita", window.direction_workspace.tabText(window.direction_workspace.currentIndex()))
         window.close()
 
@@ -56,8 +56,8 @@ class OperatorMapDirectionTests(unittest.TestCase):
         self.assertIsNotNone(presentation)
         assert presentation is not None
         self.assertIsNone(presentation.geographic_azimuth_deg)
-        self.assertIn("Bağıl yön", window.map_result_values["azimuth"].text())
-        self.assertIn("Bağıl yön", window.map_status_label.text())
+        self.assertIn("Bağıl geliş açısı", window.map_result_values["azimuth"].text())
+        self.assertIn("Bağıl geliş açısı", window.map_status_label.text())
         window.close()
 
     def test_synthetic_training_scenarios_keep_truthful_label_and_expected_bearing(self) -> None:
@@ -67,9 +67,9 @@ class OperatorMapDirectionTests(unittest.TestCase):
         presentation = window.direction_map_view.presentation
         self.assertIsNotNone(presentation)
         assert presentation is not None
-        self.assertEqual("HOST/SYNTHETIC", presentation.source)
+        self.assertEqual("YAZILIM REFERANS VERİSİ", presentation.source)
         self.assertEqual(15.0, presentation.geographic_azimuth_deg)
-        self.assertIn("HOST/SYNTHETIC TEST", window.map_status_label.text())
+        self.assertIn("YAZILIM REFERANS VERİSİ", window.map_status_label.text())
         window.close()
 
     def test_manual_location_and_manual_reference_are_explicit(self) -> None:
@@ -113,15 +113,15 @@ class OperatorMapDirectionTests(unittest.TestCase):
         self.assertEqual("75.0°", window.df_points_list.item(0, 0).text())
         self.assertEqual("15.0°", window.df_points_list.item(0, 1).text())
         self.assertEqual("-13.00 dBFS", window.df_points_list.item(0, 2).text())
-        self.assertEqual("REPLAY", window.df_points_list.item(0, 3).text())
+        self.assertEqual("KAYIT OYNATMA", window.df_points_list.item(0, 3).text())
         live_index = window.map_source_combo.findData(PositionSource.LIVE_GNSS_RESERVED)
-        self.assertFalse(window.map_source_combo.model().item(live_index).isEnabled())
+        self.assertEqual(-1, live_index)
         window.close()
 
     def test_direction_workspace_merges_measurement_and_map_without_default_training_controls(self) -> None:
         window = MainWindow()
-        self.assertEqual("Yön", window.workspace_tabs.tabText(3))
-        self.assertEqual(("Ölçüm", "Harita"), tuple(window.direction_workspace.tabText(i) for i in range(2)))
+        self.assertEqual("Yön Bulma", window.workspace_tabs.tabText(3))
+        self.assertEqual(("Kerteriz", "Harita"), tuple(window.direction_workspace.tabText(i) for i in range(2)))
         self.assertFalse(window.df_training_controls.isVisible())
         self.assertFalse(window.df_points_list.isVisible())
         window.close()

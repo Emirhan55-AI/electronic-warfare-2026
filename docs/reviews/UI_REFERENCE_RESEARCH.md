@@ -2,7 +2,8 @@
 
 - Hazırlık tarihi: 2026-08-22
 - Uygulama paketi: APP-E ön araştırması
-- Durum: Tasarım kararı değildir; uygulanacak örüntü adaylarıdır
+- Durum: APP-E ile değerlendirildi; dondurulan kararlar ADR-0026 ve `docs/ux/`
+  sözleşmelerindedir
 
 ## İlke
 

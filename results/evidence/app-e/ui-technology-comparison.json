@@ -1,0 +1,174 @@
+{
+  "evaluation": {
+    "application_backend": "Python/PySide6",
+    "full_cpp_rewrite": false,
+    "gates": {
+      "qml_startup_below_2000_ms": true,
+      "qml_update_not_over_four_times_widgets": true,
+      "qml_update_within_10_hz_budget": true
+    },
+    "qt_quick_qml": {
+      "median_rss_mib": 86.15234375,
+      "median_startup_ms": 244.28930005524307,
+      "median_update_max_ms": 1.7346999375149608,
+      "median_update_median_ms": 1.3985999976284802,
+      "median_update_p95_ms": 1.6125000547617674
+    },
+    "qt_widgets": {
+      "median_rss_mib": 67.359375,
+      "median_startup_ms": 35.922099952585995,
+      "median_update_max_ms": 1.2271000305190682,
+      "median_update_median_ms": 0.9454499813728034,
+      "median_update_p95_ms": 1.1647000210359693
+    },
+    "selected_presentation": "Qt Quick/QML",
+    "status": "passed"
+  },
+  "input": {
+    "data": "datasets/fixtures/phase01/known-tone-ci8.sigmf-data",
+    "display_points": 512,
+    "metadata": "datasets/fixtures/phase01/known-tone-ci8.sigmf-meta",
+    "sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "source_frames": 4
+  },
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7",
+    "qpa_platform": "offscreen",
+    "qt": "6.10.2",
+    "qt_library_path": "C:/Users/emirhan55/AppData/Local/Programs/Python/Python313/Lib/site-packages/PySide6/lib",
+    "qt_quick_backend": "software"
+  },
+  "method": {
+    "independent_process_runs_per_toolkit": 5,
+    "measured_updates": 40,
+    "note": "Offscreen software rendering characterizes presentation overhead; it is not a GPU or target-hardware claim.",
+    "render_size": [
+      1280,
+      720
+    ],
+    "target_update_period_ms": 100.0,
+    "warmup_updates": 5
+  },
+  "package": "APP-E",
+  "qt_quick_qml": {
+    "runs": [
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 86.3515625,
+        "startup_ms": 242.83140001352876,
+        "update_max_ms": 1.8088000360876322,
+        "update_median_ms": 1.4582500443793833,
+        "update_p95_ms": 1.6125000547617674,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 86.16796875,
+        "startup_ms": 259.50649997685105,
+        "update_max_ms": 1.7346999375149608,
+        "update_median_ms": 1.369300065562129,
+        "update_p95_ms": 1.6768000787124038,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 86.11328125,
+        "startup_ms": 253.16290010232478,
+        "update_max_ms": 1.6931000864133239,
+        "update_median_ms": 1.4213499380275607,
+        "update_p95_ms": 1.6033999854698777,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 86.046875,
+        "startup_ms": 244.00259996764362,
+        "update_max_ms": 1.7803999362513423,
+        "update_median_ms": 1.3985999976284802,
+        "update_p95_ms": 1.6465999651700258,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 86.15234375,
+        "startup_ms": 244.28930005524307,
+        "update_max_ms": 1.6811999958008528,
+        "update_median_ms": 1.3855000142939389,
+        "update_p95_ms": 1.5315000200644135,
+        "updates": 40
+      }
+    ]
+  },
+  "qt_widgets": {
+    "runs": [
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 67.1328125,
+        "startup_ms": 34.29899993352592,
+        "update_max_ms": 1.0763000464066863,
+        "update_median_ms": 0.9342500125057995,
+        "update_p95_ms": 1.0313000530004501,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 67.23046875,
+        "startup_ms": 35.922099952585995,
+        "update_max_ms": 1.2271000305190682,
+        "update_median_ms": 0.9454499813728034,
+        "update_p95_ms": 1.1647000210359693,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 67.57421875,
+        "startup_ms": 35.52190004847944,
+        "update_max_ms": 1.0379001032561064,
+        "update_median_ms": 0.9321499965153635,
+        "update_p95_ms": 1.0224999859929085,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 67.359375,
+        "startup_ms": 41.85929999221116,
+        "update_max_ms": 1.5786000294610858,
+        "update_median_ms": 1.3428999809548259,
+        "update_p95_ms": 1.475999946705997,
+        "updates": 40
+      },
+      {
+        "image_height": 720,
+        "image_width": 1280,
+        "rss_mib": 67.57421875,
+        "startup_ms": 56.750699994154274,
+        "update_max_ms": 2.154699992388487,
+        "update_median_ms": 1.6145999543368816,
+        "update_p95_ms": 1.8480999860912561,
+        "updates": 40
+      }
+    ]
+  },
+  "schema_version": 1,
+  "scope": "presentation_technology_comparison",
+  "screenshots": {
+    "qt_quick_qml": {
+      "file": "qt-quick-prototype.png",
+      "sha256": "a1b0f41ef375a77bdda3780c91465b0f9767555b862589db2a5fa8f493cb7a04"
+    },
+    "qt_widgets": {
+      "file": "qt-widgets-prototype.png",
+      "sha256": "c3bde1b440f5978f9716f6b42ef86eaec67dd978962fff15b5351c6f79be0866"
+    }
+  }
+}

@@ -70,6 +70,14 @@ kullanıcı açıkça onay vermeden sonraki paket başlatılmaz.
   tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri setine aittir.
   Katman yönü, ürün paketi, repository sözleşmesi, RTL simülasyonları, C11 PS
   eşdeğerliği ve tarihsel kanıt güncelliği birlikte geçmiştir.
+- APP-E 2026-08-23 tarihinde kullanıcı onayıyla tamamlandı. Ürün ve doğrulama
+  arayüzündeki mühendislik içi/göstermelik ifadeler temizlendi; RF/GNSS/DF terim
+  sözlüğü ile altı operatör görev akışı donduruldu. Çalışmayan `LIVE GNSS`
+  seçeneği kaldırıldı ve scroll viewport kontrast kusuru giderildi.
+- Aynı hash-kilitli SigMF verisiyle beşer bağımsız koşuda Qt Widgets ve Qt
+  Quick/QML ölçüldü. QML 10 Hz güncelleme kapısını geçtiği için APP-F sunum
+  katmanı olarak seçildi; Python/PySide6 backend korunacak, tam C++ yeniden yazımı
+  yapılmayacaktır. APP-F ayrı kullanıcı onayı olmadan başlatılmaz.
 
 Kullanıcının ürünleşme açıklamasıyla video/demo dönemi kapanmış, hedef yayın adayı
 profesyonel sistem olarak kesinleştirilmiştir.

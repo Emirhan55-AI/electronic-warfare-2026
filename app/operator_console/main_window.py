@@ -1,6 +1,4 @@
-"""Main window for the permanent spectrum, detection, and parameter console.
-Refactored for low visual noise, clean copy, operator-focused language, and calm layout.
-"""
+"""Operator application main window."""
 
 from __future__ import annotations
 
@@ -68,6 +66,13 @@ from .ui_text import TEXT
 LOGGER = logging.getLogger(__name__)
 
 
+def _source_display_name(value: str) -> str:
+    return {
+        "REPLAY": "KAYIT OYNATMA",
+        "HOST/SYNTHETIC": "YAZILIM REFERANS VERİSİ",
+    }.get(value, value)
+
+
 def _load_laboratory_dependencies() -> None:
     """Load validation-only models only for the explicit laboratory entry point."""
 
@@ -96,7 +101,7 @@ def _load_laboratory_dependencies() -> None:
 
 
 class MainWindow(QMainWindow):
-    """Calm, human-oriented operator console for RF spectrum, detection, and electronic warfare."""
+    """RF spectrum, detection, parameter and direction-finding console."""
 
     df_power_measure_requested = Signal()
 
@@ -130,7 +135,7 @@ class MainWindow(QMainWindow):
         self.source_value.setObjectName("sourceValue")
         self.source_value.setWordWrap(True)
         self.source_value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self._replay_source_badge = "REPLAY"
+        self._replay_source_badge = "KAYIT OYNATMA"
 
         title = QLabel(TEXT["application_title"])
         title.setObjectName("applicationTitle")
@@ -191,7 +196,7 @@ class MainWindow(QMainWindow):
 
         # 3: Yön
         self.direction_workspace = self._build_direction_workspace()
-        self.workspace_tabs.addTab(self.direction_workspace, "Yön")
+        self.workspace_tabs.addTab(self.direction_workspace, "Yön Bulma")
 
         # 4: Sistem
         self.system_workspace = self._build_system_workspace()
@@ -258,7 +263,7 @@ class MainWindow(QMainWindow):
             ("Sinyal Tespiti", 0),
             ("Parametreler", 1),
             ("Dinleme", 2),
-            ("Yön", 3),
+            ("Yön Bulma", 3),
             ("Konum", 4),
             ("Sistem", 5),
         ]
@@ -935,7 +940,7 @@ class MainWindow(QMainWindow):
         """Direction and Map views unified."""
         views = QTabWidget()
         views.setObjectName("directionViews")
-        views.addTab(self._build_df_workspace(), "Ölçüm")
+        views.addTab(self._build_df_workspace(), "Kerteriz")
         views.addTab(self._build_map_direction_workspace(), "Harita")
         views.currentChanged.connect(self._direction_view_changed)
         return views
@@ -961,7 +966,7 @@ class MainWindow(QMainWindow):
     def _build_df_workspace(self) -> QWidget:
         self.df_model = ManualAmplitudeDF()
         self.current_df_estimate: DFEstimate | None = None
-        self.current_df_source = "REPLAY"
+        self.current_df_source = "KAYIT OYNATMA"
         workspace = QWidget()
         layout = QHBoxLayout(workspace)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -970,8 +975,8 @@ class MainWindow(QMainWindow):
         self.df_angle_spin.setRange(0.0, 359.9)
         self.df_angle_spin.setSuffix("°")
         self.df_zero_reference_combo = QComboBox()
-        self.df_zero_reference_combo.addItem("KUZEY / 0° COĞRAFİ", AntennaReference.NORTH)
-        self.df_zero_reference_combo.addItem("MANUEL COĞRAFİ BAŞ", AntennaReference.MANUAL_GEOGRAPHIC)
+        self.df_zero_reference_combo.addItem("GERÇEK KUZEY / 0°", AntennaReference.NORTH)
+        self.df_zero_reference_combo.addItem("ANTEN REFERANS YÖNÜ", AntennaReference.MANUAL_GEOGRAPHIC)
         self.df_zero_reference_combo.addItem("REFERANS YOK", AntennaReference.UNAVAILABLE)
         self.df_zero_reference_combo.setCurrentIndex(2)
         self.df_manual_reference_spin = QDoubleSpinBox()
@@ -1004,7 +1009,7 @@ class MainWindow(QMainWindow):
         self.df_mode_combo = QComboBox()
         self.df_mode_combo.addItem("SAHA", "field")
         if self.laboratory_mode:
-            self.df_mode_combo.addItem("EĞİTİM", "training")
+            self.df_mode_combo.addItem("DOĞRULAMA", "training")
         mode_row = QHBoxLayout()
         self.df_mode_caption = QLabel("Mod")
         self.df_mode_caption.setProperty("class", "propCaption")
@@ -1015,8 +1020,8 @@ class MainWindow(QMainWindow):
         for row, (c_text, w) in enumerate((
             ("Frekans", self.df_frequency_spin),
             ("0° Referansı", self.df_zero_reference_combo),
-            ("Manuel Baş", self.df_manual_reference_spin),
-            ("Anten Açısı", self.df_angle_spin),
+            ("Anten Referans Yönü", self.df_manual_reference_spin),
+            ("Anten Dönüş Açısı", self.df_angle_spin),
         )):
             l = QLabel(c_text)
             l.setProperty("class", "propCaption")
@@ -1026,7 +1031,7 @@ class MainWindow(QMainWindow):
         panel_layout.addLayout(grid)
         self.df_power_measure_button = QPushButton("GÜÇ ÖLÇ")
         self.df_power_measure_button.setObjectName("primaryButton")
-        self.df_import_button = QPushButton("GERÇEK AÇI–GÜÇ KAYDINI YÜKLE")
+        self.df_import_button = QPushButton("ANTEN AÇISI–GÜÇ KAYDINI YÜKLE")
         self.df_zero_recording_path: Path | None = None
         self.df_ninety_recording_path: Path | None = None
         self.df_pair_result: TwoPointDFResult | None = None
@@ -1034,7 +1039,7 @@ class MainWindow(QMainWindow):
         self.df_add_button = QPushButton("Manuel Gücü Kaydet")
         self.df_clear_button = QPushButton("DF Ölçümlerini Temizle")
         if self.laboratory_mode:
-            self.df_training_button = QPushButton("HOST/SYNTHETIC Eğitim Verisini Yükle")
+            self.df_training_button = QPushButton("Yazılım Referans Verisini Yükle")
             direction_caption = QLabel("İKİ NOKTALI KAYIT İNCELEMESİ")
             direction_caption.setObjectName("selectedSignalTitle")
             direction_caption.setWordWrap(True)
@@ -1055,7 +1060,7 @@ class MainWindow(QMainWindow):
             panel_layout.addWidget(self.df_pair_status)
             panel_layout.addWidget(self.df_pair_values)
         else:
-            real_data_notice = QLabel("Yön analizi için gerçek açı–güç raporu veya saha ölçümü gereklidir.")
+            real_data_notice = QLabel("Kerteriz kestirimi için anten açısı–alınan güç kaydı veya saha ölçümü gereklidir.")
             real_data_notice.setProperty("class", "propCaption")
             real_data_notice.setWordWrap(True)
             panel_layout.addWidget(real_data_notice)
@@ -1071,8 +1076,8 @@ class MainWindow(QMainWindow):
         self.df_result_values: dict[str, QLabel] = {}
         result_grid = QGridLayout()
         for row, (key, caption) in enumerate((
-            ("relative", "Tahmini Bağıl Yön"),
-            ("azimuth", "Coğrafi Azimut"),
+            ("relative", "Bağıl Geliş Açısı"),
+            ("azimuth", "Gerçek Kerteriz"),
             ("power", "Tepe Güç"),
             ("confidence", "Güven"),
             ("source", "Kaynak"),
@@ -1125,7 +1130,7 @@ class MainWindow(QMainWindow):
         self.df_history_toggle.setCheckable(True)
         panel_layout.addWidget(self.df_history_toggle)
         self.df_points_list = QTableWidget(0, 4)
-        self.df_points_list.setHorizontalHeaderLabels(("Açı", "Coğ. azimut", "Güç", "Kaynak"))
+        self.df_points_list.setHorizontalHeaderLabels(("Anten açısı", "Gerçek kerteriz", "Güç", "Kaynak"))
         self.df_points_list.verticalHeader().setVisible(False)
         self.df_points_list.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.df_points_list.horizontalHeader().setStretchLastSection(True)
@@ -1244,22 +1249,20 @@ class MainWindow(QMainWindow):
         self.map_heading_spin = QDoubleSpinBox()
         self.map_heading_spin.setRange(0.0, 360.0)
         self.map_heading_spin.setSuffix("°")
-        self.map_heading_reference_check = QCheckBox("Manuel baş referansı geçerli")
+        self.map_heading_reference_check = QCheckBox("Anten referans yönü geçerli")
         self.map_source_combo = QComboBox()
-        self.map_source_combo.addItem("AUTO / BİLGİSAYAR", PositionSource.AUTO_PC)
+        self.map_source_combo.addItem("BİLGİSAYAR KONUMU", PositionSource.AUTO_PC)
         self.map_source_combo.addItem("MANUEL", "MANUEL")
         if self.laboratory_mode:
-            self.map_source_combo.addItem("HOST/SYNTHETIC", "HOST/SYNTHETIC")
-        self.map_source_combo.addItem("REPLAY", "REPLAY")
-        self.map_source_combo.addItem("LIVE GNSS (rezerve — bağlı değil)", PositionSource.LIVE_GNSS_RESERVED)
-        self.map_source_combo.model().item(self.map_source_combo.count() - 1).setFlags(Qt.ItemFlag.NoItemFlags)
+            self.map_source_combo.addItem("YAZILIM REFERANS VERİSİ", "HOST/SYNTHETIC")
+        self.map_source_combo.addItem("KAYIT OYNATMA", "REPLAY")
         self.map_source_combo.setCurrentIndex(self.map_source_combo.findData("MANUEL"))
         sensor_fields = (
             ("Sensör", self.map_sensor_name),
             ("Enlem", self.map_latitude_spin),
             ("Boylam", self.map_longitude_spin),
             ("Yükseklik", self.map_altitude_spin),
-            ("Manuel Baş", self.map_heading_spin),
+            ("Anten Referans Yönü", self.map_heading_spin),
             ("Kaynak", self.map_source_combo),
         )
         for row, (caption, widget) in enumerate(sensor_fields):
@@ -1300,7 +1303,7 @@ class MainWindow(QMainWindow):
         for row, (key, caption) in enumerate((
             ("frequency", "Frekans"),
             ("relative_angle", "Bağıl Açı"),
-            ("azimuth", "Coğrafi Azimut"),
+            ("azimuth", "Gerçek Kerteriz"),
             ("confidence", "Güven"),
             ("power", "Güç"),
             ("time", "Zaman"),
@@ -1318,22 +1321,22 @@ class MainWindow(QMainWindow):
             self.map_result_values[key] = value
         result_grid.setColumnStretch(1, 1)
         panel_layout.addLayout(result_grid)
-        self.map_live_note = QLabel("LIVE GNSS: rezerve — bağlı değil.")
+        self.map_live_note = QLabel("GNSS alıcısı bağlı değil.")
         self.map_live_note.setProperty("class", "propCaption")
         self.map_live_note.setWordWrap(True)
         panel_layout.addWidget(self.map_live_note)
 
         self.map_show_sensor_button = QPushButton("Sensörü Haritada Göster")
         self.map_show_df_button = QPushButton("Mevcut DF Sonucunu Göster")
-        self.map_clear_lob_button = QPushButton("Yön Çizgisini Temizle")
+        self.map_clear_lob_button = QPushButton("Kerteriz Hattını Temizle")
         panel_layout.addWidget(self.map_show_sensor_button)
         panel_layout.addWidget(self.map_show_df_button)
         panel_layout.addWidget(self.map_clear_lob_button)
         if self.laboratory_mode:
             self.map_training_scenario_combo = QComboBox()
-            self.map_training_scenario_combo.addItem("Senaryo A: Baş 0° + bağıl 75° = 75°", (0.0, 75.0))
-            self.map_training_scenario_combo.addItem("Senaryo B: Baş 300° + bağıl 75° = 15°", (300.0, 15.0))
-            self.map_training_button = QPushButton("Eğitim Senaryosu Yükle")
+            self.map_training_scenario_combo.addItem("Doğrulama A: referans 0° + bağıl 75° = 75°", (0.0, 75.0))
+            self.map_training_scenario_combo.addItem("Doğrulama B: referans 300° + bağıl 75° = 15°", (300.0, 15.0))
+            self.map_training_button = QPushButton("Doğrulama Verisini Yükle")
             panel_layout.addWidget(self.map_training_scenario_combo)
             panel_layout.addWidget(self.map_training_button)
         panel_layout.addStretch(1)
@@ -1408,7 +1411,7 @@ class MainWindow(QMainWindow):
         manual_grid.addWidget(self.map_manual_apply_button, 2, 0, 1, 2)
         self.map_manual_fields.hide()
         compact_layout.addWidget(self.map_manual_fields)
-        note_lbl = QLabel("Yön çizgisi doğrultuyu gösterir.")
+        note_lbl = QLabel("Kerteriz hattı (LOB) doğrultuyu gösterir; hedef konumu değildir.")
         note_lbl.setProperty("class", "propCaption")
         note_lbl.setWordWrap(True)
         compact_layout.addWidget(note_lbl)
@@ -2428,7 +2431,7 @@ class MainWindow(QMainWindow):
             self.status_state_label.setText("Durum: " + (TEXT["ready"] if source_available else TEXT["empty"]))
 
     def set_replay_source_badge(self, badge: str) -> None:
-        self._replay_source_badge = badge.strip() or "REPLAY"
+        self._replay_source_badge = badge.strip() or "KAYIT OYNATMA"
         if self.metadata_values["center_frequency"].text() != "—":
             self._refresh_source_summary()
 
@@ -2453,7 +2456,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, "status_state_label"):
             self.status_state_label.setText("Durum: " + TEXT["ready"])
         self.system_status_values["source"].setText(
-            "HACKRF KAYDI / REPLAY · Aktif" if self._replay_source_badge == "HACKRF KAYDI / REPLAY" else "SigMF / Replay · Aktif"
+            "HACKRF KAYDI · Aktif" if self._replay_source_badge == "HACKRF KAYDI" else "SigMF kaydı · Aktif"
         )
         self.system_status_values["center"].setText(self._frequency(report.center_frequency))
         self.system_status_values["sampling"].setText(self._sample_rate(report.sample_rate))
@@ -2824,7 +2827,8 @@ class MainWindow(QMainWindow):
         self.parameter_values["p0_domain"].setText(result.signal_domain)
         self.parameter_values["p0_region"].setText(f"{result.candidate.start_bin}–{result.candidate.end_bin}")
         self.parameter_values["p0_backend"].setText(result.backend)
-        self.parameter_values["p0_source"].setText(result.provenance)
+        source_name = _source_display_name(result.provenance)
+        self.parameter_values["p0_source"].setText(source_name)
         self.parameter_values["emission_center"].setText(self._frequency(result.carrier_frequency_hz))
         self.parameter_values["carrier_line"].setText(TEXT["carrier_line_not_separate"])
         self.parameter_values["lower_edge"].setText(self._frequency(result.lower_frequency_hz))
@@ -2851,19 +2855,20 @@ class MainWindow(QMainWindow):
             self.card_details_text.setText(
                 f"Frekans: {result.lower_frequency_hz/1e6:.3f} - {result.upper_frequency_hz/1e6:.3f} MHz\n"
                 f"Yöntem: {method_text}\n"
-                f"Kaynak: {result.provenance}"
+                f"Kaynak: {source_name}"
             )
 
     def set_p0_detection_summary(self, result: P0ParameterResult) -> None:
         self.detection_list.clear()
-        state = "Hazır" if result.confirmed else "İzleniyor"
+        state = "Doğrulandı" if result.confirmed else "İzleniyor"
+        source_name = _source_display_name(result.provenance)
         freq_str = f"{result.carrier_frequency_hz / 1_000_000.0:.3f} MHz"
         snr_str = f"+{result.snr_db:.1f} dB"
         item = QListWidgetItem(f"{freq_str}    {snr_str}    {state}")
         item.setToolTip(
             f"Frekans: {result.carrier_frequency_hz/1e6:.3f} MHz\n"
             f"Bant: {result.bandwidth_hz/1000.0:.2f} kHz\n"
-            f"Kaynak: {result.provenance}"
+            f"Kaynak: {source_name}"
         )
         self.detection_list.addItem(item)
         self.detection_state.setText(f"1 {state.casefold()}")
@@ -2955,7 +2960,7 @@ class MainWindow(QMainWindow):
 
     def _df_source_summary(self) -> str:
         sources = sorted({item.source for item in self.df_model.measurements})
-        return sources[0] if len(sources) == 1 else "Karma"
+        return _source_display_name(sources[0]) if len(sources) == 1 else "Karma"
 
     def _df_mode_changed(self) -> None:
         training = self.df_mode_combo.currentData() == "training"
@@ -3166,7 +3171,10 @@ class MainWindow(QMainWindow):
             f"{measurement.angle_deg:.1f}°",
             geographic,
             f"{measurement.relative_power_db:.2f} dBFS",
-            measurement.source,
+            {
+                "HOST/SYNTHETIC": "YAZILIM REFERANS VERİSİ",
+                "REPLAY": "KAYIT OYNATMA",
+            }.get(measurement.source, measurement.source),
         )):
             self.df_points_list.setItem(row, column, QTableWidgetItem(value))
 
@@ -3196,15 +3204,15 @@ class MainWindow(QMainWindow):
             )
         estimate = self.df_model.estimate()
         self.current_df_estimate = estimate
-        self.current_df_source = "HOST/SYNTHETIC"
+        self.current_df_source = "YAZILIM REFERANS VERİSİ"
         error = ManualAmplitudeDF.angular_error_deg(estimate.estimated_angle_deg, scene.truth_bearing_deg)
-        self.df_result_label.setText(f"EĞİTİM / ALGORİTMA TESTİ · hata {error:.1f}° · {estimate.status}")
+        self.df_result_label.setText(f"YAZILIM REFERANS VERİSİ · hata {error:.1f}° · {estimate.status}")
         self._update_df_plot_and_summary()
 
     def _clear_df_measurements(self) -> None:
         self.df_model.clear()
         self.current_df_estimate = None
-        self.current_df_source = "REPLAY"
+        self.current_df_source = "KAYIT OYNATMA"
         self.df_points_list.setRowCount(0)
         self.df_result_label.setText("Ölçüm bekleniyor")
         self._update_df_plot_and_summary()
@@ -3393,7 +3401,7 @@ class MainWindow(QMainWindow):
 
     def _clear_map_lob(self) -> None:
         self.direction_map_view.clear_lob()
-        self.map_status_label.setText("Yön çizgisi temizlendi.")
+        self.map_status_label.setText("Kerteriz hattı temizlendi.")
         self.map_result_values["azimuth"].setText("—")
         self.map_compact_bearing.setText("—")
 
@@ -3409,7 +3417,7 @@ class MainWindow(QMainWindow):
         self._load_df_training_fixture()
         self._show_current_df_on_map()
         self.map_status_label.setText(
-            f"Eğitim · HOST/SYNTHETIC TEST · {TEXT['synthetic_direction_notice']} · {float(expected_azimuth):.1f}° · "
+            f"Doğrulama · YAZILIM REFERANS VERİSİ · {TEXT['synthetic_direction_notice']} · {float(expected_azimuth):.1f}° · "
             + TEXT["direction_line_showing"]
         )
 

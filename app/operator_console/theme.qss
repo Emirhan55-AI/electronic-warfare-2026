@@ -407,7 +407,11 @@ QSplitter::handle:hover {
 
 QScrollArea {
     border: none;
-    background-color: transparent;
+    background-color: #0B1118;
+}
+
+QScrollArea > QWidget > QWidget {
+    background-color: #0B1118;
 }
 
 /* --------------------------------------------------------------------------

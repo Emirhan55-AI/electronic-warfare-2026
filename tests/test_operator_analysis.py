@@ -40,7 +40,7 @@ class OperatorAnalysisTests(unittest.TestCase):
             TEXT["operation_workspace"],
             TEXT["analysis_workspace"],
             TEXT["listening_workspace"],
-            "Yön",
+            "Yön Bulma",
             TEXT["system_status_workspace"],
         )
         self.assertEqual(window.workspace_tabs.count(), len(expected))
@@ -187,7 +187,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         self.assertEqual(canonical_count, window.detection_list.count())
         self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
         self.assertEqual(TEXT["not_validated"], window.parameter_values["emission_center"].text())
-        self.assertEqual("SigMF / Replay · Aktif", window.system_status_values["source"].text())
+        self.assertEqual("SigMF kaydı · Aktif", window.system_status_values["source"].text())
         self.assertIn("doğrulanmadı", window.system_status_values["fpga"].text())
 
         confirmed_rows = [
@@ -230,7 +230,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         drain()
         self.assertIn("tamamlandı", window.measurement_state.text())
         self.assertIn("Sonuçlar güncellendi", window.parameter_state.text())
-        self.assertEqual("REPLAY", window.parameter_values["p0_source"].text())
+        self.assertEqual("KAYIT OYNATMA", window.parameter_values["p0_source"].text())
         self.assertIn("dBFS/bin", window.parameter_values["p0_peak_power"].text())
         self.assertIn("KALİBRASYON BEKLİYOR", window.parameter_values["p0_power"].text())
         self.assertNotEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())

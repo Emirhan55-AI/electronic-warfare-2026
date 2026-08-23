@@ -258,23 +258,23 @@ def evaluate() -> tuple[dict[str, object], dict[str, bytes]]:
             and window.parameter_values["p0_domain"].text() == parameter_result.signal_domain
         ) else "FAIL",
     }
-    window.set_listening_result(am_result, audio_available=False, source_sample_rate_hz=192_000.0, carrier_frequency_hz=100_024_000.0, channel_bandwidth_hz=16_000.0, backend="REPLAY / HOST · NumPy PHASE-05")
+    window.set_listening_result(am_result, audio_available=False, source_sample_rate_hz=192_000.0, carrier_frequency_hz=100_024_000.0, channel_bandwidth_hz=16_000.0, backend="SİGMF KAYDI · NumPy PHASE-05")
     listening_am_ui = {
         "actual_mode": window.listening_values["mode"].text(),
         "actual_carrier": window.listening_values["carrier"].text(),
         "actual_iq_rate": window.listening_values["iq_rate"].text(),
         "actual_audio_rate": window.listening_values["audio_rate"].text(),
         "actual_backend": window.listening_values["backend"].text(),
-        "status": "PASS" if window.listening_values["mode"].text() == "AM" and "REPLAY / HOST" in window.listening_values["backend"].text() else "FAIL",
+        "status": "PASS" if window.listening_values["mode"].text() == "AM" and "SİGMF KAYDI" in window.listening_values["backend"].text() else "FAIL",
     }
-    window.set_listening_result(nfm_result, audio_available=False, source_sample_rate_hz=192_000.0, carrier_frequency_hz=99_976_000.0, channel_bandwidth_hz=16_000.0, backend="REPLAY / HOST · NumPy PHASE-05")
+    window.set_listening_result(nfm_result, audio_available=False, source_sample_rate_hz=192_000.0, carrier_frequency_hz=99_976_000.0, channel_bandwidth_hz=16_000.0, backend="SİGMF KAYDI · NumPy PHASE-05")
     listening_nfm_ui = {
         "actual_mode": window.listening_values["mode"].text(),
         "actual_carrier": window.listening_values["carrier"].text(),
         "actual_iq_rate": window.listening_values["iq_rate"].text(),
         "actual_audio_rate": window.listening_values["audio_rate"].text(),
         "actual_backend": window.listening_values["backend"].text(),
-        "status": "PASS" if window.listening_values["mode"].text() == "NFM" and "REPLAY / HOST" in window.listening_values["backend"].text() else "FAIL",
+        "status": "PASS" if window.listening_values["mode"].text() == "NFM" and "SİGMF KAYDI" in window.listening_values["backend"].text() else "FAIL",
     }
     window._load_df_training_fixture()
     # The compact DF panel intentionally keeps the hint separate from the
@@ -288,7 +288,7 @@ def evaluate() -> tuple[dict[str, object], dict[str, bytes]]:
         "status": "PASS" if (
             window.df_result_label.text().endswith("LOB HAZIR")
             and window.df_result_values["relative"].text() == "75°"
-            and window.df_result_values["source"].text() == "HOST/SYNTHETIC"
+            and window.df_result_values["source"].text() == "YAZILIM REFERANS VERİSİ"
             and window.df_curve.xData.size == 24
         ) else "FAIL",
     }
@@ -313,11 +313,11 @@ def evaluate() -> tuple[dict[str, object], dict[str, bytes]]:
             "detection": "INDEPENDENTLY VERIFIED",
             "parameter_extraction": "INDEPENDENTLY VERIFIED",
             "am_nfm_listening": "INDEPENDENTLY VERIFIED",
-            "synthetic_df": "INDEPENDENTLY VERIFIED",
+            "software_reference_df": "INDEPENDENTLY VERIFIED",
             "physical_df": "NOT EXECUTED",
         },
         "results": rows,
-        "claim_boundary": "Deterministik HOST/REPLAY doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir.",
+        "claim_boundary": "Deterministik yazılım referans doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir.",
     }
     return document, {
         "am-tone-ci8.wav": am_pcm,

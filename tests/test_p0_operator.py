@@ -34,10 +34,10 @@ class P0OperatorTests(unittest.TestCase):
         for required in ("Arama", "Parametre", "Dinleme", "Yön", "Sistem", "ET"):
             self.assertIn(required, combined)
         self.assertEqual("deterministic_test", self.window.source_kind)
-        self.assertIn("ALGORİTMA TESTİ", self.window.source_value.text())
-        self.assertIn("ANALOG DİNLEME TEST VERİSİ", self.window.listening_source_value.text())
-        self.assertEqual("REPLAY", self.window.parameter_values["p0_source"].text())
-        self.assertIn("REPLAY", self.window.parameter_values["p0_backend"].text())
+        self.assertIn("DOĞRULAMA VERİSİ", self.window.source_value.text())
+        self.assertIn("ANALOG DİNLEME DOĞRULAMASI", self.window.listening_source_value.text())
+        self.assertEqual("KAYIT OYNATMA", self.window.parameter_values["p0_source"].text())
+        self.assertIn("SİGMF KAYDI", self.window.parameter_values["p0_backend"].text())
         self.assertIn("KALİBRASYON BEKLİYOR", self.window.parameter_values["p0_power"].text())
         self.assertNotIn("FPGA RESULT", self.window.parameter_values["p0_source"].text())
         self.assertIn("RTL / VIVADO DOĞRULAMA", self.window.system_status_values["fpga"].text())
@@ -57,9 +57,9 @@ class P0OperatorTests(unittest.TestCase):
         self.window.df_training_button.click()
         self.app.processEvents()
         self.assertEqual(24, self.window.df_curve.xData.size)
-        self.assertIn("EĞİTİM / ALGORİTMA TESTİ", self.window.df_result_label.text())
+        self.assertIn("YAZILIM REFERANS VERİSİ", self.window.df_result_label.text())
         self.assertEqual("75°", self.window.df_result_values["relative"].text())
-        self.assertEqual("HOST/SYNTHETIC", self.window.df_result_values["source"].text())
+        self.assertEqual("YAZILIM REFERANS VERİSİ", self.window.df_result_values["source"].text())
 
     def test_three_judge_modes_execute_real_replay_backend_and_validate_input(self) -> None:
         self.assertEqual(self.window.search_mode_combo.count(), 3)

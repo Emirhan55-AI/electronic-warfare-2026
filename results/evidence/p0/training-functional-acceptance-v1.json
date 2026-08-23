@@ -6,7 +6,7 @@
     "detection": "INDEPENDENTLY VERIFIED",
     "parameter_extraction": "INDEPENDENTLY VERIFIED",
     "am_nfm_listening": "INDEPENDENTLY VERIFIED",
-    "synthetic_df": "INDEPENDENTLY VERIFIED",
+    "software_reference_df": "INDEPENDENTLY VERIFIED",
     "physical_df": "NOT EXECUTED"
   },
   "results": {
@@ -224,7 +224,7 @@
         "actual_carrier": "100,024 MHz",
         "actual_iq_rate": "0,192 MS/s",
         "actual_audio_rate": "48,0 kHz mono PCM16",
-        "actual_backend": "REPLAY / HOST · NumPy PHASE-05",
+        "actual_backend": "SİGMF KAYDI · NumPy PHASE-05",
         "status": "PASS"
       },
       "listening_nfm": {
@@ -232,17 +232,17 @@
         "actual_carrier": "99,976 MHz",
         "actual_iq_rate": "0,192 MS/s",
         "actual_audio_rate": "48,0 kHz mono PCM16",
-        "actual_backend": "REPLAY / HOST · NumPy PHASE-05",
+        "actual_backend": "SİGMF KAYDI · NumPy PHASE-05",
         "status": "PASS"
       },
       "df": {
-        "actual_result": "EĞİTİM / ALGORİTMA TESTİ · hata 0.0° · LOB HAZIR",
+        "actual_result": "YAZILIM REFERANS VERİSİ · hata 0.0° · LOB HAZIR",
         "actual_relative_bearing": "75°",
-        "actual_source": "HOST/SYNTHETIC",
+        "actual_source": "YAZILIM REFERANS VERİSİ",
         "plot_points": 24,
         "status": "PASS"
       }
     }
   },
-  "claim_boundary": "Deterministik HOST/REPLAY doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir."
+  "claim_boundary": "Deterministik yazılım referans doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir."
 }

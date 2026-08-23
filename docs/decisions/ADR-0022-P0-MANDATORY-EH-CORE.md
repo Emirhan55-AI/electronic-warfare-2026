@@ -61,5 +61,5 @@ gösterilmez ve arayüzde `KALİBRASYON BEKLİYOR` yazılır.
 ## Ertelenen kapsam
 
 P0; konum, MUSIC/faz DF, TDOA, motorlu DF, dijital radyo çözme/tanıma, yayılım
-tekniği sınıflandırma, AI/ML, GNSS, look-through, sweep karıştırma ve açık alan RF
+tekniği sınıflandırma, otomatik sınıflandırma, GNSS, look-through, sweep karıştırma ve açık alan RF
 TX içermez.

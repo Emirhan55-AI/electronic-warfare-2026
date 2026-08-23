@@ -46,7 +46,7 @@ class P0MapDirectionTests(unittest.TestCase):
         self.assertEqual(75.0, presentation.relative_antenna_angle_deg)
         self.assertEqual(75.0, presentation.geographic_azimuth_deg)
         self.assertTrue(presentation.has_geographic_lob)
-        self.assertEqual("Coğrafi yön hesaplandı", presentation.geographic_status)
+        self.assertEqual("Gerçek kuzeye göre kerteriz hesaplandı", presentation.geographic_status)
 
         wrapped_sensor = SensorPosition("Test sensörü", 39.9334, 32.8597, None, 300.0, "HOST/SYNTHETIC")
         wrapped = build_direction_presentation(
@@ -69,7 +69,7 @@ class P0MapDirectionTests(unittest.TestCase):
         )
         self.assertIsNone(presentation.geographic_azimuth_deg)
         self.assertFalse(presentation.has_geographic_lob)
-        self.assertEqual("Bağıl yön — coğrafi azimut referansı yok", presentation.geographic_status)
+        self.assertEqual("Bağıl geliş açısı — kuzey referansı yok", presentation.geographic_status)
 
     def test_invalid_coordinates_are_rejected(self) -> None:
         with self.assertRaises(ValueError):
