@@ -1,6 +1,6 @@
-"""Module entry point for the operator console."""
+"""Release module entry point for the operator console."""
 
-from .application import main
+from .quick_application import main
 
 
 if __name__ == "__main__":

@@ -22,6 +22,12 @@ Kanonik Vivado 2025.2 tasarımı Zynq PS, AXI DMA, DDR HP yolu, MM2S→Hann→40
 
 PHASE-00 repository temelini kurmuştur; PHASE-01–06J tarihsel kanıtları korunur. PHASE-04 R1/R2/D1/E1 başarısızlık kanıtları ve `phase04e1` profilinin yokluğu değiştirilmemiştir; P0 ayrı, açık sözleşmeli zorunlu çekirdektir. PHASE-05 kayıtlı AM/NFM dinleme sonucu korunur. PetaLinux hazır değildir, ARM ve ZedBoard DMA çalıştırılmamıştır. P0 Block B0'da Computer-1 host toolchain'i HackRF/libhackrf `2026.01.2` ile hazırlandı; seri-temelli RX-only argv, bounded queue, üç tuning planı ve disconnected UI unit-test edildi. Fiziksel cihaz bağlı değildir, seri/UNKNOWN aralığı atanmamıştır; canlı I/Q veya Block B PASS değildir. Gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın yapılmamış, gerçek TX backend'i eklenmemiş, dBm veya RF etki iddiası üretilmemiştir.
 
+Yayın operatör giriş noktası Qt Quick/QML'dir. SigMF sözleşmesi, spektrum,
+OS-CFAR/temporal tespit, açık eylemli P0 parametre ölçümü ve manuel açı–gerçek I/Q
+güç kaydı aynı ürün bileşiminde çalışır. HackRF yolu yalnız gerçek araç ve cihaz
+durumunu kullanır; bağlı cihaz olmadan canlı sonuç göstermez. QWidget bileşimi
+tarihsel regresyon yüzeyi olarak korunur ve ürün başlangıcında yüklenmez.
+
 Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli**.
 
 ## Dizinler
@@ -83,6 +89,7 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `results/evidence/phase06j/`: Portable C11 host build/link, strict ABI decoder, Python↔C temporal semantic eşdeğerliği, bounded bellek/karmaşıklık ve dürüst blocked PetaLinux/ARM/hardware sınırı.
 - `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
 - `results/evidence/p0/`: ED/DF/ET golden sonuçları, başarısız 100 MHz denemesi ve geçen 50 MHz Vivado/bitstream kanıtı.
+- `results/evidence/app-f/`: QML ürün ekranı, gerçek SigMF çalışma koşuları, gerçek HackRF probe durumu, ölçekleme ve performans kapıları.
 
 ## Doğrulama
 
@@ -117,5 +124,6 @@ python -B scripts/verify_p0_df.py
 python -B scripts/verify_p0_et.py
 python -B scripts/verify_p0_os_cfar.py
 python -B scripts/verify_ui_performance.py --check
+python -B scripts/verify_app_f_release_ui.py
 python -B -m unittest discover -s tests -v
 ```

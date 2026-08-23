@@ -2,6 +2,8 @@
   "schema_version": 1,
   "entry_point": "app.operator_console.__main__",
   "application_mode": "product",
+  "presentation": "qt_quick_qml",
+  "presentation_entry": "app/operator_console/qml/Main.qml",
   "allowed_source_roots": [
     "app/operator_console",
     "platforms/acquisition",

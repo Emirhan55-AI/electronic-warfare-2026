@@ -19,6 +19,8 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         document = json.loads(MANIFEST.read_text(encoding="utf-8"))
         self.assertEqual("app.operator_console.__main__", document["entry_point"])
         self.assertEqual("product", document["application_mode"])
+        self.assertEqual("qt_quick_qml", document["presentation"])
+        self.assertEqual("app/operator_console/qml/Main.qml", document["presentation_entry"])
         self.assertEqual(
             {
                 "mock_backend": False,
@@ -52,25 +54,24 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         ):
             self.assertIn(f"--nofollow-import-to={module}", spec)
 
-    def test_product_runtime_has_only_real_source_modes_and_loads_no_lab_modules(self) -> None:
+    def test_product_runtime_uses_qml_and_loads_no_legacy_or_lab_modules(self) -> None:
         code = r'''
 import json
 import os
 import sys
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-from app.operator_console.application import build_application
-app, window, controller = build_application(["product-boundary-test"])
+os.environ.setdefault("QT_QUICK_BACKEND", "software")
+from app.operator_console.quick_application import build_quick_application
+app, engine, view_model = build_quick_application(["product-boundary-test"])
+root = engine.rootObjects()[0]
 payload = {
-    "sources": [window.source_type_combo.itemData(i) for i in range(window.source_type_combo.count())],
-    "tabs": [window.workspace_tabs.tabText(i) for i in range(window.workspace_tabs.count())],
-    "map_sources": [window.map_source_combo.itemData(i) for i in range(window.map_source_combo.count())],
-    "laboratory_mode": window.laboratory_mode,
-    "has_training_control": hasattr(window, "df_training_button") or hasattr(window, "map_training_button"),
-    "has_et_workspace": hasattr(window, "et_workspace"),
-    "lab_modules": sorted(name for name in sys.modules if name == "algorithms.et" or name.startswith("algorithms.et.") or name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures"}),
+    "source_mode": view_model.sourceMode,
+    "workspace": root.property("workspace"),
+    "root_type": root.metaObject().className(),
+    "forbidden_modules": sorted(name for name in sys.modules if name == "algorithms.et" or name.startswith("algorithms.et.") or name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures", "app.operator_console.main_window", "app.operator_console.controller"}),
 }
-controller.close()
-window.close()
+view_model.shutdown()
+root.close()
 print(json.dumps(payload, ensure_ascii=False))
 '''
         environment = os.environ.copy()
@@ -87,19 +88,17 @@ print(json.dumps(payload, ensure_ascii=False))
         )
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         payload = json.loads(process.stdout.strip().splitlines()[-1])
-        self.assertEqual(["sigmf", "hackrf"], payload["sources"])
-        self.assertFalse(payload["laboratory_mode"])
-        self.assertFalse(payload["has_training_control"])
-        self.assertFalse(payload["has_et_workspace"])
-        self.assertNotIn("HOST/SYNTHETIC", payload["map_sources"])
-        self.assertEqual([], payload["lab_modules"])
-        self.assertFalse(any("ET" in tab or "Taarruz" in tab for tab in payload["tabs"]))
+        self.assertEqual("sigmf", payload["source_mode"])
+        self.assertEqual(0, payload["workspace"])
+        self.assertIn("QMLTYPE", payload["root_type"])
+        self.assertEqual([], payload["forbidden_modules"])
 
     def test_product_sources_have_no_hardcoded_demo_recording_path(self) -> None:
         for relative in (
-            "app/operator_console/application.py",
-            "app/operator_console/controller.py",
-            "app/operator_console/main_window.py",
+            "app/operator_console/__main__.py",
+            "app/operator_console/quick_application.py",
+            "app/operator_console/quick_view_model.py",
+            "app/operator_console/qml/Main.qml",
         ):
             text = (ROOT / relative).read_text(encoding="utf-8")
             self.assertNotIn("video_data/", text, relative)

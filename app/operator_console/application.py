@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
-import logging
 import os
 import statistics
-import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -164,15 +161,11 @@ def run_playback_benchmark(
 
 
 def main(argv: list[str] | None = None) -> int:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
-    parser = argparse.ArgumentParser(description="Türkçe SigMF spektrum inceleme uygulaması")
-    parser.add_argument("--smoke-test", action="store_true", help="pencereyi kısa süre açıp kapat")
-    args = parser.parse_args(argv)
-    app, window, _ = build_application([sys.argv[0]])
-    window.show()
-    if args.smoke_test:
-        QTimer.singleShot(200, app.quit)
-    return app.exec()
+    """Launch the release Qt Quick composition.
+
+    ``build_application`` remains available for the historical QWidget
+    verification surface; the product module entry point uses QML.
+    """
+    from .quick_application import main as quick_main
+
+    return quick_main(argv)

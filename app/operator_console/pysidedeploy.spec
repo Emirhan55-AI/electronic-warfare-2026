@@ -9,9 +9,9 @@ python_path =
 packages = nuitka==4.0,ordered_set,zstandard
 
 [qt]
-qml_files =
-excluded_qml_plugins = QtQuick,QtQuick3D,QtCharts,QtWebEngine,QtTest,QtSensors
-modules = Core,Gui,Widgets
+qml_files = qml/Main.qml
+excluded_qml_plugins = QtQuick3D,QtCharts,QtWebEngine,QtTest,QtSensors
+modules = Core,Gui,Qml,Quick,QuickControls2,Widgets
 plugins = platforms,imageformats,styles
 
 [nuitka]
