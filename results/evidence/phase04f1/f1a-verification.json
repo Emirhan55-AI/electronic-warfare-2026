@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F1A",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "historical-evidence-relocation-binding",
+      "status": "passed",
+      "artifacts": ["phase04-r1", "phase04-r2", "phase04-e1"]
+    },
+    {
+      "id": "phase04-r2-evidence-integrity",
+      "status": "passed",
+      "algorithm_status": "failed"
+    },
+    {
+      "id": "phase04-d1f-evidence-integrity",
+      "status": "passed",
+      "algorithm_status": "failed"
+    },
+    {
+      "id": "phase04-e1-evidence-integrity",
+      "status": "passed",
+      "validated_fields": []
+    },
+    {
+      "id": "p0-emission-center-terminology",
+      "status": "passed",
+      "separate_carrier_line_claimed": false
+    },
+    {
+      "id": "repository-contract",
+      "status": "passed"
+    },
+    {
+      "id": "full-regression",
+      "status": "passed",
+      "passed": 454,
+      "skipped": 1,
+      "failed": 0,
+      "duration_seconds": 422.55,
+      "skip_reason": "Haricî gerçek veri seti yapılandırılmadı."
+    }
+  ],
+  "implementation_commits": [
+    "a080113",
+    "09b1147"
+  ],
+  "hardware_execution": {
+    "live_hackrf": "not_executed",
+    "zedboard_arm": "not_executed",
+    "rf_power_calibration": "not_executed"
+  },
+  "claim_boundary": "F1A sözleşme, kaynak taşıma bağı ve terminoloji kapısıdır; PHASE-04 algoritma başarısı veya canlı RF sonucu değildir."
+}
+

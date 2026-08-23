@@ -73,5 +73,8 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
   regresyon yüzeyi, doğrulama scriptleri ve KTR kayıtlarında `Yayın Merkez
   Frekansı` olarak düzeltildi. Ayrı taşıyıcı çizgisi yeteneği eklenmiş veya
   doğrulanmış sayılmadı.
+- F1A çıkış regresyonu 454 passed, 1 kontrollü skip ve 0 failure sonucuyla
+  422,55 saniyede tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri
+  setine aittir.
 - PHASE-04-F1B başlamamıştır. Yöntem kodu değiştirilmeden önce geliştirme,
   binding ve OOS katalogları ile kabul kilidi hazırlanacaktır.
