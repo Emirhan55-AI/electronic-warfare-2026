@@ -7,7 +7,7 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | Zorunlu öğe | KTR algoritma niyeti | Gerçek donanım / sahip | Gate A başlangıcı | P0 sonucu |
 |---|---|---|---|---|
 | Sinyal tespiti | Pencereli FFT/PSD, yerel gürültü, guard/reference, OS-CFAR, aday gruplama | ZedBoard PL Hann/FFT/güç; PS OS-CFAR/aday/temporal | Kısmi | Host profile PASS — Pfa `1e-4` türetilmiş alpha, empirical FAR ve Python/C eşdeğerliği; ARM çalıştırılmadı |
-| Taşıyıcı frekansı | Aday bölgesinde güç ağırlıklı spektral centroid | PS/ARM; host oracle | Eksik | Tam host algoritması — golden hata/tolerans geçti |
+| Yayın merkez frekansı | Aday bölgesinde güç ağırlıklı spektral merkez; ayrı taşıyıcı çizgisi kestirimi yok | PS/ARM; host referansı | Eksik | P0 host referansı — sabit golden hata/tolerans geçti; PHASE-04 bağımsız doğrulaması açık |
 | Bant genişliği | Yerel gürültü/eşik referanslı alt ve üst sinyal sınırı | PS/ARM; host oracle | Eksik | Host estimator PASS — 6 dB threshold kenarı, açık %98 fallback ve kaba aday ayrımı; ARM/canlı RF yok |
 | Güç seviyesi | Göreli lineer güç ve dBFS; kalibrasyon sözleşmesi | PS/ARM | Eksik | Tam göreli ölçüm — dBFS doğrulandı; dBm `KALİBRASYON BEKLİYOR` |
 | SNR | Aday sinyal gücü / aynı yerel gürültü kestirimi | PS/ARM | Eksik | Tam host algoritması — aynı OS-CFAR gürültü tanımı kullanıldı |

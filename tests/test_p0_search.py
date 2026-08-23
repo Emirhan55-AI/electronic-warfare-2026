@@ -39,7 +39,7 @@ class P0SearchExecutionTests(unittest.TestCase):
         result = self.engine.execute(SearchRequest.unknown())
         self.assertEqual(result.status, "COMPLETED_SIGNAL_FOUND")
         self.assertEqual(len(result.parameters), 1)
-        self.assertAlmostEqual(result.parameters[0].carrier_frequency_hz, 100_090_000.0, delta=250.0)
+        self.assertAlmostEqual(result.parameters[0].emission_center_frequency_hz, 100_090_000.0, delta=250.0)
         self.assertEqual(result.parameters[0].provenance, "REPLAY")
 
     def test_judge_band_restricts_analysis(self) -> None:

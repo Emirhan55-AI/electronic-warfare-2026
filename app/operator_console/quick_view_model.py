@@ -599,7 +599,7 @@ class OperatorViewModel(QObject):
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
             self._parameter_rows = [
-                {"label": "Taşıyıcı", "value": self._format_frequency(result.carrier_frequency_hz)},
+                {"label": "Yayın merkezi", "value": self._format_frequency(result.emission_center_frequency_hz)},
                 {"label": "OBW", "value": self._format_rate(result.occupied_bandwidth_hz)},
                 {"label": "Alt sınır", "value": self._format_frequency(result.lower_frequency_hz)},
                 {"label": "Üst sınır", "value": self._format_frequency(result.upper_frequency_hz)},

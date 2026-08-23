@@ -54,7 +54,7 @@ Bu kip taşıyıcıyı doğrudan sonuç olarak yazmaz; bildirilen frekans çevre
 
 Üç olumlu senaryonun replay çıktısı, arayüz yuvarlamasıyla şöyledir:
 
-- taşıyıcı: `100.090003 MHz`
+- yayın merkezi: `100.090003 MHz`
 - alt/üst sınır: `100.088875` / `100.091125 MHz`
 - gerçek bant genişliği: `2.250 kHz`
 - kaba aday bant genişliği: `3.250 kHz`
@@ -63,7 +63,7 @@ Bu kip taşıyıcıyı doğrudan sonuç olarak yazmaz; bildirilen frekans çevre
 - sınıf: `Analog`
 - kaynak: `REPLAY`
 
-`PARAMETRELER` sekmesinde taşıyıcı, gürültü/eşik referanslı gerçek bant, göreli
+`PARAMETRELER` sekmesinde yayın merkezi, gürültü/eşik referanslı gerçek bant, göreli
 dBFS, SNR, Analog/Sayısal sonucu, backend ve kaynak görünür. Güç alanı
 `KALİBRASYON BEKLİYOR` yazar.
 

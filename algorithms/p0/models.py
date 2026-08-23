@@ -29,7 +29,7 @@ class P0ParameterResult:
     frame_id: int
     candidate: CandidateRegion
     confirmed: bool
-    carrier_frequency_hz: float
+    emission_center_frequency_hz: float
     lower_frequency_hz: float
     upper_frequency_hz: float
     bandwidth_hz: float

@@ -60,7 +60,7 @@ class ParameterExtractor:
         weight_sum = float(np.sum(region_power))
         if weight_sum <= 0:
             raise ValueError("candidate has no positive power")
-        carrier = float(np.sum(region_frequencies * region_power) / weight_sum)
+        emission_center = float(np.sum(region_frequencies * region_power) / weight_sum)
         bandwidth = self.bandwidth_estimator.estimate(
             shifted_power=power,
             sample_rate_hz=sample_rate_hz,
@@ -90,7 +90,7 @@ class ParameterExtractor:
             frame_id=frame_id,
             candidate=candidate,
             confirmed=confirmed,
-            carrier_frequency_hz=carrier,
+            emission_center_frequency_hz=emission_center,
             lower_frequency_hz=bandwidth.lower_frequency_hz,
             upper_frequency_hz=bandwidth.upper_frequency_hz,
             bandwidth_hz=bandwidth.bandwidth_hz,

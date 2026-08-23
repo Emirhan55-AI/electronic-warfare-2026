@@ -79,7 +79,7 @@ def evaluate() -> dict[str, object]:
                 provenance="HOST REFERENCE",
                 backend="p0.os_cfar+parameter.reference",
             )
-            frequency_error = result.carrier_frequency_hz - truth_frequency
+            frequency_error = result.emission_center_frequency_hz - truth_frequency
             bandwidth_error = None if fixture.expected_bandwidth_hz is None else result.bandwidth_hz - fixture.expected_bandwidth_hz
             bandwidth_absolute_error = None if bandwidth_error is None else abs(bandwidth_error)
             bandwidth_relative_error = None if bandwidth_error is None else bandwidth_absolute_error / fixture.expected_bandwidth_hz
@@ -92,7 +92,7 @@ def evaluate() -> dict[str, object]:
             overall = overall and passed
             measurements.append({
                 "ground_truth_frequency_hz": truth_frequency,
-                "measured_frequency_hz": result.carrier_frequency_hz,
+                "measured_frequency_hz": result.emission_center_frequency_hz,
                 "frequency_error_hz": frequency_error,
                 "frequency_tolerance_hz": frequency_tolerance,
                 "expected_bandwidth_hz": fixture.expected_bandwidth_hz,

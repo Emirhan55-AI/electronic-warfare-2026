@@ -96,15 +96,15 @@ def _p0_parameter_result() -> tuple[object, dict[str, object]]:
         backend="P0 OS-CFAR + parameter.reference",
         neighboring_candidates=detection.candidates,
     )
-    truth_carrier = 100_090_000.0
+    truth_emission_center = 100_090_000.0
     truth_bandwidth = 2_400.0
     truth_amplitude_dbfs = 20.0 * math.log10(0.6)
-    carrier_error = result.carrier_frequency_hz - truth_carrier
+    center_error = result.emission_center_frequency_hz - truth_emission_center
     bandwidth_error = result.bandwidth_hz - truth_bandwidth
     power_error = result.channel_power_dbfs - truth_amplitude_dbfs
     passed = (
         confirmed
-        and abs(carrier_error) <= 300.0
+        and abs(center_error) <= 300.0
         and abs(bandwidth_error) <= 1_250.0
         and abs(power_error) <= 0.25
         and 30.0 <= result.snr_db <= 40.0
@@ -115,23 +115,23 @@ def _p0_parameter_result() -> tuple[object, dict[str, object]]:
         "fixture_sha256": hashlib.sha256(np.asarray(fixture.iq, dtype="<c16").tobytes()).hexdigest(),
         "input_truth": {
             "signal_present": True,
-            "carrier_frequency_hz": truth_carrier,
+            "emission_center_frequency_hz": truth_emission_center,
             "reference_bandwidth_hz": truth_bandwidth,
             "amplitude": 0.6,
             "amplitude_dbfs": truth_amplitude_dbfs,
             "class": "Analog",
         },
-        "expected": {"carrier_tolerance_hz": 300.0, "bandwidth_tolerance_hz": 1_250.0, "power_tolerance_db": 0.25, "snr_db_range": [30.0, 40.0]},
+        "expected": {"emission_center_tolerance_hz": 300.0, "bandwidth_tolerance_hz": 1_250.0, "power_tolerance_db": 0.25, "snr_db_range": [30.0, 40.0]},
         "actual_algorithm": {
             "os_cfar_detected": bool(candidate),
             "temporally_confirmed": confirmed,
-            "carrier_frequency_hz": result.carrier_frequency_hz,
+            "emission_center_frequency_hz": result.emission_center_frequency_hz,
             "bandwidth_hz": result.bandwidth_hz,
             "channel_power_dbfs": result.channel_power_dbfs,
             "snr_db": result.snr_db,
             "class": result.signal_domain,
         },
-        "errors": {"carrier_hz": carrier_error, "bandwidth_hz": bandwidth_error, "power_db": power_error},
+        "errors": {"emission_center_hz": center_error, "bandwidth_hz": bandwidth_error, "power_db": power_error},
         "status": "PASS" if passed else "FAIL",
     }
 
@@ -241,18 +241,18 @@ def evaluate() -> tuple[dict[str, object], dict[str, bytes]]:
     window = MainWindow(laboratory_mode=True)
     window.set_p0_parameter_result(parameter_result)
     locale = QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey)
-    expected_carrier = locale.toString(parameter_result.carrier_frequency_hz / 1_000_000.0, "f", 3) + " MHz"
+    expected_center = locale.toString(parameter_result.emission_center_frequency_hz / 1_000_000.0, "f", 3) + " MHz"
     expected_bandwidth = locale.toString(parameter_result.bandwidth_hz / 1000.0, "f", 2) + " kHz"
     expected_snr = locale.toString(parameter_result.snr_db, "f", 1) + " dB"
     parameter_ui = {
-        "backend_carrier_hz": parameter_result.carrier_frequency_hz,
-        "expected_formatted_carrier": expected_carrier,
-        "actual_carrier": window.parameter_values["p0_carrier"].text(),
+        "backend_emission_center_hz": parameter_result.emission_center_frequency_hz,
+        "expected_formatted_emission_center": expected_center,
+        "actual_emission_center": window.parameter_values["p0_center"].text(),
         "actual_bandwidth": window.parameter_values["p0_bandwidth"].text(),
         "actual_snr": window.parameter_values["p0_snr"].text(),
         "actual_class": window.parameter_values["p0_domain"].text(),
         "status": "PASS" if (
-            window.parameter_values["p0_carrier"].text() == expected_carrier
+            window.parameter_values["p0_center"].text() == expected_center
             and window.parameter_values["p0_bandwidth"].text() == expected_bandwidth
             and window.parameter_values["p0_snr"].text() == expected_snr
             and window.parameter_values["p0_domain"].text() == parameter_result.signal_domain
@@ -311,13 +311,13 @@ def evaluate() -> tuple[dict[str, object], dict[str, bytes]]:
         "status": "PASS" if all(item == "PASS" for item in statuses) else "FAIL",
         "correctness_levels": {
             "detection": "INDEPENDENTLY VERIFIED",
-            "parameter_extraction": "INDEPENDENTLY VERIFIED",
+            "parameter_extraction": "P0 FIXTURE VERIFIED — PHASE-04 OPEN",
             "am_nfm_listening": "INDEPENDENTLY VERIFIED",
             "software_reference_df": "INDEPENDENTLY VERIFIED",
             "physical_df": "NOT EXECUTED",
         },
         "results": rows,
-        "claim_boundary": "Deterministik yazılım referans doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir.",
+        "claim_boundary": "Deterministik P0 yazılım referans doğrulamasıdır; bağımsız PHASE-04 alan kabulü, canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir.",
     }
     return document, {
         "am-tone-ci8.wav": am_pcm,

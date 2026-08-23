@@ -76,7 +76,7 @@ class P0ParameterTests(unittest.TestCase):
             backend="p0.os_cfar",
         )
         expected = center + offset_bins * sample_rate / count
-        self.assertAlmostEqual(result.carrier_frequency_hz, expected, places=6)
+        self.assertAlmostEqual(result.emission_center_frequency_hz, expected, places=6)
         self.assertAlmostEqual(result.bandwidth_hz, 3.0 * sample_rate / count, places=6)
         self.assertAlmostEqual(result.relative_power_linear, 0.25, places=12)
         self.assertAlmostEqual(result.relative_power_dbfs, 20.0 * np.log10(0.5), places=10)

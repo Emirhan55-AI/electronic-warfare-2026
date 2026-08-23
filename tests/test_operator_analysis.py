@@ -185,7 +185,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         window.search_start_button.click()
         self.assertEqual((), window.last_search_result.parameters)
         self.assertEqual(canonical_count, window.detection_list.count())
-        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_center"].text())
         self.assertEqual(TEXT["not_validated"], window.parameter_values["emission_center"].text())
         self.assertEqual("SigMF kaydı · Aktif", window.system_status_values["source"].text())
         self.assertIn("doğrulanmadı", window.system_status_values["fpga"].text())
@@ -233,7 +233,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         self.assertEqual("KAYIT OYNATMA", window.parameter_values["p0_source"].text())
         self.assertIn("dBFS/bin", window.parameter_values["p0_peak_power"].text())
         self.assertIn("KALİBRASYON BEKLİYOR", window.parameter_values["p0_power"].text())
-        self.assertNotEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        self.assertNotEqual(TEXT["not_validated"], window.parameter_values["p0_center"].text())
         self.assertEqual(4096, window.analysis_spectrum.curve.xData.size)
         self.assertLess(
             window.analysis_spectrum.lower_marker.value(),
@@ -252,7 +252,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         window.detection_list.setCurrentRow(second_row)
         app.processEvents()
         self.assertNotEqual(first_event_id, controller._selected_event_id)
-        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_carrier"].text())
+        self.assertEqual(TEXT["not_validated"], window.parameter_values["p0_center"].text())
         controller.clear_analysis()
         self.assertEqual(0, window.analysis_spectrum.last_x_data.size)
         self.assertEqual(TEXT["select_confirmed_event"], window.analysis_event_value.text())

@@ -192,7 +192,7 @@ class P0SearchEngine:
                     )
                 )
         results = self._deduplicate_overlaps(results)
-        results.sort(key=lambda item: (-item.candidate.peak_power, item.carrier_frequency_hz))
+        results.sort(key=lambda item: (-item.candidate.peak_power, item.emission_center_frequency_hz))
         return SearchExecutionResult(
             request,
             self.backend.backend_name,
@@ -209,7 +209,7 @@ class P0SearchEngine:
         unique: list[P0ParameterResult] = []
         for item in strongest_first:
             duplicate = any(
-                abs(item.carrier_frequency_hz - existing.carrier_frequency_hz)
+                abs(item.emission_center_frequency_hz - existing.emission_center_frequency_hz)
                 <= max(1.0, min(item.bandwidth_hz, existing.bandwidth_hz) / 2.0)
                 for existing in unique
             )

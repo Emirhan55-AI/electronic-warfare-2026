@@ -22,7 +22,7 @@
       "measurement": {
         "detected_count": 1,
         "confirmed": true,
-        "carrier_frequency_hz": 100090003.13515045,
+        "emission_center_frequency_hz": 100090003.13515045,
         "lower_frequency_hz": 100088875.0,
         "upper_frequency_hz": 100091125.0,
         "bandwidth_hz": 2250.0,
@@ -52,7 +52,7 @@
       "measurement": {
         "detected_count": 1,
         "confirmed": true,
-        "carrier_frequency_hz": 100090003.13515045,
+        "emission_center_frequency_hz": 100090003.13515045,
         "lower_frequency_hz": 100088875.0,
         "upper_frequency_hz": 100091125.0,
         "bandwidth_hz": 2250.0,
@@ -82,7 +82,7 @@
       "measurement": {
         "detected_count": 1,
         "confirmed": true,
-        "carrier_frequency_hz": 100090003.13515045,
+        "emission_center_frequency_hz": 100090003.13515045,
         "lower_frequency_hz": 100088875.0,
         "upper_frequency_hz": 100091125.0,
         "bandwidth_hz": 2250.0,

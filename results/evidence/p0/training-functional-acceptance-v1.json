@@ -4,7 +4,7 @@
   "status": "PASS",
   "correctness_levels": {
     "detection": "INDEPENDENTLY VERIFIED",
-    "parameter_extraction": "INDEPENDENTLY VERIFIED",
+    "parameter_extraction": "P0 FIXTURE VERIFIED — PHASE-04 OPEN",
     "am_nfm_listening": "INDEPENDENTLY VERIFIED",
     "software_reference_df": "INDEPENDENTLY VERIFIED",
     "physical_df": "NOT EXECUTED"
@@ -25,14 +25,14 @@
       "fixture_sha256": "7aa19d7241cf7c5fae2848dfa56eefd7bae200660eeb5a9b929b2d3f24f456c6",
       "input_truth": {
         "signal_present": true,
-        "carrier_frequency_hz": 100090000.0,
+        "emission_center_frequency_hz": 100090000.0,
         "reference_bandwidth_hz": 2400.0,
         "amplitude": 0.6,
         "amplitude_dbfs": -4.436974992327128,
         "class": "Analog"
       },
       "expected": {
-        "carrier_tolerance_hz": 300.0,
+        "emission_center_tolerance_hz": 300.0,
         "bandwidth_tolerance_hz": 1250.0,
         "power_tolerance_db": 0.25,
         "snr_db_range": [
@@ -43,14 +43,14 @@
       "actual_algorithm": {
         "os_cfar_detected": true,
         "temporally_confirmed": true,
-        "carrier_frequency_hz": 100090003.13494618,
+        "emission_center_frequency_hz": 100090003.13494618,
         "bandwidth_hz": 2250.0,
         "channel_power_dbfs": -4.441077659310037,
         "snr_db": 35.70355857566173,
         "class": "Analog"
       },
       "errors": {
-        "carrier_hz": 3.134946182370186,
+        "emission_center_hz": 3.134946182370186,
         "bandwidth_hz": -150.0,
         "power_db": -0.004102666982908509
       },
@@ -211,9 +211,9 @@
     ],
     "ui_binding": {
       "parameters": {
-        "backend_carrier_hz": 100090003.13494618,
-        "expected_formatted_carrier": "100,090 MHz",
-        "actual_carrier": "100,090 MHz",
+        "backend_emission_center_hz": 100090003.13494618,
+        "expected_formatted_emission_center": "100,090 MHz",
+        "actual_emission_center": "100,090 MHz",
         "actual_bandwidth": "2,25 kHz",
         "actual_snr": "35,7 dB",
         "actual_class": "Analog",
@@ -244,5 +244,5 @@
       }
     }
   },
-  "claim_boundary": "Deterministik yazılım referans doğrulamasıdır; canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir."
+  "claim_boundary": "Deterministik P0 yazılım referans doğrulamasıdır; bağımsız PHASE-04 alan kabulü, canlı RF, fiziksel anten DF, FPGA/ARM veya TX sonucu değildir."
 }

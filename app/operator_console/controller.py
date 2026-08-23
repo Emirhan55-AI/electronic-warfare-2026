@@ -1463,7 +1463,7 @@ class OperatorController(QObject):
                 self.window.set_p0_parameter_result(result)
                 self.window.analysis_spectrum.set_event_markers(
                     lower_hz=result.lower_frequency_hz,
-                    carrier_hz=result.carrier_frequency_hz,
+                    carrier_hz=result.emission_center_frequency_hz,
                     upper_hz=result.upper_frequency_hz,
                 )
                 self.window.set_measurement_complete()

@@ -849,7 +849,7 @@ class MainWindow(QMainWindow):
         tech_layout.setVerticalSpacing(4)
 
         secondary_fields = (
-            ("p0_carrier", "Merkez Frekansı"),
+            ("p0_center", "Yayın Merkez Frekansı"),
             ("p0_bandwidth_method", "Yöntem"),
             ("p0_coarse_span", "Kaba Aralık"),
             ("p0_power", "Kanal Gücü"),
@@ -2797,7 +2797,7 @@ class MainWindow(QMainWindow):
     def set_p0_parameter_result(self, result: P0ParameterResult | None) -> None:
         if result is None:
             for key in (
-                "p0_detection", "p0_carrier", "p0_bandwidth", "p0_lower", "p0_upper",
+                "p0_detection", "p0_center", "p0_bandwidth", "p0_lower", "p0_upper",
                 "p0_bandwidth_method", "p0_coarse_span", "p0_peak_power", "p0_power",
                 "p0_snr", "p0_domain", "p0_region", "p0_backend", "p0_source",
                 "emission_center", "carrier_line", "lower_edge", "upper_edge", "bandwidth",
@@ -2812,7 +2812,7 @@ class MainWindow(QMainWindow):
         locale = self.locale
         status_str = "● Doğrulandı" if result.confirmed else "İzleniyor"
         self.parameter_values["p0_detection"].setText(status_str)
-        self.parameter_values["p0_carrier"].setText(self._frequency(result.carrier_frequency_hz))
+        self.parameter_values["p0_center"].setText(self._frequency(result.emission_center_frequency_hz))
         self.parameter_values["p0_bandwidth"].setText(locale.toString(result.bandwidth_hz / 1000.0, "f", 2) + " kHz")
         self.parameter_values["p0_lower"].setText(self._frequency(result.lower_frequency_hz))
         self.parameter_values["p0_upper"].setText(self._frequency(result.upper_frequency_hz))
@@ -2829,7 +2829,7 @@ class MainWindow(QMainWindow):
         self.parameter_values["p0_backend"].setText(result.backend)
         source_name = _source_display_name(result.provenance)
         self.parameter_values["p0_source"].setText(source_name)
-        self.parameter_values["emission_center"].setText(self._frequency(result.carrier_frequency_hz))
+        self.parameter_values["emission_center"].setText(self._frequency(result.emission_center_frequency_hz))
         self.parameter_values["carrier_line"].setText(TEXT["carrier_line_not_separate"])
         self.parameter_values["lower_edge"].setText(self._frequency(result.lower_frequency_hz))
         self.parameter_values["upper_edge"].setText(self._frequency(result.upper_frequency_hz))
@@ -2841,11 +2841,11 @@ class MainWindow(QMainWindow):
         self.parameter_state.setText("Sonuçlar güncellendi")
 
         if hasattr(self, "analysis_freq_val"):
-            self.analysis_freq_val.setText(f"{result.carrier_frequency_hz / 1_000_000.0:.3f} MHz")
+            self.analysis_freq_val.setText(f"{result.emission_center_frequency_hz / 1_000_000.0:.3f} MHz")
             self.analysis_event_value.setText(status_str)
 
         if hasattr(self, "card_freq_val"):
-            self.card_freq_val.setText(f"{result.carrier_frequency_hz / 1_000_000.0:.3f} MHz")
+            self.card_freq_val.setText(f"{result.emission_center_frequency_hz / 1_000_000.0:.3f} MHz")
             self.card_bw_val.setText(f"{result.bandwidth_hz / 1000.0:.2f} kHz")
             self.card_power_val.setText(f"{result.peak_power_dbfs_per_bin:.1f} dBFS")
             self.card_snr_val.setText(f"+{result.snr_db:.1f} dB")
@@ -2862,11 +2862,11 @@ class MainWindow(QMainWindow):
         self.detection_list.clear()
         state = "Doğrulandı" if result.confirmed else "İzleniyor"
         source_name = _source_display_name(result.provenance)
-        freq_str = f"{result.carrier_frequency_hz / 1_000_000.0:.3f} MHz"
+        freq_str = f"{result.emission_center_frequency_hz / 1_000_000.0:.3f} MHz"
         snr_str = f"+{result.snr_db:.1f} dB"
         item = QListWidgetItem(f"{freq_str}    {snr_str}    {state}")
         item.setToolTip(
-            f"Frekans: {result.carrier_frequency_hz/1e6:.3f} MHz\n"
+            f"Yayın merkezi: {result.emission_center_frequency_hz/1e6:.3f} MHz\n"
             f"Bant: {result.bandwidth_hz/1000.0:.2f} kHz\n"
             f"Kaynak: {source_name}"
         )

@@ -101,7 +101,7 @@ print(json.dumps(payload,ensure_ascii=False))
         )
         self.assertEqual([], payload["before"])
         self.assertTrue(payload["after"])
-        self.assertEqual("Taşıyıcı", payload["after"][0]["label"])
+        self.assertEqual("Yayın merkezi", payload["after"][0]["label"])
 
     def test_direction_result_is_blocked_without_real_source(self) -> None:
         payload = self.run_qml(

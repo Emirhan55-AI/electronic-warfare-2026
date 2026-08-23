@@ -26,7 +26,7 @@ def _measurement(result: object) -> dict[str, object]:
     return {
         "detected_count": 1,
         "confirmed": item.confirmed,
-        "carrier_frequency_hz": item.carrier_frequency_hz,
+        "emission_center_frequency_hz": item.emission_center_frequency_hz,
         "lower_frequency_hz": item.lower_frequency_hz,
         "upper_frequency_hz": item.upper_frequency_hz,
         "bandwidth_hz": item.bandwidth_hz,
