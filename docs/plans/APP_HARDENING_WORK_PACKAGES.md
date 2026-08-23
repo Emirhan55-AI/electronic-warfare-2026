@@ -80,6 +80,21 @@ kullanıcı açıkça onay vermeden sonraki paket başlatılmaz.
   yapılmayacaktır. APP-F ayrı kullanıcı onayı olmadan başlatılmaz.
 - APP-E çıkış regresyonu 447 passed, 1 kontrollü skip ve 0 failure sonucuyla
   tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri setine aittir.
+- APP-F 2026-08-24 tarihinde kullanıcı onayıyla tamamlandı. Qt Quick/QML ürün
+  giriş noktası; gerçek SigMF sözleşmesi, bounded spektrum/spektrogram,
+  OS-CFAR/temporal tespit, açık eylemli P0 parametre ölçümü, gerçek HackRF
+  araç/cihaz durumu ve etkin I/Q karesine bağlı manuel açı–güç ölçümüyle
+  bağlandı. Eski QWidget bileşimi tarihsel regresyon yüzeyi olarak korundu,
+  ancak ürün başlangıcından ve deploy import ağacından çıkarıldı.
+- APP-F ölçekleme ve performans kapıları 1280×720, 1366×768, 1920×1080 ve %150
+  profillerinde geçti. Mevcut bilgisayardaki offscreen yazılım çiziminde tüm
+  koşular ≥9 Hz güncelleme, <100 ms işleme p95, <100 ms GUI heartbeat ve ≤1600
+  çizim noktası kapılarını geçti. Gerçek HackRF probe işlemi cihaz bağlı değil
+  durumunda dürüstçe sonuçlandı; canlı I/Q başarı iddiası kurulmadı.
+- APP-F çıkış regresyonu 452 passed, 1 kontrollü skip ve 0 failure sonucuyla
+  513,46 saniyede tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri
+  setine aittir. Bağlı olmayan GNSS, harita/konum, canlı analog ses kabulü, TX ve
+  offline eğitim kontrolleri yayın navigasyonuna eklenmedi.
 
 Kullanıcının ürünleşme açıklamasıyla video/demo dönemi kapanmış, hedef yayın adayı
 profesyonel sistem olarak kesinleştirilmiştir.

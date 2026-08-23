@@ -63,3 +63,10 @@ Yeni ürün yüzeyinde bağlı olmayan GNSS, konum/harita, analog ses kabulü, T
 offline ET, eğitim sahnesi veya gösterim verisi kontrolü yoktur. İlgili algoritma
 ve tarihsel doğrulama yüzeyleri silinmemiştir; ürün paketine ithal edilmez. Bu
 özellikler gerçek kaynak ve kabul kanıtı olmadan navigasyona eklenemez.
+
+## Çıkış regresyonu
+
+İlk APP-F commitinden ve tarihsel PHASE-05 kanıt sayacının 81'den 86'ya
+güncellenmesinden sonra tam repository takımı çalıştırıldı. Sonuç `452 passed, 1
+skipped, 0 failed` ve süre `513,46 s` oldu. Kontrollü skip yalnız yerel yolu
+yapılandırılmamış haricî gerçek veri setine aittir.
