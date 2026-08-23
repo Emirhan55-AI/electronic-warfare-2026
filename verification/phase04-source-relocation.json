@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "relocation_commit": "f9ff7dcfc4085231a919cd4bc9c466ca2835ec19",
+  "source_commit": "3f562c9b881b715c9605524028cc3cd79b35ff1e",
+  "status": "source-layout-relocated-historical-results-unchanged",
+  "artifacts": [
+    {
+      "artifact_id": "phase04-r1",
+      "historical_implementation_manifest_sha256": "60faf18599558bb730508c9c3d914bc0a1033b3b9a3e62b3b2427dcf34133bcc",
+      "observed_relocated_implementation_manifest_sha256": "31123fc50e1044bccc89a5b19399c34f68a2383a1f551fc6c64f188f043f73d0",
+      "runtime_equivalence_claimed": false,
+      "protected_evidence": [
+        {"path": "results/evidence/phase04/parameter-comparison.json", "sha256": "375f9f328c72591d11d060e9a995bf3a0fc1ed399c4a95d425a9dbba6dd5c669"},
+        {"path": "results/evidence/phase04/golden-parameters.json", "sha256": "94385ab68d7867478e635b30cf7e852462721b0986e9d998f07065882d0003ac"},
+        {"path": "results/evidence/phase04/verification-summary.json", "sha256": "1b1619089d76ce43fd03eedd99cd183ef4c5c255940b272d7c1545ca7dce1351"}
+      ]
+    },
+    {
+      "artifact_id": "phase04-r2",
+      "historical_implementation_manifest_sha256": "4af7407f416c298d60f3aa9977ccc5982f4b308a100fc38e82cbe4762892d99c",
+      "observed_relocated_implementation_manifest_sha256": "31123fc50e1044bccc89a5b19399c34f68a2383a1f551fc6c64f188f043f73d0",
+      "runtime_equivalence_claimed": false,
+      "protected_evidence": [
+        {"path": "results/evidence/phase04/r2-parameter-comparison.json", "sha256": "abbfaedec54dd5d303c2ae643db169f7c59ca38c603f686f96c85749d5ce3c7d"},
+        {"path": "results/evidence/phase04/r2-golden-parameters.json", "sha256": "6abb869ef80af466192fda5f4689fc7a1392d58d369a59ef29bb0ca489a84dfc"},
+        {"path": "results/evidence/phase04/r2-verification-summary.json", "sha256": "674eda91650c2f56b41835fa9e44fac946d372fba4c5a67c5adf5848a209404a"},
+        {"path": "results/evidence/phase04/r2-family-diagnostic.json", "sha256": "03a131792641073ba1881bfb7fcd1fcbe54e8a0f3a686da67f9ce57d76ac2985"},
+        {"path": "results/evidence/phase04/r2-out-of-sample.json", "sha256": "394bb5a901854dffda291f5e40e0248c6c698e91cd5798e1806843b340a09c66"}
+      ]
+    },
+    {
+      "artifact_id": "phase04-e1",
+      "historical_implementation_manifest_sha256": "c1ef40c74a20be8a53bf4fb13f55f491e532baa7aec38d7f0916eed396c02673",
+      "observed_relocated_implementation_manifest_sha256": "52dfd45b4d18c3b5478fcb2aa6c84c8f556e66a4ae96652c45b39b7731d6b212",
+      "runtime_equivalence_claimed": false,
+      "protected_evidence": [
+        {"path": "results/evidence/phase04e1/parameter-comparison.json", "sha256": "226fcf168f3b894e09ed3f55046f15badfaada505f00cb3ea293a5ef4c8dc102"},
+        {"path": "results/evidence/phase04e1/golden-parameters.json", "sha256": "94aceb99be4d36feb003739382a05128ad034e3f8429fad006ef0abc5ac8ac95"},
+        {"path": "results/evidence/phase04e1/binding-results.json", "sha256": "c61fb5f184cada91e34c4077e6c768b99453fdbbf91aaa3353f4a1369a784f5e"},
+        {"path": "results/evidence/phase04e1/oos-results.json", "sha256": "a896634174b8126a7a60b8149629793ad54e09f3ad0861e4ee24bc4bc068f378"},
+        {"path": "results/evidence/phase04e1/verification-summary.json", "sha256": "0307bc0c2b80ac99d5577b5577e8bdd87fc53fa39101e5ce35775662b5b1ca59"}
+      ]
+    }
+  ],
+  "claim_boundary": "Bu kayıt yalnız tarihsel kanıt bütünlüğünü kaynak taşımasına bağlar; güncel runtime eşdeğerliği veya PHASE-04 başarısı iddiası değildir."
+}
+

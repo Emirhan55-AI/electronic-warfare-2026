@@ -22,6 +22,7 @@ from algorithms.parameters.evaluation import canonical_json_bytes, phase04_imple
 from algorithms.parameters.r2 import R2_COMPARISON_ID  # noqa: E402
 from algorithms.pipeline import RuntimePipeline, load_verified_phase04_profile  # noqa: E402
 from algorithms.spectrum import SigMFFrameSource  # noqa: E402
+from verification.phase04_relocation import archived_implementation_digest  # noqa: E402
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase04"
@@ -73,9 +74,12 @@ def _validate_inputs(
         raise ValueError("R2 comparison identity is invalid")
     if comparison.get("method_lock_sha256") != _sha(LOCK):
         raise ValueError("R2 comparison method-lock digest is stale")
-    for field in ("catalog_sha256", "implementation_manifest_sha256", "phase03_profile_sha256"):
+    for field in ("catalog_sha256", "phase03_profile_sha256"):
         if comparison.get(field) != manifest[field]:
             raise ValueError(f"R2 comparison {field} is stale")
+    historical_manifest = str(comparison.get("implementation_manifest_sha256", ""))
+    if historical_manifest != manifest["implementation_manifest_sha256"]:
+        archived_implementation_digest("phase04-r2", historical_manifest)
     if diagnostic.get("phase") != "PHASE-04-R2" or diagnostic.get("status") != "passed":
         raise ValueError("R2 diagnostic evidence is invalid")
     for key in ("noise_calibration", "noise_end_to_end_validation", "morphology_calibration"):

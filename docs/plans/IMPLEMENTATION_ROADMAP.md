@@ -80,6 +80,16 @@ PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zinc
 
 PHASE-06J sonrasındaki gerçek DMA/PetaLinux integration, ARM/ZedBoard execution, fiziksel birim dönüşümü/PHASE-04 parametre ölçümü ve detector-throughput iyileştirmesi ayrı bir sonraki kontrollü planlama kararına tabidir. PHASE-06J bunları, post-detector timing'i veya hardware çalışmasını mevcut saymaz.
 
+## PHASE-04 kontrollü kurtarma alt-fazı
+
+APP-F sonrasında ilk açık ana kapı olan PHASE-04, kullanıcı onayıyla
+`PHASE-04-F1 — Alan Bazlı Parametre Doğrulama ve Ürün Bağı` planına alınmıştır.
+F1A–F1E sırası; sözleşme/relocation bağı, sonuçtan önce kilitlenen bağımsız
+doğrulama, estimator, tek seferlik binding/OOS ve yalnız geçen alanların digest
+bağlı ürün entegrasyonudur. Ayrıntılı kapsam ve kapanış kapıları
+`docs/plans/PHASE04_RECOVERY_PLAN.md` içindedir. R1/R2/D1/E1 başarısızlık
+kanıtları byte-sabit korunur; P0 host kabulü PHASE-04 başarısı sayılmaz.
+
 ## Erken hazırlık istisnası: PHASE-08A
 
 PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.

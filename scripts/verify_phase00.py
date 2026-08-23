@@ -259,12 +259,22 @@ PHASE04_E1_SUCCESS_ONLY_FILES = (
     "profiles/phase04e1/operation-default.json",
 )
 
+APPROVED_PHASE04_F1_FILES = (
+    "docs/plans/PHASE04_RECOVERY_PLAN.md",
+    "docs/reviews/PHASE04_PARAMETER_AUDIT.md",
+    "tests/test_phase04_relocation.py",
+    "verification/__init__.py",
+    "verification/phase04-source-relocation.json",
+    "verification/phase04_relocation.py",
+)
+
 APPROVED_PHASE04_FILES = (
     APPROVED_PHASE04_BASE_FILES
     + PHASE04_SUCCESS_ONLY_FILES
     + APPROVED_PHASE04_D1_FILES
     + APPROVED_PHASE04_E1_FILES
     + PHASE04_E1_SUCCESS_ONLY_FILES
+    + APPROVED_PHASE04_F1_FILES
 )
 
 APPROVED_PHASE08A_FILES = (

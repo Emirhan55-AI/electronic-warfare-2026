@@ -27,6 +27,7 @@ from algorithms.parameters.operator_reference import (
 from algorithms.parameters.operator_evaluation import compare
 from algorithms.pipeline.profile import load_phase04e1_capability
 from algorithms.spectrum import SigMFFrameSource, SpectrumProcessor
+from verification.phase04_relocation import archived_implementation_digest
 
 
 EVIDENCE = ROOT / "results" / "evidence" / "phase04e1"
@@ -136,6 +137,14 @@ def build_summary() -> dict[str, Any]:
     checks.append(_external_check())
     mandatory_failed = any(item["status"] == "failed" for item in checks if item["id"] != "external_bounded_integration")
     lock_sha = sha256_file(METHOD_LOCK_PATH) if METHOD_LOCK_PATH.exists() else None
+    current_manifest_sha = implementation_manifest()["sha256"]
+    implementation_sha = current_manifest_sha
+    if not validated and SUMMARY.exists():
+        try:
+            historical_sha = str(load_json(SUMMARY)["contracts"]["implementation_manifest_sha256"])
+            implementation_sha = archived_implementation_digest("phase04-e1", historical_sha)
+        except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+            implementation_sha = current_manifest_sha
     return {
         "schema_version": 1,
         "phase": "PHASE-04-E1",
@@ -147,7 +156,7 @@ def build_summary() -> dict[str, Any]:
             "operator_scenes_sha256": sha256_file(SCENES_PATH),
             "method_lock_sha256": lock_sha,
             "phase03_profile_sha256": sha256_file(PHASE03_PROFILE_PATH),
-            "implementation_manifest_sha256": implementation_manifest()["sha256"],
+            "implementation_manifest_sha256": implementation_sha,
         },
         "claim_boundary": "Kayıtlı/sentetik I/Q ve operatörce onaylanan span; canlı RF, dBm ve tamamlanmış PHASE-04 iddiası yoktur."
     }
