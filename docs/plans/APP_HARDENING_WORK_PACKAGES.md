@@ -78,6 +78,8 @@ kullanıcı açıkça onay vermeden sonraki paket başlatılmaz.
   Quick/QML ölçüldü. QML 10 Hz güncelleme kapısını geçtiği için APP-F sunum
   katmanı olarak seçildi; Python/PySide6 backend korunacak, tam C++ yeniden yazımı
   yapılmayacaktır. APP-F ayrı kullanıcı onayı olmadan başlatılmaz.
+- APP-E çıkış regresyonu 447 passed, 1 kontrollü skip ve 0 failure sonucuyla
+  tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri setine aittir.
 
 Kullanıcının ürünleşme açıklamasıyla video/demo dönemi kapanmış, hedef yayın adayı
 profesyonel sistem olarak kesinleştirilmiştir.
