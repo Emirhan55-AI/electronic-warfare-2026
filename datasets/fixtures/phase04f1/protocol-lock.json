@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f1-evaluation-protocol-lock-v1",
+  "status": "locked-before-method-development",
+  "inputs": {
+    "datasets/fixtures/phase04f1/acceptance-gates.json": "357cb4019a4db0e1953839137a79812f214a49c9b8c3f5272665b43573de6a75",
+    "datasets/fixtures/phase04f1/development-scenes.json": "008de054dbe48d9192e381a282a7ca2e5d8a63364ada8c870e45364f41c932d2",
+    "datasets/fixtures/phase04f1/evaluation-commitments.json": "a238e0522f1dd42eca16abd8a185e5d950b4805d20cd279185877e661bffc779",
+    "docs/interfaces/PHASE04_F1_PARAMETER_CONTRACT.md": "5a914717914c1feb8e0c937ead6eb5610e81770010a52266eb63f187a582161c",
+    "datasets/fixtures/phase04/parameter-scenes.json": "8f15ca7a5eba5b3313ada215bbd178279b7d93a8dab83dd667777c88e92a910c",
+    "algorithms/parameters/scenes.py": "d5ceef7f4d66cb3aa4bc75263477212e58e9378b97e4b119879c7697cbddfd74",
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "profiles/phase03/operation-default.json": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "required_fields": [
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db",
+    "signal_domain"
+  ],
+  "evaluation_order": ["development", "method-lock", "seed-reveal", "binding", "oos", "profile-binding"],
+  "automatic_span_binding": false,
+  "runtime_ground_truth_allowed": false,
+  "threshold_changes_after_reveal_allowed": false,
+  "claim_boundary": "Bu kilit değerlendirme protokolünü sabitler; yöntem, sonuç, profil veya PHASE-04 başarısı içermez."
+}
+

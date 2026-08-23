@@ -14,8 +14,8 @@ HackRF kabulü, dBm kalibrasyonu, GNSS, konum ve TX kapsam dışıdır.
 | Alt faz | Kapsam | Çıkış kapısı |
 |---|---|---|
 | PHASE-04-F1A | Sözleşme uzlaştırma ve tarihsel kanıt taşıma bağı | R1/R2/D1/E1 dosyaları byte-sabit kalır; relocation manifesti eski ve yeni kaynak kimliklerini doğrular; terim sözlüğü tek anlamlıdır. |
-| PHASE-04-F1B | Geliştirme kataloğu ve yöntem kilidi | Geliştirme, binding ve OOS seed/katalogları ayrılır; kabul eşikleri sonuç görülmeden kilitlenir; ground truth runtime'a verilmez. |
-| PHASE-04-F1C | Alan bazlı referans estimator | Merkez, taşıyıcı çizgisi, OBW99, güç/SNR ve sınırlı sinyal alanı bağımsız durum üretir; confirmed/owner/generation/span ve bounded bellek kapıları zorunludur. |
+| PHASE-04-F1B | Değerlendirme protokolü kilidi | Geliştirme kataloğu yayımlanır; binding ve OOS seed'leri commitment ile kapatılır; kabul eşikleri yöntem geliştirilmeden önce kilitlenir; ground truth runtime'a verilmez. |
+| PHASE-04-F1C | Alan bazlı referans estimator ve yöntem kilidi | Yalnız geliştirme kataloğunda merkez, taşıyıcı çizgisi, OBW99, güç/SNR ve sınırlı sinyal alanı bağımsız durum üretir; confirmed/owner/generation/span ve bounded bellek kapıları zorunludur; evaluation reveal öncesi yöntem digest'i kilitlenir. |
 | PHASE-04-F1D | Tek seferlik binding ve kilitli OOS | Bütün çekirdek alanlar kilitli kapıları geçer veya sonuç başarısız olarak korunur; başarısız koşudan sonra aynı alt fazda eşik ayarı yapılmaz. |
 | PHASE-04-F1E | Digest bağlı ürün entegrasyonu | Yalnız geçen alanlar profilden yüklenir; bağ bozulursa fail-closed olur; QML doğru terimleri ve alan durumlarını gösterir. |
 
@@ -76,5 +76,12 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
 - F1A çıkış regresyonu 454 passed, 1 kontrollü skip ve 0 failure sonucuyla
   422,55 saniyede tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri
   setine aittir.
-- PHASE-04-F1B başlamamıştır. Yöntem kodu değiştirilmeden önce geliştirme,
-  binding ve OOS katalogları ile kabul kilidi hazırlanacaktır.
+- PHASE-04-F1B 2026-08-24 tarihinde tamamlandı. Altı zorunlu alanın kabul
+  eşikleri yöntem geliştirilmeden önce donduruldu; 64 trial/aile geliştirme
+  kataloğu ayrıldı. Binding ve OOS seed preimage'ları repository dışında kapalı
+  tutuluyor; repository yalnız SHA-256 commitment değerlerini taşıyor. Protokol
+  kilidi `6ce085432fc8f74f29442b66ab37e72ce934bcbb9b83dfad241e4fac218f342b`
+  digest'iyle altı zorunlu kontrolü geçti.
+- PHASE-04-F1C başlamamıştır. Estimator yalnız açık geliştirme kataloğunda
+  geliştirilecek ve seed reveal yapılmadan önce yöntem/uygulama digest'i
+  kilitlenecektir.

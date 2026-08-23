@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "commitment_id": "phase04f1-sealed-evaluation-seeds-v1",
+  "status": "committed-before-method-development",
+  "canonical_preimage": "UTF-8 JSON, sorted keys, compact separators, one trailing LF; seed encoded as decimal string",
+  "populations": [
+    {
+      "role": "binding",
+      "seed_commitment_sha256": "63452846bba707cb20eefc38c891dd8e590b166c7d1999254f259bf512d1e7ba",
+      "trials_per_family": 128,
+      "noise_sequences": 128,
+      "noise_frames_per_sequence": 32
+    },
+    {
+      "role": "oos",
+      "seed_commitment_sha256": "743868e80de585eed1b86d208fb5c96e7bfbb007ce4036ef5ddc31402c23bd15",
+      "trials_per_family": 32,
+      "noise_sequences": 32,
+      "noise_frames_per_sequence": 32
+    }
+  ],
+  "reveal_policy": "Seed ve salt değerleri yalnız method-lock commit'inden sonra repository kanıtına eklenir.",
+  "claim_boundary": "Commitment evaluation sonucunu veya algoritma başarısını içermez."
+}
+

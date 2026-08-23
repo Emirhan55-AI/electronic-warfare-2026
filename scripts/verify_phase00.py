@@ -260,10 +260,18 @@ PHASE04_E1_SUCCESS_ONLY_FILES = (
 )
 
 APPROVED_PHASE04_F1_FILES = (
+    "datasets/fixtures/phase04f1/acceptance-gates.json",
+    "datasets/fixtures/phase04f1/development-scenes.json",
+    "datasets/fixtures/phase04f1/evaluation-commitments.json",
+    "datasets/fixtures/phase04f1/protocol-lock.json",
+    "docs/interfaces/PHASE04_F1_PARAMETER_CONTRACT.md",
     "docs/plans/PHASE04_RECOVERY_PLAN.md",
     "docs/reviews/PHASE04_PARAMETER_AUDIT.md",
     "results/evidence/phase04f1/f1a-verification.json",
+    "results/evidence/phase04f1/f1b-verification.json",
+    "scripts/verify_phase04f1_protocol.py",
     "tests/test_phase04_relocation.py",
+    "tests/test_phase04f1_protocol.py",
     "verification/__init__.py",
     "verification/phase04-source-relocation.json",
     "verification/phase04_relocation.py",

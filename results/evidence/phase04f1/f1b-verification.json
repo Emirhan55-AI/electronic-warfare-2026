@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F1B",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "protocol-lock-identity",
+      "status": "passed"
+    },
+    {
+      "id": "input-digests",
+      "status": "passed"
+    },
+    {
+      "id": "acceptance-gates",
+      "status": "passed"
+    },
+    {
+      "id": "development-population",
+      "status": "passed"
+    },
+    {
+      "id": "sealed-evaluation-populations",
+      "status": "passed"
+    },
+    {
+      "id": "evaluation-order",
+      "status": "passed"
+    }
+  ],
+  "protocol_lock_sha256": "6ce085432fc8f74f29442b66ab37e72ce934bcbb9b83dfad241e4fac218f342b",
+  "binding_seed_revealed": false,
+  "oos_seed_revealed": false,
+  "method_implementation_locked": false,
+  "claim_boundary": "Değerlendirme protokolü kilididir; algoritma veya PHASE-04 başarı sonucu değildir."
+}
