@@ -110,8 +110,13 @@ ayrılmış ve görülmemiş binding/OOS seed commitment'ları v3 yöntem geliş
 katalogdaki 40/40 binding kontrolünü geçmiş; gürültü reddi, taşıyıcı, OBW ve
 sinyal alanı geliştirme kanıtları yöntem kaynaklarıyla birlikte seed reveal
 öncesinde kilitlenmiştir. Açılmış F1 popülasyonları kullanılmamış, F2
-binding/OOS seed'leri açılmamıştır. Sıradaki kontrollü alt faz ayrı kullanıcı
-onayı gerektiren F2D çalıştırıcı kilidi ve tek seferlik değerlendirmedir.
+binding/OOS seed'leri F2D çalıştırıcı kilidi commit/push sonrasında açılmıştır.
+Tek seferlik F2D'de binding 40/40 kontrolü geçmiş, OOS'ta ise taşıyıcı geçerli
+aile sayısı ile sinyal alanı yanlış kesin karar sayısı olmak üzere 2/24 kontrol
+başarısız olmuştur. Sonuç değiştirilmeden korunur ve aynı popülasyonlarla yeniden
+koşulmaz. Bütün alanlar iki popülasyonu birlikte geçmediğinden F2E başlatılmamış,
+ürün profili üretilmemiş ve PHASE-04 açık kalmıştır. Yeni iyileştirme turu ancak
+ayrı plan, yeni popülasyon commitment'ları ve kullanıcı onayıyla açılabilir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

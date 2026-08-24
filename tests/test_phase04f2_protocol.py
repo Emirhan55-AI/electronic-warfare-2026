@@ -8,6 +8,7 @@ import unittest
 from scripts.lock_phase04f2_protocol import LOCK_PATH, build_lock
 from scripts.prepare_phase04f2_protocol import COMMITMENTS_PATH, SEALED_PATH, verify_preimages
 from scripts.verify_phase04f2_protocol import SUMMARY_PATH, build_summary
+from scripts.reveal_phase04f2_seeds import verify_reveal
 from verification.phase04f2_scoring import score_population, validate_acceptance
 
 
@@ -56,13 +57,15 @@ class Phase04F2ProtocolTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "metric coverage mismatch"):
             score_population(metrics, self.acceptance, "oos")
 
-    def test_local_preimages_match_public_commitments_without_reveal(self) -> None:
+    def test_local_preimages_or_public_reveal_match_commitments(self) -> None:
         if not SEALED_PATH.is_file():
             self.skipTest("local sealed F2 preimages are intentionally not repository-owned")
         sealed = json.loads(SEALED_PATH.read_text(encoding="utf-8"))
         commitments = json.loads(COMMITMENTS_PATH.read_text(encoding="utf-8"))
         self.assertTrue(verify_preimages(sealed, commitments))
-        self.assertFalse((ACCEPTANCE_PATH.parent / "evaluation-seeds.json").exists())
+        reveal_path = ACCEPTANCE_PATH.parent / "evaluation-seeds.json"
+        if reveal_path.exists():
+            self.assertTrue(verify_reveal(json.loads(reveal_path.read_text(encoding="utf-8"))))
 
 
 if __name__ == "__main__":
