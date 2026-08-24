@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f3a-f2d-failure-analysis-v1",
+  "phase": "PHASE-04-F3A",
+  "status": "passed",
+  "f2d_evaluation_status": "failed",
+  "recorded_decisions_reproduced": true,
+  "open_seed_diagnostics": {
+    "per_seed": [
+      {
+        "seed_index": 0,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 47,
+          "ook": 44
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 39,
+          "wrong": 2,
+          "abstained": 7
+        }
+      },
+      {
+        "seed_index": 1,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 46,
+          "ook": 43
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 43,
+          "wrong": 2,
+          "abstained": 3
+        }
+      },
+      {
+        "seed_index": 2,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 45,
+          "ook": 46
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 45,
+          "wrong": 1,
+          "abstained": 2
+        }
+      },
+      {
+        "seed_index": 3,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 46,
+          "ook": 47
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 42,
+          "wrong": 2,
+          "abstained": 4
+        }
+      },
+      {
+        "seed_index": 4,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 44,
+          "ook": 46
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 42,
+          "wrong": 0,
+          "abstained": 6
+        }
+      },
+      {
+        "seed_index": 5,
+        "trial_count": 48,
+        "carrier_valid_counts_12_db": {
+          "am": 48,
+          "nfm": 47,
+          "ook": 46
+        },
+        "ook_domain_counts_6_db": {
+          "correct": 42,
+          "wrong": 1,
+          "abstained": 5
+        }
+      }
+    ],
+    "aggregate": {
+      "carrier_valid_counts_12_db": {
+        "am": 288,
+        "nfm": 275,
+        "ook": 272
+      },
+      "ook_domain_counts_6_db": {
+        "correct": 253,
+        "wrong": 8,
+        "abstained": 27
+      }
+    },
+    "stored_development_counts_reproduced": true
+  },
+  "root_causes": [
+    {
+      "id": "F3A-01",
+      "class": "ook-carrier-seed-generalization",
+      "status": "confirmed",
+      "evidence": {
+        "development": {
+          "valid_count": 272,
+          "trial_count": 288,
+          "valid_rate": 0.9444444444444444
+        },
+        "binding": {
+          "valid_count": 176,
+          "trial_count": 192,
+          "valid_rate": 0.9166666666666666
+        },
+        "oos": {
+          "valid_count": 53,
+          "trial_count": 64,
+          "valid_rate": 0.828125
+        },
+        "oos_required_valid_count": 56,
+        "oos_deficit": 3,
+        "public_seed_valid_counts": [
+          44,
+          43,
+          46,
+          47,
+          46,
+          46
+        ]
+      },
+      "required_action": "Yeni geliştirme bölümü OOK taşıyıcı kararını aggregate oran yerine seed-bazlı alt sınır ve temporal kanıt dağılımıyla doğrulamalıdır."
+    },
+    {
+      "id": "F3A-02",
+      "class": "domain-wrong-decision-safety-margin",
+      "status": "confirmed",
+      "evidence": {
+        "development": {
+          "correct_count": 253,
+          "wrong_count": 8,
+          "abstained_count": 27,
+          "trial_count": 288,
+          "wrong_rate": 0.027777777777777776
+        },
+        "binding": {
+          "correct_count": 169,
+          "wrong_count": 4,
+          "abstained_count": 19,
+          "trial_count": 192,
+          "wrong_rate": 0.020833333333333332
+        },
+        "oos": {
+          "correct_count": 50,
+          "wrong_count": 3,
+          "abstained_count": 11,
+          "trial_count": 64,
+          "wrong_rate": 0.046875
+        },
+        "oos_wrong_count_maximum": 2,
+        "development_wrong_rate_wilson_upper_95": 0.05384584995425789,
+        "oos_wrong_rate_limit": 0.03125,
+        "public_seed_wrong_counts": [
+          2,
+          2,
+          1,
+          2,
+          0,
+          1
+        ]
+      },
+      "required_action": "Yeni yöntem yanlış kesin kararı seed-bazlı risk kapısıyla sınırlamalı; sınırdaki OOK örneklerini Sayısal'a zorlamak yerine abstention'a taşımalıdır."
+    },
+    {
+      "id": "F3A-03",
+      "class": "shared-ook-boundary",
+      "status": "confirmed",
+      "evidence": {
+        "failed_oos_checks": [
+          "carrier-family-valid-count",
+          "domain-family-wrong-count"
+        ],
+        "common_family": "ook",
+        "carrier_condition_db": 12.0,
+        "domain_condition_db": 6.0
+      },
+      "required_action": "F3B taşıyıcı varlığı ile sinyal alanı güvenini ayrı kapılar olarak korurken OOK için ortak zarf/temporal tanı kapsamını genişletmelidir."
+    }
+  ],
+  "protected_inputs": {
+    "algorithms/parameters/f2_development.py": "d058af9cea7a3317cf117b55e1854078d2075509064ad7a3fe07d039570e8209",
+    "algorithms/parameters/f2_domain.py": "ea27952a408d753af2fe6371557d36497ad9e68b1c1d114222fe1daf1512b24c",
+    "algorithms/parameters/f2_estimator.py": "c4a722325926399b78b426fceb1e09826b30d3daaad65840995dfcadf28ee618",
+    "algorithms/parameters/f2_evaluation.py": "ca9e6fc19597c7ba558cbcbd46439f7f6d41e9619b0f7529b937e2312ca9365d",
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "datasets/fixtures/phase04f2/development-catalog.json": "38e0118c0c83045eeaac19de1ed7ad17535b038fe19061973cf0bc74bc403bcb",
+    "datasets/fixtures/phase04f2/domain-model-v3.json": "bcdad4f281b34b6fcfa1368a7b5098841667313aab1442baad4eba68884cc8c8",
+    "datasets/fixtures/phase04f2/method-lock-v3.json": "decea29954173d9ffe01c756a122a8ca6287ed6518312bafddb7d05194eeca81",
+    "datasets/fixtures/phase04f2/evaluation-runner-lock-v3.json": "82e6202a61fd084021416d40d21927a3d3e5a0875d03d192518ab23ae60a3500",
+    "datasets/fixtures/phase04f2/evaluation-seeds.json": "9513e6eba7161d52dee76ac203599c3182da9cdb1b62e6dbecb65f17d288368f",
+    "results/evidence/phase04f2/development-results-v3.json": "56e9cf6f729ea7a64daca34a539edc96d32b67e9b4e8c79ae17c2eb0fac4500e",
+    "results/evidence/phase04f2/binding-results-v3.json": "a1645bcb26063f710ca705aad2d11cabd5709e6b2a31200f0a9000639047b324",
+    "results/evidence/phase04f2/oos-results-v3.json": "02de7c7e5a1d3a4b30e1f6c6e66d556f53e569cb229b2594c0f6c52dbf413dd1",
+    "results/evidence/phase04f2/parameter-comparison-v3.json": "ab084aaaddd80d8ae6936a7940b22b0516b82dc14312f08c32dec68267e7151e",
+    "results/evidence/phase04f2/f2d-verification.json": "e389c1c19af767f1af24028cd811a42549d4849040f8f6eb7835967048cb154c"
+  },
+  "next_phase_requirements": [
+    "F3B başlamadan yeni açık geliştirme seed'leri F1/F2 popülasyonlarından ayrılmalıdır.",
+    "Yeni binding ve OOS seed commitment'ları yöntem geliştirmeden önce oluşturulmalıdır.",
+    "F2 kabul eşikleri gevşetilmemeli; OOK için seed-bazlı güvenlik payı eklenmelidir.",
+    "F3B ayrı kullanıcı onayı olmadan başlatılmamalıdır."
+  ],
+  "claim_boundary": "Salt-okunur F2D kök neden analizidir; yeni yöntem, eşik değişikliği, yeniden koşu veya ürün kararı değildir."
+}

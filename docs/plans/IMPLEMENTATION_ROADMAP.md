@@ -118,6 +118,12 @@ koşulmaz. Bütün alanlar iki popülasyonu birlikte geçmediğinden F2E başlat
 ürün profili üretilmemiş ve PHASE-04 açık kalmıştır. Yeni iyileştirme turu ancak
 ayrı plan, yeni popülasyon commitment'ları ve kullanıcı onayıyla açılabilir.
 
+Kullanıcı onayıyla `PHASE-04-F3 — OOK Dayanıklılığı` turunun yalnız F3A
+salt-okunur kök neden analizi tamamlanmıştır. F2D kararları yeniden üretilmiş;
+aggregate geliştirme oranlarının OOK taşıyıcı seed-alt sınırı ile 6 dB sinyal
+alanı yanlış karar sayımı için yeterli güvenlik payı sağlamadığı doğrulanmıştır.
+F3B yeni protokol/veri ayrımı başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
+
 ## Erken hazırlık istisnası: PHASE-08A
 
 PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.
