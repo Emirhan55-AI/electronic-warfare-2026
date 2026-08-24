@@ -103,10 +103,16 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
   geçti. OOS popülasyonunda emisyon merkezi, gözlenen taşıyıcı frekansı, span
   dayanıklılığı, kalibre edilmemiş kanal gücü ve SNR geçti; OBW99 ile sinyal
   alanı geçmedi. Binding'deki gürültü negatif kontrolünde güç ve SNR için dört
-  yanlış sayısal sonuç görüldü; ortak fail-closed kapısı tüm sayısal alanları
-  başarısız yaptı. Binding OBW aile/kenar kapıları ile 6 dB NFM/OOK alan
-  sınıflandırma kapıları da bağımsız olarak sağlanmadı. OOS'ta NFM OBW geçerlilik
-  ve kenar hatası, ayrıca OOK yanlış alan kararı kilitli sınırların dışında kaldı.
+  yanlış sayısal sonuç görüldü; ortak fail-closed kapısı yerel kapıları geçen beş
+  sayısal alanın tamamını başarısız yaptı. Binding'deki bağımsız alan başarısızlığı
+  6 dB global ve aile tabanlı sinyal alanı kapılarıdır. OOS'ta OBW aile geçerlilik
+  sayısı ile sinyal alanı doğru/yanlış karar sayıları kilitli sınırların dışında
+  kaldı.
 - Kanıt bütünlüğü doğrulaması geçti, ancak değerlendirme kararı başarısızdır.
   Eşikler ve kilitli yöntem değiştirilmedi; yeniden koşu yapılmayacak. Ürün
   profili oluşturulmadı, PHASE-04 açık kaldı ve F1E başlatılmadı.
+- F1D sonrasında PHASE-04-F2 ayrı iyileştirme turu açıldı. F2A salt-okunur
+  analizinde F1 kararlarının tamamı yeniden üretildi; taşıyıcı abstention kapısı
+  ile binding/OOS negatif kontrol kare sayılarının kilitli skorlayıcıda
+  değerlendirilmediği doğrulandı. Ayrıntılar `PHASE04_F2_RECOVERY_PLAN.md` ve
+  `PHASE04_F2A_FAILURE_ANALYSIS.md` içindedir. F2B başlamamıştır.

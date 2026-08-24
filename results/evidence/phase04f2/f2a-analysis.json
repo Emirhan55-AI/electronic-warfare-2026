@@ -1,0 +1,706 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F2A",
+  "status": "passed",
+  "f1_evaluation_status": "failed",
+  "inputs": {
+    "acceptance_gates": {
+      "path": "datasets/fixtures/phase04f1/acceptance-gates.json",
+      "sha256": "357cb4019a4db0e1953839137a79812f214a49c9b8c3f5272665b43573de6a75"
+    },
+    "method_lock": {
+      "path": "datasets/fixtures/phase04f1/method-lock.json",
+      "sha256": "1208c03892cbd08e7e0e46e1e2dc28fb137998437a3d2f5ff07e0b30d7a8d128"
+    },
+    "runner_lock": {
+      "path": "datasets/fixtures/phase04f1/evaluation-runner-lock.json",
+      "sha256": "58492c03e75bf0a8355ffab14c70d24cd6870f6b790f4a2fd5bc0b39e9d18c01"
+    },
+    "development_results": {
+      "path": "results/evidence/phase04f1/development-results.json",
+      "sha256": "cdf4bed8dd08015e5a447618422a43db99de460e051055d821c8b4fcbd1734f8"
+    },
+    "binding_results": {
+      "path": "results/evidence/phase04f1/binding-results.json",
+      "sha256": "c9d280dbe00e042220cc8e8e6bc379df166743759a08c6563a73730ea9f95165"
+    },
+    "oos_results": {
+      "path": "results/evidence/phase04f1/oos-results.json",
+      "sha256": "fa2b2c9e5a24863f3a8e4b13c2c33b437a11694cfe91b76ea0546f79090763de"
+    },
+    "comparison": {
+      "path": "results/evidence/phase04f1/parameter-comparison.json",
+      "sha256": "b50478cb5da8fdd16156723b2da2b898a348bc05d33083246719909a57ab9677"
+    }
+  },
+  "development_field_decisions": {
+    "emission_center_frequency": "passed",
+    "carrier_line_frequency": "passed",
+    "occupied_bandwidth": "passed",
+    "span_robustness": "passed",
+    "uncalibrated_channel_power_dbfs": "passed",
+    "snr_estimate_db": "passed",
+    "signal_domain": "passed"
+  },
+  "binding_audit": {
+    "status": "failed",
+    "fields": {
+      "emission_center_frequency": {
+        "field_local_status": "passed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.85
+          },
+          {
+            "id": "family-q95-maximum",
+            "status": "passed",
+            "actual": 0.7631948283081055,
+            "operator": "<=",
+            "threshold": 1.0
+          },
+          {
+            "id": "global-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "global-q95-maximum",
+            "status": "passed",
+            "actual": 0.6230938901367188,
+            "operator": "<=",
+            "threshold": 1.0
+          }
+        ]
+      },
+      "carrier_line_frequency": {
+        "field_local_status": "passed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-minimum",
+            "status": "passed",
+            "actual": 0.9453125,
+            "operator": ">=",
+            "threshold": 0.85
+          },
+          {
+            "id": "family-q95-maximum",
+            "status": "passed",
+            "actual": 0.25,
+            "operator": "<=",
+            "threshold": 1.0
+          },
+          {
+            "id": "global-valid-minimum",
+            "status": "passed",
+            "actual": 0.9817708333333334,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "false-carrier-rate-maximum",
+            "status": "passed",
+            "actual": 0.0140625,
+            "operator": "<=",
+            "threshold": 0.02
+          }
+        ]
+      },
+      "occupied_bandwidth": {
+        "field_local_status": "passed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-minimum",
+            "status": "passed",
+            "actual": 0.921875,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "global-valid-minimum",
+            "status": "passed",
+            "actual": 0.9677734375,
+            "operator": ">=",
+            "threshold": 0.95
+          },
+          {
+            "id": "relative-q95-maximum",
+            "status": "passed",
+            "actual": 0.10734842915211484,
+            "operator": "<=",
+            "threshold": 0.2
+          },
+          {
+            "id": "lower-edge-q95-maximum",
+            "status": "passed",
+            "actual": 1.6103226693451234,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "upper-edge-q95-maximum",
+            "status": "passed",
+            "actual": 1.5224585144051161,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "temporal-q95-maximum",
+            "status": "passed",
+            "actual": 0.8718762518826679,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "clipping-count-maximum",
+            "status": "passed",
+            "actual": 0,
+            "operator": "<=",
+            "threshold": 0
+          }
+        ]
+      },
+      "span_robustness": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "edge-difference-q95-maximum",
+            "status": "passed",
+            "actual": 0.5979524480514526,
+            "operator": "<=",
+            "threshold": 1.0
+          }
+        ]
+      },
+      "uncalibrated_channel_power_dbfs": {
+        "field_local_status": "passed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "global-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.95
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 0.4635584288470014,
+            "operator": "<=",
+            "threshold": 1.5
+          },
+          {
+            "id": "zero-snr-median-maximum",
+            "status": "passed",
+            "actual": 0.7556842270509385,
+            "operator": "<=",
+            "threshold": 2.0
+          }
+        ]
+      },
+      "snr_estimate_db": {
+        "field_local_status": "passed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "global-valid-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.95
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 1.5326563928624388,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "zero-snr-median-maximum",
+            "status": "passed",
+            "actual": 1.7063123016320487,
+            "operator": "<=",
+            "threshold": 3.0
+          }
+        ]
+      },
+      "signal_domain": {
+        "field_local_status": "failed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "main-global-correct-minimum",
+            "status": "passed",
+            "actual": 0.9743303571428571,
+            "operator": ">=",
+            "threshold": 0.85
+          },
+          {
+            "id": "main-global-wrong-maximum",
+            "status": "passed",
+            "actual": 0.0033482142857142855,
+            "operator": "<=",
+            "threshold": 0.02
+          },
+          {
+            "id": "six-db-global-correct-minimum",
+            "status": "passed",
+            "actual": 0.9051339285714286,
+            "operator": ">=",
+            "threshold": 0.85
+          },
+          {
+            "id": "six-db-global-wrong-maximum",
+            "status": "failed",
+            "actual": 0.020089285714285716,
+            "operator": "<=",
+            "threshold": 0.02
+          },
+          {
+            "id": "family-correct-minimum",
+            "status": "failed",
+            "actual": 0.7421875,
+            "operator": ">=",
+            "threshold": 0.75
+          },
+          {
+            "id": "family-wrong-maximum",
+            "status": "failed",
+            "actual": 0.078125,
+            "operator": "<=",
+            "threshold": 0.05
+          },
+          {
+            "id": "ambiguous-rejection-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.9
+          },
+          {
+            "id": "zero-snr-wrong-maximum",
+            "status": "passed",
+            "actual": 0.0,
+            "operator": "<=",
+            "threshold": 0.05
+          },
+          {
+            "id": "low-snr-abstention-minimum",
+            "status": "passed",
+            "actual": 1.0,
+            "operator": ">=",
+            "threshold": 0.9
+          }
+        ]
+      }
+    },
+    "shared_numeric_noise_gate": {
+      "status": "failed",
+      "checks": [
+        {
+          "id": "center-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "carrier-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "obw-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "power-false-valid-count",
+          "status": "failed",
+          "actual": 4,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "snr-false-valid-count",
+          "status": "failed",
+          "actual": 4,
+          "operator": "<=",
+          "threshold": 0
+        }
+      ]
+    },
+    "domain_noise_gate": {
+      "id": "domain-false-valid-count",
+      "status": "passed",
+      "actual": 0,
+      "operator": "<=",
+      "threshold": 0
+    }
+  },
+  "oos_audit": {
+    "status": "failed",
+    "fields": {
+      "emission_center_frequency": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-count-minimum",
+            "status": "passed",
+            "actual": 32,
+            "operator": ">=",
+            "threshold": 28
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 0.5714311222763061,
+            "operator": "<=",
+            "threshold": 1.0
+          }
+        ]
+      },
+      "carrier_line_frequency": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-count-minimum",
+            "status": "passed",
+            "actual": 31,
+            "operator": ">=",
+            "threshold": 28
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 0.25,
+            "operator": "<=",
+            "threshold": 1.0
+          },
+          {
+            "id": "false-carrier-count-maximum",
+            "status": "passed",
+            "actual": 1,
+            "operator": "<=",
+            "threshold": 1
+          }
+        ]
+      },
+      "occupied_bandwidth": {
+        "field_local_status": "failed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-count-minimum",
+            "status": "failed",
+            "actual": 28,
+            "operator": ">=",
+            "threshold": 31
+          },
+          {
+            "id": "relative-q95-maximum",
+            "status": "passed",
+            "actual": 0.08477923117692457,
+            "operator": "<=",
+            "threshold": 0.2
+          },
+          {
+            "id": "lower-edge-q95-maximum",
+            "status": "passed",
+            "actual": 1.3011996273630757,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "upper-edge-q95-maximum",
+            "status": "passed",
+            "actual": 1.225035329835464,
+            "operator": "<=",
+            "threshold": 2.0
+          },
+          {
+            "id": "clipping-count-maximum",
+            "status": "passed",
+            "actual": 0,
+            "operator": "<=",
+            "threshold": 0
+          }
+        ]
+      },
+      "span_robustness": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "edge-difference-q95-maximum",
+            "status": "passed",
+            "actual": 0.3565046050491333,
+            "operator": "<=",
+            "threshold": 1.0
+          }
+        ]
+      },
+      "uncalibrated_channel_power_dbfs": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-count-minimum",
+            "status": "passed",
+            "actual": 32,
+            "operator": ">=",
+            "threshold": 31
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 0.4721912419013776,
+            "operator": "<=",
+            "threshold": 1.5
+          }
+        ]
+      },
+      "snr_estimate_db": {
+        "field_local_status": "passed",
+        "recorded_status": "passed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-valid-count-minimum",
+            "status": "passed",
+            "actual": 32,
+            "operator": ">=",
+            "threshold": 31
+          },
+          {
+            "id": "q95-error-maximum",
+            "status": "passed",
+            "actual": 1.5214896706596157,
+            "operator": "<=",
+            "threshold": 2.0
+          }
+        ]
+      },
+      "signal_domain": {
+        "field_local_status": "failed",
+        "recorded_status": "failed",
+        "recorded_status_reproduced": true,
+        "checks": [
+          {
+            "id": "family-correct-count-minimum",
+            "status": "failed",
+            "actual": 23,
+            "operator": ">=",
+            "threshold": 24
+          },
+          {
+            "id": "family-wrong-count-maximum",
+            "status": "failed",
+            "actual": 3,
+            "operator": "<=",
+            "threshold": 1
+          }
+        ]
+      }
+    },
+    "shared_numeric_noise_gate": {
+      "status": "passed",
+      "checks": [
+        {
+          "id": "center-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "carrier-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "obw-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "power-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        },
+        {
+          "id": "snr-false-valid-count",
+          "status": "passed",
+          "actual": 0,
+          "operator": "<=",
+          "threshold": 0
+        }
+      ]
+    },
+    "domain_noise_gate": {
+      "id": "domain-false-valid-count",
+      "status": "passed",
+      "actual": 0,
+      "operator": "<=",
+      "threshold": 0
+    }
+  },
+  "protocol_scorer_coverage": [
+    {
+      "gate": "binding.carrier_line_frequency.abstention_rate_minimum",
+      "status": "not_evaluated"
+    },
+    {
+      "gate": "binding.noise_frames_per_sequence",
+      "status": "not_evaluated",
+      "locked_value": 32,
+      "implemented_frames_per_measurement": 4
+    },
+    {
+      "gate": "oos.noise_frames_per_sequence",
+      "status": "not_evaluated",
+      "locked_value": 32,
+      "implemented_frames_per_measurement": 4
+    }
+  ],
+  "findings": [
+    {
+      "id": "F2A-01",
+      "class": "protocol-scorer-coverage",
+      "severity": "critical",
+      "status": "confirmed",
+      "evidence": [
+        "binding.carrier_line_frequency.abstention_rate_minimum",
+        "binding.noise_frames_per_sequence",
+        "oos.noise_frames_per_sequence"
+      ],
+      "required_action": "F2B must reject a protocol unless every binding and OOS gate has an executable coverage check."
+    },
+    {
+      "id": "F2A-02",
+      "class": "cross-field-fail-closed-cascade",
+      "severity": "high",
+      "status": "confirmed",
+      "evidence": {
+        "binding_local_passed_but_recorded_failed": [
+          "emission_center_frequency",
+          "carrier_line_frequency",
+          "occupied_bandwidth",
+          "uncalibrated_channel_power_dbfs",
+          "snr_estimate_db"
+        ],
+        "binding_noise_false_valid_counts": {
+          "center": 0,
+          "carrier": 0,
+          "obw": 0,
+          "power": 4,
+          "snr": 4,
+          "domain": 0
+        }
+      },
+      "required_action": "F2B must define negative-control decisions per field and separately define the whole-profile decision."
+    },
+    {
+      "id": "F2A-03",
+      "class": "noise-rejection",
+      "severity": "high",
+      "status": "confirmed",
+      "evidence": {
+        "binding_false_power": 4,
+        "binding_false_snr": 4,
+        "binding_noise_significance_maximum": 15.581570919975979,
+        "locked_detection_significance_minimum": 12.0
+      },
+      "required_action": "F2C must use an open multi-seed noise-development corpus and preserve zero runtime ground-truth access."
+    },
+    {
+      "id": "F2A-04",
+      "class": "occupied-bandwidth-generalization",
+      "severity": "high",
+      "status": "confirmed",
+      "evidence": {
+        "binding_local_status": "passed",
+        "oos_local_status": "failed",
+        "binding_failed_checks": [],
+        "oos_failed_checks": [
+          "family-valid-count-minimum"
+        ]
+      },
+      "required_action": "F2C must develop OBW independently across wider open seeds and preserve clipping abstention."
+    },
+    {
+      "id": "F2A-05",
+      "class": "signal-domain-generalization",
+      "severity": "high",
+      "status": "confirmed",
+      "evidence": {
+        "binding_failed_checks": [
+          "six-db-global-wrong-maximum",
+          "family-correct-minimum",
+          "family-wrong-maximum"
+        ],
+        "oos_failed_checks": [
+          "family-correct-count-minimum",
+          "family-wrong-count-maximum"
+        ]
+      },
+      "required_action": "F2C must retrain a new bounded model only on a new open development corpus and retain abstention as a first-class outcome."
+    }
+  ],
+  "checks": {
+    "recorded_field_decisions_reproduced": true,
+    "stored_comparison_reproduced": true,
+    "f1_locked_sources_modified": false,
+    "f1_reveal_used_for_method_tuning": false
+  },
+  "claim_boundary": "Bu belge başarısız F1D kanıtının salt-okunur teşhisidir; yeni yöntem, yeni eşik veya ürün başarısı değildir."
+}

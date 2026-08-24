@@ -100,6 +100,13 @@ binding'de kalmıştır. Bütün alanların iki popülasyonu birlikte geçme şa
 sağlanmadığından ürün profili üretilmemiş, F1E başlatılmamış ve PHASE-04 açık
 kalmıştır. Aynı F1D popülasyonlarıyla eşik ayarı veya yeniden koşu yapılmaz.
 
+F1 başarısızlığından sonra `PHASE-04-F2 — Kontrollü İyileştirme` turu açılmıştır.
+F2A salt-okunur kapı analizini tamamlamış; F1 kararlarını yeniden üretmiş,
+alanlar arası negatif kontrol kaskadını ve üç protokol/skor kapsama açığını
+belgelemiştir. Açılmış F1 popülasyonları F2 geliştirmesinde kullanılmayacaktır.
+F2B yeni protokol ve görülmemiş seed commitment kilididir; henüz başlamamıştır ve
+ayrı kullanıcı onayı gerektirir.
+
 ## Erken hazırlık istisnası: PHASE-08A
 
 PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.

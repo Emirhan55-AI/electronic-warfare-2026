@@ -302,6 +302,15 @@ APPROVED_PHASE04_F1_FILES = (
     "verification/phase04_relocation.py",
 )
 
+APPROVED_PHASE04_F2_FILES = (
+    "docs/plans/PHASE04_F2_RECOVERY_PLAN.md",
+    "docs/reviews/PHASE04_F2A_FAILURE_ANALYSIS.md",
+    "results/evidence/phase04f2/f2a-analysis.json",
+    "scripts/verify_phase04f2a.py",
+    "tests/test_phase04f2a_analysis.py",
+    "verification/phase04f2_analysis.py",
+)
+
 APPROVED_PHASE04_FILES = (
     APPROVED_PHASE04_BASE_FILES
     + PHASE04_SUCCESS_ONLY_FILES
@@ -309,6 +318,7 @@ APPROVED_PHASE04_FILES = (
     + APPROVED_PHASE04_E1_FILES
     + PHASE04_E1_SUCCESS_ONLY_FILES
     + APPROVED_PHASE04_F1_FILES
+    + APPROVED_PHASE04_F2_FILES
 )
 
 APPROVED_PHASE08A_FILES = (
