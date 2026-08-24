@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f1-evaluation-runner-lock-v1",
+  "status": "locked-before-seed-reveal",
+  "method_lock_sha256": "1208c03892cbd08e7e0e46e1e2dc28fb137998437a3d2f5ff07e0b30d7a8d128",
+  "protocol_lock_sha256": "6ce085432fc8f74f29442b66ab37e72ce934bcbb9b83dfad241e4fac218f342b",
+  "acceptance_gates_sha256": "357cb4019a4db0e1953839137a79812f214a49c9b8c3f5272665b43573de6a75",
+  "evaluation_commitments_sha256": "a238e0522f1dd42eca16abd8a185e5d950b4805d20cd279185877e661bffc779",
+  "source_manifest": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f1_evaluation.py",
+        "sha256": "d80df72b1e0df6f15252da3b881331b5ab890c2dc720c8dde653a770e9fe376c"
+      },
+      {
+        "path": "scripts/reveal_phase04f1_seeds.py",
+        "sha256": "bc6e714fefc6b34e6e17dd6f4524f4237f7f7e9d64da997afb9604ce177df98e"
+      },
+      {
+        "path": "scripts/run_phase04f1_evaluation.py",
+        "sha256": "9559cb5c891de5e20c6eab451a22fc6a58b04d8257830df631c62abf9195d93e"
+      },
+      {
+        "path": "scripts/verify_phase04f1_evaluation.py",
+        "sha256": "4d46bffd7d22c352c071615cf2de0ce2fd550d6403980a2d8d04001f941f5b17"
+      },
+      {
+        "path": "scripts/lock_phase04f1_evaluation_runner.py",
+        "sha256": "705d101ce2076c88e7b3dfec6b0554ded47fb75aff541ac4c947d413957296de"
+      }
+    ]
+  },
+  "source_manifest_sha256": "2dc53eaddd6aa655e65315f50ce8dba83602fc687618a19d051677edb5a152d5",
+  "execution_order": [
+    "runner-lock",
+    "commit-and-push",
+    "seed-reveal",
+    "binding",
+    "oos",
+    "verification"
+  ],
+  "rerun_after_started_allowed": false,
+  "threshold_changes_after_reveal_allowed": false,
+  "claim_boundary": "Çalıştırıcı ve skor uyarlaması seed reveal öncesinde kilitlenmiştir; değerlendirme sonucu değildir.",
+  "evaluation_runner_lock_sha256": "186a23a8744d357a92afa96e5752545b8b4001d2a08c92d237aea5bd13f915b1"
+}

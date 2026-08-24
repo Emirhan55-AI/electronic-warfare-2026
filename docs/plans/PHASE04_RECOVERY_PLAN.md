@@ -94,5 +94,8 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
 - Yöntem ve uygulama girdileri binding/OOS seed reveal öncesinde
   `d42ba38cda80c901f57288a23d253e787b9f88aabd607dbd01e4dbd4fdab9e2b`
   method-lock digest'ine bağlandı. Seed'ler açılmadı.
-- PHASE-04-F1D başlamamıştır. Sonraki işlem geri döndürülemez tek seferlik seed
-  reveal, binding ve OOS değerlendirmesidir; sonuç başarısız olsa da korunacaktır.
+- PHASE-04-F1D için tek seferlik değerlendirme çalıştırıcısı yöntem kilidinden
+  ayrı bir digest ile seed reveal öncesinde kilitlenecektir. Kilit Git geçmişine
+  ve uzak depoya alındıktan sonra seed commitment'ları doğrulanacak; binding ve
+  OOS popülasyonları yalnız bir kez çalıştırılacaktır. Sonuç başarısız olsa da
+  korunacak, eşikler ve kilitli yöntem değiştirilmeden kaydedilecektir.
