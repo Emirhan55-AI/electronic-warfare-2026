@@ -118,11 +118,15 @@ koşulmaz. Bütün alanlar iki popülasyonu birlikte geçmediğinden F2E başlat
 ürün profili üretilmemiş ve PHASE-04 açık kalmıştır. Yeni iyileştirme turu ancak
 ayrı plan, yeni popülasyon commitment'ları ve kullanıcı onayıyla açılabilir.
 
-Kullanıcı onayıyla `PHASE-04-F3 — OOK Dayanıklılığı` turunun yalnız F3A
-salt-okunur kök neden analizi tamamlanmıştır. F2D kararları yeniden üretilmiş;
-aggregate geliştirme oranlarının OOK taşıyıcı seed-alt sınırı ile 6 dB sinyal
-alanı yanlış karar sayımı için yeterli güvenlik payı sağlamadığı doğrulanmıştır.
-F3B yeni protokol/veri ayrımı başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
+Kullanıcı onayıyla `PHASE-04-F3 — OOK Dayanıklılığı` turunun F3A salt-okunur
+kök neden analizi ve F3B ön-yöntem protokol kilidi tamamlanmıştır. F2D kararları
+yeniden üretilmiş; aggregate geliştirme oranlarının OOK taşıyıcı seed-alt sınırı
+ile 6 dB sinyal alanı yanlış karar sayımı için yeterli güvenlik payı sağlamadığı
+doğrulanmıştır. F2'nin 40 binding ve 24 OOS kontrolü gevşetilmeden byte-bağlı
+korunmuş; sekiz yeni açık seed ayrılmış, 14 ek seed-bazlı geliştirme kapısı
+çalıştırılabilir sözleşmeye alınmış ve yeni binding/OOS preimage'ları v4
+kaynaklarından önce commitment ile kapatılmıştır. F3C yöntem geliştirmesi
+başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

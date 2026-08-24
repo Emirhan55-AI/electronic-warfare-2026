@@ -55,7 +55,11 @@ popülasyon yeniden çalıştırılmaz.
 
 ## Durum
 
-PHASE-04-F3A tamamlanmıştır. F2D sonuçları ve açık geliştirme sayımları yeniden
-üretilmiş; OOK taşıyıcı seed genellemesi, sinyal alanı yanlış karar güvenlik payı
-ve ortak OOK sınırı olmak üzere üç kök neden sınıfı doğrulanmıştır. F3B
+PHASE-04-F3A ve F3B tamamlanmıştır. F2D sonuçları ve açık geliştirme sayımları
+yeniden üretilmiş; OOK taşıyıcı seed genellemesi, sinyal alanı yanlış karar
+güvenlik payı ve ortak OOK sınırı olmak üzere üç kök neden sınıfı
+doğrulanmıştır. Sekiz yeni açık seed F1/F2 popülasyonlarından ayrılmış, F2'nin
+40 binding ve 24 OOS kontrolü byte-bağlı korunmuş, 14 ek seed-bazlı geliştirme
+kapısı çalıştırılabilir sözleşmeye alınmış ve görülmemiş F3 binding/OOS
+preimage'ları v4 kaynaklarından önce commitment ile kapatılmıştır. F3C
 başlatılmamış ve ayrı kullanıcı onayı beklemektedir.

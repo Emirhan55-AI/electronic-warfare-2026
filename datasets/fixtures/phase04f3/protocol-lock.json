@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f3-evaluation-protocol-lock-v1",
+  "status": "locked-before-v4-method-development",
+  "inputs": {
+    "datasets/fixtures/phase04f3/acceptance-gates.json": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "datasets/fixtures/phase04f3/development-catalog.json": "550f5fc41ad1f6971612e0a47b6038d688fa421ba5d6c63228dfadfe47e1eff8",
+    "datasets/fixtures/phase04f3/evaluation-commitments.json": "88625895675c02c16a00048c8f9c58aabe59f899510665bbe0b4c64ce79b484a",
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "docs/interfaces/PHASE04_F3_PARAMETER_CONTRACT.md": "94e81c7ae2792615cd2c2e722d84ec90343c641be814215ab5385864ede4baa3",
+    "docs/plans/PHASE04_F3_RECOVERY_PLAN.md": "ba561278b68325193f122a2053e0b096ca5100b7c51b24fd6344bd7368549dc0",
+    "docs/reviews/PHASE04_F3A_FAILURE_ANALYSIS.md": "2de1bccd333aebb62e8ae20369019d9558c566d2aec00c8eea15229556c71ef6",
+    "results/evidence/phase04f3/f3a-analysis.json": "4667b38de5c818a9bce754db418b02794f9dbc1b8969d323452a3da225125a1d",
+    "verification/phase04f3_analysis.py": "990dfb4d66dfe3057189b114e957b83f932fcd7353daa23713367f964feb8199",
+    "verification/phase04f3_scoring.py": "9420a71788c25d3113b7ae1000585e2bbf40b5b20b90ace7a9567b85b29c8de6",
+    "scripts/verify_phase04f3a.py": "12c559d9b5d22d5bc94c0d85cbf93b787b7574727a3b8a143afcaddea926dbad",
+    "scripts/prepare_phase04f3_protocol.py": "40175fd8d1dcc3d78b78b2e9f7cf3357bf73b4f73714f3474180a715a142366a",
+    "scripts/lock_phase04f3_protocol.py": "b7e368e1bccc878112203fbf9059ba91ee30a90f6cb57eb4da6d727789af3c66",
+    "scripts/verify_phase04f3_protocol.py": "f2fe598a9c2d2821e58c6b2d83579d00a4b3b6e3cf7737759056d669494e64e6",
+    "algorithms/parameters/scenes.py": "d5ceef7f4d66cb3aa4bc75263477212e58e9378b97e4b119879c7697cbddfd74",
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "profiles/phase03/operation-default.json": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "protected_historical_inputs": {
+    "datasets/fixtures/phase04f1/method-lock.json": "1208c03892cbd08e7e0e46e1e2dc28fb137998437a3d2f5ff07e0b30d7a8d128",
+    "datasets/fixtures/phase04f1/evaluation-runner-lock.json": "58492c03e75bf0a8355ffab14c70d24cd6870f6b790f4a2fd5bc0b39e9d18c01",
+    "results/evidence/phase04f1/binding-results.json": "c9d280dbe00e042220cc8e8e6bc379df166743759a08c6563a73730ea9f95165",
+    "results/evidence/phase04f1/oos-results.json": "fa2b2c9e5a24863f3a8e4b13c2c33b437a11694cfe91b76ea0546f79090763de",
+    "results/evidence/phase04f1/parameter-comparison.json": "b50478cb5da8fdd16156723b2da2b898a348bc05d33083246719909a57ab9677",
+    "datasets/fixtures/phase04f2/method-lock-v3.json": "decea29954173d9ffe01c756a122a8ca6287ed6518312bafddb7d05194eeca81",
+    "datasets/fixtures/phase04f2/evaluation-runner-lock-v3.json": "82e6202a61fd084021416d40d21927a3d3e5a0875d03d192518ab23ae60a3500",
+    "results/evidence/phase04f2/binding-results-v3.json": "a1645bcb26063f710ca705aad2d11cabd5709e6b2a31200f0a9000639047b324",
+    "results/evidence/phase04f2/oos-results-v3.json": "02de7c7e5a1d3a4b30e1f6c6e66d556f53e569cb229b2594c0f6c52dbf413dd1",
+    "results/evidence/phase04f2/parameter-comparison-v3.json": "ab084aaaddd80d8ae6936a7940b22b0516b82dc14312f08c32dec68267e7151e",
+    "results/evidence/phase04f2/f2d-verification.json": "e389c1c19af767f1af24028cd811a42549d4849040f8f6eb7835967048cb154c"
+  },
+  "scoring_coverage": {
+    "status": "passed",
+    "problems": [],
+    "base_check_counts": {
+      "binding": 40,
+      "oos": 24
+    },
+    "development_check_count": 14
+  },
+  "evaluation_order": [
+    "protocol-lock",
+    "v4-development",
+    "method-lock",
+    "runner-lock",
+    "commit-and-push",
+    "seed-reveal",
+    "binding",
+    "oos",
+    "profile-binding"
+  ],
+  "runtime_ground_truth_allowed": false,
+  "f1_or_f2_populations_allowed_for_tuning": false,
+  "threshold_changes_after_method_development_allowed": false,
+  "claim_boundary": "F3 protokol, scorer ve commitment kilididir; yöntem, değerlendirme veya ürün başarısı değildir.",
+  "protocol_lock_sha256": "213dc5ef09efbc83b2ce75d75ec01beaabccbd9e673bcb08bb210b3272f2c738"
+}

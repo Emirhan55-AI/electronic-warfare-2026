@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "contract_id": "phase04f3-ook-robustness-acceptance-v1",
+  "status": "locked-before-v4-method-development",
+  "authority": {
+    "specified_by_competition": false,
+    "gate_class": "project_internal_engineering",
+    "results_must_not_change_thresholds": true,
+    "f2_acceptance_thresholds_relaxed": false
+  },
+  "base_acceptance": {
+    "path": "datasets/fixtures/phase04f2/acceptance-gates.json",
+    "sha256": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "binding_check_count": 40,
+    "oos_check_count": 24,
+    "decision": "all F2 binding and OOS checks remain mandatory and byte-bound"
+  },
+  "development_population_contract": {
+    "seed_count": 8,
+    "trials_per_seed_per_family": 48,
+    "total_trials_per_family": 384,
+    "negative_control_measurements_per_seed": 64,
+    "total_negative_control_measurements": 512,
+    "frames_per_measurement": 4,
+    "snr_db": [-6.0, 0.0, 6.0, 12.0],
+    "base_gate_role": "binding"
+  },
+  "development_checks": [
+    {"id": "ook-carrier-seed-valid", "owner": "carrier_line_frequency", "metric": "carrier.ook.seed_min_valid_count_12_db", "operator": ">=", "threshold": 45},
+    {"id": "ook-carrier-seed-frame-support", "owner": "carrier_line_frequency", "metric": "carrier.ook.seed_min_qualifying_frame_count_12_db", "operator": ">=", "threshold": 180},
+    {"id": "ook-carrier-seed-full-support", "owner": "carrier_line_frequency", "metric": "carrier.ook.seed_min_all_frames_qualified_count_12_db", "operator": ">=", "threshold": 42},
+    {"id": "carrier-nonapplicable-seed-false-valid", "owner": "carrier_line_frequency", "metric": "carrier.nonapplicable.seed_max_false_valid_count_12_db", "operator": "<=", "threshold": 1},
+    {"id": "carrier-nonapplicable-aggregate-false-valid", "owner": "carrier_line_frequency", "metric": "carrier.nonapplicable.aggregate_false_valid_count_12_db", "operator": "<=", "threshold": 2},
+    {"id": "ook-domain-seed-correct", "owner": "signal_domain", "metric": "domain.ook.seed_min_correct_count_6_db", "operator": ">=", "threshold": 40},
+    {"id": "ook-domain-seed-wrong", "owner": "signal_domain", "metric": "domain.ook.seed_max_wrong_count_6_db", "operator": "<=", "threshold": 1},
+    {"id": "ook-domain-aggregate-wrong", "owner": "signal_domain", "metric": "domain.ook.aggregate_wrong_count_6_db", "operator": "<=", "threshold": 2},
+    {"id": "development-noise-center-false-valid", "owner": "emission_center_frequency", "metric": "noise.center_false_valid_count", "operator": "<=", "threshold": 0},
+    {"id": "development-noise-carrier-false-valid", "owner": "carrier_line_frequency", "metric": "noise.carrier_false_valid_count", "operator": "<=", "threshold": 0},
+    {"id": "development-noise-obw-false-valid", "owner": "occupied_bandwidth", "metric": "noise.obw_false_valid_count", "operator": "<=", "threshold": 0},
+    {"id": "development-noise-power-false-valid", "owner": "uncalibrated_channel_power_dbfs", "metric": "noise.power_false_valid_count", "operator": "<=", "threshold": 0},
+    {"id": "development-noise-snr-false-valid", "owner": "snr_estimate_db", "metric": "noise.snr_false_valid_count", "operator": "<=", "threshold": 0},
+    {"id": "development-noise-domain-false-valid", "owner": "signal_domain", "metric": "noise.domain_false_valid_count", "operator": "<=", "threshold": 0}
+  ],
+  "runtime_constraints": {
+    "runtime_ground_truth_allowed": false,
+    "frames_per_measurement": 4,
+    "worker_count": 1,
+    "maximum_pending_intent_count": 1,
+    "maximum_persistent_payload_bytes": 65536
+  },
+  "risk_margin_basis": {
+    "carrier_oos_required_rate": 0.875,
+    "carrier_development_seed_minimum_rate": 0.9375,
+    "carrier_development_qualifying_frame_minimum_rate": 0.9375,
+    "carrier_development_all_frames_minimum_rate": 0.875,
+    "domain_oos_minimum_correct_rate": 0.75,
+    "domain_development_seed_minimum_correct_rate": 0.8333333333333334,
+    "domain_oos_maximum_wrong_rate": 0.03125,
+    "domain_development_seed_maximum_wrong_rate": 0.020833333333333332,
+    "domain_development_aggregate_maximum_wrong_rate": 0.005208333333333333
+  },
+  "claim_boundary": "F3B ön-yöntem kabul sözleşmesidir; algoritma, değerlendirme, canlı RF veya ürün başarısı değildir."
+}
