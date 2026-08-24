@@ -25,7 +25,7 @@
     }
   ],
   "historical_integrity": {
-    "files": 101,
+    "files": 111,
     "status": "passed"
   },
   "hardware_status": "not_exercised",
