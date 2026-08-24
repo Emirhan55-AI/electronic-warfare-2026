@@ -115,4 +115,11 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
   analizinde F1 kararlarının tamamı yeniden üretildi; taşıyıcı abstention kapısı
   ile binding/OOS negatif kontrol kare sayılarının kilitli skorlayıcıda
   değerlendirilmediği doğrulandı. Ayrıntılar `PHASE04_F2_RECOVERY_PLAN.md` ve
-  `PHASE04_F2A_FAILURE_ANALYSIS.md` içindedir. F2B başlamamıştır.
+  `PHASE04_F2A_FAILURE_ANALYSIS.md` içindedir.
+- PHASE-04-F2B tamamlandı. Altı yeni açık geliştirme seed'i, 288 trial/aile ve
+  384 negatif kontrol ölçümü ayrıldı. Binding için 40, OOS için 24 benzersiz
+  çalıştırılabilir kapı; alan bazlı negatif kontrol ve iki popülasyonda düşük SNR
+  taşıyıcı abstention zorunlu hale getirildi. Yeni binding/OOS seed preimage'ları
+  repository dışında tutuluyor; commitment ve protokol
+  `ca22f1189a5e5dbf0b0cd6e3af1a8518f80048733b15f011610091889d671614`
+  kimliğiyle v3 yöntem geliştirmesi öncesinde kilitlendi. F2C başlamamıştır.

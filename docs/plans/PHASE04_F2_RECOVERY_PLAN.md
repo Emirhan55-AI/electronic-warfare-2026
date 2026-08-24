@@ -55,4 +55,11 @@ ancak ayrı plan ve yeni popülasyonlarla açılabilir.
 
 PHASE-04-F2A tamamlanmıştır. Beş kök neden sınıfı makinece doğrulanmış, F1 kayıtlı
 kararlarının tamamı yeniden üretilmiş ve üç protokol/skor kapsama açığı
-belirlenmiştir. F2B başlamamıştır.
+belirlenmiştir.
+
+PHASE-04-F2B tamamlanmıştır. Altı yeni açık geliştirme seed'i, 288 trial/aile ve
+384 negatif kontrol ölçümü tanımlanmıştır. Binding için 40, OOS için 24 benzersiz
+çalıştırılabilir kontrol vardır. Her zorunlu alanın ayrı negatif kontrolü ve
+binding/OOS düşük SNR taşıyıcı abstention kapısı zorunludur. Yeni binding/OOS seed
+preimage'ları repository dışında kapalı tutulur; yalnız commitment değerleri
+izlenir. F2C başlamamıştır.

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "catalog_id": "phase04f2-open-development-v1",
+  "role": "development-only",
+  "index_order": "fftshift",
+  "common": {
+    "frame_length": 4096,
+    "sample_rate_hz": 8000000,
+    "center_frequency_hz": 100000000,
+    "frames_per_measurement": 4,
+    "snr_db": [-6.0, 0.0, 6.0, 12.0],
+    "trials_per_seed_per_family": 48,
+    "development_seeds": [
+      3502604761305543594,
+      8454922019061366227,
+      2711232513955414947,
+      6330240449517362564,
+      4003692498437058614,
+      4437923290609659981
+    ],
+    "total_trials_per_family": 288,
+    "negative_control_measurements_per_seed": 64,
+    "total_negative_control_measurements": 384,
+    "operator_span_truth_margin_bins_per_side": 12,
+    "span_perturbation_bins": [-4, 0, 4]
+  },
+  "families": [
+    {"id": "am", "scene_id": "am-carrier", "domain": "Analog", "carrier_line_applicable": true},
+    {"id": "nfm", "scene_id": "nfm", "domain": "Analog", "carrier_line_applicable": true},
+    {"id": "ook", "scene_id": "ook", "domain": "Sayısal", "carrier_line_applicable": true},
+    {"id": "two_fsk", "scene_id": "two-fsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "bpsk", "scene_id": "bpsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "qpsk", "scene_id": "qpsk", "domain": "Sayısal", "carrier_line_applicable": false},
+    {"id": "wideband_noise_like", "scene_id": "wideband-noise-like", "domain": "Belirsiz", "carrier_line_applicable": false},
+    {"id": "burst_qpsk", "scene_id": "burst-qpsk", "domain": "Sayısal", "carrier_line_applicable": false, "active_frames": [2, 3, 4, 5]}
+  ],
+  "isolation_scene": {"id": "close_am_qpsk", "scene_id": "close-am-qpsk"},
+  "negative_scene": {"id": "noise_only", "scene_id": "noise-only"},
+  "data_separation": {
+    "f1_revealed_populations_allowed_for_tuning": false,
+    "f2_binding_oos_preimages_available_to_method": false
+  },
+  "claim_boundary": "Yalnız F2C yöntem geliştirme ve tanı kataloğudur; F1 reveal, F2 binding veya F2 OOS sonucu değildir."
+}

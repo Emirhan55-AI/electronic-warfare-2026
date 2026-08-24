@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F2B",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "protocol-lock",
+      "status": "passed"
+    },
+    {
+      "id": "input-digests",
+      "status": "passed"
+    },
+    {
+      "id": "f1-evidence-immutability",
+      "status": "passed"
+    },
+    {
+      "id": "executable-gate-coverage",
+      "status": "passed"
+    },
+    {
+      "id": "open-development-partition",
+      "status": "passed"
+    },
+    {
+      "id": "f1-reveal-excluded-from-development",
+      "status": "passed"
+    },
+    {
+      "id": "sealed-evaluation-populations",
+      "status": "passed"
+    },
+    {
+      "id": "local-preimages",
+      "status": "passed"
+    },
+    {
+      "id": "evaluation-order",
+      "status": "passed"
+    }
+  ],
+  "protocol_lock_sha256": "8fc93e1b2133e6d6b5fb7660fe9effbd8bcd17d7477688eef4e1ea1d9f9004fe",
+  "protocol_lock_identity": "ca22f1189a5e5dbf0b0cd6e3af1a8518f80048733b15f011610091889d671614",
+  "binding_seed_revealed": false,
+  "oos_seed_revealed": false,
+  "v3_method_started": false,
+  "claim_boundary": "F2 protokol ve veri ayrımı kanıtıdır; algoritma, binding/OOS veya ürün başarısı değildir."
+}

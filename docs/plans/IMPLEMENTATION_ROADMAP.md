@@ -103,9 +103,12 @@ kalmıştır. Aynı F1D popülasyonlarıyla eşik ayarı veya yeniden koşu yap�
 F1 başarısızlığından sonra `PHASE-04-F2 — Kontrollü İyileştirme` turu açılmıştır.
 F2A salt-okunur kapı analizini tamamlamış; F1 kararlarını yeniden üretmiş,
 alanlar arası negatif kontrol kaskadını ve üç protokol/skor kapsama açığını
-belgelemiştir. Açılmış F1 popülasyonları F2 geliştirmesinde kullanılmayacaktır.
-F2B yeni protokol ve görülmemiş seed commitment kilididir; henüz başlamamıştır ve
-ayrı kullanıcı onayı gerektirir.
+belgelemiştir. F2B de tamamlanmış; 40 binding ve 24 OOS kontrolünün tamamı
+çalıştırılabilir scorer sözleşmesine bağlanmış, altı yeni açık geliştirme seed'i
+ayrılmış ve görülmemiş binding/OOS seed commitment'ları v3 yöntem geliştirmesi
+öncesinde kilitlenmiştir. Açılmış F1 popülasyonları F2 geliştirmesinde
+kullanılmayacaktır. Sıradaki kontrollü alt faz ayrı kullanıcı onayı gerektiren
+F2C v3 yöntem geliştirmesidir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

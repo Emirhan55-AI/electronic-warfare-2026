@@ -303,12 +303,23 @@ APPROVED_PHASE04_F1_FILES = (
 )
 
 APPROVED_PHASE04_F2_FILES = (
+    "datasets/fixtures/phase04f2/acceptance-gates.json",
+    "datasets/fixtures/phase04f2/development-catalog.json",
+    "datasets/fixtures/phase04f2/evaluation-commitments.json",
+    "datasets/fixtures/phase04f2/protocol-lock.json",
+    "docs/interfaces/PHASE04_F2_PARAMETER_CONTRACT.md",
     "docs/plans/PHASE04_F2_RECOVERY_PLAN.md",
     "docs/reviews/PHASE04_F2A_FAILURE_ANALYSIS.md",
     "results/evidence/phase04f2/f2a-analysis.json",
+    "results/evidence/phase04f2/f2b-verification.json",
+    "scripts/lock_phase04f2_protocol.py",
+    "scripts/prepare_phase04f2_protocol.py",
     "scripts/verify_phase04f2a.py",
+    "scripts/verify_phase04f2_protocol.py",
     "tests/test_phase04f2a_analysis.py",
+    "tests/test_phase04f2_protocol.py",
     "verification/phase04f2_analysis.py",
+    "verification/phase04f2_scoring.py",
 )
 
 APPROVED_PHASE04_FILES = (

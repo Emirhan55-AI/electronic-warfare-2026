@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "contract_id": "phase04f2-field-acceptance-v1",
+  "status": "locked-before-v3-method-development",
+  "authority": {
+    "specified_by_competition": false,
+    "gate_class": "project_internal_engineering",
+    "results_must_not_change_thresholds": true,
+    "f1_accuracy_thresholds_relaxed": false
+  },
+  "required_parameter_fields": [
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db",
+    "signal_domain"
+  ],
+  "required_support_gates": ["span_robustness"],
+  "profile_decision": "all required parameter fields and support gates must pass binding and OOS",
+  "population_contract": {
+    "binding": {
+      "trials_per_family": 192,
+      "noise_measurements": 256,
+      "frames_per_measurement": 4,
+      "snr_db": [-6.0, 0.0, 6.0, 12.0]
+    },
+    "oos": {
+      "trials_per_family": 64,
+      "noise_measurements": 64,
+      "frames_per_measurement": 4,
+      "snr_db": [-6.0, 0.0, 6.0, 12.0]
+    }
+  },
+  "checks": {
+    "binding": [
+      {"id": "center-family-valid", "owner": "emission_center_frequency", "metric": "center.family_min_valid_rate", "operator": ">=", "threshold": 0.85},
+      {"id": "center-family-q95", "owner": "emission_center_frequency", "metric": "center.family_max_q95_error_bins", "operator": "<=", "threshold": 1.0},
+      {"id": "center-global-valid", "owner": "emission_center_frequency", "metric": "center.global_valid_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "center-global-q95", "owner": "emission_center_frequency", "metric": "center.global_q95_error_bins", "operator": "<=", "threshold": 1.0},
+      {"id": "center-noise-false-valid", "owner": "emission_center_frequency", "metric": "noise.center_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "carrier-family-valid", "owner": "carrier_line_frequency", "metric": "carrier.family_min_valid_rate", "operator": ">=", "threshold": 0.85},
+      {"id": "carrier-family-q95", "owner": "carrier_line_frequency", "metric": "carrier.family_max_q95_error_bins", "operator": "<=", "threshold": 1.0},
+      {"id": "carrier-global-valid", "owner": "carrier_line_frequency", "metric": "carrier.global_valid_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "carrier-false-rate", "owner": "carrier_line_frequency", "metric": "carrier.false_carrier_rate", "operator": "<=", "threshold": 0.02},
+      {"id": "carrier-low-snr-abstention", "owner": "carrier_line_frequency", "metric": "carrier.low_snr_abstention_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "carrier-noise-false-valid", "owner": "carrier_line_frequency", "metric": "noise.carrier_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "obw-family-valid", "owner": "occupied_bandwidth", "metric": "obw.family_min_valid_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "obw-global-valid", "owner": "occupied_bandwidth", "metric": "obw.global_valid_rate", "operator": ">=", "threshold": 0.95},
+      {"id": "obw-relative-q95", "owner": "occupied_bandwidth", "metric": "obw.global_relative_q95", "operator": "<=", "threshold": 0.20},
+      {"id": "obw-lower-edge-q95", "owner": "occupied_bandwidth", "metric": "obw.global_lower_edge_q95_bins", "operator": "<=", "threshold": 2.0},
+      {"id": "obw-upper-edge-q95", "owner": "occupied_bandwidth", "metric": "obw.global_upper_edge_q95_bins", "operator": "<=", "threshold": 2.0},
+      {"id": "obw-temporal-q95", "owner": "occupied_bandwidth", "metric": "obw.global_temporal_q95_bins", "operator": "<=", "threshold": 2.0},
+      {"id": "obw-clipping", "owner": "occupied_bandwidth", "metric": "obw.clipping_count", "operator": "<=", "threshold": 0},
+      {"id": "obw-noise-false-valid", "owner": "occupied_bandwidth", "metric": "noise.obw_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "span-edge-difference-q95", "owner": "span_robustness", "metric": "span.edge_difference_q95_bins", "operator": "<=", "threshold": 1.0},
+
+      {"id": "power-family-valid", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.family_min_valid_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "power-global-valid", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.global_valid_rate", "operator": ">=", "threshold": 0.95},
+      {"id": "power-q95", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.global_q95_error_db", "operator": "<=", "threshold": 1.5},
+      {"id": "power-zero-snr-median", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.zero_snr_median_error_db", "operator": "<=", "threshold": 2.0},
+      {"id": "power-noise-false-valid", "owner": "uncalibrated_channel_power_dbfs", "metric": "noise.power_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "snr-family-valid", "owner": "snr_estimate_db", "metric": "snr.family_min_valid_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "snr-global-valid", "owner": "snr_estimate_db", "metric": "snr.global_valid_rate", "operator": ">=", "threshold": 0.95},
+      {"id": "snr-q95", "owner": "snr_estimate_db", "metric": "snr.global_q95_error_db", "operator": "<=", "threshold": 2.0},
+      {"id": "snr-zero-snr-median", "owner": "snr_estimate_db", "metric": "snr.zero_snr_median_error_db", "operator": "<=", "threshold": 3.0},
+      {"id": "snr-noise-false-valid", "owner": "snr_estimate_db", "metric": "noise.snr_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "domain-main-global-correct", "owner": "signal_domain", "metric": "domain.main_global_correct_rate", "operator": ">=", "threshold": 0.85},
+      {"id": "domain-main-global-wrong", "owner": "signal_domain", "metric": "domain.main_global_wrong_rate", "operator": "<=", "threshold": 0.02},
+      {"id": "domain-six-global-correct", "owner": "signal_domain", "metric": "domain.six_db_global_correct_rate", "operator": ">=", "threshold": 0.85},
+      {"id": "domain-six-global-wrong", "owner": "signal_domain", "metric": "domain.six_db_global_wrong_rate", "operator": "<=", "threshold": 0.02},
+      {"id": "domain-family-correct", "owner": "signal_domain", "metric": "domain.family_min_correct_rate", "operator": ">=", "threshold": 0.75},
+      {"id": "domain-family-wrong", "owner": "signal_domain", "metric": "domain.family_max_wrong_rate", "operator": "<=", "threshold": 0.05},
+      {"id": "domain-ambiguous-rejection", "owner": "signal_domain", "metric": "domain.ambiguous_rejection_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "domain-zero-snr-wrong", "owner": "signal_domain", "metric": "domain.zero_snr_wrong_rate", "operator": "<=", "threshold": 0.05},
+      {"id": "domain-low-snr-abstention", "owner": "signal_domain", "metric": "domain.low_snr_abstention_rate", "operator": ">=", "threshold": 0.90},
+      {"id": "domain-noise-false-valid", "owner": "signal_domain", "metric": "noise.domain_false_valid_count", "operator": "<=", "threshold": 0}
+    ],
+    "oos": [
+      {"id": "center-family-valid-count", "owner": "emission_center_frequency", "metric": "center.family_min_valid_count", "operator": ">=", "threshold": 56},
+      {"id": "center-q95", "owner": "emission_center_frequency", "metric": "center.global_q95_error_bins", "operator": "<=", "threshold": 1.0},
+      {"id": "center-noise-false-valid", "owner": "emission_center_frequency", "metric": "noise.center_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "carrier-family-valid-count", "owner": "carrier_line_frequency", "metric": "carrier.family_min_valid_count", "operator": ">=", "threshold": 56},
+      {"id": "carrier-q95", "owner": "carrier_line_frequency", "metric": "carrier.global_q95_error_bins", "operator": "<=", "threshold": 1.0},
+      {"id": "carrier-false-count", "owner": "carrier_line_frequency", "metric": "carrier.false_carrier_count", "operator": "<=", "threshold": 2},
+      {"id": "carrier-low-snr-abstention-count", "owner": "carrier_line_frequency", "metric": "carrier.family_min_low_snr_abstention_count", "operator": ">=", "threshold": 56},
+      {"id": "carrier-noise-false-valid", "owner": "carrier_line_frequency", "metric": "noise.carrier_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "obw-family-valid-count", "owner": "occupied_bandwidth", "metric": "obw.family_min_valid_count", "operator": ">=", "threshold": 62},
+      {"id": "obw-relative-q95", "owner": "occupied_bandwidth", "metric": "obw.global_relative_q95", "operator": "<=", "threshold": 0.20},
+      {"id": "obw-lower-edge-q95", "owner": "occupied_bandwidth", "metric": "obw.global_lower_edge_q95_bins", "operator": "<=", "threshold": 2.0},
+      {"id": "obw-upper-edge-q95", "owner": "occupied_bandwidth", "metric": "obw.global_upper_edge_q95_bins", "operator": "<=", "threshold": 2.0},
+      {"id": "obw-clipping", "owner": "occupied_bandwidth", "metric": "obw.clipping_count", "operator": "<=", "threshold": 0},
+      {"id": "obw-noise-false-valid", "owner": "occupied_bandwidth", "metric": "noise.obw_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "span-edge-difference-q95", "owner": "span_robustness", "metric": "span.edge_difference_q95_bins", "operator": "<=", "threshold": 1.0},
+
+      {"id": "power-family-valid-count", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.family_min_valid_count", "operator": ">=", "threshold": 62},
+      {"id": "power-q95", "owner": "uncalibrated_channel_power_dbfs", "metric": "power.global_q95_error_db", "operator": "<=", "threshold": 1.5},
+      {"id": "power-noise-false-valid", "owner": "uncalibrated_channel_power_dbfs", "metric": "noise.power_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "snr-family-valid-count", "owner": "snr_estimate_db", "metric": "snr.family_min_valid_count", "operator": ">=", "threshold": 62},
+      {"id": "snr-q95", "owner": "snr_estimate_db", "metric": "snr.global_q95_error_db", "operator": "<=", "threshold": 2.0},
+      {"id": "snr-noise-false-valid", "owner": "snr_estimate_db", "metric": "noise.snr_false_valid_count", "operator": "<=", "threshold": 0},
+
+      {"id": "domain-family-correct-count", "owner": "signal_domain", "metric": "domain.family_min_correct_count", "operator": ">=", "threshold": 48},
+      {"id": "domain-family-wrong-count", "owner": "signal_domain", "metric": "domain.family_max_wrong_count", "operator": "<=", "threshold": 2},
+      {"id": "domain-noise-false-valid", "owner": "signal_domain", "metric": "noise.domain_false_valid_count", "operator": "<=", "threshold": 0}
+    ]
+  },
+  "quantile_method": "nearest_rank",
+  "claim_boundary": "Eşikler ve tüm çalıştırılabilir kontroller v3 yöntemi geliştirilmeden önce kilitlenmiştir; canlı RF, dBm veya ürün kabulü değildir."
+}
