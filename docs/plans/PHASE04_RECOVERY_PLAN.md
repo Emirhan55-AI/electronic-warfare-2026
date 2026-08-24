@@ -94,8 +94,19 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
 - Yöntem ve uygulama girdileri binding/OOS seed reveal öncesinde
   `d42ba38cda80c901f57288a23d253e787b9f88aabd607dbd01e4dbd4fdab9e2b`
   method-lock digest'ine bağlandı. Seed'ler açılmadı.
-- PHASE-04-F1D için tek seferlik değerlendirme çalıştırıcısı yöntem kilidinden
-  ayrı bir digest ile seed reveal öncesinde kilitlenecektir. Kilit Git geçmişine
-  ve uzak depoya alındıktan sonra seed commitment'ları doğrulanacak; binding ve
-  OOS popülasyonları yalnız bir kez çalıştırılacaktır. Sonuç başarısız olsa da
-  korunacak, eşikler ve kilitli yöntem değiştirilmeden kaydedilecektir.
+- PHASE-04-F1D 2026-08-24 tarihinde tek sefer çalıştırıldı. Değerlendirme
+  çalıştırıcısı `186a23a8744d357a92afa96e5752545b8b4001d2a08c92d237aea5bd13f915b1`
+  kimliğiyle seed reveal öncesinde kilitlendi ve kilit `b9a4587` commit'iyle uzak
+  depoya gönderildi. Seed commitment'ları doğrulandı; binding ve ardından OOS
+  popülasyonu yeniden koşuya izin vermeyen başlangıç kaydıyla değerlendirildi.
+- F1D sonucu başarısızdır. Binding popülasyonunda yalnız span dayanıklılığı
+  geçti. OOS popülasyonunda emisyon merkezi, gözlenen taşıyıcı frekansı, span
+  dayanıklılığı, kalibre edilmemiş kanal gücü ve SNR geçti; OBW99 ile sinyal
+  alanı geçmedi. Binding'deki gürültü negatif kontrolünde güç ve SNR için dört
+  yanlış sayısal sonuç görüldü; ortak fail-closed kapısı tüm sayısal alanları
+  başarısız yaptı. Binding OBW aile/kenar kapıları ile 6 dB NFM/OOK alan
+  sınıflandırma kapıları da bağımsız olarak sağlanmadı. OOS'ta NFM OBW geçerlilik
+  ve kenar hatası, ayrıca OOK yanlış alan kararı kilitli sınırların dışında kaldı.
+- Kanıt bütünlüğü doğrulaması geçti, ancak değerlendirme kararı başarısızdır.
+  Eşikler ve kilitli yöntem değiştirilmedi; yeniden koşu yapılmayacak. Ürün
+  profili oluşturulmadı, PHASE-04 açık kaldı ve F1E başlatılmadı.

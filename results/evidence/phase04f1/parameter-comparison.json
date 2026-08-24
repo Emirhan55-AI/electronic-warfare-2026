@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "comparison_id": "phase04f1-locked-binding-oos-v1",
+  "status": "failed",
+  "field_decisions": [
+    {
+      "field": "emission_center_frequency",
+      "binding": "failed",
+      "oos": "passed",
+      "status": "failed"
+    },
+    {
+      "field": "carrier_line_frequency",
+      "binding": "failed",
+      "oos": "passed",
+      "status": "failed"
+    },
+    {
+      "field": "occupied_bandwidth",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    },
+    {
+      "field": "span_robustness",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "uncalibrated_channel_power_dbfs",
+      "binding": "failed",
+      "oos": "passed",
+      "status": "failed"
+    },
+    {
+      "field": "snr_estimate_db",
+      "binding": "failed",
+      "oos": "passed",
+      "status": "failed"
+    },
+    {
+      "field": "signal_domain",
+      "binding": "failed",
+      "oos": "failed",
+      "status": "failed"
+    }
+  ],
+  "claim_boundary": "Binding ve OOS birlikte geçmeden hiçbir alan ürün profiline alınmaz."
+}

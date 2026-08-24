@@ -1,0 +1,1066 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f1-binding-results-v1",
+  "role": "binding",
+  "status": "failed",
+  "field_decisions": {
+    "emission_center_frequency": "failed",
+    "carrier_line_frequency": "failed",
+    "occupied_bandwidth": "failed",
+    "span_robustness": "passed",
+    "uncalibrated_channel_power_dbfs": "failed",
+    "snr_estimate_db": "failed",
+    "signal_domain": "failed"
+  },
+  "aggregate": {
+    "-6.0": {
+      "center_q95_bins": 4.353191146362304,
+      "carrier_q95_bins": null,
+      "false_carrier_count": 0,
+      "carrier_nonapplicable_count": 640,
+      "obw_relative_q95": null,
+      "lower_edge_q95_bins": null,
+      "upper_edge_q95_bins": null,
+      "temporal_q95_bins": null,
+      "span_robustness_q95_bins": null,
+      "clipping_count": 1,
+      "power_q95_db": 6.451685386331524,
+      "power_median_db": 5.6143821987991025,
+      "snr_q95_db": 7.51570866638902,
+      "snr_median_db": 7.237515384371369,
+      "domain_correct_count": 0,
+      "domain_wrong_count": 0,
+      "domain_abstained_count": 1024,
+      "numeric_trial_count": 1024
+    },
+    "0.0": {
+      "center_q95_bins": 5.534662580673218,
+      "carrier_q95_bins": 0.15,
+      "false_carrier_count": 2,
+      "carrier_nonapplicable_count": 640,
+      "obw_relative_q95": 0.3097435903865663,
+      "lower_edge_q95_bins": 9.68924158942491,
+      "upper_edge_q95_bins": 10.699127607109858,
+      "temporal_q95_bins": 1.8814938471643927,
+      "span_robustness_q95_bins": 13.723254293838501,
+      "clipping_count": 10,
+      "power_q95_db": 1.9872929070665037,
+      "power_median_db": 0.7556842270509385,
+      "snr_q95_db": 3.1918119942460783,
+      "snr_median_db": 1.7063123016320487,
+      "domain_correct_count": 12,
+      "domain_wrong_count": 0,
+      "domain_abstained_count": 1012,
+      "numeric_trial_count": 1024
+    },
+    "6.0": {
+      "center_q95_bins": 2.01902476499176,
+      "carrier_q95_bins": 0.25,
+      "false_carrier_count": 7,
+      "carrier_nonapplicable_count": 640,
+      "obw_relative_q95": 0.35005291557745977,
+      "lower_edge_q95_bins": 4.318859826331845,
+      "upper_edge_q95_bins": 5.63244210276207,
+      "temporal_q95_bins": 1.547038434163369,
+      "span_robustness_q95_bins": 3.0996714597396853,
+      "clipping_count": 8,
+      "power_q95_db": 0.9858138308916367,
+      "power_median_db": 0.29343718870947555,
+      "snr_q95_db": 1.4816415159669862,
+      "snr_median_db": 0.5074559015677078,
+      "domain_correct_count": 811,
+      "domain_wrong_count": 18,
+      "domain_abstained_count": 195,
+      "numeric_trial_count": 1024
+    },
+    "12.0": {
+      "center_q95_bins": 0.6230938901367188,
+      "carrier_q95_bins": 0.25,
+      "false_carrier_count": 9,
+      "carrier_nonapplicable_count": 640,
+      "obw_relative_q95": 0.10734842915211484,
+      "lower_edge_q95_bins": 1.6103226693451234,
+      "upper_edge_q95_bins": 1.5224585144051161,
+      "temporal_q95_bins": 0.8718762518826679,
+      "span_robustness_q95_bins": 0.5979524480514526,
+      "clipping_count": 0,
+      "power_q95_db": 0.4635584288470014,
+      "power_median_db": 0.14006548820531073,
+      "snr_q95_db": 1.5326563928624388,
+      "snr_median_db": 0.6247197204559214,
+      "domain_correct_count": 873,
+      "domain_wrong_count": 3,
+      "domain_abstained_count": 148,
+      "numeric_trial_count": 1024
+    }
+  },
+  "families": [
+    {
+      "family_id": "am",
+      "expected_domain": "Analog",
+      "carrier_line_applicable": true,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": 0.0,
+            "obw": 0.0,
+            "power": 0.0,
+            "snr": 0.0
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": null,
+            "snr_db": null
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.015625,
+            "carrier": 0.0,
+            "obw": 0.0,
+            "power": 0.015625,
+            "snr": 0.015625
+          },
+          "q95": {
+            "center_bins": 5.534662580673218,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 3.832737473957657,
+            "snr_db": 3.1918119942460783
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.9765625,
+            "carrier": 0.96875,
+            "obw": 0.6484375,
+            "power": 0.9765625,
+            "snr": 0.9765625
+          },
+          "q95": {
+            "center_bins": 1.022432186439514,
+            "carrier_bins": 0.25,
+            "obw_relative": 0.5773844285690052,
+            "lower_edge_bins": 6.876608760091813,
+            "upper_edge_bins": 7.074597003253757,
+            "temporal_bins": 1.04124724952851,
+            "span_robustness_bins": 0.4215783415222168,
+            "power_db": 1.4099118299043418,
+            "snr_db": 1.5073584551367478
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 3,
+            "domain_correct": 119,
+            "domain_wrong": 0,
+            "domain_abstained": 9
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": 1.0,
+            "obw": 0.953125,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.3862235796813965,
+            "carrier_bins": 0.25,
+            "obw_relative": 0.2209986644251938,
+            "lower_edge_bins": 0.8885513228949549,
+            "upper_edge_bins": 0.7616405267551727,
+            "temporal_bins": 0.7462560814853987,
+            "span_robustness_bins": 10.781219836341858,
+            "power_db": 0.5825856758325116,
+            "snr_db": 1.3622500255948964
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 127,
+            "domain_wrong": 0,
+            "domain_abstained": 1
+          }
+        }
+      }
+    },
+    {
+      "family_id": "nfm",
+      "expected_domain": "Analog",
+      "carrier_line_applicable": true,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": 0.0,
+            "obw": 0.0,
+            "power": 0.0,
+            "snr": 0.0
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": null,
+            "snr_db": null
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0078125,
+            "carrier": 0.0,
+            "obw": 0.0,
+            "power": 0.0078125,
+            "snr": 0.0078125
+          },
+          "q95": {
+            "center_bins": 0.03530442942810059,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 2.036471706573364,
+            "snr_db": 1.4814117275235703
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": 0.59375,
+            "obw": 0.7421875,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 1.3356898848571777,
+            "carrier_bins": 0.25,
+            "obw_relative": 0.39072879297852103,
+            "lower_edge_bins": 4.18240421040764,
+            "upper_edge_bins": 7.164603413528766,
+            "temporal_bins": 1.5873721080945415,
+            "span_robustness_bins": 1.0709944986877442,
+            "power_db": 1.242936855641684,
+            "snr_db": 1.2414083772200648
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 3,
+            "domain_correct": 96,
+            "domain_wrong": 8,
+            "domain_abstained": 24
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": 0.9453125,
+            "obw": 0.921875,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.5981070671081543,
+            "carrier_bins": 0.25,
+            "obw_relative": 0.18255212600045911,
+            "lower_edge_bins": 2.42031074794113,
+            "upper_edge_bins": 0.9565953886408352,
+            "temporal_bins": 1.2296782186774635,
+            "span_robustness_bins": 0.9181971431655884,
+            "power_db": 0.5325274126468784,
+            "snr_db": 1.2187975292120967
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 128,
+            "domain_wrong": 0,
+            "domain_abstained": 0
+          }
+        }
+      }
+    },
+    {
+      "family_id": "ook",
+      "expected_domain": "Sayısal",
+      "carrier_line_applicable": true,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": 0.0,
+            "obw": 0.0,
+            "power": 0.0,
+            "snr": 0.0
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": null,
+            "snr_db": null
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.046875,
+            "carrier": 0.0390625,
+            "obw": 0.015625,
+            "power": 0.046875,
+            "snr": 0.046875
+          },
+          "q95": {
+            "center_bins": 4.978977497993469,
+            "carrier_bins": 0.15,
+            "obw_relative": 0.40947853615890173,
+            "lower_edge_bins": 2.9363705934492828,
+            "upper_edge_bins": 7.781043330115153,
+            "temporal_bins": 1.9307089171446705,
+            "span_robustness_bins": 0.07310057725524903,
+            "power_db": 2.677211206321463,
+            "snr_db": 4.5082906063094175
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 3,
+            "domain_wrong": 0,
+            "domain_abstained": 125
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": 0.953125,
+            "obw": 0.7890625,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.8335365784072876,
+            "carrier_bins": 0.15355896619415282,
+            "obw_relative": 0.356124811972577,
+            "lower_edge_bins": 3.151327521788744,
+            "upper_edge_bins": 4.360971641979177,
+            "temporal_bins": 1.4915922532219383,
+            "span_robustness_bins": 6.301673303390503,
+            "power_db": 1.025143296364977,
+            "snr_db": 2.330190652940132
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 95,
+            "domain_wrong": 10,
+            "domain_abstained": 23
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": 1.0,
+            "obw": 0.9609375,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.4155636205291748,
+            "carrier_bins": 0.15,
+            "obw_relative": 0.1379406723965534,
+            "lower_edge_bins": 1.334506656656231,
+            "upper_edge_bins": 1.4442689859495204,
+            "temporal_bins": 0.905521275690603,
+            "span_robustness_bins": 0.37606412574768067,
+            "power_db": 0.45358712725004224,
+            "snr_db": 1.7984219314954792
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 117,
+            "domain_wrong": 3,
+            "domain_abstained": 8
+          }
+        }
+      }
+    },
+    {
+      "family_id": "two_fsk",
+      "expected_domain": "Sayısal",
+      "carrier_line_applicable": false,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0078125,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.0078125,
+            "snr": 0.0078125
+          },
+          "q95": {
+            "center_bins": 4.314917939544678,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 6.394808203454675,
+            "snr_db": 7.261915865311582
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.171875,
+            "carrier": null,
+            "obw": 0.078125,
+            "power": 0.171875,
+            "snr": 0.171875
+          },
+          "q95": {
+            "center_bins": 3.9129839889526368,
+            "carrier_bins": null,
+            "obw_relative": 0.6243202908093732,
+            "lower_edge_bins": 10.941677974110917,
+            "upper_edge_bins": 9.64976570879844,
+            "temporal_bins": 0.9560246260266467,
+            "span_robustness_bins": 13.90375672882843,
+            "power_db": 1.9938806703513592,
+            "snr_db": 2.8964114700951984
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 3,
+            "domain_correct": 1,
+            "domain_wrong": 0,
+            "domain_abstained": 127
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.84375,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 1.5753654215545654,
+            "carrier_bins": null,
+            "obw_relative": 0.20720682219583142,
+            "lower_edge_bins": 3.400980923836414,
+            "upper_edge_bins": 3.383094558376797,
+            "temporal_bins": 1.751728164924316,
+            "span_robustness_bins": 1.1095692121429443,
+            "power_db": 0.8734184724557075,
+            "snr_db": 1.3353862807626218
+          },
+          "counts": {
+            "false_carrier": 2,
+            "clipping": 0,
+            "domain_correct": 126,
+            "domain_wrong": 0,
+            "domain_abstained": 2
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.9921875,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.7026021589126586,
+            "carrier_bins": null,
+            "obw_relative": 0.10456867879990733,
+            "lower_edge_bins": 1.8746730606890196,
+            "upper_edge_bins": 2.069187791648801,
+            "temporal_bins": 0.7835363141700782,
+            "span_robustness_bins": 0.6316372314224243,
+            "power_db": 0.41437552360985563,
+            "snr_db": 1.3046865037140059
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 127,
+            "domain_wrong": 0,
+            "domain_abstained": 1
+          }
+        }
+      }
+    },
+    {
+      "family_id": "bpsk",
+      "expected_domain": "Sayısal",
+      "carrier_line_applicable": false,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.0,
+            "snr": 0.0
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": null,
+            "snr_db": null
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.0078125,
+            "snr": 0.0078125
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 2.8272241282061827,
+            "snr_db": 2.2173545724747568
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.828125,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 1.1932125101547242,
+            "carrier_bins": null,
+            "obw_relative": 0.46778461784917846,
+            "lower_edge_bins": 7.051571496494489,
+            "upper_edge_bins": 4.025549820119295,
+            "temporal_bins": 1.403118931425638,
+            "span_robustness_bins": 10.3774414033432,
+            "power_db": 1.0625784823930893,
+            "snr_db": 1.3496960129281899
+          },
+          "counts": {
+            "false_carrier": 2,
+            "clipping": 0,
+            "domain_correct": 125,
+            "domain_wrong": 0,
+            "domain_abstained": 3
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.9453125,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.5791359201583862,
+            "carrier_bins": null,
+            "obw_relative": 0.10577298310609239,
+            "lower_edge_bins": 1.4915761622035006,
+            "upper_edge_bins": 1.0730141808335247,
+            "temporal_bins": 0.8504115449447909,
+            "span_robustness_bins": 0.4811534705810547,
+            "power_db": 0.5286002875056539,
+            "snr_db": 1.333553613579186
+          },
+          "counts": {
+            "false_carrier": 6,
+            "clipping": 0,
+            "domain_correct": 126,
+            "domain_wrong": 0,
+            "domain_abstained": 2
+          }
+        }
+      }
+    },
+    {
+      "family_id": "qpsk",
+      "expected_domain": "Sayısal",
+      "carrier_line_applicable": false,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.0,
+            "snr": 0.0
+          },
+          "q95": {
+            "center_bins": null,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": null,
+            "snr_db": null
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.3984375,
+            "carrier": null,
+            "obw": 0.203125,
+            "power": 0.4140625,
+            "snr": 0.4140625
+          },
+          "q95": {
+            "center_bins": 4.385484286064148,
+            "carrier_bins": null,
+            "obw_relative": 0.2656930257460589,
+            "lower_edge_bins": 11.924309940654894,
+            "upper_edge_bins": 7.681764805667626,
+            "temporal_bins": 1.5675561141624712,
+            "span_robustness_bins": 14.244671940498352,
+            "power_db": 1.8233832979739297,
+            "snr_db": 3.2387471147209226
+          },
+          "counts": {
+            "false_carrier": 1,
+            "clipping": 3,
+            "domain_correct": 5,
+            "domain_wrong": 0,
+            "domain_abstained": 123
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.8671875,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 1.6691041567993163,
+            "carrier_bins": null,
+            "obw_relative": 0.2137829829308712,
+            "lower_edge_bins": 3.3521244739217764,
+            "upper_edge_bins": 5.837512514579885,
+            "temporal_bins": 1.4693225415044253,
+            "span_robustness_bins": 2.4448303101348876,
+            "power_db": 0.8630323805534026,
+            "snr_db": 1.210903412691449
+          },
+          "counts": {
+            "false_carrier": 2,
+            "clipping": 1,
+            "domain_correct": 124,
+            "domain_wrong": 0,
+            "domain_abstained": 4
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.9921875,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.6792642331466675,
+            "carrier_bins": null,
+            "obw_relative": 0.06113530731948946,
+            "lower_edge_bins": 1.5540063057974294,
+            "upper_edge_bins": 1.2646225363450867,
+            "temporal_bins": 0.7960298376858645,
+            "span_robustness_bins": 0.37454707182312014,
+            "power_db": 0.36791481316453556,
+            "snr_db": 1.0428987056558725
+          },
+          "counts": {
+            "false_carrier": 1,
+            "clipping": 0,
+            "domain_correct": 128,
+            "domain_wrong": 0,
+            "domain_abstained": 0
+          }
+        }
+      }
+    },
+    {
+      "family_id": "wideband_noise_like",
+      "expected_domain": "Belirsiz",
+      "carrier_line_applicable": false,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.0078125,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.015625,
+            "snr": 0.015625
+          },
+          "q95": {
+            "center_bins": 3.408996878044128,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 4.09679008677616,
+            "snr_db": 5.4666990511508375
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.5859375,
+            "carrier": null,
+            "obw": 0.5703125,
+            "power": 0.953125,
+            "snr": 0.953125
+          },
+          "q95": {
+            "center_bins": 12.156242773017883,
+            "carrier_bins": null,
+            "obw_relative": 0.12763355629016457,
+            "lower_edge_bins": 8.696497403294416,
+            "upper_edge_bins": 11.153054854110906,
+            "temporal_bins": 1.8644411638313159,
+            "span_robustness_bins": 10.022451277000426,
+            "power_db": 1.1882542150492839,
+            "snr_db": 2.194480885211706
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 1,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.984375,
+            "carrier": null,
+            "obw": 0.953125,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 6.441840617912293,
+            "carrier_bins": null,
+            "obw_relative": 0.02473747547252784,
+            "lower_edge_bins": 1.350025674409153,
+            "upper_edge_bins": 1.7920104525696843,
+            "temporal_bins": 0.8009880660695217,
+            "span_robustness_bins": 0.5677486446380615,
+            "power_db": 0.5509404327543024,
+            "snr_db": 0.9923110577350425
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 1.0,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.6917386205444336,
+            "carrier_bins": null,
+            "obw_relative": 0.006185724764726757,
+            "lower_edge_bins": 0.5650413355383535,
+            "upper_edge_bins": 0.4273415725542691,
+            "temporal_bins": 0.28712849860767165,
+            "span_robustness_bins": 0.12452703258514404,
+            "power_db": 0.22765643551157666,
+            "snr_db": 2.0053044347918636
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 0,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        }
+      }
+    },
+    {
+      "family_id": "burst_qpsk",
+      "expected_domain": "Sayısal",
+      "carrier_line_applicable": false,
+      "conditions": {
+        "-6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.015625,
+            "carrier": null,
+            "obw": 0.0,
+            "power": 0.015625,
+            "snr": 0.015625
+          },
+          "q95": {
+            "center_bins": 4.353191146362304,
+            "carrier_bins": null,
+            "obw_relative": null,
+            "lower_edge_bins": null,
+            "upper_edge_bins": null,
+            "temporal_bins": null,
+            "span_robustness_bins": null,
+            "power_db": 6.451685386331524,
+            "snr_db": 7.51570866638902
+          },
+          "counts": {
+            "false_carrier": 0,
+            "clipping": 1,
+            "domain_correct": 0,
+            "domain_wrong": 0,
+            "domain_abstained": 128
+          }
+        },
+        "0.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.3046875,
+            "carrier": null,
+            "obw": 0.1796875,
+            "power": 0.3828125,
+            "snr": 0.3828125
+          },
+          "q95": {
+            "center_bins": 5.12910333102417,
+            "carrier_bins": null,
+            "obw_relative": 0.46498624483977796,
+            "lower_edge_bins": 7.440754834062773,
+            "upper_edge_bins": 11.016702457430256,
+            "temporal_bins": 1.8814938471643927,
+            "span_robustness_bins": 16.90257266755676,
+            "power_db": 1.8215507833309452,
+            "snr_db": 3.2659996553781507
+          },
+          "counts": {
+            "false_carrier": 1,
+            "clipping": 3,
+            "domain_correct": 3,
+            "domain_wrong": 0,
+            "domain_abstained": 125
+          }
+        },
+        "6.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 0.9921875,
+            "carrier": null,
+            "obw": 0.7890625,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 2.01902476499176,
+            "carrier_bins": null,
+            "obw_relative": 0.2161408449751271,
+            "lower_edge_bins": 4.673143951811653,
+            "upper_edge_bins": 5.086384606948286,
+            "temporal_bins": 1.7428161475618253,
+            "span_robustness_bins": 12.170745941474914,
+            "power_db": 0.747820585175198,
+            "snr_db": 1.3507678535265395
+          },
+          "counts": {
+            "false_carrier": 1,
+            "clipping": 1,
+            "domain_correct": 126,
+            "domain_wrong": 0,
+            "domain_abstained": 2
+          }
+        },
+        "12.0": {
+          "trial_count": 128,
+          "valid_rates": {
+            "center": 1.0,
+            "carrier": null,
+            "obw": 0.9765625,
+            "power": 1.0,
+            "snr": 1.0
+          },
+          "q95": {
+            "center_bins": 0.7631948283081055,
+            "carrier_bins": null,
+            "obw_relative": 0.07565356477820437,
+            "lower_edge_bins": 1.7817596920654069,
+            "upper_edge_bins": 1.6144111357798465,
+            "temporal_bins": 1.1574869452210805,
+            "span_robustness_bins": 0.8036071901855468,
+            "power_db": 0.42888285642453283,
+            "snr_db": 1.2259741270869924
+          },
+          "counts": {
+            "false_carrier": 2,
+            "clipping": 0,
+            "domain_correct": 120,
+            "domain_wrong": 0,
+            "domain_abstained": 8
+          }
+        }
+      }
+    }
+  ],
+  "noise_false_valid_counts": {
+    "center": 0,
+    "carrier": 0,
+    "obw": 0,
+    "power": 4,
+    "snr": 4,
+    "domain": 0
+  },
+  "noise_detection_significance": {
+    "maximum": 15.581570919975979,
+    "q95": 7.1744652522267085
+  },
+  "claim_boundary": "Tek seferlik kilitli değerlendirme sonucudur; canlı RF veya ürün entegrasyonu değildir.",
+  "population_trial_count": 128,
+  "gate_semantics": "locked-binding-rates"
+}

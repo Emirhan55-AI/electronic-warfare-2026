@@ -18,13 +18,17 @@ class Phase04F1DevelopmentTests(unittest.TestCase):
         self.assertEqual(stored, build_model())
         self.assertEqual("development-only", stored["status"])
 
-    def test_development_evidence_passes_without_seed_reveal(self) -> None:
+    def test_historical_development_evidence_remains_unchanged_after_reveal(self) -> None:
         evidence = json.loads(
             (ROOT / "results" / "evidence" / "phase04f1" / "development-results.json").read_text(encoding="utf-8")
         )
         self.assertEqual("passed", evidence["status"])
         self.assertTrue(all(value == "passed" for value in evidence["field_decisions"].values()))
-        self.assertFalse((ROOT / "datasets" / "fixtures" / "phase04f1" / "evaluation-seeds.json").exists())
+        reveal_path = ROOT / "datasets" / "fixtures" / "phase04f1" / "evaluation-seeds.json"
+        if reveal_path.exists():
+            self.assertTrue(
+                (ROOT / "results" / "evidence" / "phase04f1" / "f1d-run-started.json").is_file()
+            )
 
 
 if __name__ == "__main__":

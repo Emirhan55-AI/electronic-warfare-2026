@@ -90,10 +90,15 @@ bağlı ürün entegrasyonudur. Ayrıntılı kapsam ve kapanış kapıları
 `docs/plans/PHASE04_RECOVERY_PLAN.md` içindedir. R1/R2/D1/E1 başarısızlık
 kanıtları byte-sabit korunur; P0 host kabulü PHASE-04 başarısı sayılmaz.
 
-F1A, F1B ve F1C tamamlanmıştır. F1C geliştirme kapılarının tamamı açık sentetik
-katalogda geçilmiş ve yöntem seed reveal öncesinde SHA-256 digest'iyle
-kilitlenmiştir. Binding/OOS sonucu, ürün profili veya PHASE-04 kapanışı henüz
-yoktur. Sıradaki kontrollü alt-faz tek seferlik PHASE-04-F1D'dir.
+F1A, F1B, F1C ve tek seferlik F1D tamamlanmıştır. Yöntem ile değerlendirme
+çalıştırıcısı seed reveal öncesinde ayrı digest'lerle kilitlenmiş, commitment'lar
+doğrulanmış ve binding ardından OOS yalnız bir kez çalıştırılmıştır. F1D sonucu
+başarısızdır: binding'de yalnız span dayanıklılığı; OOS'ta emisyon merkezi,
+taşıyıcı çizgisi, span dayanıklılığı, kalibre edilmemiş kanal gücü ve SNR
+kapıları geçmiştir. OBW99 ile sinyal alanı OOS'ta, diğer zorunlu alanlar ise
+binding'de kalmıştır. Bütün alanların iki popülasyonu birlikte geçme şartı
+sağlanmadığından ürün profili üretilmemiş, F1E başlatılmamış ve PHASE-04 açık
+kalmıştır. Aynı F1D popülasyonlarıyla eşik ayarı veya yeniden koşu yapılmaz.
 
 ## Erken hazırlık istisnası: PHASE-08A
 
