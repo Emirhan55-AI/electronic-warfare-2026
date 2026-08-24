@@ -38,7 +38,7 @@ class P0OperatorTests(unittest.TestCase):
         self.assertIn("ANALOG DİNLEME DOĞRULAMASI", self.window.listening_source_value.text())
         self.assertEqual("KAYIT OYNATMA", self.window.parameter_values["p0_source"].text())
         self.assertIn("SİGMF KAYDI", self.window.parameter_values["p0_backend"].text())
-        self.assertIn("KALİBRASYON BEKLİYOR", self.window.parameter_values["p0_power"].text())
+        self.assertIn("KALİBRE EDİLMEMİŞ · dBFS", self.window.parameter_values["p0_power"].text())
         self.assertNotIn("FPGA RESULT", self.window.parameter_values["p0_source"].text())
         self.assertIn("RTL / VIVADO DOĞRULAMA", self.window.system_status_values["fpga"].text())
         self.assertIn("FİZİKSEL ZEDBOARD TESTİ", self.window.system_status_values["zedboard"].text())

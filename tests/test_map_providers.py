@@ -12,7 +12,8 @@ class MapProviderTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1] / "app" / "operator_console" / "map_assets"
         page = (root / "map.html").read_text(encoding="utf-8")
         self.assertIn("./maplibre/maplibre-gl.js", page)
-        self.assertIn("Tahmini geliş doğrultusu", page)
+        self.assertIn("Gerçek kuzeye göre kerteriz", page)
+        self.assertIn("kerteriz hattı yalnız doğrultudur", page)
         self.assertNotIn("targetPosition", page)
         self.assertNotIn("target_position", page)
 

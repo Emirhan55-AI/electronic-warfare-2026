@@ -101,7 +101,11 @@ print(json.dumps(payload,ensure_ascii=False))
         )
         self.assertEqual([], payload["before"])
         self.assertTrue(payload["after"])
-        self.assertEqual("Yayın merkezi", payload["after"][0]["label"])
+        self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
+        labels = [row["label"] for row in payload["after"]]
+        self.assertIn("Tepe bin gücü", labels)
+        self.assertIn("Modülasyon kategorisi", labels)
+        self.assertIn("Güç referansı", labels)
 
     def test_direction_result_is_blocked_without_real_source(self) -> None:
         payload = self.run_qml(

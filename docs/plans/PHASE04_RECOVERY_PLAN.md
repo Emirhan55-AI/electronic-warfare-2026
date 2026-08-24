@@ -15,7 +15,7 @@ HackRF kabulü, dBm kalibrasyonu, GNSS, konum ve TX kapsam dışıdır.
 |---|---|---|
 | PHASE-04-F1A | Sözleşme uzlaştırma ve tarihsel kanıt taşıma bağı | R1/R2/D1/E1 dosyaları byte-sabit kalır; relocation manifesti eski ve yeni kaynak kimliklerini doğrular; terim sözlüğü tek anlamlıdır. |
 | PHASE-04-F1B | Değerlendirme protokolü kilidi | Geliştirme kataloğu yayımlanır; binding ve OOS seed'leri commitment ile kapatılır; kabul eşikleri yöntem geliştirilmeden önce kilitlenir; ground truth runtime'a verilmez. |
-| PHASE-04-F1C | Alan bazlı referans estimator ve yöntem kilidi | Yalnız geliştirme kataloğunda merkez, taşıyıcı çizgisi, OBW99, güç/SNR ve sınırlı sinyal alanı bağımsız durum üretir; confirmed/owner/generation/span ve bounded bellek kapıları zorunludur; evaluation reveal öncesi yöntem digest'i kilitlenir. |
+| PHASE-04-F1C | Alan bazlı referans estimator ve yöntem kilidi | Yalnız geliştirme kataloğunda emisyon merkezi, gözlenen taşıyıcı frekansı, OBW99, güç/SNR ve sınırlı modülasyon kategorisi bağımsız durum üretir; confirmed/owner/generation/span ve bounded bellek kapıları zorunludur; evaluation reveal öncesi yöntem digest'i kilitlenir. |
 | PHASE-04-F1D | Tek seferlik binding ve kilitli OOS | Bütün çekirdek alanlar kilitli kapıları geçer veya sonuç başarısız olarak korunur; başarısız koşudan sonra aynı alt fazda eşik ayarı yapılmaz. |
 | PHASE-04-F1E | Digest bağlı ürün entegrasyonu | Yalnız geçen alanlar profilden yüklenir; bağ bozulursa fail-closed olur; QML doğru terimleri ve alan durumlarını gösterir. |
 
@@ -28,8 +28,8 @@ kataloglarının seed'leri, trial sayıları, aileleri ve eşikleri yöntem kodu
 
 Zorunlu alanlar:
 
-1. Yayın merkez frekansı
-2. Gözlenmiş taşıyıcı çizgisi frekansı veya `not_observed/not_applicable`
+1. Emisyon merkez frekansı
+2. Gözlenen taşıyıcı frekansı veya `not_observed/not_applicable`
 3. OBW99 alt/üst kenarı ve bant genişliği
 4. Kalibre edilmemiş kanal gücü ve SNR kestirimi
 5. Sınırlı Analog/Sayısal/Belirsiz alanı
@@ -70,8 +70,8 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
   kaydı korundu. R2 ve E1 salt-okunur bütünlük kontrolleri kaynak taşımasından
   sonra yeniden geçmektedir; algoritma sonuçları başarısız kalmıştır.
 - P0 güç ağırlıklı frekans alanı model, ürün QML yüzeyi, tarihsel QWidget
-  regresyon yüzeyi, doğrulama scriptleri ve KTR kayıtlarında `Yayın Merkez
-  Frekansı` olarak düzeltildi. Ayrı taşıyıcı çizgisi yeteneği eklenmiş veya
+  regresyon yüzeyi, doğrulama scriptleri ve KTR kayıtlarında `Emisyon Merkez
+  Frekansı` olarak düzeltildi. Ayrı taşıyıcı frekansı yeteneği eklenmiş veya
   doğrulanmış sayılmadı.
 - F1A çıkış regresyonu 454 passed, 1 kontrollü skip ve 0 failure sonucuyla
   422,55 saniyede tamamlandı. Skip yalnız yapılandırılmamış haricî gerçek veri

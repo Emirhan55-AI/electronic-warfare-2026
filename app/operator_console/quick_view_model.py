@@ -599,15 +599,15 @@ class OperatorViewModel(QObject):
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
             self._parameter_rows = [
-                {"label": "Yayın merkezi", "value": self._format_frequency(result.emission_center_frequency_hz)},
-                {"label": "OBW", "value": self._format_rate(result.occupied_bandwidth_hz)},
-                {"label": "Alt sınır", "value": self._format_frequency(result.lower_frequency_hz)},
-                {"label": "Üst sınır", "value": self._format_frequency(result.upper_frequency_hz)},
+                {"label": "Emisyon merkez frekansı", "value": self._format_frequency(result.emission_center_frequency_hz)},
+                {"label": "OBW %99", "value": self._format_rate(result.occupied_bandwidth_hz)},
+                {"label": "Alt OBW frekansı", "value": self._format_frequency(result.lower_frequency_hz)},
+                {"label": "Üst OBW frekansı", "value": self._format_frequency(result.upper_frequency_hz)},
                 {"label": "Kanal gücü", "value": f"{result.channel_power_dbfs:.2f} dBFS"},
-                {"label": "Tepe güç", "value": f"{result.peak_power_dbfs_per_bin:.2f} dBFS/bin"},
+                {"label": "Tepe bin gücü", "value": f"{result.peak_power_dbfs_per_bin:.2f} dBFS/bin"},
                 {"label": "SNR", "value": f"{result.snr_db:.2f} dB"},
-                {"label": "Sinyal alanı", "value": result.signal_domain},
-                {"label": "Kalibrasyon", "value": "Bekliyor · göreli ölçüm"},
+                {"label": "Modülasyon kategorisi", "value": result.signal_domain},
+                {"label": "Güç referansı", "value": "Kalibre edilmemiş · dBFS"},
             ]
             self._status_message = f"Tespit #{self._selected_detection_id} parametre ölçümü tamamlandı."
             self._add_log("Parametre", self._status_message)
@@ -755,12 +755,12 @@ class OperatorViewModel(QObject):
                 return formatter(value) if value is not None and state == "valid" else self._field_state(state)
 
             self._parameter_rows = [
-                {"label": "Spektral merkez", "value": measured(estimate.frequency.spectral_center_frequency_hz, estimate.frequency.spectral_center_state, self._format_frequency)},
-                {"label": "Gözlenen taşıyıcı", "value": measured(estimate.frequency.observed_carrier_frequency_hz, estimate.frequency.observed_carrier_state, self._format_frequency)},
+                {"label": "Emisyon merkez frekansı", "value": measured(estimate.frequency.spectral_center_frequency_hz, estimate.frequency.spectral_center_state, self._format_frequency)},
+                {"label": "Gözlenen taşıyıcı frekansı", "value": measured(estimate.frequency.observed_carrier_frequency_hz, estimate.frequency.observed_carrier_state, self._format_frequency)},
                 {"label": "OBW %99", "value": measured(estimate.bandwidth.bandwidth_hz, estimate.bandwidth.bandwidth_state, self._format_rate)},
                 {"label": "Kanal gücü", "value": measured(estimate.power.signal_power_dbfs, estimate.power.relative_power_state, lambda value: f"{value:.2f} dBFS")},
                 {"label": "SNR", "value": measured(estimate.power.snr_db, estimate.power.snr_state, lambda value: f"{value:.2f} dB")},
-                {"label": "Sinyal alanı", "value": estimate.signal_domain.value if estimate.signal_domain.state == "valid" else self._field_state(estimate.signal_domain.state)},
+                {"label": "Modülasyon kategorisi", "value": estimate.signal_domain.value if estimate.signal_domain.state == "valid" else self._field_state(estimate.signal_domain.state)},
             ]
         self.detectionsChanged.emit()
 

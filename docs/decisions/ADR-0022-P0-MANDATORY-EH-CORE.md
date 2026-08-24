@@ -56,7 +56,7 @@ Her sonuç şu seviyelerden yalnız gerçekten sağlananlarla etiketlenir:
 7. Canlı HackRF ile çalıştırıldı.
 
 Bu seviyeler birbirinin yerine kullanılamaz. Kalibrasyon katsayısı olmadan dBm
-gösterilmez ve arayüzde `KALİBRASYON BEKLİYOR` yazılır.
+gösterilmez ve arayüzde `KALİBRE EDİLMEMİŞ · dBFS` yazılır.
 
 ## Ertelenen kapsam
 

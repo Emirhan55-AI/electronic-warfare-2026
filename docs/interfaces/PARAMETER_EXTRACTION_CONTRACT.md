@@ -2,7 +2,7 @@
 
 ## Çıktılar
 
-Her olay sonucu spektral merkez, gözlenmiş taşıyıcı, alt/üst bant sınırı, bant
+Her olay sonucu emisyon merkez frekansı, gözlenen taşıyıcı frekansı, alt/üst OBW frekansı, bant
 genişliği, göreli `FS²/dBFS`, bant içi SNR ve `Analog / Sayısal / Belirsiz`
 alanlarını taşır. Alan durumları yalnız `valid`, `not_observed`,
 `not_applicable`, `insufficient_quality` veya `uncertain` olabilir.
@@ -86,7 +86,7 @@ alt kenar, üst kenar, noise, frame indisi ve iki boolean maske tutar; ek yük
 seek, frame atlama, split, owner değişimi veya nesil sıfırlaması R2 kenar
 geçmişini temizler.
 
-## Sınırlı sinyal alanı ayrımı
+## Sınırlı modülasyon kategorisi
 
 Doğru kesin karar paydasında yalnız AM/NFM ile OOK/2-FSK/BPSK/QPSK bulunur.
 DSB-SC ve karma sınır zorunlu `Belirsiz` sahneleridir. Gürültü-only kesin sınıf
@@ -109,7 +109,7 @@ uygulanır; kendiliğinden yeni aile veya SNR alt-grup kapısı oluşturmaz.
 
 | Katalog alanı | Değer | Bağlayıcı uygulama |
 |---|---:|---|
-| `carrier_valid_rate_minimum` | `0.90` | Gözlenmiş taşıyıcısı `valid` beklenen global popülasyon |
+| `carrier_valid_rate_minimum` | `0.90` | Gözlenen taşıyıcısı `valid` beklenen global popülasyon |
 | `carrier_q95_error_bins_maximum` | `0.50` | Geçerli taşıyıcı kestirimlerinin global q95 hatası |
 | `spectral_center_q95_error_bins_maximum` | `1.50` | Geçerli spektral merkez kestirimlerinin global q95 hatası |
 | `false_carrier_rate_maximum` | `0.02` | Taşıyıcı `not_observed` beklenen global popülasyon |
@@ -143,7 +143,7 @@ uygulanan sınıflandırma kapıları dışında hiçbir kırılım yeni bir zor
 
 Noise-only doğrulaması 128 bağımsız dizi ve dizi başına 32 ardışık frame kullanır.
 Bant false-valid oranı benzersiz doğrulanmış valid olay sayısının 4096 frame'e
-oranıdır. Sinyal alanı için herhangi bir kesin Analog/Sayısal event bir kez sayılır
+oranıdır. Modülasyon kategorisi için herhangi bir kesin Analog/Sayısal event bir kez sayılır
 ve katalogdaki zorunlu ham count sıfırdır.
 
 ## Runtime ve başarısızlık

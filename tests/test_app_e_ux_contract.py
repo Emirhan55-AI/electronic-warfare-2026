@@ -52,6 +52,10 @@ class AppEUXContractTests(unittest.TestCase):
             "LIVE GNSS",
             "Yön çizgisi",
             "Otomatik öneri",
+            "Yayın Merkez Frekansı",
+            "Taşıyıcı Çizgisi Frekansı",
+            "Sinyal Alanı",
+            "KALİBRASYON BEKLİYOR",
         )
         for laboratory_mode in (False, True):
             window = MainWindow(laboratory_mode=laboratory_mode)
@@ -93,6 +97,13 @@ class AppEUXContractTests(unittest.TestCase):
             self.assertIn(term, glossary)
         for flow in ("Kaynağı hazırlama", "Sinyal tespiti", "Parametre ölçümü", "Analog dinleme", "Yön bulma ve harita", "Sistem denetimi"):
             self.assertIn(flow, flows)
+
+    def test_map_copy_uses_bearing_contract(self) -> None:
+        copy = (ROOT / "app" / "operator_console" / "map_assets" / "map.html").read_text(encoding="utf-8")
+        for required in ("Anten referans yönü", "Gerçek kuzeye göre kerteriz", "kerteriz hattı yalnız doğrultudur"):
+            self.assertIn(required, copy)
+        for banned in ("Coğrafi azimut", "Bağıl yön", "yön çizgisi"):
+            self.assertNotIn(banned, copy)
 
     def test_repeatable_technology_evidence_passes(self) -> None:
         self.assertTrue(check_evidence())

@@ -849,7 +849,7 @@ class MainWindow(QMainWindow):
         tech_layout.setVerticalSpacing(4)
 
         secondary_fields = (
-            ("p0_center", "Yayın Merkez Frekansı"),
+            ("p0_center", "Emisyon Merkez Frekansı"),
             ("p0_bandwidth_method", "Yöntem"),
             ("p0_coarse_span", "Kaba Aralık"),
             ("p0_power", "Kanal Gücü"),
@@ -1078,7 +1078,7 @@ class MainWindow(QMainWindow):
         for row, (key, caption) in enumerate((
             ("relative", "Bağıl Geliş Açısı"),
             ("azimuth", "Gerçek Kerteriz"),
-            ("power", "Tepe Güç"),
+            ("power", "Ölçülen Güç"),
             ("confidence", "Güven"),
             ("source", "Kaynak"),
         )):
@@ -2821,8 +2821,8 @@ class MainWindow(QMainWindow):
         self.parameter_values["p0_coarse_span"].setText(
             locale.toString(result.coarse_candidate_bandwidth_hz / 1000.0, "f", 2) + " kHz"
         )
-        self.parameter_values["p0_peak_power"].setText(locale.toString(result.peak_power_dbfs_per_bin, "f", 1) + " dBFS/bin · " + result.calibration_state)
-        self.parameter_values["p0_power"].setText(locale.toString(result.channel_power_dbfs, "f", 1) + " dBFS · " + result.calibration_state)
+        self.parameter_values["p0_peak_power"].setText(locale.toString(result.peak_power_dbfs_per_bin, "f", 1) + " dBFS/bin · " + TEXT["calibration_pending"])
+        self.parameter_values["p0_power"].setText(locale.toString(result.channel_power_dbfs, "f", 1) + " dBFS · " + TEXT["calibration_pending"])
         self.parameter_values["p0_snr"].setText(locale.toString(result.snr_db, "f", 1) + " dB")
         self.parameter_values["p0_domain"].setText(result.signal_domain)
         self.parameter_values["p0_region"].setText(f"{result.candidate.start_bin}–{result.candidate.end_bin}")
@@ -2866,7 +2866,7 @@ class MainWindow(QMainWindow):
         snr_str = f"+{result.snr_db:.1f} dB"
         item = QListWidgetItem(f"{freq_str}    {snr_str}    {state}")
         item.setToolTip(
-            f"Yayın merkezi: {result.emission_center_frequency_hz/1e6:.3f} MHz\n"
+            f"Emisyon merkez frekansı: {result.emission_center_frequency_hz/1e6:.3f} MHz\n"
             f"Bant: {result.bandwidth_hz/1000.0:.2f} kHz\n"
             f"Kaynak: {source_name}"
         )

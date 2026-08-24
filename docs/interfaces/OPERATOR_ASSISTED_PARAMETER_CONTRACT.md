@@ -8,7 +8,7 @@ Span `8–512` bindir. Dışında her yanda dört guard ve 32 reference hücresi
 
 ## Independent-fields-v2 doğrulama protokolü
 
-Otomatik span yalnız ayrı bir kolaylık yeteneğidir; başarısızlığı operatörce çizilen manuel span ölçümlerini kapatmaz. Manuel emisyon merkezi, taşıyıcı çizgisi, OBW99, kalibre edilmemiş güç ve sinyal alanı binding/OOS kararları birbirinden bağımsızdır.
+Otomatik span yalnız ayrı bir kolaylık yeteneğidir; başarısızlığı operatörce çizilen manuel span ölçümlerini kapatmaz. Manuel emisyon merkezi, gözlenen taşıyıcı frekansı, OBW99, kalibre edilmemiş güç ve modülasyon kategorisi binding/OOS kararları birbirinden bağımsızdır.
 
 Dört frame, sonlu I/Q/PSD, intent ve generation eşleşmesi, confirmed owner sürekliliği, izole span, reference hücreleri, reference uyumu ve `6 dB` ortak minimum SNR gerçek ortak ön koşullardır. Edge clipping, `%0,5/%99,5` kenarları, temporal kenar kararlılığı ve perturbation robustness yalnız OBW99 alanına aittir. Taşıyıcı çizgisinin gözlenmemesi, OBW99 sonucunun geçersizliği veya sınıflandırmanın Belirsiz kalması diğer alanların sonucunu değiştirmez.
 
@@ -25,9 +25,9 @@ T = Σ d[k]
 
 `T` pozitif ve kanal SNR'si en az `6 dB` değilse ölçüm abstain eder. `d`, toplamı tam `T` olan non-negative simplex üzerine deterministik projekte edilir. Projected `s[k]` sonlu, non-negative ve `Σs=T` olmalıdır. İlk ve son dört hücrenin payı ayrı ayrı en fazla `%0,5` olabilir. OBW99 kenarları `s` kümülatif gücünün `%0,5/%99,5` noktalarıdır; fractional-bin interpolasyon fiziksel FFT çözünürlüğünü artırdığı iddiası değildir.
 
-Yayın merkezi `s` birinci momentidir. Taşıyıcı çizgisi yalnız tepe/noise `≥10 dB`, üç-bin çizgi payı `≥%35` ve dört frame tepe aralığı `≤1 bin` olduğunda log-güç parabolik kestirimdir. Kanal gücü `T·Δf` üzerinden dBFS, tepe gücü PHASE-02 `bin_power_fs2` üzerinden dBFS/bin olur; PHASE-02 normalizasyonu ikinci kez uygulanmaz.
+Emisyon merkez frekansı `s` birinci momentidir. Gözlenen taşıyıcı frekansı yalnız tepe/noise `≥10 dB`, üç-bin çizgi payı `≥%35` ve dört frame tepe aralığı `≤1 bin` olduğunda log-güç parabolik kestirimdir. Kanal gücü `T·Δf` üzerinden dBFS, tepe bin gücü PHASE-02 `bin_power_fs2` üzerinden dBFS/bin olur; PHASE-02 normalizasyonu ikinci kez uygulanmaz.
 
-Sinyal alanı dört frame'in her birinde frame-local bant sınırlama ile hesaplanan envelope, iki-seviye, constant-modulus, phase-jump ve instantaneous-frequency özelliklerinden çıkar. Frame sınırları arasında faz farkı alınmaz, raw I/Q geçmişi tutulmaz, çelişkili kanıt `Belirsiz` olur.
+Modülasyon kategorisi dört frame'in her birinde frame-local bant sınırlama ile hesaplanan envelope, iki-seviye, constant-modulus, phase-jump ve instantaneous-frequency özelliklerinden çıkar. Frame sınırları arasında faz farkı alınmaz, raw I/Q geçmişi tutulmaz, çelişkili kanıt `Belirsiz` olur. Çıktı belirli bir modülasyon türü tanıma sonucu değildir.
 
 ## Alan bazlı doğrulama
 

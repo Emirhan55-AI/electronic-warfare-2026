@@ -38,12 +38,12 @@ KTR-4.2 açıklaması aynı kavramsal hatayı taşır.
 
 Yeni çalışmada aşağıdaki terimler birbirinden ayrılacaktır:
 
-- yayın merkez frekansı (`emission center frequency`),
-- gözlenmiş taşıyıcı çizgisi frekansı (`observed carrier line frequency`),
+- emisyon merkez frekansı (`emission centre frequency`),
+- gözlenen taşıyıcı frekansı (`observed carrier frequency`),
 - yüzde 99 işgal edilmiş bant genişliği (`99% occupied bandwidth`, OBW99),
 - kalibre edilmemiş kanal gücü (`dBFS`),
 - kestirilen SNR,
-- sınırlı sinyal alanı (`Analog`, `Sayısal`, `Belirsiz`).
+- sınırlı modülasyon kategorisi (`Analog`, `Sayısal`, `Belirsiz`).
 
 ### P0 sonucu alan bazlı geçerlilik taşımıyor
 
@@ -73,4 +73,3 @@ SHA-256 ile bağlayan salt-okunur bir relocation kaydı gereklidir.
 
 Bu denetim yeni bir doğruluk sonucu üretmez. Canlı HackRF, ZedBoard/ARM, dBm,
 RF giriş gücü, genel modülasyon tanıma veya tamamlanmış PHASE-04 iddiası yoktur.
-

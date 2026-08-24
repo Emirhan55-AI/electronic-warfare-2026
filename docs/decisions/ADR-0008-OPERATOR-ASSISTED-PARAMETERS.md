@@ -8,7 +8,7 @@
 
 PHASE-04-E1, PHASE-03 tarafından doğrulanmış bir olay için operatörün açıkça onayladığı sabit analiz aralığında alan bazlı ölçüm yapar. Otomatik aralık yalnız kolaylıktır; başarısız olması manuel aralığı tek başına kapatmaz. Operatör truth frekansı, beklenen bant, güç veya sınıf giremez.
 
-Frekans iki ayrı kavramdır: `Yayın Merkez Frekansı`, debiased spektral gücün birinci momentidir; `Taşıyıcı Çizgisi Frekansı` yalnız yeterli çizgi kanıtında yayımlanır. Çizgisiz veya bastırılmış taşıyıcılı bir yayında spektral merkez taşıyıcı gibi gösterilmez.
+Frekans iki ayrı kavramdır: `Emisyon Merkez Frekansı`, debiased spektral gücün birinci momentidir; `Gözlenen Taşıyıcı Frekansı` yalnız yeterli dar çizgi kanıtında yayımlanır. Çizgisiz veya bastırılmış taşıyıcılı bir emisyonda spektral merkez taşıyıcı gibi gösterilmez.
 
 OBW99 hesabı `max(PSD-noise, 0)` toplamını kullanmaz. Ortalama PSD'den bin başına noise çıkarılır; pozitif toplam excess, toplamı değiştirmeden non-negative simplex üzerine projekte edilir. Kümülatif `%0,5/%99,5` kenarları bu projected güçten alınır. Kanal gücü signed toplam excess üzerinden entegre edilir. Bu seçim saf gürültü binlerinin rectification bias üretmesini önler.
 

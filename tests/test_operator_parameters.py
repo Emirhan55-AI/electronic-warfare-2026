@@ -66,7 +66,7 @@ class OperatorParameterTests(unittest.TestCase):
         visible = " ".join(value.text() for value in self.window.parameter_values.values())
         labels = " ".join(label.text() for label in self.window.findChildren(QLabel))
         self.assertIn("Henüz doğrulanmadı", visible)
-        self.assertIn("Tepe Gücü", labels)
+        self.assertIn("Tepe Bin Gücü", labels)
         self.assertIn("Kanal Gücü", labels)
         calibration = self.window.findChild(type(self.window.quality_value), "calibrationNote")
         self.assertIsNotNone(calibration)

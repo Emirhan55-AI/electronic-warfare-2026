@@ -48,8 +48,9 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
 2. Sistem deterministik `Tespit aralığı`nı gösterir; operatör isterse sınırları
    düzeltir.
 3. Ölçüm yalnız `Ölçümü Başlat` eylemiyle çalışır.
-4. Sonuçta merkez frekansı, OBW %99, bant sınırları, kanal gücü, tepe güç ve SNR
-   kalite durumuyla birlikte gösterilir.
+4. Sonuçta emisyon merkez frekansı, gözlenen taşıyıcı frekansı, OBW %99, alt/üst
+   OBW frekansı, kanal gücü, tepe bin gücü, SNR ve modülasyon kategorisi kalite
+   durumuyla birlikte gösterilir.
 5. Kalite kapısı geçmezse sayı yerine neden gösterilir.
 
 ## Akış 4 — Analog dinleme

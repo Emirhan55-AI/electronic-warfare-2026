@@ -48,10 +48,10 @@
       return `<div class="popup-title">Sensör</div>` +
         `<div class="popup-row">Enlem: ${p.sensor.latitude.toFixed(6)}°</div>` +
         `<div class="popup-row">Boylam: ${p.sensor.longitude.toFixed(6)}°</div>` +
-        `<div class="popup-row">Coğrafi referans: ${p.sensor.heading === null ? "Referans yok" : p.sensor.heading.toFixed(1) + "°"}</div>` +
+        `<div class="popup-row">Anten referans yönü: ${p.sensor.heading === null ? "Referans yok" : p.sensor.heading.toFixed(1) + "°"}</div>` +
         `<div class="popup-row">Konum kaynağı: ${p.sensor.source}</div>` +
         `<div class="popup-row">Bağıl anten açısı: ${p.relativeAngle.toFixed(1)}°</div>` +
-        `<div class="popup-row">Coğrafi azimut: ${p.azimuth === null ? "Referans yok" : p.azimuth.toFixed(1) + "°"}</div>` +
+        `<div class="popup-row">Gerçek kuzeye göre kerteriz: ${p.azimuth === null ? "Referans yok" : p.azimuth.toFixed(1) + "°"}</div>` +
         `<div class="popup-row">Frekans: ${p.frequency}</div>` +
         `<div class="popup-row">Güç: ${p.power}</div>` +
         `<div class="popup-row">Ölçüm güveni: ${p.confidence}</div>` +
@@ -119,7 +119,7 @@
       } else {
         marker.setLngLat(point); marker.setPopup(new maplibregl.Popup({ offset: 18 }).setHTML(popupHtml(payload)));
       }
-      setMessage(p.azimuth === null ? "Bağıl yön — coğrafi azimut referansı yok" : `${p.source} · Konum: ${p.sensor.source} · Tahmini geliş doğrultusu ${p.azimuth.toFixed(1)}° · yön çizgisi yalnız doğrultudur.`);
+      setMessage(p.azimuth === null ? "Bağıl geliş açısı — anten referans yönü yok" : `${p.source} · Konum: ${p.sensor.source} · Gerçek kuzeye göre kerteriz ${p.azimuth.toFixed(1)}° · kerteriz hattı yalnız doğrultudur.`);
     }
 
     function createMapLibre(provider) {
@@ -160,7 +160,7 @@
       if (p.lob) {
         googleLine = new google.maps.Polyline({ path: p.lob.line.map(item => ({ lng: item[0], lat: item[1] })), strokeColor: "#55d6be", strokeWeight: 4, icons: [{ icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 4, strokeColor: "#55d6be" }, offset: "100%" }], map: googleMap });
       }
-      setMessage(`${p.source} · Uydu görünümü · yön çizgisi yalnız doğrultudur.`);
+      setMessage(`${p.source} · Uydu görünümü · kerteriz hattı yalnız doğrultudur.`);
     }
 
     async function nextProvider() {

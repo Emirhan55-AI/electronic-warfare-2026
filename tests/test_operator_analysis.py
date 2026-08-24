@@ -232,7 +232,7 @@ class OperatorAnalysisTests(unittest.TestCase):
         self.assertIn("Sonuçlar güncellendi", window.parameter_state.text())
         self.assertEqual("KAYIT OYNATMA", window.parameter_values["p0_source"].text())
         self.assertIn("dBFS/bin", window.parameter_values["p0_peak_power"].text())
-        self.assertIn("KALİBRASYON BEKLİYOR", window.parameter_values["p0_power"].text())
+        self.assertIn("KALİBRE EDİLMEMİŞ · dBFS", window.parameter_values["p0_power"].text())
         self.assertNotEqual(TEXT["not_validated"], window.parameter_values["p0_center"].text())
         self.assertEqual(4096, window.analysis_spectrum.curve.xData.size)
         self.assertLess(

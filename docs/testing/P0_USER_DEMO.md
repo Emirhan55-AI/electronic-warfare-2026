@@ -54,18 +54,18 @@ Bu kip taşıyıcıyı doğrudan sonuç olarak yazmaz; bildirilen frekans çevre
 
 Üç olumlu senaryonun replay çıktısı, arayüz yuvarlamasıyla şöyledir:
 
-- yayın merkezi: `100.090003 MHz`
+- emisyon merkez frekansı: `100.090003 MHz`
 - alt/üst sınır: `100.088875` / `100.091125 MHz`
 - gerçek bant genişliği: `2.250 kHz`
 - kaba aday bant genişliği: `3.250 kHz`
-- göreli güç: `-4.44 dBFS` ve `KALİBRASYON BEKLİYOR`
+- göreli güç: `-4.44 dBFS` ve `KALİBRE EDİLMEMİŞ · dBFS`
 - SNR: `35.63 dB`
 - sınıf: `Analog`
 - kaynak: `REPLAY`
 
-`PARAMETRELER` sekmesinde yayın merkezi, gürültü/eşik referanslı gerçek bant, göreli
+`PARAMETRELER` sekmesinde emisyon merkez frekansı, gürültü/eşik referanslı gerçek bant, göreli
 dBFS, SNR, Analog/Sayısal sonucu, backend ve kaynak görünür. Güç alanı
-`KALİBRASYON BEKLİYOR` yazar.
+`KALİBRE EDİLMEMİŞ · dBFS` yazar.
 
 `YÖN` sekmesindeki `Ölçüm` görünümünde açı–güç eğrisi ve ham maksimum LOB görünür. Saha akışında
 operatör önce `KUZEY / 0° COĞRAFİ`, `MANUEL COĞRAFİ BAŞ` veya `REFERANS YOK`
@@ -79,7 +79,7 @@ GİRDİSİNİ KAYDET` ile ayrı kaynak etiketiyle saklanır.
 Yükle` ile `Baş 0° + bağıl 75° = coğrafi 75°` veya `Baş 300° + bağıl 75° =
 coğrafi 15°` senaryosunu seçin. Çizgi yalnız tahmini geliş doğrultusunu gösterir;
 uçta hedef işareti yoktur. Baş/yön referansı kutusu kapalıysa uygulama yalnız
-`Bağıl yön — coğrafi azimut referansı yok` durumunu gösterir ve coğrafi LOB çizmez.
+`Bağıl geliş açısı — anten referans yönü yok` durumunu gösterir ve gerçek kuzey referanslı LOB çizmez.
 Varsayılan `Harita (internet)` sağlayıcısı anahtarsız OpenFreeMap stilini açar.
 İnternet yoksa uygulama doğru biçimde çevrimdışı/yedek görünüme düşer. Farklı,
 meşru bir MapLibre stili gerekiyorsa aşağıdaki ortam değişkeniyle değiştirilebilir:
@@ -109,7 +109,7 @@ bulunmazsa konsol çalışmaya devam eder ve Türkçe metinsel fallback gösteri
    durumdur, seçilemez ve canlı konum iddia etmez.
 5. Anteni kontrollü ve izinli alıcı düzeninde elle seçilen açıya çevirin,
    `ANTEN AÇISI (MANUEL)` alanına o açıyı girin ve `GÜÇ ÖLÇ` ile kaydedin.
-   Her satır açı, coğrafi azimut (varsa), güç ve kaynak gösterir.
+   Her satır açı, gerçek kuzeye göre kerteriz (varsa), güç ve kaynak gösterir.
 6. Coğrafi LOB yalnız geçerli konum ve açıkça girilmiş sıfır referansı varsa
    çizilir. Çizginin sonu hedef ya da konum kestirimi değildir.
 

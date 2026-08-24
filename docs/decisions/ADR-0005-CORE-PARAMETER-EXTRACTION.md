@@ -9,13 +9,13 @@ ayrı kullanıcı onaylı PHASE-04-R2 kapsamına bırakılmıştır.
 ## Karar
 
 PHASE-04 yalnız kayıtlı veya sentetik tek kanallı I/Q üzerinde spektral merkez,
-gözlenmiş taşıyıcı, bant sınırları, bant genişliği, kalibre edilmemiş göreli güç,
+gözlenen taşıyıcı frekansı, bant sınırları, bant genişliği, kalibre edilmemiş göreli güç,
 bant içi SNR ve sınırlı `Analog / Sayısal / Belirsiz` ayrımı üretir.
 
 Yöntemler bağımsız seçilmez. Önce iki analysis-window, üç gürültü ve dört bant
 yönteminden oluşan 24 tuple, sonra seçilmiş upstream üzerinde dokuz
 merkez–taşıyıcı çifti, sabit güç/SNR hesabı ve son olarak aynı upstream'i kullanan
-üç sinyal alanı yöntemi değerlendirilir. Downstream başarısızlığı upstream'e dönüş
+üç modülasyon kategorisi yöntemi değerlendirilir. Downstream başarısızlığı upstream'e dönüş
 hakkı vermez ve yeni yöntem ancak ayrı kullanıcı onaylı kurtarma kararında ele alınır.
 
 Benchmark bağımsız frame'leri elle doğrulanmış göstermez. Byte-sabit PHASE-03
