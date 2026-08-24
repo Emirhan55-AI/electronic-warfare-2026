@@ -1,0 +1,813 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f2-open-development-results-v3",
+  "role": "development-only",
+  "status": "passed",
+  "population": {
+    "seed_count": 6,
+    "trials_per_seed_per_family": 48,
+    "total_trials_per_family": 288,
+    "noise_measurements": 384,
+    "frames_per_measurement": 4
+  },
+  "method_ids": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-prominence-abstain-v3",
+    "occupied_bandwidth": "band.debiased-obw99-temporal-v3",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-prototype-rejection-v3"
+  },
+  "metrics": {
+    "center.family_min_valid_rate": 1.0,
+    "center.family_max_q95_error_bins": 0.7321638136978149,
+    "center.global_valid_rate": 1.0,
+    "center.global_q95_error_bins": 0.6121876900558472,
+    "noise.center_false_valid_count": 0,
+    "carrier.family_min_valid_rate": 0.9444444444444444,
+    "carrier.family_max_q95_error_bins": 0.25,
+    "carrier.global_valid_rate": 0.9664351851851852,
+    "carrier.false_carrier_rate": 0.001388888888888889,
+    "carrier.low_snr_abstention_rate": 1.0,
+    "noise.carrier_false_valid_count": 0,
+    "obw.family_min_valid_rate": 0.9652777777777778,
+    "obw.global_valid_rate": 0.98046875,
+    "obw.global_relative_q95": 0.10409257704911871,
+    "obw.global_lower_edge_q95_bins": 1.442053975807994,
+    "obw.global_upper_edge_q95_bins": 1.411107554213686,
+    "obw.global_temporal_q95_bins": 0.8527728951461313,
+    "obw.clipping_count": 0,
+    "noise.obw_false_valid_count": 0,
+    "span.edge_difference_q95_bins": 0.5016714478607178,
+    "power.family_min_valid_rate": 1.0,
+    "power.global_valid_rate": 1.0,
+    "power.global_q95_error_db": 0.44902882943218714,
+    "power.zero_snr_median_error_db": 0.7365416051399016,
+    "noise.power_false_valid_count": 0,
+    "snr.family_min_valid_rate": 1.0,
+    "snr.global_valid_rate": 1.0,
+    "snr.global_q95_error_db": 1.517151137688602,
+    "snr.zero_snr_median_error_db": 1.7197772446728259,
+    "noise.snr_false_valid_count": 0,
+    "domain.main_global_correct_rate": 1.0,
+    "domain.main_global_wrong_rate": 0.0,
+    "domain.six_db_global_correct_rate": 0.939484126984127,
+    "domain.six_db_global_wrong_rate": 0.005456349206349206,
+    "domain.family_min_correct_rate": 0.8784722222222222,
+    "domain.family_max_wrong_rate": 0.027777777777777776,
+    "domain.ambiguous_rejection_rate": 1.0,
+    "domain.zero_snr_wrong_rate": 0.0,
+    "domain.low_snr_abstention_rate": 1.0,
+    "noise.domain_false_valid_count": 0
+  },
+  "scoring": {
+    "role": "binding",
+    "status": "passed",
+    "field_decisions": {
+      "emission_center_frequency": "passed",
+      "carrier_line_frequency": "passed",
+      "occupied_bandwidth": "passed",
+      "uncalibrated_channel_power_dbfs": "passed",
+      "snr_estimate_db": "passed",
+      "signal_domain": "passed",
+      "span_robustness": "passed"
+    },
+    "checks": [
+      {
+        "id": "center-family-valid",
+        "owner": "emission_center_frequency",
+        "metric": "center.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "center-family-q95",
+        "owner": "emission_center_frequency",
+        "metric": "center.family_max_q95_error_bins",
+        "actual": 0.7321638136978149,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "center-global-valid",
+        "owner": "emission_center_frequency",
+        "metric": "center.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "center-global-q95",
+        "owner": "emission_center_frequency",
+        "metric": "center.global_q95_error_bins",
+        "actual": 0.6121876900558472,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "center-noise-false-valid",
+        "owner": "emission_center_frequency",
+        "metric": "noise.center_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-family-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.family_min_valid_rate",
+        "actual": 0.9444444444444444,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-family-q95",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.family_max_q95_error_bins",
+        "actual": 0.25,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-global-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.global_valid_rate",
+        "actual": 0.9664351851851852,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-false-rate",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.false_carrier_rate",
+        "actual": 0.001388888888888889,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-low-snr-abstention",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.low_snr_abstention_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-noise-false-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "noise.carrier_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-family-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.family_min_valid_rate",
+        "actual": 0.9652777777777778,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "obw-global-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_valid_rate",
+        "actual": 0.98046875,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "obw-relative-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_relative_q95",
+        "actual": 0.10409257704911871,
+        "operator": "<=",
+        "threshold": 0.2,
+        "status": "passed"
+      },
+      {
+        "id": "obw-lower-edge-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_lower_edge_q95_bins",
+        "actual": 1.442053975807994,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-upper-edge-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_upper_edge_q95_bins",
+        "actual": 1.411107554213686,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-temporal-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_temporal_q95_bins",
+        "actual": 0.8527728951461313,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-clipping",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.clipping_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-noise-false-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "noise.obw_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "span-edge-difference-q95",
+        "owner": "span_robustness",
+        "metric": "span.edge_difference_q95_bins",
+        "actual": 0.5016714478607178,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "power-family-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "power-global-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "power-q95",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.global_q95_error_db",
+        "actual": 0.44902882943218714,
+        "operator": "<=",
+        "threshold": 1.5,
+        "status": "passed"
+      },
+      {
+        "id": "power-zero-snr-median",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.zero_snr_median_error_db",
+        "actual": 0.7365416051399016,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "power-noise-false-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "noise.power_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-family-valid",
+        "owner": "snr_estimate_db",
+        "metric": "snr.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "snr-global-valid",
+        "owner": "snr_estimate_db",
+        "metric": "snr.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "snr-q95",
+        "owner": "snr_estimate_db",
+        "metric": "snr.global_q95_error_db",
+        "actual": 1.517151137688602,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-zero-snr-median",
+        "owner": "snr_estimate_db",
+        "metric": "snr.zero_snr_median_error_db",
+        "actual": 1.7197772446728259,
+        "operator": "<=",
+        "threshold": 3.0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-noise-false-valid",
+        "owner": "snr_estimate_db",
+        "metric": "noise.snr_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "domain-main-global-correct",
+        "owner": "signal_domain",
+        "metric": "domain.main_global_correct_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "domain-main-global-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.main_global_wrong_rate",
+        "actual": 0.0,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "domain-six-global-correct",
+        "owner": "signal_domain",
+        "metric": "domain.six_db_global_correct_rate",
+        "actual": 0.939484126984127,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "domain-six-global-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.six_db_global_wrong_rate",
+        "actual": 0.005456349206349206,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "domain-family-correct",
+        "owner": "signal_domain",
+        "metric": "domain.family_min_correct_rate",
+        "actual": 0.8784722222222222,
+        "operator": ">=",
+        "threshold": 0.75,
+        "status": "passed"
+      },
+      {
+        "id": "domain-family-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.family_max_wrong_rate",
+        "actual": 0.027777777777777776,
+        "operator": "<=",
+        "threshold": 0.05,
+        "status": "passed"
+      },
+      {
+        "id": "domain-ambiguous-rejection",
+        "owner": "signal_domain",
+        "metric": "domain.ambiguous_rejection_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "domain-zero-snr-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.zero_snr_wrong_rate",
+        "actual": 0.0,
+        "operator": "<=",
+        "threshold": 0.05,
+        "status": "passed"
+      },
+      {
+        "id": "domain-low-snr-abstention",
+        "owner": "signal_domain",
+        "metric": "domain.low_snr_abstention_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "domain-noise-false-valid",
+        "owner": "signal_domain",
+        "metric": "noise.domain_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      }
+    ]
+  },
+  "noise_detection_significance": {
+    "maximum": 4.36426254704342,
+    "q95": 2.458281750020291
+  },
+  "families": {
+    "am": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 280,
+        "carrier_valid_count": 264,
+        "obw_valid_count": 204,
+        "power_valid_count": 280,
+        "snr_valid_count": 280,
+        "domain_correct_count": 255,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 33
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 288,
+        "obw_valid_count": 280,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "nfm": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 4,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 4,
+        "snr_valid_count": 4,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 119,
+        "obw_valid_count": 246,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 260,
+        "domain_wrong_count": 1,
+        "domain_abstained_count": 27
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 275,
+        "obw_valid_count": 278,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "ook": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 4,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 3,
+        "power_valid_count": 4,
+        "snr_valid_count": 4,
+        "domain_correct_count": 1,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 287
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 287,
+        "carrier_valid_count": 215,
+        "obw_valid_count": 241,
+        "power_valid_count": 287,
+        "snr_valid_count": 287,
+        "domain_correct_count": 253,
+        "domain_wrong_count": 8,
+        "domain_abstained_count": 27
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 272,
+        "obw_valid_count": 278,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "two_fsk": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 60,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 40,
+        "power_valid_count": 67,
+        "snr_valid_count": 67,
+        "domain_correct_count": 6,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 282
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 286,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 257,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 282,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 6
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 284,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "bpsk": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 10,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 4,
+        "power_valid_count": 10,
+        "snr_valid_count": 10,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 243,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 269,
+        "domain_wrong_count": 2,
+        "domain_abstained_count": 17
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 285,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "qpsk": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 92,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 64,
+        "power_valid_count": 96,
+        "snr_valid_count": 96,
+        "domain_correct_count": 4,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 284
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 251,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 283,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "wideband_noise_like": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 3,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 2,
+        "power_valid_count": 4,
+        "snr_valid_count": 4,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 164,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 182,
+        "power_valid_count": 277,
+        "snr_valid_count": 277,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 287,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 282,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 288,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      }
+    },
+    "burst_qpsk": {
+      "-6.0": {
+        "trial_count": 288,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 1,
+        "snr_valid_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 288
+      },
+      "0.0": {
+        "trial_count": 288,
+        "center_valid_count": 107,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 72,
+        "power_valid_count": 127,
+        "snr_valid_count": 127,
+        "domain_correct_count": 18,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 270
+      },
+      "6.0": {
+        "trial_count": 288,
+        "center_valid_count": 286,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 238,
+        "power_valid_count": 287,
+        "snr_valid_count": 287,
+        "domain_correct_count": 287,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 1
+      },
+      "12.0": {
+        "trial_count": 288,
+        "center_valid_count": 288,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 283,
+        "power_valid_count": 288,
+        "snr_valid_count": 288,
+        "domain_correct_count": 288,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    }
+  },
+  "claim_boundary": "Yalnız altı açık F2 geliştirme seed'inin sonucudur; binding, OOS, canlı RF veya ürün kabulü değildir."
+}

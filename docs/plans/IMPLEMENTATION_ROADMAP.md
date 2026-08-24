@@ -106,9 +106,12 @@ alanlar arası negatif kontrol kaskadını ve üç protokol/skor kapsama açığ
 belgelemiştir. F2B de tamamlanmış; 40 binding ve 24 OOS kontrolünün tamamı
 çalıştırılabilir scorer sözleşmesine bağlanmış, altı yeni açık geliştirme seed'i
 ayrılmış ve görülmemiş binding/OOS seed commitment'ları v3 yöntem geliştirmesi
-öncesinde kilitlenmiştir. Açılmış F1 popülasyonları F2 geliştirmesinde
-kullanılmayacaktır. Sıradaki kontrollü alt faz ayrı kullanıcı onayı gerektiren
-F2C v3 yöntem geliştirmesidir.
+öncesinde kilitlenmiştir. F2C de tamamlanmıştır: ayrı v3 kestirimci açık
+katalogdaki 40/40 binding kontrolünü geçmiş; gürültü reddi, taşıyıcı, OBW ve
+sinyal alanı geliştirme kanıtları yöntem kaynaklarıyla birlikte seed reveal
+öncesinde kilitlenmiştir. Açılmış F1 popülasyonları kullanılmamış, F2
+binding/OOS seed'leri açılmamıştır. Sıradaki kontrollü alt faz ayrı kullanıcı
+onayı gerektiren F2D çalıştırıcı kilidi ve tek seferlik değerlendirmedir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

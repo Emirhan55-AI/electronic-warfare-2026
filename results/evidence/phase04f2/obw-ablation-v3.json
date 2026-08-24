@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f2-obw-ablation-v3",
+  "role": "development-only",
+  "status": "passed",
+  "maximum_recoverable_temporal_range_bins": 3.0,
+  "aggregate": {
+    "f1": {
+      "trial_count": 2304,
+      "valid_count": 2239,
+      "valid_rate": 0.9717881944444444,
+      "relative_q95": 0.09751315990848278,
+      "lower_edge_q95_bins": 1.4343179573493217,
+      "upper_edge_q95_bins": 1.384057029681344,
+      "temporal_q95_bins": 0.8054929662812356
+    },
+    "f2": {
+      "trial_count": 2304,
+      "valid_count": 2259,
+      "valid_rate": 0.98046875,
+      "relative_q95": 0.10409257704911871,
+      "lower_edge_q95_bins": 1.442053975807994,
+      "upper_edge_q95_bins": 1.411107554213686,
+      "temporal_q95_bins": 0.8527728951461313
+    }
+  },
+  "families": {
+    "am": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 277,
+        "valid_rate": 0.9618055555555556,
+        "relative_q95": 0.08353771274971403,
+        "lower_edge_q95_bins": 0.8162918470745808,
+        "upper_edge_q95_bins": 0.7868981540693767,
+        "temporal_q95_bins": 0.5894122982612089
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 280,
+        "valid_rate": 0.9722222222222222,
+        "relative_q95": 0.08615686716469904,
+        "lower_edge_q95_bins": 0.8341256103065007,
+        "upper_edge_q95_bins": 0.7813308288114058,
+        "temporal_q95_bins": 0.7227588580568636
+      }
+    },
+    "nfm": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 274,
+        "valid_rate": 0.9513888888888888,
+        "relative_q95": 0.15406789828650647,
+        "lower_edge_q95_bins": 1.9061099093873963,
+        "upper_edge_q95_bins": 2.4603371702091863,
+        "temporal_q95_bins": 1.1168594781802312
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 278,
+        "valid_rate": 0.9652777777777778,
+        "relative_q95": 0.15813733712676287,
+        "lower_edge_q95_bins": 1.9061099093873963,
+        "upper_edge_q95_bins": 2.485710600485163,
+        "temporal_q95_bins": 1.1781214847453612
+      }
+    },
+    "ook": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 272,
+        "valid_rate": 0.9444444444444444,
+        "relative_q95": 0.148007954084852,
+        "lower_edge_q95_bins": 1.3646447223131872,
+        "upper_edge_q95_bins": 1.4162423864106586,
+        "temporal_q95_bins": 0.8109486647538233
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 278,
+        "valid_rate": 0.9652777777777778,
+        "relative_q95": 0.16164861636945851,
+        "lower_edge_q95_bins": 1.4151665039023555,
+        "upper_edge_q95_bins": 1.4309209593450305,
+        "temporal_q95_bins": 0.9337986190307674
+      }
+    },
+    "two_fsk": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 283,
+        "valid_rate": 0.9826388888888888,
+        "relative_q95": 0.0972162763801875,
+        "lower_edge_q95_bins": 1.7592390709883148,
+        "upper_edge_q95_bins": 1.81897698289049,
+        "temporal_q95_bins": 0.8101162056505018
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 284,
+        "valid_rate": 0.9861111111111112,
+        "relative_q95": 0.0972162763801875,
+        "lower_edge_q95_bins": 1.7592390709883148,
+        "upper_edge_q95_bins": 1.81897698289049,
+        "temporal_q95_bins": 0.837447460848125
+      }
+    },
+    "bpsk": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 281,
+        "valid_rate": 0.9756944444444444,
+        "relative_q95": 0.11539374360692645,
+        "lower_edge_q95_bins": 1.2045971610014021,
+        "upper_edge_q95_bins": 1.1386055398729695,
+        "temporal_q95_bins": 0.8426248146902253
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 285,
+        "valid_rate": 0.9895833333333334,
+        "relative_q95": 0.11809389795117149,
+        "lower_edge_q95_bins": 1.2045971610014021,
+        "upper_edge_q95_bins": 1.166347030648467,
+        "temporal_q95_bins": 0.9749185692921856
+      }
+    },
+    "qpsk": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 283,
+        "valid_rate": 0.9826388888888888,
+        "relative_q95": 0.056970389716652824,
+        "lower_edge_q95_bins": 1.4579375170301319,
+        "upper_edge_q95_bins": 1.4002314235758604,
+        "temporal_q95_bins": 0.6386188963135737
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 283,
+        "valid_rate": 0.9826388888888888,
+        "relative_q95": 0.056970389716652824,
+        "lower_edge_q95_bins": 1.4579375170301319,
+        "upper_edge_q95_bins": 1.4002314235758604,
+        "temporal_q95_bins": 0.6386188963135737
+      }
+    },
+    "wideband_noise_like": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 288,
+        "valid_rate": 1.0,
+        "relative_q95": 0.006911673857283745,
+        "lower_edge_q95_bins": 0.3962854929873174,
+        "upper_edge_q95_bins": 0.45466348740683316,
+        "temporal_q95_bins": 0.2900166396111672
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 288,
+        "valid_rate": 1.0,
+        "relative_q95": 0.006911673857283745,
+        "lower_edge_q95_bins": 0.3962854929873174,
+        "upper_edge_q95_bins": 0.45466348740683316,
+        "temporal_q95_bins": 0.2900166396111672
+      }
+    },
+    "burst_qpsk": {
+      "f1": {
+        "trial_count": 288,
+        "valid_count": 281,
+        "valid_rate": 0.9756944444444444,
+        "relative_q95": 0.07160446699693893,
+        "lower_edge_q95_bins": 1.661960395474125,
+        "upper_edge_q95_bins": 1.782807052278713,
+        "temporal_q95_bins": 0.9257479483273983
+      },
+      "f2": {
+        "trial_count": 288,
+        "valid_count": 283,
+        "valid_rate": 0.9826388888888888,
+        "relative_q95": 0.07160446699693893,
+        "lower_edge_q95_bins": 1.661960395474125,
+        "upper_edge_q95_bins": 1.782807052278713,
+        "temporal_q95_bins": 0.9828161403252125
+      }
+    }
+  },
+  "claim_boundary": "Yalnız açık F2 geliştirme kataloğunun 12 dB koşuludur; binding veya OOS sonucu değildir."
+}

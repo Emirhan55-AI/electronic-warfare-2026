@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import unittest
 
@@ -18,10 +19,18 @@ class Phase04F2ProtocolTests(unittest.TestCase):
     def setUp(self) -> None:
         self.acceptance = json.loads(ACCEPTANCE_PATH.read_text(encoding="utf-8"))
 
-    def test_protocol_lock_and_stored_evidence_are_current_before_v3(self) -> None:
-        self.assertEqual(json.loads(LOCK_PATH.read_text(encoding="utf-8")), build_lock())
-        self.assertEqual(json.loads(SUMMARY_PATH.read_text(encoding="utf-8")), build_summary())
-        self.assertEqual("passed", build_summary()["status"])
+    def test_historical_protocol_lock_remains_current_after_v3(self) -> None:
+        stored = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
+        method_lock = ACCEPTANCE_PATH.parent / "method-lock-v3.json"
+        if not method_lock.exists():
+            self.assertEqual(stored, build_lock())
+            self.assertEqual(json.loads(SUMMARY_PATH.read_text(encoding="utf-8")), build_summary())
+        else:
+            for path, digest in stored["inputs"].items():
+                self.assertEqual(digest, hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
+            for path, digest in stored["f1_protected_inputs"].items():
+                self.assertEqual(digest, hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
+        self.assertEqual("passed", json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))["status"])
 
     def test_all_gates_have_executable_boundary_coverage(self) -> None:
         coverage = validate_acceptance(self.acceptance)

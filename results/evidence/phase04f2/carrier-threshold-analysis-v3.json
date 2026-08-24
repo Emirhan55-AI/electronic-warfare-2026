@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f2-carrier-threshold-analysis-v3",
+  "role": "development-only",
+  "selected": {
+    "minimum_prominence_db": 5.25,
+    "minimum_share": 0.23500000000000001,
+    "minimum_frame_prominence_db": 2.5,
+    "family_min_valid_rate": 0.9444444444444444,
+    "global_valid_rate": 0.9664351851851852,
+    "false_valid_count": 2,
+    "false_valid_rate": 0.001388888888888889
+  },
+  "constraints": {
+    "family_min_valid_rate": 0.88,
+    "global_valid_rate": 0.92,
+    "false_valid_count_maximum": 2
+  },
+  "population": {
+    "trials": 2304,
+    "nonapplicable_trials": 1440
+  },
+  "claim_boundary": "Yalnız açık F2 geliştirme kataloğunun 12 dB koşuludur; binding veya OOS sonucu değildir."
+}

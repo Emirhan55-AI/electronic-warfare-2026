@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f2-method-lock-v3",
+  "status": "locked-before-seed-reveal",
+  "methods": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-prominence-abstain-v3",
+    "occupied_bandwidth": "band.debiased-obw99-temporal-v3",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-prototype-rejection-v3"
+  },
+  "constants": {
+    "required_frames": 4,
+    "frame_length": 4096,
+    "maximum_persistent_payload_bytes": 65536,
+    "combined_persistent_payload_bytes": 50788,
+    "domain_model_numeric_bytes": 16704,
+    "corrected_detection_significance_minimum": 6.0,
+    "low_snr_abstention_db": 3.0,
+    "obw_temporal_range_maximum_bins": 3.0,
+    "carrier": {
+      "minimum_prominence_db": 5.25,
+      "minimum_share": 0.235,
+      "minimum_frame_prominence_db": 2.5
+    },
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4
+  },
+  "contracts": {
+    "protocol_lock_sha256": "8fc93e1b2133e6d6b5fb7660fe9effbd8bcd17d7477688eef4e1ea1d9f9004fe",
+    "protocol_lock_identity": "ca22f1189a5e5dbf0b0cd6e3af1a8518f80048733b15f011610091889d671614",
+    "acceptance_gates_sha256": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "development_catalog_sha256": "38e0118c0c83045eeaac19de1ed7ad17535b038fe19061973cf0bc74bc403bcb",
+    "evaluation_commitments_sha256": "08fc42f54266e928842255b64c6b61e1adb90edf2019e96086d186803a459025",
+    "domain_model_sha256": "bcdad4f281b34b6fcfa1368a7b5098841667313aab1442baad4eba68884cc8c8",
+    "development_results_sha256": "56e9cf6f729ea7a64daca34a539edc96d32b67e9b4e8c79ae17c2eb0fac4500e",
+    "carrier_analysis_sha256": "1178f9783c7fba9cefe6a04bdec7aaea7414030a6394f99203c6ceedcd7477f2",
+    "obw_ablation_sha256": "64be8e9bca00721f751dc07543cd0b9b6c7c995705a20caa60ed6366ebd560f9",
+    "implementation_manifest_sha256": "e757715c9519cb77ac6f447e48b7997d9553144db95e76c02746bcf1f3b4577a"
+  },
+  "implementation": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f2_estimator.py",
+        "sha256": "c4a722325926399b78b426fceb1e09826b30d3daaad65840995dfcadf28ee618"
+      },
+      {
+        "path": "algorithms/parameters/f2_domain.py",
+        "sha256": "ea27952a408d753af2fe6371557d36497ad9e68b1c1d114222fe1daf1512b24c"
+      },
+      {
+        "path": "algorithms/parameters/f2_development.py",
+        "sha256": "d058af9cea7a3317cf117b55e1854078d2075509064ad7a3fe07d039570e8209"
+      },
+      {
+        "path": "scripts/develop_phase04f2_carrier.py",
+        "sha256": "075e141303a8a16bcd338a625f28cd50aac3a0d365fe9bdb2a3c25321049f4ba"
+      },
+      {
+        "path": "scripts/develop_phase04f2_domain.py",
+        "sha256": "a491777b495cb5665af9b2536cdb29add0daaa45cffee8d95eb69a2537e662d5"
+      },
+      {
+        "path": "scripts/develop_phase04f2_obw.py",
+        "sha256": "0e96ba601937eb296b95c7d761bd4dc295db94fd312e98e90a6fcb791c3e82cf"
+      },
+      {
+        "path": "scripts/verify_phase04f2_development.py",
+        "sha256": "e5740906ad6d83c618b7e88cc73018e30e812b17f0e27d48137d6596410e12bd"
+      },
+      {
+        "path": "scripts/lock_phase04f2_method.py",
+        "sha256": "1fd4b958e49ecd67f5f4c9e8ff0f8676197645a6a5ae122bc426759613d4ab7d"
+      }
+    ],
+    "sha256": "e757715c9519cb77ac6f447e48b7997d9553144db95e76c02746bcf1f3b4577a"
+  },
+  "seed_revealed": false,
+  "claim_boundary": "Yöntem yalnız açık F2 geliştirme kanıtından sonra ve binding/OOS seed reveal öncesinde kilitlenmiştir; ürün veya PHASE-04 başarı kararı değildir.",
+  "method_lock_sha256": "34e617f03cd898cd9e17f1699d09e299614c667ac67fb2ae3280f513b5372c23"
+}
