@@ -82,6 +82,17 @@ regresyonu birlikte geçtiğinde tamamlanır. Başarısız bir F1D koşusu fazı
   tutuluyor; repository yalnız SHA-256 commitment değerlerini taşıyor. Protokol
   kilidi `6ce085432fc8f74f29442b66ab37e72ce934bcbb9b83dfad241e4fac218f342b`
   digest'iyle altı zorunlu kontrolü geçti.
-- PHASE-04-F1C başlamamıştır. Estimator yalnız açık geliştirme kataloğunda
-  geliştirilecek ve seed reveal yapılmadan önce yöntem/uygulama digest'i
-  kilitlenecektir.
+- PHASE-04-F1C 2026-08-24 tarihinde tamamlandı. Alan bazlı estimator yalnız
+  64 trial/aile açık geliştirme kataloğunda geliştirildi. Emisyon merkezi,
+  taşıyıcı çizgisi, OBW99, span dayanıklılığı, kalibre edilmemiş kanal gücü,
+  SNR ve sınırlı modülasyon kategorisi geliştirme kapılarının tamamını geçti;
+  bu sonuç binding, OOS, canlı RF veya ürün kabulü değildir.
+- Confirmed olay, owner/revision, source/pipeline/configuration nesli, dört frame,
+  izole span ve komşu aday kapıları fail-closed uygulanmaktadır. Estimator sonucu
+  ile sabit istatistiksel modelin toplam sayısal kalıcı yükü 46.116 byte olarak
+  65.536 byte sınırının altında kilitlendi.
+- Yöntem ve uygulama girdileri binding/OOS seed reveal öncesinde
+  `d42ba38cda80c901f57288a23d253e787b9f88aabd607dbd01e4dbd4fdab9e2b`
+  method-lock digest'ine bağlandı. Seed'ler açılmadı.
+- PHASE-04-F1D başlamamıştır. Sonraki işlem geri döndürülemez tek seferlik seed
+  reveal, binding ve OOS değerlendirmesidir; sonuç başarısız olsa da korunacaktır.

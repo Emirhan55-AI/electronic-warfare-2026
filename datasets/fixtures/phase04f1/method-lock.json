@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f1-method-lock-v1",
+  "status": "locked-before-seed-reveal",
+  "methods": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v2",
+    "carrier_line_frequency": "frequency.carrier-prominence-share-v2",
+    "occupied_bandwidth": "band.debiased-obw99-shrink-v2",
+    "uncalibrated_channel_power_dbfs": "power.signed-excess-integral-v2",
+    "snr_estimate_db": "snr.spectral-rms-calibrated-v1",
+    "signal_domain": "domain.fixed-development-centroid-v1"
+  },
+  "constants": {
+    "required_frames": 4,
+    "frame_length": 4096,
+    "maximum_persistent_payload_bytes": 65536,
+    "estimator_persistent_payload_bytes": 34084,
+    "domain_model_numeric_bytes": 12032,
+    "combined_persistent_payload_bytes": 46116,
+    "detection_significance_minimum": 12.0,
+    "center_uncertainty_bins_maximum": 4.0,
+    "center_shrink_sigma": 1.0,
+    "broad_span_minimum_bins": 100,
+    "obw_shrink_sigma": 2.5,
+    "carrier_prominence_db_minimum": 5.0,
+    "carrier_share_minimum": 0.21,
+    "snr_linear_calibration": {
+      "slope": 0.8,
+      "intercept_db": 1.6
+    },
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4,
+    "reference_difference_db_maximum": 3.0
+  },
+  "contracts": {
+    "protocol_lock_sha256": "6ce085432fc8f74f29442b66ab37e72ce934bcbb9b83dfad241e4fac218f342b",
+    "acceptance_gates_sha256": "357cb4019a4db0e1953839137a79812f214a49c9b8c3f5272665b43573de6a75",
+    "development_scenes_sha256": "008de054dbe48d9192e381a282a7ca2e5d8a63364ada8c870e45364f41c932d2",
+    "evaluation_commitments_sha256": "a238e0522f1dd42eca16abd8a185e5d950b4805d20cd279185877e661bffc779",
+    "domain_model_sha256": "c94f59cb528d7894f9d775443cfa6a796b207454f32546bd88251ff68c75125c",
+    "development_results_sha256": "cdf4bed8dd08015e5a447618422a43db99de460e051055d821c8b4fcbd1734f8",
+    "implementation_manifest_sha256": "e00d7126098446b3c40a13a552fc2e6c4b879e41d4a0e7b716b3f4e0c64229d6"
+  },
+  "implementation": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f1_estimator.py",
+        "sha256": "e36afa41039f8310890a9919611a753edaca2046a3d9576a3910fbf2f75fe889"
+      },
+      {
+        "path": "algorithms/parameters/f1_domain.py",
+        "sha256": "e05baf824ce981f0674409c0fbdbc2e1c82f8d50d51e4e8bd33adddf6fbb4961"
+      },
+      {
+        "path": "algorithms/parameters/f1_development.py",
+        "sha256": "c2cb489e2f6ba7761206452e6acb912f486abd594a848afa229c787487d4c4ba"
+      },
+      {
+        "path": "scripts/develop_phase04f1_domain.py",
+        "sha256": "92405002e5539dcb1df3f8d84ffc5460162b49bc2a9c3ea0523f56fb9e610ed6"
+      },
+      {
+        "path": "scripts/verify_phase04f1_development.py",
+        "sha256": "c6395814731114996faeda58e8cda32d442211534eda81cac2e0636690c7d467"
+      },
+      {
+        "path": "scripts/lock_phase04f1_method.py",
+        "sha256": "abcb8784c82abd77c3cf90b36fb4d099b4e4981403b2be3b8b0dea7ca074e870"
+      }
+    ],
+    "sha256": "e00d7126098446b3c40a13a552fc2e6c4b879e41d4a0e7b716b3f4e0c64229d6"
+  },
+  "seed_revealed": false,
+  "claim_boundary": "Yöntem ve uygulama geliştirme sonucundan sonra, binding/OOS seed reveal öncesinde kilitlenmiştir; ürün veya PHASE-04 başarı kararı değildir.",
+  "method_lock_sha256": "d42ba38cda80c901f57288a23d253e787b9f88aabd607dbd01e4dbd4fdab9e2b"
+}
