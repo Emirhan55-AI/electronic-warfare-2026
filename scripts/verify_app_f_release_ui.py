@@ -26,8 +26,8 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 CONFIGURATIONS = (
     ("minimum-1280x720", 1280, 720, 1.0, 0),
     ("standard-1366x768", 1366, 768, 1.0, 1),
-    ("fullhd-1920x1080", 1920, 1080, 1.0, 2),
-    ("scale-150-percent", 1280, 720, 1.5, 0),
+    ("fullhd-1920x1080", 1920, 1080, 1.0, 3),
+    ("scale-150-percent", 1280, 720, 1.5, 2),
 )
 
 
@@ -100,13 +100,15 @@ def _child_run(args: argparse.Namespace) -> int:
     app.processEvents()
     timer.stop()
 
-    if args.workspace == 0:
+    if args.workspace in {0, 1}:
         confirmed = next(
             (item for item in view_model.detections if item["stateKey"] == "confirmed"),
             None,
         )
         if confirmed is not None:
             view_model.selectDetection(int(confirmed["eventId"]))
+            if args.workspace == 0:
+                root.zoomSpectrum(0.5, 0.25)
             visual_deadline = time.perf_counter() + 0.35
             while time.perf_counter() < visual_deadline:
                 app.processEvents()
@@ -144,6 +146,10 @@ def _child_run(args: argparse.Namespace) -> int:
         "analysis_span": [
             view_model.analysisSpanStartNormalized,
             view_model.analysisSpanEndNormalized,
+        ],
+        "spectrum_view": [
+            float(root.property("spectrumViewStart")),
+            float(root.property("spectrumViewEnd")),
         ],
         "processed_frames": len(operation_ms),
         "observed_update_hz": len(operation_ms) / duration,
@@ -227,6 +233,7 @@ def _parent_run() -> int:
             int(run["logical_width"]) >= 1180 and int(run["logical_height"]) >= 680
             for run in runs
         ),
+        "workspace_coverage": {int(run["workspace"]) for run in runs} == {0, 1, 2, 3},
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),
         "selection_bound_to_fft": all(
             int(run["selected_detection_id"]) >= 0
@@ -240,12 +247,19 @@ def _parent_run() -> int:
             for run in runs
             if int(run["workspace"]) == 0
         ),
+        "linked_frequency_view": all(
+            0.0 < float(run["spectrum_view"][0])
+            < float(run["spectrum_view"][1])
+            < 1.0
+            for run in runs
+            if int(run["workspace"]) == 0
+        ),
         "ten_hz_update": all(float(run["observed_update_hz"]) >= 9.0 for run in runs),
         "processing_budget": all(float(run["processing_p95_ms"]) < 100.0 for run in runs),
         "responsive_gui": all(float(run["maximum_heartbeat_gap_ms"]) < 100.0 for run in runs),
         "keyboard_and_accessibility": all(
             marker in qml_text
-            for marker in ("Accessible.name", 'sequence: "Ctrl+O"', 'sequence: "Space"', "Hareketi azalt")
+            for marker in ("Accessible.name", 'sequence: "Ctrl+O"', 'sequence: "Space"', 'sequence: "Ctrl+4"', "Hareketi azalt")
         ),
         "honest_feature_surface": all(
             marker not in qml_text for marker in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "mock", "demo")

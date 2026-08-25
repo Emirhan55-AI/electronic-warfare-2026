@@ -10,6 +10,13 @@ from typing import Callable, Literal
 import numpy as np
 from PySide6.QtCore import QObject, Property, QRunnable, QThreadPool, QTimer, QUrl, Signal, Slot
 
+from algorithms.monitoring import (
+    AnalogMonitor,
+    AnalogMonitorConfig,
+    AnalogMonitorResult,
+    MonitoringError,
+    write_wav,
+)
 from algorithms.p0.df import DFMeasurement, ManualAmplitudeDF
 from algorithms.p0.field_df import AntennaReference, geographic_bearing_from_manual_reference
 from algorithms.parameters import (
@@ -39,6 +46,8 @@ from platforms.acquisition import (
     load_ed_rx_config,
 )
 
+from .audio_playback import AudioPlayback
+
 
 ERROR_TEXT = {
     "invalid_sigmf_contract": "SigMF sözleşmesi geçerli değil.",
@@ -48,6 +57,12 @@ ERROR_TEXT = {
     "device_not_found": "Yapılandırılmış HackRF bulunamadı.",
     "operation_timeout": "Donanım yanıt süresi aşıldı.",
     "operation_cancelled": "İşlem durduruldu.",
+    "insufficient_iq": "Dinleme için kaynakta yeterli kesintisiz I/Q örneği yok.",
+    "insufficient_audio": "Seçili kanaldan kullanılabilir ses üretilemedi.",
+    "invalid_channel_bandwidth": "Kanal bant genişliği kaynak sınırlarıyla uyumlu değil.",
+    "nyquist_limit": "Seçili kanal kaynak Nyquist sınırını aşıyor.",
+    "invalid_volume": "Ses düzeyi 0 ile 100 arasında olmalıdır.",
+    "wav_write_failed": "WAV dosyası kaydedilemedi.",
 }
 
 
@@ -91,6 +106,7 @@ class OperatorViewModel(QObject):
     detectionsChanged = Signal()
     directionChanged = Signal()
     logChanged = Signal()
+    listeningChanged = Signal()
 
     def __init__(
         self,
@@ -145,6 +161,14 @@ class OperatorViewModel(QObject):
         self._hackrf_ready = False
         self._operation_samples_ms: list[float] = []
         self._event_log: list[dict[str, str]] = []
+        self._active_task_kind = ""
+
+        self._audio_playback = AudioPlayback(self)
+        self._listening_result: AnalogMonitorResult | None = None
+        self._listening_state = "Doğrulanmış bir tespit seçin."
+        self._listening_rows: list[dict[str, str]] = []
+        self._listening_waveform: list[float] = []
+        self._listening_short_preview = False
 
         self._df = ManualAmplitudeDF()
         self._df_points: list[dict[str, str]] = []
@@ -208,6 +232,14 @@ class OperatorViewModel(QObject):
         if self._source is None:
             return "—"
         return self._format_rate(float(getattr(self._source, "sample_rate_hz")))
+
+    @Property(float, notify=stateChanged)
+    def centerFrequencyHz(self) -> float:
+        return float(getattr(self._source, "center_frequency_hz", 0.0))
+
+    @Property(float, notify=stateChanged)
+    def sampleRateHz(self) -> float:
+        return float(getattr(self._source, "sample_rate_hz", 0.0))
 
     @Property(str, notify=stateChanged)
     def calibrationText(self) -> str:
@@ -341,6 +373,61 @@ class OperatorViewModel(QObject):
     def bearingText(self) -> str:
         return self._df_bearing
 
+    @Property(str, notify=detectionsChanged)
+    def listeningDetectionTitle(self) -> str:
+        selected = next(
+            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
+            None,
+        )
+        return str(selected["title"]) if selected is not None else "Tespit seçilmedi"
+
+    @Property(str, notify=detectionsChanged)
+    def listeningDetectionFrequencyText(self) -> str:
+        selected = next(
+            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
+            None,
+        )
+        return str(selected["frequency"]) if selected is not None else "—"
+
+    @Property(float, notify=detectionsChanged)
+    def selectedDetectionOffsetKHz(self) -> float:
+        selected = next(
+            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
+            None,
+        )
+        return float(selected["offsetKHz"]) if selected is not None else 0.0
+
+    @Property(bool, notify=listeningChanged)
+    def listeningReady(self) -> bool:
+        return self._listening_result is not None
+
+    @Property(bool, notify=listeningChanged)
+    def listeningAudioAvailable(self) -> bool:
+        return self._audio_playback.available and self._listening_result is not None
+
+    @Property(str, notify=listeningChanged)
+    def listeningState(self) -> str:
+        return self._listening_state
+
+    @Property(bool, notify=listeningChanged)
+    def listeningShortPreview(self) -> bool:
+        return self._listening_short_preview
+
+    @Property("QVariantList", notify=listeningChanged)
+    def listeningRows(self) -> list[dict[str, str]]:
+        return self._listening_rows
+
+    @Property("QVariantList", notify=listeningChanged)
+    def listeningWaveform(self) -> list[float]:
+        return self._listening_waveform
+
+    @Property(str, notify=stateChanged)
+    def sourceDurationText(self) -> str:
+        if self._source is None:
+            return "—"
+        duration = self._frame_count * int(getattr(self._source, "frame_length")) / self.sampleRateHz
+        return f"{duration:.3f} s"
+
     @Slot(str)
     def setSourceMode(self, mode: str) -> None:
         if self._busy or mode not in {"sigmf", "hackrf"} or mode == self._source_mode:
@@ -456,6 +543,8 @@ class OperatorViewModel(QObject):
     def selectDetection(self, event_id: int) -> None:
         if not any(int(item["eventId"]) == event_id for item in self._detections):
             return
+        if event_id != self._selected_detection_id:
+            self._clear_listening("Seçili kanal değişti; dinlemeyi yeniden hazırlayın.")
         self._selected_detection_id = event_id
         self._measurement_requested = False
         self._parameter_rows = []
@@ -582,6 +671,113 @@ class OperatorViewModel(QObject):
         self._submit(self._generation, "measurement", operation)
         self._add_log("Parametre", f"Tespit #{self._selected_detection_id} ölçümü istendi")
 
+    @Slot(str, float, float, float)
+    def requestListening(self, mode: str, center_offset_khz: float, bandwidth_khz: float, volume: float) -> None:
+        if self._source is None or self._last_result is None or self._busy or not self.selectedDetectionReady:
+            self._listening_state = "Dinleme için doğrulanmış bir tespit ve hazır kaynak gerekir."
+            self.listeningChanged.emit()
+            return
+        event = next(
+            (
+                item for item in self._last_result.detection.active_events
+                if item.event_id == self._selected_detection_id and item.state == "confirmed"
+            ),
+            None,
+        )
+        if event is None:
+            self._listening_state = "Seçili tespit artık etkin değil; yeniden seçin."
+            self.listeningChanged.emit()
+            return
+        try:
+            config = AnalogMonitorConfig(
+                mode,  # type: ignore[arg-type]
+                self.sampleRateHz,
+                center_offset_khz * 1_000.0,
+                bandwidth_khz * 1_000.0,
+            )
+            if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
+                raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")
+        except Exception as exc:
+            code = str(getattr(exc, "code", "invalid_channel_bandwidth"))
+            self._listening_state = ERROR_TEXT.get(code, "Dinleme ayarları geçerli değil.")
+            self.listeningChanged.emit()
+            return
+
+        self.pause()
+        self._clear_listening("Seçili kanal hazırlanıyor…")
+        source = self._source
+        frame_length = int(getattr(source, "frame_length"))
+        frame_count = int(getattr(source, "frame_count"))
+        total_samples = frame_length * frame_count
+        sample_rate = float(getattr(source, "sample_rate_hz"))
+        current_sample = self._frame_index * frame_length
+        selected_id = self._selected_detection_id
+
+        def operation() -> tuple[AnalogMonitorResult, str, float, float, float]:
+            continuous_samples = int(math.ceil(5.0 * sample_rate))
+            if (
+                hasattr(source, "read_samples")
+                and total_samples >= continuous_samples
+                and continuous_samples <= 10_000_000
+            ):
+                start_sample = max(0, min(current_sample - continuous_samples // 2, total_samples - continuous_samples))
+                block_size = max(frame_length, int(sample_rate))
+                blocks = tuple(
+                    source.read_samples(  # type: ignore[attr-defined]
+                        start_sample + offset,
+                        min(block_size, continuous_samples - offset),
+                    )
+                    for offset in range(0, continuous_samples, block_size)
+                )
+                result = AnalogMonitor().process_continuous(blocks, config, volume=volume)
+                return result, "Kesintisiz kayıt", continuous_samples / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz
+            if frame_count < 4:
+                raise MonitoringError("insufficient_iq", "Dinleme için dört ardışık I/Q karesi gerekir.")
+            start_frame = max(0, min(self._frame_index - 3, frame_count - 4))
+            frames = tuple(source.read_frame(start_frame + offset) for offset in range(4))  # type: ignore[attr-defined]
+            result = AnalogMonitor().process(frames, config, volume=volume)
+            return result, "Kısa I/Q önizlemesi", 4 * frame_length / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz
+
+        self._set_busy(True, f"Tespit #{selected_id} için {mode.upper()} kanalı hazırlanıyor…")
+        self._submit(self._generation, "listening", operation)
+        self._add_log("Dinleme", f"Tespit #{selected_id} · {mode.upper()} hazırlama istendi")
+
+    @Slot()
+    def playListening(self) -> None:
+        if not self._audio_playback.play():
+            self._listening_state = "Ses çıkış aygıtı kullanılamıyor; WAV dışa aktarımı kullanılabilir."
+            self.listeningChanged.emit()
+
+    @Slot()
+    def pauseListening(self) -> None:
+        self._audio_playback.pause()
+
+    @Slot()
+    def stopListening(self) -> None:
+        self._audio_playback.stop()
+
+    @Slot(str)
+    def exportListeningWav(self, value: str) -> None:
+        if self._listening_result is None or self._busy:
+            return
+        url = QUrl(value)
+        path = Path(url.toLocalFile() if url.isLocalFile() else value)
+        if not path.name:
+            return
+        if path.suffix.casefold() != ".wav":
+            path = path.with_suffix(".wav")
+        payload = bytes(self._listening_result.pcm16)
+
+        def operation() -> str:
+            try:
+                write_wav(path, payload)
+            except OSError as exc:
+                raise MonitoringError("wav_write_failed", "WAV dosyası yazılamadı.") from exc
+            return str(path)
+
+        self._set_busy(True, "WAV dosyası kaydediliyor…")
+        self._submit(self._generation, "wav_export", operation)
+
     @Slot(float, str, float)
     def addDirectionMeasurement(self, antenna_angle_deg: float, reference: str, reference_deg: float) -> None:
         if self._last_result is None or self._source is None:
@@ -671,6 +867,7 @@ class OperatorViewModel(QObject):
         self._generation += 1
         self._backend.cancel()
         self._pool.waitForDone(2000)
+        self._audio_playback.close()
         self._close_source()
         self._backend.close()
 
@@ -678,6 +875,7 @@ class OperatorViewModel(QObject):
         task = _Task(generation, kind, operation)
         task.signals.completed.connect(self._task_completed)
         task.signals.failed.connect(self._task_failed)
+        self._active_task_kind = kind
         self._busy = True
         self.stateChanged.emit()
         self._pool.start(task)
@@ -685,6 +883,7 @@ class OperatorViewModel(QObject):
     @Slot(int, str, object, float)
     def _task_completed(self, generation: int, kind: str, result: object, elapsed: float) -> None:
         self._busy = False
+        self._active_task_kind = ""
         if generation != self._generation:
             if hasattr(result, "close"):
                 result.close()  # type: ignore[attr-defined]
@@ -725,13 +924,55 @@ class OperatorViewModel(QObject):
             self._status_message = f"Tespit #{self._selected_detection_id} parametre ölçümü tamamlandı."
             self._add_log("Parametre", self._status_message)
             self.detectionsChanged.emit()
+        elif kind == "listening":
+            if not isinstance(result, tuple) or len(result) != 5 or not isinstance(result[0], AnalogMonitorResult):
+                self._show_error("insufficient_audio", "Dinleme sonucu sözleşmeyle eşleşmedi.")
+                return
+            listening, scope, input_duration, offset_hz, bandwidth_hz = result
+            self._listening_result = listening
+            self._audio_playback.load(listening.pcm16)
+            self._listening_short_preview = scope != "Kesintisiz kayıt"
+            audio_duration = listening.audio.size / listening.sample_rate_hz
+            channel_frequency = self.centerFrequencyHz + float(offset_hz)
+            self._listening_rows = [
+                {"label": "Demodülasyon", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
+                {"label": "Kanal merkez frekansı", "value": self._format_frequency(channel_frequency)},
+                {"label": "Kanal bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
+                {"label": "Giriş kapsamı", "value": f"{scope} · {float(input_duration):.3f} s"},
+                {"label": "Ses çıkışı", "value": "48 kHz · mono PCM16"},
+                {"label": "Üretilen ses süresi", "value": f"{audio_duration:.3f} s"},
+                {"label": "Baskın ses bileşeni", "value": self._format_rate(listening.dominant_tone_hz)},
+            ]
+            waveform_points = min(720, listening.audio.size)
+            indices = np.linspace(0, listening.audio.size - 1, waveform_points, dtype=np.int64)
+            self._listening_waveform = [float(listening.audio[index]) for index in indices]
+            self._listening_state = (
+                "Kısa önizleme hazır; kesintisiz dinleme kabulü için en az 5 saniyelik kayıt gerekir."
+                if self._listening_short_preview
+                else "Kesintisiz kanal sesi hazır."
+            )
+            self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
+            self._add_log("Dinleme", self._status_message)
+            self.listeningChanged.emit()
+        elif kind == "wav_export":
+            self._status_message = f"WAV kaydedildi: {Path(str(result)).name}"
+            self._listening_state = self._status_message
+            self._add_log("Dinleme", self._status_message)
+            self.listeningChanged.emit()
         self.stateChanged.emit()
 
     @Slot(int, str, str)
     def _task_failed(self, generation: int, code: str, detail: str) -> None:
         self._busy = False
+        task_kind = self._active_task_kind
+        self._active_task_kind = ""
         if generation == self._generation:
-            self._show_error(code, detail)
+            if task_kind in {"listening", "wav_export"}:
+                self._listening_state = ERROR_TEXT.get(code, f"Dinleme işlemi tamamlanamadı ({code}).")
+                self._add_log("Dinleme", self._listening_state)
+                self.listeningChanged.emit()
+            else:
+                self._show_error(code, detail)
         self.stateChanged.emit()
 
     def _request_frame(self) -> None:
@@ -842,7 +1083,7 @@ class OperatorViewModel(QObject):
             del history[:-8]
         visible = sorted(
             result.detection.active_events,
-            key=lambda item: (item.state != "confirmed", -item.region.peak_to_noise_db, item.event_id),
+            key=lambda item: (item.state != "confirmed", item.event_id),
         )[:12]
         state_text = {"tentative": "İzleniyor", "confirmed": "Doğrulandı", "ended": "Sona ermiş"}
         self._detections = [
@@ -853,6 +1094,7 @@ class OperatorViewModel(QObject):
                 "snr": f"{item.region.peak_to_noise_db:.1f} dB",
                 "state": state_text[item.state],
                 "stateKey": item.state,
+                "offsetKHz": (item.region.peak_frequency_hz - result.spectrum.center_frequency_hz) / 1_000.0,
                 "startNormalized": self._normalized_shifted_bin(item.region.start_bin),
                 "endNormalized": self._normalized_shifted_bin(item.region.end_bin),
                 "peakNormalized": self._normalized_shifted_bin(item.region.peak_bin),
@@ -860,6 +1102,8 @@ class OperatorViewModel(QObject):
             for item in visible
         ]
         if not any(int(item["eventId"]) == self._selected_detection_id for item in self._detections):
+            if self._selected_detection_id >= 0:
+                self._clear_listening("Seçili tespit sona erdi; yeni bir tespit seçin.")
             self._selected_detection_id = -1
             self._measurement_requested = False
             self._parameter_rows = []
@@ -878,10 +1122,20 @@ class OperatorViewModel(QObject):
         self._analysis_span_draft = None
         self._event_observation_history.clear()
         self._frame_index = 0
+        self._clear_listening("Doğrulanmış bir tespit seçin.")
         if not keep_source:
             self._frame_count = 0
         self.spectrumChanged.emit()
         self.detectionsChanged.emit()
+
+    def _clear_listening(self, message: str) -> None:
+        self._audio_playback.stop()
+        self._listening_result = None
+        self._listening_rows = []
+        self._listening_waveform = []
+        self._listening_short_preview = False
+        self._listening_state = message
+        self.listeningChanged.emit()
 
     def _close_source(self) -> None:
         source, self._source = self._source, None

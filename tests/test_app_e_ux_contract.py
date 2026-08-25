@@ -99,7 +99,7 @@ class AppEUXContractTests(unittest.TestCase):
             "Kaynağı hazırlama",
             "Sinyal tespiti",
             "Parametre ölçümü",
-            "Ürün sınırı — Analog dinleme",
+            "Akış 4 — Analog dinleme",
             "Akış 5 — Yön bulma",
             "Sistem denetimi",
         ):

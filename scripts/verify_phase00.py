@@ -1225,7 +1225,8 @@ def check_readme_truthfulness() -> dict[str, object]:
         "zedboard üzerinde canlı dma ve uçtan uca çalışma",
         "henüz doğrulanmadı",
         "am/nfm izleme zinciri",
-        "ürün arayüzüne henüz alınmadı",
+        "qml ürün akışında doğrulandı",
+        "canlı hackrf/ses saha kabulü bekliyor",
         "rf yayın yolu yok",
         "kalibrasyonsuz `dbfs`",
     )

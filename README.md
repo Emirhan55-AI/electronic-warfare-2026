@@ -41,7 +41,7 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL Hann/FFT/güç zinciri | Vivado sentez/yerleştirme-yönlendirme kanıtı mevcut |
 | ZedBoard üzerinde canlı DMA ve uçtan uca çalışma | Henüz doğrulanmadı |
-| AM/NFM izleme zinciri | Kayıtlı I/Q üzerinde doğrulandı; ürün arayüzüne henüz alınmadı |
+| AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Yalnız çevrimdışı modeller; RF yayın yolu yok |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
@@ -49,10 +49,11 @@ Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 
 ## Operatör uygulaması
 
-Uygulama; veri kaynağı, spektrum/spektrogram, tespitler, üç adımlı sinyal ölçümü,
-manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu tek görev kabuğunda
-birleştirir. Yayın çalışma zamanı yalnız SigMF ve gerçek HackRF RX kaynaklarını
-kabul eder; test verileri ve çevrimdışı laboratuvar araçları ürün paketine girmez.
+Uygulama; veri kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı
+sinyal ölçümü, AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur
+olay konsolunu tek görev kabuğunda birleştirir. Yayın çalışma zamanı yalnız SigMF
+ve gerçek HackRF RX kaynaklarını kabul eder; test verileri ve çevrimdışı
+laboratuvar araçları ürün paketine girmez.
 
 ### Kurulum
 
@@ -73,7 +74,7 @@ Klavye kısayolları:
 
 - `Ctrl+O`: SigMF kaydı açar.
 - `Boşluk`: taramayı başlatır veya duraklatır.
-- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`: çalışma alanları arasında geçer.
+- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanları arasında geçer.
 - `Ctrl+B`: veri kaynağı panelini açar veya kapatır.
 
 ## Doğrulama

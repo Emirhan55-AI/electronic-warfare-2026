@@ -8,7 +8,10 @@ verileri ve çevrimdışı ET araçları ürün paketine dahil edilmez.
 Uygulamanın mevcut çalışma alanları:
 
 - `Spektrum`: kaynak yönetimi, dBFS spektrum, spektrogram, zamansal tespitler ve
-  operatör onaylı sinyal parametre ölçümü.
+  operatör onaylı sinyal parametre ölçümü. Spektrum ve spektrogram aynı
+  yakınlaştırma/kaydırma frekans penceresini kullanır.
+- `Dinleme`: doğrulanmış tespitten operatör seçimli AM/NFM kanal hazırlama, ses
+  dalga biçimi, oynatma durumu ve WAV dışa aktarma.
 - `Yön Bulma`: gerçek I/Q gücünün elle girilen anten açısıyla kaydı, bağıl geliş
   açısı ve geçerli referans varsa kerteriz.
 - `Sistem`: çalışma zamanı bileşen durumu, ölçülen host işlem süresi ve olaylar.
@@ -17,6 +20,10 @@ Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS
 ölçeğindedir; uygulama dBm, çok kanallı DoA, menzil veya otomatik hedef konumu
 üretmez.
+
+Kesintisiz dinleme, kaynakta en az beş saniyelik I/Q bulunmasını gerektirir.
+Daha kısa kayıtlar yalnız süreleri açıkça gösterilen kısa önizleme üretir; canlı
+HackRF ses saha kabulü tamamlanmış sayılmaz.
 
 Çalıştırma:
 

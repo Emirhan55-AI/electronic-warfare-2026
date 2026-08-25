@@ -13,6 +13,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-meta"
+LISTENING_FIXTURE = ROOT / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.sigmf-meta"
 QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
@@ -52,7 +53,10 @@ class QuickProductTests(unittest.TestCase):
             """
 root = engine.rootObjects()[0]
 root.setWidth(1180); root.setHeight(680); app.processEvents()
-payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace")}
+root.zoomSpectrum(.5,.5); app.processEvents()
+zoomed=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
+root.resetSpectrumView(); app.processEvents()
+payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]}
 view_model.shutdown(); root.close()
 print(json.dumps(payload, ensure_ascii=False))
 """
@@ -60,6 +64,8 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertGreaterEqual(payload["width"], 1180)
         self.assertGreaterEqual(payload["height"], 680)
         self.assertEqual(0, payload["workspace"])
+        self.assertEqual([0.25, 0.75], payload["zoomed"])
+        self.assertEqual([0.0, 1.0], payload["reset"])
 
     def test_real_sigmf_source_drives_bounded_spectrum_and_detection(self) -> None:
         payload = self.run_qml(
@@ -131,6 +137,34 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("—", payload["relative"])
         self.assertIn("gerçek bir kaynak", payload["status"])
 
+    def test_confirmed_detection_prepares_truthfully_labeled_am_audio(self) -> None:
+        payload = self.run_qml(
+            f"""
+listening_fixture=Path({str(LISTENING_FIXTURE)!r})
+view_model.openSigmf(str(listening_fixture))
+deadline=time.perf_counter()+6
+while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady): app.processEvents(); time.sleep(.002)
+view_model.startScan()
+while time.perf_counter()<deadline and not any(x["stateKey"]=="confirmed" for x in view_model.detections): app.processEvents(); time.sleep(.002)
+view_model.pause()
+while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
+confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
+view_model.selectDetection(int(confirmed["eventId"]))
+view_model.requestListening("am",view_model.selectedDetectionOffsetKHz,16.0,.8)
+while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
+payload={{"ready":view_model.listeningReady,"short":view_model.listeningShortPreview,"rows":view_model.listeningRows,"waveform":len(view_model.listeningWaveform),"state":view_model.listeningState}}
+view_model.shutdown(); engine.rootObjects()[0].close()
+print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertTrue(payload["ready"], payload)
+        self.assertTrue(payload["short"])
+        self.assertGreater(payload["waveform"], 100)
+        self.assertIn("Kısa önizleme", payload["state"])
+        rows = {row["label"]: row["value"] for row in payload["rows"]}
+        self.assertEqual("AM", rows["Demodülasyon"])
+        self.assertEqual("48 kHz · mono PCM16", rows["Ses çıkışı"])
+
     def test_qml_has_keyboard_accessibility_and_no_future_source_controls(self) -> None:
         text = QML.read_text(encoding="utf-8")
         for required in (
@@ -140,6 +174,13 @@ print(json.dumps(payload,ensure_ascii=False))
             "Hareketi azalt",
             "SigMF Kaydı",
             "HackRF Canlı RX",
+            "SPEKTRUMLA BAĞLI",
+            "zoomSpectrum",
+            "panSpectrum",
+            "Layout.preferredHeight: root.height < 780 ? 190 : 250",
+            "onPressed: operatorViewModel.selectDetection",
+            "Kanal Sesini Hazırla",
+            "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)
         for forbidden in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "demo", "mock"):

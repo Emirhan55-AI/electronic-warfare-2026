@@ -1,25 +1,25 @@
 # Operatör Görev Akışları
 
-- Sürüm: 1.1
+- Sürüm: 1.2
 - Güncelleme tarihi: 2026-08-25
 - Kapsam: APP-F için ürün bilgi mimarisi
 
 ## Genel yerleşim
 
-Ürün arayüzü üç kalıcı çalışma alanından oluşur:
+Ürün arayüzü dört kalıcı çalışma alanından oluşur:
 
 1. `Spektrum`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
-2. `Yön Bulma`: anten açısı–güç ölçümü, bağıl geliş açısı ve kerteriz.
-3. `Sistem`: bileşen sağlığı, performans ve son olaylar.
+2. `Dinleme`: seçili doğrulanmış tespit, AM/NFM kanal ayarları, ses sonucu ve WAV.
+3. `Yön Bulma`: anten açısı–güç ölçümü, bağıl geliş açısı ve kerteriz.
+4. `Sistem`: bileşen sağlığı, performans ve son olaylar.
 
 Üst görev çubuğu ED bağlamını, kaynak kimliğini, merkez frekansını, örnekleme
 hızını ve kaynak durumunu sürekli gösterir. Alt durum çubuğundaki `Olay Konsolu`,
 yapılandırılmış uygulama olaylarını salt okunur bir panelde açar; işletim sistemi
 komutu çalıştıran bir kabuk değildir.
 
-Parametre ölçümü seçili sinyal bağlamından açılır; kaynak ve tespit kimliği her
-adımda korunur. Kayıtlı I/Q üzerinde doğrulanmış AM/NFM zinciri henüz bu ürün
-arayüzüne alınmamıştır.
+Parametre ölçümü ve analog dinleme seçili sinyal bağlamından açılır; kaynak ve
+tespit kimliği her adımda korunur.
 
 ## Akış 1 — Kaynağı hazırlama
 
@@ -45,6 +45,8 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
    `Sona ermiş` olarak gösterilir.
 5. Operatör bir doğrulanmış tespit seçtiğinde kaba aday ve önerilen analiz aralığı
    gerçek FFT hücrelerine bağlı olarak spektrum üzerinde işaretlenir.
+6. Fare tekeriyle yakınlaştırma ve sol tuşla kaydırma spektrum ile spektrogramda
+   aynı frekans penceresini değiştirir; çift tıklama veya `1:1` tam banda döner.
 
 Çıkış koşulu: seçimin kaynak kimliği, çerçeve ve tespit kimliği birbirine bağlıdır.
 
@@ -59,11 +61,18 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
    durumuyla birlikte gösterilir.
 5. Kalite kapısı geçmezse sayı yerine neden gösterilir.
 
-## Ürün sınırı — Analog dinleme
+## Akış 4 — Analog dinleme
 
-AM/NFM demodülasyonu kayıtlı I/Q üzerinde ayrı host testleriyle doğrulanmıştır,
-ancak mevcut ürün QML çalışma alanında dinleme denetimi bulunmaz. Gerçek HackRF
-ve ses aygıtı kabulü tamamlanmadan bu işlev yayın arayüzünde etkin gösterilmez.
+1. Operatör Spektrum alanında doğrulanmış bir tespit seçer.
+2. `Dinleme` alanında AM veya NFM, kanal ofseti, bant genişliği ve ses seviyesi
+   açıkça belirlenir.
+3. `Kanal Sesini Hazırla`, kaynaktaki I/Q'yu GUI iş parçacığı dışında işler.
+4. En az beş saniyelik uygun kayıt kesintisiz sonuç; daha kısa kayıt yalnız açıkça
+   etiketli kısa önizleme üretir.
+5. Sonuç 48 kHz mono PCM16 olarak oynatılabilir veya WAV dışa aktarılabilir.
+
+Canlı HackRF ve fiziksel ses aygıtı saha kabulü tamamlanmadan bu akış canlı RF
+dinleme başarısı olarak sunulmaz.
 
 ## Akış 5 — Yön bulma
 
@@ -89,6 +98,8 @@ Son olaylar zaman, bileşen ve kısa nedenle listelenir; ayrıntılı kayıt alt
 - Hareket, görev bağlamının değiştiğini veya bir panelin açılıp kapandığını
   anlatmalıdır; sürekli parlayan öğe kullanılmaz.
 - `Ctrl+B`, veri kaynağı panelini görev alanını büyütmek için yumuşakça daraltır.
+- Tespit listesinin yüksekliği içerik sayısından bağımsızdır; confirmed adaylar
+  olay kimliğiyle kararlı sıralanır ve seçim fare basışında alınır.
 - Kerteriz ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
   spektrum vurgusu kısa bir odak geçişi kullanır.
 - `Hareketi azalt` sistem ayarı desteklenir.
