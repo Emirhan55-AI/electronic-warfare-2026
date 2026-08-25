@@ -25,6 +25,8 @@ ApplicationWindow {
     property bool spectrumCursorVisible: false
     property real analysisDragStart: -1
     property real analysisDragEnd: -1
+    property int selectedSystemBlock: 0
+    property string systemLogFilter: "Tümü"
     property color appBackground: "#050B11"
     property color surface: "#0A131C"
     property color surfaceAlt: "#0D1822"
@@ -116,6 +118,21 @@ ApplicationWindow {
         var plotWidth = Math.max(1, width - plotLeft - 8)
         var ratio = Math.max(0, Math.min(1, (x - plotLeft) / plotWidth))
         return spectrumViewStart + ratio * (spectrumViewEnd - spectrumViewStart)
+    }
+
+    function stateColor(state) {
+        if (state === "Hazır") return success
+        if (state === "Çalışıyor") return accent
+        if (state === "Hata") return danger
+        if (state === "Bekliyor") return warning
+        return textMuted
+    }
+
+    function systemLogMatches(item) {
+        if (systemLogFilter === "Tümü") return true
+        if (systemLogFilter === "Hata") return item.level === "HATA"
+        if (systemLogFilter === "Kaynak") return item.component === "Kaynak" || item.component === "HackRF"
+        return item.component !== "Kaynak" && item.component !== "HackRF" && item.level !== "HATA"
     }
 
     onSpectrumViewStartChanged: {
@@ -260,8 +277,8 @@ ApplicationWindow {
         implicitWidth: badgeText.implicitWidth + 18
         implicitHeight: 24
         radius: 12
-        color: state === "Hazır" ? "#153B31" : state === "Çalışıyor" ? "#123B42" : state === "Hata" ? "#48252B" : "#25313A"
-        border.color: state === "Hazır" ? root.success : state === "Çalışıyor" ? root.accent : state === "Hata" ? root.danger : "#536570"
+        color: state === "Hazır" ? "#153B31" : state === "Çalışıyor" ? "#123B42" : state === "Hata" ? "#48252B" : state === "Bekliyor" ? "#3B321F" : "#25313A"
+        border.color: state === "Hazır" ? root.success : state === "Çalışıyor" ? root.accent : state === "Hata" ? root.danger : state === "Bekliyor" ? root.warning : "#536570"
         Behavior on color { ColorAnimation { duration: root.transitionDuration } }
         Behavior on border.color { ColorAnimation { duration: root.transitionDuration } }
         Text {
@@ -1617,78 +1634,254 @@ ApplicationWindow {
             Item {
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 20
-                    spacing: 14
-                    Panel {
+                    anchors.margins: 14
+                    spacing: 10
+                    RowLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 150
-                        ColumnLayout {
+                        SectionTitle { text: "SİSTEM / DURUM İZLEME"; Layout.fillWidth: true }
+                        Label { text: "SALT OKUNUR SİSTEM DURUMU"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.Bold }
+                        StateBadge { state: operatorViewModel.sourceReady ? "Hazır" : "Bekliyor" }
+                    }
+                    Panel {
+                        id: systemMetricsPanel
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: root.height < 780 ? 88 : 108
+                        RowLayout {
                             anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 12
-                            RowLayout {
-                                Layout.fillWidth: true
-                                SectionTitle { text: "SİSTEM DURUMU"; Layout.fillWidth: true }
-                                Label { text: operatorViewModel.sourceReady ? "Operasyonel bileşenler izleniyor" : "Kaynak bağlantısı bekleniyor"; color: operatorViewModel.sourceReady ? root.success : root.textSecondary; font.pixelSize: 10 }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                Repeater {
-                                    model: operatorViewModel.pipelineBlocks
-                                    delegate: Rectangle {
-                                        required property var modelData
-                                        Layout.fillWidth: true
-                                        Layout.minimumWidth: 0
-                                        Layout.preferredHeight: 58
-                                        radius: 4
-                                        color: root.surfaceAlt
-                                        border.color: root.border
-                                        RowLayout {
-                                            anchors.fill: parent
-                                            anchors.leftMargin: 11
-                                            anchors.rightMargin: 11
-                                            spacing: 8
-                                            Rectangle { width: 7; height: 7; radius: 4; color: modelData.state === "Hazır" ? root.success : modelData.state === "Çalışıyor" ? root.accent : modelData.state === "Hata" ? root.danger : root.textMuted }
-                                            ColumnLayout {
-                                                Layout.fillWidth: true
-                                                spacing: 2
-                                                Label { text: modelData.name; color: root.textPrimary; font.pixelSize: 9; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                                Label { text: modelData.state; color: root.textMuted; font.pixelSize: 8 }
-                                            }
-                                        }
+                            anchors.margins: 12
+                            spacing: 8
+                            Repeater {
+                                model: [
+                                    {"label": "KAYNAK", "value": operatorViewModel.sourceState, "detail": operatorViewModel.sourceName},
+                                    {"label": "İŞLENEN KARE", "value": operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount, "detail": operatorViewModel.playing ? "Tarama çalışıyor" : "Tarama duraklatıldı"},
+                                    {"label": "HOST İŞLEME", "value": operatorViewModel.performanceText, "detail": "GUI iş parçacığı dışında"},
+                                    {"label": "PARAMETRE ÖLÇÜMÜ", "value": operatorViewModel.parameterCapabilityReady ? "Kullanılabilir" : "Kullanılamıyor", "detail": "Profil bütünlüğü doğrulandı"}
+                                ]
+                                delegate: Rectangle {
+                                    required property var modelData
+                                    required property int index
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    Layout.fillHeight: true
+                                    radius: 4
+                                    color: index === 0 && operatorViewModel.sourceReady ? "#0D211F" : root.surfaceAlt
+                                    border.color: index === 0 && operatorViewModel.sourceReady ? "#265E50" : root.border
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 10
+                                        spacing: 2
+                                        Label { text: modelData.label; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.8 }
+                                        Label { text: modelData.value; color: index === 0 ? root.stateColor(operatorViewModel.sourceState) : root.textPrimary; font.pixelSize: root.height < 780 ? 10 : 12; font.family: index === 1 || index === 2 ? "Consolas" : "Segoe UI"; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                                        Label { visible: root.height >= 780; text: modelData.detail; color: root.textSecondary; font.pixelSize: 8; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                     }
                                 }
                             }
                         }
                     }
-                    Panel {
+                    RowLayout {
+                        id: systemWorkspace
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 10
-                            RowLayout {
-                                Layout.fillWidth: true
-                                SectionTitle { text: "SON OLAYLAR"; Layout.fillWidth: true }
-                                Label { text: operatorViewModel.performanceText; color: root.textSecondary; font.pixelSize: 10 }
+                        spacing: 10
+                        Panel {
+                            id: pipelinePanel
+                            Layout.preferredWidth: root.width < 1400 ? 330 : 390
+                            Layout.fillHeight: true
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 12
+                                spacing: 8
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    SectionTitle { text: "İŞLEME ZİNCİRİ"; Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.pipelineBlocks.length + " aşama"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                }
+                                Label { text: "Etkin yürütme katmanı ve doğrulanmış kaynak karşılıkları"; color: root.textSecondary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                ListView {
+                                    id: pipelineList
+                                    objectName: "pipelineList"
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    clip: true
+                                    spacing: 4
+                                    model: operatorViewModel.pipelineBlocks
+                                    delegate: Rectangle {
+                                        required property var modelData
+                                        required property int index
+                                        Accessible.name: modelData.name + ", " + modelData.runtime + ", " + modelData.state
+                                        Accessible.role: Accessible.ListItem
+                                        width: ListView.view.width
+                                        height: root.height < 780 ? 48 : 64
+                                        radius: 4
+                                        color: root.selectedSystemBlock === index ? root.accentSoft : root.surfaceAlt
+                                        border.color: root.selectedSystemBlock === index ? root.accent : root.border
+                                        Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 2; visible: root.selectedSystemBlock === index; color: root.accent }
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 10
+                                            anchors.rightMargin: 10
+                                            spacing: 9
+                                            Label { text: (index < 9 ? "0" : "") + (index + 1); color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                            Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(modelData.state) }
+                                            ColumnLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 1
+                                                Label { text: modelData.name; color: root.textPrimary; font.pixelSize: 10; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                                                Label { text: modelData.runtime + "  ·  " + modelData.state; color: root.textSecondary; font.pixelSize: 8; font.family: "Consolas" }
+                                            }
+                                        }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: root.selectedSystemBlock = index
+                                            onDoubleClicked: {
+                                                root.selectedSystemBlock = index
+                                                if (operatorViewModel.developerMode) operatorViewModel.openImplementationLocation(modelData.id, "host")
+                                            }
+                                        }
+                                    }
+                                }
+                                Label { visible: operatorViewModel.developerMode; text: "Çift tıklama host kaynak konumunu açar."; color: root.accent; font.pixelSize: 8; Layout.fillWidth: true }
                             }
-                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                            ListView {
+                        }
+                        ColumnLayout {
+                            id: systemDetailColumn
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            spacing: 10
+                            Panel {
+                                id: componentInspector
+                                property var block: operatorViewModel.pipelineBlocks.length > root.selectedSystemBlock ? operatorViewModel.pipelineBlocks[root.selectedSystemBlock] : ({})
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: root.height < 780 ? 160 : 210
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 14
+                                    spacing: 8
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        SectionTitle { text: "BİLEŞEN DENETÇİSİ"; Layout.fillWidth: true }
+                                        Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(componentInspector.block.state || "") }
+                                        Label { text: componentInspector.block.state || "—"; color: root.stateColor(componentInspector.block.state || ""); font.pixelSize: 9; font.weight: Font.Bold }
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 3
+                                            Label { text: componentInspector.block.name || "Bileşen seçilmedi"; color: root.textPrimary; font.pixelSize: root.height < 780 ? 15 : 18; font.weight: Font.DemiBold }
+                                            Label { text: componentInspector.block.description || ""; color: root.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                        }
+                                        Rectangle {
+                                            implicitWidth: runtimeText.implicitWidth + 20
+                                            implicitHeight: 30
+                                            radius: 4
+                                            color: root.accentSoft
+                                            border.color: "#28616B"
+                                            Label { id: runtimeText; anchors.centerIn: parent; text: componentInspector.block.runtime || "—"; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.Bold }
+                                        }
+                                    }
+                                    Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                    GridLayout {
+                                        columns: 2
+                                        Layout.fillWidth: true
+                                        columnSpacing: 16
+                                        rowSpacing: 4
+                                        Label { text: "Uygulama"; color: root.textMuted; font.pixelSize: 9 }
+                                        Label { text: componentInspector.block.implementation || "—"; color: root.textPrimary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        Label { text: "Donanım sınırı"; color: root.textMuted; font.pixelSize: 9 }
+                                        Label { text: componentInspector.block.rtlPath ? "Kaynak karşılığı mevcut; kart kabulü yok" : "Host üzerinde çalışıyor"; color: componentInspector.block.rtlPath ? root.warning : root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                    }
+                                    RowLayout {
+                                        visible: operatorViewModel.developerMode
+                                        Layout.fillWidth: true
+                                        Item { Layout.fillWidth: true }
+                                        QuietButton { text: "Host Kaynağını Aç"; implicitHeight: 30; enabled: !!componentInspector.block.hostPath; onClicked: operatorViewModel.openImplementationLocation(componentInspector.block.id, "host") }
+                                        QuietButton { text: "RTL / PS Kaynağını Aç"; implicitHeight: 30; enabled: !!componentInspector.block.rtlPath; onClicked: operatorViewModel.openImplementationLocation(componentInspector.block.id, "rtl") }
+                                    }
+                                }
+                            }
+                            Panel {
+                                id: systemLogPanel
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
-                                clip: true
-                                model: operatorViewModel.eventLog
-                                spacing: 2
-                                delegate: Rectangle {
-                                    required property var modelData
-                                    required property int index
-                                    width: ListView.view.width; height: 36; color: index % 2 ? "#070E14" : "transparent"
-                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8; spacing: 16
-                                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 72 }
-                                        Label { text: modelData.component.toUpperCase(); color: modelData.component === "Hata" ? root.danger : root.accent; font.pixelSize: 9; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 110 }
-                                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 12
+                                    spacing: 7
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        SectionTitle { text: "OPERASYON GÜNLÜĞÜ"; Layout.fillWidth: true }
+                                        Repeater {
+                                            model: ["Tümü", "Hata", "Kaynak", "Görev"]
+                                            delegate: QuietButton {
+                                                required property string modelData
+                                                text: modelData
+                                                implicitWidth: 58
+                                                implicitHeight: 26
+                                                font.pixelSize: 9
+                                                checked: root.systemLogFilter === modelData
+                                                onClicked: root.systemLogFilter = modelData
+                                            }
+                                        }
+                                        Label { text: operatorViewModel.eventLog.length + " kayıt"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                    }
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        color: "#03070B"
+                                        border.color: root.border
+                                        radius: 4
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            anchors.margins: 8
+                                            spacing: 0
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                Layout.preferredHeight: 24
+                                                spacing: 10
+                                                Label { text: "NO"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 34 }
+                                                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 62 }
+                                                Label { text: "SEVİYE"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 52 }
+                                                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 86 }
+                                                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.fillWidth: true }
+                                            }
+                                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                            ListView {
+                                                id: systemLog
+                                                objectName: "systemLog"
+                                                Layout.fillWidth: true
+                                                Layout.fillHeight: true
+                                                clip: true
+                                                model: operatorViewModel.eventLog
+                                                delegate: Rectangle {
+                                                    required property var modelData
+                                                    required property int index
+                                                    property bool matches: root.systemLogMatches(modelData)
+                                                    width: ListView.view.width
+                                                    height: matches ? 30 : 0
+                                                    visible: matches
+                                                    color: matches && index % 2 ? "#050A0F" : "transparent"
+                                                    RowLayout {
+                                                        anchors.fill: parent
+                                                        spacing: 10
+                                                        Label { text: modelData.sequence; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 34 }
+                                                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 62 }
+                                                        Label { text: modelData.level; color: modelData.level === "HATA" ? root.danger : modelData.level === "UYARI" ? root.warning : root.success; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 52 }
+                                                        Label { text: modelData.component.toUpperCase(); color: root.accent; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 86; elide: Text.ElideRight }
+                                                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
+                                                    }
+                                                }
+                                            }
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                Layout.preferredHeight: 20
+                                                Label { text: "●"; color: root.success; font.pixelSize: 8 }
+                                                Label { text: "Canlı olay akışı"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.fillWidth: true }
+                                                Label { text: "Salt okunur · komut çalıştırmaz"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
+                                            }
+                                        }
                                     }
                                 }
                             }

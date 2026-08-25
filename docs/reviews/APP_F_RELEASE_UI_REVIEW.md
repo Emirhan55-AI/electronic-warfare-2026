@@ -1,6 +1,6 @@
 # APP-F Yayın Operatör Uygulaması İncelemesi
 
-- İnceleme tarihi: 2026-08-24
+- İnceleme tarihi: 2026-08-26
 - Kapsam: ürün giriş noktası, gerçek kaynak durumu, görev akışları, erişilebilirlik,
   ölçekleme ve performans
 - Tekrarlanabilir doğrulayıcı: `scripts/verify_app_f_release_ui.py`
@@ -8,10 +8,12 @@
 
 ## Uygulanan ürün yüzeyi
 
-Ürün giriş noktası Qt Quick/QML'dir. Kalıcı çalışma alanları `Operasyon`, `Yön
-Bulma` ve `Sistem` olarak sınırlandırılmıştır. Operasyon ekranı kaynak sözleşmesi,
-spektrum, 48 satırlık spektrogram, temporal tespit listesi ve seçili olayın P0
-parametre ölçümünü birlikte taşır.
+Ürün giriş noktası Qt Quick/QML'dir. Kalıcı çalışma alanları `Spektrum`,
+`Dinleme`, `Yön Bulma` ve `Sistem` olarak sınırlandırılmıştır. Spektrum ekranı
+kaynak sözleşmesi, spektrum, 48 satırlık spektrogram, zamansal tespit listesi ve
+seçili olayın operatör onaylı parametre ölçümünü birlikte taşır. Dinleme alanı
+aynı seçili tespit bağlamında AM/NFM kanal hazırlama ve doğrulanmış kayıt kapsamı
+için ses çıktısını sunar.
 
 SigMF metadata ve veri eşleşmesi gerçek sözleşme denetiminden geçer. HackRF yolu
 gerçek komut satırı araçlarını, yapılandırılmış ED_RX seri kimliğini ve cihazı
@@ -24,9 +26,12 @@ göreli dBFS gücünü kaydeder. En az üç farklı açı ve ayrışmış maksim
 bağıl geliş açısı ya da kerteriz göstermez. Faz uyumlu DoA, menzil ve hedef konumu
 üretilmez.
 
-Sistem ekranı GNU Radio Companion'daki okunabilir blok akışı ilkesini salt-okunur
-durum kartlarına uygular. Operatör DSP grafiğini değiştiremez. Olay günlüğü 20
-kayıtla sınırlıdır.
+Sistem ekranı GNU Radio Companion'daki okunabilir akış ilkesini düzenlenebilir
+blok grafiği yerine sıralı ve salt-okunur işlem zincirine uygular. Yedi aşamanın
+etkin yürütme katmanı ve durumu gerçek uygulama durumundan beslenir. Seçili
+bileşenin host uygulaması, varsa RTL/taşınabilir C karşılığı ve kart kabul sınırı
+ayrı gösterilir. Filtrelenebilir olay günlüğü sıra, zaman, seviye, bileşen ve kısa
+nedeni taşır; 20 kayıtla sınırlıdır ve komut çalıştırmaz.
 
 ## Görsel ve kullanım denetimi
 
@@ -36,7 +41,8 @@ taşma ve son işleme bloğu görsel olarak incelenmiştir. Klavye kısayolları
 
 - `Ctrl+O`: SigMF kaydı açma
 - `Boşluk`: taramayı başlatma/duraklatma
-- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`: çalışma alanı geçişi
+- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanı geçişi
+- `Alt+Sol`, `Alt+Sağ`: spektrum görünüm geçmişinde geri/ileri
 
 Etkileşimli kontroller erişilebilir ad taşır. `Hareketi azalt` ayarı geçiş süresini
 sıfırlar; spektrum ve ölçüm sayıları dekoratif animasyon kullanmaz.
@@ -51,7 +57,10 @@ güncelleme koşusu yapılır. Kabul kapıları:
 - işleme p95 < 100 ms;
 - GUI heartbeat maksimum aralığı < 100 ms;
 - QML'e verilen spektrum noktası 1–1600 aralığında;
-- dört ekran/ölçek profili ve gerçek HackRF probe işlemi settled durumda.
+- dört ekran/ölçek profili ve gerçek HackRF cihaz denetimi tamamlanmış durumda;
+- işlem zinciri, yapılandırılmış olay günlüğü ve yayın modunda kapalı kaynak
+  konumu denetimi mevcut;
+- spektrum ve spektrogram ortak frekans görünümüne bağlı.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli

@@ -94,6 +94,10 @@ aşağıdaki doğrulayıcıyla yeniden üretilebilir:
 python -B scripts\verify_app_f_release_ui.py
 ```
 
+Sistem çalışma alanı etkin işlem zincirini ve host/FPGA kabul sınırını açıkça
+ayırır. Filtrelenebilir olay günlüğü çalışma durumunu salt okunur olarak izler;
+ürün görünümü komut çalıştıran bir terminal içermez.
+
 Ayrıntılı gereksinim durumu ve yöntem sınırları
 [`docs/requirements/KTR_TRACEABILITY.md`](docs/requirements/KTR_TRACEABILITY.md),
 sistem hedefi ise

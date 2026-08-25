@@ -23,6 +23,7 @@ class QuickProductTests(unittest.TestCase):
             (
                 "import json, os, time",
                 "from pathlib import Path",
+                "os.environ.pop('EH_CONSOLE_DEVELOPER_MODE', None)",
                 "os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')",
                 "os.environ.setdefault('QT_QUICK_BACKEND', 'software')",
                 "from PySide6.QtCore import QObject",
@@ -65,7 +66,7 @@ root.resetSpectrumView(); app.processEvents()
 workspaces=[]
 for index in range(4):
     root.setProperty("workspace",index); app.processEvents(); workspaces.append(root.property("workspace"))
-payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None}
+payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None,"pipeline_list":root.findChild(QObject,"pipelineList") is not None,"system_log":root.findChild(QObject,"systemLog") is not None}
 view_model.shutdown(); root.close()
 print(json.dumps(payload, ensure_ascii=False))
 """
@@ -80,6 +81,58 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual([0, 1, 2, 3], payload["workspaces"])
         self.assertTrue(payload["measurement_scroll"])
         self.assertTrue(payload["listening_scroll"])
+        self.assertTrue(payload["pipeline_list"])
+        self.assertTrue(payload["system_log"])
+
+    def test_system_diagnostics_use_real_runtime_state_and_safe_release_boundary(self) -> None:
+        payload = self.run_qml(
+            """
+from unittest.mock import patch
+from app.operator_console.quick_view_model import OperatorViewModel
+initial_blocks=list(view_model.pipelineBlocks)
+disabled_open=view_model.openImplementationLocation("source","host")
+view_model.openSigmf(str(fixture))
+deadline=time.perf_counter()+6
+while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady): app.processEvents(); time.sleep(.002)
+ready_blocks=list(view_model.pipelineBlocks)
+view_model.startScan(); app.processEvents()
+running_blocks=list(view_model.pipelineBlocks)
+view_model.pause(); app.processEvents()
+developer_view_model=OperatorViewModel(developer_mode=True)
+with patch("app.operator_console.quick_view_model.QDesktopServices.openUrl", return_value=True):
+    enabled_host_open=developer_view_model.openImplementationLocation("source","host")
+    enabled_rtl_open=developer_view_model.openImplementationLocation("preprocess","rtl")
+    invalid_open=developer_view_model.openImplementationLocation("../../outside","host")
+developer_view_model.shutdown()
+payload={"developer_mode":view_model.developerMode,"disabled_open":disabled_open,"enabled_host_open":enabled_host_open,"enabled_rtl_open":enabled_rtl_open,"invalid_open":invalid_open,"initial":initial_blocks,"ready":ready_blocks,"running":running_blocks,"log":view_model.eventLog}
+view_model.shutdown(); engine.rootObjects()[0].close()
+print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertFalse(payload["developer_mode"])
+        self.assertFalse(payload["disabled_open"])
+        self.assertTrue(payload["enabled_host_open"])
+        self.assertTrue(payload["enabled_rtl_open"])
+        self.assertFalse(payload["invalid_open"])
+        self.assertEqual(7, len(payload["initial"]))
+        self.assertTrue(all(item["runtime"] == "HOST" for item in payload["ready"]))
+        for item in payload["ready"]:
+            for key in ("hostPath", "rtlPath"):
+                if item[key]:
+                    self.assertTrue((ROOT / item[key]).is_file(), item[key])
+        self.assertEqual("Kullanılmıyor", payload["initial"][0]["state"])
+        self.assertEqual("Hazır", payload["ready"][0]["state"])
+        self.assertTrue(
+            all(
+                item["state"] == "Çalışıyor"
+                for item in payload["running"]
+                if item["id"] in {"preprocess", "fft_power", "regional", "temporal"}
+            )
+        )
+        self.assertTrue(all({"sequence", "time", "level", "component", "message"} <= set(item) for item in payload["log"]))
+        messages = [item["message"] for item in payload["log"]]
+        self.assertIn("Sinyal taraması başlatıldı", messages)
+        self.assertIn("Sinyal taraması duraklatıldı", messages)
 
     def test_real_sigmf_source_drives_bounded_spectrum_and_detection(self) -> None:
         payload = self.run_qml(
@@ -203,6 +256,11 @@ print(json.dumps(payload,ensure_ascii=False))
             "onPressed: operatorViewModel.selectDetection",
             'objectName: "measurementScroll"',
             'objectName: "listeningSettingsScroll"',
+            'objectName: "pipelineList"',
+            'objectName: "systemLog"',
+            "SALT OKUNUR SİSTEM DURUMU",
+            "BİLEŞEN DENETÇİSİ",
+            "Salt okunur · komut çalıştırmaz",
             'sequence: "Alt+Left"',
             "Kanal Sesini Hazırla",
             "WAV Dışa Aktar",

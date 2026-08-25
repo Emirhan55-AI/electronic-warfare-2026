@@ -16,7 +16,10 @@ Uygulamanın mevcut çalışma alanları:
   dalga biçimi, oynatma durumu ve WAV dışa aktarma.
 - `Yön Bulma`: gerçek I/Q gücünün elle girilen anten açısıyla kaydı, bağıl geliş
   açısı ve geçerli referans varsa kerteriz.
-- `Sistem`: çalışma zamanı bileşen durumu, ölçülen host işlem süresi ve olaylar.
+- `Sistem`: gerçek çalışma durumundan beslenen yedi aşamalı işlem zinciri,
+  seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
+  filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
+  dosya sistemi denetimi sunmaz.
 
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS

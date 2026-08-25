@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import math
+import os
 from pathlib import Path
 import time
 from typing import Callable, Literal
 
 import numpy as np
 from PySide6.QtCore import QObject, Property, QRunnable, QThreadPool, QTimer, QUrl, Signal, Slot
+from PySide6.QtGui import QDesktopServices
 
 from algorithms.monitoring import (
     AnalogMonitor,
@@ -66,6 +68,73 @@ ERROR_TEXT = {
 }
 
 
+PIPELINE_COMPONENTS = (
+    {
+        "id": "source",
+        "name": "I/Q Kaynağı",
+        "runtime": "HOST",
+        "implementation": "Python",
+        "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+        "hostPath": "algorithms/spectrum/source.py",
+        "rtlPath": "",
+    },
+    {
+        "id": "preprocess",
+        "name": "Ön İşleme",
+        "runtime": "HOST",
+        "implementation": "Python · SystemVerilog karşılığı",
+        "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
+        "hostPath": "algorithms/spectrum/dsp.py",
+        "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
+    },
+    {
+        "id": "fft_power",
+        "name": "FFT ve Lineer Güç",
+        "runtime": "HOST",
+        "implementation": "Python · SystemVerilog karşılığı",
+        "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
+        "hostPath": "algorithms/spectrum/dsp.py",
+        "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
+    },
+    {
+        "id": "regional",
+        "name": "Bölgesel Eşik",
+        "runtime": "HOST",
+        "implementation": "Python · SystemVerilog karşılığı",
+        "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
+        "hostPath": "algorithms/detection/pipeline.py",
+        "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
+    },
+    {
+        "id": "temporal",
+        "name": "Zamansal Doğrulama",
+        "runtime": "HOST",
+        "implementation": "Python · taşınabilir C karşılığı",
+        "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
+        "hostPath": "algorithms/detection/pipeline.py",
+        "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
+    },
+    {
+        "id": "parameters",
+        "name": "Parametre Ölçümü",
+        "runtime": "HOST",
+        "implementation": "Python",
+        "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
+        "hostPath": "algorithms/parameters/f5_estimator.py",
+        "rtlPath": "",
+    },
+    {
+        "id": "monitoring",
+        "name": "Analog Dinleme",
+        "runtime": "HOST",
+        "implementation": "Python",
+        "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
+        "hostPath": "algorithms/monitoring/dsp.py",
+        "rtlPath": "",
+    },
+)
+
+
 class _TaskSignals(QObject):
     completed = Signal(int, str, object, float)
     failed = Signal(int, str, str)
@@ -107,6 +176,7 @@ class OperatorViewModel(QObject):
     directionChanged = Signal()
     logChanged = Signal()
     listeningChanged = Signal()
+    pipelineChanged = Signal()
 
     def __init__(
         self,
@@ -114,6 +184,7 @@ class OperatorViewModel(QObject):
         *,
         acquisition_backend: HackRFBackend | None = None,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
+        developer_mode: bool | None = None,
     ) -> None:
         super().__init__(parent)
         resolved = resolve_default_operation_profile()
@@ -161,6 +232,12 @@ class OperatorViewModel(QObject):
         self._hackrf_ready = False
         self._operation_samples_ms: list[float] = []
         self._event_log: list[dict[str, str]] = []
+        self._log_sequence = 0
+        self._developer_mode = (
+            bool(developer_mode)
+            if developer_mode is not None
+            else os.environ.get("EH_CONSOLE_DEVELOPER_MODE", "").strip().casefold() in {"1", "true", "yes"}
+        )
         self._active_task_kind = ""
 
         self._audio_playback = AudioPlayback(self)
@@ -179,7 +256,7 @@ class OperatorViewModel(QObject):
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
         if self._parameter_capability is None:
-            self._add_log("Parametre", "F5 ürün profili doğrulanamadı; parametre ölçümü kapalı")
+            self._add_log("Parametre", "Parametre ölçüm profili doğrulanamadı; ölçüm kapalı")
 
     @Property(str, notify=stateChanged)
     def sourceMode(self) -> str:
@@ -331,18 +408,63 @@ class OperatorViewModel(QObject):
     def reducedMotion(self) -> bool:
         return self._reduced_motion
 
-    @Property("QVariantList", notify=stateChanged)
-    def pipelineBlocks(self) -> list[dict[str, str]]:
+    @Property(bool, constant=True)
+    def developerMode(self) -> bool:
+        return self._developer_mode
+
+    @Property("QVariantList", notify=pipelineChanged)
+    def pipelineBlocks(self) -> list[dict[str, object]]:
         source = "Hata" if self._error_message and self._source is None else self._source_state
-        processing = "Çalışıyor" if self._busy and self._source is not None else "Hazır" if self._source is not None else "Kullanılmıyor"
-        selected = "Hazır" if self.selectedDetectionReady else "Kullanılmıyor"
-        return [
-            {"name": "Kaynak", "state": source},
-            {"name": "Ön İşleme", "state": processing},
-            {"name": "FFT / Güç", "state": processing},
-            {"name": "Bölgesel Eşik", "state": processing},
-            {"name": "Operatör Görevleri", "state": selected},
-        ]
+        processing = (
+            "Çalışıyor"
+            if (self._playing or self._busy) and self._source is not None
+            else "Hazır" if self._source is not None else "Kullanılmıyor"
+        )
+        states = {
+            "source": source,
+            "preprocess": processing,
+            "fft_power": processing,
+            "regional": processing,
+            "temporal": processing,
+            "parameters": (
+                "Çalışıyor"
+                if self._busy and self._active_task_kind == "measurement"
+                else "Hazır" if self._parameter_rows
+                else "Bekliyor" if self._parameter_capability is not None and self._source is not None
+                else "Kullanılmıyor"
+            ),
+            "monitoring": (
+                "Çalışıyor"
+                if self._busy and self._active_task_kind == "listening"
+                else "Hazır" if self._listening_result is not None
+                else "Bekliyor" if self._source is not None
+                else "Kullanılmıyor"
+            ),
+        }
+        return [dict(component, state=states[str(component["id"])]) for component in PIPELINE_COMPONENTS]
+
+    @Slot(str, str, result=bool)
+    def openImplementationLocation(self, component_id: str, target: str) -> bool:
+        if not self._developer_mode or target not in {"host", "rtl"}:
+            return False
+        component = next((item for item in PIPELINE_COMPONENTS if item["id"] == component_id), None)
+        if component is None:
+            return False
+        relative = str(component["hostPath"] if target == "host" else component["rtlPath"])
+        if not relative:
+            return False
+        repository_root = Path(__file__).resolve().parents[2]
+        location = (repository_root / relative).resolve()
+        try:
+            location.relative_to(repository_root)
+        except ValueError:
+            return False
+        if not location.exists():
+            return False
+        opened = bool(QDesktopServices.openUrl(QUrl.fromLocalFile(str(location))))
+        if opened:
+            self._add_log("Sistem", f"{component['name']} kaynak konumu açıldı")
+        return opened
 
     @Property(str, notify=stateChanged)
     def performanceText(self) -> str:
@@ -516,6 +638,7 @@ class OperatorViewModel(QObject):
     def startScan(self) -> None:
         if self._source is None or self._busy:
             return
+        was_playing = self._playing
         if self._measurement_requested:
             self._measurement_requested = False
             self._parameter_rows = []
@@ -524,14 +647,21 @@ class OperatorViewModel(QObject):
         self._status_message = "Sinyal taraması çalışıyor."
         self._timer.start()
         self._request_frame()
+        if not was_playing:
+            self._add_log("İşleme", "Sinyal taraması başlatıldı")
+            self.pipelineChanged.emit()
         self.stateChanged.emit()
 
     @Slot()
     def pause(self) -> None:
+        was_playing = self._playing
         self._playing = False
         self._timer.stop()
         if self._source is not None:
             self._status_message = "Tarama duraklatıldı."
+            if was_playing:
+                self._add_log("İşleme", "Sinyal taraması duraklatıldı")
+                self.pipelineChanged.emit()
             self.stateChanged.emit()
 
     @Slot()
@@ -629,7 +759,7 @@ class OperatorViewModel(QObject):
     @Slot()
     def requestMeasurement(self) -> None:
         if self._parameter_capability is None or self._parameter_estimator is None:
-            self._status_message = "Doğrulanmış F5 parametre profili kullanılamıyor; ölçüm kapalı."
+            self._status_message = "Doğrulanmış parametre ölçüm profili kullanılamıyor; ölçüm kapalı."
             self.stateChanged.emit()
             return
         if not self.selectedDetectionReady or self._last_result is None or self._source is None or self._busy:
@@ -648,7 +778,7 @@ class OperatorViewModel(QObject):
         if event is None:
             return
         if not self._has_four_observed_frames(event.event_id):
-            self._status_message = "F5 ölçümü için seçili tespitin dört ardışık karede gözlenmesi gerekir."
+            self._status_message = "Parametre ölçümü için seçili tespitin dört ardışık karede gözlenmesi gerekir."
             self.stateChanged.emit()
             return
         self.pause()
@@ -910,6 +1040,8 @@ class OperatorViewModel(QObject):
         task.signals.failed.connect(self._task_failed)
         self._active_task_kind = kind
         self._busy = True
+        if kind != "frame":
+            self.pipelineChanged.emit()
         self.stateChanged.emit()
         self._pool.start(task)
 
@@ -920,6 +1052,8 @@ class OperatorViewModel(QObject):
         if generation != self._generation:
             if hasattr(result, "close"):
                 result.close()  # type: ignore[attr-defined]
+            if kind != "frame":
+                self.pipelineChanged.emit()
             self.stateChanged.emit()
             return
         if kind == "open":
@@ -931,7 +1065,7 @@ class OperatorViewModel(QObject):
             if not isinstance(result, CaptureResult) or result.backend_kind != "real":
                 self._show_error("capture_not_real", "Ürün uygulaması yalnız gerçek HackRF alımını kabul eder.")
                 return
-            self._install_source(BoundedCI8FrameSource(result), "HackRF ED_RX · bounded alım")
+            self._install_source(BoundedCI8FrameSource(result), "HackRF ED_RX · sınırlı alım")
         elif kind == "frame":
             if not isinstance(result, RuntimeFrameResult):
                 self._show_error("processing_failed", "İşleme sonucu sözleşmeyle eşleşmedi.")
@@ -951,7 +1085,7 @@ class OperatorViewModel(QObject):
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
             if result.persistent_payload_bytes > self._parameter_capability.maximum_persistent_payload_bytes:
-                self._show_error("measurement_failed", "F5 kalıcı bellek sınırı aşıldı.")
+                self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
                 return
             self._parameter_rows = self._f5_parameter_rows(result)
             self._status_message = f"Tespit #{self._selected_detection_id} parametre ölçümü tamamlandı."
@@ -992,6 +1126,8 @@ class OperatorViewModel(QObject):
             self._listening_state = self._status_message
             self._add_log("Dinleme", self._status_message)
             self.listeningChanged.emit()
+        if kind != "frame":
+            self.pipelineChanged.emit()
         self.stateChanged.emit()
 
     @Slot(int, str, str)
@@ -1006,6 +1142,7 @@ class OperatorViewModel(QObject):
                 self.listeningChanged.emit()
             else:
                 self._show_error(code, detail)
+        self.pipelineChanged.emit()
         self.stateChanged.emit()
 
     def _request_frame(self) -> None:
@@ -1055,6 +1192,7 @@ class OperatorViewModel(QObject):
             self._pipeline.parameters.reset()
         self._clear_results(keep_source=True)
         self._add_log("Kaynak", f"{label} doğrulandı")
+        self.pipelineChanged.emit()
         self._request_frame()
 
     def _apply_probe(self, inventory: ToolInventory, device: DeviceStatus) -> None:
@@ -1083,6 +1221,7 @@ class OperatorViewModel(QObject):
             self._source_state = "Hata"
             self._status_message = "Yapılandırılmış ED_RX HackRF bulunamadı."
         self._add_log("HackRF", self._status_message)
+        self.pipelineChanged.emit()
 
     def _update_spectrum(self, result: RuntimeFrameResult) -> None:
         values = np.asarray(result.spectrum.display.bin_power_dbfs, dtype=np.float64)
@@ -1160,6 +1299,7 @@ class OperatorViewModel(QObject):
             self._frame_count = 0
         self.spectrumChanged.emit()
         self.detectionsChanged.emit()
+        self.pipelineChanged.emit()
 
     def _clear_listening(self, message: str) -> None:
         self._audio_playback.stop()
@@ -1169,16 +1309,20 @@ class OperatorViewModel(QObject):
         self._listening_short_preview = False
         self._listening_state = message
         self.listeningChanged.emit()
+        self.pipelineChanged.emit()
 
     def _close_source(self) -> None:
         source, self._source = self._source, None
         if source is not None and hasattr(source, "close"):
             source.close()  # type: ignore[attr-defined]
+        if source is not None:
+            self.pipelineChanged.emit()
 
     def _set_busy(self, busy: bool, message: str) -> None:
         self._busy = busy
         self._error_message = ""
         self._status_message = message
+        self.pipelineChanged.emit()
         self.stateChanged.emit()
 
     def _show_error(self, code: str, detail: str) -> None:
@@ -1189,10 +1333,13 @@ class OperatorViewModel(QObject):
         self.stateChanged.emit()
 
     def _add_log(self, component: str, message: str) -> None:
+        self._log_sequence += 1
         self._event_log.insert(
             0,
             {
+                "sequence": f"{self._log_sequence:04d}",
                 "time": time.strftime("%H:%M:%S"),
+                "level": "HATA" if component == "Hata" else "UYARI" if "doğrulanamadı" in message else "BİLGİ",
                 "component": component,
                 "message": message,
             },

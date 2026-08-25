@@ -90,10 +90,14 @@ dinleme başarısı olarak sunulmaz.
 ## Akış 6 — Sistem denetimi ve kurtarma
 
 Sistem görünümü düzenlenebilir veya dekoratif bir DSP blok grafiği sunmaz.
-Kaynak, ön işleme, FFT/güç, tespit ve operatör görevlerinin sağlık durumu kompakt
-bir şeritte `Kullanılmıyor`, `Hazır`, `Çalışıyor` veya `Hata` olarak gösterilir.
-Son olaylar zaman, bileşen ve kısa nedenle listelenir; ayrıntılı kayıt alt
-çubuktaki salt-okunur `Olay Konsolu` üzerinden incelenir.
+Kaynak, ön işleme, FFT/güç, tespit ve operatör görevleri soldaki sıralı işlem
+zincirinde `Kullanılmıyor`, `Bekliyor`, `Hazır`, `Çalışıyor` veya `Hata` olarak
+gösterilir. Seçili bileşenin gerçekten çalışan katmanı, doğrulanmış kaynak
+karşılığı ve donanım kabul sınırı sağdaki denetçide açıklanır. Sistem olayları
+sıra numarası, zaman, seviye, bileşen ve kısa nedenle filtrelenebilir salt-okunur
+günlükte tutulur. Bu alan komut çalıştırmaz; yayın görünümünde dosya sistemi
+denetimleri sunulmaz. Alt çubuktaki `Olay Konsolu` aynı kayıtların çalışma
+alanından bağımsız hızlı görünümüdür.
 
 ## Geçiş ve hareket kuralları
 

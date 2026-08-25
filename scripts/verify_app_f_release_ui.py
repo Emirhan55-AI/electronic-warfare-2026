@@ -158,6 +158,9 @@ def _child_run(args: argparse.Namespace) -> int:
         "processing_median_ms": statistics.median(operation_ms),
         "processing_p95_ms": _percentile(operation_ms, 0.95),
         "maximum_heartbeat_gap_ms": max(gaps_ms),
+        "developer_mode": view_model.developerMode,
+        "pipeline_blocks": view_model.pipelineBlocks,
+        "event_log_fields": sorted(view_model.eventLog[-1].keys()) if view_model.eventLog else [],
         "screenshot": screenshot.relative_to(ROOT).as_posix(),
         "screenshot_sha256": _sha256(screenshot),
     }
@@ -177,6 +180,7 @@ def _parent_run() -> int:
         environment["QT_QUICK_BACKEND"] = "software"
         environment["QT_SCALE_FACTOR"] = str(scale)
         environment["PYTHONIOENCODING"] = "utf-8"
+        environment["EH_CONSOLE_DEVELOPER_MODE"] = "0"
         process = subprocess.run(
             [
                 sys.executable,
@@ -213,6 +217,7 @@ def _parent_run() -> int:
     probe_environment["QT_QPA_PLATFORM"] = "offscreen"
     probe_environment["QT_QUICK_BACKEND"] = "software"
     probe_environment["PYTHONIOENCODING"] = "utf-8"
+    probe_environment["EH_CONSOLE_DEVELOPER_MODE"] = "0"
     probe_process = subprocess.run(
         [sys.executable, "-B", str(Path(__file__).resolve()), "--child", "--probe-only"],
         cwd=ROOT,
@@ -263,6 +268,27 @@ def _parent_run() -> int:
                 'objectName: "listeningSettingsScroll"',
                 "Layout.preferredHeight: root.height < 780 ? 190 : 250",
             )
+        ),
+        "system_diagnostics": all(
+            marker in qml_text
+            for marker in (
+                'objectName: "pipelineList"',
+                'objectName: "systemLog"',
+                "BİLEŞEN DENETÇİSİ",
+                "OPERASYON GÜNLÜĞÜ",
+                "Salt okunur · komut çalıştırmaz",
+            )
+        ),
+        "release_source_navigation_disabled": all(
+            not bool(run["developer_mode"])
+            and len(run["pipeline_blocks"]) == 7
+            and all(block["runtime"] == "HOST" for block in run["pipeline_blocks"])
+            for run in runs
+        ),
+        "structured_operation_log": all(
+            set(run["event_log_fields"])
+            == {"component", "level", "message", "sequence", "time"}
+            for run in runs
         ),
         "spectrum_interaction_model": all(
             marker in qml_text

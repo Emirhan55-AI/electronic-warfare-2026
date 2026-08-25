@@ -54,6 +54,12 @@ Dördüncü bakım paketi ortak frekans imlecini, geri/ileri görünüm geçmiş
 FFT hücresine bağlı `Shift+sürükle` analiz taslağını eklemiştir. Tespit listesi
 sabit tutulurken ölçüm ve dinleme ayarları bağımsız kaydırılır; taslak ayrıca
 operatör onayı almadan parametre ölçümünü etkinleştirmez.
+Beşinci bakım paketi Sistem çalışma alanını gerçek çalışma durumuna bağlı yedi
+aşamalı işlem zinciri, bileşen yürütme/donanım sınırı denetçisi ve yapılandırılmış
+salt-okunur olay günlüğüyle yenilemiştir. Host üzerinde çalışan aşamalar FPGA'de
+çalışıyormuş gibi gösterilmez; RTL veya taşınabilir C karşılıkları kart kabulü
+olarak sunulmaz. Yayın varsayılanında kaynak konumu açma ve komut yürütme yüzeyi
+kapalıdır. Bu bakım algoritma doğruluğu veya donanım kabul iddiasını değiştirmez.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
