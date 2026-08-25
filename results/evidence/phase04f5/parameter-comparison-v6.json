@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "comparison_id": "phase04f5-locked-binding-oos-v1",
+  "status": "passed",
+  "field_decisions": [
+    {
+      "field": "emission_center_frequency",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "carrier_line_frequency",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "occupied_bandwidth",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "uncalibrated_channel_power_dbfs",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "snr_estimate_db",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "signal_domain",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    },
+    {
+      "field": "span_robustness",
+      "binding": "passed",
+      "oos": "passed",
+      "status": "passed"
+    }
+  ],
+  "claim_boundary": "Binding ve OOS birlikte geçmeden hiçbir alan ürün profiline alınmaz."
+}

@@ -13,6 +13,7 @@ from scripts.prepare_phase04f5_protocol import (
     verify_preimages,
 )
 from scripts.verify_phase04f5_protocol import SUMMARY_PATH, build_summary
+from scripts.reveal_phase04f5_seeds import verify_reveal
 from verification.phase04f5_scoring import score_additional, validate_acceptance
 
 
@@ -35,7 +36,10 @@ class Phase04F5ProtocolTests(unittest.TestCase):
         current = build_summary()
         failures = [item["id"] for item in current["checks"] if item["status"] != "passed"]
         method_lock = FIXTURES / "method-lock-v6.json"
-        if method_lock.exists():
+        reveal_path = FIXTURES / "evaluation-seeds.json"
+        if reveal_path.exists():
+            self.assertEqual(["sealed-evaluation-populations", "v6-method-not-started"], failures)
+        elif method_lock.exists():
             self.assertEqual(["v6-method-not-started"], failures)
         else:
             self.assertEqual(stored, current)
@@ -67,7 +71,11 @@ class Phase04F5ProtocolTests(unittest.TestCase):
         evaluation = {int(item["seed"]) for item in sealed["seeds"]}
         self.assertFalse(historical_seeds().intersection(public | evaluation))
         self.assertFalse(public.intersection(evaluation))
-        self.assertFalse((FIXTURES / "evaluation-seeds.json").exists())
+        reveal_path = FIXTURES / "evaluation-seeds.json"
+        if reveal_path.exists():
+            self.assertTrue(verify_reveal(json.loads(reveal_path.read_text(encoding="utf-8"))))
+        else:
+            self.assertFalse(reveal_path.exists())
 
 
 if __name__ == "__main__":

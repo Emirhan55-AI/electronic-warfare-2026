@@ -90,5 +90,15 @@ alt/üst kenar q95 hataları 1,87/1,92 bindir. 3.072 ölçümde dört uç örnek
 temel, 14 F3, dört F4 ve yedi F5 kontrolünün tamamını geçmiştir; altı gürültü
 yanlış-geçerli sayısı sıfırdır. v6 yöntem `method-lock-v6.json`, tek-seferlik
 çalıştırıcı `evaluation-runner-lock-v6.json` ile seed reveal öncesinde
-kilitlenmiştir. F5D başlatılmamış, binding/OOS seed'leri açılmamış ve ayrı
-kullanıcı onayı beklemektedir.
+kilitlenmiştir.
+
+Kullanıcı onayıyla F5D'de temiz ve uzak dal ile senkron runner commit'i
+doğrulandıktan sonra binding/OOS preimage'ları public commitment'larla
+eşleştirilerek açılmıştır. Popülasyonlar binding ardından OOS sırasıyla yalnız
+birer kez çalıştırılmıştır. Binding 40/40, OOS 24/24 kontrolü geçmiş; emisyon
+merkezi, taşıyıcı çizgisi, OBW99, kalibre edilmemiş güç, SNR, sinyal alanı ve
+span dayanıklılığı iki popülasyonda birlikte başarılı olmuştur. OOS OBW aile
+minimumu 64/64, göreli q95 hata %9,06, alt/üst kenar q95 1,43/1,58 bin ve
+clipping sıfırdır. `f5d-verification.json` kanıt bütünlüğünü 7/7 doğrulamıştır.
+F5D tamamlanmıştır. Digest bağlı host ürün profilini oluşturacak F5E
+başlatılmamış ve ayrı kullanıcı onayı beklemektedir; FPGA entegrasyonu değildir.

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 import unittest
 
 from algorithms.parameters.f5_evaluation import _oos_metrics, compare_results
 from scripts.lock_phase04f5_evaluation_runner import LOCK_PATH, build_lock
+from scripts.reveal_phase04f5_seeds import verify_reveal
 from verification.phase04f2_scoring import score_population
 
 
@@ -16,8 +18,15 @@ class Phase04F5EvaluationRunnerTests(unittest.TestCase):
     def test_runner_lock_matches_sources_before_reveal(self) -> None:
         stored = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
         reveal_path = ROOT / "datasets" / "fixtures" / "phase04f5" / "evaluation-seeds.json"
-        self.assertFalse(reveal_path.exists())
-        self.assertEqual(stored, build_lock())
+        if reveal_path.exists():
+            for source in stored["source_manifest"]["sources"]:
+                self.assertEqual(
+                    source["sha256"],
+                    hashlib.sha256((ROOT / source["path"]).read_bytes()).hexdigest(),
+                )
+            self.assertTrue(verify_reveal(json.loads(reveal_path.read_text(encoding="utf-8"))))
+        else:
+            self.assertEqual(stored, build_lock())
 
     def test_oos_metrics_have_exact_locked_coverage(self) -> None:
         result = json.loads(

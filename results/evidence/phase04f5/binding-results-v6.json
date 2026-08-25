@@ -1,0 +1,811 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f5-binding-results-v1",
+  "role": "binding",
+  "status": "passed",
+  "population": {
+    "trials_per_family": 192,
+    "noise_measurements": 256,
+    "frames_per_measurement": 4
+  },
+  "method_ids": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-temporal-artifact-rejection-v5",
+    "occupied_bandwidth": "band.debiased-obw99-tail-bias-correction-v6",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-conditioned-prototype-rejection-v5"
+  },
+  "metrics": {
+    "center.family_min_valid_rate": 1.0,
+    "center.family_max_q95_error_bins": 0.8366234563827515,
+    "center.global_valid_rate": 1.0,
+    "center.global_q95_error_bins": 0.6658075358047485,
+    "noise.center_false_valid_count": 0,
+    "carrier.family_min_valid_rate": 0.9479166666666666,
+    "carrier.family_max_q95_error_bins": 0.25,
+    "carrier.global_valid_rate": 0.9670138888888888,
+    "carrier.false_carrier_rate": 0.0,
+    "carrier.low_snr_abstention_rate": 1.0,
+    "noise.carrier_false_valid_count": 0,
+    "obw.family_min_valid_rate": 1.0,
+    "obw.global_valid_rate": 1.0,
+    "obw.global_relative_q95": 0.09520655691460983,
+    "obw.global_lower_edge_q95_bins": 1.3657940913594757,
+    "obw.global_upper_edge_q95_bins": 1.4482923876917084,
+    "obw.global_temporal_q95_bins": 0.7714741549170867,
+    "obw.clipping_count": 0,
+    "noise.obw_false_valid_count": 0,
+    "span.edge_difference_q95_bins": 0.4301204630050659,
+    "power.family_min_valid_rate": 1.0,
+    "power.global_valid_rate": 1.0,
+    "power.global_q95_error_db": 0.4329565257721555,
+    "power.zero_snr_median_error_db": 0.7429156753120907,
+    "noise.power_false_valid_count": 0,
+    "snr.family_min_valid_rate": 1.0,
+    "snr.global_valid_rate": 1.0,
+    "snr.global_q95_error_db": 1.5658311762822699,
+    "snr.zero_snr_median_error_db": 1.7023888737915454,
+    "noise.snr_false_valid_count": 0,
+    "domain.main_global_correct_rate": 0.9851190476190477,
+    "domain.main_global_wrong_rate": 0.0,
+    "domain.six_db_global_correct_rate": 0.9226190476190477,
+    "domain.six_db_global_wrong_rate": 0.001488095238095238,
+    "domain.family_min_correct_rate": 0.78125,
+    "domain.family_max_wrong_rate": 0.010416666666666666,
+    "domain.ambiguous_rejection_rate": 1.0,
+    "domain.zero_snr_wrong_rate": 0.000744047619047619,
+    "domain.low_snr_abstention_rate": 1.0,
+    "noise.domain_false_valid_count": 0
+  },
+  "scoring": {
+    "role": "binding",
+    "status": "passed",
+    "field_decisions": {
+      "emission_center_frequency": "passed",
+      "carrier_line_frequency": "passed",
+      "occupied_bandwidth": "passed",
+      "uncalibrated_channel_power_dbfs": "passed",
+      "snr_estimate_db": "passed",
+      "signal_domain": "passed",
+      "span_robustness": "passed"
+    },
+    "checks": [
+      {
+        "id": "center-family-valid",
+        "owner": "emission_center_frequency",
+        "metric": "center.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "center-family-q95",
+        "owner": "emission_center_frequency",
+        "metric": "center.family_max_q95_error_bins",
+        "actual": 0.8366234563827515,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "center-global-valid",
+        "owner": "emission_center_frequency",
+        "metric": "center.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "center-global-q95",
+        "owner": "emission_center_frequency",
+        "metric": "center.global_q95_error_bins",
+        "actual": 0.6658075358047485,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "center-noise-false-valid",
+        "owner": "emission_center_frequency",
+        "metric": "noise.center_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-family-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.family_min_valid_rate",
+        "actual": 0.9479166666666666,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-family-q95",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.family_max_q95_error_bins",
+        "actual": 0.25,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-global-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.global_valid_rate",
+        "actual": 0.9670138888888888,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-false-rate",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.false_carrier_rate",
+        "actual": 0.0,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-low-snr-abstention",
+        "owner": "carrier_line_frequency",
+        "metric": "carrier.low_snr_abstention_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "carrier-noise-false-valid",
+        "owner": "carrier_line_frequency",
+        "metric": "noise.carrier_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-family-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "obw-global-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "obw-relative-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_relative_q95",
+        "actual": 0.09520655691460983,
+        "operator": "<=",
+        "threshold": 0.2,
+        "status": "passed"
+      },
+      {
+        "id": "obw-lower-edge-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_lower_edge_q95_bins",
+        "actual": 1.3657940913594757,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-upper-edge-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_upper_edge_q95_bins",
+        "actual": 1.4482923876917084,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-temporal-q95",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.global_temporal_q95_bins",
+        "actual": 0.7714741549170867,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-clipping",
+        "owner": "occupied_bandwidth",
+        "metric": "obw.clipping_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "obw-noise-false-valid",
+        "owner": "occupied_bandwidth",
+        "metric": "noise.obw_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "span-edge-difference-q95",
+        "owner": "span_robustness",
+        "metric": "span.edge_difference_q95_bins",
+        "actual": 0.4301204630050659,
+        "operator": "<=",
+        "threshold": 1.0,
+        "status": "passed"
+      },
+      {
+        "id": "power-family-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "power-global-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "power-q95",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.global_q95_error_db",
+        "actual": 0.4329565257721555,
+        "operator": "<=",
+        "threshold": 1.5,
+        "status": "passed"
+      },
+      {
+        "id": "power-zero-snr-median",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "power.zero_snr_median_error_db",
+        "actual": 0.7429156753120907,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "power-noise-false-valid",
+        "owner": "uncalibrated_channel_power_dbfs",
+        "metric": "noise.power_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-family-valid",
+        "owner": "snr_estimate_db",
+        "metric": "snr.family_min_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "snr-global-valid",
+        "owner": "snr_estimate_db",
+        "metric": "snr.global_valid_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.95,
+        "status": "passed"
+      },
+      {
+        "id": "snr-q95",
+        "owner": "snr_estimate_db",
+        "metric": "snr.global_q95_error_db",
+        "actual": 1.5658311762822699,
+        "operator": "<=",
+        "threshold": 2.0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-zero-snr-median",
+        "owner": "snr_estimate_db",
+        "metric": "snr.zero_snr_median_error_db",
+        "actual": 1.7023888737915454,
+        "operator": "<=",
+        "threshold": 3.0,
+        "status": "passed"
+      },
+      {
+        "id": "snr-noise-false-valid",
+        "owner": "snr_estimate_db",
+        "metric": "noise.snr_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      },
+      {
+        "id": "domain-main-global-correct",
+        "owner": "signal_domain",
+        "metric": "domain.main_global_correct_rate",
+        "actual": 0.9851190476190477,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "domain-main-global-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.main_global_wrong_rate",
+        "actual": 0.0,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "domain-six-global-correct",
+        "owner": "signal_domain",
+        "metric": "domain.six_db_global_correct_rate",
+        "actual": 0.9226190476190477,
+        "operator": ">=",
+        "threshold": 0.85,
+        "status": "passed"
+      },
+      {
+        "id": "domain-six-global-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.six_db_global_wrong_rate",
+        "actual": 0.001488095238095238,
+        "operator": "<=",
+        "threshold": 0.02,
+        "status": "passed"
+      },
+      {
+        "id": "domain-family-correct",
+        "owner": "signal_domain",
+        "metric": "domain.family_min_correct_rate",
+        "actual": 0.78125,
+        "operator": ">=",
+        "threshold": 0.75,
+        "status": "passed"
+      },
+      {
+        "id": "domain-family-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.family_max_wrong_rate",
+        "actual": 0.010416666666666666,
+        "operator": "<=",
+        "threshold": 0.05,
+        "status": "passed"
+      },
+      {
+        "id": "domain-ambiguous-rejection",
+        "owner": "signal_domain",
+        "metric": "domain.ambiguous_rejection_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "domain-zero-snr-wrong",
+        "owner": "signal_domain",
+        "metric": "domain.zero_snr_wrong_rate",
+        "actual": 0.000744047619047619,
+        "operator": "<=",
+        "threshold": 0.05,
+        "status": "passed"
+      },
+      {
+        "id": "domain-low-snr-abstention",
+        "owner": "signal_domain",
+        "metric": "domain.low_snr_abstention_rate",
+        "actual": 1.0,
+        "operator": ">=",
+        "threshold": 0.9,
+        "status": "passed"
+      },
+      {
+        "id": "domain-noise-false-valid",
+        "owner": "signal_domain",
+        "metric": "noise.domain_false_valid_count",
+        "actual": 0,
+        "operator": "<=",
+        "threshold": 0,
+        "status": "passed"
+      }
+    ]
+  },
+  "noise_detection_significance": {
+    "maximum": 6.104928091950883,
+    "q95": 2.6495973078319937
+  },
+  "families": {
+    "am": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 186,
+        "carrier_valid_count": 181,
+        "obw_valid_count": 178,
+        "power_valid_count": 186,
+        "snr_valid_count": 186,
+        "domain_correct_count": 160,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 32
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 192,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 191,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 1
+      }
+    },
+    "nfm": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 4,
+        "carrier_valid_count": 1,
+        "obw_valid_count": 4,
+        "power_valid_count": 4,
+        "snr_valid_count": 4,
+        "domain_correct_count": 1,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 191
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 101,
+        "obw_valid_count": 187,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 186,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 6
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 183,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 192,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "ook": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 6,
+        "carrier_valid_count": 3,
+        "obw_valid_count": 7,
+        "power_valid_count": 7,
+        "snr_valid_count": 7,
+        "domain_correct_count": 1,
+        "domain_wrong_count": 1,
+        "domain_abstained_count": 190
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 169,
+        "obw_valid_count": 188,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 179,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 13
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 182,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 176,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 16
+      }
+    },
+    "two_fsk": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 37,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 35,
+        "power_valid_count": 39,
+        "snr_valid_count": 39,
+        "domain_correct_count": 4,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 188
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 188,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 181,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 11
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 190,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 2
+      }
+    },
+    "bpsk": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 4,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 4,
+        "power_valid_count": 5,
+        "snr_valid_count": 5,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 186,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 150,
+        "domain_wrong_count": 2,
+        "domain_abstained_count": 40
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 191,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 1
+      }
+    },
+    "qpsk": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 1,
+        "power_valid_count": 1,
+        "snr_valid_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 59,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 52,
+        "power_valid_count": 62,
+        "snr_valid_count": 62,
+        "domain_correct_count": 1,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 191
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 191,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 192,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 192,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    },
+    "wideband_noise_like": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 1,
+        "power_valid_count": 1,
+        "snr_valid_count": 1,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 109,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 154,
+        "power_valid_count": 178,
+        "snr_valid_count": 178,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 189,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      }
+    },
+    "burst_qpsk": {
+      "-6.0": {
+        "trial_count": 192,
+        "center_valid_count": 0,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 0,
+        "power_valid_count": 0,
+        "snr_valid_count": 0,
+        "domain_correct_count": 0,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 192
+      },
+      "0.0": {
+        "trial_count": 192,
+        "center_valid_count": 56,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 59,
+        "power_valid_count": 70,
+        "snr_valid_count": 70,
+        "domain_correct_count": 4,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 188
+      },
+      "6.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 189,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 192,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      },
+      "12.0": {
+        "trial_count": 192,
+        "center_valid_count": 192,
+        "carrier_valid_count": 0,
+        "obw_valid_count": 192,
+        "power_valid_count": 192,
+        "snr_valid_count": 192,
+        "domain_correct_count": 192,
+        "domain_wrong_count": 0,
+        "domain_abstained_count": 0
+      }
+    }
+  },
+  "claim_boundary": "Tek seferlik kilitli değerlendirme sonucudur; canlı RF, FPGA veya ürün entegrasyonu değildir."
+}

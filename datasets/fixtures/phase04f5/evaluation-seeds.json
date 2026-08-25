@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "reveal_id": "phase04f5-evaluation-seeds-v1",
+  "status": "revealed-after-runner-lock",
+  "runner_lock_sha256": "351bed65a9d53fede7d2a1ea6cb6cfba91579465c6fa97b94daf75a55d12276d",
+  "runner_lock_commit": "80977ad82a19c3bd144d9a5ab26989c2fcf17937",
+  "seeds": [
+    {
+      "role": "binding",
+      "seed": "2224521518852270981",
+      "salt": "4a9f01c7a7342646fe50ed284af43ece"
+    },
+    {
+      "role": "oos",
+      "seed": "1613326699801497675",
+      "salt": "861dfe0b9fde2ea30de58bdf057019ee"
+    }
+  ],
+  "claim_boundary": "Seed ve salt değerleri yöntem ile değerlendirme çalıştırıcısı commit/push sonrasında açılmıştır."
+}

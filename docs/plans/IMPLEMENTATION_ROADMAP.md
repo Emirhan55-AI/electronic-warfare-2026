@@ -184,8 +184,13 @@ minimumunda 47/48 geçerli OBW; en kötü göreli q95 %14 ve alt/üst kenar q95
 1,87/1,92 bin elde edilmiştir. Birleşik geliştirme 40 temel, 14 F3, dört F4 ve
 yedi F5 kontrolünün tamamını geçmiştir; altı gürültü yanlış-geçerli sayısı
 sıfırdır. v6 yöntem ve tek-seferlik çalıştırıcı seed reveal öncesinde ayrı
-kilitlerle dondurulmuştur. F5C tamamlanmıştır; değerlendirme seed'leri kapalıdır
-ve F5D ayrı kullanıcı onayı bekler.
+kilitlerle dondurulmuştur. Kullanıcı onayıyla F5D'de clean/synced runner commit'i
+sonrasında commitment'lar doğrulanmış, binding ve OOS seed'leri açılmış ve iki
+popülasyon yalnız birer kez çalıştırılmıştır. Binding 40/40, OOS 24/24 ve yedi
+alanın tamamı birlikte geçmiştir. OOS OBW aile minimumu 64/64, göreli q95 hata
+%9,06, alt/üst kenar q95 1,43/1,58 bin ve clipping sıfırdır. Kanıt bütünlüğü
+7/7 geçmiştir. F5D tamamlanmıştır; PHASE-04 ürün profili henüz oluşturulmamış,
+F5E ayrı kullanıcı onayı beklemektedir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

@@ -1,16 +1,28 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from pathlib import Path
 import unittest
 
 from scripts.lock_phase04f5_method import METHOD_LOCK_PATH, build_lock
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 class Phase04F5MethodLockTests(unittest.TestCase):
     def test_method_lock_is_current_and_precedes_reveal(self) -> None:
         stored = json.loads(METHOD_LOCK_PATH.read_text(encoding="utf-8"))
-        self.assertFalse((METHOD_LOCK_PATH.parent / "evaluation-seeds.json").exists())
-        self.assertEqual(stored, build_lock())
+        reveal_path = METHOD_LOCK_PATH.parent / "evaluation-seeds.json"
+        if reveal_path.exists():
+            for source in stored["implementation"]["sources"]:
+                self.assertEqual(
+                    source["sha256"],
+                    hashlib.sha256((ROOT / source["path"]).read_bytes()).hexdigest(),
+                )
+        else:
+            self.assertEqual(stored, build_lock())
         self.assertEqual("locked-before-seed-reveal", stored["status"])
         self.assertFalse(stored["seed_revealed"])
 
