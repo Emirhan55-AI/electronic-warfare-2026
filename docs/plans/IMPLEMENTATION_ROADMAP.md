@@ -137,6 +137,13 @@ başarısız olmuştur. OOK ihlalleri giderilmiş olsa da bütün zorunlu alanla
 popülasyonda birlikte geçmemiştir. Aynı popülasyonlar yeniden çalıştırılamaz,
 F3E başlatılamaz ve ürün profili oluşturulamaz.
 
+Kullanıcı onayıyla `PHASE-04-F4 — NFM Düşük SNR Dayanıklılığı` turunun yalnız
+salt-okunur F4A kök neden adımı açılmıştır. F4A, saklanan F3D kanıtını ve açık
+F3 geliştirme özetlerini kullanır; F3D popülasyonunu yeniden çalıştırmaz ve eşik
+değiştirmez. Sonraki olası adımlar F4B yeni veri/protokol kilidi, F4C ayrı yöntem
+geliştirme, F4D tek seferlik değerlendirme ve yalnız başarı halinde F4E profil
+entegrasyonudur. Her geçiş ayrı kullanıcı onayı gerektirir.
+
 ## Erken hazırlık istisnası: PHASE-08A
 
 PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.

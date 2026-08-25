@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f4a-nfm-abstention-analysis-v1",
+  "phase": "PHASE-04-F4A",
+  "status": "passed",
+  "f3d_evaluation_status": "failed",
+  "recorded_decisions_reproduced": true,
+  "nfm_6_db": {
+    "open_development": {
+      "correct": 320,
+      "wrong": 0,
+      "abstained": 64,
+      "trials": 384,
+      "correct_rate": 0.8333333333333334
+    },
+    "leave_one_seed_out": {
+      "correct": 311,
+      "trials": 384,
+      "correct_rate": 0.8098958333333334
+    },
+    "binding": {
+      "correct": 156,
+      "wrong": 0,
+      "abstained": 36,
+      "trials": 192,
+      "correct_rate": 0.8125
+    },
+    "oos": {
+      "correct": 44,
+      "wrong": 0,
+      "abstained": 20,
+      "trials": 64,
+      "correct_rate": 0.6875,
+      "correct_rate_wilson_95": [
+        0.5660766429725185,
+        0.7876893346051795
+      ],
+      "required_correct": 48,
+      "correct_deficit": 4
+    },
+    "oos_12_db_control": {
+      "correct": 64,
+      "wrong": 0,
+      "abstained": 0,
+      "trials": 64
+    }
+  },
+  "ook_6_db_oos_control": {
+    "correct": 61,
+    "wrong": 0,
+    "abstained": 3,
+    "trials": 64
+  },
+  "root_causes": [
+    {
+      "id": "F4A-01",
+      "class": "nfm-low-snr-seed-generalization",
+      "status": "confirmed",
+      "evidence": {
+        "leave_one_seed_out_correct_rate": 0.8098958333333334,
+        "binding_correct_rate": 0.8125,
+        "oos_correct_rate": 0.6875,
+        "oos_required_rate": 0.75,
+        "oos_correct_deficit": 4
+      },
+      "required_action": "Yeni açık veri ayrımı NFM 6 dB kararını aggregate oran yerine seed-bazlı doğru ve abstention sınırlarıyla doğrulamalıdır."
+    },
+    {
+      "id": "F4A-02",
+      "class": "abstention-not-wrong-decision",
+      "status": "confirmed",
+      "evidence": {
+        "binding_wrong": 0,
+        "binding_abstained": 36,
+        "oos_wrong": 0,
+        "oos_abstained": 20,
+        "oos_12_db_correct": 64
+      },
+      "required_action": "Yanlış kesin karar güvenliği korunurken düşük SNR NFM kabul kapsamı yeni açık seed'lerde genişletilmelidir."
+    },
+    {
+      "id": "F4A-03",
+      "class": "missing-nfm-seed-risk-gate",
+      "status": "confirmed",
+      "evidence": {
+        "f3_additional_gate_family": "ook",
+        "nfm_seed_specific_gate_present": false,
+        "f3d_oos_failed_metric": "domain.family_min_correct_count"
+      },
+      "required_action": "F4B, korunan F2 kapılarını gevşetmeden NFM 6 dB için seed-bazlı geliştirme güvenlik payı eklemelidir."
+    },
+    {
+      "id": "F4A-04",
+      "class": "distance-versus-margin-subcause",
+      "status": "not-identifiable-from-stored-evidence",
+      "evidence": {
+        "stored_trial_level_distance_margin": false,
+        "f3d_rerun_allowed": false
+      },
+      "required_action": "Alt neden yalnız yeni açık F4 geliştirme popülasyonunda trial-level mesafe/marj sayımıyla ayrılmalıdır."
+    }
+  ],
+  "protected_inputs": {
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "datasets/fixtures/phase04f3/acceptance-gates.json": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "datasets/fixtures/phase04f3/domain-model-v4.json": "ecefe48ef726174ae857f30ffcef774dcf95d710c09019532b3b3080d837675a",
+    "datasets/fixtures/phase04f3/method-lock-v4.json": "db0246d9c114b60d9002e2c0e170e4decc75391fe480578da084cb60d29b17a8",
+    "datasets/fixtures/phase04f3/evaluation-runner-lock-v4.json": "ded7494c28cf31ba069a473f2dc2c2acef5010c217955c0c96dc52fea145f787",
+    "datasets/fixtures/phase04f3/evaluation-seeds.json": "060760bb6087c996805a82c85af88069fbb6478d6f7edc762d600b394e941b14",
+    "results/evidence/phase04f3/development-results-v4.json": "f58cc7abc59a9185b09ecb7cfaacdac2ac6c4875c984a35bf04f2aaebbae6776",
+    "results/evidence/phase04f3/binding-results-v4.json": "92a7550fe29f30e47a7edbc17aff1627d40e3fc3a1e39d2392d6b21e48da3401",
+    "results/evidence/phase04f3/oos-results-v4.json": "909f7415fd467e83f8fd66fafbe486a7ee0b76b31062845de2523faa3b22dea2",
+    "results/evidence/phase04f3/parameter-comparison-v4.json": "cfc5a87cb4a0583df578cc4d258747f4f247339084d0a930f16185b8a6be08c9",
+    "results/evidence/phase04f3/f3d-verification.json": "47a067f4a78c2d290c0195f6f8651d1cb54f964d91b45625d724b0a53ff3c1d4"
+  },
+  "next_phase_requirements": [
+    "F4B başlamadan F1/F2/F3 seed'lerinden bağımsız yeni açık geliştirme seed'leri ayrılmalıdır.",
+    "Yeni binding/OOS seed ve salt commitment'ları yöntem geliştirmeden önce oluşturulmalıdır.",
+    "F2'nin 40 binding ve 24 OOS kapısı gevşetilmemelidir.",
+    "NFM 6 dB için seed-bazlı doğru, yanlış ve abstention geliştirme kapıları yöntemden önce kilitlenmelidir.",
+    "F4B ayrı kullanıcı onayı olmadan başlatılmamalıdır."
+  ],
+  "claim_boundary": "Salt-okunur F3D kök neden analizidir; F3D popülasyonunu yeniden çalıştırmaz, yeni yöntem veya ürün kararı değildir."
+}

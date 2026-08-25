@@ -401,6 +401,13 @@ APPROVED_PHASE04_F3_FILES = (
     "verification/phase04f3_scoring.py",
 )
 
+APPROVED_PHASE04_F4_FILES = (
+    "results/evidence/phase04f4/f4a-analysis.json",
+    "scripts/verify_phase04f4a.py",
+    "tests/test_phase04f4a_analysis.py",
+    "verification/phase04f4_analysis.py",
+)
+
 APPROVED_PHASE04_FILES = (
     APPROVED_PHASE04_BASE_FILES
     + PHASE04_SUCCESS_ONLY_FILES
@@ -410,6 +417,7 @@ APPROVED_PHASE04_FILES = (
     + APPROVED_PHASE04_F1_FILES
     + APPROVED_PHASE04_F2_FILES
     + APPROVED_PHASE04_F3_FILES
+    + APPROVED_PHASE04_F4_FILES
 )
 
 APPROVED_PHASE08A_FILES = (
