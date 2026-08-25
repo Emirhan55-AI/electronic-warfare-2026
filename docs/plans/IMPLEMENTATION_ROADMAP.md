@@ -125,8 +125,12 @@ ile 6 dB sinyal alanı yanlış karar sayımı için yeterli güvenlik payı sa�
 doğrulanmıştır. F2'nin 40 binding ve 24 OOS kontrolü gevşetilmeden byte-bağlı
 korunmuş; sekiz yeni açık seed ayrılmış, 14 ek seed-bazlı geliştirme kapısı
 çalıştırılabilir sözleşmeye alınmış ve yeni binding/OOS preimage'ları v4
-kaynaklarından önce commitment ile kapatılmıştır. F3C yöntem geliştirmesi
-başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
+kaynaklarından önce commitment ile kapatılmıştır. Kullanıcı onayıyla tamamlanan
+F3C'de ayrı v4 kestirimci sekiz açık seed üzerinde geliştirilmiş; korunan 40
+temel ve 14 ek risk kontrolünün tamamı geçmiştir. Yöntem ve geliştirme kanıtı,
+yeni binding/OOS seed'leri açılmadan önce `method-lock-v4.json` ile
+kilitlenmiştir. Bu yalnız açık geliştirme sonucudur; F3D binding/OOS
+değerlendirmesi başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 
