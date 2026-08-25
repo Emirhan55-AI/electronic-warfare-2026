@@ -95,7 +95,14 @@ class AppEUXContractTests(unittest.TestCase):
         flows = (ROOT / "docs" / "ux" / "OPERATOR_TASK_FLOWS.md").read_text(encoding="utf-8")
         for term in ("Bağıl Geliş Açısı", "Anten Referans Yönü", "Gerçek Kuzeye Göre Kerteriz", "Kerteriz Hattı (LOB)"):
             self.assertIn(term, glossary)
-        for flow in ("Kaynağı hazırlama", "Sinyal tespiti", "Parametre ölçümü", "Analog dinleme", "Yön bulma ve harita", "Sistem denetimi"):
+        for flow in (
+            "Kaynağı hazırlama",
+            "Sinyal tespiti",
+            "Parametre ölçümü",
+            "Ürün sınırı — Analog dinleme",
+            "Akış 5 — Yön bulma",
+            "Sistem denetimi",
+        ):
             self.assertIn(flow, flows)
 
     def test_map_copy_uses_bearing_contract(self) -> None:

@@ -1221,17 +1221,19 @@ def check_roadmap() -> dict[str, object]:
 def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
-        "phase-00 repository temelini kurmuştur",
-        "phase-04 parametre doğrulaması açık kalırken",
-        "phase-06c — 4096 nokta fft mimarisi, ölçekleme sözleşmesi ve amd ip wrapper temeli",
-        "gerçek cihaz, canlı i/q ve canlı analog dinleme henüz çalıştırılmamış",
-        "rf yayın",
+        "yalnız ölçülmüş veya tekrarlanabilir testle doğrulanmış",
+        "zedboard üzerinde canlı dma ve uçtan uca çalışma",
+        "henüz doğrulanmadı",
+        "am/nfm izleme zinciri",
+        "ürün arayüzüne henüz alınmadı",
+        "rf yayın yolu yok",
+        "kalibrasyonsuz `dbfs`",
     )
     missing = [value for value in required if value not in text]
     return _result(
         "readme-current-state",
         not missing,
-        "README preserves the baseline and truthful PHASE-04/05/RF claims"
+        "README distinguishes verified capabilities from live hardware, calibration, and RF-TX limits"
         if not missing
         else "README lacks explicit current-state markers: " + ", ".join(missing),
     )
