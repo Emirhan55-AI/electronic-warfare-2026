@@ -25,6 +25,7 @@ class QuickProductTests(unittest.TestCase):
                 "from pathlib import Path",
                 "os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')",
                 "os.environ.setdefault('QT_QUICK_BACKEND', 'software')",
+                "from PySide6.QtCore import QObject",
                 "from app.operator_console.quick_application import build_quick_application",
                 f"fixture = Path({str(FIXTURE)!r})",
                 "app, engine, view_model = build_quick_application(['app-f-test'])",
@@ -53,19 +54,32 @@ class QuickProductTests(unittest.TestCase):
             """
 root = engine.rootObjects()[0]
 root.setWidth(1180); root.setHeight(680); app.processEvents()
+root.setProperty("spectrumCursorNormalized",.5); root.setProperty("spectrumCursorVisible",True); app.processEvents()
 root.zoomSpectrum(.5,.5); app.processEvents()
 zoomed=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
+root.spectrumViewBack(); app.processEvents()
+back=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
+root.spectrumViewForward(); app.processEvents()
+forward=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
 root.resetSpectrumView(); app.processEvents()
-payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]}
+workspaces=[]
+for index in range(4):
+    root.setProperty("workspace",index); app.processEvents(); workspaces.append(root.property("workspace"))
+payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None}
 view_model.shutdown(); root.close()
 print(json.dumps(payload, ensure_ascii=False))
 """
         )
         self.assertGreaterEqual(payload["width"], 1180)
         self.assertGreaterEqual(payload["height"], 680)
-        self.assertEqual(0, payload["workspace"])
+        self.assertEqual(3, payload["workspace"])
         self.assertEqual([0.25, 0.75], payload["zoomed"])
+        self.assertEqual([0.0, 1.0], payload["back"])
+        self.assertEqual([0.25, 0.75], payload["forward"])
         self.assertEqual([0.0, 1.0], payload["reset"])
+        self.assertEqual([0, 1, 2, 3], payload["workspaces"])
+        self.assertTrue(payload["measurement_scroll"])
+        self.assertTrue(payload["listening_scroll"])
 
     def test_real_sigmf_source_drives_bounded_spectrum_and_detection(self) -> None:
         payload = self.run_qml(
@@ -101,10 +115,13 @@ confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
 view_model.selectDetection(int(confirmed["eventId"])); before=list(view_model.parameterRows)
 selection=[view_model.selectedRegionStartNormalized,view_model.selectedRegionPeakNormalized,view_model.selectedRegionEndNormalized]
 draft=[view_model.analysisSpanStartNormalized,view_model.analysisSpanEndNormalized]
+view_model.setAnalysisSpanDraftNormalized(selection[1]-.004,selection[1]+.004)
+drawn_draft=[view_model.analysisSpanStartNormalized,view_model.analysisSpanEndNormalized]
+drawn_status=view_model.statusMessage
 view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
 view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
-payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft}
+payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft,"drawn_draft":drawn_draft,"drawn_status":drawn_status}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
 """
@@ -116,6 +133,9 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertLessEqual(payload["selection"][1], payload["selection"][2])
         self.assertGreaterEqual(payload["draft"][0], 0.0)
         self.assertLessEqual(payload["draft"][1], 1.0)
+        self.assertLess(payload["drawn_draft"][0], payload["selection"][1])
+        self.assertGreater(payload["drawn_draft"][1], payload["selection"][1])
+        self.assertIn("spektrum üzerinden", payload["drawn_status"])
         self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
         labels = [row["label"] for row in payload["after"]]
         self.assertNotIn("Tepe bin gücü", labels)
@@ -177,8 +197,13 @@ print(json.dumps(payload,ensure_ascii=False))
             "SPEKTRUMLA BAĞLI",
             "zoomSpectrum",
             "panSpectrum",
+            "spectrumViewBack",
+            "setAnalysisSpanDraftNormalized",
             "Layout.preferredHeight: root.height < 780 ? 190 : 250",
             "onPressed: operatorViewModel.selectDetection",
+            'objectName: "measurementScroll"',
+            'objectName: "listeningSettingsScroll"',
+            'sequence: "Alt+Left"',
             "Kanal Sesini Hazırla",
             "WAV Dışa Aktar",
         ):

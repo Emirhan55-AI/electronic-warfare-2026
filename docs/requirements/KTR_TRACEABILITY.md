@@ -50,6 +50,10 @@ yüksekliğine taşımış; spektrum ile spektrogramı ortak frekans zoom/pan du
 bağlamış ve kayıtlı I/Q için doğrulanmış AM/NFM zincirini seçili tespit bağlamında
 QML ürün alanına eklemiştir. Kısa önizleme, kesintisiz kayıt ve canlı HackRF kabulü
 ayrı durumlar olarak gösterilir.
+Dördüncü bakım paketi ortak frekans imlecini, geri/ileri görünüm geçmişini ve
+FFT hücresine bağlı `Shift+sürükle` analiz taslağını eklemiştir. Tespit listesi
+sabit tutulurken ölçüm ve dinleme ayarları bağımsız kaydırılır; taslak ayrıca
+operatör onayı almadan parametre ölçümünü etkinleştirmez.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.

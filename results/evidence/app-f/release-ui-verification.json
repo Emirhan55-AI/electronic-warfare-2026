@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-25T20:14:57Z",
+  "recorded_at": "2026-08-25T20:48:22Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -42,12 +42,12 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.199211811527537,
-      "processing_median_ms": 2.509600017219782,
-      "processing_p95_ms": 2.7447000611573458,
-      "maximum_heartbeat_gap_ms": 35.9284000005573,
+      "observed_update_hz": 9.193647556862086,
+      "processing_median_ms": 2.423299942165613,
+      "processing_p95_ms": 2.706199884414673,
+      "maximum_heartbeat_gap_ms": 37.08319994620979,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "3670be2c713c0a12154a132d9dfcd801b8771108cc89c5c60710b6136d226d54"
+      "screenshot_sha256": "c9d9f693407f90ddbefe483400417e6f1faadf27edd82b3ccea899f8d0b1133a"
     },
     {
       "name": "standard-1366x768",
@@ -76,12 +76,12 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.192056225731402,
-      "processing_median_ms": 2.489199861884117,
-      "processing_p95_ms": 2.714599948376417,
-      "maximum_heartbeat_gap_ms": 39.543099934235215,
+      "observed_update_hz": 9.192161659294884,
+      "processing_median_ms": 2.888699993491173,
+      "processing_p95_ms": 3.9276001043617725,
+      "maximum_heartbeat_gap_ms": 45.152399921789765,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "020e4afbae9e83233a11a429b2fed4d7f354fa01d625f8de3d882d97fce3f697"
+      "screenshot_sha256": "a8c09209ad56102eca4a3d77ed98bc588e2a3491413973a32e225dd1dd16bb5e"
     },
     {
       "name": "fullhd-1920x1080",
@@ -110,12 +110,12 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.197223174648943,
-      "processing_median_ms": 2.467300044372678,
-      "processing_p95_ms": 2.609299961477518,
-      "maximum_heartbeat_gap_ms": 36.966599989682436,
+      "observed_update_hz": 9.19601334477045,
+      "processing_median_ms": 2.4093000683933496,
+      "processing_p95_ms": 3.935299813747406,
+      "maximum_heartbeat_gap_ms": 42.36550000496209,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "2396f2bc5766a288e2539929f847195d50cfffb598e7367d5d896b08c253da16"
+      "screenshot_sha256": "9e51c037efb38d6f992747947542f342423f412003ad2827d81d7dfefbd59b4d"
     },
     {
       "name": "scale-150-percent",
@@ -144,12 +144,12 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.18869533183211,
-      "processing_median_ms": 2.5607000570744276,
-      "processing_p95_ms": 2.8310001362115145,
-      "maximum_heartbeat_gap_ms": 45.31319998204708,
+      "observed_update_hz": 9.196339488992331,
+      "processing_median_ms": 2.888499991968274,
+      "processing_p95_ms": 5.318199982866645,
+      "maximum_heartbeat_gap_ms": 65.1027001440525,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "f5210e797eb678494e8b310d681397972d2f5af664d70a015c13f75deb181195"
+      "screenshot_sha256": "ac6f79c91db326b61d4d443c35edf23109777f7ac80feaf010970cea0d9c0cef"
     }
   ],
   "hackrf_probe": {
@@ -166,6 +166,8 @@
     "bounded_spectrum": true,
     "selection_bound_to_fft": true,
     "linked_frequency_view": true,
+    "stable_task_layout": true,
+    "spectrum_interaction_model": true,
     "ten_hz_update": true,
     "processing_budget": true,
     "responsive_gui": true,

@@ -46,7 +46,11 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
 5. Operatör bir doğrulanmış tespit seçtiğinde kaba aday ve önerilen analiz aralığı
    gerçek FFT hücrelerine bağlı olarak spektrum üzerinde işaretlenir.
 6. Fare tekeriyle yakınlaştırma ve sol tuşla kaydırma spektrum ile spektrogramda
-   aynı frekans penceresini değiştirir; çift tıklama veya `1:1` tam banda döner.
+   aynı frekans penceresini değiştirir; çift tıklama, `1:1` veya `Ctrl+0` tam
+   banda döner. `Alt+Sol` ve `Alt+Sağ` önceki/sonraki frekans görünümünü açar.
+7. Ortak frekans imleci iki görünümde aynı frekansı işaretler. Operatör,
+   `Shift+sürükle` ile seçili tepeyi içeren 8–512 FFT hücrelik analiz aralığı
+   taslağı oluşturabilir; taslak ayrıca açıkça onaylanmadan ölçüm başlamaz.
 
 Çıkış koşulu: seçimin kaynak kimliği, çerçeve ve tespit kimliği birbirine bağlıdır.
 
@@ -100,6 +104,9 @@ Son olaylar zaman, bileşen ve kısa nedenle listelenir; ayrıntılı kayıt alt
 - `Ctrl+B`, veri kaynağı panelini görev alanını büyütmek için yumuşakça daraltır.
 - Tespit listesinin yüksekliği içerik sayısından bağımsızdır; confirmed adaylar
   olay kimliğiyle kararlı sıralanır ve seçim fare basışında alınır.
+- Tespit seçimi sabit kalırken sinyal ölçümü ve analog kanal ayarları kendi
+  panellerinde bağımsız kaydırılır; bütün çalışma alanını hareket ettiren ortak
+  sayfa kaydırması kullanılmaz.
 - Kerteriz ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
   spektrum vurgusu kısa bir odak geçişi kullanır.
 - `Hareketi azalt` sistem ayarı desteklenir.

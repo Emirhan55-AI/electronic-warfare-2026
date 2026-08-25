@@ -109,6 +109,8 @@ def _child_run(args: argparse.Namespace) -> int:
             view_model.selectDetection(int(confirmed["eventId"]))
             if args.workspace == 0:
                 root.zoomSpectrum(0.5, 0.25)
+                root.setProperty("spectrumCursorNormalized", view_model.selectedRegionPeakNormalized)
+                root.setProperty("spectrumCursorVisible", True)
             visual_deadline = time.perf_counter() + 0.35
             while time.perf_counter() < visual_deadline:
                 app.processEvents()
@@ -254,12 +256,29 @@ def _parent_run() -> int:
             for run in runs
             if int(run["workspace"]) == 0
         ),
+        "stable_task_layout": all(
+            marker in qml_text
+            for marker in (
+                'objectName: "measurementScroll"',
+                'objectName: "listeningSettingsScroll"',
+                "Layout.preferredHeight: root.height < 780 ? 190 : 250",
+            )
+        ),
+        "spectrum_interaction_model": all(
+            marker in qml_text
+            for marker in (
+                "spectrumViewBack",
+                "spectrumViewForward",
+                "setAnalysisSpanDraftNormalized",
+                "Shift+sürükle",
+            )
+        ),
         "ten_hz_update": all(float(run["observed_update_hz"]) >= 9.0 for run in runs),
         "processing_budget": all(float(run["processing_p95_ms"]) < 100.0 for run in runs),
         "responsive_gui": all(float(run["maximum_heartbeat_gap_ms"]) < 100.0 for run in runs),
         "keyboard_and_accessibility": all(
             marker in qml_text
-            for marker in ("Accessible.name", 'sequence: "Ctrl+O"', 'sequence: "Space"', 'sequence: "Ctrl+4"', "Hareketi azalt")
+            for marker in ("Accessible.name", 'sequence: "Ctrl+O"', 'sequence: "Space"', 'sequence: "Ctrl+4"', 'sequence: "Alt+Left"', "Hareketi azalt")
         ),
         "honest_feature_surface": all(
             marker not in qml_text for marker in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "mock", "demo")

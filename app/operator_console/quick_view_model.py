@@ -554,6 +554,39 @@ class OperatorViewModel(QObject):
         self.stateChanged.emit()
 
     @Slot(float, float)
+    def setAnalysisSpanDraftNormalized(self, start: float, end: float) -> None:
+        if not self.selectedDetectionReady or self._last_result is None:
+            self._status_message = "Analiz aralığı için önce doğrulanmış bir tespit seçin."
+            self.stateChanged.emit()
+            return
+        if not math.isfinite(start) or not math.isfinite(end):
+            return
+        lower = max(56, min(4039, int(round(min(start, end) * 4095.0))))
+        upper = max(56, min(4039, int(round(max(start, end) * 4095.0))))
+        event = next(
+            (
+                item for item in self._last_result.detection.active_events
+                if item.event_id == self._selected_detection_id and item.state == "confirmed"
+            ),
+            None,
+        )
+        if event is None or not lower <= event.region.peak_bin <= upper:
+            self._status_message = "Çizilen analiz aralığı seçili tespitin tepe frekansını içermelidir."
+            self.stateChanged.emit()
+            return
+        width = upper - lower + 1
+        if not 8 <= width <= 512:
+            self._status_message = "Çizilen analiz aralığı 8–512 FFT hücresi arasında olmalıdır."
+            self.stateChanged.emit()
+            return
+        self._analysis_span = None
+        self._analysis_span_draft = (lower, upper)
+        self._parameter_rows = []
+        self._status_message = "Analiz aralığı taslağı spektrum üzerinden güncellendi; onay bekleniyor."
+        self.detectionsChanged.emit()
+        self.stateChanged.emit()
+
+    @Slot(float, float)
     def confirmAnalysisSpan(self, lower_mhz: float, upper_mhz: float) -> None:
         if not self.selectedDetectionReady or self._last_result is None:
             return

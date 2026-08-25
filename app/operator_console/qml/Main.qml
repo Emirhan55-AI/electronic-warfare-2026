@@ -18,6 +18,13 @@ ApplicationWindow {
     property bool sourcePanelOpen: true
     property real spectrumViewStart: 0
     property real spectrumViewEnd: 1
+    property var spectrumViewHistory: [{"start": 0, "end": 1}]
+    property int spectrumViewHistoryIndex: 0
+    property string spectrumHistorySource: ""
+    property real spectrumCursorNormalized: -1
+    property bool spectrumCursorVisible: false
+    property real analysisDragStart: -1
+    property real analysisDragEnd: -1
     property color appBackground: "#050B11"
     property color surface: "#0A131C"
     property color surfaceAlt: "#0D1822"
@@ -41,21 +48,55 @@ ApplicationWindow {
         spectrumViewEnd = boundedStart + span
     }
 
+    function commitSpectrumView() {
+        var current = spectrumViewHistory[spectrumViewHistoryIndex]
+        if (current && Math.abs(current.start - spectrumViewStart) < 0.000001
+                && Math.abs(current.end - spectrumViewEnd) < 0.000001) return
+        var history = spectrumViewHistory.slice(0, spectrumViewHistoryIndex + 1)
+        history.push({"start": spectrumViewStart, "end": spectrumViewEnd})
+        if (history.length > 24) history = history.slice(history.length - 24)
+        spectrumViewHistory = history
+        spectrumViewHistoryIndex = history.length - 1
+    }
+
+    function restoreSpectrumView(index) {
+        if (index < 0 || index >= spectrumViewHistory.length) return
+        spectrumViewHistoryIndex = index
+        var target = spectrumViewHistory[index]
+        setSpectrumView(target.start, target.end)
+    }
+
+    function spectrumViewBack() {
+        restoreSpectrumView(spectrumViewHistoryIndex - 1)
+    }
+
+    function spectrumViewForward() {
+        restoreSpectrumView(spectrumViewHistoryIndex + 1)
+    }
+
     function zoomSpectrum(relativeCenter, factor) {
         var anchorRatio = Math.max(0.0, Math.min(1.0, relativeCenter))
         var oldSpan = spectrumViewEnd - spectrumViewStart
         var newSpan = Math.max(0.02, Math.min(1.0, oldSpan * factor))
         var anchor = spectrumViewStart + anchorRatio * oldSpan
         setSpectrumView(anchor - anchorRatio * newSpan, anchor + (1.0 - anchorRatio) * newSpan)
+        commitSpectrumView()
     }
 
     function panSpectrum(delta) {
         setSpectrumView(spectrumViewStart + delta, spectrumViewEnd + delta)
+        commitSpectrumView()
     }
 
     function resetSpectrumView() {
-        spectrumViewStart = 0
-        spectrumViewEnd = 1
+        setSpectrumView(0, 1)
+        commitSpectrumView()
+    }
+
+    function clearSpectrumViewHistory() {
+        setSpectrumView(0, 1)
+        spectrumViewHistory = [{"start": 0, "end": 1}]
+        spectrumViewHistoryIndex = 0
     }
 
     function formatFrequency(hz) {
@@ -70,6 +111,13 @@ ApplicationWindow {
         return operatorViewModel.centerFrequencyHz + (normalized - 0.5) * operatorViewModel.sampleRateHz
     }
 
+    function normalizedAtSpectrumX(x, width) {
+        var plotLeft = 42
+        var plotWidth = Math.max(1, width - plotLeft - 8)
+        var ratio = Math.max(0, Math.min(1, (x - plotLeft) / plotWidth))
+        return spectrumViewStart + ratio * (spectrumViewEnd - spectrumViewStart)
+    }
+
     onSpectrumViewStartChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
@@ -77,6 +125,26 @@ ApplicationWindow {
     onSpectrumViewEndChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
+    }
+    onSpectrumCursorNormalizedChanged: {
+        spectrumCanvas.requestPaint()
+        waterfall.requestPaint()
+    }
+    onSpectrumCursorVisibleChanged: {
+        spectrumCanvas.requestPaint()
+        waterfall.requestPaint()
+    }
+    onAnalysisDragStartChanged: spectrumCanvas.requestPaint()
+    onAnalysisDragEndChanged: spectrumCanvas.requestPaint()
+
+    Connections {
+        target: operatorViewModel
+        function onStateChanged() {
+            if (root.spectrumHistorySource !== operatorViewModel.sourceName) {
+                root.spectrumHistorySource = operatorViewModel.sourceName
+                root.clearSpectrumViewHistory()
+            }
+        }
     }
 
     component Panel: Rectangle {
@@ -154,12 +222,23 @@ ApplicationWindow {
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
         }
-        indicator: Text {
-            x: control.width - width - 10
+        indicator: Canvas {
+            x: control.width - width - 12
             anchors.verticalCenter: parent.verticalCenter
-            text: "⌄"
-            color: root.textSecondary
-            font.pixelSize: 14
+            width: 10
+            height: 6
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.reset()
+                ctx.strokeStyle = root.textSecondary
+                ctx.lineWidth = 1.5
+                ctx.lineCap = "round"
+                ctx.beginPath()
+                ctx.moveTo(1, 1)
+                ctx.lineTo(width / 2, height - 1)
+                ctx.lineTo(width - 1, 1)
+                ctx.stroke()
+            }
         }
         popup: Popup {
             y: control.height + 2
@@ -252,6 +331,9 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+3"; onActivated: root.workspace = 2 }
     Shortcut { sequence: "Ctrl+4"; onActivated: root.workspace = 3 }
     Shortcut { sequence: "Ctrl+B"; onActivated: root.sourcePanelOpen = !root.sourcePanelOpen }
+    Shortcut { sequence: "Alt+Left"; onActivated: if (root.workspace === 0) root.spectrumViewBack() }
+    Shortcut { sequence: "Alt+Right"; onActivated: if (root.workspace === 0) root.spectrumViewForward() }
+    Shortcut { sequence: "Ctrl+0"; onActivated: if (root.workspace === 0) root.resetSpectrumView() }
 
     header: Rectangle {
         height: 76
@@ -529,6 +611,8 @@ ApplicationWindow {
                                         background: Rectangle { color: parent.hovered ? root.surfaceAlt : "transparent"; border.color: parent.activeFocus ? root.accent : "transparent"; radius: 3 }
                                     }
                                     SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
+                                    QuietButton { text: "‹"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Önceki frekans görünümü"; enabled: root.spectrumViewHistoryIndex > 0; onClicked: root.spectrumViewBack() }
+                                    QuietButton { text: "›"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Sonraki frekans görünümü"; enabled: root.spectrumViewHistoryIndex + 1 < root.spectrumViewHistory.length; onClicked: root.spectrumViewForward() }
                                     QuietButton { text: "−"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü uzaklaştır"; onClicked: root.zoomSpectrum(0.5, 1.4) }
                                     Label { text: (1 / (root.spectrumViewEnd - root.spectrumViewStart)).toFixed(1) + "×"; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
                                     QuietButton { text: "+"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü yakınlaştır"; onClicked: root.zoomSpectrum(0.5, 0.7) }
@@ -540,7 +624,7 @@ ApplicationWindow {
                                         color: root.accentSoft
                                         Label { id: liveTrace; anchors.centerIn: parent; text: "ANLIK · dBFS"; color: root.accent; font.pixelSize: 9; font.weight: Font.Bold }
                                     }
-                                    Label { text: operatorViewModel.performanceText; color: root.textSecondary; font.pixelSize: 10 }
+                                    Label { visible: root.width >= 1500; text: operatorViewModel.performanceText; color: root.textSecondary; font.pixelSize: 10 }
                                 }
                                 Canvas {
                                     id: spectrumCanvas
@@ -674,21 +758,93 @@ ApplicationWindow {
                                             ctx.beginPath(); ctx.moveTo(centerX, plotTop); ctx.lineTo(centerX, plotBottom); ctx.stroke()
                                         }
                                         ctx.setLineDash([])
+                                        if (root.analysisDragStart >= 0 && root.analysisDragEnd >= 0) {
+                                            var dragX1 = plotLeft + (Math.min(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            var dragX2 = plotLeft + (Math.max(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            ctx.fillStyle = "rgba(49,195,210,0.16)"
+                                            ctx.fillRect(Math.max(plotLeft, dragX1), plotTop, Math.max(2, Math.min(plotRight, dragX2) - Math.max(plotLeft, dragX1)), plotHeight)
+                                            ctx.strokeStyle = root.accent
+                                            ctx.strokeRect(Math.max(plotLeft, dragX1), plotTop, Math.max(2, Math.min(plotRight, dragX2) - Math.max(plotLeft, dragX1)), plotHeight)
+                                        }
+                                        if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
+                                                && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
+                                            var cursorX = plotLeft + (root.spectrumCursorNormalized - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            ctx.strokeStyle = "rgba(237,245,247,0.72)"
+                                            ctx.lineWidth = 1
+                                            ctx.beginPath(); ctx.moveTo(cursorX, plotTop); ctx.lineTo(cursorX, plotBottom); ctx.stroke()
+                                            var cursorText = root.formatFrequency(root.frequencyAt(root.spectrumCursorNormalized))
+                                            ctx.font = "10px Consolas"
+                                            var cursorWidth = ctx.measureText(cursorText).width + 12
+                                            var cursorLabelX = Math.max(plotLeft, Math.min(plotRight - cursorWidth, cursorX - cursorWidth / 2))
+                                            ctx.fillStyle = "rgba(13,24,34,0.94)"
+                                            ctx.fillRect(cursorLabelX, plotTop + 4, cursorWidth, 20)
+                                            ctx.strokeStyle = root.borderStrong
+                                            ctx.strokeRect(cursorLabelX, plotTop + 4, cursorWidth, 20)
+                                            ctx.fillStyle = root.textPrimary
+                                            ctx.textAlign = "center"; ctx.textBaseline = "middle"
+                                            ctx.fillText(cursorText, cursorLabelX + cursorWidth / 2, plotTop + 14)
+                                        }
                                     }
                                     MouseArea {
+                                        id: spectrumInteraction
                                         anchors.fill: parent
                                         acceptedButtons: Qt.LeftButton
                                         hoverEnabled: true
-                                        cursorShape: pressed ? Qt.ClosedHandCursor : Qt.CrossCursor
+                                        cursorShape: selectionMode ? Qt.CrossCursor : pressed ? Qt.ClosedHandCursor : Qt.CrossCursor
                                         property real pressX: 0
                                         property real pressStart: 0
                                         property real pressEnd: 1
-                                        onPressed: function(mouse) { pressX = mouse.x; pressStart = root.spectrumViewStart; pressEnd = root.spectrumViewEnd }
+                                        property bool selectionMode: false
+                                        property real selectionAnchor: -1
+                                        onEntered: root.spectrumCursorVisible = true
+                                        onExited: {
+                                            if (!pressed) root.spectrumCursorVisible = false
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
+                                        }
+                                        onPressed: function(mouse) {
+                                            pressX = mouse.x
+                                            pressStart = root.spectrumViewStart
+                                            pressEnd = root.spectrumViewEnd
+                                            selectionMode = (mouse.modifiers & Qt.ShiftModifier) !== 0
+                                            selectionAnchor = root.normalizedAtSpectrumX(mouse.x, width)
+                                            root.spectrumCursorVisible = true
+                                            root.spectrumCursorNormalized = selectionAnchor
+                                            if (selectionMode) {
+                                                root.analysisDragStart = selectionAnchor
+                                                root.analysisDragEnd = selectionAnchor
+                                            }
+                                        }
                                         onPositionChanged: function(mouse) {
-                                            if (!pressed) return
-                                            var span = pressEnd - pressStart
-                                            var delta = -(mouse.x - pressX) * span / Math.max(1, width)
-                                            root.setSpectrumView(pressStart + delta, pressEnd + delta)
+                                            root.spectrumCursorVisible = true
+                                            root.spectrumCursorNormalized = root.normalizedAtSpectrumX(mouse.x, width)
+                                            if (pressed) {
+                                                if (selectionMode) {
+                                                    root.analysisDragEnd = root.spectrumCursorNormalized
+                                                } else {
+                                                    var span = pressEnd - pressStart
+                                                    var delta = -(mouse.x - pressX) * span / Math.max(1, width)
+                                                    root.setSpectrumView(pressStart + delta, pressEnd + delta)
+                                                }
+                                            }
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
+                                        }
+                                        onReleased: function(mouse) {
+                                            if (selectionMode) {
+                                                if (Math.abs(mouse.x - pressX) >= 4)
+                                                    operatorViewModel.setAnalysisSpanDraftNormalized(root.analysisDragStart, root.analysisDragEnd)
+                                                root.analysisDragStart = -1
+                                                root.analysisDragEnd = -1
+                                            } else if (Math.abs(mouse.x - pressX) >= 2) {
+                                                root.commitSpectrumView()
+                                            }
+                                            selectionMode = false
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
+                                        }
+                                        onCanceled: {
+                                            root.analysisDragStart = -1
+                                            root.analysisDragEnd = -1
+                                            selectionMode = false
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
                                         }
                                         onWheel: function(wheel) { root.zoomSpectrum(wheel.x / Math.max(1, width), wheel.angleDelta.y > 0 ? 0.75 : 1.333333) }
                                         onDoubleClicked: root.resetSpectrumView()
@@ -701,6 +857,14 @@ ApplicationWindow {
                                     Label { text: root.formatFrequency(root.frequencyAt((root.spectrumViewStart + root.spectrumViewEnd) / 2)); color: root.textPrimary; font.pixelSize: 10 }
                                     Item { Layout.fillWidth: true }
                                     Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewEnd)); color: root.textSecondary; font.pixelSize: 10 }
+                                }
+                                Label {
+                                    Layout.fillWidth: true
+                                    text: "Kaydır: sürükle  ·  Analiz aralığı: Shift+sürükle  ·  Yakınlaştır: tekerlek  ·  Tam bant: çift tık"
+                                    color: root.textMuted
+                                    font.pixelSize: 9
+                                    elide: Text.ElideRight
+                                    horizontalAlignment: Text.AlignRight
                                 }
                             }
                         }
@@ -756,6 +920,13 @@ ApplicationWindow {
                                                 ctx.fillRect((col - firstIndex) * width / visibleCount, y, Math.ceil(step * width / visibleCount), rh)
                                             }
                                         }
+                                        if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
+                                                && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
+                                            var cursorX = (root.spectrumCursorNormalized - root.spectrumViewStart) * width / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            ctx.strokeStyle = "rgba(237,245,247,0.72)"
+                                            ctx.lineWidth = 1
+                                            ctx.beginPath(); ctx.moveTo(cursorX, 0); ctx.lineTo(cursorX, height); ctx.stroke()
+                                        }
                                     }
                                     MouseArea {
                                         anchors.fill: parent
@@ -765,13 +936,29 @@ ApplicationWindow {
                                         property real pressX: 0
                                         property real pressStart: 0
                                         property real pressEnd: 1
-                                        onPressed: function(mouse) { pressX = mouse.x; pressStart = root.spectrumViewStart; pressEnd = root.spectrumViewEnd }
-                                        onPositionChanged: function(mouse) {
-                                            if (!pressed) return
-                                            var span = pressEnd - pressStart
-                                            var delta = -(mouse.x - pressX) * span / Math.max(1, width)
-                                            root.setSpectrumView(pressStart + delta, pressEnd + delta)
+                                        onEntered: root.spectrumCursorVisible = true
+                                        onExited: {
+                                            if (!pressed) root.spectrumCursorVisible = false
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
                                         }
+                                        onPressed: function(mouse) {
+                                            pressX = mouse.x
+                                            pressStart = root.spectrumViewStart
+                                            pressEnd = root.spectrumViewEnd
+                                            root.spectrumCursorVisible = true
+                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, mouse.x / Math.max(1, width))) * (root.spectrumViewEnd - root.spectrumViewStart)
+                                        }
+                                        onPositionChanged: function(mouse) {
+                                            root.spectrumCursorVisible = true
+                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, mouse.x / Math.max(1, width))) * (root.spectrumViewEnd - root.spectrumViewStart)
+                                            if (pressed) {
+                                                var span = pressEnd - pressStart
+                                                var delta = -(mouse.x - pressX) * span / Math.max(1, width)
+                                                root.setSpectrumView(pressStart + delta, pressEnd + delta)
+                                            }
+                                            spectrumCanvas.requestPaint(); waterfall.requestPaint()
+                                        }
+                                        onReleased: function(mouse) { if (Math.abs(mouse.x - pressX) >= 2) root.commitSpectrumView() }
                                         onWheel: function(wheel) { root.zoomSpectrum(wheel.x / Math.max(1, width), wheel.angleDelta.y > 0 ? 0.75 : 1.333333) }
                                         onDoubleClicked: root.resetSpectrumView()
                                     }
@@ -867,113 +1054,129 @@ ApplicationWindow {
                                     font.weight: Font.Bold
                                 }
                             }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 5
-                                Repeater {
-                                    model: ["1  Tespit", "2  Aralık", "3  Ölçüm"]
-                                    delegate: Rectangle {
-                                        required property string modelData
-                                        required property int index
-                                        Layout.fillWidth: true
-                                        implicitHeight: 24
-                                        radius: 3
-                                        color: (index === 0 && operatorViewModel.selectedDetectionReady)
-                                               || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                               || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#091219"
-                                        border.color: (index === 0 && operatorViewModel.selectedDetectionReady)
-                                                      || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                                      || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#28616B" : root.border
-                                        Label { anchors.centerIn: parent; text: modelData; color: parent.border.color === root.border ? root.textMuted : root.accent; font.pixelSize: 8; font.weight: Font.DemiBold }
-                                    }
-                                }
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                text: operatorViewModel.parameterCapabilityReady
-                                      ? "Dört ardışık gözlem ve operatör onaylı analiz aralığı kullanılır."
-                                      : "Doğrulanmış parametre ölçüm profili kullanılamıyor."
-                                color: operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
-                                font.pixelSize: 10
-                                wrapMode: Text.Wrap
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2
-                                    Label { text: "Analiz alt frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
-                                    TextField {
-                                        id: analysisLowerMHz
-                                        Layout.fillWidth: true
-                                        text: operatorViewModel.analysisLowerMHzText
-                                        color: root.textPrimary
-                                        validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
-                                        Accessible.name: "Analiz alt frekansı megahertz"
-                                        background: Rectangle { color: "#09141C"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
-                                    }
-                                }
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2
-                                    Label { text: "Analiz üst frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
-                                    TextField {
-                                        id: analysisUpperMHz
-                                        Layout.fillWidth: true
-                                        text: operatorViewModel.analysisUpperMHzText
-                                        color: root.textPrimary
-                                        validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
-                                        Accessible.name: "Analiz üst frekansı megahertz"
-                                        background: Rectangle { color: "#09141C"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
-                                    }
-                                }
-                            }
-                            QuietButton {
-                                Layout.fillWidth: true
-                                text: operatorViewModel.analysisSpanConfirmed ? "Analiz Aralığı Onaylandı" : "Analiz Aralığını Onayla"
-                                enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.parameterCapabilityReady && !operatorViewModel.busy
-                                onClicked: operatorViewModel.confirmAnalysisSpan(Number(analysisLowerMHz.text), Number(analysisUpperMHz.text))
-                            }
-                            PrimaryButton {
-                                Layout.fillWidth: true
-                                text: "Ölçümü Başlat"
-                                enabled: operatorViewModel.measurementReady && !operatorViewModel.busy
-                                onClicked: operatorViewModel.requestMeasurement()
-                            }
-                            ListView {
+                            ScrollView {
+                                id: measurementScroll
+                                objectName: "measurementScroll"
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 clip: true
-                                spacing: 2
-                                model: operatorViewModel.parameterRows
-                                delegate: RowLayout {
-                                    required property var modelData
-                                    width: ListView.view.width
-                                    height: 26
-                                    Label { text: modelData.label; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                    Label { text: modelData.value; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+
+                                ColumnLayout {
+                                    width: measurementScroll.availableWidth
+                                    spacing: 9
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 5
+                                        Repeater {
+                                            model: ["1  Tespit", "2  Aralık", "3  Ölçüm"]
+                                            delegate: Rectangle {
+                                                required property string modelData
+                                                required property int index
+                                                Layout.fillWidth: true
+                                                implicitHeight: 24
+                                                radius: 3
+                                                color: (index === 0 && operatorViewModel.selectedDetectionReady)
+                                                       || (index === 1 && operatorViewModel.analysisSpanConfirmed)
+                                                       || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#091219"
+                                                border.color: (index === 0 && operatorViewModel.selectedDetectionReady)
+                                                              || (index === 1 && operatorViewModel.analysisSpanConfirmed)
+                                                              || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#28616B" : root.border
+                                                Label { anchors.centerIn: parent; text: modelData; color: parent.border.color === root.border ? root.textMuted : root.accent; font.pixelSize: 8; font.weight: Font.DemiBold }
+                                            }
+                                        }
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: operatorViewModel.parameterCapabilityReady
+                                              ? "Dört ardışık gözlem ve operatör onaylı analiz aralığı kullanılır."
+                                              : "Doğrulanmış parametre ölçüm profili kullanılamıyor."
+                                        color: operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: "Spektrum üzerinde Shift+sürükle ile aralık taslağı oluşturabilirsiniz."
+                                        color: root.accent
+                                        font.pixelSize: 9
+                                        wrapMode: Text.Wrap
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+                                            Label { text: "Analiz alt frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
+                                            TextField {
+                                                id: analysisLowerMHz
+                                                Layout.fillWidth: true
+                                                text: operatorViewModel.analysisLowerMHzText
+                                                color: root.textPrimary
+                                                validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
+                                                Accessible.name: "Analiz alt frekansı megahertz"
+                                                background: Rectangle { color: "#09141C"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                            }
+                                        }
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+                                            Label { text: "Analiz üst frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
+                                            TextField {
+                                                id: analysisUpperMHz
+                                                Layout.fillWidth: true
+                                                text: operatorViewModel.analysisUpperMHzText
+                                                color: root.textPrimary
+                                                validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
+                                                Accessible.name: "Analiz üst frekansı megahertz"
+                                                background: Rectangle { color: "#09141C"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                            }
+                                        }
+                                    }
+                                    QuietButton {
+                                        Layout.fillWidth: true
+                                        text: operatorViewModel.analysisSpanConfirmed ? "Analiz Aralığı Onaylandı" : "Analiz Aralığını Onayla"
+                                        enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.parameterCapabilityReady && !operatorViewModel.busy
+                                        onClicked: operatorViewModel.confirmAnalysisSpan(Number(analysisLowerMHz.text), Number(analysisUpperMHz.text))
+                                    }
+                                    PrimaryButton {
+                                        Layout.fillWidth: true
+                                        text: "Ölçümü Başlat"
+                                        enabled: operatorViewModel.measurementReady && !operatorViewModel.busy
+                                        onClicked: operatorViewModel.requestMeasurement()
+                                    }
+                                    Repeater {
+                                        model: operatorViewModel.parameterRows
+                                        delegate: RowLayout {
+                                            required property var modelData
+                                            Layout.fillWidth: true
+                                            implicitHeight: 26
+                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
+                                            Label { text: modelData.value; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                        }
+                                    }
+                                    Label {
+                                        visible: operatorViewModel.parameterRows.length === 0
+                                        text: operatorViewModel.selectedDetectionReady
+                                              ? (operatorViewModel.analysisSpanConfirmed
+                                                 ? "Dört ardışık gözlem ve ölçüm komutu bekleniyor."
+                                                 : "Önerilen analiz aralığını doğrulayıp onaylayın.")
+                                              : "Doğrulanmış bir tespit seçin."
+                                        color: root.textSecondary
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
+                                        Layout.fillWidth: true
+                                    }
+                                    Label {
+                                        text: "Sayılar kalibrasyonsuz göreli ölçümlerdir; kalite kapısı geçmeyen alanlarda sonuç gösterilmez."
+                                        color: root.textSecondary
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
+                                        Layout.fillWidth: true
+                                    }
                                 }
-                            }
-                            Label {
-                                visible: operatorViewModel.parameterRows.length === 0
-                                text: operatorViewModel.selectedDetectionReady
-                                      ? (operatorViewModel.analysisSpanConfirmed
-                                         ? "Dört ardışık gözlem ve ölçüm komutu bekleniyor."
-                                         : "Önerilen analiz aralığını doğrulayıp onaylayın.")
-                                      : "Doğrulanmış bir tespit seçin."
-                                color: root.textSecondary
-                                font.pixelSize: 10
-                                wrapMode: Text.Wrap
-                                Layout.fillWidth: true
-                            }
-                            Label {
-                                visible: root.height >= 780
-                                text: "Sayılar kalibrasyonsuz göreli ölçümlerdir; kalite kapısı geçmeyen alanlarda sonuç gösterilmez."
-                                color: root.textSecondary
-                                font.pixelSize: 10
-                                wrapMode: Text.Wrap
-                                Layout.fillWidth: true
                             }
                         }
                     }
@@ -995,90 +1198,127 @@ ApplicationWindow {
                             anchors.margins: 18
                             spacing: 11
                             SectionTitle { text: "ANALOG KANAL SEÇİMİ" }
-                            Rectangle {
+                            ScrollView {
+                                id: listeningSettingsScroll
+                                objectName: "listeningSettingsScroll"
                                 Layout.fillWidth: true
-                                implicitHeight: 70
-                                radius: 4
-                                color: root.surfaceAlt
-                                border.color: operatorViewModel.selectedDetectionReady ? root.accent : root.border
+                                Layout.fillHeight: true
+                                clip: true
+                                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                                 ColumnLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 11
-                                    spacing: 3
-                                    Label { text: operatorViewModel.listeningDetectionTitle; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
-                                    Label { text: operatorViewModel.listeningDetectionFrequencyText; color: root.accent; font.pixelSize: 11; font.family: "Consolas" }
-                                    Label { text: "Kaynak süresi: " + operatorViewModel.sourceDurationText; color: root.textMuted; font.pixelSize: 9 }
+                                    width: listeningSettingsScroll.availableWidth
+                                    spacing: 10
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        implicitHeight: 70
+                                        radius: 4
+                                        color: root.surfaceAlt
+                                        border.color: operatorViewModel.selectedDetectionReady ? root.accent : root.border
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            anchors.margins: 11
+                                            spacing: 3
+                                            Label { text: operatorViewModel.listeningDetectionTitle; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
+                                            Label { text: operatorViewModel.listeningDetectionFrequencyText; color: root.accent; font.pixelSize: 11; font.family: "Consolas" }
+                                            Label { text: "Kaynak süresi: " + operatorViewModel.sourceDurationText; color: root.textMuted; font.pixelSize: 9 }
+                                        }
+                                    }
+                                    Label { text: "Demodülasyon"; color: root.textSecondary; font.pixelSize: 10 }
+                                    AppCombo {
+                                        id: listeningMode
+                                        Layout.fillWidth: true
+                                        model: [{text: "Genlik Modülasyonu (AM)", value: "am"}, {text: "Dar Bant FM (NFM)", value: "nfm"}]
+                                        textRole: "text"
+                                        Accessible.name: "Dinleme modu"
+                                    }
+                                    Label { text: "Merkez frekans ofseti (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        TextField {
+                                            id: listeningOffset
+                                            Layout.fillWidth: true
+                                            text: operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
+                                            color: root.textPrimary
+                                            validator: DoubleValidator { decimals: 3; notation: DoubleValidator.StandardNotation }
+                                            Accessible.name: "Dinleme merkez frekans ofseti kilohertz"
+                                            background: Rectangle { color: "#09141C"; border.color: listeningOffset.activeFocus ? root.accent : root.border; radius: 4 }
+                                        }
+                                        QuietButton {
+                                            text: "Tespiti Kullan"
+                                            implicitHeight: 36
+                                            font.pixelSize: 10
+                                            enabled: operatorViewModel.selectedDetectionReady
+                                            onClicked: listeningOffset.text = operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
+                                        }
+                                    }
+                                    Label { text: "Kanal bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    TextField {
+                                        id: listeningBandwidth
+                                        Layout.fillWidth: true
+                                        text: "16"
+                                        color: root.textPrimary
+                                        validator: DoubleValidator { bottom: 2; top: 200; decimals: 1; notation: DoubleValidator.StandardNotation }
+                                        Accessible.name: "Dinleme kanal bant genişliği kilohertz"
+                                        background: Rectangle { color: "#09141C"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: "Ses seviyesi"; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
+                                        Label { text: Math.round(listeningVolume.value * 100) + "%"; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas" }
+                                    }
+                                    Slider {
+                                        id: listeningVolume
+                                        Layout.fillWidth: true
+                                        implicitHeight: 26
+                                        from: 0
+                                        to: 1
+                                        value: 0.8
+                                        Accessible.name: "Dinleme ses seviyesi"
+                                        background: Rectangle {
+                                            x: listeningVolume.leftPadding
+                                            y: listeningVolume.topPadding + listeningVolume.availableHeight / 2 - height / 2
+                                            width: listeningVolume.availableWidth
+                                            height: 4
+                                            radius: 2
+                                            color: "#172731"
+                                            Rectangle {
+                                                width: listeningVolume.visualPosition * parent.width
+                                                height: parent.height
+                                                radius: 2
+                                                color: root.accent
+                                            }
+                                        }
+                                        handle: Rectangle {
+                                            x: listeningVolume.leftPadding + listeningVolume.visualPosition * (listeningVolume.availableWidth - width)
+                                            y: listeningVolume.topPadding + listeningVolume.availableHeight / 2 - height / 2
+                                            width: 14
+                                            height: 14
+                                            radius: 7
+                                            color: listeningVolume.pressed ? "#D9FBFD" : root.textPrimary
+                                            border.color: root.accent
+                                            border.width: 2
+                                        }
+                                    }
+                                    PrimaryButton {
+                                        Layout.fillWidth: true
+                                        text: "Kanal Sesini Hazırla"
+                                        enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
+                                        onClicked: operatorViewModel.requestListening(
+                                            listeningMode.model[listeningMode.currentIndex].value,
+                                            Number(listeningOffset.text),
+                                            Number(listeningBandwidth.text),
+                                            listeningVolume.value
+                                        )
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: "Kesintisiz dinleme için kaynakta en az 5 saniyelik I/Q gerekir. Daha kısa kayıt yalnız açıkça etiketli kısa önizleme üretir."
+                                        color: root.warning
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
+                                    }
                                 }
-                            }
-                            Label { text: "Demodülasyon"; color: root.textSecondary; font.pixelSize: 10 }
-                            AppCombo {
-                                id: listeningMode
-                                Layout.fillWidth: true
-                                model: [{text: "Genlik Modülasyonu (AM)", value: "am"}, {text: "Dar Bant FM (NFM)", value: "nfm"}]
-                                textRole: "text"
-                                Accessible.name: "Dinleme modu"
-                            }
-                            Label { text: "Merkez frekans ofseti (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                TextField {
-                                    id: listeningOffset
-                                    Layout.fillWidth: true
-                                    text: operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
-                                    color: root.textPrimary
-                                    validator: DoubleValidator { decimals: 3; notation: DoubleValidator.StandardNotation }
-                                    Accessible.name: "Dinleme merkez frekans ofseti kilohertz"
-                                    background: Rectangle { color: "#09141C"; border.color: listeningOffset.activeFocus ? root.accent : root.border; radius: 4 }
-                                }
-                                QuietButton {
-                                    text: "Tespiti Kullan"
-                                    implicitHeight: 36
-                                    font.pixelSize: 10
-                                    enabled: operatorViewModel.selectedDetectionReady
-                                    onClicked: listeningOffset.text = operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
-                                }
-                            }
-                            Label { text: "Kanal bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
-                            TextField {
-                                id: listeningBandwidth
-                                Layout.fillWidth: true
-                                text: "16"
-                                color: root.textPrimary
-                                validator: DoubleValidator { bottom: 2; top: 200; decimals: 1; notation: DoubleValidator.StandardNotation }
-                                Accessible.name: "Dinleme kanal bant genişliği kilohertz"
-                                background: Rectangle { color: "#09141C"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Label { text: "Ses seviyesi"; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                Label { text: Math.round(listeningVolume.value * 100) + "%"; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas" }
-                            }
-                            Slider {
-                                id: listeningVolume
-                                Layout.fillWidth: true
-                                from: 0
-                                to: 1
-                                value: 0.8
-                                Accessible.name: "Dinleme ses seviyesi"
-                            }
-                            PrimaryButton {
-                                Layout.fillWidth: true
-                                text: "Kanal Sesini Hazırla"
-                                enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
-                                onClicked: operatorViewModel.requestListening(
-                                    listeningMode.model[listeningMode.currentIndex].value,
-                                    Number(listeningOffset.text),
-                                    Number(listeningBandwidth.text),
-                                    listeningVolume.value
-                                )
-                            }
-                            Item { Layout.fillHeight: true }
-                            Label {
-                                Layout.fillWidth: true
-                                text: "Kesintisiz dinleme için kaynakta en az 5 saniyelik I/Q gerekir. Daha kısa kayıt yalnız açıkça etiketli kısa önizleme üretir."
-                                color: root.warning
-                                font.pixelSize: 10
-                                wrapMode: Text.Wrap
                             }
                         }
                     }
