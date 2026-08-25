@@ -8,9 +8,14 @@
 
 Ürün arayüzü üç kalıcı çalışma alanından oluşur:
 
-1. `Operasyon`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
+1. `Spektrum`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
 2. `Yön Bulma`: anten açısı–güç ölçümü, bağıl geliş açısı, kerteriz ve harita.
-3. `Sistem`: cihaz, taşıma, işleme ve hata günlüğü.
+3. `Sistem`: bileşen sağlığı, performans ve son olaylar.
+
+Üst görev çubuğu ED bağlamını, kaynak kimliğini, merkez frekansını, örnekleme
+hızını ve kaynak durumunu sürekli gösterir. Alt durum çubuğundaki `Olay Konsolu`,
+yapılandırılmış uygulama olaylarını salt okunur bir panelde açar; işletim sistemi
+komutu çalıştıran bir kabuk değildir.
 
 Parametre ölçümü ve dinleme, seçili sinyal bağlamından açılan görevlerdir. Ayrı
 birer bağımsız dünya gibi davranmaz; kaynak ve tespit kimliği her adımda korunur.
@@ -75,16 +80,11 @@ kanallı DoA sonucu yoktur ve varmış gibi bir kontrol gösterilmez.
 
 ## Akış 6 — Sistem denetimi ve kurtarma
 
-Sistem görünümü GNU Radio Companion'daki okunabilir blok akışı ilkesini kullanır,
-ancak operatör DSP grafiğini değiştiremez:
-
-```text
-Kaynak → Ön İşleme → FFT/Güç → Tespit → Parametre/Dinleme/Yön Bulma
-```
-
-Her blok `Kullanılmıyor`, `Hazır`, `Çalışıyor` veya `Hata` durumundadır. Donanım
-bağlantısı, kalibrasyon ve kaynağın kayıt/canlı niteliği ayrı rozetlerdir. Hata
-seçildiğinde zaman, bileşen, kısa neden ve kurtarma eylemi gösterilir.
+Sistem görünümü düzenlenebilir veya dekoratif bir DSP blok grafiği sunmaz.
+Kaynak, ön işleme, FFT/güç, tespit ve operatör görevlerinin sağlık durumu kompakt
+bir şeritte `Kullanılmıyor`, `Hazır`, `Çalışıyor` veya `Hata` olarak gösterilir.
+Son olaylar zaman, bileşen ve kısa nedenle listelenir; ayrıntılı kayıt alt
+çubuktaki salt-okunur `Olay Konsolu` üzerinden incelenir.
 
 ## Geçiş ve hareket kuralları
 

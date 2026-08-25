@@ -34,6 +34,14 @@ tutmaktır.
 | APP-E | KTR-4.1-OPS, KTR-4.2–4.4 | Görev terminolojisi, bilgi mimarisi ve teknoloji kararının ölçülerek dondurulması | Kullanılabilirlik senaryoları, A/B performans ve ekran ölçeği kanıtı |
 | APP-F | KTR-4.1-OPS, KTR-4.2–4.4, izinli KTR-5 yüzeyleri | Yalnız uygulanmış ve doğrulanmış özellikleri sunan görev odaklı operatör uygulaması | ADR-0027; gerçek SigMF uçtan uca işleme; gerçek HackRF araç/cihaz probe durumu; QML ürün import sınırı; 1280×720, 1366×768, 1920×1080 ve %150 render; 10 Hz, heartbeat, bounded çizim, Türkçe metin ve paketleme kapıları |
 
+APP-F arayüz bakımı 2026-08-25 tarihinde işlev değiştirmeden spektrum merkezli
+ürün kabuğunu, ED görev göstergesini, ikonlu çalışma alanı seçimini, üç adımlı
+sinyal ölçüm sunumunu, polar kerteriz göstergesini, kompakt sistem sağlık
+şeridini ve salt-okunur olay konsolunu eklemiştir. Düzenlenemeyen DSP blok
+görünümü kaldırılmıştır. Güncel çoklu çözünürlük, %150 ölçek, 10 Hz ve GUI
+heartbeat kanıtı `results/evidence/app-f/release-ui-verification.json` altında
+korunur; bu bakım algoritma, donanım veya RF doğruluk iddiasını değiştirmez.
+
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
 Golden/replay verileri yalnız doğrulama paketinde kalır; gerçek donanım sonucu

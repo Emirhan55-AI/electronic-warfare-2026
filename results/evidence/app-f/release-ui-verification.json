@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-23T21:52:38Z",
+  "recorded_at": "2026-08-25T17:42:36Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -25,15 +25,15 @@
       "workspace": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 534,
+      "spectrum_points": 562,
       "visible_detections": 12,
       "processed_frames": 23,
-      "observed_update_hz": 9.191008987384528,
-      "processing_median_ms": 2.4258000776171684,
-      "processing_p95_ms": 2.6690999511629343,
-      "maximum_heartbeat_gap_ms": 34.61660002358258,
+      "observed_update_hz": 9.195373623506852,
+      "processing_median_ms": 2.4314001202583313,
+      "processing_p95_ms": 2.613699994981289,
+      "maximum_heartbeat_gap_ms": 37.28149994276464,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "3b44dd7590654758e89c776dcf1b5116d90eaae1ce42436307cce3fb67a0f69b"
+      "screenshot_sha256": "662858a3c531cb10e70f75e04f19a391ce48036cbdf5e43130d7df264f210feb"
     },
     {
       "name": "standard-1366x768",
@@ -45,15 +45,15 @@
       "workspace": 1,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 694,
+      "spectrum_points": 722,
       "visible_detections": 12,
       "processed_frames": 23,
-      "observed_update_hz": 9.196753178373921,
-      "processing_median_ms": 2.4869999615475535,
-      "processing_p95_ms": 2.740499912761152,
-      "maximum_heartbeat_gap_ms": 38.793299929238856,
+      "observed_update_hz": 9.193976107223463,
+      "processing_median_ms": 2.5510999839752913,
+      "processing_p95_ms": 6.186800077557564,
+      "maximum_heartbeat_gap_ms": 54.16940012946725,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "b2a088f64c97ab11e130d4c748905431c330ee9aea0ebe8ce29d977e4892b728"
+      "screenshot_sha256": "dea3cf29be0e746f984bf4bcde9fba077c41c1e1d88d57b7f54ec7d43157bacd"
     },
     {
       "name": "fullhd-1920x1080",
@@ -65,15 +65,15 @@
       "workspace": 2,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 694,
+      "spectrum_points": 722,
       "visible_detections": 12,
       "processed_frames": 23,
-      "observed_update_hz": 9.191778505950378,
-      "processing_median_ms": 2.52169999293983,
-      "processing_p95_ms": 4.01830009650439,
-      "maximum_heartbeat_gap_ms": 41.13259993027896,
+      "observed_update_hz": 9.192084144896162,
+      "processing_median_ms": 2.495700027793646,
+      "processing_p95_ms": 3.486400004476309,
+      "maximum_heartbeat_gap_ms": 39.85230019316077,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "f4ce009c2dee43ad91bb975817f3db1301c56ab2eba53851ca794f3ab3ff32d8"
+      "screenshot_sha256": "b33e993fb111f941a833cdbe412fd576ba15c08b88917cb5d3875e3b3f3280f2"
     },
     {
       "name": "scale-150-percent",
@@ -85,15 +85,15 @@
       "workspace": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 534,
+      "spectrum_points": 562,
       "visible_detections": 12,
       "processed_frames": 23,
-      "observed_update_hz": 9.199839554861658,
-      "processing_median_ms": 2.5560000212863088,
-      "processing_p95_ms": 3.0445000156760216,
-      "maximum_heartbeat_gap_ms": 42.88329998962581,
+      "observed_update_hz": 9.194193316008867,
+      "processing_median_ms": 2.957100048661232,
+      "processing_p95_ms": 4.078199854120612,
+      "maximum_heartbeat_gap_ms": 56.57380004413426,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "80c01ed304977e4d8e3f55947012eed9f89feaa75fcf8deeb4b58f8289d21a7e"
+      "screenshot_sha256": "08bf13b0c204bf24acd407fef01538b4c2b9dd1e45dff805ad96e28aeba8c2ef"
     }
   ],
   "hackrf_probe": {
