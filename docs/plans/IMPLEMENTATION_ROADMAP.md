@@ -137,12 +137,15 @@ başarısız olmuştur. OOK ihlalleri giderilmiş olsa da bütün zorunlu alanla
 popülasyonda birlikte geçmemiştir. Aynı popülasyonlar yeniden çalıştırılamaz,
 F3E başlatılamaz ve ürün profili oluşturulamaz.
 
-Kullanıcı onayıyla `PHASE-04-F4 — NFM Düşük SNR Dayanıklılığı` turunun yalnız
-salt-okunur F4A kök neden adımı açılmıştır. F4A, saklanan F3D kanıtını ve açık
-F3 geliştirme özetlerini kullanır; F3D popülasyonunu yeniden çalıştırmaz ve eşik
-değiştirmez. Sonraki olası adımlar F4B yeni veri/protokol kilidi, F4C ayrı yöntem
-geliştirme, F4D tek seferlik değerlendirme ve yalnız başarı halinde F4E profil
-entegrasyonudur. Her geçiş ayrı kullanıcı onayı gerektirir.
+Kullanıcı onayıyla `PHASE-04-F4 — NFM Düşük SNR Dayanıklılığı` turunun F4A
+salt-okunur kök neden analizi ve F4B ön-yöntem protokol kilidi tamamlanmıştır.
+F4A, F3D'yi yeniden çalıştırmadan NFM 6 dB seed genellemesi, aşırı abstention ve
+NFM'e özgü seed kapısı eksikliğini doğrulamıştır. F4B'de önceki popülasyonlardan
+bağımsız sekiz açık seed ayrılmış; yeni binding/OOS preimage'ları commitment ile
+kapatılmış; korunan F2 kapıları ve F3 risklerine dört NFM seed/risk kapısı ile üç
+zorunlu tanı çıktısı eklenmiştir. F4C ayrı yöntem geliştirmesidir ve kullanıcı
+onayı olmadan başlatılmaz. F4D tek seferlik değerlendirme, F4E ise yalnız başarı
+halinde profil entegrasyonudur.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

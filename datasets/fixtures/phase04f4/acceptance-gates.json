@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "contract_id": "phase04f4-nfm-robustness-acceptance-v1",
+  "status": "locked-before-v5-method-development",
+  "authority": {
+    "specified_by_competition": false,
+    "gate_class": "project_internal_engineering",
+    "results_must_not_change_thresholds": true,
+    "f2_acceptance_thresholds_relaxed": false,
+    "f3_development_thresholds_relaxed": false
+  },
+  "base_acceptance": {
+    "path": "datasets/fixtures/phase04f2/acceptance-gates.json",
+    "sha256": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "binding_check_count": 40,
+    "oos_check_count": 24
+  },
+  "inherited_development_acceptance": {
+    "path": "datasets/fixtures/phase04f3/acceptance-gates.json",
+    "sha256": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "development_check_count": 14
+  },
+  "development_population_contract": {
+    "seed_count": 8,
+    "trials_per_seed_per_family": 48,
+    "total_trials_per_family": 384,
+    "negative_control_measurements_per_seed": 64,
+    "total_negative_control_measurements": 512,
+    "frames_per_measurement": 4,
+    "snr_db": [-6.0, 0.0, 6.0, 12.0],
+    "base_gate_role": "binding"
+  },
+  "additional_development_checks": [
+    {"id": "nfm-domain-seed-correct", "owner": "signal_domain", "metric": "domain.nfm.seed_min_correct_count_6_db", "operator": ">=", "threshold": 40},
+    {"id": "nfm-domain-seed-wrong", "owner": "signal_domain", "metric": "domain.nfm.seed_max_wrong_count_6_db", "operator": "<=", "threshold": 1},
+    {"id": "nfm-domain-seed-abstained", "owner": "signal_domain", "metric": "domain.nfm.seed_max_abstained_count_6_db", "operator": "<=", "threshold": 8},
+    {"id": "nfm-domain-aggregate-wrong", "owner": "signal_domain", "metric": "domain.nfm.aggregate_wrong_count_6_db", "operator": "<=", "threshold": 2}
+  ],
+  "required_development_diagnostics": [
+    "domain.nfm.seed_counts_6_db",
+    "domain.nfm.rejection_reason_counts_6_db",
+    "domain.nfm.distance_margin_quantiles_6_db"
+  ],
+  "runtime_constraints": {
+    "runtime_ground_truth_allowed": false,
+    "frames_per_measurement": 4,
+    "worker_count": 1,
+    "maximum_pending_intent_count": 1,
+    "maximum_persistent_payload_bytes": 65536
+  },
+  "risk_margin_basis": {
+    "domain_oos_minimum_correct_rate": 0.75,
+    "domain_development_seed_minimum_correct_rate": 0.8333333333333334,
+    "domain_oos_maximum_wrong_rate": 0.03125,
+    "domain_development_seed_maximum_wrong_rate": 0.020833333333333332,
+    "domain_oos_maximum_noncorrect_rate": 0.25,
+    "domain_development_seed_maximum_abstention_rate": 0.16666666666666666,
+    "domain_development_aggregate_maximum_wrong_rate": 0.005208333333333333
+  },
+  "claim_boundary": "F4B ön-yöntem kabul sözleşmesidir; algoritma, değerlendirme, canlı RF veya ürün başarısı değildir."
+}

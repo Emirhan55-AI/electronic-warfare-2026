@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f4-evaluation-protocol-lock-v1",
+  "status": "locked-before-v5-method-development",
+  "inputs": {
+    "datasets/fixtures/phase04f4/acceptance-gates.json": "94a5005bdf5516039475dcf8bb521c071a7d6b1b3e96412e35ef0ee92e5f3b06",
+    "datasets/fixtures/phase04f4/development-catalog.json": "273bde60d20000e2f74917c73e6a9360fcf7c50e9fab387cd0812373ddcb7f51",
+    "datasets/fixtures/phase04f4/evaluation-commitments.json": "fe9550a7682c3a9fa8230cec954754758eab7296fc38686ea6bc7af04352bea9",
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "datasets/fixtures/phase04f3/acceptance-gates.json": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "results/evidence/phase04f4/f4a-analysis.json": "f63e329257e9b7c64ace5acaa4f0ba057bacf3168bfe4a01009c825c94bc568b",
+    "verification/phase04f4_analysis.py": "45342014e27c5aee1484d5b5b7879cb60cbc0369c79aefc5d340cd794a18336d",
+    "verification/phase04f4_scoring.py": "509a809641949c030dc5cfa2442a04f5a4e22065552a7834476e9bfaa62b3e52",
+    "scripts/verify_phase04f4a.py": "7199a6df282418bf6adc3f4891472ed06d8ca3cb6067922b84c6d0dbb7ee2b47",
+    "scripts/prepare_phase04f4_protocol.py": "8d6fc268538c96cd14207bd707c0c8ded0936613beb8021b526be1f74ddf6b28",
+    "scripts/lock_phase04f4_protocol.py": "b9d897d5992c55d97e092318e21d359165e0894b180989fc7f03a37a9197bc53",
+    "scripts/verify_phase04f4_protocol.py": "152fea8843b5752d4e26a366a0487628e31f24468f9ae060e10bb2b87d3ec53b",
+    "algorithms/parameters/scenes.py": "d5ceef7f4d66cb3aa4bc75263477212e58e9378b97e4b119879c7697cbddfd74",
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "profiles/phase03/operation-default.json": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "protected_historical_inputs": {
+    "datasets/fixtures/phase04f3/protocol-lock.json": "a3546d04c317e490b438242c9d13a5cc24fd3ff3922dc9d46d6279757b76d2d3",
+    "datasets/fixtures/phase04f3/method-lock-v4.json": "db0246d9c114b60d9002e2c0e170e4decc75391fe480578da084cb60d29b17a8",
+    "datasets/fixtures/phase04f3/evaluation-runner-lock-v4.json": "ded7494c28cf31ba069a473f2dc2c2acef5010c217955c0c96dc52fea145f787",
+    "datasets/fixtures/phase04f3/evaluation-seeds.json": "060760bb6087c996805a82c85af88069fbb6478d6f7edc762d600b394e941b14",
+    "datasets/fixtures/phase04f3/domain-model-v4.json": "ecefe48ef726174ae857f30ffcef774dcf95d710c09019532b3b3080d837675a",
+    "results/evidence/phase04f3/development-results-v4.json": "f58cc7abc59a9185b09ecb7cfaacdac2ac6c4875c984a35bf04f2aaebbae6776",
+    "results/evidence/phase04f3/binding-results-v4.json": "92a7550fe29f30e47a7edbc17aff1627d40e3fc3a1e39d2392d6b21e48da3401",
+    "results/evidence/phase04f3/oos-results-v4.json": "909f7415fd467e83f8fd66fafbe486a7ee0b76b31062845de2523faa3b22dea2",
+    "results/evidence/phase04f3/parameter-comparison-v4.json": "cfc5a87cb4a0583df578cc4d258747f4f247339084d0a930f16185b8a6be08c9",
+    "results/evidence/phase04f3/f3d-verification.json": "47a067f4a78c2d290c0195f6f8651d1cb54f964d91b45625d724b0a53ff3c1d4"
+  },
+  "scoring_coverage": {
+    "status": "passed",
+    "problems": [],
+    "base_check_counts": {
+      "binding": 40,
+      "oos": 24
+    },
+    "inherited_development_check_count": 14,
+    "additional_development_check_count": 4,
+    "combined_development_check_count": 18,
+    "required_diagnostic_count": 3
+  },
+  "evaluation_order": [
+    "protocol-lock",
+    "v5-development",
+    "method-lock",
+    "runner-lock",
+    "commit-and-push",
+    "seed-reveal",
+    "binding",
+    "oos",
+    "profile-binding"
+  ],
+  "runtime_ground_truth_allowed": false,
+  "f1_f2_f3_populations_allowed_for_tuning": false,
+  "threshold_changes_after_method_development_allowed": false,
+  "claim_boundary": "F4 protokol, scorer ve commitment kilididir; yöntem, değerlendirme veya ürün başarısı değildir.",
+  "protocol_lock_sha256": "ebcb4845fb69020b280d2e83ef6cfa05ad1b78491f3cb09c766c074c9c2e770c"
+}
