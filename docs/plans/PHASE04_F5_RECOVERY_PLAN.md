@@ -66,6 +66,11 @@ popülasyon yeniden çalıştırılmaz.
 
 ## Durum
 
-PHASE-04-F5A kullanıcı onayıyla tamamlanmıştır. F4D sonucu yeniden üretilmiş;
-OBW temporal ret sınıfı, seed genelleme payı ve geliştirme/OOS kapı uyumsuzluğu
-doğrulanmıştır. F5B başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
+PHASE-04-F5A ve F5B kullanıcı onayıyla tamamlanmıştır. F4D sonucu yeniden
+üretilmiş; OBW temporal ret sınıfı, seed genelleme payı ve geliştirme/OOS kapı
+uyumsuzluğu doğrulanmıştır. Sekiz yeni açık geliştirme seed'i F1-F4
+popülasyonlarından ayrılmış, yeni binding/OOS preimage'ları commitment ile
+kapatılmıştır. Korunan 18 geliştirme kontrolüne yedi OBW güvenlik kontrolü ve
+altı zorunlu tanı eklenmiştir. Aile başına 379/384 ve seed başına 47/48 geçerli
+OBW şartı yöntemden önce kilitlenmiştir. F5C başlatılmamış ve ayrı kullanıcı
+onayı beklemektedir.

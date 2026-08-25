@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f5-evaluation-protocol-lock-v1",
+  "status": "locked-before-v6-method-development",
+  "inputs": {
+    "datasets/fixtures/phase04f5/acceptance-gates.json": "f08088242de6a0a34f11b170524b61bb132cfbbd6b5fbec634b31e875b741f5e",
+    "datasets/fixtures/phase04f5/development-catalog.json": "5b32a0373f730d383e2530af45cf8b7a8b8c35dd50d6d50d2c8b499325046a58",
+    "datasets/fixtures/phase04f5/evaluation-commitments.json": "9501cde756b12ea10b9ba94c74def43c7907b03381ac337e322d5af19d841294",
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "datasets/fixtures/phase04f3/acceptance-gates.json": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "datasets/fixtures/phase04f4/acceptance-gates.json": "94a5005bdf5516039475dcf8bb521c071a7d6b1b3e96412e35ef0ee92e5f3b06",
+    "results/evidence/phase04f5/f5a-analysis.json": "423d49ddd5c9b512cdfbd692acc5c410c4a317e17bc605c97c5ece3f531ecf28",
+    "verification/phase04f5_analysis.py": "b0a8abd1fe7830d490b374f9df989fa6a6b6a9193774d9897d16623a953cc3d2",
+    "verification/phase04f5_scoring.py": "814f042ec3c55db79091986d75cc83454a5aa5ce03e96c324363f10dcb22f167",
+    "scripts/verify_phase04f5a.py": "8a5fdd7b50c1e61017eeef80bdf8e47887f6091c1556d26bfa05086cee890c39",
+    "scripts/prepare_phase04f5_protocol.py": "c71f09bcea1b665af3df4145c4be714ccd018fa6fc31d9562974afd861ef8cb0",
+    "scripts/lock_phase04f5_protocol.py": "c68beb11ea72603643ec9bcbe8aef4029dfcc11df82ec8bbf149f76841e12827",
+    "scripts/verify_phase04f5_protocol.py": "d3bfdb956258e3ff91e8c8c54f53f3c30e6be8c3dfa0a82c48ecf05df44810e0",
+    "algorithms/parameters/scenes.py": "d5ceef7f4d66cb3aa4bc75263477212e58e9378b97e4b119879c7697cbddfd74",
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "profiles/phase03/operation-default.json": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67"
+  },
+  "protected_historical_inputs": {
+    "datasets/fixtures/phase04f4/protocol-lock.json": "8e36e6dc34ecd909c1c06be6cc8500d7b547139a8cddd63ea52d93abac0ec2da",
+    "datasets/fixtures/phase04f4/method-lock-v5.json": "12fa82dc20365cdec4272afdc60cf98f7bd03848a4056d73f8413938febd6058",
+    "datasets/fixtures/phase04f4/evaluation-runner-lock-v5.json": "5b3bce3ea9d7434a7635749809b5b83e152ac1d3bf2b0786b9a4cbc4b7df3806",
+    "datasets/fixtures/phase04f4/evaluation-seeds.json": "9418edead8c030322f1b933a2d6f03ebf0e20c389d4ed99846666fbb42f4ba12",
+    "datasets/fixtures/phase04f4/domain-model-v5.json": "fefe27666741160147edf355fcadcfb718a20eb6c8d265e6dff7dbf8b7572b88",
+    "results/evidence/phase04f4/development-results-v5.json": "bf6e47cbbfccf1ef51534fcb276e8c59ffecca63bfd7a3b6b0753b458feef3ef",
+    "results/evidence/phase04f4/binding-results-v5.json": "3633b38c51f7461090cea73f1c91bf8e863cba7bbf07dd8d39573508941e98c0",
+    "results/evidence/phase04f4/oos-results-v5.json": "57d37a0b282eb8d96ce0d65fb212b197f2362400421d1fac324d59fc30516864",
+    "results/evidence/phase04f4/parameter-comparison-v5.json": "020aaeedd4844ac23f82ae3bdffe70acd3573e6c15b7d80ebb616658b9644224",
+    "results/evidence/phase04f4/f4d-verification.json": "7bdf7be0c5585e3053b09d3216b42b7553383b6ddaa3ac178800f517bd30bbcf"
+  },
+  "scoring_coverage": {
+    "status": "passed",
+    "problems": [],
+    "base_check_counts": {
+      "binding": 40,
+      "oos": 24
+    },
+    "f3_development_check_count": 14,
+    "f4_additional_development_check_count": 4,
+    "inherited_combined_development_check_count": 18,
+    "f5_additional_development_check_count": 7,
+    "combined_development_check_count": 25,
+    "required_diagnostic_count": 6
+  },
+  "evaluation_order": [
+    "protocol-lock",
+    "v6-development",
+    "method-lock",
+    "runner-lock",
+    "commit-and-push",
+    "seed-reveal",
+    "binding",
+    "oos",
+    "profile-binding"
+  ],
+  "runtime_ground_truth_allowed": false,
+  "f1_f2_f3_f4_populations_allowed_for_tuning": false,
+  "threshold_changes_after_method_development_allowed": false,
+  "claim_boundary": "F5 protokol, scorer ve commitment kilididir; yöntem, değerlendirme, FPGA entegrasyonu veya ürün başarısı değildir.",
+  "protocol_lock_sha256": "5de0202fa98fb95de2dadad84ab0dfd6a939feb0dbc3dd4b47b9f206ef0a3095"
+}

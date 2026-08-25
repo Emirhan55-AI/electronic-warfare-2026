@@ -165,10 +165,13 @@ salt-okunur kök neden analizi tamamlanmıştır. F4D kararları yeniden üretil
 OBW yönteminin v3-v5 boyunca değişmediği, kalan retlerin clipping veya genel
 ölçüm kalitesinden değil zamansal kenar kararsızlığından geldiği ve geliştirme
 aile kapısının %90 iken OOS kapısının %96,875 olduğu doğrulanmıştır. F3/F4 ek
-kapılarında seed bazlı OBW geçerlilik payı yoktur. Yeni açık F5 verisinde bu pay
-yöntemden önce kilitlenmeden F5C başlatılamaz. F5B ayrı kullanıcı onayı bekler;
-F5E yalnız bütün kapılar geçerse host ürün profilini etkinleştirir ve FPGA
-entegrasyonu anlamına gelmez.
+kapılarında seed bazlı OBW geçerlilik payı yoktur. Kullanıcı onayıyla tamamlanan
+F5B'de sekiz yeni açık seed F1-F4 popülasyonlarından ayrılmış, yeni binding/OOS
+preimage'ları commitment ile kapatılmıştır. Korunan 18 geliştirme kontrolüne
+yedi OBW güvenlik kontrolü ve altı zorunlu tanı eklenmiş; aile başına 379/384,
+seed başına 47/48 geçerli OBW şartı yöntemden önce kilitlenmiştir. F5C ayrı
+kullanıcı onayı bekler. F5E yalnız bütün kapılar geçerse host ürün profilini
+etkinleştirir ve FPGA entegrasyonu anlamına gelmez.
 
 ## Erken hazırlık istisnası: PHASE-08A
 
