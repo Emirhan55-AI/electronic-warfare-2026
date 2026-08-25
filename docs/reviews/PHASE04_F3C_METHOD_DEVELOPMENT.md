@@ -18,7 +18,7 @@ binding/OOS değerlendirmesi için ayrı kullanıcı onayı gerekir.
   karenin her birindeki zamansal destekle birleştirir. Yüksek spektral entropi
   ile negatif zarf çarpıklığının birlikte görüldüğü çizgi-benzeri sayısal
   artifaktlar reddedilir.
-- Sinyal alanı kararı, v3 karmaşık zarf/başlangıç istatistiklerine normalize
+- Sinyal alanı kararı, v3 karmaşık zarf/faz istatistiklerine normalize
   zarfın dönüşüm spektrumundan yüksek bant güç oranı ve spektral merkez ekler.
   Sınıflandırma, seed dışarıda bırakmalı prototip geliştirmesi ve mesafe/marj
   reddi kullanır.
@@ -56,7 +56,7 @@ OOK taşıyıcı tespitinde 384 açık geliştirme ölçümünün 375'i geçerli
 vermiştir. BPSK, QPSK, 2-FSK, burst-QPSK ve geniş bant gürültü-benzeri 1.920
 uygulanamaz ölçümün hiçbirine taşıyıcı çizgisi atanmamıştır.
 
-Sinyal alanı kararında 6 dB'de bütün aileler birlikte 5.376 değerlendirmenin
+Sinyal alanı kararında 6 dB'de bütün aileler birlikte 2.688 değerlendirmenin
 %91,74'ünü doğru sınıflandırmış, %0,074'ünde yanlış kesin karar vermiştir. OOK
 özel risk sayımında 384 ölçümde yanlış kesin karar yoktur; 368 doğru, 16
 belirsiz sonuç vardır. 0 dB ana geliştirme popülasyonunda iki OOK ölçümü yanlış
