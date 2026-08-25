@@ -173,6 +173,14 @@ seed başına 47/48 geçerli OBW şartı yöntemden önce kilitlenmiştir. F5C a
 kullanıcı onayı bekler. F5E yalnız bütün kapılar geçerse host ürün profilini
 etkinleştirir ve FPGA entegrasyonu anlamına gelmez.
 
+Kullanıcı onayıyla başlatılan F5C'nin ilk açık geliştirme taramasında 3,0-5,0
+bin arasındaki beş bounded temporal-recovery adayı aynı 3.072 ölçümde
+karşılaştırılmış, hiçbiri 25 kilitli geliştirme kontrolünün tamamını geçmemiştir.
+En geniş aday aile minimumunda 377/384 ve seed minimumunda 46/48 kalmış; NFM üst
+kenar q95 hatası da 2 bin sınırını aşmıştır. Basit eşik genişletmesi yöntem olarak
+seçilmemiş, negatif aday kanıtı korunmuştur. F5C yapısal OBW iyileştirmesiyle açık
+kalmaktadır; değerlendirme seed'leri açılmamıştır.
+
 ## Erken hazırlık istisnası: PHASE-08A
 
 PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.

@@ -74,3 +74,10 @@ kapatılmıştır. Korunan 18 geliştirme kontrolüne yedi OBW güvenlik kontrol
 altı zorunlu tanı eklenmiştir. Aile başına 379/384 ve seed başına 47/48 geçerli
 OBW şartı yöntemden önce kilitlenmiştir. F5C başlatılmamış ve ayrı kullanıcı
 onayı beklemektedir.
+
+F5C'nin ilk açık geliştirme deneyi 3,0; 3,25; 3,5; 4,0 ve 5,0 bin
+temporal-recovery üst sınırlarını aynı 3.072 ölçümde karşılaştırmıştır. Hiçbir
+aday kilitli kapıların tamamını geçmemiştir. 5,0 bin adayı aile minimumunda
+377/384, seed minimumunda 46/48 kalmış; NFM üst kenar q95 hatası 2 bin sınırını
+aşmıştır. Basit eşik genişletmesi seçilmemiştir. Sonraki F5C adımı NFM kenar
+bias'ı ile temporal recovery'yi birlikte ele alan yapısal aday geliştirmesidir.

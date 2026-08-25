@@ -1,0 +1,876 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f5-obw-candidate-analysis-v6",
+  "role": "development-only",
+  "status": "no-candidate-passed",
+  "population": {
+    "seed_count": 8,
+    "trials_per_seed_per_family": 48,
+    "total_trials_per_family": 384,
+    "snr_db": 12.0,
+    "frames_per_measurement": 4
+  },
+  "candidates": [
+    {
+      "temporal_recovery_limit_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 372,
+        "obw.seed_min_valid_count_12_db": 44,
+        "obw.family_max_relative_q95_12_db": 0.15045048758205373,
+        "obw.family_max_lower_edge_q95_bins_12_db": 1.898456043474198,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.3249326646359805,
+        "obw.family_max_temporal_rejection_count_12_db": 12
+      },
+      "families": {
+        "am": {
+          "valid_count": 373,
+          "seed_valid_counts": [
+            47,
+            46,
+            45,
+            46,
+            47,
+            47,
+            47,
+            48
+          ],
+          "relative_q95": 0.10055245886764334,
+          "lower_edge_q95_bins": 0.9224798392758657,
+          "upper_edge_q95_bins": 0.8815253151553861,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 11
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "nfm": {
+          "valid_count": 374,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            46,
+            48,
+            45,
+            44,
+            47
+          ],
+          "relative_q95": 0.13888368202643314,
+          "lower_edge_q95_bins": 1.67506697195995,
+          "upper_edge_q95_bins": 2.3249326646359805,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 10
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "ook": {
+          "valid_count": 373,
+          "seed_valid_counts": [
+            47,
+            45,
+            46,
+            47,
+            45,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.15045048758205373,
+          "lower_edge_q95_bins": 1.4408979534152877,
+          "upper_edge_q95_bins": 1.5338751889007654,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 11
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "two_fsk": {
+          "valid_count": 379,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            45,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.09776605309430321,
+          "lower_edge_q95_bins": 1.898456043474198,
+          "upper_edge_q95_bins": 1.9912371793625425,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 5
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "bpsk": {
+          "valid_count": 372,
+          "seed_valid_counts": [
+            46,
+            45,
+            48,
+            46,
+            47,
+            47,
+            46,
+            47
+          ],
+          "relative_q95": 0.11415170677529413,
+          "lower_edge_q95_bins": 1.1008279580253202,
+          "upper_edge_q95_bins": 1.1515755744690068,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 12
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "qpsk": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            47,
+            48,
+            48
+          ],
+          "relative_q95": 0.059894701490284974,
+          "lower_edge_q95_bins": 1.3448054733771642,
+          "upper_edge_q95_bins": 1.3775943268169613,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.00768758071854056,
+          "lower_edge_q95_bins": 0.6067741543060947,
+          "upper_edge_q95_bins": 0.5444424480174348,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": null
+        },
+        "burst_qpsk": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            46,
+            47,
+            47,
+            46
+          ],
+          "relative_q95": 0.06920954898897813,
+          "lower_edge_q95_bins": 1.7322938401107422,
+          "upper_edge_q95_bins": 1.7407970837862194,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": null
+        }
+      }
+    },
+    {
+      "temporal_recovery_limit_bins": 3.25,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 373,
+        "obw.seed_min_valid_count_12_db": 44,
+        "obw.family_max_relative_q95_12_db": 0.15045048758205373,
+        "obw.family_max_lower_edge_q95_bins_12_db": 1.898456043474198,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.3249326646359805,
+        "obw.family_max_temporal_rejection_count_12_db": 11
+      },
+      "families": {
+        "am": {
+          "valid_count": 373,
+          "seed_valid_counts": [
+            47,
+            46,
+            45,
+            46,
+            47,
+            47,
+            47,
+            48
+          ],
+          "relative_q95": 0.10055245886764334,
+          "lower_edge_q95_bins": 0.9224798392758657,
+          "upper_edge_q95_bins": 0.8815253151553861,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 11
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "nfm": {
+          "valid_count": 374,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            46,
+            48,
+            45,
+            44,
+            47
+          ],
+          "relative_q95": 0.13888368202643314,
+          "lower_edge_q95_bins": 1.67506697195995,
+          "upper_edge_q95_bins": 2.3249326646359805,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 10
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "ook": {
+          "valid_count": 375,
+          "seed_valid_counts": [
+            47,
+            46,
+            46,
+            47,
+            46,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.15045048758205373,
+          "lower_edge_q95_bins": 1.4423189813658155,
+          "upper_edge_q95_bins": 1.5338751889007654,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 9
+          },
+          "recovered_temporal_range_q95_bins": 3.1935411850721493
+        },
+        "two_fsk": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            46,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.09776605309430321,
+          "lower_edge_q95_bins": 1.898456043474198,
+          "upper_edge_q95_bins": 1.9535187262981708,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          },
+          "recovered_temporal_range_q95_bins": 3.18812605672224
+        },
+        "bpsk": {
+          "valid_count": 375,
+          "seed_valid_counts": [
+            46,
+            46,
+            48,
+            47,
+            48,
+            47,
+            46,
+            47
+          ],
+          "relative_q95": 0.11791986541558167,
+          "lower_edge_q95_bins": 1.1255872427798295,
+          "upper_edge_q95_bins": 1.164475873431229,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 9
+          },
+          "recovered_temporal_range_q95_bins": 3.228508224401253
+        },
+        "qpsk": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            47,
+            48,
+            48
+          ],
+          "relative_q95": 0.059894701490284974,
+          "lower_edge_q95_bins": 1.3448054733771642,
+          "upper_edge_q95_bins": 1.3775943268169613,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          },
+          "recovered_temporal_range_q95_bins": null
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.00768758071854056,
+          "lower_edge_q95_bins": 0.6067741543060947,
+          "upper_edge_q95_bins": 0.5444424480174348,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": null
+        },
+        "burst_qpsk": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            46,
+            47,
+            47,
+            46
+          ],
+          "relative_q95": 0.06920954898897813,
+          "lower_edge_q95_bins": 1.7322938401107422,
+          "upper_edge_q95_bins": 1.7407970837862194,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": null
+        }
+      }
+    },
+    {
+      "temporal_recovery_limit_bins": 3.5,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 375,
+        "obw.seed_min_valid_count_12_db": 44,
+        "obw.family_max_relative_q95_12_db": 0.15132208837418906,
+        "obw.family_max_lower_edge_q95_bins_12_db": 1.9006042345158676,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.4340939170333513,
+        "obw.family_max_temporal_rejection_count_12_db": 9
+      },
+      "families": {
+        "am": {
+          "valid_count": 375,
+          "seed_valid_counts": [
+            47,
+            46,
+            46,
+            46,
+            47,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.10072428482821305,
+          "lower_edge_q95_bins": 0.9512746781738315,
+          "upper_edge_q95_bins": 0.8815253151553861,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 9
+          },
+          "recovered_temporal_range_q95_bins": 3.4080737224319364
+        },
+        "nfm": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            47,
+            48,
+            46,
+            44,
+            47
+          ],
+          "relative_q95": 0.13888368202643314,
+          "lower_edge_q95_bins": 1.67506697195995,
+          "upper_edge_q95_bins": 2.4340939170333513,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": 3.3625906176680473
+        },
+        "ook": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            47,
+            47,
+            46,
+            47,
+            46,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.15132208837418906,
+          "lower_edge_q95_bins": 1.4423189813658155,
+          "upper_edge_q95_bins": 1.5458409841378398,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": 3.443536139621415
+        },
+        "two_fsk": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.09776605309430321,
+          "lower_edge_q95_bins": 1.9006042345158676,
+          "upper_edge_q95_bins": 1.9535187262981708,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          },
+          "recovered_temporal_range_q95_bins": 3.250090663754918
+        },
+        "bpsk": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            46,
+            46,
+            48,
+            48,
+            48,
+            47,
+            46,
+            47
+          ],
+          "relative_q95": 0.11791986541558167,
+          "lower_edge_q95_bins": 1.2239134452959206,
+          "upper_edge_q95_bins": 1.164475873431229,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": 3.2886092440885477
+        },
+        "qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.06171567635711359,
+          "lower_edge_q95_bins": 1.3448054733771642,
+          "upper_edge_q95_bins": 1.424721088914339,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          },
+          "recovered_temporal_range_q95_bins": 3.2591933270014124
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.00768758071854056,
+          "lower_edge_q95_bins": 0.6067741543060947,
+          "upper_edge_q95_bins": 0.5444424480174348,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": null
+        },
+        "burst_qpsk": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            46,
+            47,
+            47,
+            46
+          ],
+          "relative_q95": 0.06920954898897813,
+          "lower_edge_q95_bins": 1.7322938401107422,
+          "upper_edge_q95_bins": 1.7407970837862194,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": null
+        }
+      }
+    },
+    {
+      "temporal_recovery_limit_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 376,
+        "obw.seed_min_valid_count_12_db": 45,
+        "obw.family_max_relative_q95_12_db": 0.15132208837418906,
+        "obw.family_max_lower_edge_q95_bins_12_db": 1.949568958250893,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.4761872613225933,
+        "obw.family_max_temporal_rejection_count_12_db": 8
+      },
+      "families": {
+        "am": {
+          "valid_count": 379,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            46,
+            47,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.11605943891748434,
+          "lower_edge_q95_bins": 0.9654572399283552,
+          "upper_edge_q95_bins": 0.8816091608271108,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 5
+          },
+          "recovered_temporal_range_q95_bins": 3.9326848174665656
+        },
+        "nfm": {
+          "valid_count": 378,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            46,
+            45,
+            47
+          ],
+          "relative_q95": 0.13888368202643314,
+          "lower_edge_q95_bins": 1.67506697195995,
+          "upper_edge_q95_bins": 2.4761872613225933,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 6
+          },
+          "recovered_temporal_range_q95_bins": 3.706945210918093
+        },
+        "ook": {
+          "valid_count": 377,
+          "seed_valid_counts": [
+            48,
+            47,
+            46,
+            47,
+            46,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.15132208837418906,
+          "lower_edge_q95_bins": 1.4423189813658155,
+          "upper_edge_q95_bins": 1.5458409841378398,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 7
+          },
+          "recovered_temporal_range_q95_bins": 3.621727721649222
+        },
+        "two_fsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.09776605309430321,
+          "lower_edge_q95_bins": 1.949568958250893,
+          "upper_edge_q95_bins": 1.9535187262981708,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          },
+          "recovered_temporal_range_q95_bins": 3.735880417833414
+        },
+        "bpsk": {
+          "valid_count": 379,
+          "seed_valid_counts": [
+            47,
+            46,
+            48,
+            48,
+            48,
+            48,
+            47,
+            47
+          ],
+          "relative_q95": 0.12212414504772816,
+          "lower_edge_q95_bins": 1.2239134452959206,
+          "upper_edge_q95_bins": 1.1775699536303819,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 5
+          },
+          "recovered_temporal_range_q95_bins": 3.9443206732935323
+        },
+        "qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.06171567635711359,
+          "lower_edge_q95_bins": 1.3448054733771642,
+          "upper_edge_q95_bins": 1.424721088914339,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          },
+          "recovered_temporal_range_q95_bins": 3.2591933270014124
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.00768758071854056,
+          "lower_edge_q95_bins": 0.6067741543060947,
+          "upper_edge_q95_bins": 0.5444424480174348,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": null
+        },
+        "burst_qpsk": {
+          "valid_count": 376,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            46,
+            47,
+            47,
+            46
+          ],
+          "relative_q95": 0.06920954898897813,
+          "lower_edge_q95_bins": 1.7322938401107422,
+          "upper_edge_q95_bins": 1.7407970837862194,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 8
+          },
+          "recovered_temporal_range_q95_bins": null
+        }
+      }
+    },
+    {
+      "temporal_recovery_limit_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 377,
+        "obw.seed_min_valid_count_12_db": 46,
+        "obw.family_max_relative_q95_12_db": 0.15400085277441003,
+        "obw.family_max_lower_edge_q95_bins_12_db": 1.949568958250893,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.4761872613225933,
+        "obw.family_max_temporal_rejection_count_12_db": 7
+      },
+      "families": {
+        "am": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.10072428482821305,
+          "lower_edge_q95_bins": 0.9512746781738315,
+          "upper_edge_q95_bins": 0.8815253151553861,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          },
+          "recovered_temporal_range_q95_bins": 4.8806989915150325
+        },
+        "nfm": {
+          "valid_count": 380,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            46,
+            46,
+            48
+          ],
+          "relative_q95": 0.13888368202643314,
+          "lower_edge_q95_bins": 1.67506697195995,
+          "upper_edge_q95_bins": 2.4761872613225933,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 4
+          },
+          "recovered_temporal_range_q95_bins": 4.568173247452705
+        },
+        "ook": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47,
+            48
+          ],
+          "relative_q95": 0.15400085277441003,
+          "lower_edge_q95_bins": 1.4910399330840391,
+          "upper_edge_q95_bins": 1.5944712622540465,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          },
+          "recovered_temporal_range_q95_bins": 4.823897532261981
+        },
+        "two_fsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.09776605309430321,
+          "lower_edge_q95_bins": 1.949568958250893,
+          "upper_edge_q95_bins": 1.9535187262981708,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          },
+          "recovered_temporal_range_q95_bins": 3.735880417833414
+        },
+        "bpsk": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            47,
+            47
+          ],
+          "relative_q95": 0.12212414504772816,
+          "lower_edge_q95_bins": 1.2239134452959206,
+          "upper_edge_q95_bins": 1.164475873431229,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          },
+          "recovered_temporal_range_q95_bins": 4.329258929669095
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.06171567635711359,
+          "lower_edge_q95_bins": 1.3448054733771642,
+          "upper_edge_q95_bins": 1.424721088914339,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": 4.791012061818947
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "relative_q95": 0.00768758071854056,
+          "lower_edge_q95_bins": 0.6067741543060947,
+          "upper_edge_q95_bins": 0.5444424480174348,
+          "rejection_reason_counts": {},
+          "recovered_temporal_range_q95_bins": null
+        },
+        "burst_qpsk": {
+          "valid_count": 377,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            46,
+            47,
+            47,
+            47
+          ],
+          "relative_q95": 0.06962378162148923,
+          "lower_edge_q95_bins": 1.7510048792923953,
+          "upper_edge_q95_bins": 1.7407970837862194,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 7
+          },
+          "recovered_temporal_range_q95_bins": 4.66793221971011
+        }
+      }
+    }
+  ],
+  "selected_temporal_recovery_limit_bins": null,
+  "selection_policy": "Kilitli kapıların tamamını geçen en küçük temporal recovery üst sınırı seçilir.",
+  "claim_boundary": "Yalnız açık F5 geliştirme seed'lerinde aday karşılaştırmasıdır; binding/OOS, FPGA veya ürün sonucu değildir."
+}
