@@ -60,6 +60,13 @@ salt-okunur olay günlüğüyle yenilemiştir. Host üzerinde çalışan aşamal
 çalışıyormuş gibi gösterilmez; RTL veya taşınabilir C karşılıkları kart kabulü
 olarak sunulmaz. Yayın varsayılanında kaynak konumu açma ve komut yürütme yüzeyi
 kapalıdır. Bu bakım algoritma doğruluğu veya donanım kabul iddiasını değiştirmez.
+Altıncı bakım paketi Spektrum çalışma alanında tarama komutlarını frekans görünümü
+başlığında toplamış; seçili tespit kimliği, frekansı, tepe/gürültü oranı ve
+durumunu sabit `Sinyal Görevi` bağlamına taşımıştır. `Tespitler` ve `Ölçüm`
+görünümleri operatör seçimiyle aynı sabit panelde değiştirilir; seçim, görev
+görünümünü kendiliğinden değiştirmez. Minimum çözünürlükte iki görünüm ayrı ayrı
+render ve performans kapısına alınmıştır. Algoritma ve RF doğruluk kapsamı
+değişmemiştir.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.

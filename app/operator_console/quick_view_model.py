@@ -353,6 +353,26 @@ class OperatorViewModel(QObject):
             for item in self._detections
         )
 
+    @Property(str, notify=detectionsChanged)
+    def selectedDetectionTitle(self) -> str:
+        selected = self._selected_detection_item()
+        return str(selected["title"]) if selected is not None else "Tespit seçilmedi"
+
+    @Property(str, notify=detectionsChanged)
+    def selectedDetectionFrequencyText(self) -> str:
+        selected = self._selected_detection_item()
+        return str(selected["frequency"]) if selected is not None else "—"
+
+    @Property(str, notify=detectionsChanged)
+    def selectedDetectionContrastText(self) -> str:
+        selected = self._selected_detection_item()
+        return str(selected["snr"]) if selected is not None else "—"
+
+    @Property(str, notify=detectionsChanged)
+    def selectedDetectionStateText(self) -> str:
+        selected = self._selected_detection_item()
+        return str(selected["state"]) if selected is not None else "Seçim bekleniyor"
+
     @Property(float, notify=detectionsChanged)
     def selectedRegionStartNormalized(self) -> float:
         return self._selected_detection_coordinate("startNormalized")
@@ -497,26 +517,15 @@ class OperatorViewModel(QObject):
 
     @Property(str, notify=detectionsChanged)
     def listeningDetectionTitle(self) -> str:
-        selected = next(
-            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
-            None,
-        )
-        return str(selected["title"]) if selected is not None else "Tespit seçilmedi"
+        return self.selectedDetectionTitle
 
     @Property(str, notify=detectionsChanged)
     def listeningDetectionFrequencyText(self) -> str:
-        selected = next(
-            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
-            None,
-        )
-        return str(selected["frequency"]) if selected is not None else "—"
+        return self.selectedDetectionFrequencyText
 
     @Property(float, notify=detectionsChanged)
     def selectedDetectionOffsetKHz(self) -> float:
-        selected = next(
-            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
-            None,
-        )
+        selected = self._selected_detection_item()
         return float(selected["offsetKHz"]) if selected is not None else 0.0
 
     @Property(bool, notify=listeningChanged)
@@ -1406,11 +1415,14 @@ class OperatorViewModel(QObject):
             return self._analysis_span.lower_shifted_bin, self._analysis_span.upper_shifted_bin
         return self._analysis_span_draft
 
-    def _selected_detection_coordinate(self, field: str) -> float:
-        selected = next(
+    def _selected_detection_item(self) -> dict[str, object] | None:
+        return next(
             (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
             None,
         )
+
+    def _selected_detection_coordinate(self, field: str) -> float:
+        selected = self._selected_detection_item()
         return float(selected[field]) if selected is not None else -1.0
 
     @staticmethod

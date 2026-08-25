@@ -11,7 +11,8 @@ Uygulamanın mevcut çalışma alanları:
   operatör onaylı sinyal parametre ölçümü. Spektrum ve spektrogram aynı
   yakınlaştırma/kaydırma frekans penceresini kullanır. Frekans imleci iki
   görünümde eşleşir; görünüm geçmişi korunur ve `Shift+sürükle` analiz aralığı
-  taslağını gerçek FFT hücrelerine bağlar.
+  taslağını gerçek FFT hücrelerine bağlar. Seçili sinyal bağlamı sabit kalırken
+  `Tespitler` ve `Ölçüm` aynı görev panelinde operatör seçimiyle değiştirilir.
 - `Dinleme`: doğrulanmış tespitten operatör seçimli AM/NFM kanal hazırlama, ses
   dalga biçimi, oynatma durumu ve WAV dışa aktarma.
 - `Yön Bulma`: gerçek I/Q gücünün elle girilen anten açısıyla kaydı, bağıl geliş
@@ -30,9 +31,10 @@ Kesintisiz dinleme, kaynakta en az beş saniyelik I/Q bulunmasını gerektirir.
 Daha kısa kayıtlar yalnız süreleri açıkça gösterilen kısa önizleme üretir; canlı
 HackRF ses saha kabulü tamamlanmış sayılmaz.
 
-Tespit listesi görev sırasında sabit kalır. Sinyal ölçümü ve Dinleme ayarları,
-dar ekranlarda üst seviye gezinmeyi veya tespit seçimini hareket ettirmeden kendi
-panelleri içinde kaydırılır.
+Tespit listesi görev sırasında sabit kalır. Tespit listesi ile sinyal ölçümü aynı
+anda daraltılmaz; sabit seçili sinyal kartının altındaki ayrı görev görünümlerinde
+açılır. Dinleme ayarları dar ekranlarda üst seviye gezinmeyi veya seçili sinyal
+bağlamını hareket ettirmeden kendi panelinde kaydırılır.
 
 Çalıştırma:
 

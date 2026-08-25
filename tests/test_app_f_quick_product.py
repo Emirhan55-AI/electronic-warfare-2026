@@ -66,7 +66,10 @@ root.resetSpectrumView(); app.processEvents()
 workspaces=[]
 for index in range(4):
     root.setProperty("workspace",index); app.processEvents(); workspaces.append(root.property("workspace"))
-payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None,"pipeline_list":root.findChild(QObject,"pipelineList") is not None,"system_log":root.findChild(QObject,"systemLog") is not None}
+root.setProperty("workspace",0); root.setProperty("spectrumTaskTab",1); app.processEvents()
+task_tab=root.property("spectrumTaskTab")
+root.setProperty("workspace",3); app.processEvents()
+payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"task_tab":task_tab,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"detection_list":root.findChild(QObject,"detectionList") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None,"pipeline_list":root.findChild(QObject,"pipelineList") is not None,"system_log":root.findChild(QObject,"systemLog") is not None}
 view_model.shutdown(); root.close()
 print(json.dumps(payload, ensure_ascii=False))
 """
@@ -79,7 +82,9 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual([0.25, 0.75], payload["forward"])
         self.assertEqual([0.0, 1.0], payload["reset"])
         self.assertEqual([0, 1, 2, 3], payload["workspaces"])
+        self.assertEqual(1, payload["task_tab"])
         self.assertTrue(payload["measurement_scroll"])
+        self.assertTrue(payload["detection_list"])
         self.assertTrue(payload["listening_scroll"])
         self.assertTrue(payload["pipeline_list"])
         self.assertTrue(payload["system_log"])
@@ -174,7 +179,7 @@ drawn_status=view_model.statusMessage
 view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
 view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
-payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft,"drawn_draft":drawn_draft,"drawn_status":drawn_status}
+payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft,"drawn_draft":drawn_draft,"drawn_status":drawn_status,"selected_title":view_model.selectedDetectionTitle,"selected_frequency":view_model.selectedDetectionFrequencyText,"selected_contrast":view_model.selectedDetectionContrastText,"selected_state":view_model.selectedDetectionStateText}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
 """
@@ -189,6 +194,10 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertLess(payload["drawn_draft"][0], payload["selection"][1])
         self.assertGreater(payload["drawn_draft"][1], payload["selection"][1])
         self.assertIn("spektrum üzerinden", payload["drawn_status"])
+        self.assertTrue(payload["selected_title"].startswith("Tespit #"))
+        self.assertNotEqual("—", payload["selected_frequency"])
+        self.assertTrue(payload["selected_contrast"].endswith("dB"))
+        self.assertEqual("Doğrulandı", payload["selected_state"])
         self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
         labels = [row["label"] for row in payload["after"]]
         self.assertNotIn("Tepe bin gücü", labels)
@@ -252,8 +261,9 @@ print(json.dumps(payload,ensure_ascii=False))
             "panSpectrum",
             "spectrumViewBack",
             "setAnalysisSpanDraftNormalized",
-            "Layout.preferredHeight: root.height < 780 ? 190 : 250",
+            "property int spectrumTaskTab: 0",
             "onPressed: operatorViewModel.selectDetection",
+            'objectName: "detectionList"',
             'objectName: "measurementScroll"',
             'objectName: "listeningSettingsScroll"',
             'objectName: "pipelineList"',

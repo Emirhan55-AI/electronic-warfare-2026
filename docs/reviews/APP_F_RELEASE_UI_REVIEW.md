@@ -11,7 +11,9 @@
 Ürün giriş noktası Qt Quick/QML'dir. Kalıcı çalışma alanları `Spektrum`,
 `Dinleme`, `Yön Bulma` ve `Sistem` olarak sınırlandırılmıştır. Spektrum ekranı
 kaynak sözleşmesi, spektrum, 48 satırlık spektrogram, zamansal tespit listesi ve
-seçili olayın operatör onaylı parametre ölçümünü birlikte taşır. Dinleme alanı
+seçili olayın operatör onaylı parametre ölçümünü birlikte taşır. Seçili sinyal
+bağlamı sabit kalır; tespit listesi ve ölçüm formu aynı görev panelinde açık sekme
+seçimiyle değiştirilir. Dinleme alanı
 aynı seçili tespit bağlamında AM/NFM kanal hazırlama ve doğrulanmış kayıt kapsamı
 için ses çıktısını sunar.
 
@@ -35,8 +37,9 @@ nedeni taşır; 20 kayıtla sınırlıdır ve komut çalıştırmaz.
 
 ## Görsel ve kullanım denetimi
 
-Gerçek QML yüzeyi 1280×720, 1366×768, 1920×1080 ve %150 ölçeklemede render
-edilmiştir. Minimum ekran, karanlık tema kontrastı, seçim alanları, odak sınırları,
+Gerçek QML yüzeyi 1280×720, 1366×768, 1920×1080 ve %150 ölçeklemede beş ayrı
+görünümde render edilmiştir. Minimum ekranda `Tespitler` ve `Ölçüm` görünümleri
+ayrı ayrı denetlenmiştir. Karanlık tema kontrastı, seçim alanları, odak sınırları,
 taşma ve son işleme bloğu görsel olarak incelenmiştir. Klavye kısayolları:
 
 - `Ctrl+O`: SigMF kaydı açma
@@ -50,8 +53,10 @@ sıfırlar; spektrum ve ölçüm sayıları dekoratif animasyon kullanmaz.
 ## Ölçüm sonucu
 
 Kanıt koşuları hash-kilitli `known-tone-ci8` SigMF kaydını, offscreen Qt platformu
-ve yazılım Qt Quick backend'ini kullanır. Her ekran profilinde 2,5 saniyelik 10 Hz
-güncelleme koşusu yapılır. Kabul kapıları:
+ve yazılım Qt Quick backend'ini kullanır. Kaynak doğrulaması tamamlandıktan sonra
+her ekran profilinde 2,5 saniyelik 10 Hz güncelleme ve arayüz heartbeat koşusu
+yapılır; kaynak açılış süresi çalışma zamanı tepkisellik ölçümüne katılmaz. Kabul
+kapıları:
 
 - gözlenen güncelleme ≥ 9 Hz;
 - işleme p95 < 100 ms;
@@ -61,6 +66,7 @@ güncelleme koşusu yapılır. Kabul kapıları:
 - işlem zinciri, yapılandırılmış olay günlüğü ve yayın modunda kapalı kaynak
   konumu denetimi mevcut;
 - spektrum ve spektrogram ortak frekans görünümüne bağlı.
+- `Tespitler` ve `Ölçüm` minimum çözünürlükte ayrı ayrı yüklenir.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli

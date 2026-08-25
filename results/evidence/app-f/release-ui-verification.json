@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-25T21:18:28Z",
+  "recorded_at": "2026-08-25T21:41:31Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -23,9 +23,10 @@
       "captured_width": 1280,
       "captured_height": 720,
       "workspace": 0,
+      "spectrum_task_tab": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 562,
+      "spectrum_points": 572,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
@@ -42,10 +43,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.192881399664438,
-      "processing_median_ms": 2.8717999812215567,
-      "processing_p95_ms": 3.5239001736044884,
-      "maximum_heartbeat_gap_ms": 66.60349993035197,
+      "observed_update_hz": 9.192166435613009,
+      "processing_median_ms": 3.1254999339580536,
+      "processing_p95_ms": 3.9093000814318657,
+      "maximum_heartbeat_gap_ms": 46.61469999700785,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -127,7 +128,122 @@
         "time"
       ],
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "5f0b04db9ef99f264cdff6ae03a1f0218d8a16d662a23b1a8e50781eca99f259"
+      "screenshot_sha256": "ad442559cfa49cb067d48c93511a73da70244ed6112a03e456462f29abc356ba"
+    },
+    {
+      "name": "measurement-1280x720",
+      "logical_width": 1280,
+      "logical_height": 720,
+      "scale_factor": 1.0,
+      "captured_width": 1280,
+      "captured_height": 720,
+      "workspace": 0,
+      "spectrum_task_tab": 1,
+      "source_ready": true,
+      "source_state": "Hazır",
+      "spectrum_points": 572,
+      "visible_detections": 12,
+      "selected_detection_id": 1,
+      "selected_region": [
+        0.5606837606837607,
+        0.5626373626373626,
+        0.5645909645909646
+      ],
+      "analysis_span": [
+        0.5584859584859585,
+        0.5667887667887668
+      ],
+      "spectrum_view": [
+        0.375,
+        0.625
+      ],
+      "processed_frames": 23,
+      "observed_update_hz": 9.193587288969166,
+      "processing_median_ms": 3.611200023442507,
+      "processing_p95_ms": 4.1998999658972025,
+      "maximum_heartbeat_gap_ms": 47.99519991502166,
+      "developer_mode": false,
+      "pipeline_blocks": [
+        {
+          "id": "source",
+          "name": "I/Q Kaynağı",
+          "runtime": "HOST",
+          "implementation": "Python",
+          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "hostPath": "algorithms/spectrum/source.py",
+          "rtlPath": "",
+          "state": "Hazır"
+        },
+        {
+          "id": "preprocess",
+          "name": "Ön İşleme",
+          "runtime": "HOST",
+          "implementation": "Python · SystemVerilog karşılığı",
+          "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
+          "hostPath": "algorithms/spectrum/dsp.py",
+          "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
+          "state": "Hazır"
+        },
+        {
+          "id": "fft_power",
+          "name": "FFT ve Lineer Güç",
+          "runtime": "HOST",
+          "implementation": "Python · SystemVerilog karşılığı",
+          "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
+          "hostPath": "algorithms/spectrum/dsp.py",
+          "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
+          "state": "Hazır"
+        },
+        {
+          "id": "regional",
+          "name": "Bölgesel Eşik",
+          "runtime": "HOST",
+          "implementation": "Python · SystemVerilog karşılığı",
+          "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
+          "hostPath": "algorithms/detection/pipeline.py",
+          "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
+          "state": "Hazır"
+        },
+        {
+          "id": "temporal",
+          "name": "Zamansal Doğrulama",
+          "runtime": "HOST",
+          "implementation": "Python · taşınabilir C karşılığı",
+          "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
+          "hostPath": "algorithms/detection/pipeline.py",
+          "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
+          "state": "Hazır"
+        },
+        {
+          "id": "parameters",
+          "name": "Parametre Ölçümü",
+          "runtime": "HOST",
+          "implementation": "Python",
+          "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
+          "hostPath": "algorithms/parameters/f5_estimator.py",
+          "rtlPath": "",
+          "state": "Bekliyor"
+        },
+        {
+          "id": "monitoring",
+          "name": "Analog Dinleme",
+          "runtime": "HOST",
+          "implementation": "Python",
+          "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
+          "hostPath": "algorithms/monitoring/dsp.py",
+          "rtlPath": "",
+          "state": "Bekliyor"
+        }
+      ],
+      "event_log_fields": [
+        "component",
+        "level",
+        "message",
+        "sequence",
+        "time"
+      ],
+      "screenshot": "results/evidence/app-f/measurement-1280x720.png",
+      "screenshot_sha256": "a450f8558cec6cbc2803db11b67b4a63995ca7d7a9250b345f410c38a8743231"
     },
     {
       "name": "standard-1366x768",
@@ -137,9 +253,10 @@
       "captured_width": 1366,
       "captured_height": 768,
       "workspace": 1,
+      "spectrum_task_tab": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 722,
+      "spectrum_points": 732,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
@@ -156,10 +273,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.193449483583183,
-      "processing_median_ms": 3.447399940341711,
-      "processing_p95_ms": 4.271199926733971,
-      "maximum_heartbeat_gap_ms": 75.87430020794272,
+      "observed_update_hz": 9.196624470946313,
+      "processing_median_ms": 3.6361999809741974,
+      "processing_p95_ms": 4.970100009813905,
+      "maximum_heartbeat_gap_ms": 61.75290001556277,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -241,7 +358,7 @@
         "time"
       ],
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "b549e468bf33d60b7830585459d8cd7299719f7802b30033bf562b9830f386ac"
+      "screenshot_sha256": "f0520c096fba487b6209e56a9de5b074ef20906c6ae96473e341dc8b88d86910"
     },
     {
       "name": "fullhd-1920x1080",
@@ -251,9 +368,10 @@
       "captured_width": 1920,
       "captured_height": 1080,
       "workspace": 3,
+      "spectrum_task_tab": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 722,
+      "spectrum_points": 732,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -270,10 +388,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.197048115229919,
-      "processing_median_ms": 3.428699914366007,
-      "processing_p95_ms": 4.72729979082942,
-      "maximum_heartbeat_gap_ms": 80.28120012022555,
+      "observed_update_hz": 9.194735829578043,
+      "processing_median_ms": 3.6321000661700964,
+      "processing_p95_ms": 4.379000049084425,
+      "maximum_heartbeat_gap_ms": 63.8351000379771,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -355,7 +473,7 @@
         "time"
       ],
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "3902d551c017aefa36d0f37e987c647e5f06132734d9e0d5c8bf861a18801189"
+      "screenshot_sha256": "c7a5017feebd507dbe40f13e85ae0a3b9204ea3d064f84f994ebe80061f5713a"
     },
     {
       "name": "scale-150-percent",
@@ -365,9 +483,10 @@
       "captured_width": 1920,
       "captured_height": 1080,
       "workspace": 2,
+      "spectrum_task_tab": 0,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 722,
+      "spectrum_points": 732,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -384,10 +503,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.197148516203487,
-      "processing_median_ms": 3.9164999034255743,
-      "processing_p95_ms": 4.204299999400973,
-      "maximum_heartbeat_gap_ms": 90.61030019074678,
+      "observed_update_hz": 9.186210029606574,
+      "processing_median_ms": 3.652299987152219,
+      "processing_p95_ms": 5.01520000398159,
+      "maximum_heartbeat_gap_ms": 70.15669997781515,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -469,7 +588,7 @@
         "time"
       ],
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "fb4bd2cb130f434829e30e67dc1f4ee4b5bed4a2e6ecd8c6ff2d84c5267b03b3"
+      "screenshot_sha256": "a82a6ffb951a58494db5ad4c6aa2947d5a7d7713ce5958829fe51b500debc779"
     }
   ],
   "hackrf_probe": {
@@ -487,6 +606,7 @@
     "selection_bound_to_fft": true,
     "linked_frequency_view": true,
     "stable_task_layout": true,
+    "spectrum_task_views": true,
     "system_diagnostics": true,
     "release_source_navigation_disabled": true,
     "structured_operation_log": true,

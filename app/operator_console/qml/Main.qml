@@ -27,6 +27,7 @@ ApplicationWindow {
     property real analysisDragEnd: -1
     property int selectedSystemBlock: 0
     property string systemLogFilter: "Tümü"
+    property int spectrumTaskTab: 0
     property color appBackground: "#050B11"
     property color surface: "#0A131C"
     property color surfaceAlt: "#0D1822"
@@ -521,7 +522,7 @@ ApplicationWindow {
 
                     Panel {
                         id: sourcePanel
-                        property real animatedWidth: root.sourcePanelOpen ? 244 : 0
+                        property real animatedWidth: root.sourcePanelOpen ? 230 : 0
                         Layout.preferredWidth: animatedWidth
                         Layout.minimumWidth: animatedWidth
                         Layout.maximumWidth: animatedWidth
@@ -533,12 +534,12 @@ ApplicationWindow {
                         Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
                         ColumnLayout {
                             anchors.fill: parent
-                            anchors.margins: 16
+                            anchors.margins: 14
                             spacing: 12
                             RowLayout {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "VERİ KAYNAĞI"; Layout.fillWidth: true }
-                                StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
+                                StateBadge { state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
                             }
 
                             RowLayout {
@@ -593,7 +594,9 @@ ApplicationWindow {
                                     anchors.fill: parent
                                     anchors.margins: 12
                                     text: operatorViewModel.sourceReady
-                                          ? "Kaynak hazır. Spektrum izlemeyi başlatabilirsiniz."
+                                          ? (operatorViewModel.playing
+                                             ? "Tarama çalışıyor. Tespitler canlı olarak güncelleniyor."
+                                             : "Kaynak hazır. Spektrum taraması başlatılabilir.")
                                           : "Bir SigMF kaydı açın veya bağlı HackRF alıcısını denetleyin."
                                     wrapMode: Text.Wrap
                                     color: operatorViewModel.sourceReady ? root.success : root.textSecondary
@@ -628,12 +631,36 @@ ApplicationWindow {
                                         background: Rectangle { color: parent.hovered ? root.surfaceAlt : "transparent"; border.color: parent.activeFocus ? root.accent : "transparent"; radius: 3 }
                                     }
                                     SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
+                                    Label { text: "TARAMA"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                    StateBadge { state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.sourceReady ? "Hazır" : "Kullanılmıyor" }
+                                    PrimaryButton {
+                                        text: "Başlat"
+                                        implicitWidth: 64
+                                        implicitHeight: 28
+                                        enabled: operatorViewModel.sourceReady && !operatorViewModel.playing && !operatorViewModel.busy
+                                        Accessible.name: "Spektrum taramasını başlat"
+                                        onClicked: operatorViewModel.startScan()
+                                    }
+                                    QuietButton {
+                                        text: "Duraklat"
+                                        implicitWidth: 70
+                                        implicitHeight: 28
+                                        enabled: operatorViewModel.playing
+                                        Accessible.name: "Spektrum taramasını duraklat"
+                                        onClicked: operatorViewModel.pause()
+                                    }
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 5
+                                    Label { text: "FREKANS GÖRÜNÜMÜ"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     QuietButton { text: "‹"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Önceki frekans görünümü"; enabled: root.spectrumViewHistoryIndex > 0; onClicked: root.spectrumViewBack() }
                                     QuietButton { text: "›"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Sonraki frekans görünümü"; enabled: root.spectrumViewHistoryIndex + 1 < root.spectrumViewHistory.length; onClicked: root.spectrumViewForward() }
                                     QuietButton { text: "−"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü uzaklaştır"; onClicked: root.zoomSpectrum(0.5, 1.4) }
                                     Label { text: (1 / (root.spectrumViewEnd - root.spectrumViewStart)).toFixed(1) + "×"; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
                                     QuietButton { text: "+"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü yakınlaştır"; onClicked: root.zoomSpectrum(0.5, 0.7) }
                                     QuietButton { text: "1:1"; implicitWidth: 40; implicitHeight: 24; font.pixelSize: 9; Accessible.name: "Frekans görünümünü sıfırla"; enabled: root.spectrumViewStart > 0 || root.spectrumViewEnd < 1; onClicked: root.resetSpectrumView() }
+                                    Item { Layout.fillWidth: true }
                                     Rectangle {
                                         implicitWidth: liveTrace.implicitWidth + 16
                                         implicitHeight: 22
@@ -983,16 +1010,10 @@ ApplicationWindow {
                             }
                         }
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            PrimaryButton { text: "Taramayı Başlat"; enabled: operatorViewModel.sourceReady && !operatorViewModel.playing && !operatorViewModel.busy; onClicked: operatorViewModel.startScan() }
-                            QuietButton { text: "Duraklat"; enabled: operatorViewModel.playing; onClicked: operatorViewModel.pause() }
-                            Label { Layout.fillWidth: true; text: "Boşluk: başlat/duraklat"; color: root.textSecondary; font.pixelSize: 10; horizontalAlignment: Text.AlignRight }
-                        }
                     }
 
                     Panel {
-                        Layout.preferredWidth: 326
+                        Layout.preferredWidth: 330
                         Layout.fillHeight: true
                         ColumnLayout {
                             anchors.fill: parent
@@ -1000,7 +1021,7 @@ ApplicationWindow {
                             spacing: 10
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "TESPİTLER"; Layout.fillWidth: true }
+                                SectionTitle { text: "SİNYAL GÖREVİ"; Layout.fillWidth: true }
                                 Rectangle {
                                     implicitWidth: detectionCount.implicitWidth + 14
                                     implicitHeight: 22
@@ -1009,17 +1030,81 @@ ApplicationWindow {
                                     Label { id: detectionCount; anchors.centerIn: parent; text: operatorViewModel.detections.length; color: root.accent; font.pixelSize: 10; font.weight: Font.Bold }
                                 }
                             }
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: 68
+                                radius: 4
+                                color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
+                                border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 10
+                                    spacing: 8
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        Label {
+                                            text: operatorViewModel.selectedDetectionTitle
+                                            color: root.textPrimary
+                                            font.pixelSize: 11
+                                            font.weight: Font.DemiBold
+                                            Layout.fillWidth: true
+                                            elide: Text.ElideRight
+                                        }
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label { text: operatorViewModel.selectedDetectionFrequencyText; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.selectedDetectionStateText; color: operatorViewModel.selectedDetectionReady ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                        }
+                                        Label { visible: operatorViewModel.selectedDetectionReady; text: "Tepe / gürültü oranı  " + operatorViewModel.selectedDetectionContrastText; color: root.textSecondary; font.pixelSize: 8 }
+                                    }
+                                    QuietButton {
+                                        text: "Ölçüm ›"
+                                        visible: root.spectrumTaskTab === 0
+                                        implicitWidth: 68
+                                        implicitHeight: 30
+                                        enabled: operatorViewModel.selectedDetectionReady
+                                        Accessible.name: "Seçili sinyalin ölçüm adımına geç"
+                                        onClicked: root.spectrumTaskTab = 1
+                                    }
+                                }
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                QuietButton {
+                                    Layout.fillWidth: true
+                                    text: "Tespitler"
+                                    implicitHeight: 30
+                                    checked: root.spectrumTaskTab === 0
+                                    Accessible.name: "Tespit listesini göster"
+                                    onClicked: root.spectrumTaskTab = 0
+                                }
+                                QuietButton {
+                                    Layout.fillWidth: true
+                                    text: "Ölçüm"
+                                    implicitHeight: 30
+                                    checked: root.spectrumTaskTab === 1
+                                    Accessible.name: "Sinyal ölçümünü göster"
+                                    onClicked: root.spectrumTaskTab = 1
+                                }
+                            }
                             ListView {
                                 id: detectionList
+                                objectName: "detectionList"
+                                visible: root.spectrumTaskTab === 0
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: root.height < 780 ? 190 : 250
+                                Layout.fillHeight: true
                                 clip: true
                                 spacing: 3
                                 model: operatorViewModel.detections
+                                ScrollBar.vertical: ScrollBar {
+                                    policy: ScrollBar.AlwaysOff
+                                }
                                 delegate: Button {
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: 56
+                                    height: 52
                                     Accessible.name: modelData.title + ", " + modelData.state
                                     onPressed: operatorViewModel.selectDetection(modelData.eventId)
                                     background: Rectangle {
@@ -1047,25 +1132,42 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label { text: modelData.frequency; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                            Label { text: "Δ " + modelData.snr; color: root.textSecondary; font.pixelSize: 10 }
+                                            Label { text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
                                         }
                                     }
                                 }
+                                Rectangle {
+                                    z: 3
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 1
+                                    width: 3
+                                    radius: 2
+                                    visible: detectionList.contentHeight > detectionList.height
+                                    height: Math.max(28, detectionList.height * detectionList.height / Math.max(detectionList.height, detectionList.contentHeight))
+                                    y: Math.max(0, Math.min(detectionList.height - height,
+                                                (detectionList.height - height) * detectionList.contentY
+                                                / Math.max(1, detectionList.contentHeight - detectionList.height)))
+                                    color: root.borderStrong
+                                }
                             }
                             Label {
-                                visible: operatorViewModel.detections.length === 0
+                                visible: root.spectrumTaskTab === 0 && operatorViewModel.detections.length === 0
                                 text: operatorViewModel.sourceReady ? "Doğrulanmış aday bekleniyor." : "Önce gerçek bir kaynak hazırlayın."
                                 color: root.textSecondary
                                 font.pixelSize: 11
                                 wrapMode: Text.Wrap
                                 Layout.fillWidth: true
                             }
-                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                            Rectangle { visible: root.spectrumTaskTab === 1; Layout.fillWidth: true; height: 1; color: root.border }
                             RowLayout {
+                                visible: root.spectrumTaskTab === 1
                                 Layout.fillWidth: true
                                 SectionTitle { text: "SİNYAL ÖLÇÜMÜ"; Layout.fillWidth: true }
                                 Label {
-                                    text: operatorViewModel.parameterRows.length > 0 ? "SONUÇ HAZIR" : operatorViewModel.analysisSpanConfirmed ? "ARALIK ONAYLI" : "SEÇİM BEKLİYOR"
+                                    text: operatorViewModel.parameterRows.length > 0 ? "SONUÇ HAZIR"
+                                          : operatorViewModel.analysisSpanConfirmed ? "ARALIK ONAYLI"
+                                          : operatorViewModel.selectedDetectionReady ? "ARALIK BEKLİYOR"
+                                          : "TESPİT BEKLİYOR"
                                     color: operatorViewModel.parameterRows.length > 0 ? root.success : operatorViewModel.analysisSpanConfirmed ? root.accent : root.textMuted
                                     font.pixelSize: 8
                                     font.weight: Font.Bold
@@ -1074,6 +1176,7 @@ ApplicationWindow {
                             ScrollView {
                                 id: measurementScroll
                                 objectName: "measurementScroll"
+                                visible: root.spectrumTaskTab === 1
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 clip: true

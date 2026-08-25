@@ -1,7 +1,7 @@
 # Operatör Görev Akışları
 
-- Sürüm: 1.2
-- Güncelleme tarihi: 2026-08-25
+- Sürüm: 1.3
+- Güncelleme tarihi: 2026-08-26
 - Kapsam: APP-F için ürün bilgi mimarisi
 
 ## Genel yerleşim
@@ -39,16 +39,21 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
 ```
 
 1. Operatör doğrulanmış bir SigMF kaydı açar veya HackRF RX alımını hazırlar.
-2. `Taramayı Başlat` tek birincil eylemdir.
+2. Spektrum başlığındaki `Başlat` tek birincil tarama eylemidir; kaynak, tarama
+   durumu ve `Duraklat` aynı görev başlığında kalır.
 3. Spektrum ve spektrogram merkez çalışma alanında güncellenir.
 4. Adaylar tespit listesine gelir; durumları `İzleniyor`, `Doğrulandı` veya
    `Sona ermiş` olarak gösterilir.
-5. Operatör bir doğrulanmış tespit seçtiğinde kaba aday ve önerilen analiz aralığı
+5. Sağdaki `Sinyal Görevi`, seçili tespitin kimliğini, frekansını,
+   tepe/gürültü oranını ve durumunu sekmelerden bağımsız sabit tutar. `Tespitler`
+   ve `Ölçüm` aynı panelde açık operatör seçimiyle değiştirilir; tespit seçimi
+   ekranı kendiliğinden ölçüme geçirmez.
+6. Operatör bir doğrulanmış tespit seçtiğinde kaba aday ve önerilen analiz aralığı
    gerçek FFT hücrelerine bağlı olarak spektrum üzerinde işaretlenir.
-6. Fare tekeriyle yakınlaştırma ve sol tuşla kaydırma spektrum ile spektrogramda
+7. Fare tekeriyle yakınlaştırma ve sol tuşla kaydırma spektrum ile spektrogramda
    aynı frekans penceresini değiştirir; çift tıklama, `1:1` veya `Ctrl+0` tam
    banda döner. `Alt+Sol` ve `Alt+Sağ` önceki/sonraki frekans görünümünü açar.
-7. Ortak frekans imleci iki görünümde aynı frekansı işaretler. Operatör,
+8. Ortak frekans imleci iki görünümde aynı frekansı işaretler. Operatör,
    `Shift+sürükle` ile seçili tepeyi içeren 8–512 FFT hücrelik analiz aralığı
    taslağı oluşturabilir; taslak ayrıca açıkça onaylanmadan ölçüm başlamaz.
 
@@ -56,7 +61,7 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
 
 ## Akış 3 — Parametre ölçümü
 
-1. Seçili doğrulanmış tespitin spektrumu açılır.
+1. Seçili doğrulanmış tespitin sabit bağlamından `Ölçüm` sekmesi açılır.
 2. Sistem deterministik `Tespit aralığı`nı gösterir; operatör isterse sınırları
    düzeltir.
 3. Ölçüm yalnız `Ölçümü Başlat` eylemiyle çalışır.

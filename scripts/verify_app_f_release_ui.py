@@ -24,10 +24,11 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 CONFIGURATIONS = (
-    ("minimum-1280x720", 1280, 720, 1.0, 0),
-    ("standard-1366x768", 1366, 768, 1.0, 1),
-    ("fullhd-1920x1080", 1920, 1080, 1.0, 3),
-    ("scale-150-percent", 1280, 720, 1.5, 2),
+    ("minimum-1280x720", 1280, 720, 1.0, 0, 0),
+    ("measurement-1280x720", 1280, 720, 1.0, 0, 1),
+    ("standard-1366x768", 1366, 768, 1.0, 1, 0),
+    ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0),
+    ("scale-150-percent", 1280, 720, 1.5, 2, 0),
 )
 
 
@@ -51,6 +52,7 @@ def _child_run(args: argparse.Namespace) -> int:
     root.setWidth(args.width)
     root.setHeight(args.height)
     root.setProperty("workspace", args.workspace)
+    root.setProperty("spectrumTaskTab", args.spectrum_task_tab)
     root.show()
     if args.probe_only:
         view_model.setSourceMode("hackrf")
@@ -70,11 +72,10 @@ def _child_run(args: argparse.Namespace) -> int:
         root.close()
         print(json.dumps(payload, ensure_ascii=False))
         return 0
-    heartbeat: list[float] = [time.perf_counter()]
+    heartbeat: list[float] = []
     timer = QTimer()
     timer.setInterval(20)
     timer.timeout.connect(lambda: heartbeat.append(time.perf_counter()))
-    timer.start()
 
     view_model.openSigmf(str(FIXTURE))
     deadline = time.perf_counter() + 8.0
@@ -86,6 +87,8 @@ def _child_run(args: argparse.Namespace) -> int:
     if not view_model.sourceReady:
         raise RuntimeError(view_model.errorMessage or "SigMF source did not become ready")
 
+    heartbeat.append(time.perf_counter())
+    timer.start()
     initial_count = len(view_model._operation_samples_ms)
     started = time.perf_counter()
     view_model.startScan()
@@ -135,6 +138,7 @@ def _child_run(args: argparse.Namespace) -> int:
         "captured_width": image.width(),
         "captured_height": image.height(),
         "workspace": args.workspace,
+        "spectrum_task_tab": args.spectrum_task_tab,
         "source_ready": view_model.sourceReady,
         "source_state": view_model.sourceState,
         "spectrum_points": len(view_model.spectrumValues),
@@ -173,7 +177,7 @@ def _child_run(args: argparse.Namespace) -> int:
 def _parent_run() -> int:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     runs: list[dict[str, object]] = []
-    for name, width, height, scale, workspace in CONFIGURATIONS:
+    for name, width, height, scale, workspace, spectrum_task_tab in CONFIGURATIONS:
         screenshot = OUTPUT / f"{name}.png"
         environment = os.environ.copy()
         environment["QT_QPA_PLATFORM"] = "offscreen"
@@ -197,6 +201,8 @@ def _parent_run() -> int:
                 str(scale),
                 "--workspace",
                 str(workspace),
+                "--spectrum-task-tab",
+                str(spectrum_task_tab),
                 "--screenshot",
                 str(screenshot),
             ],
@@ -265,10 +271,14 @@ def _parent_run() -> int:
             marker in qml_text
             for marker in (
                 'objectName: "measurementScroll"',
+                'objectName: "detectionList"',
                 'objectName: "listeningSettingsScroll"',
-                "Layout.preferredHeight: root.height < 780 ? 190 : 250",
+                "property int spectrumTaskTab: 0",
             )
         ),
+        "spectrum_task_views": {
+            (int(run["workspace"]), int(run["spectrum_task_tab"])) for run in runs
+        }.issuperset({(0, 0), (0, 1)}),
         "system_diagnostics": all(
             marker in qml_text
             for marker in (
@@ -353,6 +363,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--scale", type=float, default=1.0)
     parser.add_argument("--workspace", type=int, default=0)
+    parser.add_argument("--spectrum-task-tab", type=int, choices=(0, 1), default=0)
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
     args = parser.parse_args(argv)
