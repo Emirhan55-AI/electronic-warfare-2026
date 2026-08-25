@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f4-method-lock-v5",
+  "status": "locked-before-seed-reveal",
+  "methods": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-temporal-artifact-rejection-v5",
+    "occupied_bandwidth": "band.debiased-obw99-temporal-v3",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-conditioned-prototype-rejection-v5"
+  },
+  "constants": {
+    "required_frames": 4,
+    "frame_length": 4096,
+    "maximum_persistent_payload_bytes": 65536,
+    "combined_persistent_payload_bytes": 52972,
+    "domain_model_numeric_bytes": 18888,
+    "corrected_detection_significance_minimum": 6.25,
+    "low_snr_abstention_db": 3.0,
+    "obw_temporal_range_maximum_bins": 3.0,
+    "carrier": {
+      "minimum_prominence_db": 5.25,
+      "minimum_share": 0.235,
+      "minimum_frame_prominence_db": 0.98,
+      "artifact_spectral_entropy_minimum": 0.32,
+      "artifact_envelope_skewness_maximum": -0.1
+    },
+    "domain_thresholds": {
+      "minimum_snr_db": 3.0,
+      "maximum_distance": 0.40427800773002337,
+      "minimum_cross_domain_margin": 0.09366573650648947,
+      "minimum_cross_domain_margin_by_nearest_family": {
+        "nfm": 0.02341643412662237
+      }
+    },
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4
+  },
+  "contracts": {
+    "protocol_lock_sha256": "8e36e6dc34ecd909c1c06be6cc8500d7b547139a8cddd63ea52d93abac0ec2da",
+    "protocol_lock_identity": "ebcb4845fb69020b280d2e83ef6cfa05ad1b78491f3cb09c766c074c9c2e770c",
+    "acceptance_gates_sha256": "94a5005bdf5516039475dcf8bb521c071a7d6b1b3e96412e35ef0ee92e5f3b06",
+    "development_catalog_sha256": "273bde60d20000e2f74917c73e6a9360fcf7c50e9fab387cd0812373ddcb7f51",
+    "evaluation_commitments_sha256": "fe9550a7682c3a9fa8230cec954754758eab7296fc38686ea6bc7af04352bea9",
+    "domain_model_sha256": "fefe27666741160147edf355fcadcfb718a20eb6c8d265e6dff7dbf8b7572b88",
+    "development_results_sha256": "bf6e47cbbfccf1ef51534fcb276e8c59ffecca63bfd7a3b6b0753b458feef3ef",
+    "carrier_analysis_sha256": "3828e6962560623331f1a5d2414774ef679949222398ad25d9a0382c81920b53",
+    "implementation_manifest_sha256": "56421f970696120eb8df19b5198fbe4d17587e1e33bd60c5b13994568784b158"
+  },
+  "implementation": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f4_domain.py",
+        "sha256": "c3ead224e9a5babc093c3d1aaa4b672e10c9b8a1615a132f5559ac9c4a67f652"
+      },
+      {
+        "path": "algorithms/parameters/f4_estimator.py",
+        "sha256": "e1d03b5613dae8c1163a869d3490a9bf0c98074c65b60f572465af77920f1bbc"
+      },
+      {
+        "path": "algorithms/parameters/f4_development.py",
+        "sha256": "5cc8ac43ae2047442f042e279788b5d77f6e7a41cf0566bcdefcb7f3802301c1"
+      },
+      {
+        "path": "scripts/develop_phase04f4_carrier.py",
+        "sha256": "98d5931cebc493b113083e961224f6ad53ef6885eb163347ba538ff12a67c1ee"
+      },
+      {
+        "path": "scripts/develop_phase04f4_domain.py",
+        "sha256": "3737a2f814a1e7f3c204244b072839691686c74e2e1c3519af5563ad9b9d49b7"
+      },
+      {
+        "path": "scripts/verify_phase04f4_development.py",
+        "sha256": "892a11b94cdaa2cdfac269934a74cdad92dd35a28ee6d48861b285517cff85aa"
+      },
+      {
+        "path": "scripts/lock_phase04f4_method.py",
+        "sha256": "84d65fd8323a59c2c2d9b79a6dfb52fefcf1dda04fa0357eb13f9f6bce9841ee"
+      }
+    ],
+    "sha256": "56421f970696120eb8df19b5198fbe4d17587e1e33bd60c5b13994568784b158"
+  },
+  "seed_revealed": false,
+  "claim_boundary": "Yöntem yalnız açık F4 geliştirme kanıtından sonra ve binding/OOS seed reveal öncesinde kilitlenmiştir; ürün veya PHASE-04 başarı kararı değildir.",
+  "method_lock_sha256": "dafff727f798a137e3f74c17172c0338513ce82bf15facd2eea0de401645ae1b"
+}

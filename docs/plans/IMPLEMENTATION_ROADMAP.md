@@ -144,7 +144,13 @@ NFM'e özgü seed kapısı eksikliğini doğrulamıştır. F4B'de önceki popül
 bağımsız sekiz açık seed ayrılmış; yeni binding/OOS preimage'ları commitment ile
 kapatılmış; korunan F2 kapıları ve F3 risklerine dört NFM seed/risk kapısı ile üç
 zorunlu tanı çıktısı eklenmiştir. F4C ayrı yöntem geliştirmesidir ve kullanıcı
-onayı olmadan başlatılmaz. F4D tek seferlik değerlendirme, F4E ise yalnız başarı
+onayıyla tamamlanmıştır. v5, mevcut sınırlı özellik/prototip yapısını koruyup
+NFM'e en yakın örnekler için leave-one-seed-out çapraz doğrulamalı aile marjı
+kullanır; tespit ve taşıyıcı güvenlik payları da aynı açık popülasyonda korunan
+kapılarla doğrulanmıştır. Geliştirmede 40 temel, 14 miras ve dört NFM risk kontrolü
+geçmiş; yöntem ve kanıtlar gizli seed açılmadan önce `method-lock-v5.json` ile
+kilitlenmiştir. Bu sonuç binding/OOS veya ürün kabulü değildir. F4D tek seferlik
+değerlendirmedir ve ayrı kullanıcı onayı olmadan başlatılmaz; F4E yalnız başarı
 halinde profil entegrasyonudur.
 
 ## Erken hazırlık istisnası: PHASE-08A

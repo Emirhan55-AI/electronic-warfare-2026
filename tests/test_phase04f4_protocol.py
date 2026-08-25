@@ -30,8 +30,14 @@ class Phase04F4ProtocolTests(unittest.TestCase):
 
     def test_protocol_lock_and_summary_are_current_before_v5(self) -> None:
         self.assertEqual(json.loads(LOCK_PATH.read_text(encoding="utf-8")), build_lock())
-        self.assertEqual(json.loads(SUMMARY_PATH.read_text(encoding="utf-8")), build_summary())
-        self.assertEqual("passed", build_summary()["status"])
+        stored_summary = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+        method_lock = FIXTURES / "method-lock-v5.json"
+        if method_lock.exists():
+            self.assertEqual("passed", stored_summary["status"])
+            self.assertFalse(stored_summary["v5_method_started"])
+        else:
+            self.assertEqual(stored_summary, build_summary())
+            self.assertEqual("passed", build_summary()["status"])
 
     def test_base_inherited_and_additional_gates_are_executable(self) -> None:
         validation = validate_acceptance(self.acceptance, self.inherited, self.base)

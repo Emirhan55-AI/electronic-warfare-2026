@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f4-carrier-analysis-v5",
+  "role": "development-only",
+  "status": "passed",
+  "selected": {
+    "minimum_prominence_db": 5.25,
+    "minimum_share": 0.235,
+    "minimum_frame_prominence_db": 0.98,
+    "artifact_spectral_entropy_minimum": 0.32,
+    "artifact_envelope_skewness_maximum": -0.1
+  },
+  "per_seed": [
+    {
+      "seed_index": 0,
+      "ook_valid_count": 48,
+      "ook_qualifying_frame_count": 192,
+      "ook_all_frames_qualified_count": 48,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 1,
+      "ook_valid_count": 47,
+      "ook_qualifying_frame_count": 191,
+      "ook_all_frames_qualified_count": 47,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 2,
+      "ook_valid_count": 45,
+      "ook_qualifying_frame_count": 189,
+      "ook_all_frames_qualified_count": 45,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 3,
+      "ook_valid_count": 46,
+      "ook_qualifying_frame_count": 191,
+      "ook_all_frames_qualified_count": 47,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 4,
+      "ook_valid_count": 48,
+      "ook_qualifying_frame_count": 192,
+      "ook_all_frames_qualified_count": 48,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 5,
+      "ook_valid_count": 47,
+      "ook_qualifying_frame_count": 191,
+      "ook_all_frames_qualified_count": 47,
+      "nonapplicable_false_valid_count": 0
+    },
+    {
+      "seed_index": 6,
+      "ook_valid_count": 45,
+      "ook_qualifying_frame_count": 187,
+      "ook_all_frames_qualified_count": 45,
+      "nonapplicable_false_valid_count": 1
+    },
+    {
+      "seed_index": 7,
+      "ook_valid_count": 48,
+      "ook_qualifying_frame_count": 192,
+      "ook_all_frames_qualified_count": 48,
+      "nonapplicable_false_valid_count": 0
+    }
+  ],
+  "families": {
+    "am": {
+      "applicable": true,
+      "trial_count": 384,
+      "v3_valid_count": 384,
+      "v4_valid_count": 384,
+      "v4_q95_error_bins": 0.25
+    },
+    "nfm": {
+      "applicable": true,
+      "trial_count": 384,
+      "v3_valid_count": 354,
+      "v4_valid_count": 360,
+      "v4_q95_error_bins": 0.25
+    },
+    "ook": {
+      "applicable": true,
+      "trial_count": 384,
+      "v3_valid_count": 356,
+      "v4_valid_count": 374,
+      "v4_q95_error_bins": 0.15
+    },
+    "two_fsk": {
+      "applicable": false,
+      "trial_count": 384,
+      "v3_valid_count": 0,
+      "v4_valid_count": 0,
+      "v4_q95_error_bins": null
+    },
+    "bpsk": {
+      "applicable": false,
+      "trial_count": 384,
+      "v3_valid_count": 1,
+      "v4_valid_count": 0,
+      "v4_q95_error_bins": null
+    },
+    "qpsk": {
+      "applicable": false,
+      "trial_count": 384,
+      "v3_valid_count": 0,
+      "v4_valid_count": 0,
+      "v4_q95_error_bins": null
+    },
+    "wideband_noise_like": {
+      "applicable": false,
+      "trial_count": 384,
+      "v3_valid_count": 0,
+      "v4_valid_count": 0,
+      "v4_q95_error_bins": null
+    },
+    "burst_qpsk": {
+      "applicable": false,
+      "trial_count": 384,
+      "v3_valid_count": 2,
+      "v4_valid_count": 1,
+      "v4_q95_error_bins": null
+    }
+  },
+  "aggregate": {
+    "v3_ook_valid_count": 356,
+    "v4_ook_valid_count": 374,
+    "v4_false_valid_count": 1
+  },
+  "literature_basis": "Temporal spectral-line evidence with complex-envelope statistics and conservative artifact rejection.",
+  "claim_boundary": "Yalnız sekiz açık F4 geliştirme seed'inin 12 dB koşuludur; F4 binding/OOS veya ürün sonucu değildir.",
+  "inherited_carrier_method": "frequency.carrier-temporal-artifact-rejection-v4",
+  "selection_boundary": "Only the frame-support and artifact-entropy margins differ from v4; all locked F4 carrier risk gates remain unchanged."
+}
