@@ -169,8 +169,7 @@ kapılarında seed bazlı OBW geçerlilik payı yoktur. Kullanıcı onayıyla ta
 F5B'de sekiz yeni açık seed F1-F4 popülasyonlarından ayrılmış, yeni binding/OOS
 preimage'ları commitment ile kapatılmıştır. Korunan 18 geliştirme kontrolüne
 yedi OBW güvenlik kontrolü ve altı zorunlu tanı eklenmiş; aile başına 379/384,
-seed başına 47/48 geçerli OBW şartı yöntemden önce kilitlenmiştir. F5C ayrı
-kullanıcı onayı bekler. F5E yalnız bütün kapılar geçerse host ürün profilini
+seed başına 47/48 geçerli OBW şartı yöntemden önce kilitlenmiştir. F5E yalnız bütün kapılar geçerse host ürün profilini
 etkinleştirir ve FPGA entegrasyonu anlamına gelmez.
 
 Kullanıcı onayıyla başlatılan F5C'nin ilk açık geliştirme taramasında 3,0-5,0
@@ -178,8 +177,15 @@ bin arasındaki beş bounded temporal-recovery adayı aynı 3.072 ölçümde
 karşılaştırılmış, hiçbiri 25 kilitli geliştirme kontrolünün tamamını geçmemiştir.
 En geniş aday aile minimumunda 377/384 ve seed minimumunda 46/48 kalmış; NFM üst
 kenar q95 hatası da 2 bin sınırını aşmıştır. Basit eşik genişletmesi yöntem olarak
-seçilmemiş, negatif aday kanıtı korunmuştur. F5C yapısal OBW iyileştirmesiyle açık
-kalmaktadır; değerlendirme seed'leri açılmamıştır.
+seçilmemiş ve negatif aday kanıtı korunmuştur. Ardından gürültü-çıkarılmış dört
+kare ortalamasında %0,75 kuyruk, 0,375 bin simetrik kenar yanlılığı düzeltmesi ve
+7 bin temporal ret sınırı seçilmiştir. Sekiz açık ailede minimum 383/384, seed
+minimumunda 47/48 geçerli OBW; en kötü göreli q95 %14 ve alt/üst kenar q95
+1,87/1,92 bin elde edilmiştir. Birleşik geliştirme 40 temel, 14 F3, dört F4 ve
+yedi F5 kontrolünün tamamını geçmiştir; altı gürültü yanlış-geçerli sayısı
+sıfırdır. v6 yöntem ve tek-seferlik çalıştırıcı seed reveal öncesinde ayrı
+kilitlerle dondurulmuştur. F5C tamamlanmıştır; değerlendirme seed'leri kapalıdır
+ve F5D ayrı kullanıcı onayı bekler.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

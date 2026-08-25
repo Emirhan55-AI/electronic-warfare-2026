@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f5-evaluation-runner-lock-v6",
+  "status": "locked-before-seed-reveal",
+  "method_lock_sha256": "55aeed139c9ae25eeb722943fb472caaf7aec4c4eff96878ec05d38df7f8570a",
+  "protocol_lock_sha256": "93c67c0748175d651d2ee0cd245454a365cff43ccb58d91a4535238a55ff6af3",
+  "acceptance_gates_sha256": "f08088242de6a0a34f11b170524b61bb132cfbbd6b5fbec634b31e875b741f5e",
+  "base_acceptance_gates_sha256": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+  "evaluation_commitments_sha256": "9501cde756b12ea10b9ba94c74def43c7907b03381ac337e322d5af19d841294",
+  "source_manifest": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f5_evaluation.py",
+        "sha256": "966ceb3dab8047a0c493225fe07ce633a4b061795464aeb3d4819d9c5af04338"
+      },
+      {
+        "path": "scripts/reveal_phase04f5_seeds.py",
+        "sha256": "d5dadaf40919591a692d7aaf2f388643f1161d30953ce52e5fd8d95cdf4a8bc8"
+      },
+      {
+        "path": "scripts/run_phase04f5_evaluation.py",
+        "sha256": "ac606b1c82e9a495a0f98c00132035fc6255d342c415bad709d7dcb7faa925b7"
+      },
+      {
+        "path": "scripts/verify_phase04f5_evaluation.py",
+        "sha256": "ecabc17facda5a3d5b7fe913c0409f16cf78ee8d2e816ce61c0e8fa37e30fa04"
+      },
+      {
+        "path": "scripts/lock_phase04f5_evaluation_runner.py",
+        "sha256": "9605430036247aee2634f18c14ccb42b7ba39d24eebf11948aecf3b2ac1208b6"
+      }
+    ]
+  },
+  "source_manifest_sha256": "dbbfc68a18cba7c64826f2dea942c89dfb65fb9eb637fe1da45c0bb4a63c7a9a",
+  "execution_order": [
+    "runner-lock",
+    "commit-and-push",
+    "seed-reveal",
+    "binding",
+    "oos",
+    "verification"
+  ],
+  "clean_synced_head_required_for_reveal": true,
+  "rerun_after_started_allowed": false,
+  "threshold_changes_after_reveal_allowed": false,
+  "claim_boundary": "Çalıştırıcı ve skor dönüşümü seed reveal öncesinde kilitlenmiştir; değerlendirme sonucu değildir.",
+  "evaluation_runner_lock_sha256": "5bc11afeacc6b0dfc93f317a57f6d8a31f7b72bcfe7f0cee41b07c6eaea63c5e"
+}

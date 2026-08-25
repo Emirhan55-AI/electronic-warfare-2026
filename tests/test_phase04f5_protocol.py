@@ -27,10 +27,18 @@ class Phase04F5ProtocolTests(unittest.TestCase):
         self.f3 = json.loads((ROOT / self.acceptance["f3_development_acceptance"]["path"]).read_text(encoding="utf-8"))
         self.f4 = json.loads((ROOT / self.acceptance["f4_development_acceptance"]["path"]).read_text(encoding="utf-8"))
 
-    def test_protocol_lock_and_summary_are_current_before_v6(self) -> None:
+    def test_protocol_lock_and_historical_summary_preserve_the_pre_v6_state(self) -> None:
         self.assertEqual(json.loads(LOCK_PATH.read_text(encoding="utf-8")), build_lock())
-        self.assertEqual(json.loads(SUMMARY_PATH.read_text(encoding="utf-8")), build_summary())
-        self.assertEqual("passed", build_summary()["status"])
+        stored = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+        self.assertEqual("passed", stored["status"])
+        self.assertFalse(stored["v6_method_started"])
+        current = build_summary()
+        failures = [item["id"] for item in current["checks"] if item["status"] != "passed"]
+        method_lock = FIXTURES / "method-lock-v6.json"
+        if method_lock.exists():
+            self.assertEqual(["v6-method-not-started"], failures)
+        else:
+            self.assertEqual(stored, current)
 
     def test_inherited_and_f5_gates_are_executable(self) -> None:
         validation = validate_acceptance(self.acceptance, self.f4, self.f3, self.base)

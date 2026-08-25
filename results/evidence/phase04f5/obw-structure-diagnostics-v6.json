@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f5-obw-structure-diagnostics-v6",
+  "role": "development-only",
+  "family": "nfm",
+  "population": {
+    "seed_count": 8,
+    "total_trials": 384,
+    "snr_db": 12.0,
+    "frames_per_measurement": 4
+  },
+  "candidates": {
+    "current_v5": {
+      "valid_count": 374,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        46,
+        48,
+        45,
+        44,
+        47
+      ],
+      "lower_signed_q05_bins": -1.67506697195995,
+      "lower_signed_q50_bins": 0.22227150088474446,
+      "lower_signed_q95_bins": 0.751744324831634,
+      "upper_signed_q05_bins": -0.48533213589416846,
+      "upper_signed_q50_bins": -0.1302689120643663,
+      "upper_signed_q95_bins": 2.3249326646359805,
+      "lower_absolute_q95_bins": 1.67506697195995,
+      "upper_absolute_q95_bins": 2.3249326646359805,
+      "relative_q95": 0.13888368202643314,
+      "temporal_range_q95_bins": 1.657160875324962
+    },
+    "aggregate_fraction_0_005": {
+      "valid_count": 384,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "lower_signed_q05_bins": -1.6773846615224102,
+      "lower_signed_q50_bins": 0.2224064585884662,
+      "lower_signed_q95_bins": 0.7517443248343625,
+      "upper_signed_q05_bins": -0.47728597391051153,
+      "upper_signed_q50_bins": -0.12359694146880429,
+      "upper_signed_q95_bins": 2.5176504532137187,
+      "lower_absolute_q95_bins": 1.6773846615224102,
+      "upper_absolute_q95_bins": 2.5176504532137187,
+      "relative_q95": 0.1422604487885135,
+      "temporal_range_q95_bins": 1.657160875324962
+    },
+    "aggregate_fraction_0_0075": {
+      "valid_count": 384,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "lower_signed_q05_bins": -0.23987974164538173,
+      "lower_signed_q50_bins": 0.5155789726118201,
+      "lower_signed_q95_bins": 0.9422330535567198,
+      "upper_signed_q05_bins": -0.7886407114506255,
+      "upper_signed_q50_bins": -0.2847303916605597,
+      "upper_signed_q95_bins": 0.5526416420598252,
+      "lower_absolute_q95_bins": 1.2091231460321978,
+      "upper_absolute_q95_bins": 1.0106131887441734,
+      "relative_q95": 0.09417852140859595,
+      "temporal_range_q95_bins": 1.2823192811724766
+    },
+    "aggregate_fraction_0_010": {
+      "valid_count": 384,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "lower_signed_q05_bins": 0.032829974229571235,
+      "lower_signed_q50_bins": 0.7413160903702192,
+      "lower_signed_q95_bins": 1.1388871905905944,
+      "upper_signed_q05_bins": -1.0531524565471955,
+      "upper_signed_q50_bins": -0.4437747811898589,
+      "upper_signed_q95_bins": 0.014506063565931981,
+      "lower_absolute_q95_bins": 1.1492727232239304,
+      "upper_absolute_q95_bins": 1.0963441493954633,
+      "relative_q95": 0.10278310468781697,
+      "temporal_range_q95_bins": 0.6428325832407609
+    },
+    "loo_median_fraction_0_005": {
+      "valid_count": 384,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "lower_signed_q05_bins": -1.7101045282870473,
+      "lower_signed_q50_bins": 0.2311749470641189,
+      "lower_signed_q95_bins": 0.7650351046158903,
+      "upper_signed_q05_bins": -0.48475369655307077,
+      "upper_signed_q50_bins": -0.1357859932018073,
+      "upper_signed_q95_bins": 2.499303755665551,
+      "lower_absolute_q95_bins": 1.7101045282870473,
+      "upper_absolute_q95_bins": 2.499303755665551,
+      "relative_q95": 0.15134734314383635,
+      "temporal_range_q95_bins": 1.657160875324962
+    },
+    "hybrid_fraction_0_005": {
+      "valid_count": 384,
+      "seed_valid_counts": [
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48
+      ],
+      "lower_signed_q05_bins": -1.661071751776035,
+      "lower_signed_q50_bins": 0.22192294105707333,
+      "lower_signed_q95_bins": 0.7583897147251264,
+      "upper_signed_q05_bins": -0.4873280193660321,
+      "upper_signed_q50_bins": -0.13076117447280922,
+      "upper_signed_q95_bins": 2.6017551219297275,
+      "lower_absolute_q95_bins": 1.661071751776035,
+      "upper_absolute_q95_bins": 2.6017551219297275,
+      "relative_q95": 0.15178336267922868,
+      "temporal_range_q95_bins": 1.657160875324962
+    }
+  },
+  "claim_boundary": "Yalnız açık F5 NFM geliştirme örneklerinin signed kenar tanısıdır; yöntem seçimi, binding/OOS veya ürün sonucu değildir."
+}

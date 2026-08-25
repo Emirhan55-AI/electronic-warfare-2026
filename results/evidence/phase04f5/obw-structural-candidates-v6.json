@@ -1,0 +1,2602 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f5-obw-structural-candidates-v6",
+  "role": "development-only",
+  "status": "no-candidate-passed",
+  "population": {
+    "seed_count": 8,
+    "trials_per_seed_per_family": 48,
+    "total_trials_per_family": 384,
+    "snr_db": 12.0,
+    "frames_per_measurement": 4
+  },
+  "candidates": [
+    {
+      "tail_fraction": 0.0075,
+      "temporal_range_maximum_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 377,
+        "obw.seed_min_valid_count_12_db": 46,
+        "obw.family_min_wilson_lower_95_12_db": 0.9628557136188839,
+        "obw.family_max_relative_q95_12_db": 0.17308378952478223,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.245636512895544,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.2973391449295377,
+        "obw.family_max_temporal_rejection_count_12_db": 7
+      },
+      "families": {
+        "am": {
+          "valid_count": 377,
+          "seed_valid_counts": [
+            48,
+            47,
+            47,
+            46,
+            48,
+            47,
+            48,
+            46
+          ],
+          "wilson_lower_95": 0.9628557136188839,
+          "relative_q95": 0.050173083394958025,
+          "lower_edge_q95_bins": 0.511575973082472,
+          "upper_edge_q95_bins": 0.73813736379293,
+          "temporal_range_q95_bins": 0.5397409300015852,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 7
+          }
+        },
+        "nfm": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.09287305229720424,
+          "lower_edge_q95_bins": 1.1208027648685857,
+          "upper_edge_q95_bins": 1.007082055875344,
+          "temporal_range_q95_bins": 1.2823192811724766,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "ook": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            47,
+            48,
+            48,
+            47,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.17308378952478223,
+          "lower_edge_q95_bins": 1.6338975833577933,
+          "upper_edge_q95_bins": 1.7294687795633763,
+          "temporal_range_q95_bins": 0.8608999491600571,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12381353077706833,
+          "lower_edge_q95_bins": 2.245636512895544,
+          "upper_edge_q95_bins": 2.268871125114856,
+          "temporal_range_q95_bins": 0.8200393133174657,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.12346921870378351,
+          "lower_edge_q95_bins": 1.3891198896089918,
+          "upper_edge_q95_bins": 1.306663251598593,
+          "temporal_range_q95_bins": 0.7099508845010405,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0846222360031265,
+          "lower_edge_q95_bins": 1.893008422584444,
+          "upper_edge_q95_bins": 1.9280361106903001,
+          "temporal_range_q95_bins": 0.6205974893923667,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.014906819084712612,
+          "lower_edge_q95_bins": 1.0226076981412007,
+          "upper_edge_q95_bins": 0.8689667159887904,
+          "temporal_range_q95_bins": 0.31982285338676775,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.09337654336137995,
+          "lower_edge_q95_bins": 2.099819045051845,
+          "upper_edge_q95_bins": 2.2973391449295377,
+          "temporal_range_q95_bins": 0.8087258572861629,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.0075,
+      "temporal_range_maximum_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 379,
+        "obw.seed_min_valid_count_12_db": 46,
+        "obw.family_min_wilson_lower_95_12_db": 0.969885754626481,
+        "obw.family_max_relative_q95_12_db": 0.17308378952478223,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.245636512895544,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.2973391449295377,
+        "obw.family_max_temporal_rejection_count_12_db": 5
+      },
+      "families": {
+        "am": {
+          "valid_count": 379,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            46,
+            48,
+            48,
+            48,
+            46
+          ],
+          "wilson_lower_95": 0.969885754626481,
+          "relative_q95": 0.05196925182719352,
+          "lower_edge_q95_bins": 0.5396681163015273,
+          "upper_edge_q95_bins": 0.73813736379293,
+          "temporal_range_q95_bins": 0.5397409300015852,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 5
+          }
+        },
+        "nfm": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.09287305229720424,
+          "lower_edge_q95_bins": 1.1208027648685857,
+          "upper_edge_q95_bins": 1.007082055875344,
+          "temporal_range_q95_bins": 1.2823192811724766,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "ook": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            47,
+            48,
+            48,
+            47,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.17308378952478223,
+          "lower_edge_q95_bins": 1.6338975833577933,
+          "upper_edge_q95_bins": 1.7294687795633763,
+          "temporal_range_q95_bins": 0.8608999491600571,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12381353077706833,
+          "lower_edge_q95_bins": 2.245636512895544,
+          "upper_edge_q95_bins": 2.268871125114856,
+          "temporal_range_q95_bins": 0.8200393133174657,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.12346921870378351,
+          "lower_edge_q95_bins": 1.3891198896089918,
+          "upper_edge_q95_bins": 1.306663251598593,
+          "temporal_range_q95_bins": 0.7099508845010405,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0846222360031265,
+          "lower_edge_q95_bins": 1.893008422584444,
+          "upper_edge_q95_bins": 1.9280361106903001,
+          "temporal_range_q95_bins": 0.6205974893923667,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.014906819084712612,
+          "lower_edge_q95_bins": 1.0226076981412007,
+          "upper_edge_q95_bins": 0.8689667159887904,
+          "temporal_range_q95_bins": 0.31982285338676775,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.09337654336137995,
+          "lower_edge_q95_bins": 2.099819045051845,
+          "upper_edge_q95_bins": 2.2973391449295377,
+          "temporal_range_q95_bins": 0.8087258572861629,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.0075,
+      "temporal_range_maximum_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 380,
+        "obw.seed_min_valid_count_12_db": 46,
+        "obw.family_min_wilson_lower_95_12_db": 0.973526387281403,
+        "obw.family_max_relative_q95_12_db": 0.17308378952478223,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.245636512895544,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.2973391449295377,
+        "obw.family_max_temporal_rejection_count_12_db": 4
+      },
+      "families": {
+        "am": {
+          "valid_count": 380,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            47,
+            48,
+            48,
+            48,
+            46
+          ],
+          "wilson_lower_95": 0.973526387281403,
+          "relative_q95": 0.05196925182719352,
+          "lower_edge_q95_bins": 0.5162549634283096,
+          "upper_edge_q95_bins": 0.73813736379293,
+          "temporal_range_q95_bins": 0.5397409300015852,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 4
+          }
+        },
+        "nfm": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.09417852140840073,
+          "lower_edge_q95_bins": 1.2091231460294694,
+          "upper_edge_q95_bins": 1.0106131887428091,
+          "temporal_range_q95_bins": 1.2823192811724766,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "ook": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.17308378952478223,
+          "lower_edge_q95_bins": 1.6338975833577933,
+          "upper_edge_q95_bins": 1.7294687795633763,
+          "temporal_range_q95_bins": 0.8608999491600571,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12381353077706833,
+          "lower_edge_q95_bins": 2.245636512895544,
+          "upper_edge_q95_bins": 2.268871125114856,
+          "temporal_range_q95_bins": 0.8200393133174657,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12346921870378351,
+          "lower_edge_q95_bins": 1.3891198896089918,
+          "upper_edge_q95_bins": 1.306663251598593,
+          "temporal_range_q95_bins": 0.7099508845010405,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0846222360031265,
+          "lower_edge_q95_bins": 1.893008422584444,
+          "upper_edge_q95_bins": 1.9280361106903001,
+          "temporal_range_q95_bins": 0.6205974893923667,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.014906819084712612,
+          "lower_edge_q95_bins": 1.0226076981412007,
+          "upper_edge_q95_bins": 0.8689667159887904,
+          "temporal_range_q95_bins": 0.31982285338676775,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.09337654336137995,
+          "lower_edge_q95_bins": 2.099819045051845,
+          "upper_edge_q95_bins": 2.2973391449295377,
+          "temporal_range_q95_bins": 0.8087258572861629,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.00875,
+      "temporal_range_maximum_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 380,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.973526387281403,
+        "obw.family_max_relative_q95_12_db": 0.18411336333529169,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.349225649480559,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.5470274994240754,
+        "obw.family_max_temporal_rejection_count_12_db": 4
+      },
+      "families": {
+        "am": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            48,
+            47,
+            47,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.04314102520662371,
+          "lower_edge_q95_bins": 0.5601204647336999,
+          "upper_edge_q95_bins": 0.6715048689227388,
+          "temporal_range_q95_bins": 0.4254453150434756,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "nfm": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.09626491255571427,
+          "lower_edge_q95_bins": 1.16338082007087,
+          "upper_edge_q95_bins": 1.00653606250944,
+          "temporal_range_q95_bins": 0.9125093585557806,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "ook": {
+          "valid_count": 380,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            47,
+            48,
+            47,
+            48
+          ],
+          "wilson_lower_95": 0.973526387281403,
+          "relative_q95": 0.18411336333529169,
+          "lower_edge_q95_bins": 1.7111965986773612,
+          "upper_edge_q95_bins": 1.8171057470847245,
+          "temporal_range_q95_bins": 0.733833981588532,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 4
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.13270337039586166,
+          "lower_edge_q95_bins": 2.349225649480559,
+          "upper_edge_q95_bins": 2.484311931692446,
+          "temporal_range_q95_bins": 0.7017306398565779,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.14321655218641038,
+          "lower_edge_q95_bins": 1.4985563922070924,
+          "upper_edge_q95_bins": 1.4453252964506191,
+          "temporal_range_q95_bins": 0.6053722639878742,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0945097470893315,
+          "lower_edge_q95_bins": 2.094489185477414,
+          "upper_edge_q95_bins": 2.116027092713921,
+          "temporal_range_q95_bins": 0.6517764277389233,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.01963409531525582,
+          "lower_edge_q95_bins": 1.2316144933070063,
+          "upper_edge_q95_bins": 1.1123341922339023,
+          "temporal_range_q95_bins": 0.3567307059850009,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.09925236124495385,
+          "lower_edge_q95_bins": 2.2976350674675814,
+          "upper_edge_q95_bins": 2.5470274994240754,
+          "temporal_range_q95_bins": 0.7864443272999324,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.00875,
+      "temporal_range_maximum_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 381,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.9772854879797644,
+        "obw.family_max_relative_q95_12_db": 0.18693721280612016,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.349225649480559,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.5470274994240754,
+        "obw.family_max_temporal_rejection_count_12_db": 3
+      },
+      "families": {
+        "am": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.043270524217752813,
+          "lower_edge_q95_bins": 0.5648748179896756,
+          "upper_edge_q95_bins": 0.6715048689227388,
+          "temporal_range_q95_bins": 0.4254453150434756,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "nfm": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.09626491255571427,
+          "lower_edge_q95_bins": 1.16338082007087,
+          "upper_edge_q95_bins": 1.00653606250944,
+          "temporal_range_q95_bins": 0.9125093585557806,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "ook": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            48,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.18693721280612016,
+          "lower_edge_q95_bins": 1.7134286235680065,
+          "upper_edge_q95_bins": 1.8171057470847245,
+          "temporal_range_q95_bins": 0.733833981588532,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.13270337039586166,
+          "lower_edge_q95_bins": 2.349225649480559,
+          "upper_edge_q95_bins": 2.484311931692446,
+          "temporal_range_q95_bins": 0.7017306398565779,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14321655218641038,
+          "lower_edge_q95_bins": 1.4985563922070924,
+          "upper_edge_q95_bins": 1.4453252964506191,
+          "temporal_range_q95_bins": 0.6053722639878742,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0945097470893315,
+          "lower_edge_q95_bins": 2.094489185477414,
+          "upper_edge_q95_bins": 2.116027092713921,
+          "temporal_range_q95_bins": 0.6517764277389233,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.01963409531525582,
+          "lower_edge_q95_bins": 1.2316144933070063,
+          "upper_edge_q95_bins": 1.1123341922339023,
+          "temporal_range_q95_bins": 0.3567307059850009,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.09925236124495385,
+          "lower_edge_q95_bins": 2.2976350674675814,
+          "upper_edge_q95_bins": 2.5470274994240754,
+          "temporal_range_q95_bins": 0.7864443272999324,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.00875,
+      "temporal_range_maximum_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 382,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.9812112699927402,
+        "obw.family_max_relative_q95_12_db": 0.18693721280612016,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.349225649480559,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.5470274994240754,
+        "obw.family_max_temporal_rejection_count_12_db": 2
+      },
+      "families": {
+        "am": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.043270524217752813,
+          "lower_edge_q95_bins": 0.5648748179896756,
+          "upper_edge_q95_bins": 0.6715048689227388,
+          "temporal_range_q95_bins": 0.4254453150434756,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "nfm": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.09626491255571427,
+          "lower_edge_q95_bins": 1.16338082007087,
+          "upper_edge_q95_bins": 1.00653606250944,
+          "temporal_range_q95_bins": 0.9125093585557806,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "ook": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.18693721280612016,
+          "lower_edge_q95_bins": 1.7134286235680065,
+          "upper_edge_q95_bins": 1.8171057470847245,
+          "temporal_range_q95_bins": 0.733833981588532,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.13270337039586166,
+          "lower_edge_q95_bins": 2.349225649480559,
+          "upper_edge_q95_bins": 2.484311931692446,
+          "temporal_range_q95_bins": 0.7017306398565779,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14321655218641038,
+          "lower_edge_q95_bins": 1.4985563922070924,
+          "upper_edge_q95_bins": 1.4453252964506191,
+          "temporal_range_q95_bins": 0.6053722639878742,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.0945097470893315,
+          "lower_edge_q95_bins": 2.094489185477414,
+          "upper_edge_q95_bins": 2.116027092713921,
+          "temporal_range_q95_bins": 0.6517764277389233,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.01963409531525582,
+          "lower_edge_q95_bins": 1.2316144933070063,
+          "upper_edge_q95_bins": 1.1123341922339023,
+          "temporal_range_q95_bins": 0.3567307059850009,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.09925236124495385,
+          "lower_edge_q95_bins": 2.2976350674675814,
+          "upper_edge_q95_bins": 2.5470274994240754,
+          "temporal_range_q95_bins": 0.7864443272999324,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.01,
+      "temporal_range_maximum_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 381,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.9772854879797644,
+        "obw.family_max_relative_q95_12_db": 0.1993942817183881,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.514171657578572,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.7535118498899465,
+        "obw.family_max_temporal_rejection_count_12_db": 3
+      },
+      "families": {
+        "am": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.03768188003752717,
+          "lower_edge_q95_bins": 0.6019358479129551,
+          "upper_edge_q95_bins": 0.609315914855415,
+          "temporal_range_q95_bins": 0.340661241458065,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "nfm": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            47,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.10278310468762172,
+          "lower_edge_q95_bins": 1.1492727232275683,
+          "upper_edge_q95_bins": 1.0963441493986466,
+          "temporal_range_q95_bins": 0.6428325832407609,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "ook": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            47,
+            48,
+            47,
+            48
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.1993942817183881,
+          "lower_edge_q95_bins": 1.8463728655951854,
+          "upper_edge_q95_bins": 1.916201125403859,
+          "temporal_range_q95_bins": 0.712223562002805,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14450336620218548,
+          "lower_edge_q95_bins": 2.445739643962497,
+          "upper_edge_q95_bins": 2.588242319990968,
+          "temporal_range_q95_bins": 0.684172384531621,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1514110620426557,
+          "lower_edge_q95_bins": 1.5685499208696,
+          "upper_edge_q95_bins": 1.5424203819786726,
+          "temporal_range_q95_bins": 0.5702707320033369,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10527312359635341,
+          "lower_edge_q95_bins": 2.28767308087572,
+          "upper_edge_q95_bins": 2.303793522956312,
+          "temporal_range_q95_bins": 0.6085504653815406,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.024311656344497723,
+          "lower_edge_q95_bins": 1.4267737576114996,
+          "upper_edge_q95_bins": 1.3197473053060094,
+          "temporal_range_q95_bins": 0.36996152750339206,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.10775791961671159,
+          "lower_edge_q95_bins": 2.514171657578572,
+          "upper_edge_q95_bins": 2.7535118498899465,
+          "temporal_range_q95_bins": 0.7765676028388953,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.01,
+      "temporal_range_maximum_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 381,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.9772854879797644,
+        "obw.family_max_relative_q95_12_db": 0.19988681725678456,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.514171657578572,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.7535118498899465,
+        "obw.family_max_temporal_rejection_count_12_db": 3
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.03784713841946571,
+          "lower_edge_q95_bins": 0.6354821021775479,
+          "upper_edge_q95_bins": 0.6126513594851986,
+          "temporal_range_q95_bins": 0.340661241458065,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 381,
+          "seed_valid_counts": [
+            47,
+            48,
+            48,
+            48,
+            47,
+            48,
+            48,
+            47
+          ],
+          "wilson_lower_95": 0.9772854879797644,
+          "relative_q95": 0.10278310468762172,
+          "lower_edge_q95_bins": 1.1492727232275683,
+          "upper_edge_q95_bins": 1.0963441493986466,
+          "temporal_range_q95_bins": 0.6428325832407609,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 3
+          }
+        },
+        "ook": {
+          "valid_count": 382,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            47,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9812112699927402,
+          "relative_q95": 0.19988681725678456,
+          "lower_edge_q95_bins": 1.8616589994674086,
+          "upper_edge_q95_bins": 1.916201125403859,
+          "temporal_range_q95_bins": 0.712223562002805,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 2
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14450336620218548,
+          "lower_edge_q95_bins": 2.445739643962497,
+          "upper_edge_q95_bins": 2.588242319990968,
+          "temporal_range_q95_bins": 0.684172384531621,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1514110620426557,
+          "lower_edge_q95_bins": 1.5685499208696,
+          "upper_edge_q95_bins": 1.5424203819786726,
+          "temporal_range_q95_bins": 0.5702707320033369,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10527312359635341,
+          "lower_edge_q95_bins": 2.28767308087572,
+          "upper_edge_q95_bins": 2.303793522956312,
+          "temporal_range_q95_bins": 0.6085504653815406,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.024311656344497723,
+          "lower_edge_q95_bins": 1.4267737576114996,
+          "upper_edge_q95_bins": 1.3197473053060094,
+          "temporal_range_q95_bins": 0.36996152750339206,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10775791961671159,
+          "lower_edge_q95_bins": 2.514171657578572,
+          "upper_edge_q95_bins": 2.7535118498899465,
+          "temporal_range_q95_bins": 0.7765676028388953,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.01,
+      "temporal_range_maximum_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.19988681725678456,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.514171657578572,
+        "obw.family_max_upper_edge_q95_bins_12_db": 2.7535118498899465,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.03784713841946571,
+          "lower_edge_q95_bins": 0.6354821021775479,
+          "upper_edge_q95_bins": 0.6126513594851986,
+          "temporal_range_q95_bins": 0.340661241458065,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10278310468762172,
+          "lower_edge_q95_bins": 1.1492727232275683,
+          "upper_edge_q95_bins": 1.0963441493986466,
+          "temporal_range_q95_bins": 0.6428325832407609,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.19988681725678456,
+          "lower_edge_q95_bins": 1.8616589994674086,
+          "upper_edge_q95_bins": 1.916201125403859,
+          "temporal_range_q95_bins": 0.712223562002805,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14450336620218548,
+          "lower_edge_q95_bins": 2.445739643962497,
+          "upper_edge_q95_bins": 2.588242319990968,
+          "temporal_range_q95_bins": 0.684172384531621,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1514110620426557,
+          "lower_edge_q95_bins": 1.5685499208696,
+          "upper_edge_q95_bins": 1.5424203819786726,
+          "temporal_range_q95_bins": 0.5702707320033369,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10527312359635341,
+          "lower_edge_q95_bins": 2.28767308087572,
+          "upper_edge_q95_bins": 2.303793522956312,
+          "temporal_range_q95_bins": 0.6085504653815406,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.024311656344497723,
+          "lower_edge_q95_bins": 1.4267737576114996,
+          "upper_edge_q95_bins": 1.3197473053060094,
+          "temporal_range_q95_bins": 0.36996152750339206,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.10775791961671159,
+          "lower_edge_q95_bins": 2.514171657578572,
+          "upper_edge_q95_bins": 2.7535118498899465,
+          "temporal_range_q95_bins": 0.7765676028388953,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.0125,
+      "temporal_range_maximum_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 383,
+        "obw.seed_min_valid_count_12_db": 47,
+        "obw.family_min_wilson_lower_95_12_db": 0.9853983868469071,
+        "obw.family_max_relative_q95_12_db": 0.22405535961316164,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.855713951125381,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.015007328100637,
+        "obw.family_max_temporal_rejection_count_12_db": 1
+      },
+      "families": {
+        "am": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.047803250960403366,
+          "lower_edge_q95_bins": 0.736228415422147,
+          "upper_edge_q95_bins": 0.4941400351235643,
+          "temporal_range_q95_bins": 0.286306874187062,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12393221398383279,
+          "lower_edge_q95_bins": 1.3315465815890093,
+          "upper_edge_q95_bins": 1.2758577797358157,
+          "temporal_range_q95_bins": 0.5119849657726263,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 383,
+          "seed_valid_counts": [
+            48,
+            48,
+            47,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9853983868469071,
+          "relative_q95": 0.22405535961316164,
+          "lower_edge_q95_bins": 2.053320862509281,
+          "upper_edge_q95_bins": 2.113465907551017,
+          "temporal_range_q95_bins": 0.6227683398435602,
+          "rejection_reason_counts": {
+            "obw_temporal_instability": 1
+          }
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1612361213966666,
+          "lower_edge_q95_bins": 2.742190930814104,
+          "upper_edge_q95_bins": 2.7878896515667293,
+          "temporal_range_q95_bins": 0.7274659564136527,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17463640312938067,
+          "lower_edge_q95_bins": 1.7312055883598987,
+          "upper_edge_q95_bins": 1.6993447345701043,
+          "temporal_range_q95_bins": 0.5052080751310086,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1239046966650516,
+          "lower_edge_q95_bins": 2.673709535202306,
+          "upper_edge_q95_bins": 2.6392671392495686,
+          "temporal_range_q95_bins": 0.6483007618642205,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.031516484726754015,
+          "lower_edge_q95_bins": 1.8401020353076092,
+          "upper_edge_q95_bins": 1.680023757681738,
+          "temporal_range_q95_bins": 0.41160541281396945,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1268209546596169,
+          "lower_edge_q95_bins": 2.855713951125381,
+          "upper_edge_q95_bins": 3.015007328100637,
+          "temporal_range_q95_bins": 0.7580016545273338,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.0125,
+      "temporal_range_maximum_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.22405535961316164,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.855713951125381,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.015007328100637,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.04795526027630288,
+          "lower_edge_q95_bins": 0.7419164430302772,
+          "upper_edge_q95_bins": 0.4941400351235643,
+          "temporal_range_q95_bins": 0.286306874187062,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12393221398383279,
+          "lower_edge_q95_bins": 1.3315465815890093,
+          "upper_edge_q95_bins": 1.2758577797358157,
+          "temporal_range_q95_bins": 0.5119849657726263,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.22405535961316164,
+          "lower_edge_q95_bins": 2.053320862509281,
+          "upper_edge_q95_bins": 2.113465907551017,
+          "temporal_range_q95_bins": 0.6227683398435602,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1612361213966666,
+          "lower_edge_q95_bins": 2.742190930814104,
+          "upper_edge_q95_bins": 2.7878896515667293,
+          "temporal_range_q95_bins": 0.7274659564136527,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17463640312938067,
+          "lower_edge_q95_bins": 1.7312055883598987,
+          "upper_edge_q95_bins": 1.6993447345701043,
+          "temporal_range_q95_bins": 0.5052080751310086,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1239046966650516,
+          "lower_edge_q95_bins": 2.673709535202306,
+          "upper_edge_q95_bins": 2.6392671392495686,
+          "temporal_range_q95_bins": 0.6483007618642205,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.031516484726754015,
+          "lower_edge_q95_bins": 1.8401020353076092,
+          "upper_edge_q95_bins": 1.680023757681738,
+          "temporal_range_q95_bins": 0.41160541281396945,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1268209546596169,
+          "lower_edge_q95_bins": 2.855713951125381,
+          "upper_edge_q95_bins": 3.015007328100637,
+          "temporal_range_q95_bins": 0.7580016545273338,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.0125,
+      "temporal_range_maximum_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.22405535961316164,
+        "obw.family_max_lower_edge_q95_bins_12_db": 2.855713951125381,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.015007328100637,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.04795526027630288,
+          "lower_edge_q95_bins": 0.7419164430302772,
+          "upper_edge_q95_bins": 0.4941400351235643,
+          "temporal_range_q95_bins": 0.286306874187062,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.12393221398383279,
+          "lower_edge_q95_bins": 1.3315465815890093,
+          "upper_edge_q95_bins": 1.2758577797358157,
+          "temporal_range_q95_bins": 0.5119849657726263,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.22405535961316164,
+          "lower_edge_q95_bins": 2.053320862509281,
+          "upper_edge_q95_bins": 2.113465907551017,
+          "temporal_range_q95_bins": 0.6227683398435602,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1612361213966666,
+          "lower_edge_q95_bins": 2.742190930814104,
+          "upper_edge_q95_bins": 2.7878896515667293,
+          "temporal_range_q95_bins": 0.7274659564136527,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17463640312938067,
+          "lower_edge_q95_bins": 1.7312055883598987,
+          "upper_edge_q95_bins": 1.6993447345701043,
+          "temporal_range_q95_bins": 0.5052080751310086,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1239046966650516,
+          "lower_edge_q95_bins": 2.673709535202306,
+          "upper_edge_q95_bins": 2.6392671392495686,
+          "temporal_range_q95_bins": 0.6483007618642205,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.031516484726754015,
+          "lower_edge_q95_bins": 1.8401020353076092,
+          "upper_edge_q95_bins": 1.680023757681738,
+          "temporal_range_q95_bins": 0.41160541281396945,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.1268209546596169,
+          "lower_edge_q95_bins": 2.855713951125381,
+          "upper_edge_q95_bins": 3.015007328100637,
+          "temporal_range_q95_bins": 0.7580016545273338,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.015,
+      "temporal_range_maximum_bins": 3.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.24694985122800997,
+        "obw.family_max_lower_edge_q95_bins_12_db": 3.068640221545593,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.304317134867233,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.06258635004402525,
+          "lower_edge_q95_bins": 0.8752635932175963,
+          "upper_edge_q95_bins": 0.5364037585986807,
+          "temporal_range_q95_bins": 0.268311523018383,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14483973215622,
+          "lower_edge_q95_bins": 1.5213556549383611,
+          "upper_edge_q95_bins": 1.4912371172640633,
+          "temporal_range_q95_bins": 0.46392202499441737,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.24694985122800997,
+          "lower_edge_q95_bins": 2.212863158191567,
+          "upper_edge_q95_bins": 2.2867311517493363,
+          "temporal_range_q95_bins": 0.5665928733628789,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17302969861907877,
+          "lower_edge_q95_bins": 2.9491037784323453,
+          "upper_edge_q95_bins": 2.9655508894738887,
+          "temporal_range_q95_bins": 0.7267250360353046,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.18711505787728133,
+          "lower_edge_q95_bins": 1.8721546211424993,
+          "upper_edge_q95_bins": 1.8442132035534087,
+          "temporal_range_q95_bins": 0.4623074136662808,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14173801512317943,
+          "lower_edge_q95_bins": 2.870449752458626,
+          "upper_edge_q95_bins": 2.914668889704899,
+          "temporal_range_q95_bins": 0.6457183608013111,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.03905801733293874,
+          "lower_edge_q95_bins": 2.24548522994246,
+          "upper_edge_q95_bins": 2.0770337023691354,
+          "temporal_range_q95_bins": 0.4638451449279728,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14329259546754944,
+          "lower_edge_q95_bins": 3.068640221545593,
+          "upper_edge_q95_bins": 3.304317134867233,
+          "temporal_range_q95_bins": 0.7798668917976102,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.015,
+      "temporal_range_maximum_bins": 4.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.24694985122800997,
+        "obw.family_max_lower_edge_q95_bins_12_db": 3.068640221545593,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.304317134867233,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.06258635004402525,
+          "lower_edge_q95_bins": 0.8752635932175963,
+          "upper_edge_q95_bins": 0.5364037585986807,
+          "temporal_range_q95_bins": 0.268311523018383,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14483973215622,
+          "lower_edge_q95_bins": 1.5213556549383611,
+          "upper_edge_q95_bins": 1.4912371172640633,
+          "temporal_range_q95_bins": 0.46392202499441737,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.24694985122800997,
+          "lower_edge_q95_bins": 2.212863158191567,
+          "upper_edge_q95_bins": 2.2867311517493363,
+          "temporal_range_q95_bins": 0.5665928733628789,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17302969861907877,
+          "lower_edge_q95_bins": 2.9491037784323453,
+          "upper_edge_q95_bins": 2.9655508894738887,
+          "temporal_range_q95_bins": 0.7267250360353046,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.18711505787728133,
+          "lower_edge_q95_bins": 1.8721546211424993,
+          "upper_edge_q95_bins": 1.8442132035534087,
+          "temporal_range_q95_bins": 0.4623074136662808,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14173801512317943,
+          "lower_edge_q95_bins": 2.870449752458626,
+          "upper_edge_q95_bins": 2.914668889704899,
+          "temporal_range_q95_bins": 0.6457183608013111,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.03905801733293874,
+          "lower_edge_q95_bins": 2.24548522994246,
+          "upper_edge_q95_bins": 2.0770337023691354,
+          "temporal_range_q95_bins": 0.4638451449279728,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14329259546754944,
+          "lower_edge_q95_bins": 3.068640221545593,
+          "upper_edge_q95_bins": 3.304317134867233,
+          "temporal_range_q95_bins": 0.7798668917976102,
+          "rejection_reason_counts": {}
+        }
+      }
+    },
+    {
+      "tail_fraction": 0.015,
+      "temporal_range_maximum_bins": 5.0,
+      "status": "failed",
+      "metrics": {
+        "obw.family_min_valid_count_12_db": 384,
+        "obw.seed_min_valid_count_12_db": 48,
+        "obw.family_min_wilson_lower_95_12_db": 0.9900952857583228,
+        "obw.family_max_relative_q95_12_db": 0.24694985122800997,
+        "obw.family_max_lower_edge_q95_bins_12_db": 3.068640221545593,
+        "obw.family_max_upper_edge_q95_bins_12_db": 3.304317134867233,
+        "obw.family_max_temporal_rejection_count_12_db": 0
+      },
+      "families": {
+        "am": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.06258635004402525,
+          "lower_edge_q95_bins": 0.8752635932175963,
+          "upper_edge_q95_bins": 0.5364037585986807,
+          "temporal_range_q95_bins": 0.268311523018383,
+          "rejection_reason_counts": {}
+        },
+        "nfm": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14483973215622,
+          "lower_edge_q95_bins": 1.5213556549383611,
+          "upper_edge_q95_bins": 1.4912371172640633,
+          "temporal_range_q95_bins": 0.46392202499441737,
+          "rejection_reason_counts": {}
+        },
+        "ook": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.24694985122800997,
+          "lower_edge_q95_bins": 2.212863158191567,
+          "upper_edge_q95_bins": 2.2867311517493363,
+          "temporal_range_q95_bins": 0.5665928733628789,
+          "rejection_reason_counts": {}
+        },
+        "two_fsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.17302969861907877,
+          "lower_edge_q95_bins": 2.9491037784323453,
+          "upper_edge_q95_bins": 2.9655508894738887,
+          "temporal_range_q95_bins": 0.7267250360353046,
+          "rejection_reason_counts": {}
+        },
+        "bpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.18711505787728133,
+          "lower_edge_q95_bins": 1.8721546211424993,
+          "upper_edge_q95_bins": 1.8442132035534087,
+          "temporal_range_q95_bins": 0.4623074136662808,
+          "rejection_reason_counts": {}
+        },
+        "qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14173801512317943,
+          "lower_edge_q95_bins": 2.870449752458626,
+          "upper_edge_q95_bins": 2.914668889704899,
+          "temporal_range_q95_bins": 0.6457183608013111,
+          "rejection_reason_counts": {}
+        },
+        "wideband_noise_like": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.03905801733293874,
+          "lower_edge_q95_bins": 2.24548522994246,
+          "upper_edge_q95_bins": 2.0770337023691354,
+          "temporal_range_q95_bins": 0.4638451449279728,
+          "rejection_reason_counts": {}
+        },
+        "burst_qpsk": {
+          "valid_count": 384,
+          "seed_valid_counts": [
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48,
+            48
+          ],
+          "wilson_lower_95": 0.9900952857583228,
+          "relative_q95": 0.14329259546754944,
+          "lower_edge_q95_bins": 3.068640221545593,
+          "upper_edge_q95_bins": 3.304317134867233,
+          "temporal_range_q95_bins": 0.7798668917976102,
+          "rejection_reason_counts": {}
+        }
+      }
+    }
+  ],
+  "selected": null,
+  "selection_policy": "Kilitli yedi OBW kapısının tamamını geçen en küçük kuyruk düzeltmesi ve ardından en sıkı temporal üst sınır seçilir.",
+  "claim_boundary": "Yalnız açık F5 geliştirme seed'lerinde yapısal aday karşılaştırmasıdır; binding/OOS, FPGA veya ürün sonucu değildir."
+}

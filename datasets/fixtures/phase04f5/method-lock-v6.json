@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "lock_id": "phase04f5-method-lock-v6",
+  "status": "locked-before-seed-reveal",
+  "methods": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-temporal-artifact-rejection-v5",
+    "occupied_bandwidth": "band.debiased-obw99-tail-bias-correction-v6",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-conditioned-prototype-rejection-v5"
+  },
+  "constants": {
+    "required_frames": 4,
+    "frame_length": 4096,
+    "maximum_persistent_payload_bytes": 65536,
+    "combined_persistent_payload_bytes": 52972,
+    "obw": {
+      "tail_fraction": 0.0075,
+      "edge_expansion_bins": 0.375,
+      "temporal_range_maximum_bins": 7.0
+    },
+    "obw_smoothing_kernel": [
+      0.25,
+      0.5,
+      0.25
+    ],
+    "reference_cells_per_side": 32,
+    "reference_guard_bins": 4
+  },
+  "contracts": {
+    "protocol_lock_sha256": "93c67c0748175d651d2ee0cd245454a365cff43ccb58d91a4535238a55ff6af3",
+    "protocol_lock_identity": "5de0202fa98fb95de2dadad84ab0dfd6a939feb0dbc3dd4b47b9f206ef0a3095",
+    "acceptance_gates_sha256": "f08088242de6a0a34f11b170524b61bb132cfbbd6b5fbec634b31e875b741f5e",
+    "development_catalog_sha256": "5b32a0373f730d383e2530af45cf8b7a8b8c35dd50d6d50d2c8b499325046a58",
+    "evaluation_commitments_sha256": "9501cde756b12ea10b9ba94c74def43c7907b03381ac337e322d5af19d841294",
+    "development_results_sha256": "b1a77a666efd7103dd9bd35362cad2457dd535b1f7d0a4d1bb638d36ea476d90",
+    "carrier_analysis_sha256": "8d40c44a6eeba451d9f2639a1f64b791197057bdf12ce8c107fa0541c9600988",
+    "obw_analysis_sha256": "5b4ac0d0613172bfeac38de3282713c4fde843297ad481e84fa8a6495ca4b256",
+    "implementation_manifest_sha256": "a2b8ab49d51a0b7881847537f673e1c6e87fb1abf8c943c7ccb149272592ac94"
+  },
+  "implementation": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/f5_estimator.py",
+        "sha256": "dc2d00de742f7ec02a2af120934b04df5c1f776b6d7ababaa11fc1ab3a2a4b18"
+      },
+      {
+        "path": "algorithms/parameters/f5_development.py",
+        "sha256": "1576f3d670aaa9e226f2646bc94db09343b4ee81f024c28760c3b257de5794ad"
+      },
+      {
+        "path": "scripts/analyze_phase04f5_obw_structure.py",
+        "sha256": "ea3959f1474734886752b292bda4e882d1f9709b6a2b7ba9133c35e0b2f8e7a9"
+      },
+      {
+        "path": "scripts/develop_phase04f5_structural_obw.py",
+        "sha256": "cddb74fa3052c0ec72813d19cb92b52c711d84c537c90533cdc30c28b62da377"
+      },
+      {
+        "path": "scripts/develop_phase04f5_carrier.py",
+        "sha256": "4df865368fdc9fec118d5ec9b88149e03736c3f2bbadca3af888b5b31700c096"
+      },
+      {
+        "path": "scripts/verify_phase04f5_development.py",
+        "sha256": "b9154ac1705ebe5fb0dc5e2f4761ffe58889e0960168bd3765e8a1a502ed0211"
+      },
+      {
+        "path": "scripts/lock_phase04f5_method.py",
+        "sha256": "957b836276eaec46f60702ce7d551c058304b0b0ba4e35046415aed40cb34c8b"
+      }
+    ],
+    "sha256": "a2b8ab49d51a0b7881847537f673e1c6e87fb1abf8c943c7ccb149272592ac94"
+  },
+  "seed_revealed": false,
+  "claim_boundary": "Yöntem yalnız açık F5 geliştirme kanıtından sonra ve binding/OOS seed reveal öncesinde kilitlenmiştir; FPGA veya ürün başarı kararı değildir.",
+  "method_lock_sha256": "08b93db373add784b71220eb5d1b3be0fdc78d81da8978544cac618f857b4e67"
+}
