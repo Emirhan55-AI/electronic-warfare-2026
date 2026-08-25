@@ -12,6 +12,7 @@ from scripts.prepare_phase04f4_protocol import (
     historical_seeds,
     verify_preimages,
 )
+from scripts.reveal_phase04f4_seeds import verify_reveal
 from scripts.verify_phase04f4_protocol import SUMMARY_PATH, build_summary
 from verification.phase04f4_scoring import score_development, validate_acceptance
 
@@ -65,7 +66,7 @@ class Phase04F4ProtocolTests(unittest.TestCase):
         self.assertEqual("passed", failed["base_scoring"]["status"])
         self.assertTrue(all(item["status"] == "passed" for item in failed["inherited_risk_checks"]))
 
-    def test_local_preimages_match_public_commitments(self) -> None:
+    def test_local_preimages_or_public_reveal_match_commitments(self) -> None:
         if not SEALED_PATH.is_file():
             self.skipTest("local sealed F4 preimages are intentionally not repository-owned")
         sealed = json.loads(SEALED_PATH.read_text(encoding="utf-8"))
@@ -76,7 +77,9 @@ class Phase04F4ProtocolTests(unittest.TestCase):
         evaluation = {int(item["seed"]) for item in sealed["seeds"]}
         self.assertFalse(historical_seeds().intersection(public | evaluation))
         self.assertFalse(public.intersection(evaluation))
-        self.assertFalse((FIXTURES / "evaluation-seeds.json").exists())
+        reveal_path = FIXTURES / "evaluation-seeds.json"
+        if reveal_path.exists():
+            self.assertTrue(verify_reveal(json.loads(reveal_path.read_text(encoding="utf-8"))))
 
 
 if __name__ == "__main__":

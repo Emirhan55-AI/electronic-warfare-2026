@@ -149,9 +149,16 @@ NFM'e en yakın örnekler için leave-one-seed-out çapraz doğrulamalı aile ma
 kullanır; tespit ve taşıyıcı güvenlik payları da aynı açık popülasyonda korunan
 kapılarla doğrulanmıştır. Geliştirmede 40 temel, 14 miras ve dört NFM risk kontrolü
 geçmiş; yöntem ve kanıtlar gizli seed açılmadan önce `method-lock-v5.json` ile
-kilitlenmiştir. Bu sonuç binding/OOS veya ürün kabulü değildir. F4D tek seferlik
-değerlendirmedir ve ayrı kullanıcı onayı olmadan başlatılmaz; F4E yalnız başarı
-halinde profil entegrasyonudur.
+kilitlenmiştir. Kullanıcı onayıyla tamamlanan F4D'de değerlendirme çalıştırıcısı
+commit/push öncesinde kilitlenmiş, taahhüt edilmiş yeni seed'ler doğrulanarak
+açılmış ve binding ardından OOS yalnız bir kez çalıştırılmıştır. Binding 40/40
+kontrolü geçerken OOS 23/24 geçmiştir. OOS OBW aile alt sınırı 62/64 iken AM,
+OOK ve BPSK aileleri 61/64 geçerli ölçümde kalmış; diğer OBW doğruluk, kenar,
+clipping ve span kontrolleri geçmiştir. Kanıt bütünlüğü 7/7 doğrulanmıştır.
+Bütün zorunlu alanlar iki popülasyonda birlikte geçmediğinden F4D başarısızdır;
+aynı popülasyonlar yeniden çalıştırılamaz, F4E başlatılamaz, ürün profili
+oluşturulamaz ve PHASE-04 açık kalır. Yeni iyileştirme turu ayrı plan, bağımsız
+popülasyon commitment'ları ve kullanıcı onayı gerektirir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

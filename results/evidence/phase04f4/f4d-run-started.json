@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "run_id": "phase04f4-one-shot-binding-oos-v1",
+  "status": "started",
+  "head_commit": "5fc91c218ee20661cb8b7cc56bd9842451159435",
+  "runner_lock_sha256": "5b3bce3ea9d7434a7635749809b5b83e152ac1d3bf2b0786b9a4cbc4b7df3806",
+  "method_lock_sha256": "12fa82dc20365cdec4272afdc60cf98f7bd03848a4056d73f8413938febd6058",
+  "evaluation_seeds_sha256": "9418edead8c030322f1b933a2d6f03ebf0e20c389d4ed99846666fbb42f4ba12",
+  "threshold_changes_allowed": false,
+  "rerun_allowed": false
+}
