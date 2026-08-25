@@ -244,6 +244,28 @@ class OperatorViewModel(QObject):
             for item in self._detections
         )
 
+    @Property(float, notify=detectionsChanged)
+    def selectedRegionStartNormalized(self) -> float:
+        return self._selected_detection_coordinate("startNormalized")
+
+    @Property(float, notify=detectionsChanged)
+    def selectedRegionEndNormalized(self) -> float:
+        return self._selected_detection_coordinate("endNormalized")
+
+    @Property(float, notify=detectionsChanged)
+    def selectedRegionPeakNormalized(self) -> float:
+        return self._selected_detection_coordinate("peakNormalized")
+
+    @Property(float, notify=detectionsChanged)
+    def analysisSpanStartNormalized(self) -> float:
+        bins = self._analysis_span_bins()
+        return self._normalized_shifted_bin(bins[0]) if bins is not None else -1.0
+
+    @Property(float, notify=detectionsChanged)
+    def analysisSpanEndNormalized(self) -> float:
+        bins = self._analysis_span_bins()
+        return self._normalized_shifted_bin(bins[1]) if bins is not None else -1.0
+
     @Property("QVariantList", notify=detectionsChanged)
     def parameterRows(self) -> list[dict[str, str]]:
         return self._parameter_rows
@@ -286,7 +308,7 @@ class OperatorViewModel(QObject):
             {"name": "Kaynak", "state": source},
             {"name": "Ön İşleme", "state": processing},
             {"name": "FFT / Güç", "state": processing},
-            {"name": "OS-CFAR", "state": processing},
+            {"name": "Bölgesel Eşik", "state": processing},
             {"name": "Operatör Görevleri", "state": selected},
         ]
 
@@ -831,6 +853,9 @@ class OperatorViewModel(QObject):
                 "snr": f"{item.region.peak_to_noise_db:.1f} dB",
                 "state": state_text[item.state],
                 "stateKey": item.state,
+                "startNormalized": self._normalized_shifted_bin(item.region.start_bin),
+                "endNormalized": self._normalized_shifted_bin(item.region.end_bin),
+                "peakNormalized": self._normalized_shifted_bin(item.region.peak_bin),
             }
             for item in visible
         ]
@@ -935,16 +960,28 @@ class OperatorViewModel(QObject):
         self._analysis_span_draft = (lower, upper) if upper - lower + 1 >= 8 else None
 
     def _analysis_frequency_text(self, index: int) -> str:
-        bins = (
-            (self._analysis_span.lower_shifted_bin, self._analysis_span.upper_shifted_bin)
-            if self._analysis_span is not None
-            else self._analysis_span_draft
-        )
+        bins = self._analysis_span_bins()
         if bins is None or self._last_result is None:
             return ""
         spectrum = self._last_result.spectrum
         frequency_hz = spectrum.center_frequency_hz + (bins[index] - 2048.0) * spectrum.bin_spacing_hz
         return f"{frequency_hz / 1_000_000.0:.6f}"
+
+    def _analysis_span_bins(self) -> tuple[int, int] | None:
+        if self._analysis_span is not None:
+            return self._analysis_span.lower_shifted_bin, self._analysis_span.upper_shifted_bin
+        return self._analysis_span_draft
+
+    def _selected_detection_coordinate(self, field: str) -> float:
+        selected = next(
+            (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
+            None,
+        )
+        return float(selected[field]) if selected is not None else -1.0
+
+    @staticmethod
+    def _normalized_shifted_bin(value: int) -> float:
+        return max(0.0, min(1.0, float(value) / 4095.0))
 
     def _has_four_observed_frames(self, event_id: int) -> bool:
         if self._frame_index < 3:

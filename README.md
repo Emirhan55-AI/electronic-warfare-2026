@@ -1,132 +1,114 @@
-# TEKNOFEST 2026 Elektronik Harp FPGA Projesi
+# Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
-Bu repository, TEKNOFEST 2026 Elektronik Harp Yarışması için FPGA merkezli bir Elektronik Harp prototipinin mühendislik temelidir. Planlanan görev sırası sinyal tespiti, parametre çıkarımı, genlik tabanlı yön bulma, yaklaşık konum belirleme, analog amatör telsiz izleme/dinleme ve kontrollü ET/aldatma deneyleridir.
+Bu proje; RF I/Q verisinin alınması, spektral analizi, sinyal tespiti, operatör
+onaylı parametre ölçümü ve FPGA üzerinde gerçek zamanlı işlenmesi için geliştirilen
+bir mühendislik sistemidir. Referans platform HackRF One, ZedBoard Zynq-7000 ve
+Türkçe Qt Quick operatör uygulamasından oluşur.
 
-## Referans sistem
+Proje yalnız ölçülmüş veya tekrarlanabilir testle doğrulanmış sonuçları yetenek
+olarak kabul eder. Canlı donanım, RF doğruluğu ya da performans kanıtı bulunmayan
+işlevler uygulamada çalışıyormuş gibi gösterilmez.
 
-Bağlayıcı donanım 2 adet HackRF One + PortaPack H2, bir ZedBoard Zynq-7000 (P/N 410-248), iki bilgisayar, 2 adet Quectel YE0003AA geniş bant omni anten, Diamond SRH-789 teleskobik anten, FOX-727 çift bant Yagi, 800 MHz–6 GHz UWB yönlü anten, 2,4–10,5 GHz yönlü TEM anten ve mevcut RF kablo/adaptör/zayıflatıcılarından oluşur. Anten kullanımı HackRF'ın desteklediği RF aralığıyla sınırlıdır; listede olmayan GNSS veya eski KTR BOM donanımı mevcut kabul edilmez.
+## Sistem mimarisi
 
-Hedef veri yolu şöyledir:
+```text
+SigMF / HackRF RX
+       │
+       ▼
+Operatör bilgisayarı ── kontrol ve kayıt ──► ZedBoard PS / DDR
+       │                                         │
+       │                                         ▼
+       ◄──────────── sonuçlar ─────────── AXI DMA / ZedBoard PL
+                                                  │
+                                     Hann → 4096 FFT → Güç
+                                                  │
+                                     Uyarlanabilir tespit → Adaylar
+```
 
-`SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL`
+Hedef mimaride kritik FPGA sonuçları sürümlü ve sınırları belirli paketlerle PS
+tarafına taşınır. Host referans modelleri RTL davranışını doğrulamak için korunur;
+nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 
-HackRF-1 ED/RX ve canlı I/Q kaynağı, laptop USB erişimi/veri aktarımı/kayıt/kullanıcı arayüzü, ZedBoard PS ağ-kontrol-DDR aktarımı ve ZedBoard PL gerçek FPGA DSP işlemleri için planlanmıştır. HackRF-2 yalnızca ileride güvenli, kontrollü ve izinli ET/TX deneylerinde kullanılacaktır.
+## Mevcut yetenekler
 
-Korunan genel tespit yaklaşımı `I/Q → çerçeveleme → Hann → 4096 FFT → lineer güç → uyarlanabilir eşik → komşu hücre birleştirme → temporal olaylar` zinciridir. KTR yalnız yarışma görevleri ve bu genel sıralama için referanstır; sayısal performans parametreleri satın alınmış HackRF–ZedBoard–laptop sistemine göre belirlenir.
+| Alan | Durum |
+|---|---|
+| SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
+| HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
+| Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
+| Uyarlanabilir hücre tespiti, aday gruplama ve 2/3 zamansal doğrulama | Host referansında doğrulandı |
+| Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Operatör onaylı analiz aralığında doğrulandı |
+| Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
+| ZedBoard PL Hann/FFT/güç zinciri | Vivado sentez/yerleştirme-yönlendirme kanıtı mevcut |
+| ZedBoard üzerinde canlı DMA ve uçtan uca çalışma | Henüz doğrulanmadı |
+| AM/NFM izleme zinciri | Kayıtlı I/Q üzerinde doğrulandı; ürün arayüzüne henüz alınmadı |
+| ET işlevleri | Yalnız çevrimdışı modeller; RF yayın yolu yok |
 
-## Mevcut durum
+Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
+Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 
-PHASE-04 parametre doğrulaması açık kalırken kullanıcı onaylı **P0 Mandatory EH Core — ED Algorithms, FPGA Runtime and Operator Integration** hızlı kontrol noktası uygulanmıştır. Block A'da KTR'nin OS-CFAR yöntem niyeti sayısal mühendislik profilinden ayrılmış; `Pfa=1e-4` için alpha `8.58014304069906` deterministik türetilmiş, empirical FAR ölçülmüş, kaba adaydan ayrı gürültü-referanslı bant estimatorü ve üç hakem replay modu eklenmiştir. Portable C OS-CFAR host'ta Python ile 32.768 hücrede sıfır mismatch verir; parametre, DF, offline ET ve Qt kapıları ayrı kanıtlarla izlenir. Bu P0 referansı nihai çalışma zamanı sahibi olarak PS/ARM'ı korur; ARM execution veya canlı HackRF değildir.
+## Operatör uygulaması
 
-Kanonik Vivado 2025.2 tasarımı Zynq PS, AXI DMA, DDR HP yolu, MM2S→Hann→4096 AMD FFT→lineer güç→S2MM, saat/reset ve iki DMA interruptını gerçek blok tasarımında bağlar. İlk 100 MHz denemesi WNS −6,541 ns ile dürüstçe başarısız kaydedilmiş ve bitstream üretmemiştir. HackRF'ın 20 MS/s sınırını 2,5 kat aşan 50 MHz çalışma hedefi WNS +0,258 ns, TNS 0, WHS +0,025 ns ve sıfır route hatasıyla kapanmış; bitstream üretilmiştir. Bu sonuç Vivado sentez/route kanıtıdır; PetaLinux, driver, canlı DMA veya kartta yürütüm değildir.
+Uygulama; veri kaynağı, spektrum/spektrogram, tespitler, üç adımlı sinyal ölçümü,
+manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu tek görev kabuğunda
+birleştirir. Yayın çalışma zamanı yalnız SigMF ve gerçek HackRF RX kaynaklarını
+kabul eder; test verileri ve çevrimdışı laboratuvar araçları ürün paketine girmez.
 
-PHASE-00 repository temelini kurmuştur; PHASE-01–06J tarihsel kanıtları korunur. PHASE-04 R1/R2/D1/E1 ve F1/F2 başarısızlık kanıtları değiştirilmemiştir. OOK taşıyıcı ve 6 dB sinyal alanı ihlalleri için F3A–F3C tamamlanmış, v4 yöntemi yeni değerlendirme seed'leri açılmadan kilitlenmiştir. Tek seferlik F3D'de binding 40/40, OOS 23/24 geçmiştir. OOK ihlalleri giderilmiş; NFM 6 dB sinyal alanı doğru karar sayısı 44/64 ile 48 alt sınırını geçemediği için F3D başarısız olmuştur. Aynı popülasyon yeniden çalıştırılamaz, F3E başlatılamaz ve ürün profili oluşturulmamıştır. P0 ayrı, açık sözleşmeli zorunlu çekirdektir. PHASE-05 kayıtlı AM/NFM dinleme sonucu korunur. PetaLinux derleme artifact'ları vardır ancak başarılı kart boot'u, ARM çalıştırması ve ZedBoard DMA kanıtlanmamıştır. P0 Block B0'da Computer-1 host toolchain'i HackRF/libhackrf `2026.01.2` ile hazırlandı; seri-temelli RX-only argv, bounded queue, üç tuning planı ve disconnected UI unit-test edildi. Fiziksel cihaz bağlı değildir, seri/UNKNOWN aralığı atanmamıştır; canlı I/Q veya Block B PASS değildir. Gerçek cihaz, canlı I/Q ve canlı analog dinleme henüz çalıştırılmamış ve kanıtlanmamıştır. RF yayın yapılmamış, gerçek TX backend'i eklenmemiş, dBm veya RF etki iddiası üretilmemiştir.
+### Kurulum
 
-Yayın operatör giriş noktası Qt Quick/QML'dir. SigMF sözleşmesi, spektrum,
-OS-CFAR/temporal tespit, açık eylemli P0 parametre ölçümü ve manuel açı–gerçek I/Q
-güç kaydı aynı ürün bileşiminde çalışır. HackRF yolu yalnız gerçek araç ve cihaz
-durumunu kullanır; bağlı cihaz olmadan canlı sonuç göstermez. QWidget bileşimi
-tarihsel regresyon yüzeyi olarak korunur ve ürün başlangıcında yüklenmez.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements\phase02.txt
+```
 
-Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözleşmesi ve AMD IP Wrapper Temeli**.
+### Çalıştırma
 
-## Dizinler
+```powershell
+python -m app.operator_console
+```
 
-- `docs/`: Mimari, karar, gereksinim, yol haritası ve güvenlik belgeleri.
-- `algorithms/fpga/phase06a/`: Vendor-bağımsız SystemVerilog AXI4-Stream giriş ve frame-istatistik kaynakları ile self-checking testbench; FFT/detector veya kart projesi içermez.
-- `algorithms/fpga/phase06b/`: Vendor-bağımsız sabit nokta Hann datapath'i ve sample-by-sample self-checking testbench; gerçek FFT veya detector içermez.
-- `algorithms/fpga/phase06c/`: Gelecekteki AMD FFT'nin abstract portlarına bağlanan vendor-independent AXI/config/event wrapper'ı ve yalnız test amaçlı non-FFT transport stub'ı.
-- `algorithms/fpga/phase06d/`: Vivado-generated gerçek AMD FFT v9.1 XCI'si, ince fiziksel-port adapter'ı ve gerçek IP kullanan XSim testbench'i.
-- `algorithms/fpga/phase06e/`: Gerçek wrapper/IP zinciri için synthesis top'u, 100 MHz logical-boundary XDC'si ve registered-ready AXI input slice testbench'i.
-- `algorithms/fpga/phase06f/`: Signed 29 bit FFT I/Q alanlarından 58 bit unsigned exact lineer power üreten pipelined AXI4-Stream RTL ve self-checking Icarus testbench'i.
-- `algorithms/fpga/phase06g/`: Exact 256-cell median, fixed-point regional noise/threshold ve detector metadata'sı üreten frame-buffered AXI4-Stream RTL, self-checking Icarus testbench'i ve synthesis-only integration top'u.
-- `algorithms/fpga/phase06h/`: PHASE-06G detected hücrelerini shifted sırada coarse adaylara birleştiren, bounded candidate RAM kullanan AXI4-Stream RTL, self-checking Icarus testbench'i ve standalone synthesis-only top'u.
-- `algorithms/fpga/phase06i/`: PHASE-06H adaylarını sürümlemeli little-endian DMA-facing 64-bit AXI4-Stream packet'larına dönüştüren vendor-independent packetizer ve self-checking testbench.
-- `algorithms/fpga/p0/`: PHASE-06B/D/F bloklarını yeniden kullanan kanonik AXI4-Stream Hann→FFT→güç runtime top'u ve Vivado modül-reference sarmalayıcısı.
-- `platforms/embedded/phase06i/`: Candidate transport ABI v1 C layout'u ve ilk shape decoder kaynağı.
-- `platforms/embedded/phase06j/`: ABI v1'i byte-wise strict doğrulayan, bounded PHASE-03 2-of-3 association state machine'ini uygulayan ve host'ta gerçek compile/link edilmiş portable C11 PS çekirdeği; ARM/ZedBoard üzerinde çalıştırılmamıştır.
-- `platforms/embedded/p0/`: Açık konfigürasyonlu OS-CFAR ve aday gruplama için portable C11 PS hedef çekirdeği; host'ta doğrulanmış, ARM'de çalıştırılmamıştır.
-- `algorithms/`: SigMF/spektrum, detector/temporal olay, PHASE-04 parametre, Qt-bağımsız bounded AM/NFM monitoring ve PHASE-06A bit-doğru tam sayı RTL golden modelleri.
-- `app/`: Türkçe operatör uygulaması, sunum katmanı ve ürün giriş noktası.
-- `verification/`: Katman sınırı sözleşmesi ile kökteki faz testleri, doğrulama araçları, fixture'lar ve kanıtların sahiplik tanımı.
-- `platforms/acquisition/`: HackRF-1 için Qt/DSP bağımsız gerçek CLI ve deterministik test backend'leri, bounded `ci8` capture ve süreç güvenliği.
-- `datasets/fixtures/phase04/`: Geçerlilik matrisi, seed, yöntem sırası ve sabit başarı kapılarını içeren parametre sahne kataloğu.
-- `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
-- `datasets/fixtures/phase04e1/`: E1 acceptance kapıları, operatör-span sahneleri ve sonuçlardan önce kilitlenen yöntem sözleşmesi.
-- `profiles/phase04e1/`: En az bir E1 alanı binding ve OOS kapılarını geçerse oluşturulacak alan-bazlı profil; mevcut değerlendirmede oluşturulmamıştır.
-- `profiles/phase04f5/`: Binding 40/40 ve OOS 24/24 sonucuna digest bağlı, yalnız operatör onaylı izole analiz aralığında çalışan F5 host parametre ürün profili.
-- `datasets/fixtures/phase03/`: Detector bağımsız, sayısal parametreleri sabit sentetik sahne kataloğu.
-- `profiles/phase03/`: Benchmark sonucuyla kurulan doğrulanmış Operasyon işlem profili.
-- `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
-- `datasets/fixtures/phase05/`: Gerçek RF olmayan deterministik AM, NFM ve noise-only SigMF dinleme fixture'ları.
-- `datasets/fixtures/phase06a/`: PHASE-01'in dört frame'inden türetilen AXI giriş/golden sonuç vektörleri ve deterministik köşe durumu sözleşmesi.
-- `datasets/fixtures/phase06b/`: Dondurulmuş Hann katsayı ROM'u, 10 frame giriş ve 40.960 örneklik bit-doğru FFT-facing golden çıkış.
-- `datasets/fixtures/phase06c/`: On 4096-örnek frame için idealize FFT sayısal golden'ı ve ayrı non-FFT wrapper transport vektörleri.
-- `datasets/fixtures/phase06d/`: PHASE-06C girişlerini byte-değişmez devralan, negatif frekans tone ekleyen 11 frame ve AMD bit-accurate C-model tam kompleks sonucu.
-- `datasets/fixtures/phase06f/`: Power extrema vektörleri ve PHASE-06D gerçek FFT sonuçlarından exact integer power golden'ı; PSD normalization içermez.
-- `datasets/fixtures/phase06g/`: On beş sentetik detector frame'i ve beş frozen PHASE-06F gerçek-power frame'inden türetilen bit-exact detector giriş/çıkış vektörleri.
-- `datasets/fixtures/phase06h/`: On iki sentetik grouping frame'i ile bir frozen PHASE-06G gerçek-detector frame'inin bit-exact candidate giriş/çıkış vektörleri.
-- `datasets/fixtures/phase06i/`: Frozen PHASE-06H candidate stream'inden üretilen ABI packet binary'si ve 64-bit AXI golden beat'leri.
-- `datasets/fixtures/phase06j/`: Temporal 1/3, 2/3, 3/3, movement, ambiguity, expiry, reset, uint32 wrap ve 1352-candidate sınırı için PHASE-06I ABI packet sequence'leri ve authoritative Python golden olayları.
-- `datasets/external/`: Repository dışında tutulan gerçek kayıtlar ve yerel kesitler için kullanım/Git politikası; gerçek ISM datası repository'ye eklenmez.
-- `scripts/`: Faz doğrulayıcıları, fixture/kesit araçları, detector/parametre seçicileri ve gerçek UI renderer'ları.
-- `tests/`: Repository, SigMF, DSP, detector/parametre istatistiği, işlem profili, bounded worker, Unicode, görsel durum ve performans testleri.
-- `results/evidence/phase00/`: PHASE-00 makine tarafından okunabilir kanıtları.
-- `results/evidence/phase01/`: Fixture manifesti ve PHASE-01 doğrulama kanıtları.
-- `results/evidence/phase02/`: Golden spektrum, sabit sıralı doğrulama özeti ve görsel inceleme kanıtları.
-- `results/evidence/phase03/`: Detector karşılaştırması, golden tespit, sabit doğrulama özeti ve yedi gerçek UI görüntüsü.
-- `results/evidence/phase04/`: Başarılı veya başarısız parametre karşılaştırması ile golden/doğrulama özeti; yedi gerçek UI görüntüsü yalnız tam başarıda üretilir.
-- `results/evidence/phase04e1/`: E1 golden ölçümleri, binding/OOS ham sonuçları, alan kararları, doğrulama özeti ve gerçek fallback arayüz görselleri.
-- `results/evidence/phase05/`: Fixture hashleri, AM/NFM clean ve 20 dB golden ölçümleri, doğrulama özeti ve Dinleme UI kanıtları.
-- `results/evidence/phase06a/`: Toolchain keşfi, sabit nokta sözleşmesi, golden/Python sonuçları ve varsa RTL simülasyon durumu; unavailable simülatör başarı iddiasına çevrilmez.
-- `results/evidence/phase06b/`: Word-length çalışması, bit-doğru Python/RTL sonuçları, AXI/latency ve dürüst uygulanmamış-FFT sınırı.
-- `results/evidence/phase06c/`: FFT mimari/sayısal kararları, wrapper Icarus sonucu ve gerçek AMD IP'nin uygulanmadığını açıkça ayıran kanıtlar.
-- `results/evidence/phase06d/`: Planlama/toolchain kapısı ile gerçek IP generation, C-model, XSim bit-eşdeğerlik, latency ve event kanıtları; sentez veya donanım kanıtı değildir.
-- `results/evidence/phase06e/`: Vivado 2025.2 synthesis, routed implementation, timing, kaynak, warning sınıflandırması ve AXI boundary testinin normalized kanıtları; raw proje veya hardware kanıtı değildir.
-- `results/evidence/phase06f/`: Exact genişlik kanıtı, bağımsız Python sonucu, gerçek FFT entegrasyonu, Icarus AXI/latency ve determinism kanıtları; post-power timing veya hardware kanıtı değildir.
-- `results/evidence/phase06g/`: PHASE-03 matematik/median sözleşmesi, katsayı ve mimari çalışması, bit-exact Python/Icarus sonucu, gerçek-power entegrasyonu ve targeted synthesis-only resource fizibilitesi; post-detector timing veya hardware kanıtı değildir.
-- `results/evidence/phase06h/`: Authoritative grouping sözleşmesi, bit-exact Python/Icarus candidate sonucu, determinism, throughput ve standalone targeted synthesis-only resource fizibilitesi; implementation, timing veya hardware kanıtı değildir.
-- `results/evidence/phase06i/`: Transport seçimi, ABI, Python decode, byte-exact Icarus packetizer, toolchain ve dürüst deferred PS/temporal sınırı; DMA/PetaLinux/hardware kanıtı değildir.
-- `results/evidence/phase06j/`: Portable C11 host build/link, strict ABI decoder, Python↔C temporal semantic eşdeğerliği, bounded bellek/karmaşıklık ve dürüst blocked PetaLinux/ARM/hardware sınırı.
-- `results/evidence/phase08a/`: Gerçek donanım ve canlı RX çalıştırılmadan üretilen acquisition sözleşmesi, mock test ve dürüst UI kanıtları.
-- `results/evidence/p0/`: ED/DF/ET golden sonuçları, başarısız 100 MHz denemesi ve geçen 50 MHz Vivado/bitstream kanıtı.
-- `results/evidence/app-f/`: QML ürün ekranı, gerçek SigMF çalışma koşuları, gerçek HackRF probe durumu, ölçekleme ve performans kapıları.
+Klavye kısayolları:
+
+- `Ctrl+O`: SigMF kaydı açar.
+- `Boşluk`: taramayı başlatır veya duraklatır.
+- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`: çalışma alanları arasında geçer.
+- `Ctrl+B`: veri kaynağı panelini açar veya kapatır.
 
 ## Doğrulama
 
-```text
-python -B scripts/generate_phase01_fixture.py --check
-python -B scripts/select_phase04_profile.py --evaluate
-python -B scripts/select_phase04_profile.py --check
-python -B scripts/verify_phase04.py --check
-python -B scripts/establish_phase04f5_product_profile.py --check
-python -B scripts/verify_phase04f5_product_integration.py --check
-python -B scripts/generate_phase05_fixtures.py --check
-python -B scripts/verify_phase05.py --check
-python -B scripts/generate_phase06b_vectors.py --check
-python -B scripts/verify_phase06b.py --check
-python -B scripts/generate_phase06c_vectors.py --check
-python -B scripts/verify_phase06c.py --check
-python -B scripts/verify_phase06d.py --check
-python -B scripts/verify_phase06e.py --check
-python -B scripts/generate_phase06f_vectors.py --check
-python -B scripts/verify_phase06f.py --check
-python -B scripts/generate_phase06g_vectors.py --check
-python -B scripts/verify_phase06g.py --check
-python -B scripts/generate_phase06h_vectors.py --check
-python -B scripts/verify_phase06h.py --check
-python -B scripts/generate_phase06i_vectors.py --check
-python -B scripts/verify_phase06i.py --check
-python -B scripts/generate_phase06j_vectors.py --check
-python -B scripts/verify_phase06j.py --check
-python -B scripts/verify_p0_algorithms.py --check
-python -B scripts/verify_p0_detector_profile.py --check
-python -B scripts/verify_p0_bandwidth.py --check
-python -B scripts/verify_p0_judge_workflow.py --check
-python -B scripts/verify_p0_df.py
-python -B scripts/verify_p0_et.py
-python -B scripts/verify_p0_os_cfar.py
-python -B scripts/verify_ui_performance.py --check
-python -B scripts/verify_app_f_release_ui.py
-python -B -m unittest discover -s tests -v
+Tam yazılım regresyonu:
+
+```powershell
+python -B -m unittest discover -s tests
 ```
+
+Operatör arayüzü; 1280×720, 1366×768, 1920×1080 ve %150 ölçek koşullarında
+aşağıdaki doğrulayıcıyla yeniden üretilebilir:
+
+```powershell
+python -B scripts\verify_app_f_release_ui.py
+```
+
+Ayrıntılı gereksinim durumu ve yöntem sınırları
+[`docs/requirements/KTR_TRACEABILITY.md`](docs/requirements/KTR_TRACEABILITY.md),
+sistem hedefi ise
+[`docs/architecture/SYSTEM_BASELINE.md`](docs/architecture/SYSTEM_BASELINE.md)
+altında tutulur.
+
+## Depo düzeni
+
+- `app/`: Qt Quick operatör uygulaması ve sunum katmanı.
+- `algorithms/`: host referans DSP, tespit, parametre, izleme ve FPGA RTL kaynakları.
+- `platforms/`: HackRF alım katmanı ile Zynq PS/embedded bileşenleri.
+- `profiles/`: doğrulama kapılarını geçmiş çalışma profilleri.
+- `tests/` ve `verification/`: otomatik regresyonlar ve bağımsız doğrulama araçları.
+- `docs/`: mimari, gereksinim izlenebilirliği ve teknik kararlar.
+
+## RF güvenliği
+
+Depoda genel kullanıma açık bir RF yayın arka ucu bulunmaz. ET çalışmaları yalnız
+çevrimdışı veya kapalı çevrim doğrulama kapsamındadır. Her fiziksel RF deneyi;
+yetkili, kontrollü, uygun zayıflatma ve ekranlama kullanılan bir test düzeninde
+yürütülmelidir.

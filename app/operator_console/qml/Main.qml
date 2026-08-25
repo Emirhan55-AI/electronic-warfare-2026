@@ -15,6 +15,7 @@ ApplicationWindow {
 
     property int workspace: 0
     property bool consoleOpen: false
+    property bool sourcePanelOpen: true
     property color appBackground: "#050B11"
     property color surface: "#0A131C"
     property color surfaceAlt: "#0D1822"
@@ -189,6 +190,7 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+1"; onActivated: root.workspace = 0 }
     Shortcut { sequence: "Ctrl+2"; onActivated: root.workspace = 1 }
     Shortcut { sequence: "Ctrl+3"; onActivated: root.workspace = 2 }
+    Shortcut { sequence: "Ctrl+B"; onActivated: root.sourcePanelOpen = !root.sourcePanelOpen }
 
     header: Rectangle {
         height: 76
@@ -357,8 +359,17 @@ ApplicationWindow {
                     spacing: 10
 
                     Panel {
-                        Layout.preferredWidth: 244
+                        id: sourcePanel
+                        property real animatedWidth: root.sourcePanelOpen ? 244 : 0
+                        Layout.preferredWidth: animatedWidth
+                        Layout.minimumWidth: animatedWidth
+                        Layout.maximumWidth: animatedWidth
                         Layout.fillHeight: true
+                        visible: animatedWidth > 0.5
+                        opacity: root.sourcePanelOpen ? 1 : 0
+                        clip: true
+                        Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
+                        Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 16
@@ -445,6 +456,16 @@ ApplicationWindow {
                                 spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
+                                    Button {
+                                        flat: true
+                                        implicitWidth: 28
+                                        implicitHeight: 24
+                                        text: root.sourcePanelOpen ? "‹" : "›"
+                                        Accessible.name: root.sourcePanelOpen ? "Kaynak panelini gizle" : "Kaynak panelini göster"
+                                        onClicked: root.sourcePanelOpen = !root.sourcePanelOpen
+                                        contentItem: Text { text: parent.text; color: root.textSecondary; font.pixelSize: 18; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                        background: Rectangle { color: parent.hovered ? root.surfaceAlt : "transparent"; border.color: parent.activeFocus ? root.accent : "transparent"; radius: 3 }
+                                    }
                                     SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
                                     Rectangle {
                                         implicitWidth: liveTrace.implicitWidth + 16
@@ -459,9 +480,28 @@ ApplicationWindow {
                                     id: spectrumCanvas
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
+                                    property real selectionOpacity: 1
                                     Accessible.name: "Anlık güç spektrumu"
                                     onWidthChanged: operatorViewModel.setSpectrumViewportWidth(width)
-                                    Connections { target: operatorViewModel; function onSpectrumChanged() { spectrumCanvas.requestPaint() } }
+                                    onSelectionOpacityChanged: requestPaint()
+                                    NumberAnimation {
+                                        id: selectionFade
+                                        target: spectrumCanvas
+                                        property: "selectionOpacity"
+                                        from: 0
+                                        to: 1
+                                        duration: root.transitionDuration + 90
+                                        easing.type: Easing.OutCubic
+                                    }
+                                    Connections {
+                                        target: operatorViewModel
+                                        function onSpectrumChanged() { spectrumCanvas.requestPaint() }
+                                        function onDetectionsChanged() {
+                                            spectrumCanvas.selectionOpacity = operatorViewModel.selectedDetectionId >= 0 ? 0 : 1
+                                            selectionFade.restart()
+                                            spectrumCanvas.requestPaint()
+                                        }
+                                    }
                                     onPaint: {
                                         var ctx = getContext("2d")
                                         ctx.reset()
@@ -482,6 +522,35 @@ ApplicationWindow {
                                         for (var gy = 0; gy <= 5; gy++) {
                                             var y = plotTop + gy * plotHeight / 5
                                             ctx.beginPath(); ctx.moveTo(plotLeft, y); ctx.lineTo(plotRight, y); ctx.stroke()
+                                        }
+                                        var selectionStart = operatorViewModel.selectedRegionStartNormalized
+                                        var selectionEnd = operatorViewModel.selectedRegionEndNormalized
+                                        var selectionPeak = operatorViewModel.selectedRegionPeakNormalized
+                                        if (selectionStart >= 0 && selectionEnd >= selectionStart) {
+                                            var coarseX1 = plotLeft + selectionStart * plotWidth
+                                            var coarseX2 = plotLeft + selectionEnd * plotWidth
+                                            if (coarseX2 - coarseX1 < 3) {
+                                                var coarseCenter = plotLeft + selectionPeak * plotWidth
+                                                coarseX1 = coarseCenter - 1.5; coarseX2 = coarseCenter + 1.5
+                                            }
+                                            ctx.globalAlpha = spectrumCanvas.selectionOpacity
+                                            ctx.fillStyle = "rgba(240,188,98,0.10)"
+                                            ctx.fillRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight)
+                                            ctx.strokeStyle = "rgba(240,188,98,0.82)"
+                                            ctx.setLineDash([4, 3]); ctx.strokeRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight); ctx.setLineDash([])
+                                            ctx.globalAlpha = 1
+                                        }
+                                        var analysisStart = operatorViewModel.analysisSpanStartNormalized
+                                        var analysisEnd = operatorViewModel.analysisSpanEndNormalized
+                                        if (analysisStart >= 0 && analysisEnd >= analysisStart) {
+                                            var analysisX1 = plotLeft + analysisStart * plotWidth
+                                            var analysisX2 = plotLeft + analysisEnd * plotWidth
+                                            ctx.globalAlpha = spectrumCanvas.selectionOpacity
+                                            ctx.fillStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(49,195,210,0.13)" : "rgba(49,195,210,0.07)"
+                                            ctx.fillRect(analysisX1, plotTop, Math.max(2, analysisX2 - analysisX1), plotHeight)
+                                            ctx.strokeStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(49,195,210,0.95)" : "rgba(49,195,210,0.55)"
+                                            ctx.strokeRect(analysisX1, plotTop, Math.max(2, analysisX2 - analysisX1), plotHeight)
+                                            ctx.globalAlpha = 1
                                         }
                                         var values = operatorViewModel.spectrumValues
                                         if (!values || values.length < 2) return
@@ -865,8 +934,20 @@ ApplicationWindow {
                                     id: bearingCompass
                                     anchors.fill: parent
                                     anchors.margins: 12
+                                    property real indicatedBearing: -1
                                     Accessible.name: "Kerteriz göstergesi"
-                                    Connections { target: operatorViewModel; function onDirectionChanged() { bearingCompass.requestPaint() } }
+                                    onIndicatedBearingChanged: requestPaint()
+                                    Behavior on indicatedBearing {
+                                        NumberAnimation { duration: root.transitionDuration + 130; easing.type: Easing.OutCubic }
+                                    }
+                                    Connections {
+                                        target: operatorViewModel
+                                        function onDirectionChanged() {
+                                            var targetBearing = parseFloat(operatorViewModel.bearingText)
+                                            bearingCompass.indicatedBearing = isNaN(targetBearing) ? -1 : targetBearing
+                                            bearingCompass.requestPaint()
+                                        }
+                                    }
                                     onPaint: {
                                         var ctx = getContext("2d")
                                         ctx.reset(); ctx.clearRect(0, 0, width, height)
@@ -883,8 +964,8 @@ ApplicationWindow {
                                             ctx.beginPath(); ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner)
                                             ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius); ctx.stroke()
                                         }
-                                        var bearing = parseFloat(operatorViewModel.bearingText)
-                                        if (!isNaN(bearing)) {
+                                        var bearing = bearingCompass.indicatedBearing
+                                        if (bearing >= 0) {
                                             var bearingRad = bearing * Math.PI / 180 - Math.PI / 2
                                             ctx.strokeStyle = root.success; ctx.lineWidth = 2.5
                                             ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(bearingRad) * (radius - 8), cy + Math.sin(bearingRad) * (radius - 8)); ctx.stroke()

@@ -93,10 +93,12 @@ view_model.pause()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
 confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
 view_model.selectDetection(int(confirmed["eventId"])); before=list(view_model.parameterRows)
+selection=[view_model.selectedRegionStartNormalized,view_model.selectedRegionPeakNormalized,view_model.selectedRegionEndNormalized]
+draft=[view_model.analysisSpanStartNormalized,view_model.analysisSpanEndNormalized]
 view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
 view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
-payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed}
+payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
 """
@@ -104,6 +106,10 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual([], payload["before"])
         self.assertTrue(payload["span_confirmed"])
         self.assertTrue(payload["after"])
+        self.assertLessEqual(payload["selection"][0], payload["selection"][1])
+        self.assertLessEqual(payload["selection"][1], payload["selection"][2])
+        self.assertGreaterEqual(payload["draft"][0], 0.0)
+        self.assertLessEqual(payload["draft"][1], 1.0)
         self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
         labels = [row["label"] for row in payload["after"]]
         self.assertNotIn("Tepe bin gücü", labels)

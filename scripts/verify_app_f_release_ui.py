@@ -100,6 +100,18 @@ def _child_run(args: argparse.Namespace) -> int:
     app.processEvents()
     timer.stop()
 
+    if args.workspace == 0:
+        confirmed = next(
+            (item for item in view_model.detections if item["stateKey"] == "confirmed"),
+            None,
+        )
+        if confirmed is not None:
+            view_model.selectDetection(int(confirmed["eventId"]))
+            visual_deadline = time.perf_counter() + 0.35
+            while time.perf_counter() < visual_deadline:
+                app.processEvents()
+                time.sleep(0.002)
+
     operation_ms = view_model._operation_samples_ms[initial_count:]
     gaps_ms = [
         (current - previous) * 1000.0
@@ -123,6 +135,16 @@ def _child_run(args: argparse.Namespace) -> int:
         "source_state": view_model.sourceState,
         "spectrum_points": len(view_model.spectrumValues),
         "visible_detections": len(view_model.detections),
+        "selected_detection_id": view_model.selectedDetectionId,
+        "selected_region": [
+            view_model.selectedRegionStartNormalized,
+            view_model.selectedRegionPeakNormalized,
+            view_model.selectedRegionEndNormalized,
+        ],
+        "analysis_span": [
+            view_model.analysisSpanStartNormalized,
+            view_model.analysisSpanEndNormalized,
+        ],
         "processed_frames": len(operation_ms),
         "observed_update_hz": len(operation_ms) / duration,
         "processing_median_ms": statistics.median(operation_ms),
@@ -206,6 +228,18 @@ def _parent_run() -> int:
             for run in runs
         ),
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),
+        "selection_bound_to_fft": all(
+            int(run["selected_detection_id"]) >= 0
+            and 0.0 <= float(run["selected_region"][0])
+            <= float(run["selected_region"][1])
+            <= float(run["selected_region"][2])
+            <= 1.0
+            and 0.0 <= float(run["analysis_span"][0])
+            <= float(run["analysis_span"][1])
+            <= 1.0
+            for run in runs
+            if int(run["workspace"]) == 0
+        ),
         "ten_hz_update": all(float(run["observed_update_hz"]) >= 9.0 for run in runs),
         "processing_budget": all(float(run["processing_p95_ms"]) < 100.0 for run in runs),
         "responsive_gui": all(float(run["maximum_heartbeat_gap_ms"]) < 100.0 for run in runs),

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-25T17:42:36Z",
+  "recorded_at": "2026-08-25T19:44:29Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -27,13 +27,23 @@
       "source_state": "Hazır",
       "spectrum_points": 562,
       "visible_detections": 12,
+      "selected_detection_id": 1,
+      "selected_region": [
+        0.5606837606837607,
+        0.5626373626373626,
+        0.5645909645909646
+      ],
+      "analysis_span": [
+        0.5584859584859585,
+        0.5667887667887668
+      ],
       "processed_frames": 23,
-      "observed_update_hz": 9.195373623506852,
-      "processing_median_ms": 2.4314001202583313,
-      "processing_p95_ms": 2.613699994981289,
-      "maximum_heartbeat_gap_ms": 37.28149994276464,
+      "observed_update_hz": 9.189631155159812,
+      "processing_median_ms": 2.3849999997764826,
+      "processing_p95_ms": 2.5271999184042215,
+      "maximum_heartbeat_gap_ms": 32.86490007303655,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "662858a3c531cb10e70f75e04f19a391ce48036cbdf5e43130d7df264f210feb"
+      "screenshot_sha256": "100d632b782105ffd0caf64c1c4d126c716228e85e98e0b58d1aa69337c87609"
     },
     {
       "name": "standard-1366x768",
@@ -47,13 +57,23 @@
       "source_state": "Hazır",
       "spectrum_points": 722,
       "visible_detections": 12,
+      "selected_detection_id": -1,
+      "selected_region": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "analysis_span": [
+        -1.0,
+        -1.0
+      ],
       "processed_frames": 23,
-      "observed_update_hz": 9.193976107223463,
-      "processing_median_ms": 2.5510999839752913,
-      "processing_p95_ms": 6.186800077557564,
-      "maximum_heartbeat_gap_ms": 54.16940012946725,
+      "observed_update_hz": 9.198463120644341,
+      "processing_median_ms": 2.441100077703595,
+      "processing_p95_ms": 4.031499847769737,
+      "maximum_heartbeat_gap_ms": 50.252499990165234,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "dea3cf29be0e746f984bf4bcde9fba077c41c1e1d88d57b7f54ec7d43157bacd"
+      "screenshot_sha256": "db6ee99c00051cf73aef1e25cdf2fbf2b6d7e717b99df56fb72acc2f3a88e7a8"
     },
     {
       "name": "fullhd-1920x1080",
@@ -67,13 +87,23 @@
       "source_state": "Hazır",
       "spectrum_points": 722,
       "visible_detections": 12,
+      "selected_detection_id": -1,
+      "selected_region": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "analysis_span": [
+        -1.0,
+        -1.0
+      ],
       "processed_frames": 23,
-      "observed_update_hz": 9.192084144896162,
-      "processing_median_ms": 2.495700027793646,
-      "processing_p95_ms": 3.486400004476309,
-      "maximum_heartbeat_gap_ms": 39.85230019316077,
+      "observed_update_hz": 9.187629407759708,
+      "processing_median_ms": 2.3870000150054693,
+      "processing_p95_ms": 3.9702998474240303,
+      "maximum_heartbeat_gap_ms": 42.876699939370155,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "b33e993fb111f941a833cdbe412fd576ba15c08b88917cb5d3875e3b3f3280f2"
+      "screenshot_sha256": "98e2bbd54d34b55bdda6831419ab5ca8fd0cf5cac87d86f05265277c028b2cd6"
     },
     {
       "name": "scale-150-percent",
@@ -87,13 +117,23 @@
       "source_state": "Hazır",
       "spectrum_points": 562,
       "visible_detections": 12,
+      "selected_detection_id": 1,
+      "selected_region": [
+        0.5606837606837607,
+        0.5626373626373626,
+        0.5645909645909646
+      ],
+      "analysis_span": [
+        0.5584859584859585,
+        0.5667887667887668
+      ],
       "processed_frames": 23,
-      "observed_update_hz": 9.194193316008867,
-      "processing_median_ms": 2.957100048661232,
-      "processing_p95_ms": 4.078199854120612,
-      "maximum_heartbeat_gap_ms": 56.57380004413426,
+      "observed_update_hz": 9.185871761581813,
+      "processing_median_ms": 2.4514999240636826,
+      "processing_p95_ms": 2.6642000302672386,
+      "maximum_heartbeat_gap_ms": 45.68560002371669,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "08bf13b0c204bf24acd407fef01538b4c2b9dd1e45dff805ad96e28aeba8c2ef"
+      "screenshot_sha256": "e70b1d8f2a870d316bf083ec527118b5b3afb21f336e1ce290d8385db2794431"
     }
   ],
   "hackrf_probe": {
@@ -107,6 +147,7 @@
     "all_sources_real": true,
     "minimum_screen": true,
     "bounded_spectrum": true,
+    "selection_bound_to_fft": true,
     "ten_hz_update": true,
     "processing_budget": true,
     "responsive_gui": true,

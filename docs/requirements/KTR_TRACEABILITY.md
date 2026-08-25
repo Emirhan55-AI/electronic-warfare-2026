@@ -41,6 +41,11 @@ sinyal ölçüm sunumunu, polar kerteriz göstergesini, kompakt sistem sağlık
 görünümü kaldırılmıştır. Güncel çoklu çözünürlük, %150 ölçek, 10 Hz ve GUI
 heartbeat kanıtı `results/evidence/app-f/release-ui-verification.json` altında
 korunur; bu bakım algoritma, donanım veya RF doğruluk iddiasını değiştirmez.
+İkinci bakım paketi, seçili kaba aday ile operatör analiz aralığını gerçek 4096
+FFT hücre koordinatlarından spektrum üzerine taşımış; açılır kaynak paneli ve
+ölçümle tetiklenen kerteriz geçişini `Hareketi azalt` ayarına bağlamıştır. Ürün
+durum şeridi doğrulanmış çalışma profilindeki `regional` yöntemi literatüre uygun
+`Bölgesel Eşik` adıyla gösterir; OS-CFAR çalışıyormuş izlenimi vermez.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
