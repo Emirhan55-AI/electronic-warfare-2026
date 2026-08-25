@@ -1023,6 +1023,7 @@ APPROVED_APP_HARDENING_FILES = (
     "results/evidence/app-e/qt-widgets-prototype.png",
     "results/evidence/app-e/qt-quick-prototype.png",
     "results/evidence/app-f/fullhd-1920x1080.png",
+    "results/evidence/app-f/measurement-1280x720.png",
     "results/evidence/app-f/minimum-1280x720.png",
     "results/evidence/app-f/release-ui-verification.json",
     "results/evidence/app-f/scale-150-percent.png",
