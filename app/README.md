@@ -13,8 +13,9 @@ Uygulamanın mevcut çalışma alanları:
   görünümde eşleşir; görünüm geçmişi korunur ve `Shift+sürükle` analiz aralığı
   taslağını gerçek FFT hücrelerine bağlar. Seçili sinyal bağlamı sabit kalırken
   `Tespitler` ve `Ölçüm` aynı görev panelinde operatör seçimiyle değiştirilir.
-- `Dinleme`: doğrulanmış tespitten operatör seçimli AM/NFM kanal hazırlama, ses
-  dalga biçimi, oynatma durumu ve WAV dışa aktarma.
+- `Dinleme`: sabit doğrulanmış tespit bağlamından operatör seçimli AM/NFM kanal
+  hazırlama, demodüle ses dalga biçimi, gerçek oynatma konumu, fiziksel ses
+  çıkışı durumu ve WAV dışa aktarma.
 - `Yön Bulma`: gerçek I/Q gücünün elle girilen anten açısıyla kaydı, bağıl geliş
   açısı ve geçerli referans varsa kerteriz.
 - `Sistem`: gerçek çalışma durumundan beslenen yedi aşamalı işlem zinciri,
@@ -33,8 +34,9 @@ HackRF ses saha kabulü tamamlanmış sayılmaz.
 
 Tespit listesi görev sırasında sabit kalır. Tespit listesi ile sinyal ölçümü aynı
 anda daraltılmaz; sabit seçili sinyal kartının altındaki ayrı görev görünümlerinde
-açılır. Dinleme ayarları dar ekranlarda üst seviye gezinmeyi veya seçili sinyal
-bağlamını hareket ettirmeden kendi panelinde kaydırılır.
+açılır. Dinleme alanında seçili sinyal, hazırlama eylemi ve sonuç kontrolleri
+sabit kalır; yalnız kanal ayarları kendi panelinde kaydırılır. Oynatma zaman
+çizelgesi salt okunurdur ve ses çıkışının işlediği PCM süresinden beslenir.
 
 Çalıştırma:
 

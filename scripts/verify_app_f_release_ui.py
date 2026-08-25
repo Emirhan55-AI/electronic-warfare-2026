@@ -18,17 +18,18 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 FIXTURE = ROOT / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-meta"
+LISTENING_FIXTURE = ROOT / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.sigmf-meta"
 OUTPUT = ROOT / "results" / "evidence" / "app-f"
 SUMMARY = OUTPUT / "release-ui-verification.json"
 QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 CONFIGURATIONS = (
-    ("minimum-1280x720", 1280, 720, 1.0, 0, 0),
-    ("measurement-1280x720", 1280, 720, 1.0, 0, 1),
-    ("standard-1366x768", 1366, 768, 1.0, 1, 0),
-    ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0),
-    ("scale-150-percent", 1280, 720, 1.5, 2, 0),
+    ("minimum-1280x720", 1280, 720, 1.0, 0, 0, False),
+    ("measurement-1280x720", 1280, 720, 1.0, 0, 1, False),
+    ("standard-1366x768", 1366, 768, 1.0, 1, 0, True),
+    ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0, False),
+    ("scale-150-percent", 1280, 720, 1.5, 2, 0, False),
 )
 
 
@@ -103,6 +104,31 @@ def _child_run(args: argparse.Namespace) -> int:
     app.processEvents()
     timer.stop()
 
+    operation_ms = view_model._operation_samples_ms[initial_count:]
+    gaps_ms = [
+        (current - previous) * 1000.0
+        for previous, current in zip(heartbeat, heartbeat[1:])
+    ]
+
+    if args.prepare_listening:
+        view_model.openSigmf(str(LISTENING_FIXTURE))
+        listening_deadline = time.perf_counter() + 8.0
+        while time.perf_counter() < listening_deadline and (
+            view_model.busy or not view_model.sourceReady or not view_model.spectrumValues
+        ):
+            app.processEvents()
+            time.sleep(0.002)
+        view_model.startScan()
+        while time.perf_counter() < listening_deadline and not any(
+            item["stateKey"] == "confirmed" for item in view_model.detections
+        ):
+            app.processEvents()
+            time.sleep(0.002)
+        view_model.pause()
+        while view_model.busy and time.perf_counter() < listening_deadline:
+            app.processEvents()
+            time.sleep(0.002)
+
     if args.workspace in {0, 1}:
         confirmed = next(
             (item for item in view_model.detections if item["stateKey"] == "confirmed"),
@@ -114,16 +140,17 @@ def _child_run(args: argparse.Namespace) -> int:
                 root.zoomSpectrum(0.5, 0.25)
                 root.setProperty("spectrumCursorNormalized", view_model.selectedRegionPeakNormalized)
                 root.setProperty("spectrumCursorVisible", True)
+            elif args.prepare_listening:
+                view_model.requestListening("am", view_model.selectedDetectionOffsetKHz, 16.0, 0.8)
+                listening_deadline = time.perf_counter() + 8.0
+                while view_model.busy and time.perf_counter() < listening_deadline:
+                    app.processEvents()
+                    time.sleep(0.002)
             visual_deadline = time.perf_counter() + 0.35
             while time.perf_counter() < visual_deadline:
                 app.processEvents()
                 time.sleep(0.002)
 
-    operation_ms = view_model._operation_samples_ms[initial_count:]
-    gaps_ms = [
-        (current - previous) * 1000.0
-        for previous, current in zip(heartbeat, heartbeat[1:])
-    ]
     image = QQuickWindow.grabWindow(root)
     screenshot = Path(args.screenshot)
     screenshot.parent.mkdir(parents=True, exist_ok=True)
@@ -139,6 +166,7 @@ def _child_run(args: argparse.Namespace) -> int:
         "captured_height": image.height(),
         "workspace": args.workspace,
         "spectrum_task_tab": args.spectrum_task_tab,
+        "prepare_listening": args.prepare_listening,
         "source_ready": view_model.sourceReady,
         "source_state": view_model.sourceState,
         "spectrum_points": len(view_model.spectrumValues),
@@ -165,6 +193,11 @@ def _child_run(args: argparse.Namespace) -> int:
         "developer_mode": view_model.developerMode,
         "pipeline_blocks": view_model.pipelineBlocks,
         "event_log_fields": sorted(view_model.eventLog[-1].keys()) if view_model.eventLog else [],
+        "listening_ready": view_model.listeningReady,
+        "listening_short_preview": view_model.listeningShortPreview,
+        "listening_waveform_points": len(view_model.listeningWaveform),
+        "listening_playback_state": view_model.listeningPlaybackState,
+        "listening_playback_duration": view_model.listeningPlaybackDurationText,
         "screenshot": screenshot.relative_to(ROOT).as_posix(),
         "screenshot_sha256": _sha256(screenshot),
     }
@@ -177,7 +210,7 @@ def _child_run(args: argparse.Namespace) -> int:
 def _parent_run() -> int:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     runs: list[dict[str, object]] = []
-    for name, width, height, scale, workspace, spectrum_task_tab in CONFIGURATIONS:
+    for name, width, height, scale, workspace, spectrum_task_tab, prepare_listening in CONFIGURATIONS:
         screenshot = OUTPUT / f"{name}.png"
         environment = os.environ.copy()
         environment["QT_QPA_PLATFORM"] = "offscreen"
@@ -203,6 +236,7 @@ def _parent_run() -> int:
                 str(workspace),
                 "--spectrum-task-tab",
                 str(spectrum_task_tab),
+                *(["--prepare-listening"] if prepare_listening else []),
                 "--screenshot",
                 str(screenshot),
             ],
@@ -279,6 +313,23 @@ def _parent_run() -> int:
         "spectrum_task_views": {
             (int(run["workspace"]), int(run["spectrum_task_tab"])) for run in runs
         }.issuperset({(0, 0), (0, 1)}),
+        "listening_task_ready": any(
+            bool(run["prepare_listening"])
+            and bool(run["listening_ready"])
+            and int(run["listening_waveform_points"]) > 100
+            and run["listening_playback_state"] == "Oynatmaya hazır"
+            and run["listening_playback_duration"] != "00:00.0"
+            for run in runs
+        )
+        and all(
+            marker in qml_text
+            for marker in (
+                'objectName: "listeningTransport"',
+                'objectName: "listeningResultList"',
+                "Oynatma konumu, salt okunur",
+                "operatorViewModel.listeningOutputState",
+            )
+        ),
         "system_diagnostics": all(
             marker in qml_text
             for marker in (
@@ -338,6 +389,9 @@ def _parent_run() -> int:
             "metadata": FIXTURE.relative_to(ROOT).as_posix(),
             "metadata_sha256": _sha256(FIXTURE),
             "data_sha256": _sha256(FIXTURE.with_suffix(".sigmf-data")),
+            "listening_metadata": LISTENING_FIXTURE.relative_to(ROOT).as_posix(),
+            "listening_metadata_sha256": _sha256(LISTENING_FIXTURE),
+            "listening_data_sha256": _sha256(LISTENING_FIXTURE.with_suffix(".sigmf-data")),
         },
         "runs": runs,
         "hackrf_probe": hackrf_probe,
@@ -364,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scale", type=float, default=1.0)
     parser.add_argument("--workspace", type=int, default=0)
     parser.add_argument("--spectrum-task-tab", type=int, choices=(0, 1), default=0)
+    parser.add_argument("--prepare-listening", action="store_true")
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
     args = parser.parse_args(argv)

@@ -176,6 +176,7 @@ class OperatorViewModel(QObject):
     directionChanged = Signal()
     logChanged = Signal()
     listeningChanged = Signal()
+    playbackChanged = Signal()
     pipelineChanged = Signal()
 
     def __init__(
@@ -201,6 +202,9 @@ class OperatorViewModel(QObject):
         self._timer = QTimer(self)
         self._timer.setInterval(100)
         self._timer.timeout.connect(self._advance)
+        self._playback_timer = QTimer(self)
+        self._playback_timer.setInterval(100)
+        self._playback_timer.timeout.connect(self._refresh_listening_playback)
 
         self._generation = 0
         self._closed = False
@@ -246,6 +250,9 @@ class OperatorViewModel(QObject):
         self._listening_rows: list[dict[str, str]] = []
         self._listening_waveform: list[float] = []
         self._listening_short_preview = False
+        self._listening_playback_state = "Ses hazırlanmadı"
+        self._listening_playback_position_s = 0.0
+        self._listening_playback_duration_s = 0.0
 
         self._df = ManualAmplitudeDF()
         self._df_points: list[dict[str, str]] = []
@@ -551,6 +558,28 @@ class OperatorViewModel(QObject):
     @Property("QVariantList", notify=listeningChanged)
     def listeningWaveform(self) -> list[float]:
         return self._listening_waveform
+
+    @Property(str, notify=playbackChanged)
+    def listeningPlaybackState(self) -> str:
+        return self._listening_playback_state
+
+    @Property(str, notify=playbackChanged)
+    def listeningPlaybackPositionText(self) -> str:
+        return self._format_duration(self._listening_playback_position_s)
+
+    @Property(str, notify=playbackChanged)
+    def listeningPlaybackDurationText(self) -> str:
+        return self._format_duration(self._listening_playback_duration_s)
+
+    @Property(float, notify=playbackChanged)
+    def listeningPlaybackProgress(self) -> float:
+        if self._listening_playback_duration_s <= 0.0:
+            return 0.0
+        return max(0.0, min(1.0, self._listening_playback_position_s / self._listening_playback_duration_s))
+
+    @Property(str, notify=playbackChanged)
+    def listeningOutputState(self) -> str:
+        return "Ses çıkışı hazır" if self._audio_playback.available else "Ses çıkışı yok · WAV kullanılabilir"
 
     @Property(str, notify=stateChanged)
     def sourceDurationText(self) -> str:
@@ -917,16 +946,29 @@ class OperatorViewModel(QObject):
     @Slot()
     def playListening(self) -> None:
         if not self._audio_playback.play():
-            self._listening_state = "Ses çıkış aygıtı kullanılamıyor; WAV dışa aktarımı kullanılabilir."
+            self._listening_playback_state = "Ses çıkış aygıtı kullanılamıyor"
+            self.playbackChanged.emit()
             self.listeningChanged.emit()
+            return
+        self._listening_playback_state = "Oynatılıyor"
+        self._playback_timer.start()
+        self._refresh_listening_playback()
 
     @Slot()
     def pauseListening(self) -> None:
         self._audio_playback.pause()
+        self._playback_timer.stop()
+        self._listening_playback_position_s = self._audio_playback.position_seconds
+        self._listening_playback_state = "Duraklatıldı"
+        self.playbackChanged.emit()
 
     @Slot()
     def stopListening(self) -> None:
+        self._playback_timer.stop()
         self._audio_playback.stop()
+        self._listening_playback_position_s = 0.0
+        self._listening_playback_state = "Durduruldu"
+        self.playbackChanged.emit()
 
     @Slot(str)
     def exportListeningWav(self, value: str) -> None:
@@ -1036,6 +1078,7 @@ class OperatorViewModel(QObject):
             return
         self._closed = True
         self.stop()
+        self._playback_timer.stop()
         self._generation += 1
         self._backend.cancel()
         self._pool.waitForDone(2000)
@@ -1107,6 +1150,10 @@ class OperatorViewModel(QObject):
             listening, scope, input_duration, offset_hz, bandwidth_hz = result
             self._listening_result = listening
             self._audio_playback.load(listening.pcm16)
+            self._playback_timer.stop()
+            self._listening_playback_position_s = 0.0
+            self._listening_playback_duration_s = self._audio_playback.duration_seconds
+            self._listening_playback_state = "Oynatmaya hazır"
             self._listening_short_preview = scope != "Kesintisiz kayıt"
             audio_duration = listening.audio.size / listening.sample_rate_hz
             channel_frequency = self.centerFrequencyHz + float(offset_hz)
@@ -1129,6 +1176,7 @@ class OperatorViewModel(QObject):
             )
             self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
             self._add_log("Dinleme", self._status_message)
+            self.playbackChanged.emit()
             self.listeningChanged.emit()
         elif kind == "wav_export":
             self._status_message = f"WAV kaydedildi: {Path(str(result)).name}"
@@ -1311,12 +1359,17 @@ class OperatorViewModel(QObject):
         self.pipelineChanged.emit()
 
     def _clear_listening(self, message: str) -> None:
+        self._playback_timer.stop()
         self._audio_playback.stop()
         self._listening_result = None
         self._listening_rows = []
         self._listening_waveform = []
         self._listening_short_preview = False
         self._listening_state = message
+        self._listening_playback_state = "Ses hazırlanmadı"
+        self._listening_playback_position_s = 0.0
+        self._listening_playback_duration_s = 0.0
+        self.playbackChanged.emit()
         self.listeningChanged.emit()
         self.pipelineChanged.emit()
 
@@ -1356,6 +1409,18 @@ class OperatorViewModel(QObject):
         self._event_log = self._event_log[:20]
         self.logChanged.emit()
 
+    @Slot()
+    def _refresh_listening_playback(self) -> None:
+        self._listening_playback_position_s = self._audio_playback.position_seconds
+        if (
+            self._listening_playback_duration_s > 0.0
+            and self._listening_playback_position_s >= self._listening_playback_duration_s - 0.01
+        ):
+            self._playback_timer.stop()
+            self._listening_playback_position_s = self._listening_playback_duration_s
+            self._listening_playback_state = "Oynatma tamamlandı"
+        self.playbackChanged.emit()
+
     @staticmethod
     def _format_frequency(value: float) -> str:
         if abs(value) >= 1_000_000_000:
@@ -1373,6 +1438,13 @@ class OperatorViewModel(QObject):
         if abs(value) >= 1_000:
             return f"{value / 1_000:.6g} kHz"
         return f"{value:.6g} Hz"
+
+    @staticmethod
+    def _format_duration(value: float) -> str:
+        bounded = max(0.0, float(value))
+        minutes = int(bounded // 60.0)
+        seconds = bounded - minutes * 60.0
+        return f"{minutes:02d}:{seconds:04.1f}"
 
     @staticmethod
     def _field_state(state: str) -> str:

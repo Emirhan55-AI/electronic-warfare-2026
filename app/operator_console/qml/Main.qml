@@ -1307,17 +1307,41 @@ ApplicationWindow {
             Item {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 20
-                    spacing: 14
+                    anchors.margins: 14
+                    spacing: 10
 
                     Panel {
-                        Layout.preferredWidth: 350
+                        Layout.preferredWidth: 330
                         Layout.fillHeight: true
                         ColumnLayout {
                             anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 11
-                            SectionTitle { text: "ANALOG KANAL SEÇİMİ" }
+                            anchors.margins: 14
+                            spacing: 9
+                            RowLayout {
+                                Layout.fillWidth: true
+                                SectionTitle { text: "KANAL HAZIRLAMA"; Layout.fillWidth: true }
+                                StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
+                            }
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: 76
+                                radius: 4
+                                color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
+                                border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 10
+                                    spacing: 2
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: operatorViewModel.listeningDetectionTitle; color: root.textPrimary; font.pixelSize: 11; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
+                                        Label { text: operatorViewModel.selectedDetectionStateText; color: operatorViewModel.selectedDetectionReady ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                    }
+                                    Label { text: operatorViewModel.listeningDetectionFrequencyText; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas" }
+                                    Label { text: "I/Q kayıt süresi  " + operatorViewModel.sourceDurationText; color: root.textMuted; font.pixelSize: 8 }
+                                }
+                            }
+                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                             ScrollView {
                                 id: listeningSettingsScroll
                                 objectName: "listeningSettingsScroll"
@@ -1329,21 +1353,6 @@ ApplicationWindow {
                                 ColumnLayout {
                                     width: listeningSettingsScroll.availableWidth
                                     spacing: 10
-                                    Rectangle {
-                                        Layout.fillWidth: true
-                                        implicitHeight: 70
-                                        radius: 4
-                                        color: root.surfaceAlt
-                                        border.color: operatorViewModel.selectedDetectionReady ? root.accent : root.border
-                                        ColumnLayout {
-                                            anchors.fill: parent
-                                            anchors.margins: 11
-                                            spacing: 3
-                                            Label { text: operatorViewModel.listeningDetectionTitle; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
-                                            Label { text: operatorViewModel.listeningDetectionFrequencyText; color: root.accent; font.pixelSize: 11; font.family: "Consolas" }
-                                            Label { text: "Kaynak süresi: " + operatorViewModel.sourceDurationText; color: root.textMuted; font.pixelSize: 9 }
-                                        }
-                                    }
                                     Label { text: "Demodülasyon"; color: root.textSecondary; font.pixelSize: 10 }
                                     AppCombo {
                                         id: listeningMode
@@ -1420,25 +1429,25 @@ ApplicationWindow {
                                             border.width: 2
                                         }
                                     }
-                                    PrimaryButton {
-                                        Layout.fillWidth: true
-                                        text: "Kanal Sesini Hazırla"
-                                        enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
-                                        onClicked: operatorViewModel.requestListening(
-                                            listeningMode.model[listeningMode.currentIndex].value,
-                                            Number(listeningOffset.text),
-                                            Number(listeningBandwidth.text),
-                                            listeningVolume.value
-                                        )
-                                    }
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: "Kesintisiz dinleme için kaynakta en az 5 saniyelik I/Q gerekir. Daha kısa kayıt yalnız açıkça etiketli kısa önizleme üretir."
-                                        color: root.warning
-                                        font.pixelSize: 10
-                                        wrapMode: Text.Wrap
-                                    }
                                 }
+                            }
+                            PrimaryButton {
+                                Layout.fillWidth: true
+                                text: operatorViewModel.listeningReady ? "Kanal Sesini Yeniden Hazırla" : "Kanal Sesini Hazırla"
+                                enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
+                                onClicked: operatorViewModel.requestListening(
+                                    listeningMode.model[listeningMode.currentIndex].value,
+                                    Number(listeningOffset.text),
+                                    Number(listeningBandwidth.text),
+                                    listeningVolume.value
+                                )
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                text: "Kesintisiz sonuç için en az 5 saniyelik I/Q gerekir; kısa kayıt yalnız süreli önizleme üretir."
+                                color: root.warning
+                                font.pixelSize: 9
+                                wrapMode: Text.Wrap
                             }
                         }
                     }
@@ -1446,17 +1455,18 @@ ApplicationWindow {
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 14
+                        spacing: 10
                         Panel {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 280
+                            Layout.preferredHeight: root.height < 780 ? 250 : 310
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 16
-                                spacing: 10
+                                anchors.margins: 14
+                                spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "SES DALGA BİÇİMİ"; Layout.fillWidth: true }
+                                    SectionTitle { text: "DEMODÜLE SES DALGA BİÇİMİ"; Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.listeningPlaybackDurationText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
                                     StateBadge { state: operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.busy ? "Çalışıyor" : "Kullanılmıyor" }
                                 }
                                 Canvas {
@@ -1486,6 +1496,14 @@ ApplicationWindow {
                                         ctx.stroke()
                                     }
                                 }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Label { text: "00:00.0"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
+                                    Item { Layout.fillWidth: true }
+                                    Label { text: "GENLİK · NORMALİZE"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                    Item { Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.listeningPlaybackDurationText; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
+                                }
                             }
                         }
                         Panel {
@@ -1493,11 +1511,11 @@ ApplicationWindow {
                             Layout.fillHeight: true
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 16
-                                spacing: 10
+                                anchors.margins: 14
+                                spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "DİNLEME SONUCU"; Layout.fillWidth: true }
+                                    SectionTitle { text: "KANAL ÇIKIŞI"; Layout.fillWidth: true }
                                     Label {
                                         text: operatorViewModel.listeningShortPreview ? "KISA ÖNİZLEME" : operatorViewModel.listeningReady ? "KESİNTİSİZ" : "BEKLENİYOR"
                                         color: operatorViewModel.listeningShortPreview ? root.warning : operatorViewModel.listeningReady ? root.success : root.textMuted
@@ -1512,8 +1530,48 @@ ApplicationWindow {
                                     font.pixelSize: 11
                                     wrapMode: Text.Wrap
                                 }
+                                Rectangle {
+                                    id: listeningTransport
+                                    objectName: "listeningTransport"
+                                    Layout.fillWidth: true
+                                    implicitHeight: 76
+                                    radius: 4
+                                    color: "#071018"
+                                    border.color: root.border
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 10
+                                        spacing: 6
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label { text: operatorViewModel.listeningPlaybackState; color: operatorViewModel.listeningPlaybackState === "Oynatılıyor" ? root.success : root.textPrimary; font.pixelSize: 9; font.weight: Font.DemiBold; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.listeningOutputState; color: operatorViewModel.listeningOutputState === "Ses çıkışı hazır" ? root.success : root.warning; font.pixelSize: 8 }
+                                        }
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            implicitHeight: 6
+                                            radius: 3
+                                            color: "#172731"
+                                            Accessible.name: "Oynatma konumu, salt okunur"
+                                            Rectangle {
+                                                width: parent.width * operatorViewModel.listeningPlaybackProgress
+                                                height: parent.height
+                                                radius: 3
+                                                color: root.accent
+                                                Behavior on width { NumberAnimation { duration: root.transitionDuration } }
+                                            }
+                                        }
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label { text: operatorViewModel.listeningPlaybackPositionText; color: root.textSecondary; font.pixelSize: 8; font.family: "Consolas"; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.listeningPlaybackDurationText; color: root.textSecondary; font.pixelSize: 8; font.family: "Consolas" }
+                                        }
+                                    }
+                                }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 ListView {
+                                    id: listeningResultList
+                                    objectName: "listeningResultList"
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     clip: true
@@ -1528,9 +1586,9 @@ ApplicationWindow {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    QuietButton { text: "Oynat"; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.playListening() }
-                                    QuietButton { text: "Duraklat"; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.pauseListening() }
-                                    QuietButton { text: "Durdur"; enabled: operatorViewModel.listeningReady && !operatorViewModel.busy; onClicked: operatorViewModel.stopListening() }
+                                    QuietButton { text: "Oynat"; implicitWidth: 72; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.playListening() }
+                                    QuietButton { text: "Duraklat"; implicitWidth: 82; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.pauseListening() }
+                                    QuietButton { text: "Durdur"; implicitWidth: 72; enabled: operatorViewModel.listeningReady && !operatorViewModel.busy; onClicked: operatorViewModel.stopListening() }
                                     Item { Layout.fillWidth: true }
                                     PrimaryButton { text: "WAV Dışa Aktar"; enabled: operatorViewModel.listeningReady && !operatorViewModel.busy; onClicked: wavDialog.open() }
                                 }

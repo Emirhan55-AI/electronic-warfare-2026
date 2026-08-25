@@ -13,9 +13,10 @@
 kaynak sözleşmesi, spektrum, 48 satırlık spektrogram, zamansal tespit listesi ve
 seçili olayın operatör onaylı parametre ölçümünü birlikte taşır. Seçili sinyal
 bağlamı sabit kalır; tespit listesi ve ölçüm formu aynı görev panelinde açık sekme
-seçimiyle değiştirilir. Dinleme alanı
-aynı seçili tespit bağlamında AM/NFM kanal hazırlama ve doğrulanmış kayıt kapsamı
-için ses çıktısını sunar.
+seçimiyle değiştirilir. Dinleme alanı aynı seçili tespit bağlamını kaydırılan kanal
+ayarlarından ayırır; AM/NFM kanal hazırlama, demodüle ses dalga biçimi, gerçek PCM
+süresi ve ses çıkışının işlediği oynatma konumunu sunar. Fiziksel ses çıkışı durumu WAV dışa
+aktarma kullanılabilirliğinden ayrı gösterilir.
 
 SigMF metadata ve veri eşleşmesi gerçek sözleşme denetiminden geçer. HackRF yolu
 gerçek komut satırı araçlarını, yapılandırılmış ED_RX seri kimliğini ve cihazı
@@ -52,11 +53,12 @@ sıfırlar; spektrum ve ölçüm sayıları dekoratif animasyon kullanmaz.
 
 ## Ölçüm sonucu
 
-Kanıt koşuları hash-kilitli `known-tone-ci8` SigMF kaydını, offscreen Qt platformu
-ve yazılım Qt Quick backend'ini kullanır. Kaynak doğrulaması tamamlandıktan sonra
-her ekran profilinde 2,5 saniyelik 10 Hz güncelleme ve arayüz heartbeat koşusu
-yapılır; kaynak açılış süresi çalışma zamanı tepkisellik ölçümüne katılmaz. Kabul
-kapıları:
+Kanıt koşuları hash-kilitli `known-tone-ci8` ve `am-tone-ci8` SigMF kayıtlarını,
+offscreen Qt platformu ve yazılım Qt Quick backend'ini kullanır. Kaynak doğrulaması
+tamamlandıktan sonra her ekran profilinde bilinen ton kaydıyla 2,5 saniyelik 10 Hz
+güncelleme ve arayüz heartbeat koşusu yapılır; kaynak açılış süresi çalışma zamanı
+tepkisellik ölçümüne katılmaz. Standart profil daha sonra AM kaydını bağımsız
+olarak açar ve gerçek tespitten kısa dinleme önizlemesi hazırlar. Kabul kapıları:
 
 - gözlenen güncelleme ≥ 9 Hz;
 - işleme p95 < 100 ms;
@@ -67,6 +69,8 @@ kapıları:
   konumu denetimi mevcut;
 - spektrum ve spektrogram ortak frekans görünümüne bağlı.
 - `Tespitler` ve `Ölçüm` minimum çözünürlükte ayrı ayrı yüklenir.
+- Dinleme yüzeyi gerçek seçili tespitten dalga biçimi, PCM süresi, kısa önizleme
+  durumu ve fiziksel ses çıkışı sınırını üretir.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli
@@ -74,7 +78,7 @@ donanım kararlılığı iddiası değildir.
 
 ## Yayın sınırı
 
-Yeni ürün yüzeyinde bağlı olmayan GNSS, konum/harita, analog ses kabulü, TX,
+Yeni ürün yüzeyinde bağlı olmayan GNSS, konum/harita, canlı RF ses kabulü, TX,
 offline ET, eğitim sahnesi veya gösterim verisi kontrolü yoktur. İlgili algoritma
 ve tarihsel doğrulama yüzeyleri silinmemiştir; ürün paketine ithal edilmez. Bu
 özellikler gerçek kaynak ve kabul kanıtı olmadan navigasyona eklenemez.

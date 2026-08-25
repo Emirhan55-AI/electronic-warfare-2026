@@ -58,6 +58,27 @@ class OperatorListeningTests(unittest.TestCase):
         self.app.processEvents()
         return app, window, controller
 
+    def test_playback_timeline_uses_processed_audio_time(self) -> None:
+        class SinkProbe:
+            @staticmethod
+            def processedUSecs() -> int:
+                return 625_000
+
+            @staticmethod
+            def stop() -> None:
+                return None
+
+            @staticmethod
+            def deleteLater() -> None:
+                return None
+
+        playback = AudioPlayback(available_override=False)
+        playback.load(bytes(48_000 * 2))
+        playback._sink = SinkProbe()
+        self.assertEqual(1.0, playback.duration_seconds)
+        self.assertEqual(0.625, playback.position_seconds)
+        playback.close()
+
     def test_confirmed_event_prepares_bounded_audio_off_ui_thread(self) -> None:
         app, window, controller = self._loaded_confirmed("am-tone-ci8")
         self.assertTrue(window.prepare_listening_button.isEnabled())

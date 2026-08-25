@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-25T21:41:31Z",
+  "recorded_at": "2026-08-25T22:22:44Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -12,7 +12,10 @@
   "input": {
     "metadata": "datasets/fixtures/phase01/known-tone-ci8.sigmf-meta",
     "metadata_sha256": "e47235fae6e9511bf2ecdd5077c9dc3e9e6de6fde59678d1e8c2c2f79a3da979",
-    "data_sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f"
+    "data_sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+    "listening_metadata": "datasets/fixtures/phase05/am-tone-ci8.sigmf-meta",
+    "listening_metadata_sha256": "e740c5e5bb3c814b921eaa8fd8bd223af57876cfb022d7df5bddf095742f42af",
+    "listening_data_sha256": "10c8209e72d0e201d76626eb52bfb3dec758cb4ebf4642e4d4e5a41c68ba2c74"
   },
   "runs": [
     {
@@ -24,6 +27,7 @@
       "captured_height": 720,
       "workspace": 0,
       "spectrum_task_tab": 0,
+      "prepare_listening": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 572,
@@ -43,10 +47,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.192166435613009,
-      "processing_median_ms": 3.1254999339580536,
-      "processing_p95_ms": 3.9093000814318657,
-      "maximum_heartbeat_gap_ms": 46.61469999700785,
+      "observed_update_hz": 9.19917648944723,
+      "processing_median_ms": 3.9318001363426447,
+      "processing_p95_ms": 6.865799892693758,
+      "maximum_heartbeat_gap_ms": 37.39509987644851,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -127,8 +131,13 @@
         "sequence",
         "time"
       ],
+      "listening_ready": false,
+      "listening_short_preview": false,
+      "listening_waveform_points": 0,
+      "listening_playback_state": "Ses hazırlanmadı",
+      "listening_playback_duration": "00:00.0",
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "ad442559cfa49cb067d48c93511a73da70244ed6112a03e456462f29abc356ba"
+      "screenshot_sha256": "b77cb586e3a5c5fd7023e1c3a9207a267decc38c936273818cd29fa610fa1f82"
     },
     {
       "name": "measurement-1280x720",
@@ -139,6 +148,7 @@
       "captured_height": 720,
       "workspace": 0,
       "spectrum_task_tab": 1,
+      "prepare_listening": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 572,
@@ -158,10 +168,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.193587288969166,
-      "processing_median_ms": 3.611200023442507,
-      "processing_p95_ms": 4.1998999658972025,
-      "maximum_heartbeat_gap_ms": 47.99519991502166,
+      "observed_update_hz": 9.191486477796461,
+      "processing_median_ms": 3.567999927327037,
+      "processing_p95_ms": 5.392000079154968,
+      "maximum_heartbeat_gap_ms": 45.955599984154105,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -242,8 +252,13 @@
         "sequence",
         "time"
       ],
+      "listening_ready": false,
+      "listening_short_preview": false,
+      "listening_waveform_points": 0,
+      "listening_playback_state": "Ses hazırlanmadı",
+      "listening_playback_duration": "00:00.0",
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "a450f8558cec6cbc2803db11b67b4a63995ca7d7a9250b345f410c38a8743231"
+      "screenshot_sha256": "4ac3f7e3ee71481ed00b59e0f89527be7a3c22431b1a73776612048a4e72a515"
     },
     {
       "name": "standard-1366x768",
@@ -254,29 +269,30 @@
       "captured_height": 768,
       "workspace": 1,
       "spectrum_task_tab": 0,
+      "prepare_listening": true,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
-        0.5606837606837607,
-        0.5626373626373626,
-        0.5645909645909646
+        0.6231990231990232,
+        0.6251526251526252,
+        0.6271062271062271
       ],
       "analysis_span": [
-        0.5584859584859585,
-        0.5667887667887668
+        0.621001221001221,
+        0.6293040293040293
       ],
       "spectrum_view": [
         0.0,
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.196624470946313,
-      "processing_median_ms": 3.6361999809741974,
-      "processing_p95_ms": 4.970100009813905,
-      "maximum_heartbeat_gap_ms": 61.75290001556277,
+      "observed_update_hz": 9.198335836830239,
+      "processing_median_ms": 3.4437000285834074,
+      "processing_p95_ms": 5.152300000190735,
+      "maximum_heartbeat_gap_ms": 49.86810008995235,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -347,7 +363,7 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Hazır"
         }
       ],
       "event_log_fields": [
@@ -357,8 +373,13 @@
         "sequence",
         "time"
       ],
+      "listening_ready": true,
+      "listening_short_preview": true,
+      "listening_waveform_points": 720,
+      "listening_playback_state": "Oynatmaya hazır",
+      "listening_playback_duration": "00:00.1",
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "f0520c096fba487b6209e56a9de5b074ef20906c6ae96473e341dc8b88d86910"
+      "screenshot_sha256": "bef4d693ad33d1b74cd3a5cf432502224a114777f78dfe7737e38f2dd245dc1b"
     },
     {
       "name": "fullhd-1920x1080",
@@ -369,6 +390,7 @@
       "captured_height": 1080,
       "workspace": 3,
       "spectrum_task_tab": 0,
+      "prepare_listening": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
@@ -388,10 +410,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.194735829578043,
-      "processing_median_ms": 3.6321000661700964,
-      "processing_p95_ms": 4.379000049084425,
-      "maximum_heartbeat_gap_ms": 63.8351000379771,
+      "observed_update_hz": 9.195983194786516,
+      "processing_median_ms": 3.352199913933873,
+      "processing_p95_ms": 5.654799984768033,
+      "maximum_heartbeat_gap_ms": 66.7785000987351,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -472,8 +494,13 @@
         "sequence",
         "time"
       ],
+      "listening_ready": false,
+      "listening_short_preview": false,
+      "listening_waveform_points": 0,
+      "listening_playback_state": "Ses hazırlanmadı",
+      "listening_playback_duration": "00:00.0",
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "c7a5017feebd507dbe40f13e85ae0a3b9204ea3d064f84f994ebe80061f5713a"
+      "screenshot_sha256": "8870051910caa701cdb1f5e3c01382c14648ca07b48f2fcea3cdf9f22864a4a3"
     },
     {
       "name": "scale-150-percent",
@@ -484,6 +511,7 @@
       "captured_height": 1080,
       "workspace": 2,
       "spectrum_task_tab": 0,
+      "prepare_listening": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
@@ -503,10 +531,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.186210029606574,
-      "processing_median_ms": 3.652299987152219,
-      "processing_p95_ms": 5.01520000398159,
-      "maximum_heartbeat_gap_ms": 70.15669997781515,
+      "observed_update_hz": 9.198165150179046,
+      "processing_median_ms": 3.286499995738268,
+      "processing_p95_ms": 4.465899895876646,
+      "maximum_heartbeat_gap_ms": 57.037899969145656,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -587,8 +615,13 @@
         "sequence",
         "time"
       ],
+      "listening_ready": false,
+      "listening_short_preview": false,
+      "listening_waveform_points": 0,
+      "listening_playback_state": "Ses hazırlanmadı",
+      "listening_playback_duration": "00:00.0",
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "a82a6ffb951a58494db5ad4c6aa2947d5a7d7713ce5958829fe51b500debc779"
+      "screenshot_sha256": "9899e8ef4977f86fce08a740a17f2ab9f6b7ef5712855382e41e9117d6713dd4"
     }
   ],
   "hackrf_probe": {
@@ -607,6 +640,7 @@
     "linked_frequency_view": true,
     "stable_task_layout": true,
     "spectrum_task_views": true,
+    "listening_task_ready": true,
     "system_diagnostics": true,
     "release_source_navigation_disabled": true,
     "structured_operation_log": true,

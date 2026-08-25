@@ -234,7 +234,7 @@ confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
 view_model.selectDetection(int(confirmed["eventId"]))
 view_model.requestListening("am",view_model.selectedDetectionOffsetKHz,16.0,.8)
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
-payload={{"ready":view_model.listeningReady,"short":view_model.listeningShortPreview,"rows":view_model.listeningRows,"waveform":len(view_model.listeningWaveform),"state":view_model.listeningState}}
+payload={{"ready":view_model.listeningReady,"short":view_model.listeningShortPreview,"rows":view_model.listeningRows,"waveform":len(view_model.listeningWaveform),"state":view_model.listeningState,"playback_state":view_model.listeningPlaybackState,"playback_position":view_model.listeningPlaybackPositionText,"playback_duration":view_model.listeningPlaybackDurationText,"playback_progress":view_model.listeningPlaybackProgress,"output_state":view_model.listeningOutputState}}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
 """
@@ -243,6 +243,11 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertTrue(payload["short"])
         self.assertGreater(payload["waveform"], 100)
         self.assertIn("Kısa önizleme", payload["state"])
+        self.assertEqual("Oynatmaya hazır", payload["playback_state"])
+        self.assertEqual("00:00.0", payload["playback_position"])
+        self.assertNotEqual("00:00.0", payload["playback_duration"])
+        self.assertEqual(0.0, payload["playback_progress"])
+        self.assertIn(payload["output_state"], {"Ses çıkışı hazır", "Ses çıkışı yok · WAV kullanılabilir"})
         rows = {row["label"]: row["value"] for row in payload["rows"]}
         self.assertEqual("AM", rows["Demodülasyon"])
         self.assertEqual("48 kHz · mono PCM16", rows["Ses çıkışı"])
@@ -266,6 +271,9 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "detectionList"',
             'objectName: "measurementScroll"',
             'objectName: "listeningSettingsScroll"',
+            'objectName: "listeningTransport"',
+            'objectName: "listeningResultList"',
+            "Oynatma konumu, salt okunur",
             'objectName: "pipelineList"',
             'objectName: "systemLog"',
             "SALT OKUNUR SİSTEM DURUMU",

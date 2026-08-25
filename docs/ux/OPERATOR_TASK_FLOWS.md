@@ -1,6 +1,6 @@
 # Operatör Görev Akışları
 
-- Sürüm: 1.3
+- Sürüm: 1.4
 - Güncelleme tarihi: 2026-08-26
 - Kapsam: APP-F için ürün bilgi mimarisi
 
@@ -73,12 +73,17 @@ konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.
 ## Akış 4 — Analog dinleme
 
 1. Operatör Spektrum alanında doğrulanmış bir tespit seçer.
-2. `Dinleme` alanında AM veya NFM, kanal ofseti, bant genişliği ve ses seviyesi
-   açıkça belirlenir.
-3. `Kanal Sesini Hazırla`, kaynaktaki I/Q'yu GUI iş parçacığı dışında işler.
-4. En az beş saniyelik uygun kayıt kesintisiz sonuç; daha kısa kayıt yalnız açıkça
+2. `Dinleme` alanı tespit kimliğini, frekansını ve kaynak I/Q süresini kaydırılan
+   ayarlardan bağımsız sabit bir kanal kartında tutar.
+3. AM veya NFM, kanal ofseti, bant genişliği ve ses seviyesi açıkça belirlenir.
+4. Sabit `Kanal Sesini Hazırla` eylemi, kaynaktaki I/Q'yu GUI iş parçacığı dışında
+   işler.
+5. En az beş saniyelik uygun kayıt kesintisiz sonuç; daha kısa kayıt yalnız açıkça
    etiketli kısa önizleme üretir.
-5. Sonuç 48 kHz mono PCM16 olarak oynatılabilir veya WAV dışa aktarılabilir.
+6. Sonuç 48 kHz mono PCM16 olarak oynatılabilir veya WAV dışa aktarılabilir.
+   Salt-okunur zaman çizelgesi hazırlanan PCM süresini ve ses çıkışının gerçekten
+   işlediği oynatma konumunu gösterir; fiziksel ses çıkışı yoksa WAV kullanılabilirliği
+   bundan ayrı bildirilir.
 
 Canlı HackRF ve fiziksel ses aygıtı saha kabulü tamamlanmadan bu akış canlı RF
 dinleme başarısı olarak sunulmaz.
@@ -114,8 +119,9 @@ alanından bağımsız hızlı görünümüdür.
 - Tespit listesinin yüksekliği içerik sayısından bağımsızdır; confirmed adaylar
   olay kimliğiyle kararlı sıralanır ve seçim fare basışında alınır.
 - Tespit seçimi sabit kalırken sinyal ölçümü ve analog kanal ayarları kendi
-  panellerinde bağımsız kaydırılır; bütün çalışma alanını hareket ettiren ortak
-  sayfa kaydırması kullanılmaz.
+  panellerinde bağımsız kaydırılır; dinleme hazırlama eylemi ile oynatma
+  kontrolleri görünür kalır. Bütün çalışma alanını hareket ettiren ortak sayfa
+  kaydırması kullanılmaz.
 - Kerteriz ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
   spektrum vurgusu kısa bir odak geçişi kullanır.
 - `Hareketi azalt` sistem ayarı desteklenir.

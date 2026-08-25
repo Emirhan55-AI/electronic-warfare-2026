@@ -13,6 +13,9 @@ except ImportError:  # pragma: no cover - exercised by injected unavailable test
 class AudioPlayback(QObject):
     """Own one bounded in-memory audio sink without affecting WAV export."""
 
+    SAMPLE_RATE_HZ = 48_000
+    BYTES_PER_SAMPLE = 2
+
     def __init__(self, parent: QObject | None = None, *, available_override: bool | None = None) -> None:
         super().__init__(parent)
         self._sink: object | None = None
@@ -29,14 +32,27 @@ class AudioPlayback(QObject):
         self.stop()
         self._pcm = bytes(pcm16)
 
+    @property
+    def duration_seconds(self) -> float:
+        return len(self._pcm) / (self.SAMPLE_RATE_HZ * self.BYTES_PER_SAMPLE)
+
+    @property
+    def position_seconds(self) -> float:
+        if self._sink is None:
+            return 0.0
+        processed_us = max(0, int(self._sink.processedUSecs()))  # type: ignore[attr-defined]
+        return min(self.duration_seconds, processed_us / 1_000_000.0)
+
     def play(self) -> bool:
         if not self.available or not self._pcm or QAudioSink is None or QMediaDevices is None:
             return False
         if self._sink is not None:
-            self._sink.resume()  # type: ignore[attr-defined]
-            return True
+            if self.position_seconds < max(0.0, self.duration_seconds - 0.01):
+                self._sink.resume()  # type: ignore[attr-defined]
+                return True
+            self.stop()
         audio_format = QAudioFormat()
-        audio_format.setSampleRate(48_000)
+        audio_format.setSampleRate(self.SAMPLE_RATE_HZ)
         audio_format.setChannelCount(1)
         audio_format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
         device = QMediaDevices.defaultAudioOutput()

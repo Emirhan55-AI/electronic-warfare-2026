@@ -67,6 +67,13 @@ görünümleri operatör seçimiyle aynı sabit panelde değiştirilir; seçim, 
 görünümünü kendiliğinden değiştirmez. Minimum çözünürlükte iki görünüm ayrı ayrı
 render ve performans kapısına alınmıştır. Algoritma ve RF doğruluk kapsamı
 değişmemiştir.
+Yedinci bakım paketi Dinleme çalışma alanında seçili kanal bağlamını, hazırlama
+eylemini ve sonuç kontrollerini kaydırılan ayarlardan ayırmıştır. Demodüle ses
+dalga biçimi ve salt-okunur zaman çizelgesi gerçek PCM uzunluğu ile ses çıkışının
+işlediği süreden beslenir; fiziksel ses çıkışı kullanılabilirliği WAV çıktısından
+ayrı gösterilir. Hash-kilitli AM kaydıyla kısa önizleme, dalga biçimi, süre ve
+çıktı sınırı ürün doğrulama kapısına alınmıştır. Canlı HackRF veya fiziksel ses
+saha kabulü kapsamı değişmemiştir.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
