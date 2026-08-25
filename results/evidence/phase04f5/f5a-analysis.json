@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "artifact_id": "phase04f5a-obw-validity-analysis-v1",
+  "phase": "PHASE-04-F5A",
+  "status": "passed",
+  "f4d_evaluation_status": "failed",
+  "recorded_decisions_reproduced": true,
+  "obw_method": {
+    "method_id": "band.debiased-obw99-temporal-v3",
+    "unchanged_across_v3_v4_v5": true,
+    "base_temporal_limit_bins": 2.0,
+    "recovery_temporal_limit_bins": 3.0
+  },
+  "acceptance_gap": {
+    "development_family_minimum_rate": 0.9,
+    "development_global_minimum_rate": 0.95,
+    "oos_family_minimum_count": 62,
+    "oos_trials_per_family": 64,
+    "oos_family_minimum_rate": 0.96875,
+    "development_trials_per_family": 384,
+    "oos_rate_equivalent_development_count": 372,
+    "additional_seed_level_obw_validity_gate_present": false
+  },
+  "populations": {
+    "development": {
+      "am": {
+        "valid": 371,
+        "trials": 384,
+        "valid_rate": 0.9661458333333334
+      },
+      "nfm": {
+        "valid": 376,
+        "trials": 384,
+        "valid_rate": 0.9791666666666666
+      },
+      "ook": {
+        "valid": 374,
+        "trials": 384,
+        "valid_rate": 0.9739583333333334
+      },
+      "two_fsk": {
+        "valid": 378,
+        "trials": 384,
+        "valid_rate": 0.984375
+      },
+      "bpsk": {
+        "valid": 371,
+        "trials": 384,
+        "valid_rate": 0.9661458333333334
+      },
+      "qpsk": {
+        "valid": 384,
+        "trials": 384,
+        "valid_rate": 1.0
+      },
+      "wideband_noise_like": {
+        "valid": 384,
+        "trials": 384,
+        "valid_rate": 1.0
+      },
+      "burst_qpsk": {
+        "valid": 379,
+        "trials": 384,
+        "valid_rate": 0.9869791666666666
+      }
+    },
+    "binding": {
+      "am": {
+        "valid": 188,
+        "trials": 192,
+        "valid_rate": 0.9791666666666666
+      },
+      "nfm": {
+        "valid": 186,
+        "trials": 192,
+        "valid_rate": 0.96875
+      },
+      "ook": {
+        "valid": 185,
+        "trials": 192,
+        "valid_rate": 0.9635416666666666
+      },
+      "two_fsk": {
+        "valid": 192,
+        "trials": 192,
+        "valid_rate": 1.0
+      },
+      "bpsk": {
+        "valid": 183,
+        "trials": 192,
+        "valid_rate": 0.953125
+      },
+      "qpsk": {
+        "valid": 191,
+        "trials": 192,
+        "valid_rate": 0.9947916666666666
+      },
+      "wideband_noise_like": {
+        "valid": 192,
+        "trials": 192,
+        "valid_rate": 1.0
+      },
+      "burst_qpsk": {
+        "valid": 188,
+        "trials": 192,
+        "valid_rate": 0.9791666666666666
+      }
+    },
+    "oos": {
+      "am": {
+        "valid": 61,
+        "trials": 64,
+        "valid_rate": 0.953125
+      },
+      "nfm": {
+        "valid": 63,
+        "trials": 64,
+        "valid_rate": 0.984375
+      },
+      "ook": {
+        "valid": 61,
+        "trials": 64,
+        "valid_rate": 0.953125
+      },
+      "two_fsk": {
+        "valid": 63,
+        "trials": 64,
+        "valid_rate": 0.984375
+      },
+      "bpsk": {
+        "valid": 61,
+        "trials": 64,
+        "valid_rate": 0.953125
+      },
+      "qpsk": {
+        "valid": 64,
+        "trials": 64,
+        "valid_rate": 1.0
+      },
+      "wideband_noise_like": {
+        "valid": 64,
+        "trials": 64,
+        "valid_rate": 1.0
+      },
+      "burst_qpsk": {
+        "valid": 64,
+        "trials": 64,
+        "valid_rate": 1.0
+      }
+    },
+    "development_below_oos_rate_equivalent": {
+      "am": {
+        "valid": 371,
+        "trials": 384,
+        "valid_rate": 0.9661458333333334,
+        "oos_rate_equivalent_required": 372,
+        "margin_to_oos_rate_equivalent": -1
+      },
+      "bpsk": {
+        "valid": 371,
+        "trials": 384,
+        "valid_rate": 0.9661458333333334,
+        "oos_rate_equivalent_required": 372,
+        "margin_to_oos_rate_equivalent": -1
+      }
+    }
+  },
+  "failure_isolation": {
+    "all_oos_center_power_snr_valid_per_family": true,
+    "oos_clipping_count": 0,
+    "remaining_failure_class": "obw_temporal_instability",
+    "exact_trial_level_temporal_ranges_stored": false,
+    "f4d_rerun_allowed": false
+  },
+  "historical_oos_controls": {
+    "v3": {
+      "method_id": "band.debiased-obw99-temporal-v3",
+      "field_decision": "passed",
+      "family_min_valid_count": 62
+    },
+    "v4": {
+      "method_id": "band.debiased-obw99-temporal-v3",
+      "field_decision": "passed",
+      "family_min_valid_count": 63
+    },
+    "v5": {
+      "method_id": "band.debiased-obw99-temporal-v3",
+      "field_decision": "failed",
+      "family_min_valid_count": 61
+    }
+  },
+  "root_causes": [
+    {
+      "id": "F5A-01",
+      "class": "obw-seed-generalization-margin",
+      "status": "confirmed",
+      "evidence": {
+        "v3_oos_minimum": 62,
+        "v4_oos_minimum": 63,
+        "v5_oos_minimum": 61,
+        "required": 62
+      },
+      "required_action": "Yeni açık veri ayrımında OBW geçerliliği aggregate oran yerine seed ve aile bazlı güvenlik payıyla doğrulanmalıdır."
+    },
+    {
+      "id": "F5A-02",
+      "class": "development-oos-acceptance-mismatch",
+      "status": "confirmed",
+      "evidence": {
+        "development_family_minimum_rate": 0.9,
+        "oos_family_minimum_rate": 0.96875,
+        "additional_seed_level_obw_gate_present": false,
+        "weak_development_families": [
+          "am",
+          "bpsk"
+        ]
+      },
+      "required_action": "F5B, mevcut değerlendirme eşiklerini gevşetmeden OOS oranından daha güçlü OBW geliştirme kapılarını yöntemden önce kilitlemelidir."
+    },
+    {
+      "id": "F5A-03",
+      "class": "temporal-instability-not-clipping",
+      "status": "confirmed",
+      "evidence": {
+        "all_center_power_snr_valid": true,
+        "clipping_count": 0,
+        "invalid_family_counts": {
+          "am": 3,
+          "nfm": 1,
+          "ook": 3,
+          "two_fsk": 1,
+          "bpsk": 3
+        }
+      },
+      "required_action": "Yeni açık popülasyonda temporal range, recovery denemesi ve ret nedeni trial bazında kaydedilmelidir."
+    },
+    {
+      "id": "F5A-04",
+      "class": "exact-recovery-guard-subcause",
+      "status": "not-identifiable-from-stored-evidence",
+      "evidence": {
+        "trial_level_diagnostics_stored": false,
+        "f4d_rerun_allowed": false
+      },
+      "required_action": "Alt neden yalnız yeni açık F5 geliştirme verisinde ayrılmalı; açılmış F4 popülasyonları tuning veya yeniden koşu için kullanılmamalıdır."
+    }
+  ],
+  "protected_inputs": {
+    "algorithms/parameters/f1_estimator.py": "e36afa41039f8310890a9919611a753edaca2046a3d9576a3910fbf2f75fe889",
+    "algorithms/parameters/f2_estimator.py": "c4a722325926399b78b426fceb1e09826b30d3daaad65840995dfcadf28ee618",
+    "algorithms/parameters/f4_estimator.py": "e1d03b5613dae8c1163a869d3490a9bf0c98074c65b60f572465af77920f1bbc",
+    "datasets/fixtures/phase04f2/acceptance-gates.json": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "datasets/fixtures/phase04f3/acceptance-gates.json": "e9f52cfb1bb6ec7385e49966b9ded07186ce3dd3a1955a4475351168d4f41f07",
+    "datasets/fixtures/phase04f4/acceptance-gates.json": "94a5005bdf5516039475dcf8bb521c071a7d6b1b3e96412e35ef0ee92e5f3b06",
+    "datasets/fixtures/phase04f4/method-lock-v5.json": "12fa82dc20365cdec4272afdc60cf98f7bd03848a4056d73f8413938febd6058",
+    "datasets/fixtures/phase04f4/evaluation-runner-lock-v5.json": "5b3bce3ea9d7434a7635749809b5b83e152ac1d3bf2b0786b9a4cbc4b7df3806",
+    "datasets/fixtures/phase04f4/evaluation-seeds.json": "9418edead8c030322f1b933a2d6f03ebf0e20c389d4ed99846666fbb42f4ba12",
+    "results/evidence/phase04f2/oos-results-v3.json": "02de7c7e5a1d3a4b30e1f6c6e66d556f53e569cb229b2594c0f6c52dbf413dd1",
+    "results/evidence/phase04f3/oos-results-v4.json": "909f7415fd467e83f8fd66fafbe486a7ee0b76b31062845de2523faa3b22dea2",
+    "results/evidence/phase04f4/development-results-v5.json": "bf6e47cbbfccf1ef51534fcb276e8c59ffecca63bfd7a3b6b0753b458feef3ef",
+    "results/evidence/phase04f4/binding-results-v5.json": "3633b38c51f7461090cea73f1c91bf8e863cba7bbf07dd8d39573508941e98c0",
+    "results/evidence/phase04f4/oos-results-v5.json": "57d37a0b282eb8d96ce0d65fb212b197f2362400421d1fac324d59fc30516864",
+    "results/evidence/phase04f4/parameter-comparison-v5.json": "020aaeedd4844ac23f82ae3bdffe70acd3573e6c15b7d80ebb616658b9644224",
+    "results/evidence/phase04f4/f4d-verification.json": "7bdf7be0c5585e3053b09d3216b42b7553383b6ddaa3ac178800f517bd30bbcf"
+  },
+  "next_phase_requirements": [
+    "F5B öncesinde F1-F4 popülasyonlarından bağımsız yeni açık geliştirme seed'leri ayrılmalıdır.",
+    "Yeni binding/OOS seed ve salt commitment'ları yöntem geliştirmeden önce oluşturulmalıdır.",
+    "F2'nin 40 binding ve 24 OOS kapısı gevşetilmemelidir.",
+    "OBW geçerliliği için aile ve seed bazlı geliştirme güvenlik payı kilitlenmelidir.",
+    "Temporal range, recovery sonucu ve ret nedeni yeni açık geliştirme kanıtında zorunlu tanı olmalıdır.",
+    "F5B ayrı kullanıcı onayı olmadan başlatılmamalıdır."
+  ],
+  "claim_boundary": "Salt-okunur F4D kök neden analizidir; F4D popülasyonunu yeniden çalıştırmaz, yeni yöntem, FPGA entegrasyonu veya ürün kararı değildir."
+}
