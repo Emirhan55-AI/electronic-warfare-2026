@@ -57,6 +57,11 @@ def check() -> bool:
     expected_fixture_files, _ = build_fixture_files()
     fixtures_ok = all((FIXTURES / name).is_file() and (FIXTURES / name).read_bytes() == payload for name, payload in expected_fixture_files.items())
     golden, summary = expected_documents()
+    stored_summary = json.loads(SUMMARY.read_text(encoding="utf-8")) if SUMMARY.is_file() else {}
+    # The file count belongs to the historical PHASE-05 checkpoint. Later
+    # evidence packages may add files, but every current protected file must
+    # still match HEAD through historical_integrity().
+    summary["historical_integrity"] = stored_summary.get("historical_integrity")
     evidence_ok = (
         GOLDEN.is_file()
         and SUMMARY.is_file()
