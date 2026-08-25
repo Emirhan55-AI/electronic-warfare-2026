@@ -129,8 +129,13 @@ kaynaklarından önce commitment ile kapatılmıştır. Kullanıcı onayıyla ta
 F3C'de ayrı v4 kestirimci sekiz açık seed üzerinde geliştirilmiş; korunan 40
 temel ve 14 ek risk kontrolünün tamamı geçmiştir. Yöntem ve geliştirme kanıtı,
 yeni binding/OOS seed'leri açılmadan önce `method-lock-v4.json` ile
-kilitlenmiştir. Bu yalnız açık geliştirme sonucudur; F3D binding/OOS
-değerlendirmesi başlatılmamış ve ayrı kullanıcı onayı beklemektedir.
+kilitlenmiştir. Kullanıcı onayıyla F3D çalıştırıcısı commit/push öncesinde
+kilitlenmiş, yeni seed'ler commitment doğrulamasıyla açılmış ve popülasyonlar
+birer kez çalıştırılmıştır. Binding 40/40 geçerken OOS 23/24 geçmiş; NFM 6 dB
+sinyal alanı doğru karar sayısı 48 alt sınırına karşı 44 kaldığı için F3D
+başarısız olmuştur. OOK ihlalleri giderilmiş olsa da bütün zorunlu alanlar iki
+popülasyonda birlikte geçmemiştir. Aynı popülasyonlar yeniden çalıştırılamaz,
+F3E başlatılamaz ve ürün profili oluşturulamaz.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

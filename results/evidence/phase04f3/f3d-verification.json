@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F3D",
+  "status": "passed",
+  "evaluation_status": "failed",
+  "checks": [
+    {
+      "id": "seed-commitments",
+      "status": "passed"
+    },
+    {
+      "id": "runner-lock",
+      "status": "passed"
+    },
+    {
+      "id": "one-shot-ordering",
+      "status": "passed"
+    },
+    {
+      "id": "population-counts",
+      "status": "passed"
+    },
+    {
+      "id": "locked-scoring",
+      "status": "passed"
+    },
+    {
+      "id": "comparison-complete",
+      "status": "passed"
+    },
+    {
+      "id": "evidence-digests",
+      "status": "passed"
+    }
+  ],
+  "evidence": {
+    "run_started_sha256": "5425254cd22d0b257cbad2363cf66ca6b7380da116ec6a97efe8e2ecafa8a4c2",
+    "binding_results_sha256": "92a7550fe29f30e47a7edbc17aff1627d40e3fc3a1e39d2392d6b21e48da3401",
+    "oos_results_sha256": "909f7415fd467e83f8fd66fafbe486a7ee0b76b31062845de2523faa3b22dea2",
+    "comparison_sha256": "cfc5a87cb4a0583df578cc4d258747f4f247339084d0a930f16185b8a6be08c9"
+  },
+  "claim_boundary": "Kanıt bütünlüğü değerlendirme alanlarının geçtiği anlamına gelmez; evaluation_status ayrı karardır."
+}
