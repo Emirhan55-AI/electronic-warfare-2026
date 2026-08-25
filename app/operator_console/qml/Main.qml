@@ -505,10 +505,57 @@ ApplicationWindow {
                             }
                             Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                             SectionTitle { text: "PARAMETRE ÖLÇÜMÜ" }
+                            Label {
+                                Layout.fillWidth: true
+                                text: operatorViewModel.parameterCapabilityReady
+                                      ? "F5 · Dört ardışık kare · Operatör onaylı analiz aralığı"
+                                      : "Doğrulanmış F5 ürün profili kullanılamıyor."
+                                color: operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
+                                font.pixelSize: 10
+                                wrapMode: Text.Wrap
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Label { text: "Alt sınır (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
+                                    TextField {
+                                        id: analysisLowerMHz
+                                        Layout.fillWidth: true
+                                        text: operatorViewModel.analysisLowerMHzText
+                                        color: root.textPrimary
+                                        validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
+                                        Accessible.name: "Analiz alt frekansı megahertz"
+                                        background: Rectangle { color: "#09141C"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                }
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Label { text: "Üst sınır (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
+                                    TextField {
+                                        id: analysisUpperMHz
+                                        Layout.fillWidth: true
+                                        text: operatorViewModel.analysisUpperMHzText
+                                        color: root.textPrimary
+                                        validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
+                                        Accessible.name: "Analiz üst frekansı megahertz"
+                                        background: Rectangle { color: "#09141C"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                }
+                            }
+                            QuietButton {
+                                Layout.fillWidth: true
+                                text: operatorViewModel.analysisSpanConfirmed ? "Analiz Aralığı Onaylandı" : "Analiz Aralığını Onayla"
+                                enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.parameterCapabilityReady && !operatorViewModel.busy
+                                onClicked: operatorViewModel.confirmAnalysisSpan(Number(analysisLowerMHz.text), Number(analysisUpperMHz.text))
+                            }
                             PrimaryButton {
                                 Layout.fillWidth: true
                                 text: "Ölçümü Başlat"
-                                enabled: operatorViewModel.selectedDetectionReady && !operatorViewModel.busy
+                                enabled: operatorViewModel.measurementReady && !operatorViewModel.busy
                                 onClicked: operatorViewModel.requestMeasurement()
                             }
                             ListView {
@@ -527,7 +574,11 @@ ApplicationWindow {
                             }
                             Label {
                                 visible: operatorViewModel.parameterRows.length === 0
-                                text: operatorViewModel.selectedDetectionReady ? "Ölçüm operatör eylemi bekliyor." : "Doğrulanmış bir tespit seçin."
+                                text: operatorViewModel.selectedDetectionReady
+                                      ? (operatorViewModel.analysisSpanConfirmed
+                                         ? "Dört ardışık gözlem ve ölçüm komutu bekleniyor."
+                                         : "Önerilen analiz aralığını doğrulayıp onaylayın.")
+                                      : "Doğrulanmış bir tespit seçin."
                                 color: root.textSecondary
                                 font.pixelSize: 10
                                 wrapMode: Text.Wrap

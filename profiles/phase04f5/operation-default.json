@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "profile_id": "phase04f5-operator-assisted-parameters-v6",
+  "status": "validated",
+  "validated_fields": [
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db",
+    "signal_domain"
+  ],
+  "span_robustness_validated": true,
+  "operator_confirmed_span_required": true,
+  "automatic_span_validated": false,
+  "methods": {
+    "emission_center_frequency": "frequency.excess-centroid-shrink-v3",
+    "carrier_line_frequency": "frequency.carrier-temporal-artifact-rejection-v5",
+    "occupied_bandwidth": "band.debiased-obw99-tail-bias-correction-v6",
+    "uncalibrated_channel_power_dbfs": "power.reference-uncertainty-gated-v3",
+    "snr_estimate_db": "snr.reference-uncertainty-gated-v3",
+    "signal_domain": "domain.family-conditioned-prototype-rejection-v5"
+  },
+  "runtime_constraints": {
+    "frames_per_measurement": 4,
+    "frame_length": 4096,
+    "worker_count": 1,
+    "maximum_pending_intent_count": 1,
+    "maximum_persistent_payload_bytes": 65536
+  },
+  "evidence": {
+    "method_lock_sha256": "55aeed139c9ae25eeb722943fb472caaf7aec4c4eff96878ec05d38df7f8570a",
+    "acceptance_contract_sha256": "f08088242de6a0a34f11b170524b61bb132cfbbd6b5fbec634b31e875b741f5e",
+    "base_acceptance_contract_sha256": "18d3008d1f9718a36ffe839457ae0cb699b2fb19fe3d0eb303a6ba8b812dcce2",
+    "binding_results_sha256": "b0a692b9f420602d41a6fa3c66fdd054745527be88c0fa426177108ee0b8e98e",
+    "oos_results_sha256": "bcf61a48c5b8853b2e20a1f661b8916ce5d81ce04c3364f98d472ba1ef660655",
+    "comparison_sha256": "497518daafeaf49ee42e172fd0de679903c7b6da16ff0d15973f54e9771622c8",
+    "f5d_verification_sha256": "ba33e2901e93d95f14cf05fb922833d297c5002146c62099ee38dab2f16b2a67"
+  },
+  "runtime_implementation": {
+    "schema_version": 1,
+    "sources": [
+      {
+        "path": "algorithms/parameters/models.py",
+        "sha256": "ed79d3f80c5b33ad3aba4eed323bbf40500bd1254e04dc9b195897d99dc27344"
+      },
+      {
+        "path": "algorithms/parameters/operator_assisted.py",
+        "sha256": "5d805e28d3c1991630a416bfc5059f9891db3eefe39eba8d5eaf8f412d49d6af"
+      },
+      {
+        "path": "algorithms/parameters/operator_classification.py",
+        "sha256": "9360e82888c812855386ea6f175786bb842effd04c136842cb3e9398088c728d"
+      },
+      {
+        "path": "algorithms/parameters/operator_reference.py",
+        "sha256": "8c36466a7e781af2e9479074472a19a45298a47759f9b426f36cc739ae1db2de"
+      },
+      {
+        "path": "algorithms/parameters/f1_domain.py",
+        "sha256": "e05baf824ce981f0674409c0fbdbc2e1c82f8d50d51e4e8bd33adddf6fbb4961"
+      },
+      {
+        "path": "algorithms/parameters/f1_estimator.py",
+        "sha256": "e36afa41039f8310890a9919611a753edaca2046a3d9576a3910fbf2f75fe889"
+      },
+      {
+        "path": "algorithms/parameters/f2_domain.py",
+        "sha256": "ea27952a408d753af2fe6371557d36497ad9e68b1c1d114222fe1daf1512b24c"
+      },
+      {
+        "path": "algorithms/parameters/f2_estimator.py",
+        "sha256": "c4a722325926399b78b426fceb1e09826b30d3daaad65840995dfcadf28ee618"
+      },
+      {
+        "path": "algorithms/parameters/f3_domain.py",
+        "sha256": "4a76ba36bf0d40490854c9d4c7a78e8126d5aa41152c578f41efb120f3f80b5f"
+      },
+      {
+        "path": "algorithms/parameters/f3_estimator.py",
+        "sha256": "a5dceea10bb28d2c9a7c34d2118d3699754409ee9540f70f528d41e4eb938e3a"
+      },
+      {
+        "path": "algorithms/parameters/f4_domain.py",
+        "sha256": "c3ead224e9a5babc093c3d1aaa4b672e10c9b8a1615a132f5559ac9c4a67f652"
+      },
+      {
+        "path": "algorithms/parameters/f4_estimator.py",
+        "sha256": "e1d03b5613dae8c1163a869d3490a9bf0c98074c65b60f572465af77920f1bbc"
+      },
+      {
+        "path": "algorithms/parameters/f5_estimator.py",
+        "sha256": "dc2d00de742f7ec02a2af120934b04df5c1f776b6d7ababaa11fc1ab3a2a4b18"
+      }
+    ],
+    "runtime_models": [
+      {
+        "source_path": "datasets/fixtures/phase04f1/domain-model.json",
+        "package_path": "datasets/fixtures/phase04f1/domain-model.json",
+        "sha256": "c94f59cb528d7894f9d775443cfa6a796b207454f32546bd88251ff68c75125c"
+      },
+      {
+        "source_path": "datasets/fixtures/phase04f2/domain-model-v3.json",
+        "package_path": "datasets/fixtures/phase04f2/domain-model-v3.json",
+        "sha256": "bcdad4f281b34b6fcfa1368a7b5098841667313aab1442baad4eba68884cc8c8"
+      },
+      {
+        "source_path": "datasets/fixtures/phase04f4/domain-model-v5.json",
+        "package_path": "datasets/fixtures/phase04f4/domain-model-v5.json",
+        "sha256": "fefe27666741160147edf355fcadcfb718a20eb6c8d265e6dff7dbf8b7572b88"
+      }
+    ],
+    "sha256": "d1c4b5b9988735f13c3cc02d84fdf2a6f3bc891a7bb37fab9f485774861c7752"
+  },
+  "claim_boundary": "Bu profil yalnız operatörce onaylanan izole analiz aralığında, dört ardışık kare üzerinde çalışan host F5 kestirimcisini etkinleştirir. FPGA, canlı RF doğruluğu, dBm kalibrasyonu veya saha başarı iddiası değildir.",
+  "profile_identity_sha256": "4d3b402696eef1b93307af260da1b7510c3cdceff0eddecb035975f6eac42464"
+}

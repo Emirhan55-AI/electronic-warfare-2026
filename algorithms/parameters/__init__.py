@@ -53,6 +53,8 @@ from .r2 import (
     iid_trimmed_mean_expectation,
     morphology_calibration,
 )
+from .f1_estimator import F1ParameterResult
+from .f5_estimator import F5ParameterEstimator
 
 __all__ = [
     "ANALYSIS_METHODS",
@@ -64,6 +66,8 @@ __all__ = [
     "EventParameterEstimate",
     "FEATURE_HISTORY_BYTES",
     "FeatureHistoryStore",
+    "F1ParameterResult",
+    "F5ParameterEstimator",
     "FieldState",
     "FrequencyEstimate",
     "MethodSelection",

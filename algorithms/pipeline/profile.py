@@ -28,6 +28,16 @@ PHASE04E1_PROFILE_PATH = ROOT / "profiles" / "phase04e1" / "operation-default.js
 PHASE04E1_COMPARISON_PATH = ROOT / "results" / "evidence" / "phase04e1" / "parameter-comparison.json"
 PHASE04E1_METHOD_LOCK_PATH = ROOT / "datasets" / "fixtures" / "phase04e1" / "method-lock.json"
 PHASE04E1_ACCEPTANCE_PATH = ROOT / "datasets" / "fixtures" / "phase04e1" / "acceptance-gates.json"
+PHASE04F5_PROFILE_PATH = ROOT / "profiles" / "phase04f5" / "operation-default.json"
+PHASE04F5_PROFILE_SHA256 = "e8e2e4d9b39052863154b0a1f1cd53420fb6d965db5099759a1c978573ba5ff5"
+PHASE04F5_FIELDS = (
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db",
+    "signal_domain",
+)
 PHASE04E1_FIELDS = (
     "emission_center_frequency",
     "carrier_line_frequency",
@@ -191,6 +201,91 @@ def load_phase04e1_capability(
         if not capability.automatic_span_validated:
             lock_methods.pop("automatic_span", None)
         if tuple((str(key), str(value)) for key, value in lock_methods.items()) != capability.methods:
+            return None
+        return capability
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ProfileError):
+        return None
+
+
+@dataclass(frozen=True)
+class Phase04F5Capability:
+    """Digest-bound field capability for the validated F5 host estimator."""
+
+    profile_id: str
+    validated_fields: tuple[str, ...]
+    methods: tuple[tuple[str, str], ...]
+    frames_per_measurement: int
+    frame_length: int
+    maximum_persistent_payload_bytes: int
+    operator_confirmed_span_required: bool
+    automatic_span_validated: bool
+    profile_identity_sha256: str
+
+    def __post_init__(self) -> None:
+        if self.profile_id != "phase04f5-operator-assisted-parameters-v6":
+            raise ProfileError("f5_profile_identity", "PHASE-04-F5 profile identity is invalid")
+        if self.validated_fields != PHASE04F5_FIELDS:
+            raise ProfileError("f5_validated_fields", "PHASE-04-F5 validated fields are invalid")
+        if self.frames_per_measurement != 4 or self.frame_length != 4096:
+            raise ProfileError("f5_runtime_shape", "PHASE-04-F5 runtime shape is invalid")
+        if self.maximum_persistent_payload_bytes > 65_536:
+            raise ProfileError("f5_runtime_memory", "PHASE-04-F5 memory bound is invalid")
+        if not self.operator_confirmed_span_required or self.automatic_span_validated:
+            raise ProfileError("f5_span_contract", "PHASE-04-F5 span contract is invalid")
+        if not SHA256_PATTERN.fullmatch(self.profile_identity_sha256):
+            raise ProfileError("f5_profile_digest", "PHASE-04-F5 profile digest is invalid")
+
+
+def _canonical_json_bytes(value: Any) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
+
+
+def load_phase04f5_capability(
+    profile_path: Path = PHASE04F5_PROFILE_PATH,
+) -> Phase04F5Capability | None:
+    """Return the locked F5 host capability or fail closed without estimates."""
+    if not profile_path.is_file():
+        return None
+    try:
+        if PHASE04F5_PROFILE_SHA256 == "TO_BE_ESTABLISHED":
+            return None
+        if _file_sha256(profile_path) != PHASE04F5_PROFILE_SHA256:
+            return None
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        identity = {key: value for key, value in profile.items() if key != "profile_identity_sha256"}
+        if hashlib.sha256(_canonical_json_bytes(identity)).hexdigest() != profile.get("profile_identity_sha256"):
+            return None
+        if profile.get("status") != "validated" or profile.get("span_robustness_validated") is not True:
+            return None
+        from algorithms.parameters.f5_estimator import F5ParameterEstimator
+
+        if profile.get("methods") != F5ParameterEstimator.METHOD_IDS:
+            return None
+        runtime = profile["runtime_implementation"]
+        runtime_identity = {key: value for key, value in runtime.items() if key != "sha256"}
+        if hashlib.sha256(_canonical_json_bytes(runtime_identity)).hexdigest() != runtime.get("sha256"):
+            return None
+        for item in runtime.get("sources", ()):
+            path = ROOT / str(item["path"])
+            if not path.is_file() or _file_sha256(path) != item.get("sha256"):
+                return None
+        for model in runtime.get("runtime_models", ()):
+            model_path = ROOT / str(model["package_path"])
+            if not model_path.is_file() or _file_sha256(model_path) != model.get("sha256"):
+                return None
+        constraints = profile["runtime_constraints"]
+        capability = Phase04F5Capability(
+            profile_id=str(profile["profile_id"]),
+            validated_fields=tuple(profile["validated_fields"]),
+            methods=tuple((str(key), str(value)) for key, value in profile["methods"].items()),
+            frames_per_measurement=int(constraints["frames_per_measurement"]),
+            frame_length=int(constraints["frame_length"]),
+            maximum_persistent_payload_bytes=int(constraints["maximum_persistent_payload_bytes"]),
+            operator_confirmed_span_required=bool(profile["operator_confirmed_span_required"]),
+            automatic_span_validated=bool(profile["automatic_span_validated"]),
+            profile_identity_sha256=str(profile["profile_identity_sha256"]),
+        )
+        if tuple(capability.methods) != tuple((key, value) for key, value in F5ParameterEstimator.METHOD_IDS.items()):
             return None
         return capability
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, ProfileError):

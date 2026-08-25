@@ -16,4 +16,4 @@ plugins = platforms,imageformats,styles
 
 [nuitka]
 mode = standalone
-extra_args = --quiet --noinclude-qt-translations=True --nofollow-import-to=platforms.acquisition.mock --nofollow-import-to=app.operator_console.laboratory --nofollow-import-to=algorithms.et --nofollow-import-to=algorithms.p0.df_fixtures
+extra_args = --quiet --noinclude-qt-translations=True --nofollow-import-to=platforms.acquisition.mock --nofollow-import-to=app.operator_console.laboratory --nofollow-import-to=algorithms.et --nofollow-import-to=algorithms.p0.df_fixtures --include-data-files=../../profiles/phase04f5/operation-default.json=profiles/phase04f5/operation-default.json --include-data-files=../../datasets/fixtures/phase04f1/domain-model.json=datasets/fixtures/phase04f1/domain-model.json --include-data-files=../../datasets/fixtures/phase04f2/domain-model-v3.json=datasets/fixtures/phase04f2/domain-model-v3.json --include-data-files=../../datasets/fixtures/phase04f4/domain-model-v5.json=datasets/fixtures/phase04f4/domain-model-v5.json

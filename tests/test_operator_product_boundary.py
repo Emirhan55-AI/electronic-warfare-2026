@@ -43,6 +43,15 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "tests",
         ):
             self.assertIn(required, excluded)
+        self.assertEqual(
+            {
+                "profiles/phase04f5/operation-default.json",
+                "datasets/fixtures/phase04f1/domain-model.json",
+                "datasets/fixtures/phase04f2/domain-model-v3.json",
+                "datasets/fixtures/phase04f4/domain-model-v5.json",
+            },
+            set(document["allowed_runtime_assets"]),
+        )
 
     def test_deploy_spec_enforces_the_same_import_boundary(self) -> None:
         spec = (ROOT / "app" / "operator_console" / "pysidedeploy.spec").read_text(encoding="utf-8")
@@ -53,6 +62,13 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "algorithms.p0.df_fixtures",
         ):
             self.assertIn(f"--nofollow-import-to={module}", spec)
+        for asset in (
+            "profiles/phase04f5/operation-default.json",
+            "datasets/fixtures/phase04f1/domain-model.json",
+            "datasets/fixtures/phase04f2/domain-model-v3.json",
+            "datasets/fixtures/phase04f4/domain-model-v5.json",
+        ):
+            self.assertIn(asset, spec)
 
     def test_product_runtime_uses_qml_and_loads_no_legacy_or_lab_modules(self) -> None:
         code = r'''

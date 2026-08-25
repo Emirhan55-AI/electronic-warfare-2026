@@ -88,23 +88,28 @@ view_model.openSigmf(str(fixture))
 deadline=time.perf_counter()+6
 while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady): app.processEvents(); time.sleep(.002)
 view_model.startScan()
-while time.perf_counter()<deadline and not any(x["stateKey"]=="confirmed" for x in view_model.detections): app.processEvents(); time.sleep(.002)
+while time.perf_counter()<deadline and (view_model.frameIndex < 4 or not any(x["stateKey"]=="confirmed" for x in view_model.detections)): app.processEvents(); time.sleep(.002)
 view_model.pause()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
 confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
-view_model.selectDetection(int(confirmed["eventId"])); before=list(view_model.parameterRows); view_model.requestMeasurement()
+view_model.selectDetection(int(confirmed["eventId"])); before=list(view_model.parameterRows)
+view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
+view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
-payload={"before":before,"after":view_model.parameterRows}
+payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
         self.assertEqual([], payload["before"])
+        self.assertTrue(payload["span_confirmed"])
         self.assertTrue(payload["after"])
         self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
         labels = [row["label"] for row in payload["after"]]
-        self.assertIn("Tepe bin gücü", labels)
-        self.assertIn("Modülasyon kategorisi", labels)
+        self.assertNotIn("Tepe bin gücü", labels)
+        self.assertIn("Gözlenen taşıyıcı frekansı", labels)
+        self.assertIn("SNR kestirimi", labels)
+        self.assertIn("Sinyal türü", labels)
         self.assertIn("Güç referansı", labels)
 
     def test_direction_result_is_blocked_without_real_source(self) -> None:

@@ -12,9 +12,21 @@ from PySide6.QtCore import QObject, Property, QRunnable, QThreadPool, QTimer, QU
 
 from algorithms.p0.df import DFMeasurement, ManualAmplitudeDF
 from algorithms.p0.field_df import AntennaReference, geographic_bearing_from_manual_reference
-from algorithms.p0.models import CandidateRegion, P0ParameterResult
-from algorithms.p0.parameters import ParameterExtractor as P0ParameterExtractor
-from algorithms.pipeline import RuntimeFrameResult, RuntimePipeline, resolve_default_operation_profile
+from algorithms.parameters import (
+    AnalysisSpan,
+    F1ParameterResult,
+    F5ParameterEstimator,
+    MeasurementCandidate,
+    MeasurementContext,
+    MeasurementIntent,
+    suggest_analysis_span,
+)
+from algorithms.pipeline import (
+    RuntimeFrameResult,
+    RuntimePipeline,
+    load_phase04f5_capability,
+    resolve_default_operation_profile,
+)
 from algorithms.spectrum import SigMFFrameSource
 from platforms.acquisition import (
     BoundedCI8FrameSource,
@@ -92,6 +104,8 @@ class OperatorViewModel(QObject):
         self._pipeline = RuntimePipeline(resolved.profile, verified_binding=resolved.binding)
         self._profile_summary = self._pipeline.validated_summary
         self._profile_warning = resolved.fallback_code
+        self._parameter_capability = load_phase04f5_capability()
+        self._parameter_estimator = F5ParameterEstimator() if self._parameter_capability is not None else None
         self._source_factory = source_factory
         self._backend = acquisition_backend or RealHackRFBackend()
         self._device_config = load_ed_rx_config()
@@ -123,6 +137,10 @@ class OperatorViewModel(QObject):
         self._selected_detection_id = -1
         self._measurement_requested = False
         self._parameter_rows: list[dict[str, str]] = []
+        self._analysis_span: AnalysisSpan | None = None
+        self._analysis_span_draft: tuple[int, int] | None = None
+        self._span_revision = 0
+        self._event_observation_history: dict[int, list[tuple[int, bool]]] = {}
         self._reduced_motion = False
         self._hackrf_ready = False
         self._operation_samples_ms: list[float] = []
@@ -136,6 +154,8 @@ class OperatorViewModel(QObject):
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
+        if self._parameter_capability is None:
+            self._add_log("Parametre", "F5 ürün profili doğrulanamadı; parametre ölçümü kapalı")
 
     @Property(str, notify=stateChanged)
     def sourceMode(self) -> str:
@@ -227,6 +247,31 @@ class OperatorViewModel(QObject):
     @Property("QVariantList", notify=detectionsChanged)
     def parameterRows(self) -> list[dict[str, str]]:
         return self._parameter_rows
+
+    @Property(bool, constant=True)
+    def parameterCapabilityReady(self) -> bool:
+        return self._parameter_capability is not None
+
+    @Property(bool, notify=detectionsChanged)
+    def analysisSpanConfirmed(self) -> bool:
+        return self._analysis_span is not None
+
+    @Property(str, notify=detectionsChanged)
+    def analysisLowerMHzText(self) -> str:
+        return self._analysis_frequency_text(0)
+
+    @Property(str, notify=detectionsChanged)
+    def analysisUpperMHzText(self) -> str:
+        return self._analysis_frequency_text(1)
+
+    @Property(bool, notify=detectionsChanged)
+    def measurementReady(self) -> bool:
+        return (
+            self.parameterCapabilityReady
+            and self.selectedDetectionReady
+            and self._analysis_span is not None
+            and self._has_four_observed_frames(self._selected_detection_id)
+        )
 
     @Property(bool, notify=stateChanged)
     def reducedMotion(self) -> bool:
@@ -392,12 +437,62 @@ class OperatorViewModel(QObject):
         self._selected_detection_id = event_id
         self._measurement_requested = False
         self._parameter_rows = []
+        self._analysis_span = None
+        self._prepare_analysis_span_draft(event_id)
+        self.detectionsChanged.emit()
+        self.stateChanged.emit()
+
+    @Slot(float, float)
+    def confirmAnalysisSpan(self, lower_mhz: float, upper_mhz: float) -> None:
+        if not self.selectedDetectionReady or self._last_result is None:
+            return
+        if not math.isfinite(lower_mhz) or not math.isfinite(upper_mhz) or lower_mhz >= upper_mhz:
+            self._status_message = "Analiz aralığı geçerli iki frekansla tanımlanmalıdır."
+            self.stateChanged.emit()
+            return
+        spectrum = self._last_result.spectrum
+        spacing = float(spectrum.bin_spacing_hz)
+        center = float(spectrum.center_frequency_hz)
+        lower = int(round((lower_mhz * 1_000_000.0 - center) / spacing + 2048.0))
+        upper = int(round((upper_mhz * 1_000_000.0 - center) / spacing + 2048.0))
+        event = next(
+            (item for item in self._last_result.detection.active_events if item.event_id == self._selected_detection_id),
+            None,
+        )
+        if event is None or not (lower <= event.region.peak_bin <= upper):
+            self._status_message = "Analiz aralığı seçili tespitin tepe frekansını içermelidir."
+            self.stateChanged.emit()
+            return
+        try:
+            self._span_revision += 1
+            self._analysis_span = AnalysisSpan(lower, upper, "operator_adjusted", self._span_revision)
+        except ValueError:
+            self._analysis_span = None
+            self._status_message = "Analiz aralığı 8–512 FFT hücresi arasında ve kullanılabilir bant içinde olmalıdır."
+            self.stateChanged.emit()
+            return
+        if lower < 56 or upper > 4039:
+            self._analysis_span = None
+            self._status_message = "Analiz aralığının iki yanında gürültü referans hücreleri kalmalıdır."
+            self.stateChanged.emit()
+            return
+        self._analysis_span_draft = (lower, upper)
+        self._parameter_rows = []
+        self._status_message = "Analiz aralığı operatör tarafından onaylandı."
         self.detectionsChanged.emit()
         self.stateChanged.emit()
 
     @Slot()
     def requestMeasurement(self) -> None:
+        if self._parameter_capability is None or self._parameter_estimator is None:
+            self._status_message = "Doğrulanmış F5 parametre profili kullanılamıyor; ölçüm kapalı."
+            self.stateChanged.emit()
+            return
         if not self.selectedDetectionReady or self._last_result is None or self._source is None or self._busy:
+            return
+        if self._analysis_span is None:
+            self._status_message = "Ölçümden önce analiz aralığını doğrulayın ve onaylayın."
+            self.stateChanged.emit()
             return
         event = next(
             (
@@ -408,54 +503,58 @@ class OperatorViewModel(QObject):
         )
         if event is None:
             return
+        if not self._has_four_observed_frames(event.event_id):
+            self._status_message = "F5 ölçümü için seçili tespitin dört ardışık karede gözlenmesi gerekir."
+            self.stateChanged.emit()
+            return
         self.pause()
         self._measurement_requested = True
         source = self._source
-        frame_index = self._frame_index
+        start_frame = self._frame_index - 3
         spectrum_processor = self._pipeline.processor
-        regions = tuple(
-            item.region for item in self._last_result.detection.active_events
+        candidates = tuple(
+            MeasurementCandidate(
+                int(item.event_id),
+                int(item.seen_count),
+                int(item.region.start_bin),
+                int(item.region.end_bin),
+                item.state == "confirmed",
+            )
+            for item in self._last_result.detection.active_events
             if item.observed_this_frame
         )
+        context = MeasurementContext(
+            self._generation,
+            self._generation,
+            self._generation,
+            int(event.event_id),
+            int(event.seen_count),
+            (True, True, True, True),
+            candidates,
+        )
+        intent = MeasurementIntent(
+            self._generation,
+            self._generation,
+            self._generation,
+            int(event.event_id),
+            int(event.seen_count),
+            start_frame,
+            self._analysis_span,
+            context,
+        )
+        estimator = self._parameter_estimator
 
-        def operation() -> P0ParameterResult:
-            samples = source.read_frame(frame_index)  # type: ignore[attr-defined]
-            spectrum = spectrum_processor.process(
-                samples,
-                sample_rate_hz=float(source.sample_rate_hz),  # type: ignore[attr-defined]
-                center_frequency_hz=float(source.center_frequency_hz),  # type: ignore[attr-defined]
-            )
-            shifted_power = np.fft.fftshift(spectrum.fft_power_unshifted)
-            scale = float((spectrum.frame_length * spectrum.window_coherent_gain) ** 2)
-
-            def candidate(region: object) -> CandidateRegion:
-                return CandidateRegion(
-                    int(region.start_bin),  # type: ignore[attr-defined]
-                    int(region.end_bin),  # type: ignore[attr-defined]
-                    int(region.peak_bin),  # type: ignore[attr-defined]
-                    float(region.peak_power) * scale,  # type: ignore[attr-defined]
-                    float(region.local_noise_power) * scale,  # type: ignore[attr-defined]
-                    float(region.threshold_power) * scale,  # type: ignore[attr-defined]
+        def operation() -> F1ParameterResult:
+            samples = tuple(source.read_frame(start_frame + offset) for offset in range(4))  # type: ignore[attr-defined]
+            spectra = tuple(
+                spectrum_processor.process(
+                    frame,
+                    sample_rate_hz=float(source.sample_rate_hz),  # type: ignore[attr-defined]
+                    center_frequency_hz=float(source.center_frequency_hz),  # type: ignore[attr-defined]
                 )
-
-            selected = candidate(event.region)
-            neighbors = tuple(candidate(region) for region in regions)
-            return P0ParameterExtractor().extract(
-                frame_id=frame_index,
-                iq=samples,
-                shifted_power=shifted_power,
-                sample_rate_hz=spectrum.sample_rate_hz,
-                center_frequency_hz=spectrum.center_frequency_hz,
-                candidate=selected,
-                confirmed=True,
-                provenance="HOST REFERENCE" if self._source_mode == "hackrf" else "REPLAY",
-                backend=(
-                    "HackRF Canlı RX · P0 parametre referansı"
-                    if self._source_mode == "hackrf"
-                    else "SigMF Kaydı · PHASE-03 aday + P0 parametre referansı"
-                ),
-                neighboring_candidates=neighbors,
+                for frame in samples
             )
+            return estimator.measure(intent, samples, spectra)
 
         self._set_busy(True, f"Tespit #{self._selected_detection_id} parametreleri ölçülüyor…")
         self._submit(self._generation, "measurement", operation)
@@ -588,27 +687,19 @@ class OperatorViewModel(QObject):
             self._last_result = result
             self._update_spectrum(result)
             self._update_detections(result)
-            if self._measurement_requested:
-                self._update_parameters(result)
             self._status_message = f"Kare {self._frame_index + 1}/{self._frame_count} işlendi."
             if self._pending_frame:
                 self._pending_frame = False
                 self._advance()
         elif kind == "measurement":
-            if not isinstance(result, P0ParameterResult):
+            self._measurement_requested = False
+            if not isinstance(result, F1ParameterResult) or self._parameter_capability is None:
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
-            self._parameter_rows = [
-                {"label": "Emisyon merkez frekansı", "value": self._format_frequency(result.emission_center_frequency_hz)},
-                {"label": "OBW %99", "value": self._format_rate(result.occupied_bandwidth_hz)},
-                {"label": "Alt OBW frekansı", "value": self._format_frequency(result.lower_frequency_hz)},
-                {"label": "Üst OBW frekansı", "value": self._format_frequency(result.upper_frequency_hz)},
-                {"label": "Kanal gücü", "value": f"{result.channel_power_dbfs:.2f} dBFS"},
-                {"label": "Tepe bin gücü", "value": f"{result.peak_power_dbfs_per_bin:.2f} dBFS/bin"},
-                {"label": "SNR", "value": f"{result.snr_db:.2f} dB"},
-                {"label": "Modülasyon kategorisi", "value": result.signal_domain},
-                {"label": "Güç referansı", "value": "Kalibre edilmemiş · dBFS"},
-            ]
+            if result.persistent_payload_bytes > self._parameter_capability.maximum_persistent_payload_bytes:
+                self._show_error("measurement_failed", "F5 kalıcı bellek sınırı aşıldı.")
+                return
+            self._parameter_rows = self._f5_parameter_rows(result)
             self._status_message = f"Tespit #{self._selected_detection_id} parametre ölçümü tamamlandı."
             self._add_log("Parametre", self._status_message)
             self.detectionsChanged.emit()
@@ -717,6 +808,16 @@ class OperatorViewModel(QObject):
         self.spectrumChanged.emit()
 
     def _update_detections(self, result: RuntimeFrameResult) -> None:
+        for event in result.detection.active_events:
+            if not event.observed_this_frame:
+                continue
+            history = self._event_observation_history.setdefault(int(event.event_id), [])
+            record = (self._frame_index, True)
+            if history and history[-1][0] == self._frame_index:
+                history[-1] = record
+            else:
+                history.append(record)
+            del history[:-8]
         visible = sorted(
             result.detection.active_events,
             key=lambda item: (item.state != "confirmed", -item.region.peak_to_noise_db, item.event_id),
@@ -737,31 +838,8 @@ class OperatorViewModel(QObject):
             self._selected_detection_id = -1
             self._measurement_requested = False
             self._parameter_rows = []
-        self.detectionsChanged.emit()
-
-    def _update_parameters(self, result: RuntimeFrameResult) -> None:
-        if result.parameters is None:
-            self._parameter_rows = [{"label": "Durum", "value": "Doğrulanmış parametre profili kullanılamıyor"}]
-            self.detectionsChanged.emit()
-            return
-        estimate = next(
-            (item for item in result.parameters.events if item.event_id == self._selected_detection_id),
-            None,
-        )
-        if estimate is None:
-            self._parameter_rows = [{"label": "Durum", "value": "Seçili tespit bu karede ölçülemedi"}]
-        else:
-            def measured(value: float | None, state: str, formatter: Callable[[float], str]) -> str:
-                return formatter(value) if value is not None and state == "valid" else self._field_state(state)
-
-            self._parameter_rows = [
-                {"label": "Emisyon merkez frekansı", "value": measured(estimate.frequency.spectral_center_frequency_hz, estimate.frequency.spectral_center_state, self._format_frequency)},
-                {"label": "Gözlenen taşıyıcı frekansı", "value": measured(estimate.frequency.observed_carrier_frequency_hz, estimate.frequency.observed_carrier_state, self._format_frequency)},
-                {"label": "OBW %99", "value": measured(estimate.bandwidth.bandwidth_hz, estimate.bandwidth.bandwidth_state, self._format_rate)},
-                {"label": "Kanal gücü", "value": measured(estimate.power.signal_power_dbfs, estimate.power.relative_power_state, lambda value: f"{value:.2f} dBFS")},
-                {"label": "SNR", "value": measured(estimate.power.snr_db, estimate.power.snr_state, lambda value: f"{value:.2f} dB")},
-                {"label": "Modülasyon kategorisi", "value": estimate.signal_domain.value if estimate.signal_domain.state == "valid" else self._field_state(estimate.signal_domain.state)},
-            ]
+            self._analysis_span = None
+            self._analysis_span_draft = None
         self.detectionsChanged.emit()
 
     def _clear_results(self, *, keep_source: bool = False) -> None:
@@ -771,6 +849,9 @@ class OperatorViewModel(QObject):
         self._selected_detection_id = -1
         self._measurement_requested = False
         self._parameter_rows = []
+        self._analysis_span = None
+        self._analysis_span_draft = None
+        self._event_observation_history.clear()
         self._frame_index = 0
         if not keep_source:
             self._frame_count = 0
@@ -833,3 +914,72 @@ class OperatorViewModel(QObject):
             "insufficient_quality": "Kalite yetersiz",
             "uncertain": "Belirsiz",
         }.get(state, "Ölçülemedi")
+
+    def _prepare_analysis_span_draft(self, event_id: int) -> None:
+        if self._last_result is None:
+            self._analysis_span_draft = None
+            return
+        event = next(
+            (item for item in self._last_result.detection.active_events if item.event_id == event_id),
+            None,
+        )
+        if event is None:
+            self._analysis_span_draft = None
+            return
+        suggested = suggest_analysis_span(event, self._last_result.detection.active_events)
+        if suggested is None:
+            self._analysis_span_draft = None
+            return
+        lower = max(56, suggested.lower_shifted_bin)
+        upper = min(4039, suggested.upper_shifted_bin)
+        self._analysis_span_draft = (lower, upper) if upper - lower + 1 >= 8 else None
+
+    def _analysis_frequency_text(self, index: int) -> str:
+        bins = (
+            (self._analysis_span.lower_shifted_bin, self._analysis_span.upper_shifted_bin)
+            if self._analysis_span is not None
+            else self._analysis_span_draft
+        )
+        if bins is None or self._last_result is None:
+            return ""
+        spectrum = self._last_result.spectrum
+        frequency_hz = spectrum.center_frequency_hz + (bins[index] - 2048.0) * spectrum.bin_spacing_hz
+        return f"{frequency_hz / 1_000_000.0:.6f}"
+
+    def _has_four_observed_frames(self, event_id: int) -> bool:
+        if self._frame_index < 3:
+            return False
+        history = self._event_observation_history.get(event_id, ())
+        tail = history[-4:]
+        return (
+            len(tail) == 4
+            and tuple(item[0] for item in tail) == tuple(range(self._frame_index - 3, self._frame_index + 1))
+            and all(item[1] for item in tail)
+        )
+
+    def _f5_parameter_rows(self, result: F1ParameterResult) -> list[dict[str, str]]:
+        validated = set(self._parameter_capability.validated_fields if self._parameter_capability else ())
+
+        def measured(capability: str, field: object, formatter: Callable[[float], str]) -> str:
+            if capability not in validated:
+                return "Henüz doğrulanmadı"
+            state = str(getattr(field, "state", "uncertain"))
+            value = getattr(field, "value", None)
+            return formatter(float(value)) if state == "valid" and isinstance(value, (int, float)) else self._field_state(state)
+
+        domain = (
+            str(result.signal_domain.value)
+            if "signal_domain" in validated and result.signal_domain.state == "valid"
+            else self._field_state(result.signal_domain.state)
+        )
+        return [
+            {"label": "Emisyon merkez frekansı", "value": measured("emission_center_frequency", result.emission_center_frequency, self._format_frequency)},
+            {"label": "Gözlenen taşıyıcı frekansı", "value": measured("carrier_line_frequency", result.carrier_line_frequency, self._format_frequency)},
+            {"label": "Alt OBW sınırı", "value": measured("occupied_bandwidth", result.lower_band_edge, self._format_frequency)},
+            {"label": "Üst OBW sınırı", "value": measured("occupied_bandwidth", result.upper_band_edge, self._format_frequency)},
+            {"label": "OBW %99", "value": measured("occupied_bandwidth", result.occupied_bandwidth, self._format_rate)},
+            {"label": "Kalibre edilmemiş kanal gücü", "value": measured("uncalibrated_channel_power_dbfs", result.channel_power_dbfs, lambda value: f"{value:.2f} dBFS")},
+            {"label": "SNR kestirimi", "value": measured("snr_estimate_db", result.snr_estimate_db, lambda value: f"{value:.2f} dB")},
+            {"label": "Sinyal türü", "value": domain},
+            {"label": "Güç referansı", "value": "Kalibre edilmemiş · dBFS"},
+        ]

@@ -189,8 +189,13 @@ sonrasında commitment'lar doğrulanmış, binding ve OOS seed'leri açılmış 
 popülasyon yalnız birer kez çalıştırılmıştır. Binding 40/40, OOS 24/24 ve yedi
 alanın tamamı birlikte geçmiştir. OOS OBW aile minimumu 64/64, göreli q95 hata
 %9,06, alt/üst kenar q95 1,43/1,58 bin ve clipping sıfırdır. Kanıt bütünlüğü
-7/7 geçmiştir. F5D tamamlanmıştır; PHASE-04 ürün profili henüz oluşturulmamış,
-F5E ayrı kullanıcı onayı beklemektedir.
+7/7 geçmiştir. Kullanıcı onayıyla F5E'de altı ölçüm alanı ve span dayanıklılığı
+F5D kanıtlarına digest bağlı `phase04f5-operator-assisted-parameters-v6` host
+ürün profiline alınmıştır. Qt Quick ürün akışı F5 kestirimcisini yalnız bu profil
+doğrulanırsa açar; dört ardışık gözlem ve operatörce onaylanmış izole analiz
+aralığını zorunlu tutar. Profil veya çalışma zamanı kaynağı değişirse parametre
+ölçümü fail-closed kapanır. PHASE-04 host parametre ürün entegrasyonu tamamlanmıştır;
+FPGA, canlı RF, dBm kalibrasyonu ve saha kabulü bu sonuç kapsamında değildir.
 
 ## Erken hazırlık istisnası: PHASE-08A
 

@@ -54,6 +54,7 @@ Korunan alt-faz adı: **PHASE-06C — 4096 Nokta FFT Mimarisi, Ölçekleme Sözl
 - `profiles/phase04/`: Yalnız bütün zorunlu kapılar ile comparison/digest bağı geçerse oluşturulan validated parametre işlem profili.
 - `datasets/fixtures/phase04e1/`: E1 acceptance kapıları, operatör-span sahneleri ve sonuçlardan önce kilitlenen yöntem sözleşmesi.
 - `profiles/phase04e1/`: En az bir E1 alanı binding ve OOS kapılarını geçerse oluşturulacak alan-bazlı profil; mevcut değerlendirmede oluşturulmamıştır.
+- `profiles/phase04f5/`: Binding 40/40 ve OOS 24/24 sonucuna digest bağlı, yalnız operatör onaylı izole analiz aralığında çalışan F5 host parametre ürün profili.
 - `datasets/fixtures/phase03/`: Detector bağımsız, sayısal parametreleri sabit sentetik sahne kataloğu.
 - `profiles/phase03/`: Benchmark sonucuyla kurulan doğrulanmış Operasyon işlem profili.
 - `datasets/fixtures/phase01/`: Repository'de izlenen deterministik sentetik `ci8` golden fixture.
@@ -98,6 +99,8 @@ python -B scripts/generate_phase01_fixture.py --check
 python -B scripts/select_phase04_profile.py --evaluate
 python -B scripts/select_phase04_profile.py --check
 python -B scripts/verify_phase04.py --check
+python -B scripts/establish_phase04f5_product_profile.py --check
+python -B scripts/verify_phase04f5_product_integration.py --check
 python -B scripts/generate_phase05_fixtures.py --check
 python -B scripts/verify_phase05.py --check
 python -B scripts/generate_phase06b_vectors.py --check

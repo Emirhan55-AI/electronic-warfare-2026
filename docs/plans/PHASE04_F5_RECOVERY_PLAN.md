@@ -100,5 +100,12 @@ merkezi, taşıyıcı çizgisi, OBW99, kalibre edilmemiş güç, SNR, sinyal ala
 span dayanıklılığı iki popülasyonda birlikte başarılı olmuştur. OOS OBW aile
 minimumu 64/64, göreli q95 hata %9,06, alt/üst kenar q95 1,43/1,58 bin ve
 clipping sıfırdır. `f5d-verification.json` kanıt bütünlüğünü 7/7 doğrulamıştır.
-F5D tamamlanmıştır. Digest bağlı host ürün profilini oluşturacak F5E
-başlatılmamış ve ayrı kullanıcı onayı beklemektedir; FPGA entegrasyonu değildir.
+Kullanıcı onayıyla F5E tamamlanmıştır. Altı ölçüm alanı ve span dayanıklılığı
+F5D binding/OOS kanıtlarına SHA-256 ile bağlanan
+`profiles/phase04f5/operation-default.json` profilinde etkinleştirilmiştir.
+Ürün çalışma zamanı yalnız profil, yöntem, çalışma zamanı kaynakları ve sınıflandırma
+modeli özeti birlikte doğrulanırsa F5 kestirimcisini açar; tek baytlık profil
+değişikliği fail-closed davranır. QML akışı dört ardışık gözlem ve operatörce
+onaylanmış izole analiz aralığı olmadan ölçüm başlatmaz. F5E host ürün
+entegrasyonudur; FPGA, canlı RF doğruluğu, dBm kalibrasyonu veya saha kabulü
+değildir.

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-04-F5E",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "profile-reproducible",
+      "status": "passed"
+    },
+    {
+      "id": "runtime-capability",
+      "status": "passed"
+    },
+    {
+      "id": "profile-tamper-fail-closed",
+      "status": "passed"
+    },
+    {
+      "id": "release-assets",
+      "status": "passed"
+    },
+    {
+      "id": "qml-f5-runtime-binding",
+      "status": "passed"
+    },
+    {
+      "id": "field-scoped-presentation",
+      "status": "passed"
+    }
+  ],
+  "validated_fields": [
+    "emission_center_frequency",
+    "carrier_line_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db",
+    "signal_domain"
+  ],
+  "artifacts": {
+    "product_profile_sha256": "e8e2e4d9b39052863154b0a1f1cd53420fb6d965db5099759a1c978573ba5ff5",
+    "view_model_sha256": "3a279c6cb2f809f910640704cb147f006152897894fc9243bee03f3c51dbdf62",
+    "qml_sha256": "142d3660597e7c41f76a49e9d51bd8c057c4aed381f045a14b505b29e3c1ef4d",
+    "product_package_sha256": "c5b186b037abd01bdbbcd167ee895ca5ab0af29943311693dcfd368f9ab1449c",
+    "deploy_spec_sha256": "3b310dc308edad9a416c4ddf13ef610804d9fe0d98b6d9f9e2c07519518fcbf2"
+  },
+  "claim_boundary": "F5E yalnız digest bağlı host kestirimcisi ve QML ürün bağını doğrular; FPGA, gerçek canlı RF doğruluğu, dBm kalibrasyonu veya saha kabulü değildir."
+}
