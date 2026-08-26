@@ -73,5 +73,7 @@ RF güç/etki, gerçek zamanlı donanım zamanlaması ve kapalı RF düzeni aç�
 ## Çıkış regresyonu
 
 ET-B doğrulayıcısındaki KTR-5.1, KTR-5.2, KTR-5.3, KTR-5.4 ve TX fail-closed
-kapılarının beşi de geçmiştir. Tam depo regresyon sonucu, kanıt kaydıyla birlikte
-bu bölümde güncellenir.
+kapılarının beşi de geçmiştir. ET-B kanıt commit'i üzerinde çalıştırılan tam depo
+regresyonunda `494 passed, 1 skipped, 0 failed` sonucu alınmış ve koşu
+`248,230 s` sürmüştür. Kontrollü atlama yalnız yerel yolu yapılandırılmamış
+haricî gerçek veri setine aittir.
