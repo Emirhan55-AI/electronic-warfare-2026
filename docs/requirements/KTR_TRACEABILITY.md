@@ -32,6 +32,7 @@ tutmaktır.
 | APP-D | KTR-4.1–4.4, KTR-6 | Uygulama, algoritma, platform ve doğrulama katmanlarının taşınırken davranış ve sahiplik koruması | Import sözleşmesi, golden/RTL regresyonu ve KTR yol güncellemesi |
 | APP-E | KTR-4.1-OPS, KTR-4.2–4.4 | Görev terminolojisi, bilgi mimarisi ve teknoloji kararının ölçülerek dondurulması | Kullanılabilirlik senaryoları, A/B performans ve ekran ölçeği kanıtı |
 | APP-F | KTR-4.1-OPS, KTR-4.2–4.4, izinli KTR-5 yüzeyleri | Yalnız uygulanmış ve doğrulanmış özellikleri sunan görev odaklı operatör uygulaması | ADR-0027; gerçek SigMF uçtan uca işleme; gerçek HackRF araç/cihaz probe durumu; QML ürün import sınırı; 1280×720, 1366×768, 1920×1080 ve %150 render; 10 Hz, heartbeat, bounded çizim, Türkçe metin ve paketleme kapıları |
+| ET-C | KTR-5.1–5.4, KTR-6 | Yalnız doğrulanmış çevrimdışı ET modellerinin ana ürün uygulamasında sunulması; RF TX, mock ve doğrulama verilerinin ürün dışında kalması | ED/ET QML alan seçimi; `algorithms.et` ürün import sınırı; sürekli, arabakışlı, analog ve GNSS binding testleri; 1180×680, 1280×720 ve 1440×900 render; TX API yokluğu kapısı |
 
 APP-F arayüz bakımı 2026-08-25 tarihinde işlev değiştirmeden spektrum merkezli
 ürün kabuğunu, ED görev göstergesini, ikonlu çalışma alanı seçimini, üç adımlı
@@ -90,7 +91,17 @@ durum metniyle kapatılmıştır. Beş gerçek QML görünümü ve bağlama duya
 kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. Bu bakım algoritma,
 donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
 
+ET-C bakım paketi, doğrulanmış KTR-5.1–5.4 host modellerini ana QML ürün
+yüzeyindeki ayrı ET alanına bağlamıştır. Sürekli ve analog sonuçlar sınırlı zaman
+alanı/spektrum dizilerinden, arabakışlı görünüm gerçek pencere durumlarından,
+GPS görünümü ise yalnız metadata doğrulama sonucundan beslenir. Paket manifesti
+offline ET modellerini dahil ederken mock kaynak, eski QWidget laboratuvarı,
+doğrulama veri setleri ve RF yayın yolunu dışarıda tutar. Bu bakım PHASE-10–12
+fiziksel kapılarını tamamlamaz.
+
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
-eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
-Golden/replay verileri yalnız doğrulama paketinde kalır; gerçek donanım sonucu
-ancak fiziksel kabul kanıtı varsa yayın yüzeyinde etkinleştirilir.
+eğitim, gösterim verisi veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
+Yalnız doğrulanmış çevrimdışı ET modelleri, açık `OFFLINE` ve `TX KİLİTLİ`
+durumlarıyla ürün yüzeyine dahildir. Golden/replay verileri doğrulama paketinde
+kalır; gerçek donanım sonucu ancak fiziksel kabul kanıtı varsa yayın yüzeyinde
+etkinleştirilir.

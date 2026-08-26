@@ -8,8 +8,9 @@
 
 ## Uygulanan ürün yüzeyi
 
-Ürün giriş noktası Qt Quick/QML'dir. Kalıcı çalışma alanları `Spektrum`,
-`Dinleme`, `Yön Bulma` ve `Sistem` olarak sınırlandırılmıştır. Spektrum ekranı
+Ürün giriş noktası Qt Quick/QML'dir. ED alanındaki kalıcı çalışma alanları
+`Spektrum`, `Dinleme`, `Yön Bulma` ve `Sistem`; ET alanındaki çalışma yüzeyi
+`ET Görevleri`dir. Spektrum ekranı
 kaynak sözleşmesi, spektrum, 48 satırlık spektrogram, zamansal tespit listesi ve
 seçili olayın operatör onaylı parametre ölçümünü birlikte taşır. Seçili sinyal
 bağlamı sabit kalır; tespit listesi ve ölçüm formu aynı görev panelinde açık sekme
@@ -38,16 +39,25 @@ bileşenin host uygulaması, varsa RTL/taşınabilir C karşılığı ve kart ka
 ayrı gösterilir. Filtrelenebilir olay günlüğü sıra, zaman, seviye, bileşen ve kısa
 nedeni taşır; 20 kayıtla sınırlıdır ve komut çalıştırmaz.
 
+ET yüzeyi doğrulanmış offline sürekli, arabakışlı, analog loopback ve GPS L1 C/A
+metadata modellerine bağlıdır. Sürekli ve analog görevler gerçek model
+tamponlarını, arabakışlı görev gerçek durum pencerelerini gösterir. GNSS görevinde
+ephemeris, NAV verisi ve I/Q dalga şekli bulunmadığı açıkça yazılır. Uygulama RF
+TX API'si içermez.
+
 ## Görsel ve kullanım denetimi
 
-Gerçek QML yüzeyi 1280×720, 1366×768, 1920×1080 ve %150 ölçeklemede beş ayrı
-görünümde render edilmiştir. Minimum ekranda `Tespitler` ve `Ölçüm` görünümleri
-ayrı ayrı denetlenmiştir. Karanlık tema kontrastı, seçim alanları, odak sınırları,
-taşma ve son işleme bloğu görsel olarak incelenmiştir. Klavye kısayolları:
+Gerçek QML yüzeyi ED tarafında 1280×720, 1366×768, 1920×1080 ve %150 ölçeklemede
+beş ayrı görünümde; ET tarafında 1180×680, 1280×720 ve 1440×900 koşullarında üç
+ayrı görünümde render edilmiştir. Minimum ekranda `Tespitler`, `Ölçüm` ve GPS
+metadata görünümleri ayrı ayrı denetlenmiştir. Karanlık tema kontrastı, seçim
+alanları, odak sınırları, taşma ve son işleme bloğu görsel olarak incelenmiştir.
+Klavye kısayolları:
 
 - `Ctrl+O`: SigMF kaydı açma
 - `Boşluk`: taramayı başlatma/duraklatma
 - `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanı geçişi
+- `Ctrl+5`: ET görev doğrulama alanı
 - `Alt+Sol`, `Alt+Sağ`: spektrum görünüm geçmişinde geri/ileri
 - `Ctrl+B`: Spektrum kaynak panelini açma/kapatma
 - `Ctrl+0`: Spektrum frekans görünümünü sıfırlama
@@ -89,6 +99,8 @@ Kabul kapıları:
 - Dört çalışma alanında bağlama duyarlı kısayol, odak aktarımı, erişilebilir durum,
   geniş ekran metin ölçeği ve boş günlük görünümü ortak ürün tutarlılığı kapısından
   geçer.
+- Üç ET ekran profili gerçek offline model sonucuna bağlanır; arabakışlı pencere
+  dizisi, GPS dalga şekli yokluğu ve TX API yokluğu ayrı kapılardan geçer.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli
@@ -96,10 +108,11 @@ donanım kararlılığı iddiası değildir.
 
 ## Yayın sınırı
 
-Yeni ürün yüzeyinde bağlı olmayan GNSS, konum/harita, canlı RF ses kabulü, TX,
-offline ET, eğitim sahnesi veya gösterim verisi kontrolü yoktur. İlgili algoritma
-ve tarihsel doğrulama yüzeyleri silinmemiştir; ürün paketine ithal edilmez. Bu
-özellikler gerçek kaynak ve kabul kanıtı olmadan navigasyona eklenemez.
+Yeni ürün yüzeyinde canlı GNSS, konum/harita, canlı RF ses kabulü, TX, eğitim
+sahnesi veya gösterim verisi kontrolü yoktur. Yalnız kabul testini geçmiş offline
+ET modelleri açık güvenlik sınırlarıyla ürün paketine alınır. Mock backend, eski
+QWidget laboratuvarı, doğrulama veri setleri ve RF yayın yolu dışarıda kalır.
+Fiziksel yetenekler gerçek kaynak ve kabul kanıtı olmadan navigasyona eklenemez.
 
 ## Çıkış regresyonu
 

@@ -12,6 +12,18 @@ import numpy as np
 from PySide6.QtCore import QObject, Property, QRunnable, QThreadPool, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QDesktopServices
 
+from algorithms.et import (
+    AnalogDeceptionConfig,
+    AnalogDeceptionEngine,
+    ContinuousJammingConfig,
+    ContinuousJammingEngine,
+    ETMissionController,
+    GNSSScenario,
+    GNSSScenarioValidator,
+    InterleavedConfig,
+    InterleavedTaskController,
+    SafetyMode,
+)
 from algorithms.monitoring import (
     AnalogMonitor,
     AnalogMonitorConfig,
@@ -185,6 +197,7 @@ class OperatorViewModel(QObject):
     listeningChanged = Signal()
     playbackChanged = Signal()
     pipelineChanged = Signal()
+    etChanged = Signal()
 
     def __init__(
         self,
@@ -268,6 +281,22 @@ class OperatorViewModel(QObject):
         self._df_bearing = "—"
         self._df_reference_key: tuple[str, float | None] | None = None
         self._direction_frame_power_dbfs: float | None = None
+
+        self._et_task = "continuous"
+        self._et_status = "HAZIR"
+        self._et_result_title = "Görev seçildi"
+        self._et_result_detail = "Doğrulanmış offline modeli çalıştırmak için bir seçenek belirleyin."
+        self._et_metric_rows: list[dict[str, str]] = []
+        self._et_primary_values: list[float | None] = []
+        self._et_secondary_values: list[float] = []
+        self._et_timeline: list[dict[str, str]] = []
+        self._et_primary_title = "Zaman Alanı"
+        self._et_secondary_title = "Spektrum"
+        self._et_mission = ETMissionController(SafetyMode.OFFLINE)
+        self._et_continuous = ContinuousJammingEngine()
+        self._et_interleaved = InterleavedTaskController()
+        self._et_analog = AnalogDeceptionEngine()
+        self._et_gnss = GNSSScenarioValidator()
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
@@ -448,6 +477,55 @@ class OperatorViewModel(QObject):
     def developerMode(self) -> bool:
         return self._developer_mode
 
+    @Property(str, notify=etChanged)
+    def etTask(self) -> str:
+        return self._et_task
+
+    @Property(str, notify=etChanged)
+    def etStatus(self) -> str:
+        return self._et_status
+
+    @Property(str, notify=etChanged)
+    def etResultTitle(self) -> str:
+        return self._et_result_title
+
+    @Property(str, notify=etChanged)
+    def etResultDetail(self) -> str:
+        return self._et_result_detail
+
+    @Property("QVariantList", notify=etChanged)
+    def etMetricRows(self) -> list[dict[str, str]]:
+        return self._et_metric_rows
+
+    @Property("QVariantList", notify=etChanged)
+    def etPrimaryValues(self) -> list[float | None]:
+        return self._et_primary_values
+
+    @Property("QVariantList", notify=etChanged)
+    def etSecondaryValues(self) -> list[float]:
+        return self._et_secondary_values
+
+    @Property("QVariantList", notify=etChanged)
+    def etTimeline(self) -> list[dict[str, str]]:
+        return self._et_timeline
+
+    @Property(str, notify=etChanged)
+    def etPrimaryTitle(self) -> str:
+        return self._et_primary_title
+
+    @Property(str, notify=etChanged)
+    def etSecondaryTitle(self) -> str:
+        return self._et_secondary_title
+
+    @Property("QVariantList", constant=True)
+    def etTaskCards(self) -> list[dict[str, str]]:
+        return [
+            {"id": "continuous", "name": "Sürekli", "detail": "Tekli · Çoklu · Baraj · Süpürme", "maturity": "OFFLINE I/Q"},
+            {"id": "interleaved", "name": "Arabakışlı", "detail": "Dinle · Gecikme · Görev · Koruma", "maturity": "OFFLINE ZAMANLAMA"},
+            {"id": "analog", "name": "Analog Aldatma", "detail": "AM · FM · NFM yerel döngü", "maturity": "OFFLINE I/Q"},
+            {"id": "gnss", "name": "GPS L1 C/A", "detail": "Konum · UTC · PRN sözleşmesi", "maturity": "YALNIZ METADATA"},
+        ]
+
     @Property("QVariantList", notify=pipelineChanged)
     def pipelineBlocks(self) -> list[dict[str, object]]:
         source = "Hata" if self._error_message and self._source is None else self._source_state
@@ -501,6 +579,179 @@ class OperatorViewModel(QObject):
         if opened:
             self._add_log("Sistem", f"{component['name']} kaynak konumu açıldı")
         return opened
+
+    @Slot(str)
+    def selectETTask(self, task: str) -> None:
+        if task not in {"continuous", "interleaved", "analog", "gnss"} or task == self._et_task:
+            return
+        self._et_task = task
+        self._et_status = "HAZIR"
+        self._et_result_title = "Görev seçildi"
+        self._et_result_detail = "Seçenekleri doğrulayıp offline modeli çalıştırın."
+        self._et_metric_rows = []
+        self._et_primary_values = []
+        self._et_secondary_values = []
+        self._et_timeline = []
+        self._et_primary_title = "Zaman Alanı"
+        self._et_secondary_title = "Spektrum"
+        self.etChanged.emit()
+
+    @Slot(str, str)
+    def runETTask(self, task: str, option: str) -> None:
+        if task not in {"continuous", "interleaved", "analog"}:
+            return
+        self.selectETTask(task)
+        try:
+            if self._et_mission.state == "ÇALIŞIYOR":
+                self._et_mission.stop()
+            self._et_mission.set_mode(SafetyMode.OFFLINE)
+            self._et_status = "ÇALIŞIYOR"
+            self.etChanged.emit()
+            if task == "continuous":
+                self._run_continuous_et(option)
+            elif task == "interleaved":
+                self._run_interleaved_et(option)
+            else:
+                self._run_analog_et(option)
+            self._et_status = "TAMAMLANDI"
+            self._add_log("ET", f"{self._et_result_title} · offline doğrulama tamamlandı")
+        except (ValueError, RuntimeError, PermissionError) as exc:
+            self._et_status = "HATA"
+            self._et_result_title = "Görev tamamlanamadı"
+            self._et_result_detail = str(exc)
+            self._add_log("Hata", f"ET offline görev · {type(exc).__name__}")
+        self.etChanged.emit()
+
+    @Slot(float, float, str, str)
+    def validateETGNSS(self, latitude: float, longitude: float, utc_text: str, prn_text: str) -> None:
+        self.selectETTask("gnss")
+        try:
+            prns = tuple(int(value.strip()) for value in prn_text.split(",") if value.strip())
+        except ValueError:
+            prns = (0,)
+        scenario = GNSSScenario(float(latitude), float(longitude), utc_text.strip(), prns)
+        result = self._et_gnss.validate(scenario)
+        self._et_primary_values = []
+        self._et_secondary_values = []
+        self._et_timeline = []
+        self._et_primary_title = "Metadata"
+        self._et_secondary_title = "Dalga Şekli Yok"
+        self._et_result_title = "GPS L1 C/A metadata doğrulaması"
+        self._et_status = "TAMAMLANDI" if result.valid else "HATA"
+        self._et_result_detail = (
+            "Konum, kesin UTC ve PRN sözleşmesi geçerli. Dalga şekli üretilmedi."
+            if result.valid
+            else " · ".join(result.errors)
+        )
+        self._et_metric_rows = [
+            {"label": "Servis", "value": result.service},
+            {"label": "Konum / zaman", "value": "PASS" if result.position_time_consistent else "FAIL"},
+            {"label": "Metadata", "value": "PASS" if result.metadata_contract_valid else "FAIL"},
+            {"label": "Dalga şekli", "value": "YOK"},
+            {"label": "TX", "value": result.tx_state},
+        ]
+        self._add_log("ET", f"GPS L1 C/A metadata · {'PASS' if result.valid else 'FAIL'}")
+        self.etChanged.emit()
+
+    def _run_continuous_et(self, family: str) -> None:
+        choices = {
+            "single": ContinuousJammingConfig("single", 48_000, 0.25, (4_000.0,)),
+            "multiple": ContinuousJammingConfig("multiple", 48_000, 0.25, (-8_000.0, 0.0, 8_000.0)),
+            "barrage": ContinuousJammingConfig("barrage", 48_000, 0.25, barrage_bandwidth_hz=16_000.0),
+            "sweep": ContinuousJammingConfig("sweep", 48_000, 0.50, sweep_start_hz=-9_000.0, sweep_stop_hz=9_000.0),
+        }
+        config = choices.get(family)
+        if config is None:
+            raise ValueError("bilinmeyen sürekli görev ailesi")
+        self._et_mission.start(duration_seconds=config.duration_seconds, detail=f"continuous/{family}")
+        result = self._et_continuous.generate(config)
+        self._et_mission.complete(detail=f"continuous/{family} tamamlandı")
+        frequencies, power = self._et_continuous.spectrum(result.samples, result.sample_rate_hz)
+        self._et_primary_values = self._bounded_series(result.samples.real)
+        self._et_secondary_values = self._spectrum_series(power)
+        self._et_timeline = []
+        self._et_primary_title = "Kompleks Taban Bant · I Bileşeni"
+        self._et_secondary_title = "Normalize Spektrum · dB"
+        family_name = {"single": "Tekli", "multiple": "Çoklu", "barrage": "Baraj", "sweep": "Doğrusal Süpürme"}[family]
+        self._et_result_title = f"{family_name} offline taban bant"
+        self._et_result_detail = "Yerel kompleks örnek tamponu üretildi; aygıt ve RF çıkış yolu kullanılmadı."
+        self._et_metric_rows = [
+            {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
+            {"label": "Örnekleme", "value": f"{result.sample_rate_hz / 1000:.0f} kHz"},
+            {"label": "Tepe", "value": f"{result.peak_magnitude:.3f}"},
+            {"label": "RMS", "value": f"{result.rms_magnitude:.3f}"},
+            {"label": "OBW99", "value": f"{result.occupied_bandwidth_hz / 1000:.3f} kHz"},
+        ]
+
+    def _run_interleaved_et(self, scenario: str) -> None:
+        if scenario not in {"absent", "present", "intermittent", "edge"}:
+            raise ValueError("bilinmeyen arabakışlı analiz girdisi")
+        config = InterleavedConfig(scenario=scenario)  # type: ignore[arg-type]
+        self._et_mission.start(duration_seconds=config.windows * config.window_samples / config.sample_rate_hz, detail=f"interleaved/{scenario}")
+        result = self._et_interleaved.run(config)
+        self._et_mission.complete(detail=f"interleaved/{scenario} tamamlandı")
+        self._et_primary_values = [
+            None if item.measured_band_power is None else float(item.measured_band_power)
+            for item in result.windows
+        ]
+        self._et_secondary_values = self._bounded_series(result.task_output_samples.real)
+        self._et_timeline = [
+            {"index": str(item.index + 1), "state": item.state, "decision": item.decision}
+            for item in result.windows
+        ]
+        self._et_primary_title = "Dinleme Penceresi Bant Gücü"
+        self._et_secondary_title = "Maskeli Offline Görev Tamponu"
+        scenario_name = {"absent": "Hedef Yok", "present": "Sürekli Hedef", "intermittent": "Kesintili Hedef", "edge": "Eşik Kenarı"}[scenario]
+        self._et_result_title = f"Arabakışlı zamanlama · {scenario_name}"
+        self._et_result_detail = "Dinleme ve görev pencereleri ayrık; görev dışındaki çıkış örnekleri sıfırdır."
+        self._et_metric_rows = [
+            {"label": "Dinleme", "value": f"{result.listen_window_count} pencere"},
+            {"label": "Gecikme", "value": f"{result.response_delay_window_count} pencere"},
+            {"label": "Görev", "value": f"{result.task_window_count} pencere"},
+            {"label": "Koruma", "value": f"{result.guard_window_count} pencere"},
+            {"label": "Görev çevrimi", "value": f"%{result.task_duty_cycle * 100.0:.1f}"},
+        ]
+
+    def _run_analog_et(self, mode: str) -> None:
+        normalized_mode = mode.upper()
+        if normalized_mode not in {"AM", "FM", "NFM"}:
+            raise ValueError("bilinmeyen analog offline modu")
+        config = AnalogDeceptionConfig(mode=normalized_mode, duration_seconds=0.25)  # type: ignore[arg-type]
+        time_axis = np.arange(config.audio_sample_rate_hz, dtype=np.float64) / config.audio_sample_rate_hz
+        audio = np.sin(2.0 * np.pi * 1_000.0 * time_axis)
+        self._et_mission.start(duration_seconds=config.duration_seconds, detail=f"analog/{normalized_mode}")
+        result = self._et_analog.generate(audio, config)
+        self._et_mission.complete(detail=f"analog/{normalized_mode} tamamlandı")
+        _, power = self._et_continuous.spectrum(result.samples, result.sample_rate_hz)
+        self._et_primary_values = self._bounded_series(result.normalized_audio)
+        self._et_secondary_values = self._spectrum_series(power)
+        self._et_timeline = []
+        self._et_primary_title = "3 kHz Bant Sınırlı Test Sesi"
+        self._et_secondary_title = f"{normalized_mode} Normalize Spektrumu · dB"
+        self._et_result_title = f"{normalized_mode} offline yerel döngü"
+        self._et_result_detail = "1 kHz doğrulama sesi kullanıldı; gerçek kayıt, mikrofon veya RF çıkışı kullanılmadı."
+        self._et_metric_rows = [
+            {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
+            {"label": "Ses bandı", "value": f"{result.audio_bandwidth_hz / 1000:.1f} kHz"},
+            {"label": "Tepe", "value": f"{result.peak_magnitude:.3f}"},
+            {"label": "Loopback uyumu", "value": f"{result.loopback_correlation:.6f}"},
+            {"label": "TX", "value": "KİLİTLİ"},
+        ]
+
+    @staticmethod
+    def _bounded_series(values: np.ndarray, maximum: int = 768) -> list[float]:
+        source = np.asarray(values, dtype=np.float64)
+        if source.size <= maximum:
+            return [float(value) for value in source]
+        indices = np.linspace(0, source.size - 1, maximum, dtype=np.int64)
+        return [float(value) for value in source[indices]]
+
+    @staticmethod
+    def _spectrum_series(power: np.ndarray, maximum: int = 768) -> list[float]:
+        values = np.asarray(power, dtype=np.float64)
+        peak = max(float(np.max(values)), np.finfo(np.float64).tiny)
+        db = 10.0 * np.log10(np.maximum(values / peak, 1e-12))
+        return OperatorViewModel._bounded_series(db, maximum)
 
     @Property(str, notify=stateChanged)
     def performanceText(self) -> str:

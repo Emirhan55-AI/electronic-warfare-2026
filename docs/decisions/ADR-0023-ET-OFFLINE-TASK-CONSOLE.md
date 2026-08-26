@@ -26,6 +26,20 @@ Tüm görevler ortak `ETTaskResult` veri sözleşmesi ile sonuç verir. Bu sözl
 metninden bağımsız olarak görev tipi, mod, kaynak, zaman, süre, dalga biçimi,
 örnekleme, normalizasyon, doğrulama ve TX kilidi alanlarını taşır.
 
+## ET-C Ürün Bağı
+
+ET-C ile dört görev, ana Qt Quick/QML ürün uygulamasındaki ED/ET seçicisine
+bağlanmıştır. QML katmanı ayrı bir hesaplama veya örnek veri üretmez; sonuç
+başlıkları, sınırlı grafik dizileri, zamanlama pencereleri ve ölçüm satırları
+doğrudan `algorithms.et` modellerinden gelir. Ürün paket manifesti bu nedenle
+`algorithms/et` kaynaklarını açıkça dahil eder. Mock alım, eski QWidget
+laboratuvarı, doğrulama veri setleri ve yayın arka ucu dışlama listesinde kalır.
+
+ET görünümü 1180×680, 1280×720 ve 1440×900 çözünürlüklerde tekrarlanabilir QML
+render kapısına bağlıdır. Arabakışlı görünüm ölçüm olmayan görev pencerelerini
+boşluk olarak, GPS görünümü ise dalga şekli yokluğunu açık durum olarak gösterir.
+ViewModel herhangi bir `transmit` arayüzü sunmaz.
+
 ## Güvenlik Sınırı
 
 Bu karar RF çıkış yolu, SDR aygıt erişimi, OTA iletim, kablolu RF gönderim,

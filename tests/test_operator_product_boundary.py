@@ -25,7 +25,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             {
                 "mock_backend": False,
                 "training_mode": False,
-                "offline_et_console": False,
+                "offline_et_console": True,
                 "embedded_demo_data": False,
                 "hardcoded_recording_paths": False,
             },
@@ -35,7 +35,6 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         for required in (
             "platforms/acquisition/mock.py",
             "app/operator_console/laboratory.py",
-            "algorithms/et",
             "algorithms/p0/df_fixtures.py",
             "datasets",
             "results",
@@ -43,6 +42,8 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "tests",
         ):
             self.assertIn(required, excluded)
+        self.assertIn("algorithms/et", document["allowed_source_roots"])
+        self.assertNotIn("algorithms/et", excluded)
         self.assertEqual(
             {
                 "profiles/phase04f5/operation-default.json",
@@ -58,10 +59,10 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         for module in (
             "platforms.acquisition.mock",
             "app.operator_console.laboratory",
-            "algorithms.et",
             "algorithms.p0.df_fixtures",
         ):
             self.assertIn(f"--nofollow-import-to={module}", spec)
+        self.assertNotIn("--nofollow-import-to=algorithms.et", spec)
         for asset in (
             "profiles/phase04f5/operation-default.json",
             "datasets/fixtures/phase04f1/domain-model.json",
@@ -84,7 +85,8 @@ payload = {
     "source_mode": view_model.sourceMode,
     "workspace": root.property("workspace"),
     "root_type": root.metaObject().className(),
-    "forbidden_modules": sorted(name for name in sys.modules if name == "algorithms.et" or name.startswith("algorithms.et.") or name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures", "app.operator_console.main_window", "app.operator_console.controller"}),
+    "offline_et_loaded": "algorithms.et" in sys.modules,
+    "forbidden_modules": sorted(name for name in sys.modules if name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures", "app.operator_console.main_window", "app.operator_console.controller"}),
 }
 view_model.shutdown()
 root.close()
@@ -107,6 +109,7 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual("sigmf", payload["source_mode"])
         self.assertEqual(0, payload["workspace"])
         self.assertIn("QMLTYPE", payload["root_type"])
+        self.assertTrue(payload["offline_et_loaded"])
         self.assertEqual([], payload["forbidden_modules"])
 
     def test_product_sources_have_no_hardcoded_demo_recording_path(self) -> None:

@@ -14,6 +14,7 @@ ApplicationWindow {
     color: "#050B11"
 
     property int workspace: 0
+    property string operatingDomain: "ED"
     property bool consoleOpen: false
     property bool sourcePanelOpen: true
     property real spectrumViewStart: 0
@@ -54,9 +55,14 @@ ApplicationWindow {
             waterfall.requestPaint()
         }
         Qt.callLater(function() {
-            var target = workspaceNavigation.itemAt(root.workspace)
+            var target = workspaceNavigation.itemAt(root.operatingDomain === "ET" ? 0 : root.workspace)
             if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
         })
+    }
+
+    onOperatingDomainChanged: {
+        workspace = operatingDomain === "ET" ? 4 : 0
+        consoleOpen = false
     }
 
     function setSpectrumView(start, end) {
@@ -142,6 +148,12 @@ ApplicationWindow {
         if (state === "Hata") return danger
         if (state === "Bekliyor") return warning
         return textMuted
+    }
+
+    function etBadgeState() {
+        if (operatorViewModel.etStatus === "ÇALIŞIYOR") return "Çalışıyor"
+        if (operatorViewModel.etStatus === "HATA") return "Hata"
+        return "Hazır"
     }
 
     function systemLogMatches(item) {
@@ -298,6 +310,24 @@ ApplicationWindow {
         }
     }
 
+    component AppField: TextField {
+        id: control
+        implicitHeight: 36
+        leftPadding: 10
+        rightPadding: 10
+        color: root.textPrimary
+        placeholderTextColor: root.textMuted
+        selectionColor: root.accent
+        selectedTextColor: "#041014"
+        font.pixelSize: 11
+        background: Rectangle {
+            radius: 4
+            color: "#09141C"
+            border.color: control.activeFocus ? root.accent : root.border
+            border.width: control.activeFocus ? 2 : 1
+        }
+    }
+
     component StateBadge: Rectangle {
         property string state: "Kullanılmıyor"
         Accessible.name: "Durum: " + state
@@ -316,6 +346,78 @@ ApplicationWindow {
             color: parent.border.color
             font.pixelSize: 11
             font.weight: Font.DemiBold
+        }
+    }
+
+    component EtChart: Rectangle {
+        id: chart
+        required property string title
+        required property var values
+        color: "#071018"
+        border.color: root.border
+        radius: 4
+        Accessible.name: title
+        onValuesChanged: plot.requestPaint()
+        Label {
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: 10
+            text: chart.title
+            color: root.textSecondary
+            font.pixelSize: root.uiMetaTextSize
+            font.weight: Font.DemiBold
+        }
+        Canvas {
+            id: plot
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            anchors.topMargin: 30
+            anchors.bottomMargin: 8
+            onWidthChanged: requestPaint()
+            onHeightChanged: requestPaint()
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.reset()
+                ctx.strokeStyle = root.border
+                ctx.lineWidth = 1
+                for (var grid = 1; grid < 4; ++grid) {
+                    var gy = grid * height / 4
+                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(width, gy); ctx.stroke()
+                }
+                if (!chart.values || chart.values.length < 2) {
+                    ctx.fillStyle = root.textMuted
+                    ctx.font = "11px Segoe UI"
+                    ctx.textAlign = "center"
+                    ctx.fillText("Sonuç bekleniyor", width / 2, height / 2)
+                    return
+                }
+                var minimum = Number.POSITIVE_INFINITY
+                var maximum = Number.NEGATIVE_INFINITY
+                for (var index = 0; index < chart.values.length; ++index) {
+                    if (chart.values[index] === null || chart.values[index] === undefined) continue
+                    var value = Number(chart.values[index])
+                    if (!isFinite(value)) continue
+                    minimum = Math.min(minimum, value)
+                    maximum = Math.max(maximum, value)
+                }
+                if (!isFinite(minimum) || !isFinite(maximum)) return
+                var span = Math.max(0.0000001, maximum - minimum)
+                ctx.strokeStyle = root.accent
+                ctx.lineWidth = 1.5
+                ctx.beginPath()
+                var drawing = false
+                for (var point = 0; point < chart.values.length; ++point) {
+                    if (chart.values[point] === null || chart.values[point] === undefined || !isFinite(Number(chart.values[point]))) {
+                        drawing = false
+                        continue
+                    }
+                    var x = point * width / Math.max(1, chart.values.length - 1)
+                    var y = height - (Number(chart.values[point]) - minimum) / span * height
+                    if (!drawing) { ctx.moveTo(x, y); drawing = true } else ctx.lineTo(x, y)
+                }
+                ctx.stroke()
+            }
         }
     }
 
@@ -371,10 +473,11 @@ ApplicationWindow {
 
     Shortcut { sequence: "Ctrl+O"; onActivated: if (operatorViewModel.sourceMode === "sigmf") sigmfDialog.open() }
     Shortcut { sequence: "Space"; onActivated: if (root.workspace === 0 && operatorViewModel.sourceReady && !operatorViewModel.busy) operatorViewModel.playing ? operatorViewModel.pause() : operatorViewModel.startScan() }
-    Shortcut { sequence: "Ctrl+1"; onActivated: root.workspace = 0 }
-    Shortcut { sequence: "Ctrl+2"; onActivated: root.workspace = 1 }
-    Shortcut { sequence: "Ctrl+3"; onActivated: root.workspace = 2 }
-    Shortcut { sequence: "Ctrl+4"; onActivated: root.workspace = 3 }
+    Shortcut { sequence: "Ctrl+1"; onActivated: { root.operatingDomain = "ED"; root.workspace = 0 } }
+    Shortcut { sequence: "Ctrl+2"; onActivated: { root.operatingDomain = "ED"; root.workspace = 1 } }
+    Shortcut { sequence: "Ctrl+3"; onActivated: { root.operatingDomain = "ED"; root.workspace = 2 } }
+    Shortcut { sequence: "Ctrl+4"; onActivated: { root.operatingDomain = "ED"; root.workspace = 3 } }
+    Shortcut { sequence: "Ctrl+5"; onActivated: root.operatingDomain = "ET" }
     Shortcut { sequence: "Ctrl+B"; onActivated: if (root.workspace === 0) root.sourcePanelOpen = !root.sourcePanelOpen }
     Shortcut { sequence: "Alt+Left"; onActivated: if (root.workspace === 0) root.spectrumViewBack() }
     Shortcut { sequence: "Alt+Right"; onActivated: if (root.workspace === 0) root.spectrumViewForward() }
@@ -408,13 +511,35 @@ ApplicationWindow {
                 Label { text: "Operatör Konsolu"; color: root.textPrimary; font.pixelSize: 19; font.weight: Font.DemiBold }
             }
 
-            Rectangle {
-                Layout.preferredWidth: 42
-                Layout.preferredHeight: 26
-                radius: 4
-                color: root.accentSoft
-                border.color: "#29606A"
-                Label { anchors.centerIn: parent; text: "ED"; color: root.accent; font.pixelSize: 11; font.weight: Font.Bold; font.letterSpacing: 1 }
+            RowLayout {
+                spacing: 4
+                Repeater {
+                    model: ["ED", "ET"]
+                    delegate: Button {
+                        required property string modelData
+                        objectName: modelData === "ET" ? "domainET" : "domainED"
+                        implicitWidth: 42
+                        implicitHeight: 28
+                        text: modelData
+                        Accessible.name: modelData === "ED" ? "Elektronik Destek" : "Elektronik Taarruz"
+                        onClicked: root.operatingDomain = modelData
+                        background: Rectangle {
+                            radius: 4
+                            color: root.operatingDomain === modelData ? root.accentSoft : "transparent"
+                            border.color: root.operatingDomain === modelData ? root.accent : root.border
+                            Behavior on color { ColorAnimation { duration: root.transitionDuration } }
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: root.operatingDomain === modelData ? root.accent : root.textSecondary
+                            font.pixelSize: 11
+                            font.weight: Font.Bold
+                            font.letterSpacing: 1
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
             }
 
             Rectangle { Layout.fillHeight: true; width: 1; color: root.border; Layout.topMargin: 17; Layout.bottomMargin: 17 }
@@ -422,21 +547,21 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 3
-                Label { text: operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                Label { text: operatorViewModel.statusMessage; color: operatorViewModel.errorMessage ? root.danger : root.textSecondary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
+                Label { text: root.operatingDomain === "ET" ? "ET Görev Doğrulama" : operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                Label { text: root.operatingDomain === "ET" ? operatorViewModel.etResultDetail : operatorViewModel.statusMessage; color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : operatorViewModel.errorMessage ? root.danger : root.textSecondary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
             }
 
             ColumnLayout {
                 spacing: 2
-                Label { text: "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+                Label { text: root.operatingDomain === "ET" ? "ÇALIŞMA MODU" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? "OFFLINE" : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
             ColumnLayout {
                 spacing: 2
-                Label { text: "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: operatorViewModel.sampleRateText; color: root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+                Label { text: root.operatingDomain === "ET" ? "GÜVENLİK" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? "TX KİLİTLİ" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
-            StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
+            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
         }
     }
 
@@ -450,10 +575,10 @@ ApplicationWindow {
             anchors.leftMargin: 12
             anchors.rightMargin: 12
             spacing: 12
-            Rectangle { width: 7; height: 7; radius: 4; color: operatorViewModel.errorMessage ? root.danger : operatorViewModel.sourceReady ? root.success : root.textMuted }
-            Label { text: operatorViewModel.sourceReady ? "Kaynak bağlı" : "Kaynak bekleniyor"; color: root.textSecondary; font.pixelSize: 9 }
+            Rectangle { width: 7; height: 7; radius: 4; color: root.operatingDomain === "ET" ? root.warning : operatorViewModel.errorMessage ? root.danger : operatorViewModel.sourceReady ? root.success : root.textMuted }
+            Label { text: root.operatingDomain === "ET" ? "RF TX yok" : operatorViewModel.sourceReady ? "Kaynak bağlı" : "Kaynak bekleniyor"; color: root.textSecondary; font.pixelSize: 9 }
             Rectangle { width: 1; Layout.fillHeight: true; Layout.topMargin: 7; Layout.bottomMargin: 7; color: root.border }
-            Label { text: operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
+            Label { text: root.operatingDomain === "ET" ? "Deterministik host modeli · fiziksel RF sonucu değildir" : operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
             Button {
                 objectName: "eventConsoleButton"
                 flat: true
@@ -488,13 +613,16 @@ ApplicationWindow {
 
                 Repeater {
                     id: workspaceNavigation
-                    model: [
+                    model: root.operatingDomain === "ET" ? [
+                        {"label": "ET Görevleri", "icon": "system"}
+                    ] : [
                         {"label": "Spektrum", "icon": "spectrum"},
                         {"label": "Dinleme", "icon": "listening"},
                         {"label": "Yön Bulma", "icon": "direction"},
                         {"label": "Sistem", "icon": "system"}
                     ]
                     delegate: Button {
+                        id: navControl
                         required property var modelData
                         required property int index
                         Layout.fillWidth: true
@@ -502,14 +630,15 @@ ApplicationWindow {
                         flat: true
                         objectName: "workspaceNavigation" + index
                         Accessible.name: modelData.label
-                        Accessible.description: "Çalışma alanı " + (index + 1) + ", Ctrl+" + (index + 1)
-                        onClicked: root.workspace = index
+                        property bool selected: root.operatingDomain === "ET" ? root.workspace === 4 : root.workspace === index
+                        Accessible.description: root.operatingDomain === "ET" ? "Elektronik Taarruz görev çalışma alanı, Ctrl+5" : "Çalışma alanı " + (index + 1) + ", Ctrl+" + (index + 1)
+                        onClicked: root.workspace = root.operatingDomain === "ET" ? 4 : index
                         background: Rectangle {
-                            color: root.workspace === index ? root.accentSoft : "transparent"
+                            color: navControl.selected ? root.accentSoft : "transparent"
                             radius: 4
                             Behavior on color { ColorAnimation { duration: root.transitionDuration } }
                             Rectangle {
-                                visible: root.workspace === index
+                                visible: navControl.selected
                                 anchors.left: parent.left
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: 2
@@ -520,8 +649,8 @@ ApplicationWindow {
                         }
                         contentItem: Column {
                             spacing: 5
-                            NavIcon { anchors.horizontalCenter: parent.horizontalCenter; kind: modelData.icon; strokeColor: root.workspace === index ? root.accent : root.textSecondary }
-                            Text { anchors.horizontalCenter: parent.horizontalCenter; text: modelData.label; color: root.workspace === index ? root.textPrimary : root.textSecondary; font.pixelSize: 9 }
+                            NavIcon { anchors.horizontalCenter: parent.horizontalCenter; kind: modelData.icon; strokeColor: navControl.selected ? root.accent : root.textSecondary }
+                            Text { anchors.horizontalCenter: parent.horizontalCenter; text: modelData.label; color: navControl.selected ? root.textPrimary : root.textSecondary; font.pixelSize: 9 }
                         }
                     }
                 }
@@ -2203,6 +2332,234 @@ ApplicationWindow {
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ET OFFLINE GÖREV DOĞRULAMA
+            Item {
+                id: etWorkspace
+                objectName: "etWorkspace"
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 10
+
+                    Panel {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 58
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 14
+                            anchors.rightMargin: 14
+                            spacing: 12
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                SectionTitle { text: "ELEKTRONİK TAARRUZ · OFFLINE DOĞRULAMA" }
+                                Label { text: "Yalnız yerel taban bant, zamanlama, loopback ve metadata modelleri"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
+                            }
+                            Rectangle {
+                                implicitWidth: 92; implicitHeight: 28; radius: 4
+                                color: "#3B321F"; border.color: root.warning
+                                Label { anchors.centerIn: parent; text: "TX KİLİTLİ"; color: root.warning; font.pixelSize: 10; font.weight: Font.Bold }
+                            }
+                            Rectangle {
+                                implicitWidth: 82; implicitHeight: 28; radius: 4
+                                color: "#17252C"; border.color: root.borderStrong
+                                Label { anchors.centerIn: parent; text: "RF TX YOK"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.Bold }
+                            }
+                            StateBadge { state: root.etBadgeState() }
+                        }
+                    }
+
+                    RowLayout {
+                        id: etTaskRow
+                        property real cardHeight: root.height < 780 ? 76 : 88
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: cardHeight
+                        Layout.minimumHeight: cardHeight
+                        Layout.maximumHeight: cardHeight
+                        spacing: 8
+                        Repeater {
+                            model: operatorViewModel.etTaskCards
+                            delegate: Button {
+                                id: etTaskCard
+                                required property var modelData
+                                Layout.preferredWidth: Math.max(180, (root.width - 124) / 4)
+                                Layout.minimumWidth: Layout.preferredWidth
+                                Layout.maximumWidth: Layout.preferredWidth
+                                Layout.fillHeight: true
+                                property bool selected: operatorViewModel.etTask === modelData.id
+                                Accessible.name: modelData.name + ", " + modelData.maturity
+                                onClicked: operatorViewModel.selectETTask(modelData.id)
+                                background: Rectangle {
+                                    radius: 5
+                                    color: etTaskCard.selected ? root.accentSoft : root.surface
+                                    border.color: etTaskCard.selected ? root.accent : root.border
+                                    Behavior on color { ColorAnimation { duration: root.transitionDuration } }
+                                    Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 3; color: root.accent; visible: etTaskCard.selected }
+                                }
+                                contentItem: Column {
+                                    spacing: 2
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: parent.width
+                                    Text { width: parent.width; text: modelData.name; color: etTaskCard.selected ? root.textPrimary : root.textSecondary; font.pixelSize: root.uiBodyTextSize + 1; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                                    Text { width: parent.width; text: modelData.detail; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; elide: Text.ElideRight }
+                                    Text { width: parent.width; text: modelData.maturity; color: etTaskCard.selected ? root.accent : root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; elide: Text.ElideRight }
+                                }
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 10
+
+                        Panel {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 12
+                                spacing: 8
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        Label { text: operatorViewModel.etResultTitle; color: root.textPrimary; font.pixelSize: root.height < 780 ? 14 : 17; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
+                                        Label { text: operatorViewModel.etResultDetail; color: operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                                    }
+                                    Label { text: "OFFLINE"; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.Bold }
+                                }
+                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                RowLayout {
+                                    visible: operatorViewModel.etTask !== "gnss"
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    spacing: 8
+                                    EtChart { Layout.fillWidth: true; Layout.fillHeight: true; title: operatorViewModel.etPrimaryTitle; values: operatorViewModel.etPrimaryValues }
+                                    EtChart { Layout.fillWidth: true; Layout.fillHeight: true; title: operatorViewModel.etSecondaryTitle; values: operatorViewModel.etSecondaryValues }
+                                }
+                                Panel {
+                                    visible: operatorViewModel.etTask === "gnss"
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    color: "#071018"
+                                    ColumnLayout {
+                                        anchors.centerIn: parent
+                                        width: Math.min(parent.width - 40, 520)
+                                        spacing: 10
+                                        Label { text: "GPS L1 C/A"; color: root.textPrimary; font.pixelSize: 24; font.weight: Font.DemiBold; Layout.alignment: Qt.AlignHCenter }
+                                        Label { text: "Bu görev yalnız konum, kesin UTC ve PRN metadata sözleşmesini doğrular."; color: root.textSecondary; font.pixelSize: root.uiBodyTextSize; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; Layout.fillWidth: true }
+                                        Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                        Label { text: "EPHEMERIS YOK  ·  NAV VERİSİ YOK  ·  I/Q DALGA ŞEKLİ YOK"; color: root.warning; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
+                                    }
+                                }
+                                RowLayout {
+                                    visible: operatorViewModel.etTask === "interleaved" && operatorViewModel.etTimeline.length > 0
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 58
+                                    Layout.minimumHeight: 58
+                                    Layout.maximumHeight: 58
+                                    spacing: 4
+                                    Repeater {
+                                        model: operatorViewModel.etTimeline
+                                        delegate: Rectangle {
+                                            required property var modelData
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            radius: 3
+                                            color: modelData.state === "GÖREV" ? "#153B31" : modelData.state === "GECİKME" ? "#3B321F" : modelData.state === "KORUMA" ? "#35252A" : "#0D1822"
+                                            border.color: modelData.state === "GÖREV" ? root.success : modelData.state === "GECİKME" ? root.warning : modelData.state === "KORUMA" ? root.danger : root.border
+                                            ColumnLayout {
+                                                anchors.centerIn: parent
+                                                spacing: 1
+                                                Label { text: modelData.index; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.alignment: Qt.AlignHCenter }
+                                                Label { text: modelData.state; color: root.textPrimary; font.pixelSize: root.uiDenseMetaTextSize; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Panel {
+                            Layout.preferredWidth: root.width < 1400 ? 286 : 326
+                            Layout.fillHeight: true
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 12
+                                spacing: 9
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    SectionTitle { text: "GÖREV DENETİMİ"; Layout.fillWidth: true }
+                                    Label { text: "TX KİLİTLİ"; color: root.warning; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold }
+                                }
+                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                StackLayout {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: operatorViewModel.etTask === "gnss" ? 150 : 108
+                                    Layout.minimumHeight: Layout.preferredHeight
+                                    Layout.maximumHeight: Layout.preferredHeight
+                                    currentIndex: operatorViewModel.etTask === "continuous" ? 0 : operatorViewModel.etTask === "interleaved" ? 1 : operatorViewModel.etTask === "analog" ? 2 : 3
+                                    Item {
+                                        ColumnLayout { anchors.fill: parent; spacing: 7
+                                            Label { text: "Dalga biçimi ailesi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
+                                            AppCombo { id: etContinuousOption; objectName: "etContinuousOption"; Layout.fillWidth: true; model: ["Tekli", "Çoklu", "Baraj", "Doğrusal Süpürme"] }
+                                            PrimaryButton { objectName: "etContinuousRun"; Layout.fillWidth: true; text: "Offline Modeli Çalıştır"; onClicked: operatorViewModel.runETTask("continuous", ["single", "multiple", "barrage", "sweep"][etContinuousOption.currentIndex]) }
+                                        }
+                                    }
+                                    Item {
+                                        ColumnLayout { anchors.fill: parent; spacing: 7
+                                            Label { text: "Deterministik analiz girdisi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
+                                            AppCombo { id: etInterleavedOption; objectName: "etInterleavedOption"; Layout.fillWidth: true; model: ["Hedef Yok", "Sürekli Hedef", "Kesintili Hedef", "Eşik Kenarı"] }
+                                            PrimaryButton { objectName: "etInterleavedRun"; Layout.fillWidth: true; text: "Zamanlamayı Doğrula"; onClicked: operatorViewModel.runETTask("interleaved", ["absent", "present", "intermittent", "edge"][etInterleavedOption.currentIndex]) }
+                                        }
+                                    }
+                                    Item {
+                                        ColumnLayout { anchors.fill: parent; spacing: 7
+                                            Label { text: "Yerel döngü modu"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
+                                            AppCombo { id: etAnalogOption; objectName: "etAnalogOption"; Layout.fillWidth: true; model: ["NFM", "FM", "AM"] }
+                                            PrimaryButton { objectName: "etAnalogRun"; Layout.fillWidth: true; text: "Loopback Doğrula"; onClicked: operatorViewModel.runETTask("analog", etAnalogOption.currentText) }
+                                        }
+                                    }
+                                    Item {
+                                        ColumnLayout { anchors.fill: parent; spacing: 5
+                                            RowLayout { Layout.fillWidth: true
+                                                AppField { id: etLatitude; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "39.93340"; placeholderText: "Enlem"; Accessible.name: "Sanal enlem" }
+                                                AppField { id: etLongitude; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "32.85970"; placeholderText: "Boylam"; Accessible.name: "Sanal boylam" }
+                                            }
+                                            AppField { id: etUtc; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "2026-08-16T12:00:00Z"; placeholderText: "UTC zaman"; Accessible.name: "Senaryo UTC zamanı" }
+                                            AppField { id: etPrns; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "3, 8, 63"; placeholderText: "PRN kodları"; Accessible.name: "GPS L1 C/A PRN kodları" }
+                                            PrimaryButton { objectName: "etGnssValidate"; Layout.fillWidth: true; Layout.preferredHeight: 36; text: "Metadata Doğrula"; onClicked: operatorViewModel.validateETGNSS(Number(etLatitude.text), Number(etLongitude.text), etUtc.text, etPrns.text) }
+                                        }
+                                    }
+                                }
+                                SectionTitle { text: "SONUÇ ÖLÇÜMLERİ"; visible: operatorViewModel.etMetricRows.length > 0 }
+                                ListView {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    clip: true
+                                    spacing: 2
+                                    model: operatorViewModel.etMetricRows
+                                    delegate: Rectangle {
+                                        required property var modelData
+                                        width: ListView.view.width
+                                        height: 26
+                                        color: "#071018"
+                                        radius: 3
+                                        RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
+                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
+                                            Label { text: modelData.value; color: modelData.value === "FAIL" ? root.danger : root.textPrimary; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                        }
+                                    }
+                                }
+                                Label { text: "Sonuçlar fiziksel RF güç, etki veya saha performansı değildir."; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             }
                         }
                     }

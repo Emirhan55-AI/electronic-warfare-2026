@@ -1,6 +1,6 @@
 # ET Offline Kabul Denetimi
 
-- Güncel iş paketi: `ET-B`
+- Güncel iş paketi: `ET-C`
 - Tarih: 2026-08-26
 - Kapsam: KTR-5.1–5.4 için donanımsız host modeli, yerel döngü, arabakışlı zamanlama ve güvenlik sınırı
 - Doğrulayıcı: `scripts/verify_p0_et.py`
@@ -14,6 +14,11 @@ olgunlukta değildir. Sürekli ve analog modeller kompleks taban bant örneği
 offline görev tamponunu ayrı zaman pencerelerinde üretir. GPS L1 C/A bölümü ise
 yalnız metadata sözleşmesini doğrular; ephemeris, navigasyon mesajı, PRN kod
 üretimi veya I/Q dalga şekli içermez.
+
+ET-C, bu sınırları değiştirmeden dört görevi ana Qt Quick/QML ürün uygulamasına
+bağlamıştır. Görünür grafikler ve ölçüm satırları doğrudan model sonuçlarından
+üretilir; QML içinde gösterimlik ET sonucu bulunmaz. ED/ET ayrımı, ürün paketleme
+sınırı ve TX arayüzü yokluğu otomatik test edilir.
 
 | KTR | Doğrulanan mevcut yetenek | Açık sınır |
 |---|---|---|
@@ -69,6 +74,17 @@ raporlanmaz; `waveform_available` daima `false` kalır.
 Acil durdurma kilidi sıfırlanmadan yeni görev başlamaz ve görev denetleyicisinde
 `transmit` yöntemi yoktur. ET-B, PHASE-10–12'yi başlatmaz veya tamamlamaz. RF TX,
 RF güç/etki, gerçek zamanlı donanım zamanlaması ve kapalı RF düzeni açık kalır.
+
+## ET-C arayüz kabulü
+
+Ana ürün uygulaması 1280×720 sürekli baraj modeli, 1440×900 arabakışlı sürekli
+hedef ve 1180×680 GPS L1 C/A metadata senaryolarıyla ayrı süreçlerde render
+edilir. Kabul kapısı; ET çalışma alanının seçilmesini, beş sonuç ölçümünü,
+sürekli görevde bounded zaman/spektrum dizilerini, arabakışlı görevde sekiz
+pencere ile ölçüm boşluklarını, GPS görevinde sıfır dalga şekli noktasını ve
+ViewModel'de TX yöntemi bulunmamasını doğrular. Kanıt
+`results/evidence/app-f/release-ui-verification.json` ve eşlik eden üç ET ekran
+görüntüsünde saklanır.
 
 ## Çıkış regresyonu
 

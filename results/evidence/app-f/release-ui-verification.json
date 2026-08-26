@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-26T09:42:53Z",
+  "recorded_at": "2026-08-26T12:33:00Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.205186570378528,
-      "processing_median_ms": 2.9476999770849943,
-      "processing_p95_ms": 3.469400107860565,
-      "maximum_heartbeat_gap_ms": 36.72389988787472,
+      "observed_update_hz": 9.20161874824163,
+      "processing_median_ms": 2.5794999673962593,
+      "processing_p95_ms": 2.80330004170537,
+      "maximum_heartbeat_gap_ms": 33.70089991949499,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -144,7 +144,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "d3cc02e1685406a3daf1b53b76b8cd6126e17da3c4d5f6e03985b7ca68acdbd0"
+      "screenshot_sha256": "3a95ed19bee0f012fbe577cac766e72f163821cfeec2fe9dbb69f3f1824dec3b"
     },
     {
       "name": "measurement-1280x720",
@@ -176,10 +176,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.166060644158403,
-      "processing_median_ms": 2.867699833586812,
-      "processing_p95_ms": 3.449199954047799,
-      "maximum_heartbeat_gap_ms": 39.850000059232116,
+      "observed_update_hz": 9.183767507671856,
+      "processing_median_ms": 2.6338999159634113,
+      "processing_p95_ms": 2.839999971911311,
+      "maximum_heartbeat_gap_ms": 37.701599998399615,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -272,7 +272,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "193ac51b4624b66c3e2d898c1dadb477627af212720bc899014be6cbc4dba87a"
+      "screenshot_sha256": "a1e579d8468fc9df92235794d7cad91115d933f9e0ccb9d8911a3ed1eaaa31dc"
     },
     {
       "name": "standard-1366x768",
@@ -304,10 +304,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.21212499902024,
-      "processing_median_ms": 2.7394001372158527,
-      "processing_p95_ms": 5.894599948078394,
-      "maximum_heartbeat_gap_ms": 49.97289995662868,
+      "observed_update_hz": 9.21931113810364,
+      "processing_median_ms": 2.666099928319454,
+      "processing_p95_ms": 3.1696998048573732,
+      "maximum_heartbeat_gap_ms": 28.35680008865893,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -400,7 +400,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "113e4bd3646819c4e306e96a0e0349bd82f57d3724ebe7f1a61b5ad89d7bafd0"
+      "screenshot_sha256": "f180fbe748bff7495941010609f02d818a50fbe095ceedfdd68c2c3a1768013f"
     },
     {
       "name": "fullhd-1920x1080",
@@ -432,10 +432,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.206356804778114,
-      "processing_median_ms": 2.75709992274642,
-      "processing_p95_ms": 3.2885000109672546,
-      "maximum_heartbeat_gap_ms": 33.961000153794885,
+      "observed_update_hz": 9.233416102117948,
+      "processing_median_ms": 2.5494000874459743,
+      "processing_p95_ms": 3.0306000262498856,
+      "maximum_heartbeat_gap_ms": 31.333699822425842,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -528,7 +528,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "77fe51f1ea85cfabbbed3722c2ddb79bef644502918c2a21969c28b9c30a0470"
+      "screenshot_sha256": "f5f4c07ab4d211c6ccb814004a10aacc1c75124685c2d5cd9b5108186bd37db7"
     },
     {
       "name": "scale-150-percent",
@@ -560,10 +560,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.22758605342208,
-      "processing_median_ms": 2.926499815657735,
-      "processing_p95_ms": 3.735999809578061,
-      "maximum_heartbeat_gap_ms": 38.18189981393516,
+      "observed_update_hz": 9.221053879211778,
+      "processing_median_ms": 2.5374998804181814,
+      "processing_p95_ms": 3.1012999825179577,
+      "maximum_heartbeat_gap_ms": 39.24269997514784,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -656,7 +656,72 @@
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "3258ac0f13bafa7f3d9bdea5d965f7b1ee8ec2638fdb673bf65f509ad1d730c8"
+      "screenshot_sha256": "3501511a90657e5ffb7616df594a5b19595277e50012ddf690b1d16709db051a"
+    }
+  ],
+  "et_runs": [
+    {
+      "name": "et-continuous-1280x720",
+      "logical_width": 1280,
+      "logical_height": 720,
+      "scale_factor": 1.0,
+      "captured_width": 1280,
+      "captured_height": 720,
+      "domain": "ET",
+      "workspace": 4,
+      "task": "continuous",
+      "status": "TAMAMLANDI",
+      "result_title": "Baraj offline taban bant",
+      "metric_count": 5,
+      "primary_points": 768,
+      "secondary_points": 768,
+      "timeline_count": 0,
+      "has_measurement_gap": false,
+      "transmit_api_present": false,
+      "screenshot": "results/evidence/app-f/et-continuous-1280x720.png",
+      "screenshot_sha256": "070af358fb94ece8972093b4f394f414327670eeea8f50812e47269011565237"
+    },
+    {
+      "name": "et-interleaved-1440x900",
+      "logical_width": 1440,
+      "logical_height": 900,
+      "scale_factor": 1.0,
+      "captured_width": 1440,
+      "captured_height": 900,
+      "domain": "ET",
+      "workspace": 4,
+      "task": "interleaved",
+      "status": "TAMAMLANDI",
+      "result_title": "Arabakışlı zamanlama · Sürekli Hedef",
+      "metric_count": 5,
+      "primary_points": 8,
+      "secondary_points": 768,
+      "timeline_count": 8,
+      "has_measurement_gap": true,
+      "transmit_api_present": false,
+      "screenshot": "results/evidence/app-f/et-interleaved-1440x900.png",
+      "screenshot_sha256": "ac14af8e0eaa10e677800c5b42d8bb1f92891816e9c1f0676a9115d7f839e43c"
+    },
+    {
+      "name": "et-gnss-1180x680",
+      "logical_width": 1180,
+      "logical_height": 680,
+      "scale_factor": 1.0,
+      "captured_width": 1180,
+      "captured_height": 680,
+      "domain": "ET",
+      "workspace": 4,
+      "task": "gnss",
+      "status": "TAMAMLANDI",
+      "result_title": "GPS L1 C/A metadata doğrulaması",
+      "metric_count": 5,
+      "primary_points": 0,
+      "secondary_points": 0,
+      "timeline_count": 0,
+      "has_measurement_gap": false,
+      "transmit_api_present": false,
+      "screenshot": "results/evidence/app-f/et-gnss-1180x680.png",
+      "screenshot_sha256": "727ef951aa68c87077b448f63163b7c39a0785250a605fd66b7ef47cfec0bdb9"
     }
   ],
   "hackrf_probe": {
@@ -670,6 +735,10 @@
     "all_sources_real": true,
     "minimum_screen": true,
     "workspace_coverage": true,
+    "et_workspace_coverage": true,
+    "et_minimum_screen": true,
+    "et_offline_model_binding": true,
+    "et_safety_surface": true,
     "bounded_spectrum": true,
     "selection_bound_to_fft": true,
     "linked_frequency_view": true,

@@ -80,6 +80,14 @@ tamponu, örnek-seviyesi kapı maskesi, görev çevrimi ve pencere sayıları ba
 kabul testine bağlanmıştır. Bu bakım paketi PHASE-10 veya PHASE-11'in RF
 kapılarını tamamlamaz; gerçek zamanlı çalıştırma, SDR erişimi ve RF TX yoktur.
 
+Kullanıcının devam onayıyla `ET-C — Ürün Arayüzü Bağı` bakım paketi
+uygulanmıştır. Ana Qt Quick/QML uygulamasına ED/ET alan seçimi ve dört doğrulanmış
+çevrimdışı ET görev görünümü eklenmiş; `algorithms/et` yayın paketine bilinçli
+olarak alınmıştır. Mock kaynak, eski laboratuvar arayüzü, doğrulama verileri ve RF
+TX yolu ürün sınırının dışında kalır. ET-C, 1180×680, 1280×720 ve 1440×900
+render/binding kapılarıyla doğrulanır; PHASE-10–12 donanım ve RF kabulünü
+başlatmaz veya tamamlamaz.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

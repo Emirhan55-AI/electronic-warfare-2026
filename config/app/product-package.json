@@ -8,6 +8,7 @@
     "app/operator_console",
     "platforms/acquisition",
     "algorithms/detection",
+    "algorithms/et",
     "algorithms/monitoring",
     "algorithms/p0",
     "algorithms/parameters",
@@ -19,7 +20,6 @@
   "excluded_paths": [
     "platforms/acquisition/mock.py",
     "app/operator_console/laboratory.py",
-    "algorithms/et",
     "algorithms/p0/df_fixtures.py",
     "datasets",
     "results",
@@ -39,7 +39,7 @@
   "release_assertions": {
     "mock_backend": false,
     "training_mode": false,
-    "offline_et_console": false,
+    "offline_et_console": true,
     "embedded_demo_data": false,
     "hardcoded_recording_paths": false
   }

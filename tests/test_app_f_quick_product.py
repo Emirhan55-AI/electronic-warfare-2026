@@ -107,6 +107,38 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertTrue(payload["pipeline_list"])
         self.assertTrue(payload["system_log"])
 
+    def test_et_domain_binds_only_verified_offline_models(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1180); root.setHeight(680); root.setProperty("operatingDomain", "ET"); app.processEvents()
+surface={"domain":root.property("operatingDomain"),"workspace":root.property("workspace"),"workspace_item":root.findChild(QObject,"etWorkspace") is not None,"runs":[root.findChild(QObject,name) is not None for name in ("etContinuousRun","etInterleavedRun","etAnalogRun","etGnssValidate")]}
+view_model.runETTask("continuous","barrage")
+continuous={"status":view_model.etStatus,"title":view_model.etResultTitle,"primary":len(view_model.etPrimaryValues),"secondary":len(view_model.etSecondaryValues),"metrics":list(view_model.etMetricRows)}
+view_model.runETTask("interleaved","present")
+interleaved={"status":view_model.etStatus,"timeline":list(view_model.etTimeline),"metrics":list(view_model.etMetricRows),"has_gap":any(value is None for value in view_model.etPrimaryValues)}
+view_model.runETTask("analog","NFM")
+analog={"status":view_model.etStatus,"metrics":list(view_model.etMetricRows)}
+view_model.validateETGNSS(39.9334,32.8597,"2026-08-16T12:00:00Z","3,8,63")
+gnss={"status":view_model.etStatus,"detail":view_model.etResultDetail,"metrics":list(view_model.etMetricRows)}
+payload={"surface":surface,"continuous":continuous,"interleaved":interleaved,"analog":analog,"gnss":gnss,"transmit":hasattr(view_model,"transmit")}
+view_model.shutdown(); root.close()
+print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertEqual({"domain": "ET", "workspace": 4, "workspace_item": True, "runs": [True] * 4}, payload["surface"])
+        self.assertEqual("TAMAMLANDI", payload["continuous"]["status"])
+        self.assertEqual(768, payload["continuous"]["primary"])
+        self.assertEqual(768, payload["continuous"]["secondary"])
+        self.assertEqual(["DİNLE", "DİNLE", "GECİKME", "GÖREV", "KORUMA", "DİNLE", "DİNLE", "DİNLE"], [item["state"] for item in payload["interleaved"]["timeline"]])
+        self.assertTrue(payload["interleaved"]["has_gap"])
+        self.assertIn({"label": "Görev çevrimi", "value": "%12.5"}, payload["interleaved"]["metrics"])
+        self.assertIn({"label": "Loopback uyumu", "value": "1.000000"}, payload["analog"]["metrics"])
+        self.assertEqual("TAMAMLANDI", payload["gnss"]["status"])
+        self.assertIn("Dalga şekli üretilmedi", payload["gnss"]["detail"])
+        self.assertIn({"label": "Dalga şekli", "value": "YOK"}, payload["gnss"]["metrics"])
+        self.assertFalse(payload["transmit"])
+
     def test_system_diagnostics_use_real_runtime_state_and_safe_release_boundary(self) -> None:
         payload = self.run_qml(
             """

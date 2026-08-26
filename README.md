@@ -49,11 +49,15 @@ Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 
 ## Operatör uygulaması
 
-Uygulama; veri kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı
-sinyal ölçümü, AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur
-olay konsolunu tek görev kabuğunda birleştirir. Yayın çalışma zamanı yalnız SigMF
-ve gerçek HackRF RX kaynaklarını kabul eder; test verileri ve çevrimdışı
-laboratuvar araçları ürün paketine girmez.
+Uygulama ED ve ET görevlerini aynı ürün kabuğunda açıkça ayırır. ED alanı; veri
+kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı sinyal ölçümü,
+AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu
+birleştirir. ET alanı yalnız doğrulanmış çevrimdışı sürekli, arabakışlı, analog
+loopback ve GPS L1 C/A metadata modellerini sunar. RF TX yolu yoktur ve bütün ET
+sonuçları fiziksel RF sonucu olmadığını açıkça belirtir. Yayın çalışma zamanı
+yalnız gerçek SigMF/HackRF RX kaynaklarını ve doğrulanmış çevrimdışı ET
+modellerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
+arayüzleri ürün paketine girmez.
 
 ### Kurulum
 
@@ -76,6 +80,7 @@ Klavye kısayolları:
 - `Boşluk`: Spektrum alanında taramayı başlatır veya duraklatır.
 - `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanları arasında geçer ve
   klavye odağını seçilen alana taşır.
+- `Ctrl+5`: ET görev doğrulama alanını açar.
 - `Ctrl+B`: Spektrum alanında veri kaynağı panelini açar veya kapatır.
 - `Alt+Sol`, `Alt+Sağ`: frekans görünümü geçmişinde geri veya ileri gider.
 - `Ctrl+0`: spektrum ve spektrogramı tam banda döndürür.
@@ -89,8 +94,9 @@ Tam yazılım regresyonu:
 python -B -m unittest discover -s tests
 ```
 
-Operatör arayüzü; 1280×720, 1366×768, 1920×1080 ve %150 ölçek koşullarında
-aşağıdaki doğrulayıcıyla yeniden üretilebilir:
+Operatör arayüzü; ED için 1280×720, 1366×768, 1920×1080 ve %150 ölçek
+koşullarında; ET için 1180×680, 1280×720 ve 1440×900 koşullarında aşağıdaki
+doğrulayıcıyla yeniden üretilebilir:
 
 ```powershell
 python -B scripts\verify_app_f_release_ui.py

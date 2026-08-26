@@ -34,6 +34,12 @@ CONFIGURATIONS = (
     ("scale-150-percent", 1280, 720, 1.5, 2, 0, False, True),
 )
 
+ET_CONFIGURATIONS = (
+    ("et-continuous-1280x720", 1280, 720, 1.0, "continuous", "barrage"),
+    ("et-interleaved-1440x900", 1440, 900, 1.0, "interleaved", "present"),
+    ("et-gnss-1180x680", 1180, 680, 1.0, "gnss", "valid"),
+)
+
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -45,7 +51,7 @@ def _percentile(values: list[float], fraction: float) -> float:
 
 
 def _child_run(args: argparse.Namespace) -> int:
-    from PySide6.QtCore import QEventLoop, QTimer
+    from PySide6.QtCore import QEventLoop, QObject, QTimer
     from PySide6.QtQuick import QQuickWindow
 
     from app.operator_console.quick_application import build_quick_application
@@ -70,6 +76,70 @@ def _child_run(args: argparse.Namespace) -> int:
             "source_ready": view_model.sourceReady,
             "status": view_model.statusMessage,
             "settled": not view_model.busy,
+        }
+        view_model.shutdown()
+        root.close()
+        print(json.dumps(payload, ensure_ascii=False))
+        return 0
+    if args.et_task:
+        root.setProperty("operatingDomain", "ET")
+        root.setProperty("workspace", 4)
+        option_indices = {
+            ("continuous", "single"): 0,
+            ("continuous", "multiple"): 1,
+            ("continuous", "barrage"): 2,
+            ("continuous", "sweep"): 3,
+            ("interleaved", "absent"): 0,
+            ("interleaved", "present"): 1,
+            ("interleaved", "intermittent"): 2,
+            ("interleaved", "edge"): 3,
+            ("analog", "NFM"): 0,
+            ("analog", "FM"): 1,
+            ("analog", "AM"): 2,
+        }
+        option_controls = {
+            "continuous": "etContinuousOption",
+            "interleaved": "etInterleavedOption",
+            "analog": "etAnalogOption",
+        }
+        if args.et_task in option_controls:
+            option_control = root.findChild(QObject, option_controls[args.et_task])
+            if option_control is None:
+                raise RuntimeError("ET option control could not be found")
+            option_control.setProperty("currentIndex", option_indices[(args.et_task, args.et_option)])
+        if args.et_task == "gnss":
+            view_model.validateETGNSS(39.9334, 32.8597, "2026-08-16T12:00:00Z", "3, 8, 63")
+        else:
+            view_model.runETTask(args.et_task, args.et_option)
+        visual_deadline = time.perf_counter() + 0.35
+        while time.perf_counter() < visual_deadline:
+            app.processEvents()
+            time.sleep(0.002)
+        image = QQuickWindow.grabWindow(root)
+        screenshot = Path(args.screenshot)
+        screenshot.parent.mkdir(parents=True, exist_ok=True)
+        if image.isNull() or not image.save(str(screenshot)):
+            raise RuntimeError("ET QML screenshot could not be saved")
+        payload = {
+            "name": args.name,
+            "logical_width": int(root.width()),
+            "logical_height": int(root.height()),
+            "scale_factor": args.scale,
+            "captured_width": image.width(),
+            "captured_height": image.height(),
+            "domain": root.property("operatingDomain"),
+            "workspace": root.property("workspace"),
+            "task": view_model.etTask,
+            "status": view_model.etStatus,
+            "result_title": view_model.etResultTitle,
+            "metric_count": len(view_model.etMetricRows),
+            "primary_points": len(view_model.etPrimaryValues),
+            "secondary_points": len(view_model.etSecondaryValues),
+            "timeline_count": len(view_model.etTimeline),
+            "has_measurement_gap": any(value is None for value in view_model.etPrimaryValues),
+            "transmit_api_present": hasattr(view_model, "transmit"),
+            "screenshot": (OUTPUT / f"{args.name}.png").relative_to(ROOT).as_posix(),
+            "screenshot_sha256": _sha256(screenshot),
         }
         view_model.shutdown()
         root.close()
@@ -281,7 +351,54 @@ def _parent_run() -> int:
             return process.returncode
         runs.append(json.loads(process.stdout.strip().splitlines()[-1]))
 
+    et_runs: list[dict[str, object]] = []
+    for name, width, height, scale, task, option in ET_CONFIGURATIONS:
+        screenshot = temporary_output / f"{name}.png"
+        environment = os.environ.copy()
+        environment["QT_QPA_PLATFORM"] = "offscreen"
+        environment["QT_QUICK_BACKEND"] = "software"
+        environment["QT_SCALE_FACTOR"] = str(scale)
+        environment["PYTHONIOENCODING"] = "utf-8"
+        environment["EH_CONSOLE_DEVELOPER_MODE"] = "0"
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                str(Path(__file__).resolve()),
+                "--child",
+                "--name",
+                name,
+                "--width",
+                str(width),
+                "--height",
+                str(height),
+                "--scale",
+                str(scale),
+                "--et-task",
+                task,
+                "--et-option",
+                option,
+                "--screenshot",
+                str(screenshot),
+            ],
+            cwd=ROOT,
+            env=environment,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        if process.returncode:
+            print(process.stdout)
+            print(process.stderr, file=sys.stderr)
+            temporary_output_handle.cleanup()
+            return process.returncode
+        et_runs.append(json.loads(process.stdout.strip().splitlines()[-1]))
+
     for run in runs:
+        name = str(run["name"])
+        shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
+    for run in et_runs:
         name = str(run["name"])
         shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
     temporary_output_handle.cleanup()
@@ -314,6 +431,48 @@ def _parent_run() -> int:
             for run in runs
         ),
         "workspace_coverage": {int(run["workspace"]) for run in runs} == {0, 1, 2, 3},
+        "et_workspace_coverage": all(
+            run["domain"] == "ET" and int(run["workspace"]) == 4
+            for run in et_runs
+        )
+        and {str(run["task"]) for run in et_runs} == {"continuous", "interleaved", "gnss"},
+        "et_minimum_screen": all(
+            int(run["logical_width"]) >= 1180 and int(run["logical_height"]) >= 680
+            for run in et_runs
+        ),
+        "et_offline_model_binding": all(
+            run["status"] == "TAMAMLANDI"
+            and int(run["metric_count"]) == 5
+            and not bool(run["transmit_api_present"])
+            for run in et_runs
+        )
+        and any(
+            run["task"] == "continuous"
+            and int(run["primary_points"]) > 100
+            and int(run["secondary_points"]) > 100
+            for run in et_runs
+        )
+        and any(
+            run["task"] == "interleaved"
+            and int(run["timeline_count"]) == 8
+            and bool(run["has_measurement_gap"])
+            for run in et_runs
+        )
+        and any(
+            run["task"] == "gnss"
+            and int(run["primary_points"]) == 0
+            and int(run["secondary_points"]) == 0
+            for run in et_runs
+        ),
+        "et_safety_surface": all(
+            marker in qml_text
+            for marker in (
+                "TX KİLİTLİ",
+                "RF TX YOK",
+                "Deterministik host modeli · fiziksel RF sonucu değildir",
+                "EPHEMERIS YOK  ·  NAV VERİSİ YOK  ·  I/Q DALGA ŞEKLİ YOK",
+            )
+        ),
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),
         "selection_bound_to_fft": all(
             int(run["selected_detection_id"]) >= 0
@@ -447,7 +606,7 @@ def _parent_run() -> int:
         and hackrf_probe["source_state"] in {"Hazır", "Kullanılmıyor", "Hata"},
     }
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "work_package": "APP-F",
         "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "environment": {
@@ -466,6 +625,7 @@ def _parent_run() -> int:
             "listening_data_sha256": _sha256(LISTENING_FIXTURE.with_suffix(".sigmf-data")),
         },
         "runs": runs,
+        "et_runs": et_runs,
         "hackrf_probe": hackrf_probe,
         "gates": gates,
         "overall": "passed" if all(gates.values()) else "failed",
@@ -492,6 +652,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--spectrum-task-tab", type=int, choices=(0, 1), default=0)
     parser.add_argument("--prepare-listening", action="store_true")
     parser.add_argument("--prepare-direction", action="store_true")
+    parser.add_argument("--et-task", choices=("", "continuous", "interleaved", "analog", "gnss"), default="")
+    parser.add_argument("--et-option", default="")
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
     args = parser.parse_args(argv)

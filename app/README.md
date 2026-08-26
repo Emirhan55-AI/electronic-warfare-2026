@@ -1,9 +1,10 @@
 # Operatör Uygulaması
 
 `operator_console`, PySide6 ve Qt Quick/QML ile geliştirilen Türkçe masaüstü
-uygulamasıdır. Ürün çalışma zamanı yalnız operatörün seçtiği SigMF kaydını veya
-gerçek HackRF RX kaynağını kabul eder. Test backend'leri, kayıtlı doğrulama
-verileri ve çevrimdışı ET araçları ürün paketine dahil edilmez.
+uygulamasıdır. ED çalışma zamanı yalnız operatörün seçtiği SigMF kaydını veya
+gerçek HackRF RX kaynağını kabul eder. ET çalışma zamanı doğrulanmış çevrimdışı
+modelleri doğrudan ürün arayüzüne bağlar. Test backend'leri, kayıtlı doğrulama
+verileri, eski laboratuvar arayüzleri ve RF yayın yolu ürün paketine dahil edilmez.
 
 Uygulamanın mevcut çalışma alanları:
 
@@ -23,6 +24,9 @@ Uygulamanın mevcut çalışma alanları:
   seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
   dosya sistemi denetimi sunmaz.
+- `ET Görevleri`: sürekli offline taban bant, arabakışlı zamanlama, AM/FM/NFM
+  yerel loopback ve GPS L1 C/A metadata doğrulaması. Bütün görevler TX kilitli
+  çalışır; GNSS görevi ephemeris, NAV verisi veya I/Q dalga şekli üretmez.
 
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS
@@ -39,8 +43,8 @@ açılır. Dinleme alanında seçili sinyal, hazırlama eylemi ve sonuç kontrol
 sabit kalır; yalnız kanal ayarları kendi panelinde kaydırılır. Oynatma zaman
 çizelgesi salt okunurdur ve ses çıkışının işlediği PCM süresinden beslenir.
 
-Klavye kullanımı çalışma alanına bağlıdır. `Ctrl+1`–`Ctrl+4` çalışma alanını
-değiştirir ve odağı seçilen alana taşır. `Boşluk`, `Ctrl+B`, `Alt+Sol`,
+Klavye kullanımı çalışma alanına bağlıdır. `Ctrl+1`–`Ctrl+4` ED çalışma alanını,
+`Ctrl+5` ET görevlerini açar ve odağı seçilen alana taşır. `Boşluk`, `Ctrl+B`, `Alt+Sol`,
 `Alt+Sağ` ve `Ctrl+0` yalnız Spektrum alanında tarama, kaynak paneli ve ortak
 frekans görünümünü yönetir. `Esc` açık olay konsolunu kapatır. Durum rozetleri,
 seçim kutuları ve görev kontrolleri erişilebilir ad taşır.
