@@ -417,7 +417,27 @@ def _parent_run() -> int:
         "responsive_gui": all(float(run["maximum_heartbeat_gap_ms"]) < 100.0 for run in runs),
         "keyboard_and_accessibility": all(
             marker in qml_text
-            for marker in ("Accessible.name", 'sequence: "Ctrl+O"', 'sequence: "Space"', 'sequence: "Ctrl+4"', 'sequence: "Alt+Left"', "Hareketi azalt")
+            for marker in (
+                "Accessible.name",
+                "Accessible.role: Accessible.StaticText",
+                'sequence: "Ctrl+O"',
+                'sequence: "Space"',
+                "root.workspace === 0 && operatorViewModel.sourceReady",
+                'sequence: "Ctrl+4"',
+                'sequence: "Alt+Left"',
+                'sequence: "Escape"',
+                'objectName: "workspaceNavigation" + index',
+                "Hareketi azalt",
+            )
+        ),
+        "cross_workspace_consistency": all(
+            marker in qml_text
+            for marker in (
+                "property int uiBodyTextSize: width >= 1600 ? 11 : 10",
+                "root.systemLogMatchCount() + \" kayıt\"",
+                "Bu filtreyle eşleşen olay yok",
+                'objectName: "eventConsoleButton"',
+            )
         ),
         "honest_feature_surface": all(
             marker not in qml_text for marker in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "mock", "demo")

@@ -49,9 +49,17 @@ taşma ve son işleme bloğu görsel olarak incelenmiştir. Klavye kısayolları
 - `Boşluk`: taramayı başlatma/duraklatma
 - `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanı geçişi
 - `Alt+Sol`, `Alt+Sağ`: spektrum görünüm geçmişinde geri/ileri
+- `Ctrl+B`: Spektrum kaynak panelini açma/kapatma
+- `Ctrl+0`: Spektrum frekans görünümünü sıfırlama
+- `Esc`: açık olay konsolunu kapatma
 
-Etkileşimli kontroller erişilebilir ad taşır. `Hareketi azalt` ayarı geçiş süresini
-sıfırlar; spektrum ve ölçüm sayıları dekoratif animasyon kullanmaz.
+Spektruma özgü kısayollar diğer çalışma alanlarında işlem üretmez. Çalışma alanı
+değişiminde klavye odağı seçili gezinme öğesine taşınır. Etkileşimli kontroller
+erişilebilir ad, durum rozetleri ise erişilebilir durum açıklaması taşır.
+`Hareketi azalt` ayarı geçiş süresini sıfırlar; spektrum ve ölçüm sayıları
+dekoratif animasyon kullanmaz. Sistem ekranının ikincil metin ölçeği geniş
+ekranda artırılır; minimum ekrandaki yoğun yerleşim korunur. Filtrelenmiş olay
+günlüğü boşsa bunun veri yokluğu olduğu açıkça gösterilir.
 
 ## Ölçüm sonucu
 
@@ -78,6 +86,9 @@ Kabul kapıları:
   durumu ve fiziksel ses çıkışı sınırını üretir.
 - Yön Bulma yüzeyi aynı gerçek I/Q karesini üç anten açısıyla kaydeder; kaynak ve
   referans bağı korunur, eşit güçlerde kerteriz üretmeyen belirsizlik kapısı geçer.
+- Dört çalışma alanında bağlama duyarlı kısayol, odak aktarımı, erişilebilir durum,
+  geniş ekran metin ölçeği ve boş günlük görünümü ortak ürün tutarlılığı kapısından
+  geçer.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli

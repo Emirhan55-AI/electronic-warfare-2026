@@ -73,11 +73,13 @@ python -m app.operator_console
 Klavye kısayolları:
 
 - `Ctrl+O`: SigMF kaydı açar.
-- `Boşluk`: taramayı başlatır veya duraklatır.
-- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanları arasında geçer.
-- `Ctrl+B`: veri kaynağı panelini açar veya kapatır.
+- `Boşluk`: Spektrum alanında taramayı başlatır veya duraklatır.
+- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanları arasında geçer ve
+  klavye odağını seçilen alana taşır.
+- `Ctrl+B`: Spektrum alanında veri kaynağı panelini açar veya kapatır.
 - `Alt+Sol`, `Alt+Sağ`: frekans görünümü geçmişinde geri veya ileri gider.
 - `Ctrl+0`: spektrum ve spektrogramı tam banda döndürür.
+- `Esc`: açık olay konsolunu kapatır.
 
 ## Doğrulama
 

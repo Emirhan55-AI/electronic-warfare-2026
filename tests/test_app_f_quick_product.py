@@ -64,6 +64,7 @@ class QuickProductTests(unittest.TestCase):
             """
 root = engine.rootObjects()[0]
 root.setWidth(1180); root.setHeight(680); app.processEvents()
+minimum_width=root.width(); minimum_height=root.height()
 root.setProperty("spectrumCursorNormalized",.5); root.setProperty("spectrumCursorVisible",True); app.processEvents()
 root.zoomSpectrum(.5,.5); app.processEvents()
 zoomed=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
@@ -77,8 +78,13 @@ for index in range(4):
     root.setProperty("workspace",index); app.processEvents(); workspaces.append(root.property("workspace"))
 root.setProperty("workspace",0); root.setProperty("spectrumTaskTab",1); app.processEvents()
 task_tab=root.property("spectrumTaskTab")
-root.setProperty("workspace",3); app.processEvents()
-payload = {"width": root.width(), "height": root.height(), "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"task_tab":task_tab,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"detection_list":root.findChild(QObject,"detectionList") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None,"pipeline_list":root.findChild(QObject,"pipelineList") is not None,"system_log":root.findChild(QObject,"systemLog") is not None}
+root.setProperty("workspace",3)
+for _ in range(3): app.processEvents()
+workspace_focus=app.focusObject().objectName() if app.focusObject() is not None else ""
+minimum_body_size=root.property("uiBodyTextSize")
+root.setWidth(1920); app.processEvents()
+fullhd_body_size=root.property("uiBodyTextSize")
+payload = {"width": minimum_width, "height": minimum_height, "workspace": root.property("workspace"),"zoomed":zoomed,"back":back,"forward":forward,"reset":[root.property("spectrumViewStart"),root.property("spectrumViewEnd")],"workspaces":workspaces,"task_tab":task_tab,"workspace_focus":workspace_focus,"minimum_body_size":minimum_body_size,"fullhd_body_size":fullhd_body_size,"measurement_scroll":root.findChild(QObject,"measurementScroll") is not None,"detection_list":root.findChild(QObject,"detectionList") is not None,"listening_scroll":root.findChild(QObject,"listeningSettingsScroll") is not None,"pipeline_list":root.findChild(QObject,"pipelineList") is not None,"system_log":root.findChild(QObject,"systemLog") is not None}
 view_model.shutdown(); root.close()
 print(json.dumps(payload, ensure_ascii=False))
 """
@@ -92,6 +98,9 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual([0.0, 1.0], payload["reset"])
         self.assertEqual([0, 1, 2, 3], payload["workspaces"])
         self.assertEqual(1, payload["task_tab"])
+        self.assertEqual("workspaceNavigation3", payload["workspace_focus"])
+        self.assertEqual(10, payload["minimum_body_size"])
+        self.assertEqual(11, payload["fullhd_body_size"])
         self.assertTrue(payload["measurement_scroll"])
         self.assertTrue(payload["detection_list"])
         self.assertTrue(payload["listening_scroll"])
@@ -296,6 +305,12 @@ print(json.dumps(payload,ensure_ascii=False))
             "Accessible.name",
             'sequence: "Ctrl+O"',
             'sequence: "Space"',
+            'root.workspace === 0 && operatorViewModel.sourceReady',
+            'sequence: "Escape"',
+            'objectName: "workspaceNavigation" + index',
+            'Accessible.role: Accessible.StaticText',
+            'property int uiBodyTextSize: width >= 1600 ? 11 : 10',
+            "Bu filtreyle eşleşen olay yok",
             "Hareketi azalt",
             "SigMF Kaydı",
             "HackRF Canlı RX",

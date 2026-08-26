@@ -81,6 +81,14 @@ kare gücü, anten azimutu, frekans ve kaynakla bağlar. Üç farklı açıda ay
 I/Q gücü kullanıldığında maksimum ayrışmadığı için kerteriz üretilmemesi ürün
 kapısında doğrulanmıştır. Bu bakım yön bulma algoritmasını, saha doğruluğunu,
 çok kanallı DoA, menzil veya hedef konumu kapsamını değiştirmez.
+Dokuzuncu bakım paketi dört çalışma alanının ortak ürün kabulünü tamamlamıştır.
+Spektruma özgü tarama, kaynak paneli ve görünüm kısayolları yalnız ilgili çalışma
+alanında etkinleşir; çalışma alanı geçişi klavye odağını seçili gezinme öğesine
+taşır. Durum rozetleri erişilebilir açıklama kazanmış, geniş ekran Sistem metin
+ölçeği yoğun minimum ekranı etkilemeden yükseltilmiş ve boş günlük filtresi açık
+durum metniyle kapatılmıştır. Beş gerçek QML görünümü ve bağlama duyarlı kullanım
+kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. Bu bakım algoritma,
+donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.

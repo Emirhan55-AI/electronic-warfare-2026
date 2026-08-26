@@ -43,12 +43,20 @@ ApplicationWindow {
     property color warning: "#F0BC62"
     property color danger: "#F07178"
     property int transitionDuration: operatorViewModel.reducedMotion ? 0 : 170
+    property int uiSectionTextSize: width >= 1600 ? 11 : 10
+    property int uiBodyTextSize: width >= 1600 ? 11 : 10
+    property int uiMetaTextSize: width >= 1600 ? 10 : 9
+    property int uiDenseMetaTextSize: width >= 1600 ? 10 : 8
 
     onWorkspaceChanged: {
         if (workspace === 0) {
             spectrumCanvas.requestPaint()
             waterfall.requestPaint()
         }
+        Qt.callLater(function() {
+            var target = workspaceNavigation.itemAt(root.workspace)
+            if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
+        })
     }
 
     function setSpectrumView(start, end) {
@@ -143,6 +151,14 @@ ApplicationWindow {
         return item.component !== "Kaynak" && item.component !== "HackRF" && item.level !== "HATA"
     }
 
+    function systemLogMatchCount() {
+        var count = 0
+        for (var index = 0; index < operatorViewModel.eventLog.length; ++index) {
+            if (systemLogMatches(operatorViewModel.eventLog[index])) ++count
+        }
+        return count
+    }
+
     onSpectrumViewStartChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
@@ -181,7 +197,7 @@ ApplicationWindow {
 
     component SectionTitle: Label {
         color: root.textSecondary
-        font.pixelSize: 10
+        font.pixelSize: root.uiSectionTextSize
         font.weight: Font.Bold
         font.letterSpacing: 1.35
     }
@@ -235,6 +251,8 @@ ApplicationWindow {
         implicitHeight: 36
         leftPadding: 10
         rightPadding: 28
+        Accessible.name: displayText
+        Accessible.role: Accessible.ComboBox
         background: Rectangle {
             radius: 4
             color: "#09141C"
@@ -282,6 +300,8 @@ ApplicationWindow {
 
     component StateBadge: Rectangle {
         property string state: "Kullanılmıyor"
+        Accessible.name: "Durum: " + state
+        Accessible.role: Accessible.StaticText
         implicitWidth: badgeText.implicitWidth + 18
         implicitHeight: 24
         radius: 12
@@ -350,15 +370,16 @@ ApplicationWindow {
     }
 
     Shortcut { sequence: "Ctrl+O"; onActivated: if (operatorViewModel.sourceMode === "sigmf") sigmfDialog.open() }
-    Shortcut { sequence: "Space"; onActivated: operatorViewModel.playing ? operatorViewModel.pause() : operatorViewModel.startScan() }
+    Shortcut { sequence: "Space"; onActivated: if (root.workspace === 0 && operatorViewModel.sourceReady && !operatorViewModel.busy) operatorViewModel.playing ? operatorViewModel.pause() : operatorViewModel.startScan() }
     Shortcut { sequence: "Ctrl+1"; onActivated: root.workspace = 0 }
     Shortcut { sequence: "Ctrl+2"; onActivated: root.workspace = 1 }
     Shortcut { sequence: "Ctrl+3"; onActivated: root.workspace = 2 }
     Shortcut { sequence: "Ctrl+4"; onActivated: root.workspace = 3 }
-    Shortcut { sequence: "Ctrl+B"; onActivated: root.sourcePanelOpen = !root.sourcePanelOpen }
+    Shortcut { sequence: "Ctrl+B"; onActivated: if (root.workspace === 0) root.sourcePanelOpen = !root.sourcePanelOpen }
     Shortcut { sequence: "Alt+Left"; onActivated: if (root.workspace === 0) root.spectrumViewBack() }
     Shortcut { sequence: "Alt+Right"; onActivated: if (root.workspace === 0) root.spectrumViewForward() }
     Shortcut { sequence: "Ctrl+0"; onActivated: if (root.workspace === 0) root.resetSpectrumView() }
+    Shortcut { sequence: "Escape"; onActivated: if (root.consoleOpen) root.consoleOpen = false }
 
     header: Rectangle {
         height: 76
@@ -434,6 +455,7 @@ ApplicationWindow {
             Rectangle { width: 1; Layout.fillHeight: true; Layout.topMargin: 7; Layout.bottomMargin: 7; color: root.border }
             Label { text: operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
             Button {
+                objectName: "eventConsoleButton"
                 flat: true
                 implicitHeight: 24
                 text: root.consoleOpen ? "Olay Konsolunu Kapat" : "Olay Konsolu"
@@ -465,6 +487,7 @@ ApplicationWindow {
                 spacing: 6
 
                 Repeater {
+                    id: workspaceNavigation
                     model: [
                         {"label": "Spektrum", "icon": "spectrum"},
                         {"label": "Dinleme", "icon": "listening"},
@@ -477,7 +500,9 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 58
                         flat: true
+                        objectName: "workspaceNavigation" + index
                         Accessible.name: modelData.label
+                        Accessible.description: "Çalışma alanı " + (index + 1) + ", Ctrl+" + (index + 1)
                         onClicked: root.workspace = index
                         background: Rectangle {
                             color: root.workspace === index ? root.accentSoft : "transparent"
@@ -1926,7 +1951,7 @@ ApplicationWindow {
                     RowLayout {
                         Layout.fillWidth: true
                         SectionTitle { text: "SİSTEM / DURUM İZLEME"; Layout.fillWidth: true }
-                        Label { text: "SALT OKUNUR SİSTEM DURUMU"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.Bold }
+                        Label { text: "SALT OKUNUR SİSTEM DURUMU"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
                         StateBadge { state: operatorViewModel.sourceReady ? "Hazır" : "Bekliyor" }
                     }
                     Panel {
@@ -1957,9 +1982,9 @@ ApplicationWindow {
                                         anchors.fill: parent
                                         anchors.margins: 10
                                         spacing: 2
-                                        Label { text: modelData.label; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; font.letterSpacing: 0.8 }
+                                        Label { text: modelData.label; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.weight: Font.Bold; font.letterSpacing: 0.8 }
                                         Label { text: modelData.value; color: index === 0 ? root.stateColor(operatorViewModel.sourceState) : root.textPrimary; font.pixelSize: root.height < 780 ? 10 : 12; font.family: index === 1 || index === 2 ? "Consolas" : "Segoe UI"; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                        Label { visible: root.height >= 780; text: modelData.detail; color: root.textSecondary; font.pixelSize: 8; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                        Label { visible: root.height >= 780; text: modelData.detail; color: root.textSecondary; font.pixelSize: root.uiDenseMetaTextSize; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                     }
                                 }
                             }
@@ -1981,9 +2006,9 @@ ApplicationWindow {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     SectionTitle { text: "İŞLEME ZİNCİRİ"; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.pipelineBlocks.length + " aşama"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                    Label { text: operatorViewModel.pipelineBlocks.length + " aşama"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
                                 }
-                                Label { text: "Etkin yürütme katmanı ve doğrulanmış kaynak karşılıkları"; color: root.textSecondary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                Label { text: "Etkin yürütme katmanı ve doğrulanmış kaynak karşılıkları"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 ListView {
                                     id: pipelineList
@@ -2009,13 +2034,13 @@ ApplicationWindow {
                                             anchors.leftMargin: 10
                                             anchors.rightMargin: 10
                                             spacing: 9
-                                            Label { text: (index < 9 ? "0" : "") + (index + 1); color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                            Label { text: (index < 9 ? "0" : "") + (index + 1); color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
                                             Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(modelData.state) }
                                             ColumnLayout {
                                                 Layout.fillWidth: true
                                                 spacing: 1
-                                                Label { text: modelData.name; color: root.textPrimary; font.pixelSize: 10; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                                Label { text: modelData.runtime + "  ·  " + modelData.state; color: root.textSecondary; font.pixelSize: 8; font.family: "Consolas" }
+                                                Label { text: modelData.name; color: root.textPrimary; font.pixelSize: root.uiBodyTextSize; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                                                Label { text: modelData.runtime + "  ·  " + modelData.state; color: root.textSecondary; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas" }
                                             }
                                         }
                                         MouseArea {
@@ -2029,7 +2054,7 @@ ApplicationWindow {
                                         }
                                     }
                                 }
-                                Label { visible: operatorViewModel.developerMode; text: "Çift tıklama host kaynak konumunu açar."; color: root.accent; font.pixelSize: 8; Layout.fillWidth: true }
+                                Label { visible: operatorViewModel.developerMode; text: "Çift tıklama host kaynak konumunu açar."; color: root.accent; font.pixelSize: root.uiDenseMetaTextSize; Layout.fillWidth: true }
                             }
                         }
                         ColumnLayout {
@@ -2050,7 +2075,7 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         SectionTitle { text: "BİLEŞEN DENETÇİSİ"; Layout.fillWidth: true }
                                         Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(componentInspector.block.state || "") }
-                                        Label { text: componentInspector.block.state || "—"; color: root.stateColor(componentInspector.block.state || ""); font.pixelSize: 9; font.weight: Font.Bold }
+                                        Label { text: componentInspector.block.state || "—"; color: root.stateColor(componentInspector.block.state || ""); font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
@@ -2058,7 +2083,7 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                             spacing: 3
                                             Label { text: componentInspector.block.name || "Bileşen seçilmedi"; color: root.textPrimary; font.pixelSize: root.height < 780 ? 15 : 18; font.weight: Font.DemiBold }
-                                            Label { text: componentInspector.block.description || ""; color: root.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                            Label { text: componentInspector.block.description || ""; color: root.textSecondary; font.pixelSize: root.uiBodyTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                         }
                                         Rectangle {
                                             implicitWidth: runtimeText.implicitWidth + 20
@@ -2066,7 +2091,7 @@ ApplicationWindow {
                                             radius: 4
                                             color: root.accentSoft
                                             border.color: "#28616B"
-                                            Label { id: runtimeText; anchors.centerIn: parent; text: componentInspector.block.runtime || "—"; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.Bold }
+                                            Label { id: runtimeText; anchors.centerIn: parent; text: componentInspector.block.runtime || "—"; color: root.accent; font.pixelSize: root.uiBodyTextSize; font.family: "Consolas"; font.weight: Font.Bold }
                                         }
                                     }
                                     Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
@@ -2075,10 +2100,10 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         columnSpacing: 16
                                         rowSpacing: 4
-                                        Label { text: "Uygulama"; color: root.textMuted; font.pixelSize: 9 }
-                                        Label { text: componentInspector.block.implementation || "—"; color: root.textPrimary; font.pixelSize: 9; Layout.fillWidth: true }
-                                        Label { text: "Donanım sınırı"; color: root.textMuted; font.pixelSize: 9 }
-                                        Label { text: componentInspector.block.rtlPath ? "Kaynak karşılığı mevcut; kart kabulü yok" : "Host üzerinde çalışıyor"; color: componentInspector.block.rtlPath ? root.warning : root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        Label { text: "Uygulama"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
+                                        Label { text: componentInspector.block.implementation || "—"; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
+                                        Label { text: "Donanım sınırı"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
+                                        Label { text: componentInspector.block.rtlPath ? "Kaynak karşılığı mevcut; kart kabulü yok" : "Host üzerinde çalışıyor"; color: componentInspector.block.rtlPath ? root.warning : root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
                                     }
                                     RowLayout {
                                         visible: operatorViewModel.developerMode
@@ -2112,7 +2137,7 @@ ApplicationWindow {
                                                 onClicked: root.systemLogFilter = modelData
                                             }
                                         }
-                                        Label { text: operatorViewModel.eventLog.length + " kayıt"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                        Label { text: root.systemLogMatchCount() + " kayıt"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
                                     }
                                     Rectangle {
                                         Layout.fillWidth: true
@@ -2128,11 +2153,11 @@ ApplicationWindow {
                                                 Layout.fillWidth: true
                                                 Layout.preferredHeight: 24
                                                 spacing: 10
-                                                Label { text: "NO"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 34 }
-                                                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 62 }
-                                                Label { text: "SEVİYE"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 52 }
-                                                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.preferredWidth: 86 }
-                                                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.fillWidth: true }
+                                                Label { text: "NO"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 34 }
+                                                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 62 }
+                                                Label { text: "SEVİYE"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 52 }
+                                                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 86 }
+                                                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true }
                                             }
                                             Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                             ListView {
@@ -2153,21 +2178,28 @@ ApplicationWindow {
                                                     RowLayout {
                                                         anchors.fill: parent
                                                         spacing: 10
-                                                        Label { text: modelData.sequence; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 34 }
-                                                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 62 }
-                                                        Label { text: modelData.level; color: modelData.level === "HATA" ? root.danger : modelData.level === "UYARI" ? root.warning : root.success; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 52 }
-                                                        Label { text: modelData.component.toUpperCase(); color: root.accent; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 86; elide: Text.ElideRight }
-                                                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
+                                                        Label { text: modelData.sequence; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 34 }
+                                                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 62 }
+                                                        Label { text: modelData.level; color: modelData.level === "HATA" ? root.danger : modelData.level === "UYARI" ? root.warning : root.success; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 52 }
+                                                        Label { text: modelData.component.toUpperCase(); color: root.accent; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 86; elide: Text.ElideRight }
+                                                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
                                                     }
                                                 }
                                             }
                                             RowLayout {
                                                 Layout.fillWidth: true
                                                 Layout.preferredHeight: 20
-                                                Label { text: "●"; color: root.success; font.pixelSize: 8 }
-                                                Label { text: "Canlı olay akışı"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.fillWidth: true }
-                                                Label { text: "Salt okunur · komut çalıştırmaz"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
+                                                Label { text: "●"; color: root.success; font.pixelSize: root.uiDenseMetaTextSize }
+                                                Label { text: "Canlı olay akışı"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true }
+                                                Label { text: "Salt okunur · komut çalıştırmaz"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas" }
                                             }
+                                        }
+                                        Label {
+                                            anchors.centerIn: parent
+                                            visible: root.systemLogMatchCount() === 0
+                                            text: "Bu filtreyle eşleşen olay yok"
+                                            color: root.textSecondary
+                                            font.pixelSize: root.uiBodyTextSize
                                         }
                                     }
                                 }

@@ -39,6 +39,12 @@ açılır. Dinleme alanında seçili sinyal, hazırlama eylemi ve sonuç kontrol
 sabit kalır; yalnız kanal ayarları kendi panelinde kaydırılır. Oynatma zaman
 çizelgesi salt okunurdur ve ses çıkışının işlediği PCM süresinden beslenir.
 
+Klavye kullanımı çalışma alanına bağlıdır. `Ctrl+1`–`Ctrl+4` çalışma alanını
+değiştirir ve odağı seçilen alana taşır. `Boşluk`, `Ctrl+B`, `Alt+Sol`,
+`Alt+Sağ` ve `Ctrl+0` yalnız Spektrum alanında tarama, kaynak paneli ve ortak
+frekans görünümünü yönetir. `Esc` açık olay konsolunu kapatır. Durum rozetleri,
+seçim kutuları ve görev kontrolleri erişilebilir ad taşır.
+
 Yön Bulma ölçümleri kaynak değişiminde temizlenir. İlk kayıt antenin 0° yön
 referansını oturum için sabitler; referans ancak ölçümler temizlendikten sonra
 değiştirilebilir. Üç farklı açı tek başına sonuç garantisi değildir: belirgin bir
