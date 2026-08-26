@@ -973,6 +973,7 @@ APPROVED_P0_FILES = (
 # and validation metadata.  It is not a phase-completion or RF-TX approval.
 APPROVED_ET_OFFLINE_FILES = (
     "docs/decisions/ADR-0023-ET-OFFLINE-TASK-CONSOLE.md",
+    "docs/reviews/ET_OFFLINE_ACCEPTANCE_AUDIT.md",
     "algorithms/et/gnss.py",
     "algorithms/et/interleaved.py",
     "algorithms/et/results.py",
@@ -983,6 +984,7 @@ APPROVED_ET_OFFLINE_FILES = (
     "results/evidence/et-offline/interleaved-timeline-1920x1080.png",
     "tests/test_et_offline_models.py",
     "tests/test_operator_et.py",
+    "tests/test_p0_et_verifier.py",
 )
 
 # APP sağlamlaştırma çalışması mevcut PHASE sırasını ilerletmez.  Bu dosyalar
