@@ -99,3 +99,8 @@ dahil güncel arayüz doğrulayıcısındaki 25 kapının tamamı geçmiştir. A
 üzerindeki tam depo regresyonu `495 passed, 1 skipped, 0 failed` sonucunu vermiş
 ve `390,050 s` sürmüştür. Kontrollü atlama yine yalnız yapılandırılmamış haricî
 gerçek veri setidir.
+
+ET operatör dili ve hareket bakımı `402a34e` commit'i üzerinde doğrulanmıştır.
+Görsel doğrulayıcının 27/27 kapısı ve tam depo regresyonunun `495 passed,
+1 skipped, 0 failed` sonucu geçmiştir; koşu `498,954 s` sürmüştür. Bakım ET
+matematiğini, TX güvenlik kilidini veya donanım kabul durumunu değiştirmemiştir.

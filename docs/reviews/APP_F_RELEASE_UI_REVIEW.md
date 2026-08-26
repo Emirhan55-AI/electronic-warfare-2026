@@ -132,3 +132,8 @@ sonuç alanı daha geniş ölçüm yüzeyine dönüştürülmüş; güvenlik dı
 satırları kaldırılmıştır. Seçim alt çizgisi, basma ölçeği ve sonuç çerçevesi kısa
 mikro geçişler kullanır; `Hareketi azalt` etkinse süreler sıfırlanır. Güncel
 doğrulayıcı üç ET çözünürlüğüyle birlikte 27 kabul kapısı çalıştırır.
+
+Arayüz bakım commit'i `402a34e` üzerinde görsel doğrulayıcının 27/27 kapısı
+geçmiştir. Aynı commit üzerindeki tam depo regresyonu `495 passed, 1 skipped,
+0 failed` sonucu vermiş ve `498,954 s` sürmüştür. Kontrollü atlama yalnız
+yapılandırılmamış haricî gerçek veri setidir.
