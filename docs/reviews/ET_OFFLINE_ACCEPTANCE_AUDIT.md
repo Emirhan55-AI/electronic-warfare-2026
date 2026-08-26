@@ -55,3 +55,11 @@ Acil durdurma kilidi sıfırlanmadan yeni görev başlamaz ve görev denetleyici
 `transmit` yöntemi yoktur. ET-A, PHASE-10–12'yi başlatmaz veya tamamlamaz; yalnız
 önceden izin verilmiş offline P0 kaynaklarını ortak ve tekrarlanabilir kabul
 kapısına bağlar.
+
+## Çıkış regresyonu
+
+Kanıt commit ile kilitlendikten sonra tam depo regresyonu çalıştırılmıştır.
+Sonuç `491 passed, 1 skipped, 0 failed` ve süre `261,44 s` olmuştur. Kontrollü
+atlama yalnız yerel yolu yapılandırılmamış haricî gerçek veri setine aittir.
+ET-A doğrulayıcısındaki KTR-5.1, KTR-5.2, KTR-5.3, KTR-5.4 ve TX fail-closed
+kapılarının beşi de geçmiştir.
