@@ -2,8 +2,8 @@
 
 - Hazırlık tarihi: 2026-08-22
 - Uygulama paketi: APP-E ön araştırması
-- Durum: APP-E ile değerlendirildi; dondurulan kararlar ADR-0026 ve `docs/ux/`
-  sözleşmelerindedir
+- Durum: APP-E ile değerlendirildi; 2026-08-26 arayüz bakımında güncel bileşen,
+  hareket ve yoğunluk kaynaklarıyla yeniden denetlendi
 
 ## İlke
 
@@ -26,6 +26,9 @@ operasyon kararlılığıyla birlikte verilecektir.
 | u-center | Bağlantı, loglama ve GNSS analiz görünümlerinin ayrı görev bağlamları | Kaynak bağlantı durumu, kayıt/replay kimliği ve sensör doğruluğunu sürekli ama sakin biçimde gösterme | KTR'de bulunmayan GNSS ölçümlerini göstermelik ekleme |
 | KrakenSDR | DoA, harita ve veri toplama durumunun birlikte ele alınması | Yön ölçümü, sensör konumu, referans yönü ve LOB kaynağını aynı çalışma alanında birleştirme | Faz uyumlu çok kanal/MUSIC sonucu varmış gibi gösterme |
 | Qt Quick/Qt Design Studio | Durum tabanlı geçişler, bileşenleşme ve GPU destekli sahne grafiği | APP-E'de aynı ViewModel ile ölçülecek modern arayüz prototipi | Ölçülmeden tam teknoloji geçişi kararı verme |
+| 21st.dev | Az sayıda güçlü yüzey, belirgin seçili durum ve tutarlı bileşen ritmi | ET görev seçimini kısa sekmeler, tek vurgu rengi ve geniş sonuç alanıyla kurma | Pazarlama sayfası hero'ları, shader arka planları ve dekoratif kart çoğaltma |
+| Motion | Basma, seçim ve sonuç değişimine bağlı kısa transform/opacity geri bildirimi | 140–180 ms mikro geçişler; bütün hareketlerin `Hareketi azalt` ayarıyla kapanması | Sürekli döngü, scroll animasyonu ve operatör dikkatini dağıtan büyük yerleşim hareketleri |
+| UI/UX Pro Max | Tipografi, kontrast, erişilebilirlik, performans ve yükleme/durum odaklı hareket kontrol listesi | Teknik durumu tek noktada gösterme; ikincil metni azaltma; görev ve ölçüm hiyerarşisini güçlendirme | Birden fazla görsel stilin karıştırılması ve yalnız gösteriş için efekt kullanılması |
 
 ## Önerilen blok akışı görünümü
 
@@ -36,7 +39,7 @@ akışı aşağıdaki anlamı taşır:
 [Veri Kaynağı]
       │ iq.frame/v1
       ▼
-[Ön İşleme] ──► [FFT / Güç] ──► [OS-CFAR] ──► [Aday Birleştirme]
+[Ön İşleme] ──► [FFT / Güç] ──► [Bölgesel Eşik] ──► [Aday Birleştirme]
                                                    │
                                                    ▼
                                       [Zamansal Doğrulama]
@@ -63,8 +66,8 @@ gösterilir; başarı durumu gibi sunulmaz.
 1. **Operasyon:** Kaynak, spektrum/spektrogram, tespitler ve seçili sinyal.
 2. **Yön Bulma (DF):** Anten yönelimi, açı–güç ölçümü, sensör konumu ve harita.
 3. **Sistem:** Blok akışı, HackRF/ZedBoard/FPGA/taşıma sağlığı ve kayıt günlüğü.
-4. **Laboratuvar:** Replay, eğitim ve TX-kilitli offline doğrulama; yayın paketinden
-   ayrı mühendislik giriş noktası.
+4. **ET Görevleri:** Yalnız doğrulanmış çevrimdışı modeller; yayın durumu tek
+   noktada görünür, görev seçimi ve ölçüm sonucu ana yüzeyi oluşturur.
 
 ## Kaynaklar
 
@@ -78,3 +81,6 @@ gösterilir; başarı durumu gibi sunulmaz.
 - KrakenSDR DoA: <https://github.com/krakenrf/krakensdr_doa>
 - Qt Quick en iyi uygulamalar: <https://doc.qt.io/qt-6/qtquick-bestpractices.html>
 - Qt Quick performans: <https://doc.qt.io/qt-6/qtquick-performance.html>
+- 21st.dev bileşen kütüphanesi: <https://21st.dev/>
+- Motion üretim animasyonu ilkeleri: <https://motion.dev/>
+- UI/UX Pro Max tasarım denetim kapsamı: <https://ui-ux-pro-max-skill.nextlevelbuilder.io/>

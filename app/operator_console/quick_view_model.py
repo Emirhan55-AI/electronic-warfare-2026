@@ -285,7 +285,7 @@ class OperatorViewModel(QObject):
         self._et_task = "continuous"
         self._et_status = "HAZIR"
         self._et_result_title = "Görev seçildi"
-        self._et_result_detail = "Doğrulanmış offline modeli çalıştırmak için bir seçenek belirleyin."
+        self._et_result_detail = "Görev türünü seçin ve çalışma parametrelerini belirleyin."
         self._et_metric_rows: list[dict[str, str]] = []
         self._et_primary_values: list[float | None] = []
         self._et_secondary_values: list[float] = []
@@ -520,10 +520,10 @@ class OperatorViewModel(QObject):
     @Property("QVariantList", constant=True)
     def etTaskCards(self) -> list[dict[str, str]]:
         return [
-            {"id": "continuous", "name": "Sürekli", "detail": "Tekli · Çoklu · Baraj · Süpürme", "maturity": "OFFLINE I/Q"},
-            {"id": "interleaved", "name": "Arabakışlı", "detail": "Dinle · Gecikme · Görev · Koruma", "maturity": "OFFLINE ZAMANLAMA"},
-            {"id": "analog", "name": "Analog Aldatma", "detail": "AM · FM · NFM yerel döngü", "maturity": "OFFLINE I/Q"},
-            {"id": "gnss", "name": "GPS L1 C/A", "detail": "Konum · UTC · PRN sözleşmesi", "maturity": "YALNIZ METADATA"},
+            {"id": "continuous", "name": "Sürekli Karıştırma", "detail": "Tekli · Çoklu · Baraj · Süpürme", "maturity": "TABAN BANT"},
+            {"id": "interleaved", "name": "Arabakışlı Karıştırma", "detail": "Dinle · Gecikme · Görev · Koruma", "maturity": "ZAMANLAMA"},
+            {"id": "analog", "name": "Analog Telsiz Aldatma", "detail": "AM · FM · NFM", "maturity": "YEREL DÖNGÜ"},
+            {"id": "gnss", "name": "GPS L1 Senaryosu", "detail": "Konum · UTC · PRN", "maturity": "METADATA"},
         ]
 
     @Property("QVariantList", notify=pipelineChanged)
@@ -587,7 +587,7 @@ class OperatorViewModel(QObject):
         self._et_task = task
         self._et_status = "HAZIR"
         self._et_result_title = "Görev seçildi"
-        self._et_result_detail = "Seçenekleri doğrulayıp offline modeli çalıştırın."
+        self._et_result_detail = "Çalışma parametrelerini seçip görevi başlatın."
         self._et_metric_rows = []
         self._et_primary_values = []
         self._et_secondary_values = []
@@ -614,12 +614,12 @@ class OperatorViewModel(QObject):
             else:
                 self._run_analog_et(option)
             self._et_status = "TAMAMLANDI"
-            self._add_log("ET", f"{self._et_result_title} · offline doğrulama tamamlandı")
+            self._add_log("ET", f"{self._et_result_title} · görev tamamlandı")
         except (ValueError, RuntimeError, PermissionError) as exc:
             self._et_status = "HATA"
             self._et_result_title = "Görev tamamlanamadı"
             self._et_result_detail = str(exc)
-            self._add_log("Hata", f"ET offline görev · {type(exc).__name__}")
+            self._add_log("Hata", f"ET görevi · {type(exc).__name__}")
         self.etChanged.emit()
 
     @Slot(float, float, str, str)
@@ -636,7 +636,7 @@ class OperatorViewModel(QObject):
         self._et_timeline = []
         self._et_primary_title = "Metadata"
         self._et_secondary_title = "Dalga Şekli Yok"
-        self._et_result_title = "GPS L1 C/A metadata doğrulaması"
+        self._et_result_title = "GPS L1 C/A senaryo denetimi"
         self._et_status = "TAMAMLANDI" if result.valid else "HATA"
         self._et_result_detail = (
             "Konum, kesin UTC ve PRN sözleşmesi geçerli. Dalga şekli üretilmedi."
@@ -647,8 +647,8 @@ class OperatorViewModel(QObject):
             {"label": "Servis", "value": result.service},
             {"label": "Konum / zaman", "value": "PASS" if result.position_time_consistent else "FAIL"},
             {"label": "Metadata", "value": "PASS" if result.metadata_contract_valid else "FAIL"},
+            {"label": "PRN", "value": ", ".join(str(value) for value in prns)},
             {"label": "Dalga şekli", "value": "YOK"},
-            {"label": "TX", "value": result.tx_state},
         ]
         self._add_log("ET", f"GPS L1 C/A metadata · {'PASS' if result.valid else 'FAIL'}")
         self.etChanged.emit()
@@ -673,8 +673,8 @@ class OperatorViewModel(QObject):
         self._et_primary_title = "Kompleks Taban Bant · I Bileşeni"
         self._et_secondary_title = "Normalize Spektrum · dB"
         family_name = {"single": "Tekli", "multiple": "Çoklu", "barrage": "Baraj", "sweep": "Doğrusal Süpürme"}[family]
-        self._et_result_title = f"{family_name} offline taban bant"
-        self._et_result_detail = "Yerel kompleks örnek tamponu üretildi; aygıt ve RF çıkış yolu kullanılmadı."
+        self._et_result_title = f"{family_name} taban bant analizi"
+        self._et_result_detail = "Kompleks örnek tamponu üretildi ve spektral ölçümler tamamlandı."
         self._et_metric_rows = [
             {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
             {"label": "Örnekleme", "value": f"{result.sample_rate_hz / 1000:.0f} kHz"},
@@ -700,7 +700,7 @@ class OperatorViewModel(QObject):
             for item in result.windows
         ]
         self._et_primary_title = "Dinleme Penceresi Bant Gücü"
-        self._et_secondary_title = "Maskeli Offline Görev Tamponu"
+        self._et_secondary_title = "Maskeli Görev Çıkışı · I Bileşeni"
         scenario_name = {"absent": "Hedef Yok", "present": "Sürekli Hedef", "intermittent": "Kesintili Hedef", "edge": "Eşik Kenarı"}[scenario]
         self._et_result_title = f"Arabakışlı zamanlama · {scenario_name}"
         self._et_result_detail = "Dinleme ve görev pencereleri ayrık; görev dışındaki çıkış örnekleri sıfırdır."
@@ -715,7 +715,7 @@ class OperatorViewModel(QObject):
     def _run_analog_et(self, mode: str) -> None:
         normalized_mode = mode.upper()
         if normalized_mode not in {"AM", "FM", "NFM"}:
-            raise ValueError("bilinmeyen analog offline modu")
+            raise ValueError("bilinmeyen analog görev modu")
         config = AnalogDeceptionConfig(mode=normalized_mode, duration_seconds=0.25)  # type: ignore[arg-type]
         time_axis = np.arange(config.audio_sample_rate_hz, dtype=np.float64) / config.audio_sample_rate_hz
         audio = np.sin(2.0 * np.pi * 1_000.0 * time_axis)
@@ -728,14 +728,14 @@ class OperatorViewModel(QObject):
         self._et_timeline = []
         self._et_primary_title = "3 kHz Bant Sınırlı Test Sesi"
         self._et_secondary_title = f"{normalized_mode} Normalize Spektrumu · dB"
-        self._et_result_title = f"{normalized_mode} offline yerel döngü"
-        self._et_result_detail = "1 kHz doğrulama sesi kullanıldı; gerçek kayıt, mikrofon veya RF çıkışı kullanılmadı."
+        self._et_result_title = f"{normalized_mode} yerel döngü analizi"
+        self._et_result_detail = "1 kHz sınama sesiyle üretim ve geri çözümleme tamamlandı."
         self._et_metric_rows = [
             {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
             {"label": "Ses bandı", "value": f"{result.audio_bandwidth_hz / 1000:.1f} kHz"},
             {"label": "Tepe", "value": f"{result.peak_magnitude:.3f}"},
             {"label": "Loopback uyumu", "value": f"{result.loopback_correlation:.6f}"},
-            {"label": "TX", "value": "KİLİTLİ"},
+            {"label": "Örnekleme", "value": f"{result.sample_rate_hz / 1000:.0f} kHz"},
         ]
 
     @staticmethod

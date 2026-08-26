@@ -88,6 +88,11 @@ TX yolu ürün sınırının dışında kalır. ET-C, 1180×680, 1280×720 ve 14
 render/binding kapılarıyla doğrulanır; PHASE-10–12 donanım ve RF kabulünü
 başlatmaz veya tamamlamaz.
 
+ET-C arayüz bakımında operatöre görünür iç mod adları ve tekrarlı TX uyarıları
+tek `YAYIN — DEVRE DIŞI` durumuna indirilmiş; görev sekmeleri, ölçüm hiyerarşisi
+ve azaltılabilir mikro geçişler güncellenmiştir. Bu bakım yalnız sunum ve kullanım
+kalitesini değiştirir; ET matematiğini veya PHASE-10–12 kapsamını ilerletmez.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

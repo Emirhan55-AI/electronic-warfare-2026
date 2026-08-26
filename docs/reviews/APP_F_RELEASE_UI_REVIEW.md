@@ -39,7 +39,7 @@ bileşenin host uygulaması, varsa RTL/taşınabilir C karşılığı ve kart ka
 ayrı gösterilir. Filtrelenebilir olay günlüğü sıra, zaman, seviye, bileşen ve kısa
 nedeni taşır; 20 kayıtla sınırlıdır ve komut çalıştırmaz.
 
-ET yüzeyi doğrulanmış offline sürekli, arabakışlı, analog loopback ve GPS L1 C/A
+ET yüzeyi doğrulanmış çevrimdışı sürekli, arabakışlı, analog yerel döngü ve GPS L1 C/A
 metadata modellerine bağlıdır. Sürekli ve analog görevler gerçek model
 tamponlarını, arabakışlı görev gerçek durum pencerelerini gösterir. GNSS görevinde
 ephemeris, NAV verisi ve I/Q dalga şekli bulunmadığı açıkça yazılır. Uygulama RF
@@ -99,7 +99,7 @@ Kabul kapıları:
 - Dört çalışma alanında bağlama duyarlı kısayol, odak aktarımı, erişilebilir durum,
   geniş ekran metin ölçeği ve boş günlük görünümü ortak ürün tutarlılığı kapısından
   geçer.
-- Üç ET ekran profili gerçek offline model sonucuna bağlanır; arabakışlı pencere
+- Üç ET ekran profili gerçek çevrimdışı model sonucuna bağlanır; arabakışlı pencere
   dizisi, GPS dalga şekli yokluğu ve TX API yokluğu ayrı kapılardan geçer.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
@@ -109,7 +109,7 @@ donanım kararlılığı iddiası değildir.
 ## Yayın sınırı
 
 Yeni ürün yüzeyinde canlı GNSS, konum/harita, canlı RF ses kabulü, TX, eğitim
-sahnesi veya gösterim verisi kontrolü yoktur. Yalnız kabul testini geçmiş offline
+sahnesi veya gösterim verisi kontrolü yoktur. Yalnız kabul testini geçmiş çevrimdışı
 ET modelleri açık güvenlik sınırlarıyla ürün paketine alınır. Mock backend, eski
 QWidget laboratuvarı, doğrulama veri setleri ve RF yayın yolu dışarıda kalır.
 Fiziksel yetenekler gerçek kaynak ve kabul kanıtı olmadan navigasyona eklenemez.
@@ -125,3 +125,10 @@ ET-C ürün bağı `5198b00` commit'i üzerinde çalıştırıldığında görse
 doğrulayıcının 25/25 kapısı, tam depo test takımının ise `495 passed, 1 skipped,
 0 failed` sonucu geçti. Tam koşu `390,050 s` sürdü; kontrollü atlama yalnız
 yapılandırılmamış haricî gerçek veri setidir.
+
+ET arayüz bakımında iç çalışma modu ve güvenlik sınırını tekrarlayan beş ayrı
+metin tek üst durum alanına indirilmiştir. Görev seçimi daha kısa sekmelere,
+sonuç alanı daha geniş ölçüm yüzeyine dönüştürülmüş; güvenlik dışındaki tekrar
+satırları kaldırılmıştır. Seçim alt çizgisi, basma ölçeği ve sonuç çerçevesi kısa
+mikro geçişler kullanır; `Hareketi azalt` etkinse süreler sıfırlanır. Güncel
+doğrulayıcı üç ET çözünürlüğüyle birlikte 27 kabul kapısı çalıştırır.

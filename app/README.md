@@ -24,7 +24,7 @@ Uygulamanın mevcut çalışma alanları:
   seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
   dosya sistemi denetimi sunmaz.
-- `ET Görevleri`: sürekli offline taban bant, arabakışlı zamanlama, AM/FM/NFM
+- `ET Görevleri`: sürekli taban bant, arabakışlı zamanlama, AM/FM/NFM
   yerel loopback ve GPS L1 C/A metadata doğrulaması. Bütün görevler TX kilitli
   çalışır; GNSS görevi ephemeris, NAV verisi veya I/Q dalga şekli üretmez.
 

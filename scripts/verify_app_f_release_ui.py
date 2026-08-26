@@ -467,10 +467,28 @@ def _parent_run() -> int:
         "et_safety_surface": all(
             marker in qml_text
             for marker in (
+                'text: root.operatingDomain === "ET" ? "YAYIN"',
+                'text: root.operatingDomain === "ET" ? "DEVRE DIŞI"',
+                "EFEMERİS YOK  ·  NAV MESAJI YOK  ·  I/Q DALGA ŞEKLİ YOK",
+            )
+        ),
+        "et_operator_language": all(
+            marker not in qml_text
+            for marker in (
+                "OFFLINE",
                 "TX KİLİTLİ",
                 "RF TX YOK",
-                "Deterministik host modeli · fiziksel RF sonucu değildir",
-                "EPHEMERIS YOK  ·  NAV VERİSİ YOK  ·  I/Q DALGA ŞEKLİ YOK",
+                "host modeli",
+                "fiziksel RF sonucu",
+            )
+        ),
+        "et_motion_feedback": all(
+            marker in qml_text
+            for marker in (
+                "scale: control.down ? 0.985 : 1.0",
+                "width: etTaskCard.selected ? parent.width : 0",
+                "id: etResultPulse",
+                "duration: root.transitionDuration + 180",
             )
         ),
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),

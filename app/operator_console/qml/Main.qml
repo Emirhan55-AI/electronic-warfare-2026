@@ -156,6 +156,13 @@ ApplicationWindow {
         return "Hazır"
     }
 
+    function etTaskName() {
+        if (operatorViewModel.etTask === "continuous") return "Sürekli Karıştırma"
+        if (operatorViewModel.etTask === "interleaved") return "Arabakışlı Karıştırma"
+        if (operatorViewModel.etTask === "analog") return "Analog Telsiz Aldatma"
+        return "GPS L1 Senaryosu"
+    }
+
     function systemLogMatches(item) {
         if (systemLogFilter === "Tümü") return true
         if (systemLogFilter === "Hata") return item.level === "HATA"
@@ -220,6 +227,8 @@ ApplicationWindow {
         font.pixelSize: 13
         font.weight: Font.DemiBold
         Accessible.name: text
+        scale: control.down ? 0.985 : 1.0
+        Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
         background: Rectangle {
             radius: 4
             color: control.enabled ? (control.down ? "#1B929E" : root.accent) : "#22313A"
@@ -241,6 +250,8 @@ ApplicationWindow {
         implicitHeight: 38
         font.pixelSize: 13
         Accessible.name: text
+        scale: control.down ? 0.985 : 1.0
+        Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
         background: Rectangle {
             radius: 4
             color: control.checked ? root.accentSoft : control.down ? "#172A35" : root.surfaceAlt
@@ -364,7 +375,7 @@ ApplicationWindow {
             anchors.margins: 10
             text: chart.title
             color: root.textSecondary
-            font.pixelSize: root.uiMetaTextSize
+            font.pixelSize: root.uiMetaTextSize + 1
             font.weight: Font.DemiBold
         }
         Canvas {
@@ -547,19 +558,19 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 3
-                Label { text: root.operatingDomain === "ET" ? "ET Görev Doğrulama" : operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                Label { text: root.operatingDomain === "ET" ? operatorViewModel.etResultDetail : operatorViewModel.statusMessage; color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : operatorViewModel.errorMessage ? root.danger : root.textSecondary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
+                Label { text: root.operatingDomain === "ET" ? "ET Görevleri" : operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                Label { text: root.operatingDomain === "ET" ? operatorViewModel.etResultTitle : operatorViewModel.statusMessage; color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : operatorViewModel.errorMessage ? root.danger : root.textSecondary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
             }
 
             ColumnLayout {
                 spacing: 2
-                Label { text: root.operatingDomain === "ET" ? "ÇALIŞMA MODU" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: root.operatingDomain === "ET" ? "OFFLINE" : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+                Label { text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? root.etTaskName() : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: root.operatingDomain === "ET" ? "Segoe UI" : "Consolas" }
             }
             ColumnLayout {
                 spacing: 2
-                Label { text: root.operatingDomain === "ET" ? "GÜVENLİK" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: root.operatingDomain === "ET" ? "TX KİLİTLİ" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+                Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
             StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
         }
@@ -576,9 +587,10 @@ ApplicationWindow {
             anchors.rightMargin: 12
             spacing: 12
             Rectangle { width: 7; height: 7; radius: 4; color: root.operatingDomain === "ET" ? root.warning : operatorViewModel.errorMessage ? root.danger : operatorViewModel.sourceReady ? root.success : root.textMuted }
-            Label { text: root.operatingDomain === "ET" ? "RF TX yok" : operatorViewModel.sourceReady ? "Kaynak bağlı" : "Kaynak bekleniyor"; color: root.textSecondary; font.pixelSize: 9 }
-            Rectangle { width: 1; Layout.fillHeight: true; Layout.topMargin: 7; Layout.bottomMargin: 7; color: root.border }
-            Label { text: root.operatingDomain === "ET" ? "Deterministik host modeli · fiziksel RF sonucu değildir" : operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
+            Label { text: root.operatingDomain === "ET" ? "ET görev alanı" : operatorViewModel.sourceReady ? "Kaynak bağlı" : "Kaynak bekleniyor"; color: root.textSecondary; font.pixelSize: 9 }
+            Rectangle { visible: root.operatingDomain !== "ET"; width: 1; Layout.fillHeight: true; Layout.topMargin: 7; Layout.bottomMargin: 7; color: root.border }
+            Label { visible: root.operatingDomain !== "ET"; text: operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
+            Item { visible: root.operatingDomain === "ET"; Layout.fillWidth: true }
             Button {
                 objectName: "eventConsoleButton"
                 flat: true
@@ -2338,7 +2350,7 @@ ApplicationWindow {
                 }
             }
 
-            // ET OFFLINE GÖREV DOĞRULAMA
+            // ET GÖREV ALANI
             Item {
                 id: etWorkspace
                 objectName: "etWorkspace"
@@ -2347,37 +2359,16 @@ ApplicationWindow {
                     anchors.margins: 12
                     spacing: 10
 
-                    Panel {
+                    RowLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 58
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 14
-                            anchors.rightMargin: 14
-                            spacing: 12
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
-                                SectionTitle { text: "ELEKTRONİK TAARRUZ · OFFLINE DOĞRULAMA" }
-                                Label { text: "Yalnız yerel taban bant, zamanlama, loopback ve metadata modelleri"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
-                            }
-                            Rectangle {
-                                implicitWidth: 92; implicitHeight: 28; radius: 4
-                                color: "#3B321F"; border.color: root.warning
-                                Label { anchors.centerIn: parent; text: "TX KİLİTLİ"; color: root.warning; font.pixelSize: 10; font.weight: Font.Bold }
-                            }
-                            Rectangle {
-                                implicitWidth: 82; implicitHeight: 28; radius: 4
-                                color: "#17252C"; border.color: root.borderStrong
-                                Label { anchors.centerIn: parent; text: "RF TX YOK"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.Bold }
-                            }
-                            StateBadge { state: root.etBadgeState() }
-                        }
+                        Layout.preferredHeight: 24
+                        SectionTitle { text: "GÖREV SEÇİMİ" }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                     }
 
                     RowLayout {
                         id: etTaskRow
-                        property real cardHeight: root.height < 780 ? 76 : 88
+                        property real cardHeight: root.height < 780 ? 66 : 72
                         Layout.fillWidth: true
                         Layout.preferredHeight: cardHeight
                         Layout.minimumHeight: cardHeight
@@ -2395,20 +2386,28 @@ ApplicationWindow {
                                 property bool selected: operatorViewModel.etTask === modelData.id
                                 Accessible.name: modelData.name + ", " + modelData.maturity
                                 onClicked: operatorViewModel.selectETTask(modelData.id)
+                                scale: down ? 0.99 : 1.0
+                                Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
                                 background: Rectangle {
                                     radius: 5
-                                    color: etTaskCard.selected ? root.accentSoft : root.surface
+                                    color: etTaskCard.selected ? root.accentSoft : root.surfaceAlt
                                     border.color: etTaskCard.selected ? root.accent : root.border
                                     Behavior on color { ColorAnimation { duration: root.transitionDuration } }
-                                    Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 3; color: root.accent; visible: etTaskCard.selected }
+                                    Rectangle {
+                                        anchors.left: parent.left; anchors.bottom: parent.bottom
+                                        height: 3; radius: 2; color: root.accent
+                                        width: etTaskCard.selected ? parent.width : 0
+                                        Behavior on width { NumberAnimation { duration: root.transitionDuration + 40; easing.type: Easing.OutCubic } }
+                                    }
                                 }
-                                contentItem: Column {
-                                    spacing: 2
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: parent.width
-                                    Text { width: parent.width; text: modelData.name; color: etTaskCard.selected ? root.textPrimary : root.textSecondary; font.pixelSize: root.uiBodyTextSize + 1; font.weight: Font.DemiBold; elide: Text.ElideRight }
-                                    Text { width: parent.width; text: modelData.detail; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; elide: Text.ElideRight }
-                                    Text { width: parent.width; text: modelData.maturity; color: etTaskCard.selected ? root.accent : root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; elide: Text.ElideRight }
+                                contentItem: ColumnLayout {
+                                    spacing: 3
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Text { text: modelData.name; color: etTaskCard.selected ? root.textPrimary : root.textSecondary; font.pixelSize: root.uiBodyTextSize + 1; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
+                                        Text { visible: root.width >= 1400; text: modelData.maturity; color: etTaskCard.selected ? root.accent : root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold }
+                                    }
+                                    Text { text: modelData.detail; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; elide: Text.ElideRight; Layout.fillWidth: true }
                                 }
                             }
                         }
@@ -2420,6 +2419,7 @@ ApplicationWindow {
                         spacing: 10
 
                         Panel {
+                            id: etResultPanel
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             ColumnLayout {
@@ -2431,10 +2431,9 @@ ApplicationWindow {
                                     ColumnLayout {
                                         Layout.fillWidth: true
                                         spacing: 2
-                                        Label { text: operatorViewModel.etResultTitle; color: root.textPrimary; font.pixelSize: root.height < 780 ? 14 : 17; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
-                                        Label { text: operatorViewModel.etResultDetail; color: operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                                        Label { text: operatorViewModel.etResultTitle; color: root.textPrimary; font.pixelSize: root.height < 780 ? 15 : 18; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
+                                        Label { text: operatorViewModel.etResultDetail; color: operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary; font.pixelSize: root.uiMetaTextSize + 1; Layout.fillWidth: true; wrapMode: Text.Wrap }
                                     }
-                                    Label { text: "OFFLINE"; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.Bold }
                                 }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 RowLayout {
@@ -2457,7 +2456,7 @@ ApplicationWindow {
                                         Label { text: "GPS L1 C/A"; color: root.textPrimary; font.pixelSize: 24; font.weight: Font.DemiBold; Layout.alignment: Qt.AlignHCenter }
                                         Label { text: "Bu görev yalnız konum, kesin UTC ve PRN metadata sözleşmesini doğrular."; color: root.textSecondary; font.pixelSize: root.uiBodyTextSize; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; Layout.fillWidth: true }
                                         Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                        Label { text: "EPHEMERIS YOK  ·  NAV VERİSİ YOK  ·  I/Q DALGA ŞEKLİ YOK"; color: root.warning; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
+                                        Label { text: "EFEMERİS YOK  ·  NAV MESAJI YOK  ·  I/Q DALGA ŞEKLİ YOK"; color: root.warning; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
                                     }
                                 }
                                 RowLayout {
@@ -2486,6 +2485,16 @@ ApplicationWindow {
                                     }
                                 }
                             }
+                            Rectangle {
+                                id: etResultFlash
+                                z: 5
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: "transparent"
+                                border.color: root.accent
+                                border.width: 1
+                                opacity: 0
+                            }
                         }
 
                         Panel {
@@ -2497,8 +2506,7 @@ ApplicationWindow {
                                 spacing: 9
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "GÖREV DENETİMİ"; Layout.fillWidth: true }
-                                    Label { text: "TX KİLİTLİ"; color: root.warning; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold }
+                                    SectionTitle { text: "GÖREV AYARLARI"; Layout.fillWidth: true }
                                 }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 StackLayout {
@@ -2511,21 +2519,21 @@ ApplicationWindow {
                                         ColumnLayout { anchors.fill: parent; spacing: 7
                                             Label { text: "Dalga biçimi ailesi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
                                             AppCombo { id: etContinuousOption; objectName: "etContinuousOption"; Layout.fillWidth: true; model: ["Tekli", "Çoklu", "Baraj", "Doğrusal Süpürme"] }
-                                            PrimaryButton { objectName: "etContinuousRun"; Layout.fillWidth: true; text: "Offline Modeli Çalıştır"; onClicked: operatorViewModel.runETTask("continuous", ["single", "multiple", "barrage", "sweep"][etContinuousOption.currentIndex]) }
+                                            PrimaryButton { objectName: "etContinuousRun"; Layout.fillWidth: true; text: "Görevi Çalıştır"; onClicked: operatorViewModel.runETTask("continuous", ["single", "multiple", "barrage", "sweep"][etContinuousOption.currentIndex]) }
                                         }
                                     }
                                     Item {
                                         ColumnLayout { anchors.fill: parent; spacing: 7
                                             Label { text: "Deterministik analiz girdisi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
                                             AppCombo { id: etInterleavedOption; objectName: "etInterleavedOption"; Layout.fillWidth: true; model: ["Hedef Yok", "Sürekli Hedef", "Kesintili Hedef", "Eşik Kenarı"] }
-                                            PrimaryButton { objectName: "etInterleavedRun"; Layout.fillWidth: true; text: "Zamanlamayı Doğrula"; onClicked: operatorViewModel.runETTask("interleaved", ["absent", "present", "intermittent", "edge"][etInterleavedOption.currentIndex]) }
+                                            PrimaryButton { objectName: "etInterleavedRun"; Layout.fillWidth: true; text: "Zamanlamayı Çalıştır"; onClicked: operatorViewModel.runETTask("interleaved", ["absent", "present", "intermittent", "edge"][etInterleavedOption.currentIndex]) }
                                         }
                                     }
                                     Item {
                                         ColumnLayout { anchors.fill: parent; spacing: 7
                                             Label { text: "Yerel döngü modu"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
                                             AppCombo { id: etAnalogOption; objectName: "etAnalogOption"; Layout.fillWidth: true; model: ["NFM", "FM", "AM"] }
-                                            PrimaryButton { objectName: "etAnalogRun"; Layout.fillWidth: true; text: "Loopback Doğrula"; onClicked: operatorViewModel.runETTask("analog", etAnalogOption.currentText) }
+                                            PrimaryButton { objectName: "etAnalogRun"; Layout.fillWidth: true; text: "Yerel Döngüyü Çalıştır"; onClicked: operatorViewModel.runETTask("analog", etAnalogOption.currentText) }
                                         }
                                     }
                                     Item {
@@ -2536,11 +2544,11 @@ ApplicationWindow {
                                             }
                                             AppField { id: etUtc; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "2026-08-16T12:00:00Z"; placeholderText: "UTC zaman"; Accessible.name: "Senaryo UTC zamanı" }
                                             AppField { id: etPrns; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "3, 8, 63"; placeholderText: "PRN kodları"; Accessible.name: "GPS L1 C/A PRN kodları" }
-                                            PrimaryButton { objectName: "etGnssValidate"; Layout.fillWidth: true; Layout.preferredHeight: 36; text: "Metadata Doğrula"; onClicked: operatorViewModel.validateETGNSS(Number(etLatitude.text), Number(etLongitude.text), etUtc.text, etPrns.text) }
+                                            PrimaryButton { objectName: "etGnssValidate"; Layout.fillWidth: true; Layout.preferredHeight: 36; text: "Senaryoyu Denetle"; onClicked: operatorViewModel.validateETGNSS(Number(etLatitude.text), Number(etLongitude.text), etUtc.text, etPrns.text) }
                                         }
                                     }
                                 }
-                                SectionTitle { text: "SONUÇ ÖLÇÜMLERİ"; visible: operatorViewModel.etMetricRows.length > 0 }
+                                SectionTitle { text: "ÖLÇÜMLER"; visible: operatorViewModel.etMetricRows.length > 0 }
                                 ListView {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
@@ -2554,18 +2562,29 @@ ApplicationWindow {
                                         color: "#071018"
                                         radius: 3
                                         RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
-                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
-                                            Label { text: modelData.value; color: modelData.value === "FAIL" ? root.danger : root.textPrimary; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize + 1; Layout.fillWidth: true }
+                                            Label { text: modelData.value; color: modelData.value === "FAIL" ? root.danger : root.textPrimary; font.pixelSize: root.uiMetaTextSize + 1; font.family: "Consolas"; font.weight: Font.DemiBold }
                                         }
                                     }
                                 }
-                                Label { text: "Sonuçlar fiziksel RF güç, etki veya saha performansı değildir."; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    Connections {
+        target: operatorViewModel
+        function onEtChanged() {
+            if (root.operatingDomain === "ET") etResultPulse.restart()
+        }
+    }
+
+    SequentialAnimation {
+        id: etResultPulse
+        NumberAnimation { target: etResultFlash; property: "opacity"; from: 0.55; to: 0; duration: root.transitionDuration + 180; easing.type: Easing.OutCubic }
     }
 
     Rectangle {

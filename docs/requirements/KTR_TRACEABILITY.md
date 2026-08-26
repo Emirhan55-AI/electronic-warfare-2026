@@ -88,21 +88,22 @@ alanında etkinleşir; çalışma alanı geçişi klavye odağını seçili gezi
 taşır. Durum rozetleri erişilebilir açıklama kazanmış, geniş ekran Sistem metin
 ölçeği yoğun minimum ekranı etkilemeden yükseltilmiş ve boş günlük filtresi açık
 durum metniyle kapatılmıştır. Beş gerçek QML görünümü ve bağlama duyarlı kullanım
-kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. ET-C ile üç ET görünümü
-ve dört ET kapısı eklenerek güncel toplam 25 olmuştur. Bu bakım algoritma,
+kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. ET-C ile üç ET görünümü,
+güvenlik, operatör dili ve azaltılabilir hareket kapıları eklenerek güncel toplam
+27 olmuştur. Bu bakım algoritma,
 donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
 
 ET-C bakım paketi, doğrulanmış KTR-5.1–5.4 host modellerini ana QML ürün
 yüzeyindeki ayrı ET alanına bağlamıştır. Sürekli ve analog sonuçlar sınırlı zaman
 alanı/spektrum dizilerinden, arabakışlı görünüm gerçek pencere durumlarından,
 GPS görünümü ise yalnız metadata doğrulama sonucundan beslenir. Paket manifesti
-offline ET modellerini dahil ederken mock kaynak, eski QWidget laboratuvarı,
+çevrimdışı ET modellerini dahil ederken mock kaynak, eski QWidget laboratuvarı,
 doğrulama veri setleri ve RF yayın yolunu dışarıda tutar. Bu bakım PHASE-10–12
 fiziksel kapılarını tamamlamaz.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, gösterim verisi veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.
-Yalnız doğrulanmış çevrimdışı ET modelleri, açık `OFFLINE` ve `TX KİLİTLİ`
-durumlarıyla ürün yüzeyine dahildir. Golden/replay verileri doğrulama paketinde
+Yalnız doğrulanmış çevrimdışı ET modelleri, operatöre tek noktada gösterilen
+`YAYIN — DEVRE DIŞI` sınırıyla ürün yüzeyine dahildir. Golden/replay verileri doğrulama paketinde
 kalır; gerçek donanım sonucu ancak fiziksel kabul kanıtı varsa yayın yüzeyinde
 etkinleştirilir.

@@ -40,6 +40,13 @@ render kapısına bağlıdır. Arabakışlı görünüm ölçüm olmayan görev 
 boşluk olarak, GPS görünümü ise dalga şekli yokluğunu açık durum olarak gösterir.
 ViewModel herhangi bir `transmit` arayüzü sunmaz.
 
+Operatör yüzeyinde çalışma biçiminin iç adı gösterilmez. Yayın sınırı üst durumda
+yalnız `YAYIN — DEVRE DIŞI` olarak bir kez belirtilir; görev kartı, sonuç başlığı,
+ölçüm listesi ve alt durum şeridinde aynı uyarı tekrarlanmaz. Teknik mod ve kilit
+alanları sonuç sözleşmesinde korunur. Görev seçimi, buton basımı ve sonuç yenileme
+geri bildirimleri 140–350 ms aralığında kalır ve `Hareketi azalt` seçeneğiyle
+sıfırlanır.
+
 ## Güvenlik Sınırı
 
 Bu karar RF çıkış yolu, SDR aygıt erişimi, OTA iletim, kablolu RF gönderim,
