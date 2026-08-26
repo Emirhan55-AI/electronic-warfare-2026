@@ -79,11 +79,13 @@ class OperatorETTests(unittest.TestCase):
         self.assertIsNotNone(interleaved)
         assert interleaved is not None
         self.assertEqual("interleaved_task_control", interleaved.task_type)
-        self.assertEqual(0, interleaved.sample_count)
+        self.assertEqual(4096, interleaved.sample_count)
         self.assertEqual(4096, interleaved.details["analysis_input_sample_count"])
+        self.assertEqual(512, interleaved.details["active_output_sample_count"])
+        self.assertAlmostEqual(0.125, float(interleaved.details["task_duty_cycle"]))
         self.assertGreaterEqual(int(interleaved.details["task_activation_count"]), 1)
         self.assertGreater(self.window.et_interleaved_timeline_curve.xData.size, 0)
-        self.assertIn(self.window.et_interleaved_values["state"].text(), {"DİNLE", "KARAR", "GÖREV", "KORUMA"})
+        self.assertIn(self.window.et_interleaved_values["state"].text(), {"DİNLE", "GECİKME", "GÖREV", "KORUMA"})
 
         self.window._select_et_task("analog")
         self.window._run_analog_loopback_test()

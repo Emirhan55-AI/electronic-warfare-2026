@@ -72,14 +72,22 @@ class InterleavedOfflineModelTests(unittest.TestCase):
         self.assertEqual("DİNLE", result.final_state)
         self.assertEqual(0, result.task_activation_count)
         self.assertTrue(all(window.decision == "PASİF" for window in result.windows))
+        self.assertEqual(0.0, result.task_duty_cycle)
+        self.assertFalse(np.any(result.task_gate))
+        self.assertTrue(np.all(result.task_output_samples == 0.0))
 
     def test_present_target_requires_consecutive_confirmation_then_tasks(self) -> None:
-        result = self.engine.run(InterleavedConfig(scenario="present", consecutive_windows=2))
+        config = InterleavedConfig(scenario="present", consecutive_windows=2)
+        result = self.engine.run(config)
         activation_indices = [window.index for window in result.windows if window.task_active]
         self.assertGreaterEqual(len(activation_indices), 1)
-        self.assertEqual(1, activation_indices[0])
+        self.assertEqual(config.consecutive_windows + config.response_delay_windows, activation_indices[0])
+        self.assertEqual(("DİNLE", "DİNLE", "GECİKME", "GÖREV", "KORUMA"), result.timeline[:5])
         self.assertIn("GÖREV", result.timeline)
         self.assertIn("KORUMA", result.timeline)
+        self.assertEqual(result.task_window_count / config.windows, result.task_duty_cycle)
+        self.assertEqual(config.window_samples * result.task_window_count, int(np.count_nonzero(result.task_gate)))
+        self.assertAlmostEqual(config.output_peak, float(np.max(np.abs(result.task_output_samples))), places=12)
 
     def test_intermittent_and_edge_cases_are_deterministic_and_hysteretic(self) -> None:
         intermittent = self.engine.run(InterleavedConfig(scenario="intermittent"))
@@ -89,8 +97,57 @@ class InterleavedOfflineModelTests(unittest.TestCase):
         self.assertGreaterEqual(edge_first.task_activation_count, 1)
         self.assertEqual(edge_first.timeline, edge_second.timeline)
         self.assertFalse(edge_first.analysis_samples.flags.writeable)
+        self.assertFalse(edge_first.task_output_samples.flags.writeable)
+        self.assertFalse(edge_first.task_gate.flags.writeable)
         self.assertTrue(np.array_equal(edge_first.samples, edge_second.samples))
-        self.assertTrue(all(window.decision == "AKTİF" for window in edge_first.windows))
+        listened = [window for window in edge_first.windows if window.state == "DİNLE"]
+        self.assertTrue(all(window.measured_band_power is not None for window in listened))
+        self.assertTrue(all(window.decision in {"PASİF", "AKTİF", "ONAYLANDI", "SÜRE YETERSİZ"} for window in listened))
+        self.assertEqual("ONAYLANDI", listened[1].decision)
+
+    def test_listen_and_task_windows_are_mutually_exclusive(self) -> None:
+        config = InterleavedConfig(scenario="present", task_windows=2, guard_windows=1)
+        result = self.engine.run(config)
+        for window in result.windows:
+            start = window.index * config.window_samples
+            stop = start + config.window_samples
+            gated = bool(np.any(result.task_gate[start:stop]))
+            if window.state == "DİNLE":
+                self.assertIsNotNone(window.measured_band_power)
+                self.assertFalse(gated)
+            elif window.state == "GÖREV":
+                self.assertIsNone(window.measured_band_power)
+                self.assertTrue(gated)
+                self.assertTrue(window.task_active)
+            else:
+                self.assertIsNone(window.measured_band_power)
+                self.assertFalse(gated)
+        self.assertTrue(np.all(result.task_output_samples[~result.task_gate] == 0.0))
+
+    def test_task_output_frequency_and_configuration_bounds_are_independently_checked(self) -> None:
+        config = InterleavedConfig(scenario="present")
+        result = self.engine.run(config)
+        active = result.task_output_samples[result.task_gate]
+        phase_step = np.angle(active[1:] * np.conj(active[:-1]))
+        measured_hz = float(np.median(phase_step) * config.sample_rate_hz / (2.0 * np.pi))
+        self.assertAlmostEqual(config.target_offset_hz, measured_hz, places=9)
+        for invalid in (
+            {"response_delay_windows": 0},
+            {"task_windows": 0},
+            {"guard_windows": 0},
+            {"output_peak": 0.0},
+            {"output_peak": 0.91},
+        ):
+            with self.assertRaises(ValueError):
+                InterleavedConfig(**invalid)
+
+    def test_incomplete_cycle_is_rejected_at_the_record_boundary(self) -> None:
+        config = InterleavedConfig(scenario="present", windows=4)
+        result = self.engine.run(config)
+        self.assertEqual(0, result.task_activation_count)
+        self.assertEqual(0.0, result.task_duty_cycle)
+        self.assertIn("SÜRE YETERSİZ", [window.decision for window in result.windows])
+        self.assertFalse(np.any(result.task_gate))
 
 
 class AnalogAndGNSSOfflineModelTests(unittest.TestCase):

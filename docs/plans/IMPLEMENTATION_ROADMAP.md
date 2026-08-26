@@ -72,6 +72,14 @@ sıfır çıkış örneği sınırı ve GPS L1 C/A metadata/PRN/UTC sözleşmesi
 düzeltilmiştir. ET-A PHASE-10–12'yi başlatmaz; RF TX, ephemeris, GNSS dalga
 şekli, gerçek ses girişi ve kapalı RF düzeni kapsam dışıdır.
 
+Kullanıcının aynı tarihte verdiği ayrı onayla `ET-B — Arabakışlı Offline
+Zamanlama` bakım paketi uygulanmıştır. Denetleyici; ölçüm yapılan `DİNLE`, bir
+tam pencere süren `GECİKME`, maskeli `GÖREV` ve çıkışı kapalı `KORUMA`
+pencerelerini birbirini dışlayacak biçimde ayırır. Offline kompleks görev
+tamponu, örnek-seviyesi kapı maskesi, görev çevrimi ve pencere sayıları bağımsız
+kabul testine bağlanmıştır. Bu bakım paketi PHASE-10 veya PHASE-11'in RF
+kapılarını tamamlamaz; gerçek zamanlı çalıştırma, SDR erişimi ve RF TX yoktur.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

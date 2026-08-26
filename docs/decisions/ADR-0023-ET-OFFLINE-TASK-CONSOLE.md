@@ -14,8 +14,10 @@ salt-okunur işlem akışı ve yapılandırılmış sonuç kaydı kullanır.
 Sürekli model tekli, çoklu, seeded bant-sınırlı baraj ve doğrusal süpürmeli
 kompleks taban bant tamponlarını üretir. Arabakışlı görev denetleyicisi
 deterministik yerel analiz girişinde enerji eşiği, ardışık pencere onayı,
-histerezis ve `DİNLE → KARAR → GÖREV → KORUMA → DİNLE` akışını doğrular;
-çıkış dalga biçimi üretmez. Analog model üretilmiş 1 kHz doğrulama sesini
+histerezis ve `DİNLE → GECİKME → GÖREV → KORUMA → DİNLE` akışını doğrular.
+Analiz ve görev pencereleri eşzamanlı olamaz; örnek-seviyesi maske yalnız görev
+penceresinde sınırlı offline kompleks ton tamponunu açar. Bu tampon aygıt veya
+RF çıkışı değildir. Analog model üretilmiş 1 kHz doğrulama sesini
 normalize eder, ses bandını sınırlar ve AM/FM/NFM kompleks taban bantlarını
 yerel loopback ile denetler. GNSS görevi yalnız GPS L1 C/A senaryo metadatasını
 doğrular; ephemeris, NAV verisi veya RF dalga şekli üretmez.
@@ -34,6 +36,6 @@ canlı ya da fiziksel RF sonucu olarak etiketlenmez.
 ## Kanıt ve Ertelenen İşler
 
 Deterministik birim ve Qt binding testleri host üzerinde çalışır. Bu kanıt
-HackRF-2, GNSS alıcısı, RF spektrum ölçümü, RF etkisi, RF güç seviyesi veya fiziksel
-görev çevrimi ölçümü değildir. Bu fiziksel çalışmalar yol haritasındaki kontrollü
+HackRF-2, GNSS alıcısı, RF spektrum ölçümü, RF etkisi, RF güç seviyesi, gerçek
+zamanlı tepki süresi veya fiziksel görev çevrimi ölçümü değildir. Bu fiziksel çalışmalar yol haritasındaki kontrollü
 RF güvenlik kapıları ve ayrı kullanıcı onayı olmadan başlatılmaz.

@@ -1653,7 +1653,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(6)
-        layout.addWidget(self._build_et_pipeline("interleaved", ("Dinle", "Güç Ölç", "Karar", "Görev", "Koruma")))
+        layout.addWidget(self._build_et_pipeline("interleaved", ("Dinle", "Güç Ölç", "Karar", "Gecikme", "Görev", "Koruma")))
         self.et_interleaved_values: dict[str, QLabel] = {}
         status_grid = QGridLayout()
         for row, (key, caption) in enumerate((
@@ -1687,7 +1687,7 @@ class MainWindow(QMainWindow):
             pen=None, symbol="o", symbolSize=12, symbolBrush="#10B981", symbolPen="#10B981"
         )
         self.et_interleaved_spectrum_plot = pg.PlotWidget()
-        self.et_interleaved_spectrum_plot.setTitle("Spektrum", color="#E2EEF8", size="10.5pt")
+        self.et_interleaved_spectrum_plot.setTitle("Offline Görev Spektrumu", color="#E2EEF8", size="10.5pt")
         self.et_interleaved_spectrum_plot.setLabel("bottom", "Ofset", units="kHz")
         self.et_interleaved_spectrum_plot.setLabel("left", "Güç", units="dB")
         self.et_interleaved_spectrum_curve = self.et_interleaved_spectrum_plot.plot(pen=pg.mkPen("#F59E0B", width=1.5))
@@ -1892,10 +1892,13 @@ class MainWindow(QMainWindow):
         self.et_interleaved_scenario = QComboBox()
         for label, value in (("Hedef yok", "absent"), ("Hedef sürekli", "present"), ("Kesintili hedef", "intermittent"), ("Eşik kenarı", "edge")):
             self.et_interleaved_scenario.addItem(label, value)
-        self.et_interleaved_threshold = QLabel("Aç: 0,12 · Kapat: 0,08")
+        self.et_interleaved_threshold = QLabel(
+            "Eşik aç/kapat: 0,12 / 0,08 · Onay: 2 pencere\n"
+            "Gecikme / görev / koruma: 1 / 1 / 1 pencere"
+        )
         self.et_interleaved_threshold.setProperty("class", "propCaption")
         self.et_interleaved_threshold.setWordWrap(True)
-        t_lbl = QLabel("Test")
+        t_lbl = QLabel("Analiz girdisi")
         t_lbl.setProperty("class", "propCaption")
         t_lbl.setWordWrap(True)
         form.addWidget(t_lbl, 0, 0)
@@ -3574,12 +3577,12 @@ class MainWindow(QMainWindow):
             window_count = min(len(windows), max(1, int(round(progress * len(windows)))))
             self._plot_interleaved_result(visible, sample_rate_hz, windows[:window_count])
             current = windows[window_count - 1]
-            measured = float(getattr(current, "measured_band_power"))
+            measured_value = getattr(current, "measured_band_power")
             decision = str(getattr(current, "decision"))
-            state = str(timeline[(step - 1) % len(timeline)])
-            self._set_et_pipeline_progress("interleaved", {"DİNLE": 0, "KARAR": 2, "GÖREV": 3, "KORUMA": 4}.get(state, 0))
+            state = str(getattr(current, "state"))
+            self._set_et_pipeline_progress("interleaved", {"DİNLE": 0, "GECİKME": 3, "GÖREV": 4, "KORUMA": 5}.get(state, 0))
             self.et_interleaved_values["state"].setText(state)
-            self.et_interleaved_values["energy"].setText(f"{measured:.4f}")
+            self.et_interleaved_values["energy"].setText("—" if measured_value is None else f"{float(measured_value):.4f}")
             self.et_interleaved_values["threshold"].setText("0,12 / 0,08")
             self.et_interleaved_values["decision"].setText(decision)
             self.et_interleaved_values["duration"].setText(f"{len(samples) / max(len(windows), 1) / sample_rate_hz * 1000.0:.1f} ms")
@@ -3792,36 +3795,44 @@ class MainWindow(QMainWindow):
             result = self.interleaved_engine.run(InterleavedConfig(scenario=scenario))
             mode = self._begin_et_task(duration=result.duration_seconds, detail=f"interleaved/{scenario}")
             last_window = result.windows[-1]
+            measured_windows = [window for window in result.windows if window.measured_band_power is not None]
+            last_measured = measured_windows[-1].measured_band_power if measured_windows else None
             expected = 0 if scenario == "absent" else 1
             validation = "PASS" if (result.task_activation_count == 0 if expected == 0 else result.task_activation_count >= expected) else "FAIL"
             task_result = new_task_result(
                 task_type="interleaved_task_control",
                 mode=mode.value,
-                source="ANALİZ GİRİŞİ",
+                source="DETERMİNİSTİK OFFLINE GÖREV TAMPONU",
                 duration=result.duration_seconds,
-                waveform_type="YOK",
-                sample_rate=0,
-                sample_count=0,
-                normalization_status="UYGULANMAZ",
+                waveform_type="ZAMAN-PAYLAŞIMLI TON",
+                sample_rate=result.sample_rate_hz,
+                sample_count=result.task_output_samples.size,
+                normalization_status="PASS",
                 validation_status=validation,
                 details={
                     "scenario": result.scenario,
                     "analysis_input_sample_rate": result.sample_rate_hz,
                     "analysis_input_sample_count": result.analysis_samples.size,
                     "task_activation_count": result.task_activation_count,
-                    "last_band_power": last_window.measured_band_power,
+                    "listen_window_count": result.listen_window_count,
+                    "response_delay_window_count": result.response_delay_window_count,
+                    "task_window_count": result.task_window_count,
+                    "guard_window_count": result.guard_window_count,
+                    "task_duty_cycle": result.task_duty_cycle,
+                    "active_output_sample_count": int(np.count_nonzero(result.task_gate)),
+                    "last_band_power": last_measured,
                     "last_decision": last_window.decision,
                     "state_sequence": result.timeline,
                 },
             )
             self.et_mission.complete(detail=f"interleaved/{scenario} tamamlandı")
-            self.et_result_values["detail"].setText(f"Dizi: DİNLE → KARAR → GÖREV")
+            self.et_result_values["detail"].setText("Dizi: DİNLE → GECİKME → GÖREV → KORUMA")
             self._start_et_animation(
                 task_key="interleaved",
-                samples=result.samples,
+                samples=result.task_output_samples,
                 sample_rate_hz=result.sample_rate_hz,
                 task_result=task_result,
-                metric=f"{result.task_activation_count} çevrim · {last_window.decision}",
+                metric=f"{result.task_activation_count} çevrim · %{result.task_duty_cycle * 100.0:.1f} görev çevrimi",
                 completion_detail=f"interleaved/{scenario} tamamlandı",
                 timeline=result.timeline,
                 windows=result.windows,
@@ -3926,14 +3937,18 @@ class MainWindow(QMainWindow):
         self.et_analog_spectrum_plot.setTitle(f"{mode} Spektrumu")
 
     def _plot_interleaved_result(self, samples: np.ndarray, sample_rate_hz: float, windows: tuple[object, ...]) -> None:
-        power = np.asarray([float(getattr(item, "measured_band_power")) for item in windows], dtype=np.float64)
+        power = np.asarray(
+            [np.nan if getattr(item, "measured_band_power") is None else float(getattr(item, "measured_band_power")) for item in windows],
+            dtype=np.float64,
+        )
         indices = np.arange(power.size, dtype=np.float64) + 1.0
         self.et_interleaved_timeline_curve.setData(indices, power)
         self.et_interleaved_threshold_curve.setData(indices, np.full(power.size, 0.12, dtype=np.float64))
         active_indices = np.asarray(
             [index for index, item in enumerate(windows, start=1) if bool(getattr(item, "task_active"))], dtype=np.float64
         )
-        self.et_interleaved_task_marker.setData(active_indices, power[active_indices.astype(np.int64) - 1] if active_indices.size else np.array([]))
+        task_levels = np.full(active_indices.size, 0.138, dtype=np.float64)
+        self.et_interleaved_task_marker.setData(active_indices, task_levels)
         frequencies, spectrum_db = self._et_spectrum_data(samples, sample_rate_hz)
         self.et_interleaved_spectrum_curve.setData(frequencies, spectrum_db)
 

@@ -33,6 +33,8 @@ REFERENCE_URLS = {
     "obw99": "https://www.etsi.org/deliver/etsi_ts/125100_125199/125141/11.06.00_60/ts_125141v110600p.pdf",
     "gps_l1_ca": "https://www.gps.gov/interface-control-documents-icds-interface-specifications-iss",
     "gps_prn_assignments": "https://www.gps.gov/pseudorandom-noise-code-assignments",
+    "time_shared_sensing": "https://www.mdpi.com/2072-4292/13/15/3043",
+    "reactive_response_delay": "https://www.mdpi.com/1999-5903/17/10/474",
 }
 
 
@@ -109,29 +111,122 @@ def _interleaved_acceptance() -> list[dict[str, object]]:
         first = engine.run(config)
         second = engine.run(config)
         activations = [window.index for window in first.windows if window.task_active]
-        deterministic = first.timeline == second.timeline and np.array_equal(first.samples, second.samples)
+        starts = [
+            window.index
+            for window in first.windows
+            if window.task_active and (window.index == 0 or not first.windows[window.index - 1].task_active)
+        ]
+        deterministic = (
+            first.timeline == second.timeline
+            and np.array_equal(first.analysis_samples, second.analysis_samples)
+            and np.array_equal(first.task_output_samples, second.task_output_samples)
+            and np.array_equal(first.task_gate, second.task_gate)
+        )
+        mutually_exclusive = all(
+            (window.state == "DİNLE" and window.measured_band_power is not None and not window.task_active)
+            or (window.state == "GÖREV" and window.measured_band_power is None and window.task_active)
+            or (window.state in {"GECİKME", "KORUMA"} and window.measured_band_power is None and not window.task_active)
+            for window in first.windows
+        )
+        gate_valid = (
+            int(np.count_nonzero(first.task_gate)) == first.task_window_count * config.window_samples
+            and np.all(first.task_output_samples[~first.task_gate] == 0.0)
+            and first.task_output_samples.size == first.analysis_samples.size
+        )
+        schedule_valid = all(
+            start >= config.response_delay_windows
+            and first.timeline[start - config.response_delay_windows : start] == ("GECİKME",) * config.response_delay_windows
+            and start + config.task_windows < len(first.timeline)
+            and first.timeline[start + config.task_windows] == "KORUMA"
+            for start in starts
+        )
+        if np.any(first.task_gate):
+            active = first.task_output_samples[first.task_gate]
+            measured_frequency_hz = float(
+                np.median(np.angle(active[1:] * np.conj(active[:-1]))) * config.sample_rate_hz / (2.0 * np.pi)
+            )
+            spectral_valid = abs(measured_frequency_hz - config.target_offset_hz) <= 1e-9
+            peak_valid = abs(float(np.max(np.abs(active))) - config.output_peak) <= 1e-12
+        else:
+            measured_frequency_hz = None
+            spectral_valid = True
+            peak_valid = float(np.max(np.abs(first.task_output_samples))) == 0.0
         if scenario == "absent":
             expected = not activations and all(window.decision == "PASİF" for window in first.windows)
-            timeline_valid = "GÖREV" not in first.timeline and "KORUMA" not in first.timeline
-        elif scenario == "present":
-            expected = bool(activations) and activations[0] == config.consecutive_windows - 1
-            timeline_valid = "GÖREV" in first.timeline and "KORUMA" in first.timeline
+            timeline_valid = first.timeline == ("DİNLE",) * config.windows
         else:
-            expected = bool(activations)
-            timeline_valid = "GÖREV" in first.timeline and "KORUMA" in first.timeline
-        passed = expected and deterministic and timeline_valid and first.final_state == "DİNLE"
+            expected = bool(starts)
+            timeline_valid = all(state in first.timeline for state in ("DİNLE", "GECİKME", "GÖREV", "KORUMA"))
+        passed = (
+            expected
+            and deterministic
+            and timeline_valid
+            and mutually_exclusive
+            and gate_valid
+            and schedule_valid
+            and spectral_valid
+            and peak_valid
+            and first.final_state == "DİNLE"
+            and not first.analysis_samples.flags.writeable
+            and not first.task_output_samples.flags.writeable
+            and not first.task_gate.flags.writeable
+        )
         records.append(
             {
                 "scenario": scenario,
                 "analysis_input_samples": int(first.analysis_samples.size),
                 "activation_indices": activations,
+                "activation_starts": starts,
+                "timeline": first.timeline,
                 "final_state": first.final_state,
                 "deterministic": deterministic,
-                "output_samples": 0,
+                "listen_windows": first.listen_window_count,
+                "response_delay_windows": first.response_delay_window_count,
+                "task_windows": first.task_window_count,
+                "guard_windows": first.guard_window_count,
+                "task_duty_cycle": first.task_duty_cycle,
+                "task_output_samples": int(first.task_output_samples.size),
+                "active_output_samples": int(np.count_nonzero(first.task_gate)),
+                "task_frequency_hz": measured_frequency_hz,
+                "listen_task_mutually_exclusive": mutually_exclusive,
+                "gate_valid": gate_valid,
+                "schedule_valid": schedule_valid,
                 "status": "passed" if passed else "failed",
             }
         )
     return records
+
+
+def _interleaved_negative_acceptance() -> dict[str, object]:
+    engine = InterleavedTaskController()
+    bounded = engine.run(InterleavedConfig(scenario="present", windows=4))
+    incomplete_cycle_rejected = (
+        bounded.task_activation_count == 0
+        and bounded.task_duty_cycle == 0.0
+        and not np.any(bounded.task_gate)
+        and np.all(bounded.task_output_samples == 0.0)
+        and any(window.decision == "SÜRE YETERSİZ" for window in bounded.windows)
+    )
+    invalid_cases = (
+        {"response_delay_windows": 0},
+        {"task_windows": 0},
+        {"guard_windows": 0},
+        {"output_peak": 0.0},
+        {"output_peak": 0.91},
+    )
+    rejected = 0
+    for values in invalid_cases:
+        try:
+            InterleavedConfig(**values)
+        except ValueError:
+            rejected += 1
+    passed = incomplete_cycle_rejected and rejected == len(invalid_cases)
+    return {
+        "incomplete_cycle_rejected": incomplete_cycle_rejected,
+        "invalid_configurations_rejected": rejected,
+        "invalid_configuration_count": len(invalid_cases),
+        "status": "passed" if passed else "failed",
+    }
 
 
 def _analog_acceptance() -> list[dict[str, object]]:
@@ -249,30 +344,36 @@ def _safety_acceptance() -> dict[str, object]:
 def evaluate() -> dict[str, object]:
     continuous = _continuous_acceptance()
     interleaved = _interleaved_acceptance()
+    interleaved_negative = _interleaved_negative_acceptance()
     analog = _analog_acceptance()
     gnss = _gnss_acceptance()
     safety = _safety_acceptance()
     gates = {
         "KTR-5.1_continuous_offline": all(item["status"] == "passed" for item in continuous),
-        "KTR-5.2_interleaved_controller": all(item["status"] == "passed" for item in interleaved),
+        "KTR-5.2_interleaved_offline_schedule": (
+            all(item["status"] == "passed" for item in interleaved)
+            and interleaved_negative["status"] == "passed"
+        ),
         "KTR-5.3_analog_loopback": all(item["status"] == "passed" for item in analog),
         "KTR-5.4_gnss_metadata_only": all(item["status"] == "passed" for item in gnss),
         "tx_fail_closed": safety["status"] == "passed",
     }
     return {
-        "schema_version": 2,
-        "work_package": "ET-A",
+        "schema_version": 3,
+        "work_package": "ET-B",
         "status": "passed" if all(gates.values()) else "failed",
         "gates": gates,
         "continuous_waveforms": continuous,
         "interleaved_controller": interleaved,
+        "interleaved_negative_safety": interleaved_negative,
         "analog_loopback": analog,
         "gnss_metadata": gnss,
         "safety": safety,
         "references": REFERENCE_URLS,
         "claim_boundary": (
-            "Yalnız deterministik offline kompleks taban bant, yerel loopback ve GPS L1 C/A metadata "
-            "doğrulaması; RF yayını, RF güç/etki, ephemeris işleme veya GNSS dalga şekli yoktur."
+            "Yalnız deterministik offline kompleks taban bant, zaman paylaşımlı görev tamponu, yerel "
+            "loopback ve GPS L1 C/A metadata doğrulaması; RF yayını, RF güç/etki, ephemeris işleme "
+            "veya GNSS dalga şekli yoktur."
         ),
     }
 
