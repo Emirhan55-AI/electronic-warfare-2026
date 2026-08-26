@@ -103,6 +103,7 @@ ve tarihsel doğrulama yüzeyleri silinmemiştir; ürün paketine ithal edilmez.
 
 ## Çıkış regresyonu
 
-Bu bakım paketi commit edildikten sonra tam depo test takımı yeniden çalıştırıldı.
-Sonuç `486 passed, 1 skipped, 0 failed` ve süre `405,54 s` oldu. Kontrollü atlama
-yalnız yerel yolu yapılandırılmamış haricî gerçek veri setine aittir.
+Dokuzuncu bakım paketi commit edildikten sonra tam depo test takımı yeniden
+çalıştırıldı. Sonuç `486 passed, 1 skipped, 0 failed` ve süre `829,13 s` oldu.
+Kontrollü atlama yalnız yerel yolu yapılandırılmamış haricî gerçek veri setine
+aittir.
