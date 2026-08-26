@@ -10,6 +10,10 @@ import sys
 import textwrap
 import unittest
 
+import numpy as np
+
+from app.operator_console.quick_view_model import _reduce_display_max
+
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-meta"
@@ -18,6 +22,11 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_spectrum_display_reduction_preserves_interval_maxima(self) -> None:
+        values = np.asarray([-9.0, -4.0, -8.0, -3.0, -7.0, -5.0, -6.0, -2.0, -10.0, -1.0])
+        reduced = _reduce_display_max(values, 3)
+        np.testing.assert_array_equal(np.asarray([-4.0, -3.0, -1.0]), reduced)
+
     def run_qml(self, body: str, *, timeout: float = 20.0) -> dict[str, object]:
         code = "\n".join(
             (
@@ -219,6 +228,35 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("—", payload["relative"])
         self.assertIn("gerçek bir kaynak", payload["status"])
 
+    def test_direction_session_locks_reference_and_clears_on_source_change(self) -> None:
+        payload = self.run_qml(
+            f"""
+view_model.openSigmf(str(fixture))
+deadline=time.perf_counter()+8
+while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady or not view_model.spectrumValues): app.processEvents(); time.sleep(.002)
+view_model.addDirectionMeasurement(0.0,"north",0.0)
+first={{"count":view_model.directionMeasurementCount,"distinct":view_model.directionDistinctAngleCount,"reference":view_model.directionReferenceText,"power":view_model.directionFramePowerText,"row":view_model.directionPoints[0]}}
+view_model.addDirectionMeasurement(90.0,"none",0.0)
+locked={{"count":view_model.directionMeasurementCount,"status":view_model.statusMessage}}
+view_model.openSigmf({str(LISTENING_FIXTURE)!r})
+deadline=time.perf_counter()+8
+while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady or not view_model.spectrumValues): app.processEvents(); time.sleep(.002)
+payload={{"first":first,"locked":locked,"cleared":view_model.directionMeasurementCount,"reference_after":view_model.directionReferenceText}}
+view_model.shutdown(); engine.rootObjects()[0].close()
+print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertEqual(1, payload["first"]["count"])
+        self.assertEqual(1, payload["first"]["distinct"])
+        self.assertEqual("Gerçek kuzey · anten 0°", payload["first"]["reference"])
+        self.assertNotEqual("—", payload["first"]["power"])
+        self.assertIn("known-tone-ci8.sigmf-meta", payload["first"]["row"]["source"])
+        self.assertEqual("100 MHz", payload["first"]["row"]["frequency"])
+        self.assertEqual(1, payload["locked"]["count"])
+        self.assertIn("referansı değiştirilemez", payload["locked"]["status"])
+        self.assertEqual(0, payload["cleared"])
+        self.assertEqual("İlk ölçümde sabitlenir", payload["reference_after"])
+
     def test_confirmed_detection_prepares_truthfully_labeled_am_audio(self) -> None:
         payload = self.run_qml(
             f"""
@@ -274,6 +312,10 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "listeningTransport"',
             'objectName: "listeningResultList"',
             "Oynatma konumu, salt okunur",
+            'objectName: "directionSettingsScroll"',
+            'objectName: "directionCompass"',
+            'objectName: "directionMeasurementList"',
+            "Etkin Kare Gücünü Kaydet",
             'objectName: "pipelineList"',
             'objectName: "systemLog"',
             "SALT OKUNUR SİSTEM DURUMU",

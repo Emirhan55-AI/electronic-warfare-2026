@@ -74,6 +74,13 @@ işlediği süreden beslenir; fiziksel ses çıkışı kullanılabilirliği WAV 
 ayrı gösterilir. Hash-kilitli AM kaydıyla kısa önizleme, dalga biçimi, süre ve
 çıktı sınırı ürün doğrulama kapısına alınmıştır. Canlı HackRF veya fiziksel ses
 saha kabulü kapsamı değişmemiştir.
+Sekizinci bakım paketi Yön Bulma çalışma alanını kaynak kimliği ve anten referansı
+kilitli bir saha ölçüm oturumuna taşımıştır. Kaynak değişiminde ölçümler temizlenir;
+ilk kayıt anten 0° referansını sabitler ve geçmiş satırları anten açısı, geniş bant
+kare gücü, anten azimutu, frekans ve kaynakla bağlar. Üç farklı açıda aynı gerçek
+I/Q gücü kullanıldığında maksimum ayrışmadığı için kerteriz üretilmemesi ürün
+kapısında doğrulanmıştır. Bu bakım yön bulma algoritmasını, saha doğruluğunu,
+çok kanallı DoA, menzil veya hedef konumu kapsamını değiştirmez.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, offline gösterim veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.

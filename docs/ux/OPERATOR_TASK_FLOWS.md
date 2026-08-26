@@ -1,6 +1,6 @@
 # Operatör Görev Akışları
 
-- Sürüm: 1.4
+- Sürüm: 1.5
 - Güncelleme tarihi: 2026-08-26
 - Kapsam: APP-F için ürün bilgi mimarisi
 
@@ -90,12 +90,21 @@ dinleme başarısı olarak sunulmaz.
 
 ## Akış 5 — Yön bulma
 
-1. Operatör frekansı, anten 0° referansını ve anten dönüş açısını belirler.
-2. Her saha ölçümü açı, dBFS güç, zaman ve kaynakla kaydedilir.
-3. Yeterli ölçüm yoksa kerteriz sonucu üretilmez.
-4. Önce `Bağıl Geliş Açısı` hesaplanır.
-5. Geçerli `Anten Referans Yönü` varsa `Gerçek Kuzeye Göre Kerteriz` hesaplanır.
-6. Faz uyumlu çok kanallı DoA, hedef konumu veya menzil sonucu üretilmez.
+1. Sabit kaynak kartı kaynak kimliğini, merkez frekansını, etkin kareyi ve
+   kalibrasyonsuz geniş bant kare gücünü gösterir.
+2. Operatör anten dönüş açısını ve antenin 0° yön referansını belirler. İlk kayıt
+   bu referansı ölçüm oturumu için sabitler; değiştirmek için ölçümler temizlenir.
+3. Her saha ölçümü anten açısı, dBFS kare gücü, frekans, zaman, anten azimutu ve
+   kaynak kimliğiyle kaydedilir. Kaynak değiştiğinde eski oturum otomatik temizlenir.
+4. En az üç farklı açı yoksa veya güç maksimumu yeterince ayrışmıyorsa sonuç
+   üretilmez ve eksik koşul gösterilir.
+5. Geçerli sonuç önce antenin 0° eksenine göre `Bağıl Geliş Yönü` olarak sunulur.
+6. Anten 0° yönü gerçek kuzeye bağlanmışsa `Gerçek Kerteriz` ayrıca gösterilir.
+7. Faz uyumlu çok kanallı DoA, hedef konumu veya menzil sonucu üretilmez.
+
+`Radyo kerterizi` terminolojisi ITU-R yön bulma kullanımını; bağıl ve gerçek yön
+ayrımı ise açının anten eksenine mi gerçek kuzeye mi bağlı olduğunu izler. Tek
+istasyon kerterizi bir konum kestirimi değildir.
 
 ## Akış 6 — Sistem denetimi ve kurtarma
 
@@ -124,6 +133,8 @@ alanından bağımsız hızlı görünümüdür.
   kaydırması kullanılmaz.
 - Kerteriz ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
   spektrum vurgusu kısa bir odak geçişi kullanır.
+- Yön Bulma kaynak bağlamı, kayıt eylemi ve sonuç geçmişi sabit kalır; yalnız
+  ölçüm ayarları kendi panelinde kaydırılır.
 - `Hareketi azalt` sistem ayarı desteklenir.
 - Veri güncellemesi hedefi 10 Hz'dir; hareketli geçişlerin hedefi 60 Hz olsa da
   hedef donanım ölçümü yapılmadan performans iddiası kurulmaz.

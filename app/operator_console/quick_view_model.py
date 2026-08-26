@@ -68,6 +68,13 @@ ERROR_TEXT = {
 }
 
 
+def _reduce_display_max(values: np.ndarray, width: int) -> np.ndarray:
+    """Preserve every display interval's maximum without a Python loop."""
+    bounded_width = max(1, min(int(width), int(values.size)))
+    edges = np.linspace(0, values.size, bounded_width + 1, dtype=np.int64)
+    return np.maximum.reduceat(values, edges[:-1])
+
+
 PIPELINE_COMPONENTS = (
     {
         "id": "source",
@@ -259,6 +266,8 @@ class OperatorViewModel(QObject):
         self._df_status = "En az üç farklı anten açısında gerçek güç ölçümü gerekir."
         self._df_relative = "—"
         self._df_bearing = "—"
+        self._df_reference_key: tuple[str, float | None] | None = None
+        self._direction_frame_power_dbfs: float | None = None
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
@@ -515,12 +524,57 @@ class OperatorViewModel(QObject):
         return self._df_status
 
     @Property(str, notify=directionChanged)
+    def directionStatusText(self) -> str:
+        return {
+            "LOB HAZIR": "Tek istasyon radyo kerterizi hazır",
+            "YETERSİZ AÇI": "En az üç farklı anten açısı gerekli",
+            "BELİRSİZ MAKSİMUM": "Güç maksimumu ayrıştırılamadı",
+        }.get(self._df_status, self._df_status)
+
+    @Property(bool, notify=directionChanged)
+    def directionReady(self) -> bool:
+        return self._df_status == "LOB HAZIR"
+
+    @Property(int, notify=directionChanged)
+    def directionMeasurementCount(self) -> int:
+        return len(self._df.measurements)
+
+    @Property(int, notify=directionChanged)
+    def directionDistinctAngleCount(self) -> int:
+        return len({item.angle_deg for item in self._df.measurements})
+
+    @Property(float, notify=directionChanged)
+    def directionProgress(self) -> float:
+        return min(1.0, self.directionDistinctAngleCount / 3.0)
+
+    @Property(str, notify=directionChanged)
+    def directionRequirementText(self) -> str:
+        count = self.directionDistinctAngleCount
+        return f"{count}/3 farklı açı · {self.directionMeasurementCount} ölçüm"
+
+    @Property(str, notify=directionChanged)
+    def directionReferenceText(self) -> str:
+        if self._df_reference_key is None:
+            return "İlk ölçümde sabitlenir"
+        mode, angle = self._df_reference_key
+        if mode == "north":
+            return "Gerçek kuzey · anten 0°"
+        if mode == "manual" and angle is not None:
+            return f"Anten 0° gerçek kerterizi · {angle:.1f}°"
+        return "Coğrafi referans yok · yalnız bağıl yön"
+
+    @Property(str, notify=directionChanged)
     def relativeArrivalText(self) -> str:
         return self._df_relative
 
     @Property(str, notify=directionChanged)
     def bearingText(self) -> str:
         return self._df_bearing
+
+    @Property(str, notify=spectrumChanged)
+    def directionFramePowerText(self) -> str:
+        power = self._direction_frame_power_dbfs
+        return "—" if power is None else f"{power:.2f} dBFS"
 
     @Property(str, notify=detectionsChanged)
     def listeningDetectionTitle(self) -> str:
@@ -998,18 +1052,33 @@ class OperatorViewModel(QObject):
             self._status_message = "Yön ölçümü için işlenmiş gerçek bir kaynak karesi gerekir."
             self.stateChanged.emit()
             return
-        power = np.asarray(self._last_result.spectrum.display.bin_power_fs2, dtype=np.float64)
-        finite = power[np.isfinite(power) & (power > 0.0)]
-        if finite.size == 0:
+        if not math.isfinite(antenna_angle_deg) or not 0.0 <= antenna_angle_deg < 360.0:
+            self._status_message = "Anten açısı 0° ile 359° arasında olmalıdır."
+            self.stateChanged.emit()
+            return
+        if reference == "manual" and not math.isfinite(reference_deg):
+            self._status_message = "Anten 0° gerçek kerterizi geçerli olmalıdır."
+            self.stateChanged.emit()
+            return
+        relative_power_db = self._direction_frame_power_dbfs
+        if relative_power_db is None:
             self._status_message = "Geçerli dBFS güç değeri bulunamadı; ölçüm kaydedilmedi."
             self.stateChanged.emit()
             return
-        relative_power_db = float(10.0 * np.log10(np.mean(finite)))
         ref = {
             "north": AntennaReference.NORTH,
             "manual": AntennaReference.MANUAL_GEOGRAPHIC,
             "none": AntennaReference.UNAVAILABLE,
         }.get(reference, AntennaReference.UNAVAILABLE)
+        if ref is AntennaReference.MANUAL_GEOGRAPHIC:
+            reference_key = ("manual", round(reference_deg % 360.0, 6))
+        else:
+            reference_mode = reference if reference in {"north", "none"} else "none"
+            reference_key = (reference_mode, None)
+        if self._df_reference_key is not None and self._df_reference_key != reference_key:
+            self._status_message = "Ölçüm oturumunun anten referansı değiştirilemez; önce ölçümleri temizleyin."
+            self.stateChanged.emit()
+            return
         bearing = geographic_bearing_from_manual_reference(
             ref,
             antenna_angle_deg,
@@ -1020,15 +1089,17 @@ class OperatorViewModel(QObject):
             relative_power_db=relative_power_db,
             frequency_hz=float(getattr(self._source, "center_frequency_hz")),
             confidence=1.0,
-            source="HackRF Canlı RX" if self._source_mode == "hackrf" else "SigMF Kaydı",
+            source=self._source_name,
             geographic_bearing_deg=bearing,
         )
+        self._df_reference_key = reference_key
         self._df.add(measurement)
         self._df_points = [
             {
                 "angle": f"{item.angle_deg:.1f}°",
                 "power": f"{item.relative_power_db:.2f} dBFS",
                 "bearing": "—" if item.geographic_bearing_deg is None else f"{item.geographic_bearing_deg:.1f}°",
+                "frequency": self._format_frequency(item.frequency_hz),
                 "source": item.source,
             }
             for item in self._df.measurements
@@ -1050,11 +1121,15 @@ class OperatorViewModel(QObject):
 
     @Slot()
     def clearDirectionMeasurements(self) -> None:
+        self._reset_direction()
+
+    def _reset_direction(self) -> None:
         self._df.clear()
         self._df_points = []
         self._df_status = "En az üç farklı anten açısında gerçek güç ölçümü gerekir."
         self._df_relative = "—"
         self._df_bearing = "—"
+        self._df_reference_key = None
         self.directionChanged.emit()
 
     @Slot(bool)
@@ -1282,12 +1357,13 @@ class OperatorViewModel(QObject):
 
     def _update_spectrum(self, result: RuntimeFrameResult) -> None:
         values = np.asarray(result.spectrum.display.bin_power_dbfs, dtype=np.float64)
-        width = min(self._viewport_points, values.size)
-        edges = np.linspace(0, values.size, width + 1, dtype=np.int64)
-        reduced = np.asarray(
-            [np.max(values[edges[i] : max(edges[i] + 1, edges[i + 1])]) for i in range(width)],
-            dtype=np.float64,
+        power_fs2 = np.asarray(result.spectrum.display.bin_power_fs2, dtype=np.float64)
+        finite_power = power_fs2[np.isfinite(power_fs2) & (power_fs2 > 0.0)]
+        self._direction_frame_power_dbfs = (
+            None if finite_power.size == 0 else float(10.0 * np.log10(np.mean(finite_power)))
         )
+        width = min(self._viewport_points, values.size)
+        reduced = _reduce_display_max(values, width)
         finite = reduced[np.isfinite(reduced)]
         if finite.size:
             upper = min(10.0, float(np.max(finite)) + 6.0)
@@ -1342,6 +1418,7 @@ class OperatorViewModel(QObject):
 
     def _clear_results(self, *, keep_source: bool = False) -> None:
         self._last_result = None
+        self._direction_frame_power_dbfs = None
         self._spectrum_values = []
         self._detections = []
         self._selected_detection_id = -1
@@ -1351,6 +1428,7 @@ class OperatorViewModel(QObject):
         self._analysis_span_draft = None
         self._event_observation_history.clear()
         self._frame_index = 0
+        self._reset_direction()
         self._clear_listening("Doğrulanmış bir tespit seçin.")
         if not keep_source:
             self._frame_count = 0

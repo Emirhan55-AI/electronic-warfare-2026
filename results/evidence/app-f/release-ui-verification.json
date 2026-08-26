@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-25T22:22:44Z",
+  "recorded_at": "2026-08-25T23:08:30Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -28,6 +28,7 @@
       "workspace": 0,
       "spectrum_task_tab": 0,
       "prepare_listening": false,
+      "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 572,
@@ -47,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19917648944723,
-      "processing_median_ms": 3.9318001363426447,
-      "processing_p95_ms": 6.865799892693758,
-      "maximum_heartbeat_gap_ms": 37.39509987644851,
+      "observed_update_hz": 9.152864213714242,
+      "processing_median_ms": 12.215299997478724,
+      "processing_p95_ms": 15.106899896636605,
+      "maximum_heartbeat_gap_ms": 85.0571000482887,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -136,8 +137,14 @@
       "listening_waveform_points": 0,
       "listening_playback_state": "Ses hazırlanmadı",
       "listening_playback_duration": "00:00.0",
+      "direction_measurement_count": 0,
+      "direction_distinct_angle_count": 0,
+      "direction_ready": false,
+      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_reference": "İlk ölçümde sabitlenir",
+      "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "b77cb586e3a5c5fd7023e1c3a9207a267decc38c936273818cd29fa610fa1f82"
+      "screenshot_sha256": "0f4db7afecc250728dba48bf8f5014bc1c69f1367e6b91e4e060ef7922fb9b8d"
     },
     {
       "name": "measurement-1280x720",
@@ -149,6 +156,7 @@
       "workspace": 0,
       "spectrum_task_tab": 1,
       "prepare_listening": false,
+      "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 572,
@@ -167,11 +175,11 @@
         0.375,
         0.625
       ],
-      "processed_frames": 23,
-      "observed_update_hz": 9.191486477796461,
-      "processing_median_ms": 3.567999927327037,
-      "processing_p95_ms": 5.392000079154968,
-      "maximum_heartbeat_gap_ms": 45.955599984154105,
+      "processed_frames": 24,
+      "observed_update_hz": 9.523914967446336,
+      "processing_median_ms": 12.304950039833784,
+      "processing_p95_ms": 16.316800145432353,
+      "maximum_heartbeat_gap_ms": 90.961400186643,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -257,8 +265,14 @@
       "listening_waveform_points": 0,
       "listening_playback_state": "Ses hazırlanmadı",
       "listening_playback_duration": "00:00.0",
+      "direction_measurement_count": 0,
+      "direction_distinct_angle_count": 0,
+      "direction_ready": false,
+      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_reference": "İlk ölçümde sabitlenir",
+      "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "4ac3f7e3ee71481ed00b59e0f89527be7a3c22431b1a73776612048a4e72a515"
+      "screenshot_sha256": "9086ba21511f63320d5daea58ada472b60703bf2d47b8c7bb392e504d6a015ce"
     },
     {
       "name": "standard-1366x768",
@@ -270,6 +284,7 @@
       "workspace": 1,
       "spectrum_task_tab": 0,
       "prepare_listening": true,
+      "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
@@ -288,11 +303,11 @@
         0.0,
         1.0
       ],
-      "processed_frames": 23,
-      "observed_update_hz": 9.198335836830239,
-      "processing_median_ms": 3.4437000285834074,
-      "processing_p95_ms": 5.152300000190735,
-      "maximum_heartbeat_gap_ms": 49.86810008995235,
+      "processed_frames": 24,
+      "observed_update_hz": 9.470960063360787,
+      "processing_median_ms": 11.948650004342198,
+      "processing_p95_ms": 16.74260012805462,
+      "maximum_heartbeat_gap_ms": 88.07830000296235,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -378,8 +393,14 @@
       "listening_waveform_points": 720,
       "listening_playback_state": "Oynatmaya hazır",
       "listening_playback_duration": "00:00.1",
+      "direction_measurement_count": 0,
+      "direction_distinct_angle_count": 0,
+      "direction_ready": false,
+      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_reference": "İlk ölçümde sabitlenir",
+      "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "bef4d693ad33d1b74cd3a5cf432502224a114777f78dfe7737e38f2dd245dc1b"
+      "screenshot_sha256": "c3e5e0debcaa6dc1c24a585549a6422fbf869a617062ed55322197400d7786e8"
     },
     {
       "name": "fullhd-1920x1080",
@@ -391,6 +412,7 @@
       "workspace": 3,
       "spectrum_task_tab": 0,
       "prepare_listening": false,
+      "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
@@ -409,11 +431,11 @@
         0.0,
         1.0
       ],
-      "processed_frames": 23,
-      "observed_update_hz": 9.195983194786516,
-      "processing_median_ms": 3.352199913933873,
-      "processing_p95_ms": 5.654799984768033,
-      "maximum_heartbeat_gap_ms": 66.7785000987351,
+      "processed_frames": 24,
+      "observed_update_hz": 9.513194761463303,
+      "processing_median_ms": 13.504349975846708,
+      "processing_p95_ms": 15.086899977177382,
+      "maximum_heartbeat_gap_ms": 82.67259993590415,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -499,8 +521,14 @@
       "listening_waveform_points": 0,
       "listening_playback_state": "Ses hazırlanmadı",
       "listening_playback_duration": "00:00.0",
+      "direction_measurement_count": 0,
+      "direction_distinct_angle_count": 0,
+      "direction_ready": false,
+      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_reference": "İlk ölçümde sabitlenir",
+      "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "8870051910caa701cdb1f5e3c01382c14648ca07b48f2fcea3cdf9f22864a4a3"
+      "screenshot_sha256": "8c76575dd633d16321416116797c1fb0401c68a40f3b95cbf8deb29e779231ac"
     },
     {
       "name": "scale-150-percent",
@@ -512,6 +540,7 @@
       "workspace": 2,
       "spectrum_task_tab": 0,
       "prepare_listening": false,
+      "prepare_direction": true,
       "source_ready": true,
       "source_state": "Hazır",
       "spectrum_points": 732,
@@ -531,10 +560,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.198165150179046,
-      "processing_median_ms": 3.286499995738268,
-      "processing_p95_ms": 4.465899895876646,
-      "maximum_heartbeat_gap_ms": 57.037899969145656,
+      "observed_update_hz": 9.006381177554887,
+      "processing_median_ms": 12.072699842974544,
+      "processing_p95_ms": 17.126299906522036,
+      "maximum_heartbeat_gap_ms": 87.12819986976683,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -620,8 +649,14 @@
       "listening_waveform_points": 0,
       "listening_playback_state": "Ses hazırlanmadı",
       "listening_playback_duration": "00:00.0",
+      "direction_measurement_count": 3,
+      "direction_distinct_angle_count": 3,
+      "direction_ready": false,
+      "direction_status": "Güç maksimumu ayrıştırılamadı",
+      "direction_reference": "Gerçek kuzey · anten 0°",
+      "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "9899e8ef4977f86fce08a740a17f2ab9f6b7ef5712855382e41e9117d6713dd4"
+      "screenshot_sha256": "777d42552d7ead7fb10f596255a731ab99f48626ae862a89da751cfb586c8232"
     }
   ],
   "hackrf_probe": {
@@ -641,6 +676,7 @@
     "stable_task_layout": true,
     "spectrum_task_views": true,
     "listening_task_ready": true,
+    "direction_task_guarded": true,
     "system_diagnostics": true,
     "release_source_navigation_disabled": true,
     "structured_operation_log": true,

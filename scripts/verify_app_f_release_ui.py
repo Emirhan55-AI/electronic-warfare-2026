@@ -8,9 +8,11 @@ import json
 import math
 import os
 from pathlib import Path
+import shutil
 import statistics
 import subprocess
 import sys
+import tempfile
 import time
 
 
@@ -25,11 +27,11 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 CONFIGURATIONS = (
-    ("minimum-1280x720", 1280, 720, 1.0, 0, 0, False),
-    ("measurement-1280x720", 1280, 720, 1.0, 0, 1, False),
-    ("standard-1366x768", 1366, 768, 1.0, 1, 0, True),
-    ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0, False),
-    ("scale-150-percent", 1280, 720, 1.5, 2, 0, False),
+    ("minimum-1280x720", 1280, 720, 1.0, 0, 0, False, False),
+    ("measurement-1280x720", 1280, 720, 1.0, 0, 1, False, False),
+    ("standard-1366x768", 1366, 768, 1.0, 1, 0, True, False),
+    ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0, False, False),
+    ("scale-150-percent", 1280, 720, 1.5, 2, 0, False, True),
 )
 
 
@@ -43,7 +45,7 @@ def _percentile(values: list[float], fraction: float) -> float:
 
 
 def _child_run(args: argparse.Namespace) -> int:
-    from PySide6.QtCore import QTimer
+    from PySide6.QtCore import QEventLoop, QTimer
     from PySide6.QtQuick import QQuickWindow
 
     from app.operator_console.quick_application import build_quick_application
@@ -88,14 +90,19 @@ def _child_run(args: argparse.Namespace) -> int:
     if not view_model.sourceReady:
         raise RuntimeError(view_model.errorMessage or "SigMF source did not become ready")
 
+    settle_deadline = time.perf_counter() + 0.35
+    while time.perf_counter() < settle_deadline:
+        app.processEvents()
+        time.sleep(0.002)
+
     heartbeat.append(time.perf_counter())
     timer.start()
     initial_count = len(view_model._operation_samples_ms)
     started = time.perf_counter()
     view_model.startScan()
-    while time.perf_counter() - started < 2.5:
-        app.processEvents()
-        time.sleep(0.002)
+    measurement_loop = QEventLoop()
+    QTimer.singleShot(2_500, measurement_loop.quit)
+    measurement_loop.exec()
     duration = time.perf_counter() - started
     view_model.pause()
     while view_model.busy and time.perf_counter() < deadline:
@@ -126,6 +133,14 @@ def _child_run(args: argparse.Namespace) -> int:
             time.sleep(0.002)
         view_model.pause()
         while view_model.busy and time.perf_counter() < listening_deadline:
+            app.processEvents()
+            time.sleep(0.002)
+
+    if args.prepare_direction:
+        for angle in (0.0, 120.0, 240.0):
+            view_model.addDirectionMeasurement(angle, "north", 0.0)
+        direction_visual_deadline = time.perf_counter() + 0.35
+        while time.perf_counter() < direction_visual_deadline:
             app.processEvents()
             time.sleep(0.002)
 
@@ -167,6 +182,7 @@ def _child_run(args: argparse.Namespace) -> int:
         "workspace": args.workspace,
         "spectrum_task_tab": args.spectrum_task_tab,
         "prepare_listening": args.prepare_listening,
+        "prepare_direction": args.prepare_direction,
         "source_ready": view_model.sourceReady,
         "source_state": view_model.sourceState,
         "spectrum_points": len(view_model.spectrumValues),
@@ -198,7 +214,15 @@ def _child_run(args: argparse.Namespace) -> int:
         "listening_waveform_points": len(view_model.listeningWaveform),
         "listening_playback_state": view_model.listeningPlaybackState,
         "listening_playback_duration": view_model.listeningPlaybackDurationText,
-        "screenshot": screenshot.relative_to(ROOT).as_posix(),
+        "direction_measurement_count": view_model.directionMeasurementCount,
+        "direction_distinct_angle_count": view_model.directionDistinctAngleCount,
+        "direction_ready": view_model.directionReady,
+        "direction_status": view_model.directionStatusText,
+        "direction_reference": view_model.directionReferenceText,
+        "direction_source_bound": all(
+            item["source"] == view_model.sourceName for item in view_model.directionPoints
+        ),
+        "screenshot": (OUTPUT / f"{args.name}.png").relative_to(ROOT).as_posix(),
         "screenshot_sha256": _sha256(screenshot),
     }
     view_model.shutdown()
@@ -210,8 +234,10 @@ def _child_run(args: argparse.Namespace) -> int:
 def _parent_run() -> int:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     runs: list[dict[str, object]] = []
-    for name, width, height, scale, workspace, spectrum_task_tab, prepare_listening in CONFIGURATIONS:
-        screenshot = OUTPUT / f"{name}.png"
+    temporary_output_handle = tempfile.TemporaryDirectory(prefix="app-f-ui-")
+    temporary_output = Path(temporary_output_handle.name)
+    for name, width, height, scale, workspace, spectrum_task_tab, prepare_listening, prepare_direction in CONFIGURATIONS:
+        screenshot = temporary_output / f"{name}.png"
         environment = os.environ.copy()
         environment["QT_QPA_PLATFORM"] = "offscreen"
         environment["QT_QUICK_BACKEND"] = "software"
@@ -237,6 +263,7 @@ def _parent_run() -> int:
                 "--spectrum-task-tab",
                 str(spectrum_task_tab),
                 *(["--prepare-listening"] if prepare_listening else []),
+                *(["--prepare-direction"] if prepare_direction else []),
                 "--screenshot",
                 str(screenshot),
             ],
@@ -250,8 +277,14 @@ def _parent_run() -> int:
         if process.returncode:
             print(process.stdout)
             print(process.stderr, file=sys.stderr)
+            temporary_output_handle.cleanup()
             return process.returncode
         runs.append(json.loads(process.stdout.strip().splitlines()[-1]))
+
+    for run in runs:
+        name = str(run["name"])
+        shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
+    temporary_output_handle.cleanup()
 
     probe_environment = os.environ.copy()
     probe_environment["QT_QPA_PLATFORM"] = "offscreen"
@@ -328,6 +361,25 @@ def _parent_run() -> int:
                 'objectName: "listeningResultList"',
                 "Oynatma konumu, salt okunur",
                 "operatorViewModel.listeningOutputState",
+            )
+        ),
+        "direction_task_guarded": any(
+            bool(run["prepare_direction"])
+            and int(run["direction_measurement_count"]) == 3
+            and int(run["direction_distinct_angle_count"]) == 3
+            and not bool(run["direction_ready"])
+            and run["direction_status"] == "Güç maksimumu ayrıştırılamadı"
+            and run["direction_reference"] == "Gerçek kuzey · anten 0°"
+            and bool(run["direction_source_bound"])
+            for run in runs
+        )
+        and all(
+            marker in qml_text
+            for marker in (
+                'objectName: "directionSettingsScroll"',
+                'objectName: "directionCompass"',
+                'objectName: "directionMeasurementList"',
+                "Etkin Kare Gücünü Kaydet",
             )
         ),
         "system_diagnostics": all(
@@ -419,6 +471,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--workspace", type=int, default=0)
     parser.add_argument("--spectrum-task-tab", type=int, choices=(0, 1), default=0)
     parser.add_argument("--prepare-listening", action="store_true")
+    parser.add_argument("--prepare-direction", action="store_true")
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
     args = parser.parse_args(argv)

@@ -16,8 +16,9 @@ Uygulamanın mevcut çalışma alanları:
 - `Dinleme`: sabit doğrulanmış tespit bağlamından operatör seçimli AM/NFM kanal
   hazırlama, demodüle ses dalga biçimi, gerçek oynatma konumu, fiziksel ses
   çıkışı durumu ve WAV dışa aktarma.
-- `Yön Bulma`: gerçek I/Q gücünün elle girilen anten açısıyla kaydı, bağıl geliş
-  açısı ve geçerli referans varsa kerteriz.
+- `Yön Bulma`: gerçek I/Q karesinin geniş bant dBFS gücünü elle girilen anten
+  açısıyla kaydetme, kaynak ve anten referansı kilitli ölçüm oturumu, bağıl geliş
+  yönü ve geçerli gerçek kuzey referansı varsa gerçek kerteriz.
 - `Sistem`: gerçek çalışma durumundan beslenen yedi aşamalı işlem zinciri,
   seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
@@ -37,6 +38,11 @@ anda daraltılmaz; sabit seçili sinyal kartının altındaki ayrı görev gör�
 açılır. Dinleme alanında seçili sinyal, hazırlama eylemi ve sonuç kontrolleri
 sabit kalır; yalnız kanal ayarları kendi panelinde kaydırılır. Oynatma zaman
 çizelgesi salt okunurdur ve ses çıkışının işlediği PCM süresinden beslenir.
+
+Yön Bulma ölçümleri kaynak değişiminde temizlenir. İlk kayıt antenin 0° yön
+referansını oturum için sabitler; referans ancak ölçümler temizlendikten sonra
+değiştirilebilir. Üç farklı açı tek başına sonuç garantisi değildir: belirgin bir
+güç maksimumu yoksa uygulama kerteriz üretmez.
 
 Çalıştırma:
 

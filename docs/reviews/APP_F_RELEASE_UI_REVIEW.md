@@ -24,9 +24,11 @@ denetler; cihaz yokken kayıt veya sentetik veri yerine kullanılamaz durum ve
 kurtarma metni gösterir. Bu inceleme bilgisayarında gerçek HackRF bağlı olmadığı
 için canlı I/Q başarı iddiası kurulmamıştır.
 
-Yön Bulma ekranı anten açısı, açık 0° referansı ve etkin I/Q karesinden hesaplanan
-göreli dBFS gücünü kaydeder. En az üç farklı açı ve ayrışmış maksimum oluşmadan
-bağıl geliş açısı ya da kerteriz göstermez. Faz uyumlu DoA, menzil ve hedef konumu
+Yön Bulma ekranı kaynak kimliğini, merkez frekansını, etkin kareyi ve bu kareden
+hesaplanan kalibrasyonsuz geniş bant dBFS gücünü sabit bağlamda gösterir. İlk
+ölçüm antenin 0° yön referansını oturum için kilitler; kaynak değişimi eski
+ölçümleri temizler. En az üç farklı açı ve ayrışmış maksimum oluşmadan bağıl geliş
+yönü ya da gerçek kerteriz göstermez. Faz uyumlu DoA, menzil ve hedef konumu
 üretilmez.
 
 Sistem ekranı GNU Radio Companion'daki okunabilir akış ilkesini düzenlenebilir
@@ -56,9 +58,12 @@ sıfırlar; spektrum ve ölçüm sayıları dekoratif animasyon kullanmaz.
 Kanıt koşuları hash-kilitli `known-tone-ci8` ve `am-tone-ci8` SigMF kayıtlarını,
 offscreen Qt platformu ve yazılım Qt Quick backend'ini kullanır. Kaynak doğrulaması
 tamamlandıktan sonra her ekran profilinde bilinen ton kaydıyla 2,5 saniyelik 10 Hz
-güncelleme ve arayüz heartbeat koşusu yapılır; kaynak açılış süresi çalışma zamanı
-tepkisellik ölçümüne katılmaz. Standart profil daha sonra AM kaydını bağımsız
-olarak açar ve gerçek tespitten kısa dinleme önizlemesi hazırlar. Kabul kapıları:
+güncelleme ve arayüz heartbeat koşusu gerçek Qt olay döngüsünde yapılır; kaynak
+açılış süresi ve ilk yerleşim geçişi çalışma zamanı tepkisellik ölçümüne katılmaz.
+Ekran görüntüleri ölçüm sırasında senkronize depo dizinine yazılmaz; bütün zamanlı
+koşular bittikten sonra kanıt klasörüne aktarılır. Standart profil daha sonra AM
+kaydını bağımsız olarak açar ve gerçek tespitten kısa dinleme önizlemesi hazırlar.
+Kabul kapıları:
 
 - gözlenen güncelleme ≥ 9 Hz;
 - işleme p95 < 100 ms;
@@ -71,6 +76,8 @@ olarak açar ve gerçek tespitten kısa dinleme önizlemesi hazırlar. Kabul kap
 - `Tespitler` ve `Ölçüm` minimum çözünürlükte ayrı ayrı yüklenir.
 - Dinleme yüzeyi gerçek seçili tespitten dalga biçimi, PCM süresi, kısa önizleme
   durumu ve fiziksel ses çıkışı sınırını üretir.
+- Yön Bulma yüzeyi aynı gerçek I/Q karesini üç anten açısıyla kaydeder; kaynak ve
+  referans bağı korunur, eşit güçlerde kerteriz üretmeyen belirsizlik kapısı geçer.
 
 Tüm kapılar geçmiştir. Sayısal sonuçlar kanıt JSON'unda korunur. Bunlar mevcut
 Windows geliştirme bilgisayarına aittir; saha bilgisayarı, GPU veya uzun süreli

@@ -44,6 +44,13 @@ ApplicationWindow {
     property color danger: "#F07178"
     property int transitionDuration: operatorViewModel.reducedMotion ? 0 : 170
 
+    onWorkspaceChanged: {
+        if (workspace === 0) {
+            spectrumCanvas.requestPaint()
+            waterfall.requestPaint()
+        }
+    }
+
     function setSpectrumView(start, end) {
         var span = Math.max(0.02, Math.min(1.0, end - start))
         var boundedStart = Math.max(0.0, Math.min(1.0 - span, start))
@@ -690,7 +697,9 @@ ApplicationWindow {
                                     }
                                     Connections {
                                         target: operatorViewModel
-                                        function onSpectrumChanged() { spectrumCanvas.requestPaint() }
+                                        function onSpectrumChanged() {
+                                            if (root.workspace === 0) spectrumCanvas.requestPaint()
+                                        }
                                         function onDetectionsChanged() {
                                             var selectedId = operatorViewModel.selectedDetectionId
                                             if (selectedId !== spectrumCanvas.lastSelectionId) {
@@ -931,15 +940,28 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     property var history: []
+                                    property var colorPalette: []
+                                    function buildColorPalette() {
+                                        var palette = []
+                                        for (var index = 0; index < 64; index++) {
+                                            var level = index / 63
+                                            var red = level < 0.65 ? Math.round(7 + 48 * level) : Math.round(55 + 190 * (level - 0.65) / 0.35)
+                                            var green = level < 0.45 ? Math.round(20 + 180 * level) : Math.round(101 + 118 * (level - 0.45) / 0.55)
+                                            var blue = level < 0.70 ? Math.round(42 + 190 * level) : Math.round(175 - 115 * (level - 0.70) / 0.30)
+                                            palette.push("rgb(" + red + "," + green + "," + blue + ")")
+                                        }
+                                        colorPalette = palette
+                                    }
+                                    Component.onCompleted: buildColorPalette()
                                     Connections {
                                         target: operatorViewModel
                                         function onSpectrumChanged() {
                                             var values = operatorViewModel.spectrumValues
                                             if (values && values.length) {
-                                                waterfall.history = waterfall.history.concat([values.slice(0)])
-                                                if (waterfall.history.length > 48) waterfall.history = waterfall.history.slice(-48)
+                                                waterfall.history.push(values.slice(0))
+                                                if (waterfall.history.length > 48) waterfall.history.shift()
                                             } else waterfall.history = []
-                                            waterfall.requestPaint()
+                                            if (root.workspace === 0) waterfall.requestPaint()
                                         }
                                     }
                                     onPaint: {
@@ -957,10 +979,7 @@ ApplicationWindow {
                                             var rh = Math.ceil(height / 48)
                                             for (var col = firstIndex; col <= lastIndex; col += step) {
                                                 var level = Math.max(0, Math.min(1, (vals[col] - low) / (high - low)))
-                                                var red = level < 0.65 ? Math.round(7 + 48 * level) : Math.round(55 + 190 * (level - 0.65) / 0.35)
-                                                var green = level < 0.45 ? Math.round(20 + 180 * level) : Math.round(101 + 118 * (level - 0.45) / 0.55)
-                                                var blue = level < 0.70 ? Math.round(42 + 190 * level) : Math.round(175 - 115 * (level - 0.70) / 0.30)
-                                                ctx.fillStyle = "rgb(" + red + "," + green + "," + blue + ")"
+                                                ctx.fillStyle = colorPalette[Math.round(level * 63)]
                                                 ctx.fillRect((col - firstIndex) * width / visibleCount, y, Math.ceil(step * width / visibleCount), rh)
                                             }
                                         }
@@ -1602,120 +1621,201 @@ ApplicationWindow {
             Item {
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 20
-                    spacing: 14
+                    anchors.margins: 14
+                    spacing: 10
 
                     Panel {
-                        Layout.preferredWidth: 340
+                        Layout.preferredWidth: 330
                         Layout.fillHeight: true
                         ColumnLayout {
                             anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 12
-                            SectionTitle { text: "ANTEN AÇISI–GÜÇ ÖLÇÜMÜ" }
-                            Label { text: "Her kayıt, etkin I/Q karesinin gerçek dBFS gücünü anten açısıyla bağlar."; color: root.textSecondary; font.pixelSize: 11; wrapMode: Text.Wrap; Layout.fillWidth: true }
-
-                            Label { text: "Anten dönüş açısı"; color: root.textSecondary; font.pixelSize: 11 }
-                            TextField {
-                                id: antennaAngle
+                            anchors.margins: 14
+                            spacing: 9
+                            RowLayout {
                                 Layout.fillWidth: true
-                                text: "0"
-                                color: root.textPrimary
-                                validator: IntValidator { bottom: 0; top: 359 }
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                Accessible.name: "Anten dönüş açısı"
-                                background: Rectangle { color: "#09141C"; border.color: antennaAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                SectionTitle { text: "SAHA ÖLÇÜMÜ"; Layout.fillWidth: true }
+                                StateBadge { state: operatorViewModel.directionReady ? "Hazır" : operatorViewModel.sourceReady ? "Bekliyor" : "Kullanılmıyor" }
                             }
-                            Label { text: "0° referansı"; color: root.textSecondary; font.pixelSize: 11 }
-                            AppCombo {
-                                id: referenceMode
+                            Rectangle {
                                 Layout.fillWidth: true
-                                model: [
-                                    {text: "Gerçek kuzey / 0°", value: "north"},
-                                    {text: "Anten Referans Yönü", value: "manual"},
-                                    {text: "Referans yok", value: "none"}
-                                ]
-                                textRole: "text"
-                                Accessible.name: "Anten sıfır derece referansı"
+                                implicitHeight: 94
+                                radius: 4
+                                color: root.surfaceAlt
+                                border.color: root.border
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 10
+                                    spacing: 4
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: "KAYNAK BAĞLAMI"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.sourceReady ? "ETKİN KARE" : "KAYNAK YOK"; color: operatorViewModel.sourceReady ? root.success : root.warning; font.pixelSize: 8; font.weight: Font.Bold }
+                                    }
+                                    Label { text: operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 10; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: operatorViewModel.centerFrequencyText; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount + " kare"; color: root.textSecondary; font.pixelSize: 9 }
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: "Geniş bant kare gücü"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.directionFramePowerText; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                    }
+                                }
                             }
-                            Label { text: "Anten Referans Yönü"; color: root.textSecondary; font.pixelSize: 11; visible: referenceMode.currentIndex === 1 }
-                            TextField {
-                                id: referenceAngle
+                            ScrollView {
+                                id: directionSettingsScroll
+                                objectName: "directionSettingsScroll"
                                 Layout.fillWidth: true
-                                text: "0"
-                                color: root.textPrimary
-                                validator: IntValidator { bottom: 0; top: 359 }
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                visible: referenceMode.currentIndex === 1
-                                Accessible.name: "Anten Referans Yönü"
-                                background: Rectangle { color: "#09141C"; border.color: referenceAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                Layout.fillHeight: true
+                                clip: true
+                                contentWidth: availableWidth
+                                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                                ColumnLayout {
+                                    width: directionSettingsScroll.availableWidth
+                                    spacing: 8
+                                    Label { text: "Anten dönüş açısı (°)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    TextField {
+                                        id: antennaAngle
+                                        Layout.fillWidth: true
+                                        text: "0"
+                                        color: root.textPrimary
+                                        validator: IntValidator { bottom: 0; top: 359 }
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        Accessible.name: "Anten dönüş açısı, derece"
+                                        background: Rectangle { color: "#09141C"; border.color: antennaAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                    Label { text: "Anten 0° yönünün referansı"; color: root.textSecondary; font.pixelSize: 10 }
+                                    AppCombo {
+                                        id: referenceMode
+                                        Layout.fillWidth: true
+                                        enabled: operatorViewModel.directionMeasurementCount === 0
+                                        opacity: enabled ? 1.0 : 0.65
+                                        model: [
+                                            {text: "Gerçek kuzey (0°)", value: "north"},
+                                            {text: "Elle girilen gerçek kerteriz", value: "manual"},
+                                            {text: "Coğrafi referans yok", value: "none"}
+                                        ]
+                                        textRole: "text"
+                                        Accessible.name: "Anten sıfır derece yön referansı"
+                                    }
+                                    Label { text: "Anten 0° gerçek kerterizi (°)"; color: root.textSecondary; font.pixelSize: 10; visible: referenceMode.currentIndex === 1 }
+                                    TextField {
+                                        id: referenceAngle
+                                        Layout.fillWidth: true
+                                        text: "0"
+                                        color: root.textPrimary
+                                        validator: IntValidator { bottom: 0; top: 359 }
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        visible: referenceMode.currentIndex === 1
+                                        enabled: operatorViewModel.directionMeasurementCount === 0
+                                        opacity: enabled ? 1.0 : 0.65
+                                        Accessible.name: "Anten sıfır derece gerçek kerterizi"
+                                        background: Rectangle { color: "#09141C"; border.color: referenceAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                    Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Label { text: "Ölçüm ilerlemesi"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.directionRequirementText; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas" }
+                                    }
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        implicitHeight: 6
+                                        radius: 3
+                                        color: "#172731"
+                                        Rectangle { width: parent.width * operatorViewModel.directionProgress; height: parent.height; radius: 3; color: root.accent; Behavior on width { NumberAnimation { duration: root.transitionDuration } } }
+                                    }
+                                    Label { text: "İlk kayıt anten referansını bu ölçüm oturumu için sabitler."; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                }
                             }
                             PrimaryButton {
                                 Layout.fillWidth: true
-                                text: "Güç Ölçümünü Kaydet"
-                                enabled: operatorViewModel.sourceReady && !operatorViewModel.busy
+                                implicitHeight: 42
+                                text: "Etkin Kare Gücünü Kaydet"
+                                enabled: operatorViewModel.sourceReady && !operatorViewModel.busy && antennaAngle.acceptableInput && (referenceMode.currentIndex !== 1 || referenceAngle.acceptableInput)
+                                Accessible.name: "Etkin kare gücünü anten açısıyla kaydet"
                                 onClicked: operatorViewModel.addDirectionMeasurement(Number(antennaAngle.text), referenceMode.model[referenceMode.currentIndex].value, Number(referenceAngle.text))
                             }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: operatorViewModel.directionPoints.length > 0; onClicked: operatorViewModel.clearDirectionMeasurements() }
-                            Item { Layout.fillHeight: true }
-                            Label { text: "Faz uyumlu çok kanallı DoA veya menzil sonucu üretilmez."; color: root.warning; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: "Tek yönlü anten ve göreli dBFS kullanılır; faz uyumlu DoA, menzil veya hedef konumu üretilmez."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                         }
                     }
 
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 14
+                        spacing: 10
                         RowLayout {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 190
-                            Layout.minimumHeight: 190
-                            Layout.maximumHeight: 190
+                            Layout.preferredHeight: root.height < 760 ? 230 : 270
+                            Layout.minimumHeight: root.height < 760 ? 230 : 270
+                            Layout.maximumHeight: root.height < 760 ? 230 : 270
+                            spacing: 10
                             Panel {
-                                Layout.preferredWidth: 230
+                                Layout.preferredWidth: root.height < 760 ? 250 : 290
                                 Layout.fillHeight: true
-                                Canvas {
-                                    id: bearingCompass
+                                ColumnLayout {
                                     anchors.fill: parent
                                     anchors.margins: 12
-                                    property real indicatedBearing: -1
-                                    Accessible.name: "Kerteriz göstergesi"
-                                    onIndicatedBearingChanged: requestPaint()
-                                    Behavior on indicatedBearing {
-                                        NumberAnimation { duration: root.transitionDuration + 130; easing.type: Easing.OutCubic }
+                                    spacing: 4
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        SectionTitle { text: "RADYO KERTERİZİ"; Layout.fillWidth: true }
+                                        Label { text: bearingCompass.geographicReference ? "GERÇEK" : "BAĞIL"; color: bearingCompass.indicatedBearing >= 0 ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     }
-                                    Connections {
-                                        target: operatorViewModel
-                                        function onDirectionChanged() {
-                                            var targetBearing = parseFloat(operatorViewModel.bearingText)
-                                            bearingCompass.indicatedBearing = isNaN(targetBearing) ? -1 : targetBearing
-                                            bearingCompass.requestPaint()
+                                    Canvas {
+                                        id: bearingCompass
+                                        objectName: "directionCompass"
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        property real indicatedBearing: -1
+                                        property bool geographicReference: false
+                                        Accessible.name: geographicReference ? "Gerçek kerteriz göstergesi" : "Bağıl geliş yönü göstergesi"
+                                        onIndicatedBearingChanged: requestPaint()
+                                        onGeographicReferenceChanged: requestPaint()
+                                        Behavior on indicatedBearing {
+                                            NumberAnimation { duration: root.transitionDuration + 130; easing.type: Easing.OutCubic }
                                         }
-                                    }
-                                    onPaint: {
-                                        var ctx = getContext("2d")
-                                        ctx.reset(); ctx.clearRect(0, 0, width, height)
-                                        var cx = width / 2; var cy = height / 2 + 4
-                                        var radius = Math.min(width, height) * 0.37
-                                        ctx.strokeStyle = root.borderStrong; ctx.lineWidth = 1.2
-                                        ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke()
-                                        ctx.font = "bold 9px Segoe UI"; ctx.fillStyle = root.textSecondary; ctx.textAlign = "center"; ctx.textBaseline = "middle"
-                                        ctx.fillText("K", cx, cy - radius - 11); ctx.fillText("D", cx + radius + 11, cy)
-                                        ctx.fillText("G", cx, cy + radius + 11); ctx.fillText("B", cx - radius - 11, cy)
-                                        for (var tick = 0; tick < 24; tick++) {
-                                            var angle = tick * Math.PI * 2 / 24 - Math.PI / 2
-                                            var inner = radius - (tick % 6 === 0 ? 8 : 4)
-                                            ctx.beginPath(); ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner)
-                                            ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius); ctx.stroke()
+                                        Connections {
+                                            target: operatorViewModel
+                                            function onDirectionChanged() {
+                                                var trueBearing = parseFloat(operatorViewModel.bearingText)
+                                                var relativeBearing = parseFloat(operatorViewModel.relativeArrivalText)
+                                                bearingCompass.geographicReference = !isNaN(trueBearing)
+                                                bearingCompass.indicatedBearing = !isNaN(trueBearing) ? trueBearing : (!isNaN(relativeBearing) ? relativeBearing : -1)
+                                                bearingCompass.requestPaint()
+                                            }
                                         }
-                                        var bearing = bearingCompass.indicatedBearing
-                                        if (bearing >= 0) {
-                                            var bearingRad = bearing * Math.PI / 180 - Math.PI / 2
-                                            ctx.strokeStyle = root.success; ctx.lineWidth = 2.5
-                                            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(bearingRad) * (radius - 8), cy + Math.sin(bearingRad) * (radius - 8)); ctx.stroke()
-                                            ctx.fillStyle = root.success; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill()
-                                        } else {
-                                            ctx.fillStyle = root.textMuted; ctx.font = "10px Segoe UI"; ctx.fillText("Ölçüm bekleniyor", cx, cy)
+                                        onPaint: {
+                                            var ctx = getContext("2d")
+                                            ctx.reset(); ctx.clearRect(0, 0, width, height)
+                                            var cx = width / 2; var cy = height / 2 + 3
+                                            var radius = Math.min(width, height) * 0.36
+                                            ctx.strokeStyle = root.borderStrong; ctx.lineWidth = 1.2
+                                            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke()
+                                            ctx.font = "bold 9px Segoe UI"; ctx.fillStyle = root.textSecondary; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+                                            ctx.fillText(geographicReference ? "K" : "0°", cx, cy - radius - 11)
+                                            ctx.fillText(geographicReference ? "D" : "90°", cx + radius + 13, cy)
+                                            ctx.fillText(geographicReference ? "G" : "180°", cx, cy + radius + 11)
+                                            ctx.fillText(geographicReference ? "B" : "270°", cx - radius - 13, cy)
+                                            for (var tick = 0; tick < 24; tick++) {
+                                                var angle = tick * Math.PI * 2 / 24 - Math.PI / 2
+                                                var inner = radius - (tick % 6 === 0 ? 8 : 4)
+                                                ctx.beginPath(); ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner)
+                                                ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius); ctx.stroke()
+                                            }
+                                            var bearing = bearingCompass.indicatedBearing
+                                            if (bearing >= 0) {
+                                                var bearingRad = bearing * Math.PI / 180 - Math.PI / 2
+                                                ctx.strokeStyle = geographicReference ? root.success : root.accent; ctx.lineWidth = 2.5
+                                                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(bearingRad) * (radius - 8), cy + Math.sin(bearingRad) * (radius - 8)); ctx.stroke()
+                                                ctx.fillStyle = geographicReference ? root.success : root.accent; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill()
+                                            } else {
+                                                ctx.fillStyle = root.textMuted; ctx.font = "10px Segoe UI"
+                                                ctx.fillText(operatorViewModel.directionMeasurementCount > 0 ? "Sonuç üretilemedi" : "Ölçüm bekleniyor", cx, cy)
+                                            }
                                         }
                                     }
                                 }
@@ -1723,23 +1823,39 @@ ApplicationWindow {
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
-                                spacing: 10
+                                spacing: 8
+                                Panel {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 68
+                                    RowLayout {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 14
+                                        anchors.rightMargin: 14
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 2
+                                            Label { text: "ÖLÇÜM OTURUMU"; color: root.textSecondary; font.pixelSize: 9; font.weight: Font.DemiBold }
+                                            Label { text: operatorViewModel.directionReferenceText; color: root.textPrimary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
+                                        }
+                                        Label { text: operatorViewModel.directionRequirementText; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                    }
+                                }
                                 Panel {
                                     Layout.fillWidth: true; Layout.fillHeight: true
-                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 20; anchors.rightMargin: 20
+                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                                         ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                            Label { text: "BAĞIL GELİŞ AÇISI"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
-                                            Label { text: "Antenin tanımlı 0° eksenine göre"; color: root.textMuted; font.pixelSize: 9 }
+                                            Label { text: "BAĞIL GELİŞ YÖNÜ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
+                                            Label { text: "Antenin 0° ekseninden saat yönünde"; color: root.textMuted; font.pixelSize: 9 }
                                         }
                                         Label { text: operatorViewModel.relativeArrivalText; color: root.accent; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
                                     }
                                 }
                                 Panel {
                                     Layout.fillWidth: true; Layout.fillHeight: true
-                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 20; anchors.rightMargin: 20
+                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                                         ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                            Label { text: "GERÇEK KUZEYE GÖRE KERTERİZ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
-                                            Label { text: "Geçerli anten referansı gerektirir"; color: root.textMuted; font.pixelSize: 9 }
+                                            Label { text: "GERÇEK KERTERİZ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
+                                            Label { text: "Gerçek kuzeyden saat yönünde"; color: root.textMuted; font.pixelSize: 9 }
                                         }
                                         Label { text: operatorViewModel.bearingText; color: root.success; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
                                     }
@@ -1756,18 +1872,26 @@ ApplicationWindow {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     SectionTitle { text: "ÖLÇÜM GEÇMİŞİ"; Layout.fillWidth: true }
-                                    StateBadge { state: operatorViewModel.directionStatus === "LOB HAZIR" ? "Hazır" : "Kullanılmıyor" }
+                                    StateBadge { state: operatorViewModel.directionReady ? "Hazır" : operatorViewModel.directionMeasurementCount > 0 ? "Bekliyor" : "Kullanılmıyor" }
                                 }
-                                Label { text: operatorViewModel.directionStatus; color: operatorViewModel.directionStatus === "LOB HAZIR" ? root.success : root.warning; font.pixelSize: 12 }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Label { text: operatorViewModel.directionStatusText; color: operatorViewModel.directionReady ? root.success : root.warning; font.pixelSize: 11; Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.directionRequirementText; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
+                                }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    Label { text: "ANTEN AÇISI"; color: root.textSecondary; font.pixelSize: 10; Layout.preferredWidth: 110 }
-                                    Label { text: "GÜÇ"; color: root.textSecondary; font.pixelSize: 10; Layout.preferredWidth: 120 }
-                                    Label { text: "KERTERİZ"; color: root.textSecondary; font.pixelSize: 10; Layout.preferredWidth: 100 }
+                                    visible: operatorViewModel.directionMeasurementCount > 0
+                                    Label { text: "ANTEN AÇISI"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 86 }
+                                    Label { text: "KARE GÜCÜ"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 100 }
+                                    Label { text: "ANTEN AZİMUTU"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 105 }
+                                    Label { text: "FREKANS"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 95 }
                                     Label { text: "KAYNAK"; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
                                 }
                                 ListView {
+                                    id: directionMeasurementList
+                                    objectName: "directionMeasurementList"
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     clip: true
@@ -1778,12 +1902,14 @@ ApplicationWindow {
                                         required property int index
                                         width: ListView.view.width; height: 38; color: index % 2 ? "#0A151D" : "transparent"
                                         RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
-                                            Label { text: modelData.angle; color: root.textPrimary; font.pixelSize: 11; Layout.preferredWidth: 102 }
-                                            Label { text: modelData.power; color: root.textPrimary; font.pixelSize: 11; Layout.preferredWidth: 112 }
-                                            Label { text: modelData.bearing; color: root.textPrimary; font.pixelSize: 11; Layout.preferredWidth: 92 }
-                                            Label { text: modelData.source; color: root.textSecondary; font.pixelSize: 11; Layout.fillWidth: true }
+                                            Label { text: modelData.angle; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 78 }
+                                            Label { text: modelData.power; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 92 }
+                                            Label { text: modelData.bearing; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 97 }
+                                            Label { text: modelData.frequency; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 87 }
+                                            Label { text: modelData.source; color: root.textSecondary; font.pixelSize: 10; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                         }
                                     }
+                                    Label { anchors.centerIn: parent; visible: operatorViewModel.directionMeasurementCount === 0; text: "İlk saha ölçümü bekleniyor"; color: root.textMuted; font.pixelSize: 11 }
                                 }
                             }
                         }
