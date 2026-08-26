@@ -65,6 +65,13 @@ hardware RX, FPGA/ZedBoard veya TX PASS anlamına gelmez.
 
 PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini doğrulamıştır; bu sonuç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. PHASE-06A–J tamamlanmış ve dondurulmuştur. PHASE-06J, PHASE-06I ABI v1 packet'ını strict tüketen bounded portable C11 PS temporal çekirdeğini host compile/link ve Python golden eşdeğerliğiyle doğrulamıştır. PetaLinux/ARM, gerçek DMA/driver/device tree, fiziksel birim dönüşümü, post-detector timing ve hardware sonucu değildir. Gerçek canlı HackRF dinleme, PHASE-07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.
 
+Kullanıcının 2026-08-26 onayıyla `ET-A — Offline ET Ortak Matematiksel Kabul`
+bakım paketi uygulanmıştır. Önceden izinli P0 offline kaynaklarında KTR-5.1–5.4
+ortak doğrulayıcıya bağlanmış; iki kuyruklu OBW99, tepkili görev denetleyicisinin
+sıfır çıkış örneği sınırı ve GPS L1 C/A metadata/PRN/UTC sözleşmesi
+düzeltilmiştir. ET-A PHASE-10–12'yi başlatmaz; RF TX, ephemeris, GNSS dalga
+şekli, gerçek ses girişi ve kapalı RF düzeni kapsam dışıdır.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

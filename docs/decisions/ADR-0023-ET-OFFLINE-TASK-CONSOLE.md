@@ -11,13 +11,14 @@ arabakışlı karıştırma, analog aldatma ve GNSS senaryosu. Her görev ortak 
 `OFFLINE`/`LOOPBACK`/`REPLAY` durum başlığı, `TX KİLİTLİ` etiketi, yalnız kendi denetimleri,
 salt-okunur işlem akışı ve yapılandırılmış sonuç kaydı kullanır.
 
-Sürekli model tekli, çoklu, seeded bant-sınırlı baraj ve lineer süpürmeli kompleks
-taban bant tamponlarını üretir. Arabakış modeli deterministik yerel analiz
-girişinde enerji eşiği, ardışık pencere onayı, hysteresis ve
-`DİNLE → KARAR → GÖREV → GUARD → DİNLE` akışını doğrular. Analog model kayıtlı
-test sesini normalize eder, ses bandını sınırlar ve AM/FM/NFM karmaşık taban
-bantlarını yerel loopback ile denetler. GNSS görevi yalnız GPS L1 C/A senaryo
-metadatasını doğrular; RF dalga şekli üretmez.
+Sürekli model tekli, çoklu, seeded bant-sınırlı baraj ve doğrusal süpürmeli
+kompleks taban bant tamponlarını üretir. Arabakışlı görev denetleyicisi
+deterministik yerel analiz girişinde enerji eşiği, ardışık pencere onayı,
+histerezis ve `DİNLE → KARAR → GÖREV → KORUMA → DİNLE` akışını doğrular;
+çıkış dalga biçimi üretmez. Analog model üretilmiş 1 kHz doğrulama sesini
+normalize eder, ses bandını sınırlar ve AM/FM/NFM kompleks taban bantlarını
+yerel loopback ile denetler. GNSS görevi yalnız GPS L1 C/A senaryo metadatasını
+doğrular; ephemeris, NAV verisi veya RF dalga şekli üretmez.
 
 Tüm görevler ortak `ETTaskResult` veri sözleşmesi ile sonuç verir. Bu sözleşme UI
 metninden bağımsız olarak görev tipi, mod, kaynak, zaman, süre, dalga biçimi,

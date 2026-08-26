@@ -78,7 +78,7 @@ def _load_laboratory_dependencies() -> None:
 
     global AnalogDeceptionConfig, AnalogDeceptionEngine, ContinuousJammingConfig
     global ContinuousJammingEngine, ETTaskResult, ETMissionController, GNSSScenario
-    global GNSSScenarioValidator, InterleavedConfig, InterleavedJammingEngine
+    global GNSSScenarioValidator, InterleavedConfig, InterleavedTaskController
     global SafetyMode, new_task_result, REAL_TWO_POINT_SOURCE, TwoPointDFResult
     global analyze_two_point_hackrf_df, build_synthetic_df_scene
 
@@ -92,7 +92,7 @@ def _load_laboratory_dependencies() -> None:
         GNSSScenario,
         GNSSScenarioValidator,
         InterleavedConfig,
-        InterleavedJammingEngine,
+        InterleavedTaskController,
         SafetyMode,
         new_task_result,
     )
@@ -1507,7 +1507,7 @@ class MainWindow(QMainWindow):
         self.et_mission = ETMissionController()
         self.jamming_engine = ContinuousJammingEngine()
         self.deception_engine = AnalogDeceptionEngine()
-        self.interleaved_engine = InterleavedJammingEngine()
+        self.interleaved_engine = InterleavedTaskController()
         self.gnss_validator = GNSSScenarioValidator()
         self.last_et_result: ETTaskResult | None = None
         self._et_pipeline_blocks: dict[str, list[QLabel]] = {}
@@ -1951,7 +1951,7 @@ class MainWindow(QMainWindow):
         self.et_gnss_longitude.setValue(32.85970)
         self.et_gnss_time = QLineEdit("2026-08-16T12:00:00Z")
         self.et_gnss_satellites = QLineEdit("3, 8, 14")
-        for row, (caption, widget) in enumerate((("Servis", self.et_gnss_service), ("Enlem", self.et_gnss_latitude), ("Boylam", self.et_gnss_longitude), ("UTC", self.et_gnss_time), ("Uydular", self.et_gnss_satellites))):
+        for row, (caption, widget) in enumerate((("Servis", self.et_gnss_service), ("Enlem", self.et_gnss_latitude), ("Boylam", self.et_gnss_longitude), ("UTC", self.et_gnss_time), ("PRN kodları", self.et_gnss_satellites))):
             l = QLabel(caption)
             l.setProperty("class", "propCaption")
             l.setWordWrap(True)
@@ -3576,7 +3576,7 @@ class MainWindow(QMainWindow):
             current = windows[window_count - 1]
             measured = float(getattr(current, "measured_band_power"))
             decision = str(getattr(current, "decision"))
-            state = str(timeline[(step - 1) % len(timeline)]).replace("GUARD", "KORUMA")
+            state = str(timeline[(step - 1) % len(timeline)])
             self._set_et_pipeline_progress("interleaved", {"DİNLE": 0, "KARAR": 2, "GÖREV": 3, "KORUMA": 4}.get(state, 0))
             self.et_interleaved_values["state"].setText(state)
             self.et_interleaved_values["energy"].setText(f"{measured:.4f}")
@@ -3795,17 +3795,19 @@ class MainWindow(QMainWindow):
             expected = 0 if scenario == "absent" else 1
             validation = "PASS" if (result.task_activation_count == 0 if expected == 0 else result.task_activation_count >= expected) else "FAIL"
             task_result = new_task_result(
-                task_type="interleaved_jamming",
+                task_type="interleaved_task_control",
                 mode=mode.value,
                 source="ANALİZ GİRİŞİ",
                 duration=result.duration_seconds,
-                waveform_type="ANALİZ",
-                sample_rate=result.sample_rate_hz,
-                sample_count=result.samples.size,
+                waveform_type="YOK",
+                sample_rate=0,
+                sample_count=0,
                 normalization_status="UYGULANMAZ",
                 validation_status=validation,
                 details={
                     "scenario": result.scenario,
+                    "analysis_input_sample_rate": result.sample_rate_hz,
+                    "analysis_input_sample_count": result.analysis_samples.size,
                     "task_activation_count": result.task_activation_count,
                     "last_band_power": last_window.measured_band_power,
                     "last_decision": last_window.decision,
@@ -3857,7 +3859,8 @@ class MainWindow(QMainWindow):
                     "service": validation.service,
                     "position_time_consistent": validation.position_time_consistent,
                     "scenario_data_available": validation.scenario_data_available,
-                    "waveform_source_contract_valid": validation.waveform_source_contract_valid,
+                    "metadata_contract_valid": validation.metadata_contract_valid,
+                    "waveform_available": validation.waveform_available,
                     "errors": validation.errors,
                 },
             )

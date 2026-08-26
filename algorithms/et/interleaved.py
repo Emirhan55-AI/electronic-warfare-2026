@@ -1,4 +1,4 @@
-"""Deterministic offline Listen → Decide → Task → Guard model.
+"""Deterministic offline Listen → Decide → Task → Safety Gate model.
 
 It evaluates synthetic local analysis windows.  The model has no signal-output
 or transmission code and is intended to exercise the task state machine only.
@@ -53,7 +53,7 @@ class InterleavedWindow:
 
 @dataclass(frozen=True)
 class InterleavedResult:
-    samples: npt.NDArray[np.complex128]
+    analysis_samples: npt.NDArray[np.complex128]
     sample_rate_hz: int
     scenario: str
     windows: tuple[InterleavedWindow, ...]
@@ -64,11 +64,17 @@ class InterleavedResult:
 
     @property
     def duration_seconds(self) -> float:
-        return self.samples.size / self.sample_rate_hz
+        return self.analysis_samples.size / self.sample_rate_hz
+
+    @property
+    def samples(self) -> npt.NDArray[np.complex128]:
+        """Compatibility alias; these samples are analysis input, not output."""
+
+        return self.analysis_samples
 
 
-class InterleavedJammingEngine:
-    """Energy-threshold task controller over deterministic local baseband."""
+class InterleavedTaskController:
+    """Energy-threshold task controller over deterministic analysis input."""
 
     def run(self, config: InterleavedConfig) -> InterleavedResult:
         rng = np.random.default_rng(config.seed)
@@ -90,7 +96,7 @@ class InterleavedJammingEngine:
             timeline.append("KARAR")
             if task_active:
                 activations += 1
-                timeline.extend(("GÖREV", "GUARD", "DİNLE"))
+                timeline.extend(("GÖREV", "KORUMA", "DİNLE"))
                 # The guard closes the current task cycle, while hysteresis is
                 # retained for the next measurement decision.
                 confirmations = 0
@@ -102,7 +108,7 @@ class InterleavedJammingEngine:
         samples = np.concatenate(frames).astype(np.complex128, copy=False)
         samples.setflags(write=False)
         return InterleavedResult(
-            samples=samples,
+            analysis_samples=samples,
             sample_rate_hz=config.sample_rate_hz,
             scenario=config.scenario,
             windows=tuple(results),
@@ -142,3 +148,8 @@ class InterleavedJammingEngine:
         frequencies = np.fft.fftshift(np.fft.fftfreq(frame.size, d=1.0 / config.sample_rate_hz))
         in_band = np.abs(frequencies - config.target_offset_hz) <= config.analysis_bandwidth_hz / 2.0
         return float(np.sum(np.abs(spectrum[in_band]) ** 2))
+
+
+# Backward-compatible import name for older laboratory code.  The controller
+# does not generate an RF or baseband output waveform.
+InterleavedJammingEngine = InterleavedTaskController

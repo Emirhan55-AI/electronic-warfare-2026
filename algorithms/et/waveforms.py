@@ -116,22 +116,23 @@ class ContinuousJammingEngine:
 
     @staticmethod
     def _occupied_bandwidth(samples: npt.ArrayLike, sample_rate_hz: float) -> float:
-        """Return deterministic 99 %-power width; it is a baseband-only summary."""
+        """Return the two-sided 99 %-power occupied bandwidth.
+
+        The lower and upper limits each leave 0.5 % of the integrated power
+        outside the reported interval.  This follows the conventional OBW99
+        measurement definition and deliberately uses linear power.
+        """
 
         frequencies, power = ContinuousJammingEngine.spectrum(samples, sample_rate_hz)
         total = float(np.sum(power))
         if not np.isfinite(total) or total <= 0:
             raise ValueError("generated waveform has no finite spectral energy")
-        order = np.argsort(power)[::-1]
-        included = np.zeros(power.size, dtype=bool)
-        cumulative = 0.0
-        for index in order:
-            included[index] = True
-            cumulative += float(power[index])
-            if cumulative >= total * 0.99:
-                break
-        selected = frequencies[included]
-        return float(np.max(selected) - np.min(selected)) if selected.size > 1 else 0.0
+        tail_power = total * 0.005
+        lower_index = int(np.searchsorted(np.cumsum(power), tail_power, side="right"))
+        upper_from_end = int(np.searchsorted(np.cumsum(power[::-1]), tail_power, side="right"))
+        lower_index = min(lower_index, power.size - 1)
+        upper_index = max(0, power.size - 1 - upper_from_end)
+        return max(0.0, float(frequencies[upper_index] - frequencies[lower_index]))
 
     @staticmethod
     def _sweep_sub_bands(config: ContinuousJammingConfig) -> tuple[tuple[float, float], ...]:

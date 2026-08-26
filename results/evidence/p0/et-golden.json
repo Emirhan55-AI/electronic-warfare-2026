@@ -1,15 +1,234 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "work_package": "ET-A",
   "status": "passed",
-  "waveforms": [
-    {"family": "single", "expected_offsets_hz": [4000.0], "measured_offsets_hz": [4000.0], "peak_magnitude": 0.7, "rms_magnitude": 0.6999999999999998, "status": "passed"},
-    {"family": "multiple", "expected_offsets_hz": [-8000.0, 0.0, 8000.0], "measured_offsets_hz": [-8000.0, 0.0, 8000.0], "peak_magnitude": 0.7, "rms_magnitude": 0.4041451884327383, "status": "passed"},
-    {"family": "barrage", "spectral_flatness": 0.5606726297064485, "minimum_flatness": 0.5, "peak_magnitude": 0.7000000000000001, "rms_magnitude": 0.2429335847016773, "status": "passed"}
+  "gates": {
+    "KTR-5.1_continuous_offline": true,
+    "KTR-5.2_interleaved_controller": true,
+    "KTR-5.3_analog_loopback": true,
+    "KTR-5.4_gnss_metadata_only": true,
+    "tx_fail_closed": true
+  },
+  "continuous_waveforms": [
+    {
+      "family": "single",
+      "sample_count": 12000,
+      "peak_magnitude": 0.7,
+      "rms_magnitude": 0.6999999999999998,
+      "obw99_hz": 0.0,
+      "finite": true,
+      "expected_offsets_hz": [
+        4000.0
+      ],
+      "measured_offsets_hz": [
+        4000.0
+      ],
+      "status": "passed"
+    },
+    {
+      "family": "multiple",
+      "sample_count": 12000,
+      "peak_magnitude": 0.7,
+      "rms_magnitude": 0.4041451884327383,
+      "obw99_hz": 16000.0,
+      "finite": true,
+      "expected_offsets_hz": [
+        -8000.0,
+        0.0,
+        8000.0
+      ],
+      "measured_offsets_hz": [
+        -8000.0,
+        0.0,
+        8000.0
+      ],
+      "status": "passed"
+    },
+    {
+      "family": "barrage",
+      "sample_count": 12000,
+      "peak_magnitude": 0.7,
+      "rms_magnitude": 0.2201838724249842,
+      "obw99_hz": 15832.0,
+      "finite": true,
+      "in_band_power_ratio": 1.0000000000000002,
+      "spectral_flatness": 0.5664510975704665,
+      "status": "passed"
+    },
+    {
+      "family": "sweep",
+      "sample_count": 24000,
+      "peak_magnitude": 0.7000000000000001,
+      "rms_magnitude": 0.6999999999999998,
+      "obw99_hz": 17772.0,
+      "finite": true,
+      "start_hz": -8962.500000000002,
+      "stop_hz": 8961.750000000175,
+      "progression_correlation": 1.0,
+      "status": "passed"
+    }
   ],
-  "analog_deception": [
-    {"mode": "FM", "loopback_correlation": 0.9999999999999999, "minimum_correlation": 0.999, "peak_magnitude": 0.7000000000000002, "duration_seconds": 0.25, "status": "passed"},
-    {"mode": "NFM", "loopback_correlation": 1.0, "minimum_correlation": 0.999, "peak_magnitude": 0.7000000000000002, "duration_seconds": 0.25, "status": "passed"}
+  "interleaved_controller": [
+    {
+      "scenario": "absent",
+      "analysis_input_samples": 4096,
+      "activation_indices": [],
+      "final_state": "DİNLE",
+      "deterministic": true,
+      "output_samples": 0,
+      "status": "passed"
+    },
+    {
+      "scenario": "present",
+      "analysis_input_samples": 4096,
+      "activation_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "final_state": "DİNLE",
+      "deterministic": true,
+      "output_samples": 0,
+      "status": "passed"
+    },
+    {
+      "scenario": "intermittent",
+      "analysis_input_samples": 4096,
+      "activation_indices": [
+        3,
+        6
+      ],
+      "final_state": "DİNLE",
+      "deterministic": true,
+      "output_samples": 0,
+      "status": "passed"
+    },
+    {
+      "scenario": "edge",
+      "analysis_input_samples": 4096,
+      "activation_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "final_state": "DİNLE",
+      "deterministic": true,
+      "output_samples": 0,
+      "status": "passed"
+    }
   ],
-  "safety": {"hardware_tx_locked": true, "emergency_stop_latched": true, "real_tx_backend": "not_implemented", "status": "passed"},
-  "claim_boundary": "Offline complex baseband and local loopback only; no RF transmission or RF power claim."
+  "analog_loopback": [
+    {
+      "mode": "AM",
+      "independent_loopback_correlation": 0.9999999999999999,
+      "engine_loopback_correlation": 0.9999999999999999,
+      "out_of_band_audio_power_ratio": 3.854728803149912e-06,
+      "peak_magnitude": 0.699999999999995,
+      "sample_count": 48000,
+      "status": "passed"
+    },
+    {
+      "mode": "FM",
+      "independent_loopback_correlation": 0.9999999999999999,
+      "engine_loopback_correlation": 0.9999999999999999,
+      "out_of_band_audio_power_ratio": 3.854728803149912e-06,
+      "peak_magnitude": 0.7000000000000002,
+      "sample_count": 48000,
+      "status": "passed"
+    },
+    {
+      "mode": "NFM",
+      "independent_loopback_correlation": 1.0,
+      "engine_loopback_correlation": 1.0,
+      "out_of_band_audio_power_ratio": 3.854728803149912e-06,
+      "peak_magnitude": 0.7000000000000002,
+      "sample_count": 48000,
+      "status": "passed"
+    }
+  ],
+  "gnss_metadata": [
+    {
+      "case": "valid_metadata",
+      "expected_valid": true,
+      "valid": true,
+      "errors": [],
+      "metadata_contract_valid": true,
+      "waveform_available": false,
+      "sample_count": 0,
+      "tx_state": "KİLİTLİ",
+      "status": "passed"
+    },
+    {
+      "case": "non_utc_offset",
+      "expected_valid": false,
+      "valid": false,
+      "errors": [
+        "senaryo zamanı Z veya +00:00 biçiminde UTC olmalıdır"
+      ],
+      "metadata_contract_valid": false,
+      "waveform_available": false,
+      "sample_count": 0,
+      "tx_state": "KİLİTLİ",
+      "status": "passed"
+    },
+    {
+      "case": "prn_out_of_range",
+      "expected_valid": false,
+      "valid": false,
+      "errors": [
+        "GPS L1 C/A PRN kodları 1..63 ve benzersiz olmalıdır"
+      ],
+      "metadata_contract_valid": false,
+      "waveform_available": false,
+      "sample_count": 0,
+      "tx_state": "KİLİTLİ",
+      "status": "passed"
+    },
+    {
+      "case": "missing_metadata_source",
+      "expected_valid": false,
+      "valid": false,
+      "errors": [
+        "senaryo metadata kaynağı boş olamaz"
+      ],
+      "metadata_contract_valid": false,
+      "waveform_available": false,
+      "sample_count": 0,
+      "tx_state": "KİLİTLİ",
+      "status": "passed"
+    },
+    {
+      "case": "invalid_position_time",
+      "expected_valid": false,
+      "valid": false,
+      "errors": [
+        "sanal enlem geçersiz",
+        "en az bir GPS uydu kimliği gerekir",
+        "senaryo zamanı ISO-8601 UTC biçiminde değil"
+      ],
+      "metadata_contract_valid": false,
+      "waveform_available": false,
+      "sample_count": 0,
+      "tx_state": "KİLİTLİ",
+      "status": "passed"
+    }
+  ],
+  "safety": {
+    "locked_modes": {
+      "CABLED_LAB": true,
+      "HARDWARE_TX_LOCKED": true
+    },
+    "emergency_stop_latched": true,
+    "transmit_method_present": false,
+    "real_tx_backend": "not_implemented",
+    "status": "passed"
+  },
+  "references": {
+    "obw99": "https://www.etsi.org/deliver/etsi_ts/125100_125199/125141/11.06.00_60/ts_125141v110600p.pdf",
+    "gps_l1_ca": "https://www.gps.gov/interface-control-documents-icds-interface-specifications-iss",
+    "gps_prn_assignments": "https://www.gps.gov/pseudorandom-noise-code-assignments"
+  },
+  "claim_boundary": "Yalnız deterministik offline kompleks taban bant, yerel loopback ve GPS L1 C/A metadata doğrulaması; RF yayını, RF güç/etki, ephemeris işleme veya GNSS dalga şekli yoktur."
 }

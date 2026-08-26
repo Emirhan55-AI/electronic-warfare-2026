@@ -78,7 +78,9 @@ class OperatorETTests(unittest.TestCase):
         interleaved = self.window.last_et_result
         self.assertIsNotNone(interleaved)
         assert interleaved is not None
-        self.assertEqual("interleaved_jamming", interleaved.task_type)
+        self.assertEqual("interleaved_task_control", interleaved.task_type)
+        self.assertEqual(0, interleaved.sample_count)
+        self.assertEqual(4096, interleaved.details["analysis_input_sample_count"])
         self.assertGreaterEqual(int(interleaved.details["task_activation_count"]), 1)
         self.assertGreater(self.window.et_interleaved_timeline_curve.xData.size, 0)
         self.assertIn(self.window.et_interleaved_values["state"].text(), {"DİNLE", "KARAR", "GÖREV", "KORUMA"})
@@ -107,6 +109,8 @@ class OperatorETTests(unittest.TestCase):
         assert gnss is not None
         self.assertEqual("gnss_scenario", gnss.task_type)
         self.assertEqual(0, gnss.sample_count)
+        self.assertTrue(gnss.details["metadata_contract_valid"])
+        self.assertFalse(gnss.details["waveform_available"])
         self.assertIn("Servis: GPS L1 C/A", self.window.et_gnss_visual_result.text())
         self.assertIn("RF TX YOK", self.window.et_gnss_visual_result.text())
         self.assertEqual("KİLİTLİ", gnss.tx_state)

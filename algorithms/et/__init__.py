@@ -2,7 +2,7 @@
 
 from .deception import AnalogDeceptionConfig, AnalogDeceptionEngine, AnalogDeceptionResult
 from .gnss import GNSSScenario, GNSSScenarioValidator, GNSSValidationResult
-from .interleaved import InterleavedConfig, InterleavedJammingEngine, InterleavedResult, InterleavedWindow
+from .interleaved import InterleavedConfig, InterleavedJammingEngine, InterleavedResult, InterleavedTaskController, InterleavedWindow
 from .mission import ETMissionController, MissionLogEntry, SafetyMode
 from .results import ETTaskResult, new_task_result
 from .waveforms import ContinuousJammingConfig, ContinuousJammingEngine, WaveformResult
@@ -21,6 +21,7 @@ __all__ = [
     "InterleavedConfig",
     "InterleavedJammingEngine",
     "InterleavedResult",
+    "InterleavedTaskController",
     "InterleavedWindow",
     "MissionLogEntry",
     "SafetyMode",

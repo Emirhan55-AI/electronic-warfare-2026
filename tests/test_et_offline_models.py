@@ -14,7 +14,7 @@ from algorithms.et import (
     GNSSScenario,
     GNSSScenarioValidator,
     InterleavedConfig,
-    InterleavedJammingEngine,
+    InterleavedTaskController,
     new_task_result,
 )
 
@@ -43,6 +43,17 @@ class ContinuousOfflineModelTests(unittest.TestCase):
         self.assertGreater(first.occupied_bandwidth_hz, 10_000.0)
         self.assertLess(first.occupied_bandwidth_hz, 14_000.0)
 
+    def test_obw99_uses_equal_half_percent_power_tails(self) -> None:
+        sample_rate = 48_000
+        count = 4_800
+        time = np.arange(count, dtype=np.float64) / sample_rate
+        samples = (
+            np.sqrt(0.0055) * np.exp(-2j * np.pi * 10_000.0 * time)
+            + np.sqrt(0.989) * np.ones(count, dtype=np.complex128)
+            + np.sqrt(0.0055) * np.exp(2j * np.pi * 10_000.0 * time)
+        )
+        self.assertEqual(20_000.0, self.engine._occupied_bandwidth(samples, sample_rate))
+
     def test_sweep_progresses_across_real_complex_samples(self) -> None:
         result = self.engine.generate(ContinuousJammingConfig("sweep", 48_000, 0.5, sweep_start_hz=-9_000.0, sweep_stop_hz=9_000.0))
         instantaneous = np.angle(result.samples[1:] * np.conj(result.samples[:-1])) * result.sample_rate_hz / (2.0 * np.pi)
@@ -54,7 +65,7 @@ class ContinuousOfflineModelTests(unittest.TestCase):
 
 class InterleavedOfflineModelTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.engine = InterleavedJammingEngine()
+        self.engine = InterleavedTaskController()
 
     def test_absent_target_never_activates_a_task(self) -> None:
         result = self.engine.run(InterleavedConfig(scenario="absent"))
@@ -68,7 +79,7 @@ class InterleavedOfflineModelTests(unittest.TestCase):
         self.assertGreaterEqual(len(activation_indices), 1)
         self.assertEqual(1, activation_indices[0])
         self.assertIn("GÖREV", result.timeline)
-        self.assertIn("GUARD", result.timeline)
+        self.assertIn("KORUMA", result.timeline)
 
     def test_intermittent_and_edge_cases_are_deterministic_and_hysteretic(self) -> None:
         intermittent = self.engine.run(InterleavedConfig(scenario="intermittent"))
@@ -77,6 +88,7 @@ class InterleavedOfflineModelTests(unittest.TestCase):
         self.assertGreaterEqual(intermittent.task_activation_count, 1)
         self.assertGreaterEqual(edge_first.task_activation_count, 1)
         self.assertEqual(edge_first.timeline, edge_second.timeline)
+        self.assertFalse(edge_first.analysis_samples.flags.writeable)
         self.assertTrue(np.array_equal(edge_first.samples, edge_second.samples))
         self.assertTrue(all(window.decision == "AKTİF" for window in edge_first.windows))
 
@@ -97,15 +109,33 @@ class AnalogAndGNSSOfflineModelTests(unittest.TestCase):
 
     def test_gnss_metadata_validation_is_safe_and_deterministic(self) -> None:
         validator = GNSSScenarioValidator()
-        accepted = validator.validate(GNSSScenario(39.9334, 32.8597, "2026-08-16T12:00:00Z", (3, 8, 14)))
+        accepted = validator.validate(GNSSScenario(39.9334, 32.8597, "2026-08-16T12:00:00Z", (3, 8, 63)))
         rejected = validator.validate(GNSSScenario(91.0, 32.8597, "not-a-time", ()))
         self.assertTrue(accepted.valid)
-        self.assertTrue(accepted.waveform_source_contract_valid)
+        self.assertTrue(accepted.metadata_contract_valid)
+        self.assertFalse(accepted.waveform_available)
+        self.assertFalse(accepted.waveform_source_contract_valid)
         self.assertEqual("KİLİTLİ", accepted.tx_state)
         self.assertFalse(rejected.valid)
         self.assertGreaterEqual(len(rejected.errors), 3)
         self.assertEqual("KİLİTLİ", rejected.tx_state)
         self.assertFalse(hasattr(validator, "transmit"))
+
+    def test_gnss_rejects_non_utc_time_and_out_of_range_prn(self) -> None:
+        validator = GNSSScenarioValidator()
+        non_utc = validator.validate(GNSSScenario(39.9334, 32.8597, "2026-08-16T15:00:00+03:00", (3,)))
+        invalid_prn = validator.validate(GNSSScenario(39.9334, 32.8597, "2026-08-16T12:00:00Z", (64,)))
+        self.assertFalse(non_utc.valid)
+        self.assertIn("senaryo zamanı Z veya +00:00 biçiminde UTC olmalıdır", non_utc.errors)
+        self.assertFalse(invalid_prn.valid)
+        self.assertIn("GPS L1 C/A PRN kodları 1..63 ve benzersiz olmalıdır", invalid_prn.errors)
+
+    def test_gnss_rejects_missing_metadata_source_with_an_explicit_reason(self) -> None:
+        result = GNSSScenarioValidator.validate(
+            GNSSScenario(39.9334, 32.8597, "2026-08-16T12:00:00Z", (3,), metadata_source="  ")
+        )
+        self.assertFalse(result.valid)
+        self.assertIn("senaryo metadata kaynağı boş olamaz", result.errors)
 
     def test_task_result_contract_is_data_not_interface_text(self) -> None:
         result = new_task_result(
