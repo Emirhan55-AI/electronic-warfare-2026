@@ -120,3 +120,8 @@ Dokuzuncu bakım paketi commit edildikten sonra tam depo test takımı yeniden
 çalıştırıldı. Sonuç `486 passed, 1 skipped, 0 failed` ve süre `829,13 s` oldu.
 Kontrollü atlama yalnız yerel yolu yapılandırılmamış haricî gerçek veri setine
 aittir.
+
+ET-C ürün bağı `5198b00` commit'i üzerinde çalıştırıldığında görsel
+doğrulayıcının 25/25 kapısı, tam depo test takımının ise `495 passed, 1 skipped,
+0 failed` sonucu geçti. Tam koşu `390,050 s` sürdü; kontrollü atlama yalnız
+yapılandırılmamış haricî gerçek veri setidir.

@@ -93,3 +93,9 @@ kapılarının beşi de geçmiştir. ET-B kanıt commit'i üzerinde çalıştır
 regresyonunda `494 passed, 1 skipped, 0 failed` sonucu alınmış ve koşu
 `248,230 s` sürmüştür. Kontrollü atlama yalnız yerel yolu yapılandırılmamış
 haricî gerçek veri setine aittir.
+
+ET-C ürün bağı `5198b00` commit'i üzerinde doğrulanmıştır. Üç ET render profili
+dahil güncel arayüz doğrulayıcısındaki 25 kapının tamamı geçmiştir. Aynı commit
+üzerindeki tam depo regresyonu `495 passed, 1 skipped, 0 failed` sonucunu vermiş
+ve `390,050 s` sürmüştür. Kontrollü atlama yine yalnız yapılandırılmamış haricî
+gerçek veri setidir.

@@ -88,7 +88,8 @@ alanında etkinleşir; çalışma alanı geçişi klavye odağını seçili gezi
 taşır. Durum rozetleri erişilebilir açıklama kazanmış, geniş ekran Sistem metin
 ölçeği yoğun minimum ekranı etkilemeden yükseltilmiş ve boş günlük filtresi açık
 durum metniyle kapatılmıştır. Beş gerçek QML görünümü ve bağlama duyarlı kullanım
-kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. Bu bakım algoritma,
+kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. ET-C ile üç ET görünümü
+ve dört ET kapısı eklenerek güncel toplam 25 olmuştur. Bu bakım algoritma,
 donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
 
 ET-C bakım paketi, doğrulanmış KTR-5.1–5.4 host modellerini ana QML ürün
