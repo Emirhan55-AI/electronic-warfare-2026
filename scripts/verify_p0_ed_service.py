@@ -80,6 +80,8 @@ def verify() -> dict[str, object]:
         "AF_UNIX", "SOCK_SEQPACKET", "MSG_TRUNC", "SO_RCVTIMEO", "setgroups(0U, NULL)",
         "setgid(gid)", "setuid(uid)", "P0_ED_IQ_FRAME_BYTES", "p0_dma_runtime_run(",
         "p0_ed_pipeline_process(", "chmod(socket_path, 0660)",
+        "P0_ED_REQUEST_BYTES_V2", "P0_ED_REQUEST_FLAG_PARAMETER",
+        "p0_ed_pipeline_measure(",
     )
     missing = [token for token in required_service_tokens if token not in service]
     if missing:
@@ -87,7 +89,7 @@ def verify() -> dict[str, object]:
     for token in (
         "inherit module update-rc.d useradd", 'GROUPADD_PARAM:${PN} = "--system p0ed"',
         'INITSCRIPT_PARAMS = "defaults 99"',
-        "p0-ed-service", "p0-ed-client",
+        "p0-ed-service", "p0-ed-client", "p0-parameter-run", "p0-parameter-client",
     ):
         if token not in recipe:
             raise AssertionError(f"PetaLinux recipe token missing: {token}")
@@ -95,8 +97,10 @@ def verify() -> dict[str, object]:
         "status": "passed",
         "compiler": compiler,
         "protocol_test": output,
-        "request_bytes": 8224,
-        "maximum_response_bytes": 8772,
+        "request_bytes_v1": 8224,
+        "request_bytes_v2": 8272,
+        "maximum_response_bytes_v1": 8772,
+        "maximum_response_bytes_v2": 8916,
         "transport": "AF_UNIX SOCK_SEQPACKET",
         "network_listener": False,
         "dma_device_mode": "root-only 0600 retained",

@@ -10,9 +10,9 @@
   },
   "protocol": {
     "transport": "AF_UNIX SOCK_SEQPACKET",
-    "abi_version": 1,
-    "request_bytes": 8224,
-    "maximum_response_bytes": 8772,
+    "abi_versions": [1, 2],
+    "request_bytes": {"v1": 8224, "v2": 8272},
+    "maximum_response_bytes": {"v1": 8772, "v2": 8916},
     "header_and_payload_crc32": true,
     "strict_length_version_reserved_validation": true,
     "network_listener": false
@@ -30,21 +30,24 @@
     "expiry_frame": 4,
     "invalid_request_published_result": false,
     "pipeline_failure_preserved_temporal_state": true,
-    "clean_shutdown_removed_socket": true
+    "clean_shutdown_removed_socket": true,
+    "parameter_observation_counts": [1, 2, 3, 4],
+    "parameter_numeric_fields_valid_after_fourth_observation": true
   },
   "source_sha256": {
-    "p0_ed_service.c": "4c8250e94f9b63c46726ac46e677715027b74afadbed638598a2b2cd49524fa5",
-    "p0_ed_service_protocol.c": "da46213ded264808d1e370a165bb963999cc20bd9c39bd8065853bf3ee3fb471",
-    "p0_ed_pipeline.c": "7b9b79cfb5f58a63e0d5c03e8638788e7d80d6f95921e5572674931cb80ff945",
+    "p0_ed_service.c": "a7cb3bb0c57b9869049356ac385bb1d86a058baf7d4c0c76cdf5eb2f79d7de1b",
+    "p0_ed_service_protocol.c": "f3b23e9a88c313a800c9a58094205f849685abda39f56c0d20d46aabc52d424a",
+    "p0_ed_pipeline.c": "09fb0e77cdb4c772abe1a2338a6c32c39be8db302c4e04ad23bc2bc9bcf61145",
+    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
     "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525"
   },
   "not_verified": [
-    "PetaLinux target recipe build",
     "ZedBoard service startup",
     "physical DMA through the service",
     "physical unprivileged client",
     "Ethernet transport",
     "live HackRF",
-    "real-time throughput"
+    "real-time throughput",
+    "physical parameter accuracy"
   ]
 }

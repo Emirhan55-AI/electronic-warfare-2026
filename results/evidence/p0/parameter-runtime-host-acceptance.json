@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-27",
+  "status": "passed",
+  "scope": "portable ARM parameter core host equivalence",
+  "profile": "phase04f5-operator-assisted-parameters-v6",
+  "compiler": "MSVC C11",
+  "state_machine": {
+    "required_consecutive_observations": 4,
+    "context_loss_resets": true,
+    "invalid_span_preserves_active_measurement": true,
+    "persistent_payload_bytes": 56064,
+    "persistent_payload_limit_bytes": 65536
+  },
+  "equivalence": {
+    "am_carrier_span_bins": 44,
+    "wideband_noise_like_span_bins": 122,
+    "ported_numeric_fields": 6,
+    "maximum_absolute_error": 0.0,
+    "noise_only_fields_rejected": 6
+  },
+  "ported_fields": [
+    "emission center frequency",
+    "lower occupied edge",
+    "upper occupied edge",
+    "occupied bandwidth",
+    "uncalibrated channel power dBFS",
+    "SNR estimate"
+  ],
+  "not_ported": [
+    "carrier line frequency",
+    "signal domain classification"
+  ],
+  "source_sha256": {
+    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "p0_parameter_runtime.h": "64aa0caa94075fd1d13ff60d2ebbf92c5f2379dc6293d1e9e148515149d75506",
+    "verify_p0_parameter_runtime.py": "2507083c1a37e1b2a50c33ca51f4a25321e4650dff751a6a9c92068a85e48cad"
+  },
+  "claim_boundary": "This proves host-compiled numeric and state equivalence for three deterministic scenes. It is not ARM execution, physical DMA, calibrated RF accuracy, live RF or sustained-throughput evidence."
+}

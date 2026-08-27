@@ -18,11 +18,11 @@ SigMF / HackRF RX
 Operatör bilgisayarı ── kontrol ve kayıt ──► ZedBoard PS / DDR
        │                                         │
        │                                         ▼
-       ◄──────────── sonuçlar ─────────── AXI DMA / ZedBoard PL
-                                                  │
-                                     Hann → 4096 FFT → Güç
-                                                  │
-                                     Uyarlanabilir tespit → Adaylar
+       ◄──────────── sonuçlar ───── ZedBoard PS: OS-CFAR → 2/3 → Parametre
+                                                  ▲
+                                               AXI DMA
+                                                  ▲
+                                     ZedBoard PL: Hann → 4096 FFT → Güç
 ```
 
 Hedef mimaride kritik FPGA sonuçları sürümlü ve sınırları belirli paketlerle PS
@@ -37,11 +37,11 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
 | Uyarlanabilir hücre tespiti, aday gruplama ve 2/3 zamansal doğrulama | Host referansında doğrulandı |
-| Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Operatör onaylı analiz aralığında doğrulandı |
+| Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; sayısal alanların ARM paketi derlendi, fiziksel kart kabulü bekliyor |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL Hann/FFT/güç zinciri | SystemVerilog ve AMD FFT IP ile temiz Vivado bitstream/XSA üretimi doğrulandı |
 | FPGA tespit, gruplama ve aday paketleme blokları | SystemVerilog/golden doğrulaması mevcut; kanonik P0 bitstream zincirine henüz alınmadı |
-| ZedBoard üzerinde canlı DMA ve uçtan uca çalışma | Henüz doğrulanmadı |
+| ZedBoard üzerinde DMA ve tespit zinciri | Deterministik fiziksel karelerde PL güç → ARM OS-CFAR → 2/3 olay zinciri doğrulandı; sürekli throughput ve canlı RF ölçülmedi |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 

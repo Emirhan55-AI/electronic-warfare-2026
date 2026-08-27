@@ -18,18 +18,25 @@
     "init_script": "/etc/init.d/p0-ed-service",
     "runlevels_started": [2, 3, 4, 5],
     "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
-    "service_sha256": "d6412fdef7ac2992d88a90bd9a071debb0183e703ea44fd19cf2987c3da0b63b",
-    "client_sha256": "82b9788ebce52ce3c086e25303be29766466dd39ca50937d60875f9081070aac"
+    "service_sha256": "6dfd97e9dc10584a4efbddc64c96f875c36986d822d53bec3e18a03e18314ac9",
+    "client_sha256": "e0068516ff78d790cfc9ddfd87f82efb830b7c6c5b4e327407edda55b00c62d2",
+    "parameter_runner_binary": "/usr/bin/p0-parameter-run",
+    "parameter_client_binary": "/usr/bin/p0-parameter-client",
+    "parameter_runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
+    "parameter_client_sha256": "f0d0d5d6c64e20e250729bc16da29973d14d98a7f5294fcdb8e9cbbe12353272"
   },
   "image": {
     "name": "image.ub",
-    "bytes": 23938331,
-    "sha256": "fb769d8fb6ccf01318953d7891e40a071e3445e6571af2b19ae4dff4c21cdfc8"
+    "bytes": 23961819,
+    "sha256": "4359ce43f3d470c0dda67176782648da9abe7d11700b0c14438b8886565e2642"
   },
   "source_sha256": {
-    "p0-dma_1.0.bb": "7443f95d68c78d465af0138e85304a46f247199f007247da523a1d5c9db033f3",
-    "p0_ed_service.c": "4c8250e94f9b63c46726ac46e677715027b74afadbed638598a2b2cd49524fa5",
-    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525"
+    "p0-dma_1.0.bb": "1b185a69f6a15433ac023e28bda596b8b2301c501cc7fb5e92739817da57d651",
+    "p0_ed_service.c": "a7cb3bb0c57b9869049356ac385bb1d86a058baf7d4c0c76cdf5eb2f79d7de1b",
+    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525",
+    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
+    "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47"
   },
   "not_verified": [
     "ZedBoard boot with this image",

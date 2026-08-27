@@ -23,7 +23,7 @@ def _compile(cc: str, output: Path, sources: list[Path], extra: list[str] | None
     command = [
         cc, "-std=c11", "-O2", "-Wall", "-Wextra", "-Werror",
         f"-I{P0 / 'include'}", f"-I{P06I / 'include'}", f"-I{P06J / 'include'}",
-        *(extra or []), *(str(source) for source in sources), "-o", str(output),
+        *(str(source) for source in sources), *(extra or []), "-o", str(output),
     ]
     build = subprocess.run(command, capture_output=True, text=True, check=False)
     if build.returncode:
@@ -53,6 +53,7 @@ def verify() -> dict[str, object]:
         nobody = pwd.getpwnam("nobody")
         service = directory / "p0-ed-service"
         client = directory / "p0-ed-client"
+        parameter_client = directory / "p0-parameter-client"
         runtime_directory = directory / "run"
         output_directory = directory / "out"
         runtime_directory.mkdir(mode=0o750)
@@ -64,6 +65,7 @@ def verify() -> dict[str, object]:
             cc, service,
             [
                 ROOT / "tests/p0/p0_ed_fake_dma_runtime.c",
+                P0 / "src/p0_parameter_runtime.c",
                 P0 / "src/p0_ed_pipeline.c",
                 P0 / "src/p0_ed_service_protocol.c",
                 P0 / "src/p0_ed_service.c",
@@ -76,6 +78,10 @@ def verify() -> dict[str, object]:
         _compile(
             cc, client,
             [P0 / "src/p0_ed_service_protocol.c", P0 / "src/p0_ed_client.c"],
+        )
+        _compile(
+            cc, parameter_client,
+            [P0 / "src/p0_ed_service_protocol.c", P0 / "src/p0_parameter_client.c"],
         )
         tone = directory / "tone.ci8"
         empty = directory / "empty.ci8"
@@ -125,6 +131,29 @@ def verify() -> dict[str, object]:
             )
             if malformed.returncode == 0 or (output_directory / "must-not-exist.json").exists():
                 raise AssertionError("invalid input was accepted or published")
+
+            reset_output = output_directory / "parameter-reset.json"
+            reset = _run_as_nobody(
+                [str(client), "10", str(tone), str(reset_output), "--reset", str(socket_path)]
+            )
+            if reset.returncode:
+                raise RuntimeError(f"parameter precondition reset failed:\n{reset.stdout}\n{reset.stderr}")
+            parameter_results: list[dict[str, object]] = []
+            for offset in range(4):
+                output = output_directory / f"parameter-{offset}.json"
+                command = [
+                    str(parameter_client), str(11 + offset), str(tone), str(output),
+                    "91", "1", "2000000", "2600000000", "2280", "2328",
+                ]
+                if offset == 0:
+                    command.append("--start")
+                command.append(str(socket_path))
+                run = _run_as_nobody(command)
+                if run.returncode:
+                    raise RuntimeError(
+                        f"parameter client frame {offset} failed:\n{run.stdout}\n{run.stderr}"
+                    )
+                parameter_results.append(json.loads(output.read_text(encoding="utf-8")))
         finally:
             process.terminate()
             try:
@@ -145,6 +174,13 @@ def verify() -> dict[str, object]:
         ]
         if counts != expected:
             raise AssertionError(f"temporal service sequence mismatch: {counts}")
+        observations = [item["parameter"]["observation_count"] for item in parameter_results]
+        if observations != [1, 2, 3, 4]:
+            raise AssertionError(f"parameter accumulation mismatch: {observations}")
+        final_parameter = parameter_results[-1]["parameter"]
+        for field in ("emission_center_frequency_hz", "channel_power_dbfs", "snr_estimate_db"):
+            if final_parameter[field]["state"] != "valid":
+                raise AssertionError(f"final parameter field did not become valid: {field}")
         if socket_path.exists():
             raise AssertionError("service socket remained after clean shutdown")
     return {
@@ -158,6 +194,8 @@ def verify() -> dict[str, object]:
         "invalid_input_published": False,
         "pipeline_failure_preserved_state": True,
         "clean_shutdown_removed_socket": True,
+        "parameter_observations": [1, 2, 3, 4],
+        "parameter_numeric_fields_valid": True,
     }
 
 

@@ -43,7 +43,8 @@ int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
         pipeline->candidates == NULL || pipeline->packet == NULL ||
         pipeline->temporal_state == NULL || pipeline->temporal_backup == NULL ||
         p0_os_cfar_canonical_config(&pipeline->config) != P0_OS_CFAR_OK ||
-        phase06j_state_init(pipeline->temporal_state, phase06j_state_bytes()) != PHASE06J_OK) {
+        phase06j_state_init(pipeline->temporal_state, phase06j_state_bytes()) != PHASE06J_OK ||
+        p0_parameter_runtime_init(&pipeline->parameter_runtime) != 0) {
         p0_ed_pipeline_release(pipeline);
         errno = ENOMEM;
         return -1;
@@ -55,6 +56,7 @@ void p0_ed_pipeline_release(p0_ed_pipeline_t *pipeline)
 {
     if (pipeline == NULL)
         return;
+    p0_parameter_runtime_release(&pipeline->parameter_runtime);
     free(pipeline->temporal_backup);
     free(pipeline->temporal_state);
     free(pipeline->packet);
@@ -73,6 +75,7 @@ int p0_ed_pipeline_reset(p0_ed_pipeline_t *pipeline)
         errno = EINVAL;
         return -1;
     }
+    p0_parameter_runtime_reset(&pipeline->parameter_runtime);
     return phase06j_state_reset(pipeline->temporal_state, phase06j_state_bytes()) == PHASE06J_OK
                ? 0 : -1;
 }
@@ -136,4 +139,55 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
     }
     *raw_candidate_count = candidate_count;
     return 0;
+}
+
+int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
+                           int start_measurement,
+                           uint64_t intent_id,
+                           uint64_t event_id,
+                           uint32_t frame_id,
+                           uint64_t sample_rate_hz,
+                           int64_t center_frequency_hz,
+                           uint16_t lower_shifted_bin,
+                           uint16_t upper_shifted_bin,
+                           const uint8_t *iq,
+                           size_t iq_bytes,
+                           const phase06j_frame_result_v1 *temporal,
+                           p0_parameter_result_t *result)
+{
+    uint16_t index;
+    unsigned int protected_lower;
+    unsigned int protected_upper;
+    int confirmed_and_observed = 0;
+
+    if (pipeline == NULL || iq == NULL || temporal == NULL || result == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    protected_lower = lower_shifted_bin >= P0_PARAMETER_LOCAL_PADDING
+                          ? lower_shifted_bin - P0_PARAMETER_LOCAL_PADDING
+                          : 0U;
+    protected_upper = (unsigned int)upper_shifted_bin + P0_PARAMETER_LOCAL_PADDING;
+    if (protected_upper >= P0_FRAME_BINS)
+        protected_upper = P0_FRAME_BINS - 1U;
+    for (index = 0U; index < temporal->active_count; ++index) {
+        const phase06j_event_v1 *event = &temporal->active[index];
+
+        if (event->event_id == event_id && event->state == PHASE06J_EVENT_CONFIRMED &&
+            event->observed_this_frame != 0U &&
+            event->candidate.peak_shifted_bin >= lower_shifted_bin &&
+            event->candidate.peak_shifted_bin <= upper_shifted_bin) {
+            confirmed_and_observed = 1;
+        } else if (event->event_id != event_id &&
+                   event->state == PHASE06J_EVENT_CONFIRMED &&
+                   event->candidate.start_shifted_bin <= protected_upper &&
+                   event->candidate.end_shifted_bin >= protected_lower) {
+            confirmed_and_observed = 0;
+            break;
+        }
+    }
+    return p0_parameter_runtime_observe(
+        &pipeline->parameter_runtime, start_measurement, intent_id, event_id, frame_id,
+        sample_rate_hz, center_frequency_hz, lower_shifted_bin, upper_shifted_bin,
+        confirmed_and_observed, iq, iq_bytes, pipeline->raw_power, P0_FRAME_BINS, result);
 }

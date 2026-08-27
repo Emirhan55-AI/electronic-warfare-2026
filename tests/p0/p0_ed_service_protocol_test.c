@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 
 #include "p0_ed_service_protocol.h"
@@ -11,6 +12,7 @@ int main(void)
 {
     uint8_t iq[P0_ED_IQ_FRAME_BYTES];
     uint8_t request[P0_ED_REQUEST_BYTES];
+    uint8_t request_v2[P0_ED_REQUEST_BYTES_V2];
     uint8_t reply[P0_ED_RESPONSE_BYTES];
     p0_ed_request_view_t request_view;
     p0_ed_response_t response;
@@ -34,6 +36,25 @@ int main(void)
     REQUIRE(p0_ed_request_decode(request, sizeof(request) - 1U, &request_view) != 0);
     REQUIRE(p0_ed_request_encode(1U, 0x80000000U, iq, sizeof(iq), request,
                                  sizeof(request)) != 0);
+    REQUIRE(p0_ed_request_encode_v2(
+                9U, P0_ED_REQUEST_FLAG_PARAMETER | P0_ED_REQUEST_FLAG_PARAMETER_START,
+                UINT64_C(2000000), INT64_C(2600000000), UINT64_C(77), UINT64_C(5),
+                1900U, 2200U, iq, sizeof(iq), request_v2, sizeof(request_v2)) == 0);
+    REQUIRE(p0_ed_request_decode(request_v2, sizeof(request_v2), &request_view) == 0);
+    REQUIRE(request_view.abi_version == P0_ED_SERVICE_ABI_VERSION_V2);
+    REQUIRE(request_view.frame_id == 9U && request_view.sample_rate_hz == UINT64_C(2000000));
+    REQUIRE(request_view.center_frequency_hz == INT64_C(2600000000));
+    REQUIRE(request_view.parameter_intent_id == UINT64_C(77));
+    REQUIRE(request_view.parameter_event_id == UINT64_C(5));
+    REQUIRE(request_view.parameter_lower_shifted_bin == 1900U);
+    REQUIRE(request_view.parameter_upper_shifted_bin == 2200U);
+    request_v2[72U] = 1U;
+    REQUIRE(p0_ed_request_decode(request_v2, sizeof(request_v2), &request_view) != 0);
+    request_v2[72U] = 0U;
+    REQUIRE(p0_ed_request_encode_v2(
+                9U, P0_ED_REQUEST_FLAG_PARAMETER_START, UINT64_C(2000000),
+                INT64_C(2600000000), UINT64_C(77), UINT64_C(5), 1900U, 2200U,
+                iq, sizeof(iq), request_v2, sizeof(request_v2)) != 0);
 
     memset(&response, 0, sizeof(response));
     response.frame_id = 42U;
@@ -64,7 +85,7 @@ int main(void)
     response.result.ended[0].state = PHASE06J_EVENT_ENDED;
     response.result.ended[0].observed_this_frame = 0U;
     REQUIRE(p0_ed_response_encode(&response, reply, sizeof(reply), &reply_bytes) == 0);
-    REQUIRE(reply_bytes == P0_ED_RESPONSE_BYTES);
+    REQUIRE(reply_bytes == P0_ED_RESPONSE_BYTES_V1);
     REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) == 0);
     REQUIRE(decoded.frame_id == response.frame_id);
     REQUIRE(decoded.status == P0_ED_SERVICE_OK);
@@ -87,6 +108,39 @@ int main(void)
     REQUIRE(reply_bytes == P0_ED_RESPONSE_HEADER_BYTES);
     REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) == 0);
     REQUIRE(decoded.status == P0_ED_SERVICE_DMA_FAILURE && decoded.frame_id == 7U);
+
+    memset(&response, 0, sizeof(response));
+    response.abi_version = P0_ED_SERVICE_ABI_VERSION_V2;
+    response.frame_id = 12U;
+    response.status = P0_ED_SERVICE_OK;
+    response.result.frame_id = 12U;
+    response.parameter_present = 1U;
+    response.parameter.intent_id = UINT64_C(77);
+    response.parameter.event_id = UINT64_C(5);
+    response.parameter.frame_id = 12U;
+    response.parameter.observation_count = 4U;
+    response.parameter.emission_center_frequency_hz.state = P0_PARAMETER_FIELD_VALID;
+    response.parameter.emission_center_frequency_hz.value = 2600123456.25;
+    response.parameter.occupied_bandwidth_hz.state = P0_PARAMETER_FIELD_UNCERTAIN;
+    response.parameter.occupied_bandwidth_hz.reason =
+        P0_PARAMETER_REASON_OBW_TEMPORAL_INSTABILITY;
+    response.parameter.reference_difference_db = 0.25;
+    response.parameter.detection_significance = 18.0;
+    response.parameter.center_uncertainty_bins = 0.5;
+    response.parameter.temporal_edge_range_bins = 8.0;
+    REQUIRE(p0_ed_response_encode(&response, reply, sizeof(reply), &reply_bytes) == 0);
+    REQUIRE(reply_bytes == P0_ED_RESPONSE_BYTES_V2);
+    REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) == 0);
+    REQUIRE(decoded.abi_version == P0_ED_SERVICE_ABI_VERSION_V2);
+    REQUIRE(decoded.parameter_present == 1U);
+    REQUIRE(decoded.parameter.intent_id == UINT64_C(77));
+    REQUIRE(decoded.parameter.event_id == UINT64_C(5));
+    REQUIRE(decoded.parameter.emission_center_frequency_hz.value == 2600123456.25);
+    response.parameter.emission_center_frequency_hz.value = NAN;
+    REQUIRE(p0_ed_response_encode(&response, reply, sizeof(reply), &reply_bytes) != 0);
+    response.parameter.emission_center_frequency_hz.value = 2600123456.25;
+    reply[P0_ED_RESPONSE_HEADER_BYTES_V2 + P0_ED_RESULT_BYTES + 17U] ^= 1U;
+    REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) != 0);
 
     puts("P0_ED_SERVICE_PROTOCOL_TEST=PASS");
     return 0;

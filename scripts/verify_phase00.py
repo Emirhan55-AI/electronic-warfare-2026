@@ -1040,6 +1040,7 @@ APPROVED_APP_HARDENING_FILES = (
 # P0 kart güvenlik sınırı ile gerçek, operatörce sağlanan kayıtların çevrimdışı
 # analizi.  Yerel kayıt byte'ları bu listede değildir ve release'e girmez.
 APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
+    "docs/interfaces/P0_ARM_PARAMETER_RUNTIME_CONTRACT.md",
     "docs/interfaces/P0_ED_LOCAL_SERVICE_ABI.md",
     "platforms/embedded/p0/include/p0_fclk_guard_logic.h",
     "platforms/embedded/p0/include/p0_fclk_guard_uapi.h",
@@ -1065,6 +1066,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "platforms/embedded/p0/include/p0_dma_runtime.h",
     "platforms/embedded/p0/include/p0_ed_pipeline.h",
     "platforms/embedded/p0/include/p0_ed_service_protocol.h",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h",
     "platforms/embedded/p0/src/p0_candidate_packet.c",
     "platforms/embedded/p0/src/p0_dma_runtime.c",
     "platforms/embedded/p0/src/p0_ed_client.c",
@@ -1072,12 +1074,20 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "platforms/embedded/p0/src/p0_ed_runtime_run.c",
     "platforms/embedded/p0/src/p0_ed_service.c",
     "platforms/embedded/p0/src/p0_ed_service_protocol.c",
+    "platforms/embedded/p0/src/p0_parameter_client.c",
+    "platforms/embedded/p0/src/p0_parameter_run.c",
+    "platforms/embedded/p0/src/p0_parameter_runtime.c",
     "platforms/embedded/p0/petalinux/p0-ed-service.init",
     "scripts/verify_p0_ed_service.py",
     "scripts/verify_p0_ed_service_linux.py",
     "scripts/verify_p0_ed_service_physical.py",
+    "scripts/verify_p0_parameter_runtime.py",
     "scripts/verify_p0_temporal_runtime.py",
     "tests/p0/p0_ed_service_protocol_test.c",
+    "tests/p0/p0_parameter_runtime_test.c",
+    "results/evidence/p0/parameter-runtime-host-acceptance.json",
+    "results/evidence/p0/parameter-runtime-petalinux-build.json",
+    "results/evidence/p0/parameter-runtime-physical-acceptance.json",
     "tests/p0/p0_ed_fake_dma_runtime.c",
     "tests/p0/test_p0_ed_service.py",
     "tests/p0/test_p0_temporal_runtime.py",
@@ -1256,8 +1266,9 @@ def check_readme_truthfulness() -> dict[str, object]:
     text = (ROOT / "README.md").read_text(encoding="utf-8").casefold()
     required = (
         "yalnız ölçülmüş veya tekrarlanabilir testle doğrulanmış",
-        "zedboard üzerinde canlı dma ve uçtan uca çalışma",
-        "henüz doğrulanmadı",
+        "zedboard üzerinde dma ve tespit zinciri",
+        "deterministik fiziksel karelerde",
+        "sürekli throughput ve canlı rf ölçülmedi",
         "am/nfm izleme zinciri",
         "qml ürün akışında doğrulandı",
         "canlı hackrf/ses saha kabulü bekliyor",

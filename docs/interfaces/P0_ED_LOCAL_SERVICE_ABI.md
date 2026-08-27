@@ -1,4 +1,4 @@
-# P0 Yerel ED Kart Hizmeti ABI v1
+# P0 Yerel ED Kart Hizmeti ABI v1/v2
 
 ## Amaç ve güvenlik sınırı
 
@@ -14,7 +14,14 @@ sınırlıdır; iki saniyelik alma/gönderme zaman aşımı uygulanır. Çekirde
 izinleri bağlantı yetkisini denetler. İstek boyutu, sürüm, izinli bayraklar ve iki
 CRC alanı geçmeden DMA veya algoritma durumu değiştirilmez.
 
-## İstek mesajı
+## ABI uyumluluğu
+
+ABI v1, yalnız tespit ve zamansal olay sonucu isteyen mevcut istemciler için byte
+düzeyinde korunur. ABI v2 aynı hizmet üzerinde operatörce başlatılmış parametre
+ölçümünü ekler. Hizmet isteğin sürümüyle yanıt verir; bilinmeyen sürüm, boyut,
+bayrak veya ayrılmış alan sıfır olmadan reddedilir.
+
+## ABI v1 istek mesajı
 
 Bütün çok baytlı alanlar little-endian'dır. Mesaj boyu daima 8224 bayttır:
 
@@ -31,7 +38,7 @@ Bütün çok baytlı alanlar little-endian'dır. Mesaj boyu daima 8224 bayttır:
 | 28 | 4 | header CRC32 | ilk 28 baytın IEEE CRC32 değeri |
 | 32 | 8192 | I/Q | 4096 adet `{I:int8,Q:int8}` örneği |
 
-## Yanıt mesajı
+## ABI v1 yanıt mesajı
 
 Header 48 bayttır. Başarılı yanıt 8724 baytlık açıkça serileştirilmiş
 `phase06j_frame_result_v1` yüküyle toplam 8772 bayt olur. Hata yanıtı yalnız
@@ -58,10 +65,66 @@ alan alan little-endian serileştirilir. İstemci; mesaj boyunu, iki CRC'yi, res
 alanları, sayaç sınırlarını ve header/sonuç frame ID eşitliğini doğrulamadan sonuç
 yayınlamaz.
 
+## ABI v2 parametre isteği
+
+ABI v2 istek boyu 8272, header boyu 80 bayttır. İlk 32 baytın anlamı v1 ile
+aynıdır; sürüm, header ve toplam boy değerleri sırasıyla `2`, `80` ve `8272`
+olur. Header CRC ofset 76'da bulunur ve ilk 76 baytı kapsar. I/Q yükü ofset
+80'de başlar.
+
+| Ofset | Boyut | Alan | Açıklama |
+|---:|---:|---|---|
+| 20 | 4 | bayraklar | bit 0 reset, bit 1 parametre ölçümü, bit 2 yeni ölçüm başlangıcı |
+| 24 | 4 | I/Q CRC32 | IEEE CRC32 |
+| 28 | 4 | ayrılmış | sıfır |
+| 32 | 8 | örnekleme hızı | Hz, `uint64`, sıfır olamaz |
+| 40 | 8 | tuner merkez frekansı | Hz, `int64` |
+| 48 | 8 | ölçüm niyeti kimliği | `uint64`, sıfır olamaz |
+| 56 | 8 | temporal olay kimliği | `uint64`, sıfır olamaz |
+| 64 | 2 | onaylı alt shifted bin | dahil |
+| 66 | 2 | onaylı üst shifted bin | dahil |
+| 68 | 8 | ayrılmış | sıfır |
+| 76 | 4 | header CRC32 | ilk 76 baytın IEEE CRC32 değeri |
+
+Parametre aralığı 8–512 bin genişliğinde olur ve iki yanında ölçüm referans
+hücreleri için 36 bin bulunur. `PARAMETER_START`, `PARAMETER` olmadan geçersizdir.
+Parametre bayrağı olmayan v2 isteğinde bütün parametre üstverisi sıfır olmak
+zorundadır.
+
+## ABI v2 yanıtı
+
+ABI v2 header boyu 64 bayttır. Temporal sonuç 8724 bayt olarak aynen korunur.
+Parametre sonucu varsa buna 128 baytlık yük eklenir ve başarılı en büyük yanıt
+8916 bayt olur.
+
+| Ofset | Boyut | Alan | Açıklama |
+|---:|---:|---|---|
+| 0–32 | 36 | ortak alanlar | v1 ile aynı anlam; header/mesaj boyları v2 değerleridir |
+| 36 | 4 | parametre sonucu boyu | `0` veya `128` |
+| 40 | 4 | parametre CRC32 | parametre yükünün IEEE CRC32 değeri |
+| 44 | 4 | parametre şema sürümü | yük varsa `1`, yoksa `0` |
+| 48 | 12 | ayrılmış | sıfır |
+| 60 | 4 | header CRC32 | ilk 60 baytın IEEE CRC32 değeri |
+
+128 baytlık parametre yükü; niyet/olay/frame kimliklerini, gözlem sayısını,
+emisyon merkez frekansı, alt/üst OBW99 kenarı, işgal edilmiş bant genişliği,
+kalibre edilmemiş kanal gücü ve SNR kestirimi alanlarını taşır. Her sayısal alan
+`durum + neden + IEEE-754 binary64 değer` biçimindedir. Geçerli alanın nedeni
+`NONE` ve değeri sonlu olmak zorundadır. Kullanılamayan veya belirsiz alan
+operatöre sayı olarak yayımlanmaz. Dört kalite metriği wire üzerinde daima sonlu
+değerdir; ölçüm tamamlanmadan mevcut olmayan metrikler sıfırla serileştirilir.
+
 ## İşleme ve iddia sınırı
 
-Başarılı istek yolu `ci8 → DMA → FPGA Hann/FFT/UQ28.30 güç → ARM OS-CFAR →
-PHASE-06I ABI v1 → PHASE-06J 2/3 temporal` zinciridir. Hizmet temporal durumu
-ardışık istemci bağlantıları arasında korur. DMA başarısızsa reset isteği dahil
-temporal durum değiştirilmez. Bu ABI; Ethernet taşıma, canlı HackRF, parametre
-çıkarımı, sürekli gerçek-zaman throughput veya RF yayın başarısı kanıtı değildir.
+Başarılı temel yol `ci8 → DMA → FPGA Hann/FFT/UQ28.30 güç → ARM OS-CFAR →
+PHASE-06I ABI v1 → PHASE-06J 2/3 temporal` zinciridir. ABI v2 parametre isteği,
+aynı karelerin FPGA güç çıktısını ve giriş `ci8` örneklerini dört ardışık
+doğrulanmış gözlem boyunca ARM parametre çekirdeğine verir. Seçilen olay mevcut
+karede doğrulanmış ve gözlenmiş olmalı, tepe bini onaylı aralıkta bulunmalı ve
+referans bölgede başka doğrulanmış olay bulunmamalıdır. Koşul kaybında ölçüm
+fail-closed sıfırlanır.
+
+Hizmet temporal durumu ardışık istemci bağlantıları arasında korur. DMA
+başarısızsa reset isteği dahil temporal durum değiştirilmez. Bu ABI; Ethernet
+taşıma, canlı HackRF, dBm kalibrasyonu, taşıyıcı çizgisi/sinyal alanı ARM ölçümü,
+sürekli gerçek-zaman throughput veya RF yayın başarısı kanıtı değildir.

@@ -141,13 +141,14 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
     (void)setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     (void)setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
     memset(&response, 0, sizeof(response));
-    received = recv(client, request_buffer, P0_ED_REQUEST_BYTES, MSG_TRUNC);
-    if (received != (ssize_t)P0_ED_REQUEST_BYTES ||
-        p0_ed_request_decode(request_buffer, received > 0 ? (size_t)received : 0U, &request) != 0) {
+    received = recv(client, request_buffer, P0_ED_REQUEST_BYTES_V2, MSG_TRUNC);
+    if (p0_ed_request_decode(request_buffer, received > 0 ? (size_t)received : 0U,
+                             &request) != 0) {
         response.status = P0_ED_SERVICE_INVALID_REQUEST;
         (void)send_response(client, &response, response_buffer);
         return;
     }
+    response.abi_version = request.abi_version;
     response.frame_id = request.frame_id;
     if (p0_dma_runtime_run(dma, request.iq, P0_ED_IQ_FRAME_BYTES, power_buffer,
                            P0_DMA_OUTPUT_BYTES, &dma_status) != 0) {
@@ -167,6 +168,24 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
     }
     response.status = P0_ED_SERVICE_OK;
     response.raw_candidate_count = (uint32_t)candidate_count;
+    if ((request.flags & P0_ED_REQUEST_FLAG_PARAMETER) != 0U) {
+        if (p0_ed_pipeline_measure(
+                pipeline,
+                (request.flags & P0_ED_REQUEST_FLAG_PARAMETER_START) != 0U,
+                request.parameter_intent_id, request.parameter_event_id,
+                request.frame_id, request.sample_rate_hz, request.center_frequency_hz,
+                request.parameter_lower_shifted_bin,
+                request.parameter_upper_shifted_bin, request.iq,
+                P0_ED_IQ_FRAME_BYTES, &response.result, &response.parameter) != 0) {
+            p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+            response.status = P0_ED_SERVICE_INTERNAL_FAILURE;
+            (void)send_response(client, &response, response_buffer);
+            return;
+        }
+        response.parameter_present = 1U;
+    } else {
+        p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+    }
     (void)send_response(client, &response, response_buffer);
 }
 
@@ -206,7 +225,7 @@ int main(int argc, char **argv)
         fputs("ED işleme zinciri başlatılamadı.\n", stderr);
         goto done;
     }
-    request_buffer = malloc(P0_ED_REQUEST_BYTES);
+    request_buffer = malloc(P0_ED_REQUEST_BYTES_V2);
     response_buffer = malloc(P0_ED_RESPONSE_BYTES);
     power_buffer = malloc(P0_DMA_OUTPUT_BYTES);
     if (request_buffer == NULL || response_buffer == NULL || power_buffer == NULL) {
