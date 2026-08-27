@@ -109,6 +109,14 @@ görünmeyen Spektrum yüzeyinin gereksiz tespit çizimi engellenmiştir. Bakım
 1 skipped, 0 failed` tam depo regresyonuyla doğrulanmıştır. Bu bakım matematiksel
 algoritmaları veya faz durumunu değiştirmez; fiziksel donanım kabulü değildir.
 
+APP-F ortak kabuk kapanış bakımında kaynak seçilmemiş, tespit seçilmemiş ve
+geçersiz SigMF durumları görev odaklı hale getirilmiş; navigasyon kısayol ipuçları
+ve animasyon erişilebilirlik adı düzenlenmiştir. Boş kaynak ekranı ayrı kanonik
+kanıt ve `empty_source_surface` kapısıyla doğrulayıcıya eklenmiştir. Bakım commit'i
+`89a2d5e` üzerinde 28/28 görsel kapı, 35/35 odaklı ürün/depo sözleşmesi testi ve
+`550 passed, 1 skipped, 0 failed` tam regresyonla kabul edilmiştir. Faz durumu ve
+algoritma sonuçları değişmemiştir.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

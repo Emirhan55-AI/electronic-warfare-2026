@@ -168,3 +168,18 @@ Son beş profilde heartbeat maksimumu `25,43–28,81 ms`, işleme p95 değeri
 doğrulayıcı 27/27, odaklı ürün paketi 39/39 geçmiştir. Aynı commit üzerindeki tam
 depo regresyonu `550 passed, 1 skipped, 0 failed` sonucu vermiş ve `573,40 s`
 sürmüştür. Fiziksel RF ve donanım kabulü bu sonuçların kapsamında değildir.
+
+Ortak operatör kabuğu kapanış bakımı `89a2d5e` commit'i üzerinde uygulanmıştır.
+Kaynak seçilmemiş durumda yinelenen `Kullanılmıyor` rozetleri kaldırılmış; tek
+global `Bekliyor` durumu, merkezlenmiş spektrum/tespit açıklamaları ve doğrudan
+`Kayıt Seç` eylemi bırakılmıştır. Kaynak oluşmadan alım değerleri ve frekans
+etkileşim yardımı gösterilmez. Geçersiz SigMF sözleşmesi hata durumunu üst başlık
+ve kaynak panelinde Türkçe olarak gösterir; işleme başlatılmaz. ED/ET ile çalışma
+alanı düğmelerine gecikmeli kısayol ipuçları, hareket ayarına açık `Animasyon`
+adı eklenmiştir.
+
+Doğrulama şeması sürüm 3'e yükseltilmiş ve `empty-1280x720.png` kanonik kabul
+kanıtı eklenmiştir. `empty_source_surface` ile birlikte görsel doğrulayıcı 28/28,
+odaklı ürün/depo sözleşmesi paketi 35/35 geçmiştir. Aynı commit üzerindeki tam
+depo regresyonu `550 passed, 1 skipped, 0 failed` sonucu vermiş ve `585,90 s`
+sürmüştür. Kontrollü atlama yalnız yapılandırılmamış haricî gerçek veri setidir.
