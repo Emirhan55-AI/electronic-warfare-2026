@@ -1033,6 +1033,7 @@ APPROVED_APP_HARDENING_FILES = (
     "results/evidence/app-f/et-continuous-1280x720.png",
     "results/evidence/app-f/et-gnss-1180x680.png",
     "results/evidence/app-f/et-interleaved-1440x900.png",
+    "results/evidence/app-f/empty-1280x720.png",
 )
 
 # P0 kart güvenlik sınırı ile gerçek, operatörce sağlanan kayıtların çevrimdışı

@@ -1,7 +1,7 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-27T09:06:39Z",
+  "recorded_at": "2026-08-27T09:28:56Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.172259053019143,
-      "processing_median_ms": 2.399899996817112,
-      "processing_p95_ms": 2.5222001131623983,
-      "maximum_heartbeat_gap_ms": 26.413100073114038,
+      "observed_update_hz": 9.17375901245466,
+      "processing_median_ms": 2.3910999298095703,
+      "processing_p95_ms": 2.446299884468317,
+      "maximum_heartbeat_gap_ms": 33.231399953365326,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -144,7 +144,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "2587a76ccaf4932b817465cfa6f65983fa645038d50138d9ed0ecc44ba0a8b3b"
+      "screenshot_sha256": "41e970071ca4969b3327d784a53fe298b6c03eb71804b58c3aace12074d9953f"
     },
     {
       "name": "measurement-1280x720",
@@ -176,10 +176,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19786020978311,
-      "processing_median_ms": 2.397000091150403,
-      "processing_p95_ms": 2.4661000352352858,
-      "maximum_heartbeat_gap_ms": 27.552700135856867,
+      "observed_update_hz": 9.19331388628087,
+      "processing_median_ms": 2.4355000350624323,
+      "processing_p95_ms": 2.857699990272522,
+      "maximum_heartbeat_gap_ms": 32.01900003477931,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -272,7 +272,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "7c55793b2d0c3760fa3efb5b40cf34aa34b83e113f701089c6d9becaf9ffa171"
+      "screenshot_sha256": "8288999dfef08cee4c3d0a1dbc1da10d3b919c4d64b7e7e8b5152384b5f97753"
     },
     {
       "name": "standard-1366x768",
@@ -304,10 +304,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.232295307572109,
-      "processing_median_ms": 2.426799852401018,
-      "processing_p95_ms": 2.553400117903948,
-      "maximum_heartbeat_gap_ms": 28.808199800550938,
+      "observed_update_hz": 9.196766784460655,
+      "processing_median_ms": 2.4286999832838774,
+      "processing_p95_ms": 2.7767999563366175,
+      "maximum_heartbeat_gap_ms": 32.052600057795644,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -400,7 +400,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "ed7446f6857b672816cd78abf4fb6ecc4a64f30f765f1a0c087708c94427aea5"
+      "screenshot_sha256": "787d29371a05384db7086f50af3915a85df73337e0673529914b4c7274878db5"
     },
     {
       "name": "fullhd-1920x1080",
@@ -432,10 +432,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.198507633894678,
-      "processing_median_ms": 2.3806998506188393,
-      "processing_p95_ms": 2.5510000996291637,
-      "maximum_heartbeat_gap_ms": 27.766200015321374,
+      "observed_update_hz": 9.13821397677143,
+      "processing_median_ms": 2.4423999711871147,
+      "processing_p95_ms": 2.6447998825460672,
+      "maximum_heartbeat_gap_ms": 32.41689992137253,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -528,7 +528,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "9e807d01e1cfbfcf96c0a17bd194de94488188a9c3136fa37209ae8c7652c4a0"
+      "screenshot_sha256": "72aa0122080e4f0c4b6f990b08ebf82e7a08854d9d872638e865228fab764769"
     },
     {
       "name": "scale-150-percent",
@@ -560,10 +560,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.198340619566821,
-      "processing_median_ms": 2.416800009086728,
-      "processing_p95_ms": 2.544200047850609,
-      "maximum_heartbeat_gap_ms": 25.4310998134315,
+      "observed_update_hz": 9.206798668301314,
+      "processing_median_ms": 2.401599893346429,
+      "processing_p95_ms": 2.5057001039385796,
+      "maximum_heartbeat_gap_ms": 34.00269988924265,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -656,9 +656,21 @@
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "64916ef2e70679352d070be45f90d810877d381492b09cbf0923a7d91e3c85c4"
+      "screenshot_sha256": "3ad0ede65c157f3662a2a05b2c1eca4cab25a4853c1f9200238642370af5abbc"
     }
   ],
+  "empty_run": {
+    "name": "empty-1280x720",
+    "logical_width": 1280,
+    "logical_height": 720,
+    "captured_width": 1280,
+    "captured_height": 720,
+    "source_ready": false,
+    "source_state": "Kullanılmıyor",
+    "visible_detections": 0,
+    "screenshot": "results/evidence/app-f/empty-1280x720.png",
+    "screenshot_sha256": "1de7bdc2d381705f21840e6fdc910b4193e312af27299e4878fb914f368e3315"
+  },
   "et_runs": [
     {
       "name": "et-continuous-1280x720",
@@ -679,7 +691,7 @@
       "has_measurement_gap": false,
       "transmit_api_present": false,
       "screenshot": "results/evidence/app-f/et-continuous-1280x720.png",
-      "screenshot_sha256": "5a76fcc1b68abf2ff3b704216d5d1bea701d3dba1aebad4a765fb6f6d72be2a8"
+      "screenshot_sha256": "391ce65f4c700e950b87d093f0a1db0ec8f5e7bbecb1f706322f0362958afeeb"
     },
     {
       "name": "et-interleaved-1440x900",
@@ -700,7 +712,7 @@
       "has_measurement_gap": true,
       "transmit_api_present": false,
       "screenshot": "results/evidence/app-f/et-interleaved-1440x900.png",
-      "screenshot_sha256": "557d437d499b3702aad337c81d2ff98c627a523139d771ff7459eaf6c254c109"
+      "screenshot_sha256": "9e1f45e16f294396ac307dec0d213e3232871a5f4e1961a5f6cbd4a2974c8c5f"
     },
     {
       "name": "et-gnss-1180x680",
@@ -721,7 +733,7 @@
       "has_measurement_gap": false,
       "transmit_api_present": false,
       "screenshot": "results/evidence/app-f/et-gnss-1180x680.png",
-      "screenshot_sha256": "73c26ef644c3b2617f6241b3deac8b6633f190d1c107de769a3b1f1fc1bcf872"
+      "screenshot_sha256": "208c0a34afdb9c18e44206793238709f35d43fb59a6dc6497198b9dd6527af8d"
     }
   ],
   "hackrf_probe": {
@@ -734,6 +746,7 @@
   "gates": {
     "all_sources_real": true,
     "minimum_screen": true,
+    "empty_source_surface": true,
     "workspace_coverage": true,
     "et_workspace_coverage": true,
     "et_minimum_screen": true,

@@ -476,7 +476,7 @@ ApplicationWindow {
 
     FileDialog {
         id: sigmfDialog
-        title: "SigMF metadata kaydını seç"
+        title: "SigMF kayıt dosyasını seç"
         nameFilters: ["SigMF metadata (*.sigmf-meta)"]
         fileMode: FileDialog.OpenFile
         onAccepted: operatorViewModel.openSigmf(selectedFile.toString())
@@ -484,7 +484,7 @@ ApplicationWindow {
 
     FileDialog {
         id: wavDialog
-        title: "Dinleme sesini kaydet"
+        title: "WAV çıktısını kaydet"
         nameFilters: ["WAV ses dosyası (*.wav)"]
         fileMode: FileDialog.SaveFile
         defaultSuffix: "wav"
@@ -542,6 +542,9 @@ ApplicationWindow {
                         implicitHeight: 28
                         text: modelData
                         Accessible.name: modelData === "ED" ? "Elektronik Destek" : "Elektronik Taarruz"
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 450
+                        ToolTip.text: modelData === "ED" ? "Elektronik Destek (Ctrl+1)" : "Elektronik Taarruz (Ctrl+5)"
                         onClicked: root.operatingDomain = modelData
                         background: Rectangle {
                             radius: 4
@@ -581,7 +584,7 @@ ApplicationWindow {
                 Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
-            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
+            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.errorMessage ? "Hata" : operatorViewModel.sourceReady ? operatorViewModel.sourceState : "Bekliyor" }
         }
     }
 
@@ -653,6 +656,9 @@ ApplicationWindow {
                         Accessible.name: modelData.label
                         property bool selected: root.operatingDomain === "ET" ? root.workspace === 4 : root.workspace === index
                         Accessible.description: root.operatingDomain === "ET" ? "Elektronik Taarruz görev çalışma alanı, Ctrl+5" : "Çalışma alanı " + (index + 1) + ", Ctrl+" + (index + 1)
+                        ToolTip.visible: hovered
+                        ToolTip.delay: 500
+                        ToolTip.text: root.operatingDomain === "ET" ? "ET Görevleri · Ctrl+5" : modelData.label + " · Ctrl+" + (index + 1)
                         onClicked: root.workspace = root.operatingDomain === "ET" ? 4 : index
                         background: Rectangle {
                             color: navControl.selected ? root.accentSoft : "transparent"
@@ -681,8 +687,11 @@ ApplicationWindow {
                     flat: true
                     Layout.fillWidth: true
                     Layout.preferredHeight: 42
-                    text: operatorViewModel.reducedMotion ? "Hareket\nazaltıldı" : "Hareket"
+                    text: operatorViewModel.reducedMotion ? "Animasyon\nAzaltılmış" : "Animasyon\nStandart"
                     Accessible.name: "Hareketi azalt"
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 500
+                    ToolTip.text: operatorViewModel.reducedMotion ? "Standart animasyona geç" : "Animasyonları azalt"
                     onClicked: operatorViewModel.setReducedMotion(!operatorViewModel.reducedMotion)
                     contentItem: Text { text: parent.text; color: operatorViewModel.reducedMotion ? root.warning : root.textMuted; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font.pixelSize: 8; wrapMode: Text.Wrap }
                     background: Rectangle { color: "transparent"; border.color: operatorViewModel.reducedMotion ? "#67532F" : "transparent"; radius: 4 }
@@ -721,7 +730,10 @@ ApplicationWindow {
                             RowLayout {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "KAYNAK"; Layout.fillWidth: true }
-                                StateBadge { state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
+                                StateBadge {
+                                    visible: operatorViewModel.sourceReady || operatorViewModel.busy || !!operatorViewModel.errorMessage
+                                    state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.errorMessage ? "Hata" : operatorViewModel.sourceState
+                                }
                             }
 
                             RowLayout {
@@ -747,9 +759,19 @@ ApplicationWindow {
                                 sourceComponent: operatorViewModel.sourceMode === "sigmf" ? sigmfControls : hackrfControls
                             }
 
-                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                            SectionTitle { text: "ALIM" }
+                            Label {
+                                visible: !!operatorViewModel.errorMessage
+                                Layout.fillWidth: true
+                                text: operatorViewModel.errorMessage
+                                color: root.danger
+                                font.pixelSize: 10
+                                wrapMode: Text.Wrap
+                            }
+
+                            Rectangle { visible: operatorViewModel.sourceReady; Layout.fillWidth: true; height: 1; color: root.border }
+                            SectionTitle { visible: operatorViewModel.sourceReady; text: "ALIM" }
                             GridLayout {
+                                visible: operatorViewModel.sourceReady
                                 columns: 2
                                 Layout.fillWidth: true
                                 columnSpacing: 10
@@ -790,7 +812,7 @@ ApplicationWindow {
                                     }
                                     SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
                                     Label { text: "TARAMA"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
-                                    StateBadge { state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.sourceReady ? "Hazır" : "Kullanılmıyor" }
+                                    StateBadge { visible: operatorViewModel.sourceReady; state: operatorViewModel.playing ? "Çalışıyor" : "Hazır" }
                                     PrimaryButton {
                                         text: "Başlat"
                                         implicitWidth: 64
@@ -860,6 +882,16 @@ ApplicationWindow {
                                             }
                                             if (root.workspace === 0) spectrumCanvas.requestPaint()
                                         }
+                                    }
+                                    Label {
+                                        id: emptySpectrumMessage
+                                        objectName: "emptySpectrumMessage"
+                                        anchors.centerIn: parent
+                                        visible: !operatorViewModel.spectrumValues || operatorViewModel.spectrumValues.length < 2
+                                        text: "Kaynak seçildiğinde spektrum burada görüntülenir"
+                                        color: root.textMuted
+                                        font.pixelSize: 11
+                                        Accessible.role: Accessible.StaticText
                                     }
                                     onPaint: {
                                         var ctx = getContext("2d")
@@ -1064,6 +1096,7 @@ ApplicationWindow {
                                 }
                                 Label {
                                     Layout.fillWidth: true
+                                    visible: operatorViewModel.sourceReady
                                     text: "Kaydır: sürükle  ·  Analiz aralığı: Shift+sürükle  ·  Yakınlaştır: tekerlek  ·  Tam bant: çift tık"
                                     color: root.textMuted
                                     font.pixelSize: 9
@@ -1083,8 +1116,8 @@ ApplicationWindow {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     SectionTitle { text: "SPEKTROGRAM"; Layout.fillWidth: true }
-                                    Label { text: root.spectrumViewStart > 0 || root.spectrumViewEnd < 1 ? "SPEKTRUMLA BAĞLI" : "TAM BANT"; color: root.accent; font.pixelSize: 9; font.weight: Font.Bold }
-                                    Label { text: "SON 48 KARE"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
+                                    Label { text: operatorViewModel.sourceReady ? (root.spectrumViewStart > 0 || root.spectrumViewEnd < 1 ? "SPEKTRUMLA BAĞLI" : "TAM BANT") : "BEKLİYOR"; color: operatorViewModel.sourceReady ? root.accent : root.textMuted; font.pixelSize: 9; font.weight: Font.Bold }
+                                    Label { visible: operatorViewModel.sourceReady; text: "SON 48 KARE"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
                                 }
                                 Canvas {
                                     id: waterfall
@@ -1214,7 +1247,7 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         spacing: 2
                                         Label {
-                                            text: operatorViewModel.selectedDetectionTitle
+                                            text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
                                             color: root.textPrimary
                                             font.pixelSize: 11
                                             font.weight: Font.DemiBold
@@ -1223,7 +1256,7 @@ ApplicationWindow {
                                         }
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Label { text: operatorViewModel.selectedDetectionFrequencyText; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
                                             Label { visible: operatorViewModel.selectedDetectionReady; text: "P/N " + operatorViewModel.selectedDetectionContrastText; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + operatorViewModel.selectedDetectionContrastText }
                                         }
                                     }
@@ -1267,6 +1300,15 @@ ApplicationWindow {
                                 clip: true
                                 spacing: 3
                                 model: operatorViewModel.detections
+                                Label {
+                                    id: emptyDetectionMessage
+                                    objectName: "emptyDetectionMessage"
+                                    anchors.centerIn: parent
+                                    visible: operatorViewModel.detections.length === 0
+                                    text: operatorViewModel.sourceReady ? "Doğrulanmış aday bekleniyor" : "Tespitler kaynak hazır olduğunda listelenir"
+                                    color: root.textMuted
+                                    font.pixelSize: 11
+                                }
                                 ScrollBar.vertical: ScrollBar {
                                     policy: ScrollBar.AlwaysOff
                                 }
@@ -1318,14 +1360,6 @@ ApplicationWindow {
                                                 / Math.max(1, detectionList.contentHeight - detectionList.height)))
                                     color: root.borderStrong
                                 }
-                            }
-                            Label {
-                                visible: root.spectrumTaskTab === 0 && operatorViewModel.detections.length === 0
-                                text: operatorViewModel.sourceReady ? "Doğrulanmış aday bekleniyor." : "Önce gerçek bir kaynak hazırlayın."
-                                color: root.textSecondary
-                                font.pixelSize: 11
-                                wrapMode: Text.Wrap
-                                Layout.fillWidth: true
                             }
                             Rectangle { visible: root.spectrumTaskTab === 1; Layout.fillWidth: true; height: 1; color: root.border }
                             RowLayout {

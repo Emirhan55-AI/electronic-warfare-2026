@@ -119,7 +119,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
         self.assertEqual(95, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
-        self.assertEqual(43, len(VERIFY.APPROVED_APP_HARDENING_FILES))
+        self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
         self.assertEqual(17, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 

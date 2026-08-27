@@ -371,6 +371,9 @@ print(json.dumps(payload,ensure_ascii=False))
             'sequence: "Alt+Left"',
             "Kanalı Hazırla",
             'objectName: "eventConsoleList"',
+            'objectName: "emptySpectrumMessage"',
+            'objectName: "emptyDetectionMessage"',
+            "Animasyon\\nStandart",
             "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)

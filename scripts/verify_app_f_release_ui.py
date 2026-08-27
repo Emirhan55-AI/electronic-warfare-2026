@@ -145,6 +145,32 @@ def _child_run(args: argparse.Namespace) -> int:
         root.close()
         print(json.dumps(payload, ensure_ascii=False))
         return 0
+    if args.empty_source:
+        settle_deadline = time.perf_counter() + 0.35
+        while time.perf_counter() < settle_deadline:
+            app.processEvents()
+            time.sleep(0.002)
+        image = QQuickWindow.grabWindow(root)
+        screenshot = Path(args.screenshot)
+        screenshot.parent.mkdir(parents=True, exist_ok=True)
+        if image.isNull() or not image.save(str(screenshot)):
+            raise RuntimeError("Empty-state QML screenshot could not be saved")
+        payload = {
+            "name": args.name,
+            "logical_width": int(root.width()),
+            "logical_height": int(root.height()),
+            "captured_width": image.width(),
+            "captured_height": image.height(),
+            "source_ready": view_model.sourceReady,
+            "source_state": view_model.sourceState,
+            "visible_detections": len(view_model.detections),
+            "screenshot": (OUTPUT / f"{args.name}.png").relative_to(ROOT).as_posix(),
+            "screenshot_sha256": _sha256(screenshot),
+        }
+        view_model.shutdown()
+        root.close()
+        print(json.dumps(payload, ensure_ascii=False))
+        return 0
     heartbeat: list[float] = []
     timer = QTimer()
     timer.setInterval(20)
@@ -351,6 +377,44 @@ def _parent_run() -> int:
             return process.returncode
         runs.append(json.loads(process.stdout.strip().splitlines()[-1]))
 
+    empty_name = "empty-1280x720"
+    empty_screenshot = temporary_output / f"{empty_name}.png"
+    empty_environment = os.environ.copy()
+    empty_environment["QT_QPA_PLATFORM"] = "offscreen"
+    empty_environment["QT_QUICK_BACKEND"] = "software"
+    empty_environment["QT_SCALE_FACTOR"] = "1.0"
+    empty_environment["PYTHONIOENCODING"] = "utf-8"
+    empty_environment["EH_CONSOLE_DEVELOPER_MODE"] = "0"
+    empty_process = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(Path(__file__).resolve()),
+            "--child",
+            "--empty-source",
+            "--name",
+            empty_name,
+            "--width",
+            "1280",
+            "--height",
+            "720",
+            "--screenshot",
+            str(empty_screenshot),
+        ],
+        cwd=ROOT,
+        env=empty_environment,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if empty_process.returncode:
+        print(empty_process.stdout)
+        print(empty_process.stderr, file=sys.stderr)
+        temporary_output_handle.cleanup()
+        return empty_process.returncode
+    empty_run = json.loads(empty_process.stdout.strip().splitlines()[-1])
+
     et_runs: list[dict[str, object]] = []
     for name, width, height, scale, task, option in ET_CONFIGURATIONS:
         screenshot = temporary_output / f"{name}.png"
@@ -398,6 +462,7 @@ def _parent_run() -> int:
     for run in runs:
         name = str(run["name"])
         shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
+    shutil.copyfile(empty_screenshot, OUTPUT / f"{empty_name}.png")
     for run in et_runs:
         name = str(run["name"])
         shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
@@ -429,6 +494,19 @@ def _parent_run() -> int:
         "minimum_screen": all(
             int(run["logical_width"]) >= 1180 and int(run["logical_height"]) >= 680
             for run in runs
+        ),
+        "empty_source_surface": not bool(empty_run["source_ready"])
+        and int(empty_run["visible_detections"]) == 0
+        and int(empty_run["logical_width"]) == 1280
+        and int(empty_run["logical_height"]) == 720
+        and all(
+            marker in qml_text
+            for marker in (
+                'objectName: "emptySpectrumMessage"',
+                'objectName: "emptyDetectionMessage"',
+                "Kaynak seçildiğinde spektrum burada görüntülenir",
+                "Tespitler kaynak hazır olduğunda listelenir",
+            )
         ),
         "workspace_coverage": {int(run["workspace"]) for run in runs} == {0, 1, 2, 3},
         "et_workspace_coverage": all(
@@ -625,7 +703,7 @@ def _parent_run() -> int:
         and hackrf_probe["source_state"] in {"Hazır", "Kullanılmıyor", "Hata"},
     }
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "work_package": "APP-F",
         "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "environment": {
@@ -644,6 +722,7 @@ def _parent_run() -> int:
             "listening_data_sha256": _sha256(LISTENING_FIXTURE.with_suffix(".sigmf-data")),
         },
         "runs": runs,
+        "empty_run": empty_run,
         "et_runs": et_runs,
         "hackrf_probe": hackrf_probe,
         "gates": gates,
@@ -675,6 +754,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--et-option", default="")
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
+    parser.add_argument("--empty-source", action="store_true")
     args = parser.parse_args(argv)
     return _child_run(args) if args.child else _parent_run()
 
