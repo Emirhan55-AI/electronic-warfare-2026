@@ -57,9 +57,18 @@ ikinci karede doğrulama ve iki boş kare sonunda sonlandırma geçmiş, 81.076 
 ARM olay çıktısı host C ile byte-tam eşleşmiştir. Yeni araç rootfs içindeki
 `/usr/bin/p0-ed-runtime-run` yoluna kurulmuş; SD güncellemesi sonrasındaki soğuk
 açılışta aynı DMA ve temporal kabul yeniden geçmiştir. Ethernet taşıma,
-throughput, geniş detector vektörleri, parametre ARM bağı, ayrıcalıklı kart
-servisi, canlı HackRF ve RF TX açık kalır. Bu kontrol
-noktası sonraki faz için otomatik
+throughput, geniş detector vektörleri, parametre ARM bağı, canlı HackRF ve RF TX
+açık kalır. Yerel
+kart hizmeti ABI v1 kaynakları; root-only DMA sahipliği, açılış sonrası `p0ed`
+yetki düşürme, 8224-byte CRC korumalı istek ve bounded 8772-byte yanıtla host C11
+kapılarını geçmiştir. PetaLinux 2025.2 hedefinde 5679/5679 görev, paket QA, rootfs,
+ARM EABI5 servis/istemci ve SysV runlevel bağları geçmiş; yeni `image.ub` üretilmiştir.
+Bu imajla fiziksel kartta otomatik hizmet başlangıcı, `root:root 0600` DMA sınırı,
+ek grubu olmayan `p0ed` süreci ve `p0ed:petalinux 0660` soketi doğrulanmıştır.
+DMA aygıtına doğrudan erişemeyen `petalinux` kullanıcısı beş karelik fiziksel
+FPGA→OS-CFAR→2/3 dizisini çalıştırmış; DMA tamamlanma bayrakları ve bütün olay
+alanları host referansıyla eşleşmiştir. Hizmetin SysV yeniden başlatma ve yeniden
+istek kabulü de geçmiştir. Bu kontrol noktası sonraki faz için otomatik
 kullanıcı onayı oluşturmaz.
 
 ### P0 Mandatory Closure Block A

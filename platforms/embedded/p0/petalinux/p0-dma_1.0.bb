@@ -1,5 +1,5 @@
-SUMMARY = "P0 fiziksel AXI DMA istemcisi"
-DESCRIPTION = "Coherent tamponlu direct-mode AXI DMA kernel istemcisi ve golden-frame aracı"
+SUMMARY = "P0 AXI DMA sürücüsü ve yerel ED kart hizmeti"
+DESCRIPTION = "Root-only DMA aygıtı, yetkisi düşürülmüş yerel ED hizmeti ve sürümlü istemci"
 LICENSE = "CLOSED"
 
 SRC_URI = "file://Makefile \
@@ -15,16 +15,34 @@ SRC_URI = "file://Makefile \
            file://phase06i_transport_abi.h \
            file://phase06j_temporal.c \
            file://phase06j_temporal.h \
+           file://p0_dma_runtime.c \
+           file://p0_dma_runtime.h \
+           file://p0_ed_pipeline.c \
+           file://p0_ed_pipeline.h \
+           file://p0_ed_service_protocol.c \
+           file://p0_ed_service_protocol.h \
+           file://p0_ed_service.c \
+           file://p0_ed_client.c \
+           file://p0-ed-service.init \
           "
 
 S = "${WORKDIR}"
 
-inherit module
+inherit module update-rc.d useradd
+
+USERADD_PACKAGES = "${PN}"
+GROUPADD_PARAM:${PN} = "--system p0ed"
+USERADD_PARAM:${PN} = "--system --home /nonexistent --no-create-home --shell /sbin/nologin --gid p0ed p0ed"
+
+INITSCRIPT_NAME = "p0-ed-service"
+INITSCRIPT_PARAMS = "defaults 99"
 
 do_compile:append() {
-    ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_dma_run.c ${LDFLAGS} -o ${S}/p0-dma-run
+    ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_dma_run.c ${LDFLAGS} -o ${S}/p0-dma-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_os_cfar.c ${S}/p0_os_cfar_run.c ${LDFLAGS} -lm -o ${S}/p0-os-cfar-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_os_cfar.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${S}/p0_ed_runtime_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-runtime-run
+    ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_service.c ${S}/p0_os_cfar.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${LDFLAGS} -lm -o ${S}/p0-ed-service
+    ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_ed_client.c ${LDFLAGS} -o ${S}/p0-ed-client
 }
 
 do_install:append() {
@@ -32,8 +50,13 @@ do_install:append() {
     install -m 0755 ${S}/p0-dma-run ${D}${bindir}/p0-dma-run
     install -m 0755 ${S}/p0-os-cfar-run ${D}${bindir}/p0-os-cfar-run
     install -m 0755 ${S}/p0-ed-runtime-run ${D}${bindir}/p0-ed-runtime-run
+    install -m 0755 ${S}/p0-ed-client ${D}${bindir}/p0-ed-client
+    install -d ${D}${sbindir}
+    install -m 0755 ${S}/p0-ed-service ${D}${sbindir}/p0-ed-service
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 ${S}/p0-ed-service.init ${D}${sysconfdir}/init.d/p0-ed-service
 }
 
-FILES:${PN} += "${bindir}/p0-dma-run ${bindir}/p0-os-cfar-run ${bindir}/p0-ed-runtime-run"
+FILES:${PN} += "${bindir}/p0-dma-run ${bindir}/p0-os-cfar-run ${bindir}/p0-ed-runtime-run ${bindir}/p0-ed-client ${sbindir}/p0-ed-service ${sysconfdir}/init.d/p0-ed-service"
 RDEPENDS:${PN} += "kernel-module-p0-dma-client"
 KERNEL_MODULE_AUTOLOAD += "p0_dma_client"

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-27",
+  "status": "passed",
+  "scope": "PetaLinux 2025.2 ARM package and rootfs build",
+  "build": {
+    "target": "p0-dma",
+    "machine": "zynq_generic_7z020",
+    "tasks_attempted": 5679,
+    "tasks_failed": 0,
+    "warning": "TFTP copy skipped because /tftpboot is not configured"
+  },
+  "rootfs": {
+    "service_account": "p0ed uid 996 gid 995",
+    "operator_group": "petalinux gid 1000",
+    "service_binary": "/usr/sbin/p0-ed-service",
+    "client_binary": "/usr/bin/p0-ed-client",
+    "init_script": "/etc/init.d/p0-ed-service",
+    "runlevels_started": [2, 3, 4, 5],
+    "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
+    "service_sha256": "d6412fdef7ac2992d88a90bd9a071debb0183e703ea44fd19cf2987c3da0b63b",
+    "client_sha256": "82b9788ebce52ce3c086e25303be29766466dd39ca50937d60875f9081070aac"
+  },
+  "image": {
+    "name": "image.ub",
+    "bytes": 23938331,
+    "sha256": "fb769d8fb6ccf01318953d7891e40a071e3445e6571af2b19ae4dff4c21cdfc8"
+  },
+  "source_sha256": {
+    "p0-dma_1.0.bb": "7443f95d68c78d465af0138e85304a46f247199f007247da523a1d5c9db033f3",
+    "p0_ed_service.c": "4c8250e94f9b63c46726ac46e677715027b74afadbed638598a2b2cd49524fa5",
+    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525"
+  },
+  "not_verified": [
+    "ZedBoard boot with this image",
+    "service ownership and privilege state on the physical board",
+    "physical DMA through the service",
+    "physical unprivileged client",
+    "Ethernet transport",
+    "live HackRF",
+    "real-time throughput"
+  ]
+}

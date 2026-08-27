@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-27",
+  "status": "passed",
+  "scope": "host-only local service boundary",
+  "toolchain": {
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "compiler": "gcc 11.4.0",
+    "language": "C11"
+  },
+  "protocol": {
+    "transport": "AF_UNIX SOCK_SEQPACKET",
+    "abi_version": 1,
+    "request_bytes": 8224,
+    "maximum_response_bytes": 8772,
+    "header_and_payload_crc32": true,
+    "strict_length_version_reserved_validation": true,
+    "network_listener": false
+  },
+  "privilege_boundary": {
+    "production_dma_mode": "root:root 0600 retained",
+    "production_service_account": "p0ed",
+    "production_operator_socket_group": "petalinux",
+    "host_acceptance_client": "nobody without supplementary groups",
+    "device_open_before_setgroups_setgid_setuid": true
+  },
+  "acceptance": {
+    "frames": 5,
+    "first_confirmation_frame": 1,
+    "expiry_frame": 4,
+    "invalid_request_published_result": false,
+    "pipeline_failure_preserved_temporal_state": true,
+    "clean_shutdown_removed_socket": true
+  },
+  "source_sha256": {
+    "p0_ed_service.c": "4c8250e94f9b63c46726ac46e677715027b74afadbed638598a2b2cd49524fa5",
+    "p0_ed_service_protocol.c": "da46213ded264808d1e370a165bb963999cc20bd9c39bd8065853bf3ee3fb471",
+    "p0_ed_pipeline.c": "7b9b79cfb5f58a63e0d5c03e8638788e7d80d6f95921e5572674931cb80ff945",
+    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525"
+  },
+  "not_verified": [
+    "PetaLinux target recipe build",
+    "ZedBoard service startup",
+    "physical DMA through the service",
+    "physical unprivileged client",
+    "Ethernet transport",
+    "live HackRF",
+    "real-time throughput"
+  ]
+}

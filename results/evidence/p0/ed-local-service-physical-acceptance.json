@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-27",
+  "status": "passed",
+  "scope": "physical ZedBoard local ED service acceptance",
+  "platform": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2 armv7l",
+    "fpga_manager_state": "operating",
+    "image_ub_sha256": "fb769d8fb6ccf01318953d7891e40a071e3445e6571af2b19ae4dff4c21cdfc8"
+  },
+  "privilege_boundary": {
+    "dma_device": "/dev/p0-dma root:root 0600",
+    "service_identity": "uid 996 gid 995 with no supplementary groups",
+    "socket": "/run/p0-ed/p0-ed.sock p0ed:petalinux 0660",
+    "operator": "petalinux without direct DMA read access",
+    "unprivileged_client": "passed"
+  },
+  "service_lifecycle": {
+    "automatic_boot_start": "passed",
+    "init_restart": "passed",
+    "pid_before_restart": 625,
+    "pid_after_restart": 743,
+    "post_restart_frame_id": 10,
+    "post_restart_result": "passed"
+  },
+  "known_input": {
+    "bytes": 8192,
+    "sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+    "expected_power_bytes": 32768,
+    "expected_power_sha256": "73b9560bdf05855ec0e2c6d49268746cbe96dcff23197d625c369991d2562ddf"
+  },
+  "acceptance": {
+    "frames": 5,
+    "dma_status_flags_all_frames": 7,
+    "raw_candidate_counts": [147, 147, 147, 0, 0],
+    "active_counts": [64, 64, 64, 64, 0],
+    "ended_counts": [0, 0, 0, 0, 64],
+    "first_confirmation_frame": 1,
+    "expiry_frame": 4,
+    "host_reference_event_field_equivalence": true
+  },
+  "artifacts": {
+    "host_reference_sha256": "ab4d655c3598ad691d44fc74a12a1b018ac51fefa9fab87a5dbda7b515252d76",
+    "service_frame_sha256": [
+      "735865628f1a1dec816ebf062cf684980ceb21808275029ab8c7c979e9c4cc55",
+      "264ad9af0e99b1036e4e49e13a165a82d5e65e993fe38eda6e29eebab7a887d1",
+      "4abf1c26b2b681e9763272ba32969043f520de820734306a1be0bb9cd0227e24",
+      "ede62ba55187e4d8a8978408a417496c6b1e6ee02fdbc4588a37a2951cb10b93",
+      "e797d88cae0228a7d96b97ac75a7a3862fbada6a379b81c971966e55989a70b6"
+    ],
+    "service_binary_sha256": "d6412fdef7ac2992d88a90bd9a071debb0183e703ea44fd19cf2987c3da0b63b",
+    "client_binary_sha256": "82b9788ebce52ce3c086e25303be29766466dd39ca50937d60875f9081070aac"
+  },
+  "claim_boundary": "This proves automatic startup, least-privilege local access and exact host-reference event-field equivalence for one deterministic five-frame sequence through the physical FPGA DMA, ARM OS-CFAR and 2-of-3 temporal pipeline. It does not establish detector accuracy, sustained throughput, ARM parameter extraction, Ethernet transport, live HackRF reception, calibrated RF measurements or RF transmission."
+}

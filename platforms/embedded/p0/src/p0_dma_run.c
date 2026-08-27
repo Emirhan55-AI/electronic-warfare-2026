@@ -1,12 +1,10 @@
 #include <errno.h>
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
+#include "p0_dma_runtime.h"
 #include "p0_dma_uapi.h"
 
 static int read_exact_file(const char *path, uint8_t *buffer, size_t size)
@@ -41,32 +39,6 @@ static int write_exact_file(const char *path, const uint8_t *buffer, size_t size
     return 0;
 }
 
-static ssize_t write_all(int descriptor, const uint8_t *buffer, size_t size)
-{
-    size_t written = 0;
-
-    while (written < size) {
-        ssize_t result = write(descriptor, buffer + written, size - written);
-        if (result <= 0)
-            return result;
-        written += (size_t)result;
-    }
-    return (ssize_t)written;
-}
-
-static ssize_t read_all(int descriptor, uint8_t *buffer, size_t size)
-{
-    size_t received = 0;
-
-    while (received < size) {
-        ssize_t result = read(descriptor, buffer + received, size - received);
-        if (result <= 0)
-            return result;
-        received += (size_t)result;
-    }
-    return (ssize_t)received;
-}
-
 static void print_status(const struct p0_dma_status *status)
 {
     printf("ABI_VERSION=%u\n", status->abi_version);
@@ -89,7 +61,7 @@ int main(int argc, char **argv)
     struct p0_dma_status status;
     uint8_t *input;
     uint8_t *output;
-    int device;
+    p0_dma_runtime_t dma = {-1};
     int result = EXIT_FAILURE;
 
     if (argc != 3) {
@@ -106,37 +78,17 @@ int main(int argc, char **argv)
         fprintf(stderr, "Giriş okunamadı: %s\n", strerror(errno));
         goto done;
     }
-    device = open("/dev/p0-dma", O_RDWR | O_CLOEXEC);
-    if (device < 0) {
+    if (p0_dma_runtime_open(&dma, "/dev/p0-dma") != 0) {
         fprintf(stderr, "/dev/p0-dma açılamadı: %s\n", strerror(errno));
         goto done;
     }
-    if (write_all(device, input, P0_DMA_INPUT_BYTES) != P0_DMA_INPUT_BYTES) {
-        fprintf(stderr, "DMA girişi yazılamadı: %s\n", strerror(errno));
-        goto close_device;
-    }
-    if (ioctl(device, P0_DMA_IOC_RUN) != 0) {
-        int saved = errno;
-        if (ioctl(device, P0_DMA_IOC_GET_STATUS, &status) == 0)
-            print_status(&status);
-        fprintf(stderr, "DMA çalıştırılamadı: %s\n", strerror(saved));
-        goto close_device;
-    }
-    if (ioctl(device, P0_DMA_IOC_GET_STATUS, &status) != 0) {
-        fprintf(stderr, "DMA durumu okunamadı: %s\n", strerror(errno));
+    if (p0_dma_runtime_run(&dma, input, P0_DMA_INPUT_BYTES, output, P0_DMA_OUTPUT_BYTES,
+                           &status) != 0) {
+        print_status(&status);
+        fprintf(stderr, "DMA çalıştırılamadı: %s\n", strerror(errno));
         goto close_device;
     }
     print_status(&status);
-    if (status.abi_version != P0_DMA_ABI_VERSION ||
-        !status.mm2s_completed || !status.s2mm_completed ||
-        status.timed_out || status.dma_error || !status.output_valid) {
-        fprintf(stderr, "DMA tamamlanma sözleşmesi geçmedi.\n");
-        goto close_device;
-    }
-    if (read_all(device, output, P0_DMA_OUTPUT_BYTES) != P0_DMA_OUTPUT_BYTES) {
-        fprintf(stderr, "DMA çıkışı okunamadı: %s\n", strerror(errno));
-        goto close_device;
-    }
     if (write_exact_file(argv[2], output, P0_DMA_OUTPUT_BYTES) != 0) {
         fprintf(stderr, "Çıkış yazılamadı: %s\n", strerror(errno));
         goto close_device;
@@ -145,7 +97,7 @@ int main(int argc, char **argv)
     result = EXIT_SUCCESS;
 
 close_device:
-    close(device);
+    p0_dma_runtime_close(&dma);
 done:
     free(output);
     free(input);

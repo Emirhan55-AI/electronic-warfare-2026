@@ -61,8 +61,18 @@ DMA resetlenir, S2MM kanalına hedef adres ile 32768-byte length yazılarak alı
 `DMAIntErr`, `DMASlvErr`, `DMADecErr` ile SG hata bitleri açısından denetlenir.
 Kullanıcı aracı yalnız tam 8192-byte giriş ve tam 32768-byte çıkış kabul eder.
 `/dev/p0-dma` izinleri bilinçli olarak `0600` kalır. Ürün uygulaması aygıta
-doğrudan erişmez; kalıcı entegrasyon ayrıcalıklı, dar bir kart servisi ve
-yetkisiz operatör istemcisi sınırı kurmalıdır.
+doğrudan erişmez. `P0_ED_LOCAL_SERVICE_ABI.md` ile tanımlanan yerel kart hizmeti
+aygıtı açtıktan sonra `p0ed` hesabına yetki düşürür; tam 8192-byte I/Q isteğini
+CRC ve sürüm kapılarından geçirir, DMA→OS-CFAR→ABI v1→2/3 sonucunu alan alan
+little-endian serileştirir. Protokol/Linux host kapıları ile PetaLinux 2025.2
+ARM paket, rootfs ve `image.ub` üretimi geçmiştir. Rootfs içinde `p0ed` hesabı,
+SysV başlatma bağlantıları ve ARM EABI5 servis/istemci doğrulanmıştır. Yeni imajın
+fiziksel soğuk açılışında hizmet otomatik başlamış; DMA aygıtı `root:root 0600`,
+hizmet süreci ek grubu olmayan `p0ed` ve soket `p0ed:petalinux 0660` olarak
+ölçülmüştür. DMA aygıtını doğrudan okuyamayan `petalinux` kullanıcısı, soket
+üzerinden beş karelik FPGA→OS-CFAR→2/3 dizisini çalıştırmış ve bütün olay alanları
+host referansıyla eşleşmiştir. SysV yeniden başlatma sonrasında yeni süreç ve
+soketle ek bir fiziksel istek de geçmiştir.
 
 PetaLinux 2025.2 hedef derlemesi; ZedBoard PS önayarı, özel device-tree compatible
 değeri, `/dev/p0-dma` sağlayan modül, `p0-dma-run`, salt-okuma varsayılanlı FCLK

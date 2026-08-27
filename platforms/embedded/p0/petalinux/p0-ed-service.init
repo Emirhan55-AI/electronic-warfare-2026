@@ -1,0 +1,30 @@
+#!/bin/sh
+
+DAEMON=/usr/sbin/p0-ed-service
+PIDFILE=/run/p0-ed-service.pid
+
+case "$1" in
+    start)
+        printf '%s' 'P0 ED kart hizmeti başlatılıyor: '
+        start-stop-daemon --start --quiet --background --make-pidfile \
+            --pidfile "$PIDFILE" --exec "$DAEMON"
+        echo 'tamam'
+        ;;
+    stop)
+        printf '%s' 'P0 ED kart hizmeti durduruluyor: '
+        start-stop-daemon --stop --quiet --retry TERM/5/KILL/1 \
+            --pidfile "$PIDFILE" --exec "$DAEMON"
+        rm -f "$PIDFILE" /run/p0-ed/p0-ed.sock
+        echo 'tamam'
+        ;;
+    restart)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Kullanım: $0 {start|stop|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
