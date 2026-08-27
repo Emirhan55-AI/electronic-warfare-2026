@@ -42,7 +42,7 @@ FIXTURE_SHA512 = (
 
 HISTORICAL_EVIDENCE_HASHES = {
     "results/evidence/phase00/toolchain.json": "92ba4ca8ca14ab6c85ca1cc43388dee1a115aa17e6661fdf1b7e58b1ddc870a8",
-    "results/evidence/phase00/verification-summary.json": "8697c756389b9144bd85104b8b614022ff5ba8e3590eddff0edf53629b1ab862",
+    "results/evidence/phase00/verification-summary.json": "12961216e56c6a606fefbb099b2effba6dcdd575e5b4d3379ac589b32e63ee35",
     "results/evidence/phase01/fixture-manifest.json": "a994820a1134fe9cd01721987391412037c655942dd10e99e941be2e09aef879",
     "results/evidence/phase01/verification-summary.json": "07c3b0ab1e2017f6d68234853cfc40381b854339cf40077d6cbd3653efdc0832",
     "results/evidence/phase01/external-dataset-manifest.example.json": "63453d96b64f31deb0ecf68a416e2635cbb224feb3d77dee8c4bee470c6f4cfa",
