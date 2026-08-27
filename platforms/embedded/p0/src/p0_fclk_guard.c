@@ -263,7 +263,9 @@ static int p0_fclk_guard_collect_status(struct p0_fclk_guard *guard,
         status->fpga_rst_ctrl, status->lvl_shftr_en);
     safe_50_errors = p0_fclk_guard_validate_50mhz_clock(
         status->io_pll_ctrl, status->fpga0_clk_ctrl,
-        status->fpga_rst_ctrl, status->lvl_shftr_en, 1);
+        status->fpga_rst_ctrl, status->lvl_shftr_en,
+        status->current_state ==
+            P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED);
     if (!(status->status_flags & P0_FCLK_GUARD_STATUS_CCF_RESOLVED))
         golden_errors |= P0_FCLK_GUARD_VALIDATE_CCF_ROUND_RATE;
     if (!p0_fclk_guard_ccf_rate_matches_decoded(
@@ -376,10 +378,15 @@ static bool p0_fclk_guard_has_50mhz_clock(
     const struct p0_fclk_guard *guard,
     const struct p0_fclk_guard_status *status)
 {
+    int require_reset_asserted =
+        status->current_state ==
+        P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED;
+
     return guard->clock_enable_owned &&
            !p0_fclk_guard_validate_50mhz_clock(
         status->io_pll_ctrl, status->fpga0_clk_ctrl,
-        status->fpga_rst_ctrl, status->lvl_shftr_en, 0) &&
+        status->fpga_rst_ctrl, status->lvl_shftr_en,
+        require_reset_asserted) &&
            !status->ccf_errno &&
            (status->status_flags & P0_FCLK_GUARD_STATUS_CCF_RESOLVED) &&
            (status->status_flags & P0_FCLK_GUARD_STATUS_CCF_ROUND_50_EXACT) &&
@@ -592,9 +599,9 @@ static int p0_fclk_guard_restore_100mhz(struct p0_fclk_guard *guard)
         goto out_put_clock;
     if (status.current_state !=
             P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED ||
-        p0_fclk_guard_validate_golden_clock(
+        p0_fclk_guard_validate_golden_clock_state(
             status.io_pll_ctrl, status.fpga0_clk_ctrl,
-            status.fpga_rst_ctrl, status.lvl_shftr_en)) {
+            status.fpga_rst_ctrl, status.lvl_shftr_en, 1)) {
         result = -EIO;
         goto out_put_clock;
     }

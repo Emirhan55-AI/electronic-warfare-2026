@@ -39,12 +39,27 @@ Vivado 2025.2'de 50 MHz P0 tasarımı, 32768-byte S2MM paketi için zorunlu 16-b
 DMA length alanıyla sentez, route, timing, bitstream ve XSA kapılarını geçmiştir.
 FPGA kaynak ağacının `algorithms/fpga/` altına taşınmasından sonra eski TCL yolları
 düzeltilmiş; aynı kapılar 2026-08-27 tarihinde temiz projeden yeniden geçmiştir.
-PetaLinux 2025.2 device tree, coherent-buffer DMA modülü, rootfs ve boot artifact
-derlemesi tamamlanmıştır. İlk manuel-repack `BOOT.BIN` fiziksel A/B testinde
-UART-sessiz başarısız olmuş; PetaLinux-native bootbin recovery artifact'ı statik
-olarak doğrulanmış ve fiziksel tekrar testini beklemektedir. Başarılı ARM/kart boot,
-canlı ZedBoard DMA, canlı HackRF ve RF TX yoktur. Bu kontrol noktası sonraki faz
-için otomatik kullanıcı onayı oluşturmaz.
+ZedBoard `avnet-tria:zedboard:part0:1.5` önayarı kanonik Vivado üretimine
+bağlanmış; PetaLinux 2025.2 device tree, coherent-buffer DMA/FCLK modülleri,
+rootfs ve native boot artifact üretimi tamamlanmıştır. Yeni FSBL, bitstream,
+U-Boot ve device tree içeren native `BOOT.BIN` fiziksel kartta DONE, UART, Linux,
+`/dev/p0-dma` ve FPGA manager `operating` kapılarını geçmiştir. Soğuk açılışta
+DONE ve UART Linux giriş kapısı 3/3 tekrarlanmıştır. FCLK0 doğrudan
+50 MHz/reset serbest durumda ve doğrulama hata maskesi sıfır ölçülmüştür. Sıfır
+çerçeve ile 4096 örneklik bilinen çerçevenin 32 KiB FPGA çıktısı doğrulanmış;
+bilinen çerçeve 10/10 byte-tam eşleşmiş ve iki DMA kesme sayacı 0'dan 11'e
+çıkmıştır. FPGA güç çıktısı kart üzerindeki ARMv7 OS-CFAR aracına bağlanmış; bilinen
+çerçevede üretilen aday JSON'u host C çıktısıyla byte-tam eşleşmiştir. Ham 147 aday
+bu deterministik çerçevenin doğruluk veya confirmed-event sonucu sayılmaz. Önceki
+native paketleme açığı kapanmıştır. Üç ayrı byte-tam FPGA güç çerçevesi, PHASE-06I
+ABI paket köprüsü üzerinden karttaki PHASE-06J 2/3 çekirdeğinde çalıştırılmış;
+ikinci karede doğrulama ve iki boş kare sonunda sonlandırma geçmiş, 81.076 byte
+ARM olay çıktısı host C ile byte-tam eşleşmiştir. Yeni araç rootfs için derlenmiş,
+fiziksel kabulde UART ile geçici `/tmp` alanından çalıştırılmıştır. Ethernet
+taşıma, throughput, geniş detector vektörleri, parametre ARM bağı, kalıcı kart
+servisi, canlı HackRF ve RF TX açık kalır. Bu kontrol
+noktası sonraki faz için otomatik
+kullanıcı onayı oluşturmaz.
 
 ### P0 Mandatory Closure Block A
 

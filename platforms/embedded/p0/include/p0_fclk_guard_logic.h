@@ -36,6 +36,8 @@ typedef uint64_t u64;
 #define P0_FCLK_GUARD_IO_PLL_HZ 1000000000ULL
 #define P0_FCLK_GUARD_GOLDEN_IO_PLL_FBDIV 30U
 #define P0_FCLK_GUARD_GOLDEN_FCLK_CTRL 0x00200500U
+/* Legal 100 MHz encoding selected by Zynq CCF during physical restore. */
+#define P0_FCLK_GUARD_PHYSICAL_100MHZ_FCLK_CTRL 0x00100a00U
 /* A reference encoding only; 50 MHz is semantically validated, not matched. */
 #define P0_FCLK_GUARD_50MHZ_FCLK_CTRL 0x00400500U
 #define P0_FCLK_GUARD_PHYSICAL_50MHZ_FCLK_CTRL 0x00101400U
@@ -156,8 +158,8 @@ static inline int p0_fclk_guard_fclk_ctrl_has_only_documented_fields(
     return !(fclk_ctrl & ~P0_FCLK_GUARD_FCLK_CTRL_DOCUMENTED_MASK);
 }
 
-static inline int p0_fclk_guard_fclk_ctrl_is_legal_50mhz(
-    u32 io_pll_ctrl, u32 fclk_ctrl)
+static inline int p0_fclk_guard_fclk_ctrl_is_legal_rate(
+    u32 io_pll_ctrl, u32 fclk_ctrl, u64 expected_rate_hz)
 {
     u32 div0 = p0_fclk_guard_fclk_div0(fclk_ctrl);
     u32 div1 = p0_fclk_guard_fclk_div1(fclk_ctrl);
@@ -167,7 +169,21 @@ static inline int p0_fclk_guard_fclk_ctrl_is_legal_50mhz(
                P0_FCLK_GUARD_SRCSEL_IO_PLL &&
            div0 && div1 &&
            p0_fclk_guard_fclk_hz(io_pll_ctrl, fclk_ctrl) ==
-               P0_FCLK_GUARD_TARGET_FCLK_HZ;
+               expected_rate_hz;
+}
+
+static inline int p0_fclk_guard_fclk_ctrl_is_legal_100mhz(
+    u32 io_pll_ctrl, u32 fclk_ctrl)
+{
+    return p0_fclk_guard_fclk_ctrl_is_legal_rate(
+        io_pll_ctrl, fclk_ctrl, P0_FCLK_GUARD_GOLDEN_FCLK_HZ);
+}
+
+static inline int p0_fclk_guard_fclk_ctrl_is_legal_50mhz(
+    u32 io_pll_ctrl, u32 fclk_ctrl)
+{
+    return p0_fclk_guard_fclk_ctrl_is_legal_rate(
+        io_pll_ctrl, fclk_ctrl, P0_FCLK_GUARD_TARGET_FCLK_HZ);
 }
 
 static inline u32 p0_fclk_guard_validate_clock_common(u32 io_pll_ctrl,
@@ -214,21 +230,34 @@ static inline u32 p0_fclk_guard_validate_common(u32 io_pll_ctrl,
                                               tz_fpga_afi);
 }
 
+static inline u32 p0_fclk_guard_validate_golden_clock_state(
+    u32 io_pll_ctrl, u32 fclk_ctrl, u32 fpga_rst_ctrl, u32 lvl_shftr_en,
+    int require_reset_asserted)
+{
+    u32 errors = p0_fclk_guard_validate_clock_common(
+        io_pll_ctrl,
+        require_reset_asserted ?
+            (fpga_rst_ctrl & ~P0_FCLK_GUARD_FPGA0_OUT_RST_MASK) :
+            fpga_rst_ctrl,
+        lvl_shftr_en);
+
+    if (!p0_fclk_guard_fclk_ctrl_is_legal_100mhz(io_pll_ctrl,
+                                                  fclk_ctrl))
+        errors |= P0_FCLK_GUARD_VALIDATE_FCLK_CTRL;
+    if (require_reset_asserted &&
+        !(fpga_rst_ctrl & P0_FCLK_GUARD_FPGA0_OUT_RST_MASK))
+        errors |= P0_FCLK_GUARD_VALIDATE_FPGA_RESET;
+
+    return errors;
+}
+
 static inline u32 p0_fclk_guard_validate_golden_clock(u32 io_pll_ctrl,
                                                         u32 fclk_ctrl,
                                                         u32 fpga_rst_ctrl,
                                                         u32 lvl_shftr_en)
 {
-    u32 errors = p0_fclk_guard_validate_clock_common(io_pll_ctrl,
-                                                      fpga_rst_ctrl,
-                                                      lvl_shftr_en);
-
-    if (fclk_ctrl != P0_FCLK_GUARD_GOLDEN_FCLK_CTRL ||
-        p0_fclk_guard_fclk_hz(io_pll_ctrl, fclk_ctrl) !=
-            P0_FCLK_GUARD_GOLDEN_FCLK_HZ)
-        errors |= P0_FCLK_GUARD_VALIDATE_FCLK_CTRL;
-
-    return errors;
+    return p0_fclk_guard_validate_golden_clock_state(
+        io_pll_ctrl, fclk_ctrl, fpga_rst_ctrl, lvl_shftr_en, 0);
 }
 
 static inline u32 p0_fclk_guard_validate_50mhz_clock(
@@ -263,9 +292,8 @@ static inline u32 p0_fclk_guard_validate_golden(u32 io_pll_ctrl,
                                                 security_fssw_s0,
                                                 tz_fpga_afi);
 
-    if (fclk_ctrl != P0_FCLK_GUARD_GOLDEN_FCLK_CTRL ||
-        p0_fclk_guard_fclk_hz(io_pll_ctrl, fclk_ctrl) !=
-            P0_FCLK_GUARD_GOLDEN_FCLK_HZ)
+    if (!p0_fclk_guard_fclk_ctrl_is_legal_100mhz(io_pll_ctrl,
+                                                  fclk_ctrl))
         errors |= P0_FCLK_GUARD_VALIDATE_FCLK_CTRL;
 
     return errors;
@@ -309,7 +337,7 @@ static inline u32 p0_fclk_guard_classify_state(u32 io_pll_ctrl,
         fpga_rst_ctrl & ~P0_FCLK_GUARD_FPGA0_OUT_RST_MASK,
         lvl_shftr_en, security_fssw_s0, tz_fpga_afi);
 
-    if (fclk_ctrl == P0_FCLK_GUARD_GOLDEN_FCLK_CTRL &&
+    if (p0_fclk_guard_fclk_ctrl_is_legal_100mhz(io_pll_ctrl, fclk_ctrl) &&
         !common_without_reset) {
         if (fpga_rst_ctrl & P0_FCLK_GUARD_FPGA0_OUT_RST_MASK)
             return P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED;
@@ -334,7 +362,7 @@ static inline u32 p0_fclk_guard_classify_clock_state(u32 io_pll_ctrl,
         fpga_rst_ctrl & ~P0_FCLK_GUARD_FPGA0_OUT_RST_MASK,
         lvl_shftr_en);
 
-    if (fclk_ctrl == P0_FCLK_GUARD_GOLDEN_FCLK_CTRL &&
+    if (p0_fclk_guard_fclk_ctrl_is_legal_100mhz(io_pll_ctrl, fclk_ctrl) &&
         !common_without_reset) {
         if (fpga_rst_ctrl & P0_FCLK_GUARD_FPGA0_OUT_RST_MASK)
             return P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED;

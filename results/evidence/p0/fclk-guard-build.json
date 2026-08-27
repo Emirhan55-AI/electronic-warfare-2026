@@ -1,6 +1,7 @@
 {
   "schema_version": 8,
   "date": "2026-08-16",
+  "subsequent_physical_evidence": "results/evidence/p0/zedboard-dma-physical-acceptance.json",
   "scope": "P0 FCLK CCF/SLCR recovery plus semantic 50 MHz classification closure",
   "physical_execution": "A physical APPLY completed the hardware transition before this semantic-validator change; no hardware was executed for this change.",
   "physical_input": {
@@ -64,5 +65,5 @@
     "p0_fclk_guardctl.c": "bb11517cf86b5284c6706cd99119017d2aacfcc0e5c74170691c19a4f42d167e",
     "p0_fclk_guard_logic.h": "5df185fae26ce3ddea93b598aa0ded3791e740bf173b7bd7433f5f21bcaf45da"
   },
-  "claim_boundary": "This is L1/L2 source, host test, exact-kernel audit, and ARM build evidence. No board command, FPGA load, DMA access, BOOT.BIN change, or RF operation occurred."
+  "claim_boundary": "This file records the 2026-08-16 source/build gate only. Later board execution is recorded separately in results/evidence/p0/zedboard-dma-physical-acceptance.json."
 }

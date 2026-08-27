@@ -3,6 +3,17 @@ set repository_root [file normalize [file join $script_directory ..]]
 set build_root [file normalize [file join $repository_root build p0 vivado]]
 set project_file [file join $build_root p0_runtime.xpr]
 set report_root [file join $build_root reports]
+set zedboard_part {avnet-tria:zedboard:part0:1.5}
+if {[info exists ::env(P0_BOARD_REPO)] && $::env(P0_BOARD_REPO) ne ""} {
+  set board_repository [file normalize $::env(P0_BOARD_REPO)]
+  if {![file isdirectory $board_repository]} {
+    error "P0_BOARD_REPO is not a directory: $board_repository"
+  }
+  set_param board.repoPaths [list $board_repository]
+}
+if {[llength [get_board_parts -quiet $zedboard_part]] != 1} {
+  error "required ZedBoard preset not found: $zedboard_part (install Avnet bdf or set P0_BOARD_REPO)"
+}
 if {![file isfile $project_file]} {
   error "P0 Vivado project is missing; run create_p0_vivado_project.tcl first"
 }

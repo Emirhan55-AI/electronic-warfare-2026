@@ -122,6 +122,11 @@ class P0FclkGuardSourceTest(unittest.TestCase):
             status,
         )
         self.assertIn(
+            "status->current_state ==\n"
+            "            P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED",
+            status,
+        )
+        self.assertIn(
             "if (status->current_state == P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED &&\n"
             "        safe_50_errors)\n"
             "        status->current_state = P0_FCLK_GUARD_STATE_UNKNOWN;",
@@ -161,6 +166,7 @@ class P0FclkGuardSourceTest(unittest.TestCase):
         recipe = RECIPE.read_text(encoding="utf-8")
         self.assertNotIn("KERNEL_MODULE_AUTOLOAD", recipe)
         self.assertIn("p0_fclk_guard.ko", recipe)
+        self.assertNotRegex(recipe, r"FILES:\$\{PN\}.*p0_fclk_guard\.ko")
 
     def test_userspace_default_is_read_only_status(self) -> None:
         tool = TOOL.read_text(encoding="utf-8")

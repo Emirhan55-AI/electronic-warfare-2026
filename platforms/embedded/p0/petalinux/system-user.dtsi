@@ -1,6 +1,49 @@
 /include/ "system-conf.dtsi"
 
 / {
+    chosen {
+        bootargs = "console=ttyPS0,115200 earlycon root=/dev/ram0 rw";
+        stdout-path = "serial0:115200n8";
+    };
+
+    aliases {
+        serial0 = &uart1;
+        ethernet0 = &gem0;
+        spi0 = &qspi;
+    };
+};
+
+&gpio0 {
+    emio-gpio-width = <64>;
+    gpio-mask-high = <0>;
+    gpio-mask-low = <0x5600>;
+};
+
+&uart1 {
+    status = "okay";
+    cts-override;
+    device_type = "serial";
+    port-number = <0>;
+};
+
+&sdhci0 {
+    status = "okay";
+    xlnx,has-cd = <1>;
+    xlnx,has-power = <0>;
+    xlnx,has-wp = <1>;
+};
+
+&gem0 {
+    status = "okay";
+    phy-mode = "rgmii-id";
+    xlnx,ptp-enet-clock = <0x69f6bcb>;
+};
+
+&qspi {
+    status = "okay";
+    is-dual = <0>;
+    spi-rx-bus-width = <4>;
+    spi-tx-bus-width = <4>;
 };
 
 &usb0 {

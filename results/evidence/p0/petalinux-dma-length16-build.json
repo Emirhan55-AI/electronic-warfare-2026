@@ -2,6 +2,7 @@
   "schema_version": 1,
   "status": "passed",
   "date": "2026-08-16",
+  "subsequent_physical_evidence": "results/evidence/p0/zedboard-dma-physical-acceptance.json",
   "host": "emirhan-virtual-machine",
   "tool": "PetaLinux 2025.2",
   "project": "/home/emirhan/projects/electronic-warfare-zedboard",
@@ -80,5 +81,5 @@
     "live_hackrf_to_fpga": "not_executed",
     "ui": "not_executed"
   },
-  "claim_boundary": "Bootable artifacts and target binaries are built; no ZedBoard boot, physical DMA, FPGA numerical golden, live HackRF, or UI result is claimed."
+  "claim_boundary": "This file records the 2026-08-16 build gate only. Later ZedBoard boot and DMA execution are recorded separately in results/evidence/p0/zedboard-dma-physical-acceptance.json."
 }

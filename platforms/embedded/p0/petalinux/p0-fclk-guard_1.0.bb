@@ -26,5 +26,3 @@ do_install() {
     install -m 0644 ${S}/p0_fclk_guard.ko \
         ${D}${nonarch_base_libdir}/modules/${KERNEL_VERSION}/updates/p0_fclk_guard.ko
 }
-
-FILES:${PN} += "${nonarch_base_libdir}/modules/${KERNEL_VERSION}/updates/p0_fclk_guard.ko"

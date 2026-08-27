@@ -5,6 +5,8 @@
 
 static const u32 golden_io_pll = 0x0001e000U;
 static const u32 golden_clk = P0_FCLK_GUARD_GOLDEN_FCLK_CTRL;
+static const u32 physical_restored_clk =
+    P0_FCLK_GUARD_PHYSICAL_100MHZ_FCLK_CTRL;
 static const u32 target_clk = P0_FCLK_GUARD_50MHZ_FCLK_CTRL;
 static const u32 physical_target_clk =
     P0_FCLK_GUARD_PHYSICAL_50MHZ_FCLK_CTRL;
@@ -20,6 +22,19 @@ static void test_golden_decode(void)
            100000000ULL);
     assert(p0_fclk_guard_validate_golden(golden_io_pll, golden_clk, 0U,
                                           0x0000000fU, 1U, 0U) == 0U);
+    assert(p0_fclk_guard_fclk_div0(physical_restored_clk) == 10U);
+    assert(p0_fclk_guard_fclk_div1(physical_restored_clk) == 1U);
+    assert(p0_fclk_guard_fclk_ctrl_is_legal_100mhz(
+        golden_io_pll, physical_restored_clk));
+    assert(p0_fclk_guard_validate_golden_clock(
+        golden_io_pll, physical_restored_clk, 1U,
+        0x0000000fU) == P0_FCLK_GUARD_VALIDATE_FPGA_RESET);
+    assert(p0_fclk_guard_validate_golden_clock_state(
+        golden_io_pll, physical_restored_clk, 1U,
+        0x0000000fU, 1) == 0U);
+    assert(p0_fclk_guard_validate_golden_clock_state(
+        golden_io_pll, physical_restored_clk, 0U,
+        0x0000000fU, 1) == P0_FCLK_GUARD_VALIDATE_FPGA_RESET);
 }
 
 static void test_target_decode(void)
@@ -39,6 +54,10 @@ static void test_target_decode(void)
                                                    physical_target_clk));
     assert(p0_fclk_guard_validate_50mhz(golden_io_pll, physical_target_clk,
                                          1U, 0x0000000fU, 1U, 0U, 1) == 0U);
+    assert(p0_fclk_guard_validate_50mhz_clock(
+        golden_io_pll, physical_target_clk, 1U, 0x0000000fU, 1) == 0U);
+    assert(p0_fclk_guard_validate_50mhz_clock(
+        golden_io_pll, physical_target_clk, 0U, 0x0000000fU, 0) == 0U);
 }
 
 static void test_ccf_rate_comparison_contract(void)
@@ -69,6 +88,10 @@ static void test_state_classification(void)
     assert(p0_fclk_guard_classify_state(golden_io_pll, golden_clk, 1U,
                                          0x0000000fU, 1U, 0U) ==
            P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED);
+    assert(p0_fclk_guard_classify_state(golden_io_pll,
+                                         physical_restored_clk, 1U,
+                                         0x0000000fU, 1U, 0U) ==
+           P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED);
     assert(p0_fclk_guard_classify_state(golden_io_pll, target_clk, 1U,
                                          0x0000000fU, 1U, 0U) ==
            P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED);
@@ -86,6 +109,9 @@ static void test_state_classification(void)
     assert(p0_fclk_guard_classify_clock_state(golden_io_pll, golden_clk, 0U,
                                                0x0000000fU) ==
            P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_RELEASED);
+    assert(p0_fclk_guard_classify_clock_state(
+        golden_io_pll, physical_restored_clk, 1U, 0x0000000fU) ==
+           P0_FCLK_GUARD_STATE_GOLDEN_100_RESET_ASSERTED);
     assert(p0_fclk_guard_classify_clock_state(golden_io_pll, target_clk, 1U,
                                                0x0000000fU) ==
            P0_FCLK_GUARD_STATE_50MHZ_RESET_ASSERTED);
@@ -162,6 +188,10 @@ static void test_rejections(void)
                                                     0x80101400U));
     assert(!p0_fclk_guard_fclk_ctrl_is_legal_50mhz(golden_io_pll,
                                                     0x00100000U));
+    assert(!p0_fclk_guard_fclk_ctrl_is_legal_100mhz(golden_io_pll,
+                                                     0x80100a00U));
+    assert(!p0_fclk_guard_fclk_ctrl_is_legal_100mhz(golden_io_pll,
+                                                     0x00100000U));
     assert(p0_fclk_guard_classify_clock_state(golden_io_pll, 0x80101400U,
                                                1U, 0x0000000fU) ==
            P0_FCLK_GUARD_STATE_UNKNOWN);

@@ -2,6 +2,17 @@ set script_directory [file dirname [file normalize [info script]]]
 set repository_root [file normalize [file join $script_directory ..]]
 set build_root [file normalize [file join $repository_root build p0 vivado]]
 set allowed_root [file normalize [file join $repository_root build p0]]
+set zedboard_part {avnet-tria:zedboard:part0:1.5}
+if {[info exists ::env(P0_BOARD_REPO)] && $::env(P0_BOARD_REPO) ne ""} {
+  set board_repository [file normalize $::env(P0_BOARD_REPO)]
+  if {![file isdirectory $board_repository]} {
+    error "P0_BOARD_REPO is not a directory: $board_repository"
+  }
+  set_param board.repoPaths [list $board_repository]
+}
+if {[llength [get_board_parts -quiet $zedboard_part]] != 1} {
+  error "required ZedBoard preset not found: $zedboard_part (install Avnet bdf or set P0_BOARD_REPO)"
+}
 if {![string match "${allowed_root}/*" $build_root]} {
   error "refusing to use a build directory outside repository build/p0"
 }
@@ -11,6 +22,7 @@ if {[file exists $build_root]} {
 file mkdir $build_root
 
 create_project p0_runtime $build_root -part xc7z020clg484-1 -force
+set_property board_part $zedboard_part [current_project]
 set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 
@@ -37,6 +49,8 @@ update_compile_order -fileset sources_1
 
 create_bd_design p0_system
 set ps [create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0]
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 \
+  -config {make_external "FIXED_IO, DDR" apply_board_preset "1"} $ps
 set_property -dict [list \
   CONFIG.PCW_USE_M_AXI_GP0 {1} \
   CONFIG.PCW_USE_S_AXI_HP0 {1} \
@@ -44,8 +58,6 @@ set_property -dict [list \
   CONFIG.PCW_IRQ_F2P_INTR {1} \
   CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50.000000} \
 ] $ps
-make_bd_intf_pins_external [get_bd_intf_pins $ps/DDR]
-make_bd_intf_pins_external [get_bd_intf_pins $ps/FIXED_IO]
 
 set dma [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0]
 set_property -dict [list \

@@ -6,7 +6,7 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 
 | Zorunlu öğe | KTR algoritma niyeti | Gerçek donanım / sahip | Gate A başlangıcı | P0 sonucu |
 |---|---|---|---|---|
-| Sinyal tespiti | Pencereli FFT/PSD, yerel gürültü, guard/reference, OS-CFAR, aday gruplama | ZedBoard PL Hann/FFT/güç; PS OS-CFAR/aday/temporal | Kısmi | Host profile PASS — Pfa `1e-4` türetilmiş alpha, empirical FAR ve Python/C eşdeğerliği; ARM çalıştırılmadı |
+| Sinyal tespiti | Pencereli FFT/PSD, yerel gürültü, guard/reference, OS-CFAR, aday gruplama | ZedBoard PL Hann/FFT/güç; PS OS-CFAR/aday/temporal | Kısmi | Host profile PASS — Pfa `1e-4` türetilmiş alpha, empirical FAR ve Python/C eşdeğerliği; üç byte-tam fiziksel FPGA güç çerçevesinde ARM OS-CFAR→ABI v1→2/3 temporal doğrulama ve iki boş kare expiry geçti, tam olay JSON'u host/ARM byte-tam eşleşti. Geniş vektör, kalıcı kart servisi ve canlı RF açık |
 | Emisyon merkez frekansı | Aday bölgesinde güç ağırlıklı spektral merkez; ayrı taşıyıcı frekansı kestirimi yok | PS/ARM; host referansı | Eksik | P0 host referansı — sabit golden hata/tolerans geçti; PHASE-04 bağımsız doğrulaması açık |
 | Bant genişliği | Yerel gürültü/eşik referanslı alt ve üst sinyal sınırı | PS/ARM; host oracle | Eksik | Host estimator PASS — 6 dB threshold kenarı, açık %98 fallback ve kaba aday ayrımı; ARM/canlı RF yok |
 | Güç seviyesi | Göreli lineer güç ve dBFS; kalibrasyon sözleşmesi | PS/ARM | Eksik | Tam göreli ölçüm — dBFS doğrulandı; sonuç `KALİBRE EDİLMEMİŞ · dBFS`, dBm yok |
@@ -20,8 +20,8 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 | ED operatör uygulaması | Görev, spektrum/waterfall, tespit, parametre, üç hakem arama modu, DF, gerçek basemap üzerinde yön gösterimi ve sistem durumu | Bilgisayar-1 PySide6 | Kısmi | Replay seçim kimliği/FFT/P0 parametre worker bağı, MapLibre gerçek harita sağlayıcı zinciri, tek seferlik PC konum isteği/manuel fallback, kaynak-doğruluk ayrımı ve geodezik tek LOB sunumu; canlı GNSS, hedef konumu ve canlı HackRF saha kabulü yok |
 | PC↔ZedBoard taşıma | Bounded sıralı IQ çerçeveleri, bütünlük ve istatistik | Bilgisayar-1 Ethernet; ZedBoard PS | Eksik | PC sözleşmesi/loopback tam; ZedBoard sunucusu ve canlı ağ çalıştırılmadı |
 | HackRF-1 RX | Replay ile aynı normalize IQ frame sözleşmesi | HackRF-1 USB→Bilgisayar-1 | Kısmi | B0 host toolchain READY; seri-temelli RX argv, bounded queue ve üç tuning planı unit-test PASS; cihaz bağlı değil, seri atanmadı, canlı RX yok |
-| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Eksik | Güncel 50 MHz length-width-16 Vivado sentez/route/timing/bitstream ve XSA geçti; ilk manuel BOOT UART-sessiz başarısız, native recovery fiziksel testi bekliyor |
-| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Eksik | SG/DRE kapalı, MM2S 8192 ve S2MM 32768 byte sözleşmeli donanım; coherent-buffer driver/device tree/rootfs derlemesi ve native bootbin statik denetimi geçti; fiziksel DMA çalıştırılmadı |
+| Kanonik PL runtime | AXI4-Stream IQ→Hann→4096 FFT→lineer güç | ZedBoard PL | Kısmi | ZedBoard önayarlı native PetaLinux zinciri fiziksel kartta 3/3 soğuk açılış geçti; 50 MHz tasarım, sıfır çerçeve ve bilinen 4096 örneklik çerçevenin tam çıktı karşılaştırması geçti, bilinen çerçeve 10/10 eşleşti; geniş vektör/saha kabulü sürüyor |
+| Vivado DMA mimarisi | PS DDR↔AXI DMA↔P0 DSP, saat/reset/interrupt | ZedBoard | Kısmi | MM2S 8192/S2MM 32768 byte, iki IOC, timeout/hata denetimi ve FCLK 50↔100 MHz güvenli geçişi fiziksel kartta geçti; Ethernet taşıma ve throughput kabulü açık |
 
 ## KTR Donanım Sapma Kaydı
 
