@@ -93,6 +93,14 @@ tek `YAYIN — DEVRE DIŞI` durumuna indirilmiş; görev sekmeleri, ölçüm hiy
 ve azaltılabilir mikro geçişler güncellenmiştir. Bu bakım yalnız sunum ve kullanım
 kalitesini değiştirir; ET matematiğini veya PHASE-10–12 kapsamını ilerletmez.
 
+Kullanıcının devam onayıyla APP-F ED operatör hiyerarşisi bakımı uygulanmıştır.
+Spektrum kaynak panelindeki tekrarlı üst durum bilgileri kaldırılmış, seçili sinyal
+ve tespit listesi sıkılaştırılmış, Sistem görünümünde operatör özeti ile geliştirici
+ayrıntısı ayrılmıştır. İşleme zinciri ve salt okunur operasyon günlüğü korunur.
+Bakım commit'i `6ef650d` üzerinde 27/27 görsel kapı, 49/49 odaklı ürün testi ve
+`550 passed, 1 skipped, 0 failed` tam depo regresyonuyla doğrulanmıştır. Bu bakım
+algoritma fazını ilerletmez ve fiziksel donanım kabulü anlamına gelmez.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

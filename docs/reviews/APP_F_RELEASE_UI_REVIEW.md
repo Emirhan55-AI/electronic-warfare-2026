@@ -137,3 +137,17 @@ Arayüz bakım commit'i `402a34e` üzerinde görsel doğrulayıcının 27/27 kap
 geçmiştir. Aynı commit üzerindeki tam depo regresyonu `495 passed, 1 skipped,
 0 failed` sonucu vermiş ve `498,954 s` sürmüştür. Kontrollü atlama yalnız
 yapılandırılmamış haricî gerçek veri setidir.
+
+ED operatör hiyerarşisi bakımında kaynak panelindeki üst durum alanıyla tekrarlanan
+merkez frekansı, örnekleme hızı ve hazır açıklaması kaldırılmıştır. Seçili sinyal
+özeti ile tespit listesi sıkılaştırılmış; Sistem ekranında kaynak, tarama, işleme
+gecikmesi ve ölçüm profili operatör özeti olarak öne alınmıştır. Uygulama dili ve
+kaynak konumu gibi geliştirme ayrıntıları yalnız geliştirici kipinde görünür;
+işleme durumu ile salt okunur operasyon günlüğü korunur. Bu bakım tespit,
+parametre ölçümü, dinleme, yön bulma veya ET hesaplarını değiştirmez.
+
+Bakım commit'i `6ef650d` üzerinde görsel doğrulayıcının 27/27 kapısı ve 49/49
+odaklı ürün regresyonu geçmiştir. Aynı commit üzerindeki tam depo regresyonu
+`550 passed, 1 skipped, 0 failed` sonucu vermiş ve `828,90 s` sürmüştür.
+Kontrollü atlama yalnız yapılandırılmamış haricî gerçek veri setidir; fiziksel RF
+ve donanım kabulü bu sonuçtan çıkarılamaz.
