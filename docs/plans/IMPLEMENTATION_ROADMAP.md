@@ -101,6 +101,14 @@ Bakım commit'i `6ef650d` üzerinde 27/27 görsel kapı, 49/49 odaklı ürün te
 `550 passed, 1 skipped, 0 failed` tam depo regresyonuyla doğrulanmıştır. Bu bakım
 algoritma fazını ilerletmez ve fiziksel donanım kabulü anlamına gelmez.
 
+İkinci APP-F ED bakımında Dinleme ölçüm özeti, Yön Bulma kerteriz hiyerarşisi ve
+ortak Olay Konsolu sadeleştirilmiştir. Kare işleme başlangıcındaki tekrarlı genel
+QML durum bildirimi kaldırılarak tamamlanan kare başına tek güncelleme korunmuş,
+görünmeyen Spektrum yüzeyinin gereksiz tespit çizimi engellenmiştir. Bakım commit'i
+`c5b6f59` üzerinde 27/27 görsel kapı, 39/39 odaklı ürün testi ve `550 passed,
+1 skipped, 0 failed` tam depo regresyonuyla doğrulanmıştır. Bu bakım matematiksel
+algoritmaları veya faz durumunu değiştirmez; fiziksel donanım kabulü değildir.
+
 ## PHASE-06 kontrollü alt-fazları
 
 - **PHASE-06A — SystemVerilog RTL temeli ve bit-doğru golden eşdeğerlik:** `ci8`, AXI4-Stream, 4096 örnek frame ve frame-istatistik temelini kurmuştur.

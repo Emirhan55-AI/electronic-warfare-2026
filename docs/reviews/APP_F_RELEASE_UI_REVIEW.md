@@ -151,3 +151,20 @@ odaklı ürün regresyonu geçmiştir. Aynı commit üzerindeki tam depo regresy
 `550 passed, 1 skipped, 0 failed` sonucu vermiş ve `828,90 s` sürmüştür.
 Kontrollü atlama yalnız yapılandırılmamış haricî gerçek veri setidir; fiziksel RF
 ve donanım kabulü bu sonuçtan çıkarılamaz.
+
+Dinleme ve Yön Bulma görev bakımı commit'i `c5b6f59` üzerinde tamamlanmıştır.
+Dinleme sonucu iki sütunlu ölçüm özetine dönüştürülmüş, kısa kayıt kabul uyarısı
+tek noktaya indirilmiş ve kanal hazırlama eylemleri kısaltılmıştır. Yön Bulma
+yüzeyinde üst başlıkla yinelenen kaynak/frekans bilgileri kaldırılmış; `bağıl
+kerteriz`, `gerçek kerteriz` ve `güç örüntüsü` terminolojisi kullanılmıştır.
+Faz uyumlu DoA, menzil ve konum üretilmediği görünür sınır olarak korunur.
+Olay Konsolu sütun başlıklarıyla açılır, odağı alır ve en yeni kaydı üstte izler.
+
+Her spektrum karesinin başında tüm QML durum bağlarını yeniden değerlendiren
+ikinci genel bildirim kaldırılmış; tamamlanan kare başına tek durum güncellemesi
+korunmuştur. Görünmeyen Spektrum sayfası tespit değişiminde yeniden çizilmez.
+Son beş profilde heartbeat maksimumu `25,43–28,81 ms`, işleme p95 değeri
+`2,47–2,55 ms` ve gözlenen güncelleme `9,17–9,23 Hz` aralığındadır. Görsel
+doğrulayıcı 27/27, odaklı ürün paketi 39/39 geçmiştir. Aynı commit üzerindeki tam
+depo regresyonu `550 passed, 1 skipped, 0 failed` sonucu vermiş ve `573,40 s`
+sürmüştür. Fiziksel RF ve donanım kabulü bu sonuçların kapsamında değildir.
