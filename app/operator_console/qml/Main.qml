@@ -695,7 +695,7 @@ ApplicationWindow {
 
                     Panel {
                         id: sourcePanel
-                        property real animatedWidth: root.sourcePanelOpen ? 230 : 0
+                        property real animatedWidth: root.sourcePanelOpen ? 220 : 0
                         Layout.preferredWidth: animatedWidth
                         Layout.minimumWidth: animatedWidth
                         Layout.maximumWidth: animatedWidth
@@ -711,7 +711,7 @@ ApplicationWindow {
                             spacing: 12
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "VERİ KAYNAĞI"; Layout.fillWidth: true }
+                                SectionTitle { text: "KAYNAK"; Layout.fillWidth: true }
                                 StateBadge { state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.sourceState }
                             }
 
@@ -739,43 +739,19 @@ ApplicationWindow {
                             }
 
                             Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                            SectionTitle { text: "KAYNAK BİLGİLERİ" }
+                            SectionTitle { text: "ALIM" }
                             GridLayout {
                                 columns: 2
                                 Layout.fillWidth: true
                                 columnSpacing: 10
                                 rowSpacing: 7
-                                Label { text: "Merkez"; color: root.textSecondary; font.pixelSize: 11 }
-                                Label { text: operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
-                                Label { text: "Örnekleme"; color: root.textSecondary; font.pixelSize: 11 }
-                                Label { text: operatorViewModel.sampleRateText; color: root.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
                                 Label { text: "Güç ölçeği"; color: root.textSecondary; font.pixelSize: 11 }
                                 Label { text: operatorViewModel.calibrationText; color: root.warning; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
-                                Label { text: "Kare"; color: root.textSecondary; font.pixelSize: 11 }
+                                Label { text: "Kayıt ilerlemesi"; color: root.textSecondary; font.pixelSize: 11 }
                                 Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount; color: root.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
                             }
 
                             Item { Layout.fillHeight: true }
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: taskState.implicitHeight + 28
-                                radius: 4
-                                color: root.surfaceAlt
-                                border.color: root.border
-                                Label {
-                                    id: taskState
-                                    anchors.fill: parent
-                                    anchors.margins: 12
-                                    text: operatorViewModel.sourceReady
-                                          ? (operatorViewModel.playing
-                                             ? "Tarama çalışıyor. Tespitler canlı olarak güncelleniyor."
-                                             : "Kaynak hazır. Spektrum taraması başlatılabilir.")
-                                          : "Bir SigMF kaydı açın veya bağlı HackRF alıcısını denetleyin."
-                                    wrapMode: Text.Wrap
-                                    color: operatorViewModel.sourceReady ? root.success : root.textSecondary
-                                    font.pixelSize: 11
-                                }
-                            }
                         }
                     }
 
@@ -1206,7 +1182,7 @@ ApplicationWindow {
                             spacing: 10
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "SİNYAL GÖREVİ"; Layout.fillWidth: true }
+                                SectionTitle { text: "SİNYAL İNCELEME"; Layout.fillWidth: true }
                                 Rectangle {
                                     implicitWidth: detectionCount.implicitWidth + 14
                                     implicitHeight: 22
@@ -1217,7 +1193,7 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 68
+                                implicitHeight: 60
                                 radius: 4
                                 color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
                                 border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
@@ -1239,9 +1215,8 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label { text: operatorViewModel.selectedDetectionFrequencyText; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
-                                            Label { text: operatorViewModel.selectedDetectionStateText; color: operatorViewModel.selectedDetectionReady ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                            Label { visible: operatorViewModel.selectedDetectionReady; text: "P/N " + operatorViewModel.selectedDetectionContrastText; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + operatorViewModel.selectedDetectionContrastText }
                                         }
-                                        Label { visible: operatorViewModel.selectedDetectionReady; text: "Tepe / gürültü oranı  " + operatorViewModel.selectedDetectionContrastText; color: root.textSecondary; font.pixelSize: 8 }
                                     }
                                     QuietButton {
                                         text: "Ölçüm ›"
@@ -1289,7 +1264,7 @@ ApplicationWindow {
                                 delegate: Button {
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: 52
+                                    height: 48
                                     Accessible.name: modelData.title + ", " + modelData.state
                                     onPressed: operatorViewModel.selectDetection(modelData.eventId)
                                     background: Rectangle {
@@ -2091,8 +2066,8 @@ ApplicationWindow {
                     spacing: 10
                     RowLayout {
                         Layout.fillWidth: true
-                        SectionTitle { text: "SİSTEM / DURUM İZLEME"; Layout.fillWidth: true }
-                        Label { text: "SALT OKUNUR SİSTEM DURUMU"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
+                        SectionTitle { text: "SİSTEM DURUMU"; Layout.fillWidth: true }
+                        Label { text: "SALT OKUNUR"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
                         StateBadge { state: operatorViewModel.sourceReady ? "Hazır" : "Bekliyor" }
                     }
                     Panel {
@@ -2106,9 +2081,9 @@ ApplicationWindow {
                             Repeater {
                                 model: [
                                     {"label": "KAYNAK", "value": operatorViewModel.sourceState, "detail": operatorViewModel.sourceName},
-                                    {"label": "İŞLENEN KARE", "value": operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount, "detail": operatorViewModel.playing ? "Tarama çalışıyor" : "Tarama duraklatıldı"},
-                                    {"label": "HOST İŞLEME", "value": operatorViewModel.performanceText, "detail": "GUI iş parçacığı dışında"},
-                                    {"label": "PARAMETRE ÖLÇÜMÜ", "value": operatorViewModel.parameterCapabilityReady ? "Kullanılabilir" : "Kullanılamıyor", "detail": "Profil bütünlüğü doğrulandı"}
+                                    {"label": "TARAMA", "value": operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount, "detail": operatorViewModel.playing ? "Çalışıyor" : "Duraklatıldı"},
+                                    {"label": "İŞLEME GECİKMESİ", "value": operatorViewModel.performanceText, "detail": "Arka plan işleme"},
+                                    {"label": "ÖLÇÜM PROFİLİ", "value": operatorViewModel.parameterCapabilityReady ? "Hazır" : "Kullanılamıyor", "detail": "Bütünlük doğrulandı"}
                                 ]
                                 delegate: Rectangle {
                                     required property var modelData
@@ -2146,10 +2121,9 @@ ApplicationWindow {
                                 spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "İŞLEME ZİNCİRİ"; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.pipelineBlocks.length + " aşama"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
+                                    SectionTitle { text: "İŞLEME DURUMU"; Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.pipelineBlocks.length + " bileşen"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
                                 }
-                                Label { text: "Etkin yürütme katmanı ve doğrulanmış kaynak karşılıkları"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 ListView {
                                     id: pipelineList
@@ -2214,7 +2188,7 @@ ApplicationWindow {
                                     spacing: 8
                                     RowLayout {
                                         Layout.fillWidth: true
-                                        SectionTitle { text: "BİLEŞEN DENETÇİSİ"; Layout.fillWidth: true }
+                                        SectionTitle { text: "BİLEŞEN AYRINTISI"; Layout.fillWidth: true }
                                         Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(componentInspector.block.state || "") }
                                         Label { text: componentInspector.block.state || "—"; color: root.stateColor(componentInspector.block.state || ""); font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
                                     }
@@ -2241,9 +2215,11 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         columnSpacing: 16
                                         rowSpacing: 4
-                                        Label { text: "Uygulama"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
-                                        Label { text: componentInspector.block.implementation || "—"; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
-                                        Label { text: "Donanım sınırı"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
+                                        Label { text: "Yürütme katmanı"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
+                                        Label { text: componentInspector.block.runtime || "—"; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
+                                        Label { text: "Uygulama"; visible: operatorViewModel.developerMode; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
+                                        Label { text: componentInspector.block.implementation || "—"; visible: operatorViewModel.developerMode; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
+                                        Label { text: "Donanım durumu"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
                                         Label { text: componentInspector.block.rtlPath ? "Kaynak karşılığı mevcut; kart kabulü yok" : "Host üzerinde çalışıyor"; color: componentInspector.block.rtlPath ? root.warning : root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
                                     }
                                     RowLayout {
@@ -2643,8 +2619,8 @@ ApplicationWindow {
         ColumnLayout {
             width: parent ? parent.width : 240
             spacing: 8
-            PrimaryButton { Layout.fillWidth: true; text: "Kaydı Aç"; enabled: !operatorViewModel.busy; onClicked: sigmfDialog.open() }
-            Label { text: "Standart SigMF metadata ve eş adlı veri dosyası gerekir."; color: root.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
+            PrimaryButton { Layout.fillWidth: true; text: "Kayıt Seç"; enabled: !operatorViewModel.busy; onClicked: sigmfDialog.open() }
+            Label { visible: !operatorViewModel.sourceReady; text: "SigMF metadata ve veri dosyasını birlikte seçin."; color: root.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
         }
     }
 

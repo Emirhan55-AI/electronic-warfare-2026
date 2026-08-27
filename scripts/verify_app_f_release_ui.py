@@ -564,7 +564,7 @@ def _parent_run() -> int:
             for marker in (
                 'objectName: "pipelineList"',
                 'objectName: "systemLog"',
-                "BİLEŞEN DENETÇİSİ",
+                "BİLEŞEN AYRINTISI",
                 "OPERASYON GÜNLÜĞÜ",
                 "Salt okunur · komut çalıştırmaz",
             )

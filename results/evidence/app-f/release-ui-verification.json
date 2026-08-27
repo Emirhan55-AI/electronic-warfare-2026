@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-26T13:03:21Z",
+  "recorded_at": "2026-08-27T01:25:35Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -31,7 +31,7 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 572,
+      "spectrum_points": 582,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.16702328412663,
-      "processing_median_ms": 2.7972999960184097,
-      "processing_p95_ms": 3.8572000339627266,
-      "maximum_heartbeat_gap_ms": 36.70360008254647,
+      "observed_update_hz": 9.16595288452138,
+      "processing_median_ms": 3.8487000856548548,
+      "processing_p95_ms": 4.835700150579214,
+      "maximum_heartbeat_gap_ms": 37.69919998012483,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -144,7 +144,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "f5af1c48b7d1317f49748b975605031a10d56cd2e7820dfc3932bd0b65825c26"
+      "screenshot_sha256": "d6fff4e975f88da5ab6cf70af9d28f3e3a6dbd3a65d0edbaf383168eebc964b4"
     },
     {
       "name": "measurement-1280x720",
@@ -159,7 +159,7 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 572,
+      "spectrum_points": 582,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
@@ -176,10 +176,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.202616488130746,
-      "processing_median_ms": 2.6814001612365246,
-      "processing_p95_ms": 5.640299990773201,
-      "maximum_heartbeat_gap_ms": 34.04799988493323,
+      "observed_update_hz": 9.189186165536254,
+      "processing_median_ms": 3.9884999860078096,
+      "processing_p95_ms": 5.2108000963926315,
+      "maximum_heartbeat_gap_ms": 36.37290000915527,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -272,7 +272,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "89e4fa5e04512b690d2b2869da0119f34907a6b051d8cf80cbc3193503e75dd3"
+      "screenshot_sha256": "4a7ab7adf8e8a2f5d3209dfba6875ccbdf1de6b7807ce21d62c58f26720e410f"
     },
     {
       "name": "standard-1366x768",
@@ -287,7 +287,7 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 732,
+      "spectrum_points": 742,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
@@ -304,10 +304,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.20044640605977,
-      "processing_median_ms": 2.8479001484811306,
-      "processing_p95_ms": 5.468699848279357,
-      "maximum_heartbeat_gap_ms": 34.680900163948536,
+      "observed_update_hz": 9.195282820390245,
+      "processing_median_ms": 3.5486998967826366,
+      "processing_p95_ms": 5.349100101739168,
+      "maximum_heartbeat_gap_ms": 41.71580006368458,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -400,7 +400,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "b04cd0544f27730cea6fe57a676afd6800e7c15828e2066bbc1c05bc9e592f79"
+      "screenshot_sha256": "1928f36f51275364b7c9cbbcd6295dfa7b71267fba7e99e3c70365050e4f2867"
     },
     {
       "name": "fullhd-1920x1080",
@@ -415,7 +415,7 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 732,
+      "spectrum_points": 742,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -432,10 +432,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19774728728497,
-      "processing_median_ms": 2.670799847692251,
-      "processing_p95_ms": 3.178599989041686,
-      "maximum_heartbeat_gap_ms": 35.305799916386604,
+      "observed_update_hz": 9.158945576005685,
+      "processing_median_ms": 4.314000019803643,
+      "processing_p95_ms": 6.032200064510107,
+      "maximum_heartbeat_gap_ms": 34.63430004194379,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -528,7 +528,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "d6381c4bcc0d0d0f569374de3ab6e889000bfd18a0d4b81f7f78e169edc0c5ef"
+      "screenshot_sha256": "1ae66c42be565505cc7a04e35857ecca16a9026a08ff6370b5faf754afa793fb"
     },
     {
       "name": "scale-150-percent",
@@ -543,7 +543,7 @@
       "prepare_direction": true,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 732,
+      "spectrum_points": 742,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -560,10 +560,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.199096280753876,
-      "processing_median_ms": 2.643199870362878,
-      "processing_p95_ms": 3.527499968186021,
-      "maximum_heartbeat_gap_ms": 43.07490005157888,
+      "observed_update_hz": 9.18217262842194,
+      "processing_median_ms": 4.5050999615341425,
+      "processing_p95_ms": 5.974099971354008,
+      "maximum_heartbeat_gap_ms": 42.32200002297759,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -656,7 +656,7 @@
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "e2485f388484442438127bbd859e691be0e3975a8be9d272f7ef230e9e1edc41"
+      "screenshot_sha256": "cf612eb77bfcc46b015292b48ede3d352397bf5f1da1467b92eed793edb01979"
     }
   ],
   "et_runs": [
@@ -700,7 +700,7 @@
       "has_measurement_gap": true,
       "transmit_api_present": false,
       "screenshot": "results/evidence/app-f/et-interleaved-1440x900.png",
-      "screenshot_sha256": "40bf3f40a4a4bd14d9726f51c79efeae4c45c7af92ae5edcd6bddec1b731449d"
+      "screenshot_sha256": "ffff1469e776bc05110e4b026d404e06559e2b47d6d61d24fab690d10a8304b6"
     },
     {
       "name": "et-gnss-1180x680",
