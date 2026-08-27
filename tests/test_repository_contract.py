@@ -198,6 +198,15 @@ class RepositoryContractTests(unittest.TestCase):
         )
         self.assertEqual([], [path for path in VERIFY._repository_files() if path.endswith(".svh")])
 
+    def test_vivado_scripts_use_the_canonical_fpga_source_tree(self) -> None:
+        for script in (ROOT / "scripts").glob("*.tcl"):
+            source = script.read_text(encoding="utf-8")
+            self.assertNotIn(
+                "[file join $repository_root rtl ",
+                source,
+                msg=f"{script.name} still references the removed top-level rtl directory",
+            )
+
     def test_phase06b_is_hann_only_and_keeps_fft_for_later(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         contract = (ROOT / "docs" / "interfaces" / "RTL_HANN_WINDOW_CONTRACT.md").read_text(encoding="utf-8")

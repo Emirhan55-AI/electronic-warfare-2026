@@ -15,22 +15,22 @@ set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 
 set rtl_sources [list \
-  [file join $repository_root rtl phase06a rtl axis_skid_buffer.sv] \
-  [file join $repository_root rtl phase06b rtl phase06b_pkg.sv] \
-  [file join $repository_root rtl phase06b rtl axis_hann_window.sv] \
-  [file join $repository_root rtl phase06c rtl phase06c_pkg.sv] \
-  [file join $repository_root rtl phase06c rtl axis_fft_wrapper.sv] \
-  [file join $repository_root rtl phase06d rtl amd_xfft_adapter.sv] \
-  [file join $repository_root rtl phase06f rtl axis_fft_linear_power.sv] \
-  [file join $repository_root rtl p0 rtl p0_dsp_runtime_top.sv] \
-  [file join $repository_root rtl p0 rtl p0_dsp_runtime_bd.v] \
+  [file join $repository_root algorithms fpga phase06a rtl axis_skid_buffer.sv] \
+  [file join $repository_root algorithms fpga phase06b rtl phase06b_pkg.sv] \
+  [file join $repository_root algorithms fpga phase06b rtl axis_hann_window.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl phase06c_pkg.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl axis_fft_wrapper.sv] \
+  [file join $repository_root algorithms fpga phase06d rtl amd_xfft_adapter.sv] \
+  [file join $repository_root algorithms fpga phase06f rtl axis_fft_linear_power.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_bd.v] \
 ]
 add_files -fileset sources_1 -norecurse $rtl_sources
 set coefficient_file [file join $repository_root datasets fixtures phase06b hann-coefficients.mem]
 add_files -fileset sources_1 -norecurse $coefficient_file
 set_property file_type {Memory Initialization Files} [get_files [file tail $coefficient_file]]
 
-set xci [file join $repository_root rtl phase06d ip phase06d_fft_4096 phase06d_fft_4096.xci]
+set xci [file join $repository_root algorithms fpga phase06d ip phase06d_fft_4096 phase06d_fft_4096.xci]
 import_ip -files $xci -name phase06d_fft_4096
 generate_target all [get_ips phase06d_fft_4096]
 update_compile_order -fileset sources_1

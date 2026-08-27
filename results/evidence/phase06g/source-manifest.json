@@ -13,7 +13,7 @@
     "docs/decisions/ADR-0017-PHASE06G-REGIONAL-DETECTOR.md": "afef417c1d8e0501793d5d3e7c564c9bf1e47a29e10cfe5064e890b56b0dc47f",
     "docs/interfaces/RTL_REGIONAL_DETECTOR_CONTRACT.md": "3c06734c6d865c397f8be89eb0bf6dd114f2b6ba56f5090c911e798d94b62cc5",
     "scripts/generate_phase06g_vectors.py": "22d2c31e404175e75d11491ede21b2c1b18ad8b5f6d1ee80d8ff7ed00d5dff42",
-    "scripts/run_phase06g_synthesis.tcl": "806dce91757ef48c15ab54131e79165127463988f9910a657abe347879cbe0a2",
+    "scripts/run_phase06g_synthesis.tcl": "d2876191de067ceed728ae11b2c52af4f9bcdc41c4e86ac1b5e12ca2ddf63305",
     "scripts/verify_phase06g.py": "6a5e3fa89f30e0aaf336e1bfe1064a49da0e4fcd87177cc62a0fce0adb55b3b2",
     "tests/test_phase06g_model.py": "d38d5b4bda16567d72ff2f3f6a9b98db9de2ce578b8efb95f4899d5723f3ef59",
     "tests/test_phase06g_vectors.py": "94222059bf8d57d12ae9e9b4987f3b9447ca155fca1f198d965b7f3ea5791210",

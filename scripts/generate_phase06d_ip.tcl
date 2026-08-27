@@ -25,7 +25,7 @@ phase06d::emit_configuration $core
 generate_target simulation $core
 
 set generated_xci [file normalize [get_property IP_FILE $core]]
-set canonical_directory [file normalize [file join $repository_root rtl phase06d ip $phase06d::ip_name]]
+set canonical_directory [file normalize [file join $repository_root algorithms fpga phase06d ip $phase06d::ip_name]]
 file mkdir $canonical_directory
 set canonical_xci [file join $canonical_directory "${phase06d::ip_name}.xci"]
 file copy -force $generated_xci $canonical_xci

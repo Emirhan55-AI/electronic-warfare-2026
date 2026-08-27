@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "status": "passed",
   "tool": "Vivado v2025.2 build 6299465",
   "target": "xc7z020clg484-1",
@@ -18,6 +18,8 @@
     "s2mm_stream_bits": 64
   },
   "block_design_validation": "PASS",
+  "canonical_source_root": "algorithms/fpga",
+  "clean_rebuild_after_source_tree_reorganization": true,
   "synthesis": "PASS",
   "implementation": "ROUTE_DESIGN_COMPLETE",
   "route": {
@@ -61,13 +63,13 @@
     "status": "PASS",
     "relative_path": "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
     "bytes": 4045693,
-    "sha256": "29d1c033fe489b3153fd5e3bf9477271863bd74dfab71bcc5d4740c196860b3f"
+    "sha256": "f8edf6755bd655961cba376c8290c3542183c1c02e56b5a6f096deea766af462"
   },
   "hardware_platform": {
     "relative_path": "build/p0/hardware/p0_system_50mhz.xsa",
-    "bytes": 534833,
-    "xsa_sha256": "9cc6da79b1d66eb0e1d5fb6818d3664b1df138d2f9f9db076bf1cfc57bc71ad4",
-    "hwh_sha256": "b594d2bc1900ab7a2660eac09fd766841996a5e7283c9565765a49565c3216cc"
+    "bytes": 534845,
+    "xsa_sha256": "e7a387e91f2ffc86e58785cdd36b5aded63c4f7e2b23b6a8e4dd2a0c38232cde",
+    "hwh_sha256": "28588e1ace0b4e015de93c495eceb8af7bff30b4fa2b38da04b44f4946c40cb6"
   },
   "historical_invalid_for_current_packet": {
     "length_width_bits": 14,

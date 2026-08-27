@@ -39,10 +39,11 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Uyarlanabilir hücre tespiti, aday gruplama ve 2/3 zamansal doğrulama | Host referansında doğrulandı |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Operatör onaylı analiz aralığında doğrulandı |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
-| ZedBoard PL Hann/FFT/güç zinciri | Vivado sentez/yerleştirme-yönlendirme kanıtı mevcut |
+| ZedBoard PL Hann/FFT/güç zinciri | SystemVerilog ve AMD FFT IP ile temiz Vivado bitstream/XSA üretimi doğrulandı |
+| FPGA tespit, gruplama ve aday paketleme blokları | SystemVerilog/golden doğrulaması mevcut; kanonik P0 bitstream zincirine henüz alınmadı |
 | ZedBoard üzerinde canlı DMA ve uçtan uca çalışma | Henüz doğrulanmadı |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
-| ET işlevleri | Yalnız çevrimdışı modeller; RF yayın yolu yok |
+| ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
 Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.

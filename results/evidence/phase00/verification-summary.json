@@ -11,7 +11,7 @@
     {
       "id": "minimal-file-tree",
       "status": "passed",
-      "detail": "repository contains only the PHASE-00 file set"
+      "detail": "repository contains the PHASE-00 baseline and approved later-phase paths"
     },
     {
       "id": "text-integrity",
@@ -31,12 +31,12 @@
     {
       "id": "phase-roadmap",
       "status": "passed",
-      "detail": "roadmap starts at PHASE-00, preserves phase order, and marks PHASE-00 current"
+      "detail": "roadmap retains the PHASE-00 baseline and preserves PHASE-00 through PHASE-13 order"
     },
     {
       "id": "readme-current-state",
       "status": "passed",
-      "detail": "README explicitly identifies PHASE-00 and unimplemented DSP/RF capabilities"
+      "detail": "README distinguishes verified capabilities from live hardware, calibration, and RF-TX limits"
     },
     {
       "id": "rf-test-boundaries",
@@ -46,7 +46,7 @@
     {
       "id": "no-future-phase-sources",
       "status": "passed",
-      "detail": "implementation directories contain no post-PHASE-00 source or data"
+      "detail": "implementation directories contain only approved later-phase additions"
     },
     {
       "id": "toolchain-inventory",

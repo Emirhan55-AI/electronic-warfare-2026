@@ -37,6 +37,8 @@ geçilmeden bekler.
 
 Vivado 2025.2'de 50 MHz P0 tasarımı, 32768-byte S2MM paketi için zorunlu 16-bit
 DMA length alanıyla sentez, route, timing, bitstream ve XSA kapılarını geçmiştir.
+FPGA kaynak ağacının `algorithms/fpga/` altına taşınmasından sonra eski TCL yolları
+düzeltilmiş; aynı kapılar 2026-08-27 tarihinde temiz projeden yeniden geçmiştir.
 PetaLinux 2025.2 device tree, coherent-buffer DMA modülü, rootfs ve boot artifact
 derlemesi tamamlanmıştır. İlk manuel-repack `BOOT.BIN` fiziksel A/B testinde
 UART-sessiz başarısız olmuş; PetaLinux-native bootbin recovery artifact'ı statik

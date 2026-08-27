@@ -89,8 +89,8 @@ taşır. Durum rozetleri erişilebilir açıklama kazanmış, geniş ekran Siste
 ölçeği yoğun minimum ekranı etkilemeden yükseltilmiş ve boş günlük filtresi açık
 durum metniyle kapatılmıştır. Beş gerçek QML görünümü ve bağlama duyarlı kullanım
 kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. ET-C ile üç ET görünümü,
-güvenlik, operatör dili ve azaltılabilir hareket kapıları eklenerek güncel toplam
-27 olmuştur. Bu bakım algoritma,
+güvenlik, operatör dili, boş kaynak durumu ve azaltılabilir hareket kapıları
+eklenerek güncel toplam 28 olmuştur. Bu bakım algoritma,
 donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
 
 ET-C bakım paketi, doğrulanmış KTR-5.1–5.4 host modellerini ana QML ürün
@@ -100,6 +100,12 @@ GPS görünümü ise yalnız metadata doğrulama sonucundan beslenir. Paket mani
 çevrimdışı ET modellerini dahil ederken mock kaynak, eski QWidget laboratuvarı,
 doğrulama veri setleri ve RF yayın yolunu dışarıda tutar. Bu bakım PHASE-10–12
 fiziksel kapılarını tamamlamaz.
+
+KTR-6 için kanonik P0 Vivado kaynak yolları depo düzeniyle birlikte
+`algorithms/fpga/` altında sabitlenmiştir. Yol düzeltmesinden sonra ZedBoard
+`xc7z020clg484-1` hedefi temiz projeden yeniden sentezlenmiş, route ve zamanlama
+kapılarını geçmiş, bitstream ile XSA yeniden üretilmiştir. Bu kanıt kart bootu,
+DMA IOC veya FPGA sayısal golden kabulü değildir; fiziksel kapılar açık kalır.
 
 Ürünleşme sınırı: video/demo dönemi kapanmıştır. Yayın operatör uygulaması mock,
 eğitim, gösterim verisi veya geleceğe ayrılmış bağlı-olmayan kontrol içermez.

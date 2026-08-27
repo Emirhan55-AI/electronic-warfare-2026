@@ -22,11 +22,11 @@ phase06d::emit_configuration $core
 generate_target simulation $core
 
 set sources [list \
-  [file join $repository_root rtl phase06c rtl phase06c_pkg.sv] \
-  [file join $repository_root rtl phase06a rtl axis_skid_buffer.sv] \
-  [file join $repository_root rtl phase06c rtl axis_fft_wrapper.sv] \
-  [file join $repository_root rtl phase06d rtl amd_xfft_adapter.sv] \
-  [file join $repository_root rtl phase06d tb tb_phase06d_fft_vendor.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl phase06c_pkg.sv] \
+  [file join $repository_root algorithms fpga phase06a rtl axis_skid_buffer.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl axis_fft_wrapper.sv] \
+  [file join $repository_root algorithms fpga phase06d rtl amd_xfft_adapter.sv] \
+  [file join $repository_root algorithms fpga phase06d tb tb_phase06d_fft_vendor.sv] \
 ]
 add_files -fileset sim_1 -norecurse $sources
 set_property top tb_phase06d_fft_vendor [get_filesets sim_1]

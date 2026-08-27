@@ -113,12 +113,11 @@ bulunmazsa konsol çalışmaya devam eder ve Türkçe metinsel fallback gösteri
 6. Coğrafi LOB yalnız geçerli konum ve açıkça girilmiş sıfır referansı varsa
    çizilir. Çizginin sonu hedef ya da konum kestirimi değildir.
 
-Yalnız offline laboratuvar bileşimindeki `ET` sekmesinde varsayılan `OFFLINE`
-modda tekli/çoklu/barrage
-seçilip sürekli karıştırma önizlemesi başlatılabilir. Analog aldatma alanında
-scenario ve FM/NFM seçilerek taban bant/spektrum önizlemesi görülebilir. Kilitli
-modlar RF göndermez. Bu sekme ürün uygulamasında ve yayın paketinde bulunmaz.
-`ACİL DURDURMA` fail-closed durumu kilitler.
+Ana ürün kabuğundaki `ET` alanı yalnız doğrulanmış çevrimdışı görev sonuçlarını
+sunar. Sürekli ve arabakışlı görevler ile AM/FM/NFM loopback ve GPS L1 C/A
+metadata denetimleri Python host modellerinden gelir. QML gösterimlik sonuç
+üretmez; SystemVerilog ET çekirdeği veya RF TX arka ucu yoktur. Donanım ve yayın
+modları kilitlidir.
 
 ## Vivado görsel inceleme
 

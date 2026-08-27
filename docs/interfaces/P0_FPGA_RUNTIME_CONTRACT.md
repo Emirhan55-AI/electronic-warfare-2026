@@ -50,6 +50,12 @@ yeniden boot etmiştir. PetaLinux-native `xilinx-bootbin` hedefiyle üretilen re
 imajı statik Bootgen denetiminden geçmiştir fakat henüz kartta çalıştırılmamıştır.
 Fiziksel `S2MM_LENGTH=32768`, DMA IOC ve sayısal golden henüz çalıştırılmamıştır.
 
+Kaynak ağacının `algorithms/fpga/` altında birleştirilmesinden sonra bütün Vivado
+TCL kaynak yolları bu kanonik dizine taşınmış ve proje 2026-08-27 tarihinde temiz
+durumdan yeniden üretilmiştir. Vivado 2025.2; blok tasarımı, sentez, route,
+setup/hold zamanlaması, bitstream ve gömülü bitstream içeren XSA üretimini tekrar
+geçmiştir. Bu yeniden üretim fiziksel kart kabulünün yerine geçmez.
+
 ## Hata ve iddia sınırı
 
 Eksik giriş `TKEEP` değeri sticky hata üretir. FFT olayları PHASE-06C sözleşmesinin

@@ -22,16 +22,16 @@ set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 
 set rtl_sources [list \
-  [file join $repository_root rtl phase06c rtl phase06c_pkg.sv] \
-  [file join $repository_root rtl phase06a rtl axis_skid_buffer.sv] \
-  [file join $repository_root rtl phase06c rtl axis_fft_wrapper.sv] \
-  [file join $repository_root rtl phase06d rtl amd_xfft_adapter.sv] \
-  [file join $repository_root rtl phase06e rtl phase06e_fft_implementation_top.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl phase06c_pkg.sv] \
+  [file join $repository_root algorithms fpga phase06a rtl axis_skid_buffer.sv] \
+  [file join $repository_root algorithms fpga phase06c rtl axis_fft_wrapper.sv] \
+  [file join $repository_root algorithms fpga phase06d rtl amd_xfft_adapter.sv] \
+  [file join $repository_root algorithms fpga phase06e rtl phase06e_fft_implementation_top.sv] \
 ]
 add_files -fileset sources_1 -norecurse $rtl_sources
-set xci [file join $repository_root rtl phase06d ip phase06d_fft_4096 phase06d_fft_4096.xci]
+set xci [file join $repository_root algorithms fpga phase06d ip phase06d_fft_4096 phase06d_fft_4096.xci]
 import_ip -files $xci -name phase06d_fft_4096
-set xdc [file join $repository_root rtl phase06e constraints phase06e_fft_100mhz.xdc]
+set xdc [file join $repository_root algorithms fpga phase06e constraints phase06e_fft_100mhz.xdc]
 add_files -fileset constrs_1 -norecurse $xdc
 set_property used_in_synthesis true [get_files $xdc]
 set_property used_in_implementation true [get_files $xdc]
