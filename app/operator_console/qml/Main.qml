@@ -65,6 +65,15 @@ ApplicationWindow {
         consoleOpen = false
     }
 
+    onConsoleOpenChanged: {
+        if (consoleOpen) {
+            Qt.callLater(function() {
+                eventConsoleList.positionViewAtBeginning()
+                eventConsoleList.forceActiveFocus()
+            })
+        }
+    }
+
     function setSpectrumView(start, end) {
         var span = Math.max(0.02, Math.min(1.0, end - start))
         var boundedStart = Math.max(0.0, Math.min(1.0 - span, start))
@@ -849,7 +858,7 @@ ApplicationWindow {
                                                 spectrumCanvas.selectionOpacity = selectedId >= 0 ? 0 : 1
                                                 selectionFade.restart()
                                             }
-                                            spectrumCanvas.requestPaint()
+                                            if (root.workspace === 0) spectrumCanvas.requestPaint()
                                         }
                                     }
                                     onPaint: {
@@ -1479,12 +1488,12 @@ ApplicationWindow {
                             spacing: 9
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "KANAL HAZIRLAMA"; Layout.fillWidth: true }
+                                SectionTitle { text: "KANAL AYARI"; Layout.fillWidth: true }
                                 StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
                             }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 76
+                                implicitHeight: 66
                                 radius: 4
                                 color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
                                 border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
@@ -1593,7 +1602,7 @@ ApplicationWindow {
                             }
                             PrimaryButton {
                                 Layout.fillWidth: true
-                                text: operatorViewModel.listeningReady ? "Kanal Sesini Yeniden Hazırla" : "Kanal Sesini Hazırla"
+                                text: operatorViewModel.listeningReady ? "Kanalı Yeniden Hazırla" : "Kanalı Hazırla"
                                 enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
                                 onClicked: operatorViewModel.requestListening(
                                     listeningMode.model[listeningMode.currentIndex].value,
@@ -1601,13 +1610,6 @@ ApplicationWindow {
                                     Number(listeningBandwidth.text),
                                     listeningVolume.value
                                 )
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                text: "Kesintisiz sonuç için en az 5 saniyelik I/Q gerekir; kısa kayıt yalnız süreli önizleme üretir."
-                                color: root.warning
-                                font.pixelSize: 9
-                                wrapMode: Text.Wrap
                             }
                         }
                     }
@@ -1729,19 +1731,24 @@ ApplicationWindow {
                                     }
                                 }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                ListView {
+                                GridLayout {
                                     id: listeningResultList
                                     objectName: "listeningResultList"
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    clip: true
-                                    model: operatorViewModel.listeningRows
-                                    delegate: RowLayout {
-                                        required property var modelData
-                                        width: ListView.view.width
-                                        height: 30
-                                        Label { text: modelData.label; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                        Label { text: modelData.value; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                    columns: root.width < 1100 ? 1 : 2
+                                    columnSpacing: 18
+                                    rowSpacing: 4
+                                    Repeater {
+                                        model: operatorViewModel.listeningRows
+                                        delegate: RowLayout {
+                                            required property var modelData
+                                            Layout.fillWidth: true
+                                            Layout.minimumWidth: 0
+                                            implicitHeight: 26
+                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true; elide: Text.ElideRight }
+                                            Label { text: modelData.value; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                        }
                                     }
                                 }
                                 RowLayout {
@@ -1779,29 +1786,25 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 94
+                                implicitHeight: 66
                                 radius: 4
                                 color: root.surfaceAlt
                                 border.color: root.border
                                 ColumnLayout {
                                     anchors.fill: parent
                                     anchors.margins: 10
-                                    spacing: 4
+                                    spacing: 3
                                     RowLayout {
                                         Layout.fillWidth: true
-                                        Label { text: "KAYNAK BAĞLAMI"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; Layout.fillWidth: true }
+                                        Label { text: "ÖLÇÜM GİRDİSİ"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; Layout.fillWidth: true }
                                         Label { text: operatorViewModel.sourceReady ? "ETKİN KARE" : "KAYNAK YOK"; color: operatorViewModel.sourceReady ? root.success : root.warning; font.pixelSize: 8; font.weight: Font.Bold }
-                                    }
-                                    Label { text: operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 10; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        Label { text: operatorViewModel.centerFrequencyText; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
-                                        Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount + " kare"; color: root.textSecondary; font.pixelSize: 9 }
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
                                         Label { text: "Geniş bant kare gücü"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
                                         Label { text: operatorViewModel.directionFramePowerText; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                        Rectangle { width: 1; height: 12; color: root.border }
+                                        Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount + " kare"; color: root.textSecondary; font.pixelSize: 9 }
                                     }
                                 }
                             }
@@ -1836,7 +1839,7 @@ ApplicationWindow {
                                         model: [
                                             {text: "Gerçek kuzey (0°)", value: "north"},
                                             {text: "Elle girilen gerçek kerteriz", value: "manual"},
-                                            {text: "Coğrafi referans yok", value: "none"}
+                                            {text: "Bağıl kerteriz (referanssız)", value: "none"}
                                         ]
                                         textRole: "text"
                                         Accessible.name: "Anten sıfır derece yön referansı"
@@ -1874,13 +1877,13 @@ ApplicationWindow {
                             PrimaryButton {
                                 Layout.fillWidth: true
                                 implicitHeight: 42
-                                text: "Etkin Kare Gücünü Kaydet"
+                                text: "Kare Gücünü Kaydet"
                                 enabled: operatorViewModel.sourceReady && !operatorViewModel.busy && antennaAngle.acceptableInput && (referenceMode.currentIndex !== 1 || referenceAngle.acceptableInput)
                                 Accessible.name: "Etkin kare gücünü anten açısıyla kaydet"
                                 onClicked: operatorViewModel.addDirectionMeasurement(Number(antennaAngle.text), referenceMode.model[referenceMode.currentIndex].value, Number(referenceAngle.text))
                             }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: operatorViewModel.directionPoints.length > 0; onClicked: operatorViewModel.clearDirectionMeasurements() }
-                            Label { text: "Tek yönlü anten ve göreli dBFS kullanılır; faz uyumlu DoA, menzil veya hedef konumu üretilmez."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: "Güç örüntüsü · Faz uyumlu DoA, menzil ve konum üretmez."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                         }
                     }
 
@@ -1903,7 +1906,7 @@ ApplicationWindow {
                                     spacing: 4
                                     RowLayout {
                                         Layout.fillWidth: true
-                                        SectionTitle { text: "RADYO KERTERİZİ"; Layout.fillWidth: true }
+                                        SectionTitle { text: "KERTERİZ GÖSTERGESİ"; Layout.fillWidth: true }
                                         Label { text: bearingCompass.geographicReference ? "GERÇEK" : "BAĞIL"; color: bearingCompass.indicatedBearing >= 0 ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     }
                                     Canvas {
@@ -1985,7 +1988,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true; Layout.fillHeight: true
                                     RowLayout { anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                                         ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                            Label { text: "BAĞIL GELİŞ YÖNÜ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
+                                            Label { text: "BAĞIL KERTERİZ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
                                             Label { text: "Antenin 0° ekseninden saat yönünde"; color: root.textMuted; font.pixelSize: 9 }
                                         }
                                         Label { text: operatorViewModel.relativeArrivalText; color: root.accent; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
@@ -2013,12 +2016,10 @@ ApplicationWindow {
                                 RowLayout {
                                     Layout.fillWidth: true
                                     SectionTitle { text: "ÖLÇÜM GEÇMİŞİ"; Layout.fillWidth: true }
-                                    StateBadge { state: operatorViewModel.directionReady ? "Hazır" : operatorViewModel.directionMeasurementCount > 0 ? "Bekliyor" : "Kullanılmıyor" }
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
                                     Label { text: operatorViewModel.directionStatusText; color: operatorViewModel.directionReady ? root.success : root.warning; font.pixelSize: 11; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.directionRequirementText; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
                                 }
                                 Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                 RowLayout {
@@ -2556,6 +2557,9 @@ ApplicationWindow {
         function onEtChanged() {
             if (root.operatingDomain === "ET") etResultPulse.restart()
         }
+        function onLogChanged() {
+            if (root.consoleOpen) Qt.callLater(function() { eventConsoleList.positionViewAtBeginning() })
+        }
     }
 
     SequentialAnimation {
@@ -2570,12 +2574,14 @@ ApplicationWindow {
         y: root.contentItem.height - height
         width: root.contentItem.width - x
         height: root.consoleOpen ? Math.min(238, root.contentItem.height * 0.36) : 0
-        visible: height > 0
+        visible: root.consoleOpen || height > 0 || opacity > 0
+        opacity: root.consoleOpen ? 1 : 0
         clip: true
         color: "#03070B"
         border.color: root.borderStrong
         border.width: 1
         Behavior on height { NumberAnimation { duration: root.transitionDuration + 40; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
 
         ColumnLayout {
             anchors.fill: parent
@@ -2588,10 +2594,21 @@ ApplicationWindow {
                 QuietButton { text: "Kapat"; implicitHeight: 28; onClicked: root.consoleOpen = false }
             }
             Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 18
+                spacing: 12
+                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 68 }
+                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 100 }
+                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.fillWidth: true }
+            }
             ListView {
+                id: eventConsoleList
+                objectName: "eventConsoleList"
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
+                focus: root.consoleOpen
                 model: operatorViewModel.eventLog
                 spacing: 0
                 delegate: Rectangle {

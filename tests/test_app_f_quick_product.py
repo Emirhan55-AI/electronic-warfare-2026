@@ -362,14 +362,15 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "directionSettingsScroll"',
             'objectName: "directionCompass"',
             'objectName: "directionMeasurementList"',
-            "Etkin Kare Gücünü Kaydet",
+            "Kare Gücünü Kaydet",
             'objectName: "pipelineList"',
             'objectName: "systemLog"',
             "SALT OKUNUR",
             "BİLEŞEN AYRINTISI",
             "Salt okunur · komut çalıştırmaz",
             'sequence: "Alt+Left"',
-            "Kanal Sesini Hazırla",
+            "Kanalı Hazırla",
+            'objectName: "eventConsoleList"',
             "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-27T01:25:35Z",
+  "recorded_at": "2026-08-27T09:06:39Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.16595288452138,
-      "processing_median_ms": 3.8487000856548548,
-      "processing_p95_ms": 4.835700150579214,
-      "maximum_heartbeat_gap_ms": 37.69919998012483,
+      "observed_update_hz": 9.172259053019143,
+      "processing_median_ms": 2.399899996817112,
+      "processing_p95_ms": 2.5222001131623983,
+      "maximum_heartbeat_gap_ms": 26.413100073114038,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -144,7 +144,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "d6fff4e975f88da5ab6cf70af9d28f3e3a6dbd3a65d0edbaf383168eebc964b4"
+      "screenshot_sha256": "2587a76ccaf4932b817465cfa6f65983fa645038d50138d9ed0ecc44ba0a8b3b"
     },
     {
       "name": "measurement-1280x720",
@@ -176,10 +176,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.189186165536254,
-      "processing_median_ms": 3.9884999860078096,
-      "processing_p95_ms": 5.2108000963926315,
-      "maximum_heartbeat_gap_ms": 36.37290000915527,
+      "observed_update_hz": 9.19786020978311,
+      "processing_median_ms": 2.397000091150403,
+      "processing_p95_ms": 2.4661000352352858,
+      "maximum_heartbeat_gap_ms": 27.552700135856867,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -272,7 +272,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "4a7ab7adf8e8a2f5d3209dfba6875ccbdf1de6b7807ce21d62c58f26720e410f"
+      "screenshot_sha256": "7c55793b2d0c3760fa3efb5b40cf34aa34b83e113f701089c6d9becaf9ffa171"
     },
     {
       "name": "standard-1366x768",
@@ -304,10 +304,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.195282820390245,
-      "processing_median_ms": 3.5486998967826366,
-      "processing_p95_ms": 5.349100101739168,
-      "maximum_heartbeat_gap_ms": 41.71580006368458,
+      "observed_update_hz": 9.232295307572109,
+      "processing_median_ms": 2.426799852401018,
+      "processing_p95_ms": 2.553400117903948,
+      "maximum_heartbeat_gap_ms": 28.808199800550938,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -400,7 +400,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "1928f36f51275364b7c9cbbcd6295dfa7b71267fba7e99e3c70365050e4f2867"
+      "screenshot_sha256": "ed7446f6857b672816cd78abf4fb6ecc4a64f30f765f1a0c087708c94427aea5"
     },
     {
       "name": "fullhd-1920x1080",
@@ -432,10 +432,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.158945576005685,
-      "processing_median_ms": 4.314000019803643,
-      "processing_p95_ms": 6.032200064510107,
-      "maximum_heartbeat_gap_ms": 34.63430004194379,
+      "observed_update_hz": 9.198507633894678,
+      "processing_median_ms": 2.3806998506188393,
+      "processing_p95_ms": 2.5510000996291637,
+      "maximum_heartbeat_gap_ms": 27.766200015321374,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -528,7 +528,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "1ae66c42be565505cc7a04e35857ecca16a9026a08ff6370b5faf754afa793fb"
+      "screenshot_sha256": "9e807d01e1cfbfcf96c0a17bd194de94488188a9c3136fa37209ae8c7652c4a0"
     },
     {
       "name": "scale-150-percent",
@@ -560,10 +560,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.18217262842194,
-      "processing_median_ms": 4.5050999615341425,
-      "processing_p95_ms": 5.974099971354008,
-      "maximum_heartbeat_gap_ms": 42.32200002297759,
+      "observed_update_hz": 9.198340619566821,
+      "processing_median_ms": 2.416800009086728,
+      "processing_p95_ms": 2.544200047850609,
+      "maximum_heartbeat_gap_ms": 25.4310998134315,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -656,7 +656,7 @@
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "cf612eb77bfcc46b015292b48ede3d352397bf5f1da1467b92eed793edb01979"
+      "screenshot_sha256": "64916ef2e70679352d070be45f90d810877d381492b09cbf0923a7d91e3c85c4"
     }
   ],
   "et_runs": [
@@ -700,7 +700,7 @@
       "has_measurement_gap": true,
       "transmit_api_present": false,
       "screenshot": "results/evidence/app-f/et-interleaved-1440x900.png",
-      "screenshot_sha256": "ffff1469e776bc05110e4b026d404e06559e2b47d6d61d24fab690d10a8304b6"
+      "screenshot_sha256": "557d437d499b3702aad337c81d2ff98c627a523139d771ff7459eaf6c254c109"
     },
     {
       "name": "et-gnss-1180x680",

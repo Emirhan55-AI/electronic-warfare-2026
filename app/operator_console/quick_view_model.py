@@ -1420,7 +1420,7 @@ class OperatorViewModel(QObject):
         self._busy = True
         if kind != "frame":
             self.pipelineChanged.emit()
-        self.stateChanged.emit()
+            self.stateChanged.emit()
         self._pool.start(task)
 
     @Slot(int, str, object, float)

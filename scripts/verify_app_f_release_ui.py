@@ -556,7 +556,7 @@ def _parent_run() -> int:
                 'objectName: "directionSettingsScroll"',
                 'objectName: "directionCompass"',
                 'objectName: "directionMeasurementList"',
-                "Etkin Kare Gücünü Kaydet",
+                "Kare Gücünü Kaydet",
             )
         ),
         "system_diagnostics": all(
@@ -614,6 +614,7 @@ def _parent_run() -> int:
                 "root.systemLogMatchCount() + \" kayıt\"",
                 "Bu filtreyle eşleşen olay yok",
                 'objectName: "eventConsoleButton"',
+                'objectName: "eventConsoleList"',
             )
         ),
         "honest_feature_surface": all(
