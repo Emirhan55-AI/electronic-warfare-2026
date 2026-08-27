@@ -95,6 +95,33 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
 
 
+def test_parameter_physical_evidence_is_bounded_and_traceable() -> None:
+    evidence = json.loads(
+        (ROOT / "results/evidence/p0/parameter-runtime-physical-acceptance.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    paths = {
+        "p0_parameter_runtime.c": ROOT / "platforms/embedded/p0/src/p0_parameter_runtime.c",
+        "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
+        "p0_parameter_client.c": ROOT / "platforms/embedded/p0/src/p0_parameter_client.c",
+        "verify_p0_parameter_runtime_physical.py":
+            ROOT / "scripts/verify_p0_parameter_runtime_physical.py",
+    }
+
+    assert evidence["status"] == "passed"
+    assert evidence["platform"]["fpga_manager_state"] == "operating"
+    assert evidence["measurement"]["observations"] == [1, 2, 3, 4]
+    assert evidence["measurement"]["dma_status_flags"] == [7, 7, 7, 7]
+    assert evidence["measurement"]["premature_numeric_publication"] is False
+    assert evidence["measurement"]["final_valid_fields"] == 6
+    assert evidence["cross_architecture_equivalence"]["maximum_absolute_error"] == 0.0
+    assert evidence["ideal_fft_characterization"]["pass_fail_gate"] is None
+    for name, source in paths.items():
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    assert "one deterministic AM sequence" in evidence["claim_boundary"]
+
+
 def test_physical_service_evidence_is_bounded_and_traceable() -> None:
     evidence = json.loads(
         (ROOT / "results/evidence/p0/ed-local-service-physical-acceptance.json").read_text(

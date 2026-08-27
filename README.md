@@ -37,7 +37,7 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
 | Uyarlanabilir hücre tespiti, aday gruplama ve 2/3 zamansal doğrulama | Host referansında doğrulandı |
-| Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; sayısal alanların ARM paketi derlendi, fiziksel kart kabulü bekliyor |
+| Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL Hann/FFT/güç zinciri | SystemVerilog ve AMD FFT IP ile temiz Vivado bitstream/XSA üretimi doğrulandı |
 | FPGA tespit, gruplama ve aday paketleme blokları | SystemVerilog/golden doğrulaması mevcut; kanonik P0 bitstream zincirine henüz alınmadı |

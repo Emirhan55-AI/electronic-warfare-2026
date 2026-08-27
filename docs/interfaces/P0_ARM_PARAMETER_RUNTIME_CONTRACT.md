@@ -57,3 +57,18 @@ kararsızlık durumlarında her alan kendi durum ve neden koduyla kapanır.
 Bu sözleşme dBm doğruluğu, canlı RF doğruluğu, taşıyıcı çizgisi, sinyal alanı
 sınıflaması veya sustained throughput iddiası oluşturmaz. Bu iddialar ayrı ve
 tekrarlanabilir kart/saha kabulü gerektirir.
+
+## Fiziksel kabul sınırı
+
+ZedBoard üzerinde deterministik bir AM dizisi; olay edinimi ve ardından dört
+ardışık ölçüm gözlemiyle fiziksel PL FFT/güç, DMA, ayrıcalıklı yerel hizmet ve ARM
+çekirdeğinden geçirilmiştir. Dördüncü gözlemde altı sayısal alanın tamamı geçerli
+olmuştur. Karttan alınan dört `UQ28.30` güç karesi host C çekirdeğinde tekrar
+işlendiğinde ARM hizmetiyle altı alanda sıfır sayısal fark elde edilmiştir.
+
+İdeal NumPy FFT ile fiziksel AMD FFT arasında en büyük frekans-alanı farkı
+`0,0360532403 Hz`, en büyük dB-alanı farkı `0,0000344859 dB` olarak yalnız
+karakterizasyon amacıyla kaydedilmiştir. Çalıştırmadan önce fiziksel ideal-FFT
+eşdeğerlik toleransı tanımlanmadığı için bu farklara sonradan pass/fail eşiği
+atanmamıştır. Kanıt tek deterministik AM dizisiyle sınırlıdır; geniş bant fiziksel
+kapsama, canlı RF, kalibrasyon ve sürekli throughput sonucu değildir.

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-28",
+  "status": "passed",
+  "scope": "physical ZedBoard PL-DMA-ARM parameter execution",
+  "platform": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2 armv7l",
+    "fpga_manager_state": "operating",
+    "image_ub_sha256": "4359ce43f3d470c0dda67176782648da9abe7d11700b0c14438b8886565e2642"
+  },
+  "runtime": {
+    "service_identity": "p0ed",
+    "service_pid": 625,
+    "automatic_boot_start": "passed",
+    "dma_device": "/dev/p0-dma root:root 0600",
+    "operator_socket": "/run/p0-ed/p0-ed.sock p0ed:petalinux 0660",
+    "service_sha256": "6dfd97e9dc10584a4efbddc64c96f875c36986d822d53bec3e18a03e18314ac9",
+    "parameter_runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
+    "parameter_client_sha256": "f0d0d5d6c64e20e250729bc16da29973d14d98a7f5294fcdb8e9cbbe12353272"
+  },
+  "post_capture_service_health": {
+    "unprivileged_frame_id": 20,
+    "result": "passed",
+    "dma_status_flags": 7,
+    "raw_candidate_count": 3
+  },
+  "fixture": {
+    "scene": "am-carrier",
+    "seed": 3502604761305543594,
+    "sample_rate_hz": 8000000,
+    "center_frequency_hz": 100000000,
+    "span_shifted_bins": [1776, 1819],
+    "intent_id": 20260828,
+    "event_id": 1,
+    "frame_sha256": [
+      "7692d7ec8d0a2da594623981b1af62a8fd87a106ce0504e31f372317b4a2a521",
+      "094d0f92e8ec5636409f9bfc61af120e82ef8307cc957df12ca4d10df47f5c1c",
+      "23c39a87f5f66b7b896f29d32520ba2078d31cfab133dca6054c040765b7e5e2",
+      "fc1168f6eb6e7b49d4ce90e33dd473abed9b8f86cf7596a4b150544157c9df0e",
+      "c0ee68b31f8654fe7d21ece1d7cd1801c2982c0eb6be5943be0065b264ff0519"
+    ]
+  },
+  "event_acquisition": {
+    "frame_id": 0,
+    "dma_status_flags": 7,
+    "raw_candidate_count": 3,
+    "owner_state": "tentative",
+    "owner_peak_shifted_bin": 1798,
+    "protected_span_interference": false
+  },
+  "measurement": {
+    "observations": [1, 2, 3, 4],
+    "raw_candidate_counts": [4, 1, 3, 5],
+    "dma_status_flags": [7, 7, 7, 7],
+    "premature_numeric_publication": false,
+    "final_valid_fields": 6,
+    "final_values": {
+      "emission_center_frequency_hz": 99511028.10395202,
+      "lower_occupied_edge_hz": 99492882.83539063,
+      "upper_occupied_edge_hz": 99529472.04105131,
+      "occupied_bandwidth_hz": 36589.20566067758,
+      "channel_power_dbfs": -19.203544873639892,
+      "snr_estimate_db": 10.468902421241442
+    }
+  },
+  "cross_architecture_equivalence": {
+    "reference": "MSVC C11 replay using the four captured physical PL UQ28.30 power frames",
+    "fields": 6,
+    "maximum_absolute_error": 0.0,
+    "field_absolute_errors": {
+      "emission_center_frequency_hz": 0.0,
+      "lower_occupied_edge_hz": 0.0,
+      "upper_occupied_edge_hz": 0.0,
+      "occupied_bandwidth_hz": 0.0,
+      "channel_power_dbfs": 0.0,
+      "snr_estimate_db": 0.0
+    }
+  },
+  "ideal_fft_characterization": {
+    "pass_fail_gate": null,
+    "reason": "No physical ideal-FFT equivalence tolerance was declared before execution.",
+    "maximum_frequency_field_error_hz": 0.036053240299224854,
+    "maximum_db_field_error_db": 0.000034485890346047654
+  },
+  "physical_power_sha256": {
+    "frame-1-physical.u64": "06fda649998159297903cf3e59276c55c006d7e7772bf0acf88e3c47cc664503",
+    "frame-2-physical.u64": "e37f9a159b0adf99a82ef20a4699e26d15849cd1b3ea6d68b115999c11f8f81e",
+    "frame-3-physical.u64": "ff8df6fe000e36cf697e1244f6a2c2c1b274c202962de1000fd2c23fd34e84ce",
+    "frame-4-physical.u64": "c730203a15d0c783da569c4e20eb39d987ba5bfe97a7a50cba2b8d417ccc4b76"
+  },
+  "artifact_sha256": {
+    "ed-frame-0.json": "1ecd033fd7d8c7fac5e597f6445204b2ea037a81e53c49634da9ac68a20f9b8e",
+    "parameter-1.json": "5916dc01bc010c1700b639a4d1bbecd79e5449040880c19e65fb25a7da14ac05",
+    "parameter-2.json": "78ba21f3c7a270d9d18b20f7e8c54b96b81e75dbbb1dcfc0361ab5b8ba14677d",
+    "parameter-3.json": "8986bbbb28f1728b6bce7ae292c54ed907f5ad716cfdee182125e65fdd565e91",
+    "parameter-4.json": "832042a128451d116e057f2d1e2b57522cc1c5af329b41828d547854b24fbacf",
+    "host-from-physical-power.json": "980041b12d0d8f104a5df46f7d01354b82b611d9f32a5724675598b7ca8a74a7"
+  },
+  "source_sha256": {
+    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "p0_ed_service.c": "a7cb3bb0c57b9869049356ac385bb1d86a058baf7d4c0c76cdf5eb2f79d7de1b",
+    "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
+    "verify_p0_parameter_runtime_physical.py": "7cd3645faa3336a59370a169a5cacf3e54f4842013dac7b9c28577b36e94e41f"
+  },
+  "claim_boundary": "This proves one deterministic AM sequence through physical PL FFT/power, DMA, the privileged local service and the ARM four-observation parameter runtime. Six ARM values exactly match the host C replay when both consume the captured physical PL power frames. Ideal NumPy-to-physical FFT differences are characterization only because no pre-execution physical equivalence tolerance was declared. This does not establish detector accuracy, broad-signal coverage, calibrated RF accuracy, live RF, sustained throughput, carrier-line extraction, signal-domain classification or RF transmission."
+}

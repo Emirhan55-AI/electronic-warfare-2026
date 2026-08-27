@@ -1082,6 +1082,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "scripts/verify_p0_ed_service_linux.py",
     "scripts/verify_p0_ed_service_physical.py",
     "scripts/verify_p0_parameter_runtime.py",
+    "scripts/verify_p0_parameter_runtime_physical.py",
     "scripts/verify_p0_temporal_runtime.py",
     "tests/p0/p0_ed_service_protocol_test.c",
     "tests/p0/p0_parameter_runtime_test.c",
