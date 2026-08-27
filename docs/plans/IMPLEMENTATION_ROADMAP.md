@@ -54,9 +54,10 @@ bu deterministik çerçevenin doğruluk veya confirmed-event sonucu sayılmaz. �
 native paketleme açığı kapanmıştır. Üç ayrı byte-tam FPGA güç çerçevesi, PHASE-06I
 ABI paket köprüsü üzerinden karttaki PHASE-06J 2/3 çekirdeğinde çalıştırılmış;
 ikinci karede doğrulama ve iki boş kare sonunda sonlandırma geçmiş, 81.076 byte
-ARM olay çıktısı host C ile byte-tam eşleşmiştir. Yeni araç rootfs için derlenmiş,
-fiziksel kabulde UART ile geçici `/tmp` alanından çalıştırılmıştır. Ethernet
-taşıma, throughput, geniş detector vektörleri, parametre ARM bağı, kalıcı kart
+ARM olay çıktısı host C ile byte-tam eşleşmiştir. Yeni araç rootfs içindeki
+`/usr/bin/p0-ed-runtime-run` yoluna kurulmuş; SD güncellemesi sonrasındaki soğuk
+açılışta aynı DMA ve temporal kabul yeniden geçmiştir. Ethernet taşıma,
+throughput, geniş detector vektörleri, parametre ARM bağı, ayrıcalıklı kart
 servisi, canlı HackRF ve RF TX açık kalır. Bu kontrol
 noktası sonraki faz için otomatik
 kullanıcı onayı oluşturmaz.

@@ -43,8 +43,9 @@ sayıya yuvarlanır. Kanonik Pfa `1e-4`, ABI `pfa_select=1` olarak taşınır.
 Fiziksel kartta üç ayrı ve golden ile byte-tam FPGA güç çerçevesi ilk karede
 geçici, ikinci karede 2/3 doğrulanmış olay üretmiş; iki boş kare sonunda olaylar
 sonlanmıştır. 81.076 byte ARM sonuç JSON'u host C çıktısıyla byte-tam eşleşmiştir.
-Araç güncel rootfs içinde derlenmiştir; fiziksel testte henüz SD'ye kurulmamış
-bu sürüm UART ile `/tmp` alanına aktarılmıştır.
+Araç güncel rootfs içindeki `/usr/bin/p0-ed-runtime-run` yoluna kurulmuş; yeni
+`image.ub` SD karta yazıldıktan sonraki soğuk açılışta FPGA manager, DMA aygıtı,
+üç byte-tam güç çerçevesi ve host/ARM olay eşdeğerliği yeniden geçmiştir.
 
 Direct-mode DMA sözleşmesi SG kapalı ve DRE kapalı olarak kalır. Bir giriş frame'i
 `4096×16 bit = 8192 byte`, bir çıkış frame'i `4096×64 bit = 32768 byte` olur.

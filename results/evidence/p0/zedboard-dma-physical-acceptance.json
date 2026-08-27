@@ -97,8 +97,8 @@
   },
   "arm_temporal_confirmation": {
     "status": "passed",
-    "deployment": "temporary UART transfer to /tmp; persistent rootfs image built but not yet installed on SD",
-    "executable": "/tmp/p0-ed-runtime-run",
+    "deployment": "persistent rootfs image installed on SD and verified after cold boot",
+    "executable": "/usr/bin/p0-ed-runtime-run",
     "executable_sha256": "077d23f29201a144c2aeb15a7706e5a25a2341f2ff3474910b326e150b747274",
     "executable_bytes": 17808,
     "architecture": "ARM EABI5",
@@ -130,8 +130,14 @@
     "partial_temporary_file_after_failure": false,
     "built_image_ub_sha256": "87f4a1211129af5420ff0b023b23d96499c91f89b1681d6f2385982a4b47bb47",
     "built_image_ub_bytes": 23922763,
+    "installed_image_ub_sha256": "87f4a1211129af5420ff0b023b23d96499c91f89b1681d6f2385982a4b47bb47",
+    "persistent_boots_verified": 1,
+    "persistent_boot_fpga_manager_state": "operating",
+    "persistent_boot_dma_device": "ready",
+    "persistent_boot_dma_runs_passed": 3,
+    "persistent_boot_host_arm_result_json": "byte-exact",
     "device_access": "root-only /dev/p0-dma (0600); physical acceptance used sudo, production requires a privileged service boundary",
-    "claim_boundary": "This proves deterministic ARM execution of the frozen 2-of-3 temporal core on three byte-exact FPGA power frames plus two empty frames. It is not detector accuracy, live-RF performance, sustained throughput, parameter extraction or an installed persistent runtime claim."
+    "claim_boundary": "This proves persistent ARM execution of the frozen 2-of-3 temporal core after SD cold boot on three byte-exact FPGA power frames plus two empty frames. It is not detector accuracy, live-RF performance, sustained throughput or parameter extraction."
   },
   "rootfs": {
     "dma_module": "/lib/modules/6.12.40-xilinx-g31626ef92ff1/updates/p0_dma_client.ko",

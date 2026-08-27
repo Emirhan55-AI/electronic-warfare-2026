@@ -6,7 +6,7 @@ repository kanıtlarıyla eşler. `Tam` yalnız mevcut tekrarlanabilir kanıtı,
 
 | Zorunlu öğe | KTR algoritma niyeti | Gerçek donanım / sahip | Gate A başlangıcı | P0 sonucu |
 |---|---|---|---|---|
-| Sinyal tespiti | Pencereli FFT/PSD, yerel gürültü, guard/reference, OS-CFAR, aday gruplama | ZedBoard PL Hann/FFT/güç; PS OS-CFAR/aday/temporal | Kısmi | Host profile PASS — Pfa `1e-4` türetilmiş alpha, empirical FAR ve Python/C eşdeğerliği; üç byte-tam fiziksel FPGA güç çerçevesinde ARM OS-CFAR→ABI v1→2/3 temporal doğrulama ve iki boş kare expiry geçti, tam olay JSON'u host/ARM byte-tam eşleşti. Geniş vektör, kalıcı kart servisi ve canlı RF açık |
+| Sinyal tespiti | Pencereli FFT/PSD, yerel gürültü, guard/reference, OS-CFAR, aday gruplama | ZedBoard PL Hann/FFT/güç; PS OS-CFAR/aday/temporal | Kısmi | Host profile PASS — Pfa `1e-4` türetilmiş alpha, empirical FAR ve Python/C eşdeğerliği; kalıcı SD/rootfs soğuk açılışı sonrasında üç byte-tam fiziksel FPGA güç çerçevesinde ARM OS-CFAR→ABI v1→2/3 temporal doğrulama ve iki boş kare expiry geçti, tam olay JSON'u host/ARM byte-tam eşleşti. Geniş vektör, ayrıcalıklı kart servisi ve canlı RF açık |
 | Emisyon merkez frekansı | Aday bölgesinde güç ağırlıklı spektral merkez; ayrı taşıyıcı frekansı kestirimi yok | PS/ARM; host referansı | Eksik | P0 host referansı — sabit golden hata/tolerans geçti; PHASE-04 bağımsız doğrulaması açık |
 | Bant genişliği | Yerel gürültü/eşik referanslı alt ve üst sinyal sınırı | PS/ARM; host oracle | Eksik | Host estimator PASS — 6 dB threshold kenarı, açık %98 fallback ve kaba aday ayrımı; ARM/canlı RF yok |
 | Güç seviyesi | Göreli lineer güç ve dBFS; kalibrasyon sözleşmesi | PS/ARM | Eksik | Tam göreli ölçüm — dBFS doğrulandı; sonuç `KALİBRE EDİLMEMİŞ · dBFS`, dBm yok |
