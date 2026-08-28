@@ -89,6 +89,23 @@ IoU `0,6475409836`, overreach `0` olmuştur. 10 yalnız-gürültü karesinde gen
 aday/doğrulanmış olay ve dört parametre isteğinde geçerli alan oluşmamıştır.
 Canlı RF, kalibre doğruluk ve sürekli throughput bu kabul kapsamı dışındadır.
 
+### P0 ED sürekli throughput kabulü
+
+Kullanıcının 2026-08-28 devam onayıyla ADR-0029, fiziksel sonuç görülmeden önce
+2 MS/s profilinin sürekli işleme kapısını kilitlemiştir. Ürün hizmetinin aynı
+yerel ABI yolunu kullanan `p0-ed-throughput-run`; bağlantı, PL Hann/FFT/güç,
+DMA, ARM tespiti ve yanıt doğrulamayı birlikte ölçer. Kapı 64 ısınma ve 4096
+ölçüm karesi, tüm yanıtlarda DMA `0x7`, sıfır istek/hizmet/sıra/DMA hatası,
+sıfır aday düşürme ve en az `488,28125 kare/s` ister. Hostta sahte DMA ile araç,
+yetki ve protokol sözleşmesi geçmiştir. PetaLinux 2025.2 imajı 6.090/6.090
+görevle hatasız üretilmiştir. Fiziksel kartta 4.096/4.096 kare ve tüm DMA
+bayrakları geçmesine rağmen yeniden ölçülen hız 50,67380 kare/s olmuş, kilitli
+488,28125 kare/s kapısı geçilememiştir. Sonuç
+`results/evidence/p0/ed-throughput-physical-acceptance.json` içinde
+başarısız kabul olarak korunmuştur; darboğaz profili ve RTL/PS boruhattı
+iyileştirmesi bu kapı kapanmadan tamamlanmış sayılmaz. Canlı HackRF,
+USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

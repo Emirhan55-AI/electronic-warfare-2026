@@ -129,64 +129,71 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
                          uint8_t *request_buffer, uint8_t *response_buffer,
                          uint8_t *power_buffer)
 {
-    struct p0_dma_status dma_status;
-    p0_ed_request_view_t request;
-    p0_ed_response_t response;
     struct timeval timeout;
-    ssize_t received;
-    size_t candidate_count = 0U;
 
     timeout.tv_sec = P0_ED_IO_TIMEOUT_SECONDS;
     timeout.tv_usec = 0;
     (void)setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     (void)setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-    memset(&response, 0, sizeof(response));
-    received = recv(client, request_buffer, P0_ED_REQUEST_BYTES_V2, MSG_TRUNC);
-    if (p0_ed_request_decode(request_buffer, received > 0 ? (size_t)received : 0U,
-                             &request) != 0) {
-        response.status = P0_ED_SERVICE_INVALID_REQUEST;
-        (void)send_response(client, &response, response_buffer);
-        return;
-    }
-    response.abi_version = request.abi_version;
-    response.frame_id = request.frame_id;
-    if (p0_dma_runtime_run(dma, request.iq, P0_ED_IQ_FRAME_BYTES, power_buffer,
-                           P0_DMA_OUTPUT_BYTES, &dma_status) != 0) {
-        response.status = P0_ED_SERVICE_DMA_FAILURE;
-        response.dma_status_flags = dma_status_flags(&dma_status);
-        (void)send_response(client, &response, response_buffer);
-        return;
-    }
-    response.dma_status_flags = dma_status_flags(&dma_status);
-    if (p0_ed_pipeline_process(pipeline, request.frame_id,
-                               (request.flags & P0_ED_REQUEST_FLAG_RESET) != 0U,
-                               power_buffer, P0_DMA_OUTPUT_BYTES,
-                               &response.result, &candidate_count) != 0) {
-        response.status = P0_ED_SERVICE_PIPELINE_FAILURE;
-        (void)send_response(client, &response, response_buffer);
-        return;
-    }
-    response.status = P0_ED_SERVICE_OK;
-    response.raw_candidate_count = (uint32_t)candidate_count;
-    if ((request.flags & P0_ED_REQUEST_FLAG_PARAMETER) != 0U) {
-        if (p0_ed_pipeline_measure(
-                pipeline,
-                (request.flags & P0_ED_REQUEST_FLAG_PARAMETER_START) != 0U,
-                request.parameter_intent_id, request.parameter_event_id,
-                request.frame_id, request.sample_rate_hz, request.center_frequency_hz,
-                request.parameter_lower_shifted_bin,
-                request.parameter_upper_shifted_bin, request.iq,
-                P0_ED_IQ_FRAME_BYTES, &response.result, &response.parameter) != 0) {
-            p0_parameter_runtime_reset(&pipeline->parameter_runtime);
-            response.status = P0_ED_SERVICE_INTERNAL_FAILURE;
+    while (!stop_requested) {
+        struct p0_dma_status dma_status;
+        p0_ed_request_view_t request;
+        p0_ed_response_t response;
+        ssize_t received;
+        size_t candidate_count = 0U;
+
+        memset(&response, 0, sizeof(response));
+        received = recv(client, request_buffer, P0_ED_REQUEST_BYTES_V2, MSG_TRUNC);
+        if (received <= 0)
+            return;
+        if (p0_ed_request_decode(request_buffer, (size_t)received, &request) != 0) {
+            response.status = P0_ED_SERVICE_INVALID_REQUEST;
             (void)send_response(client, &response, response_buffer);
             return;
         }
-        response.parameter_present = 1U;
-    } else {
-        p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+        response.abi_version = request.abi_version;
+        response.frame_id = request.frame_id;
+        if (p0_dma_runtime_run(dma, request.iq, P0_ED_IQ_FRAME_BYTES, power_buffer,
+                               P0_DMA_OUTPUT_BYTES, &dma_status) != 0) {
+            response.status = P0_ED_SERVICE_DMA_FAILURE;
+            response.dma_status_flags = dma_status_flags(&dma_status);
+            (void)send_response(client, &response, response_buffer);
+            return;
+        }
+        response.dma_status_flags = dma_status_flags(&dma_status);
+        if (p0_ed_pipeline_process(pipeline, request.frame_id,
+                                   (request.flags & P0_ED_REQUEST_FLAG_RESET) != 0U,
+                                   power_buffer, P0_DMA_OUTPUT_BYTES,
+                                   &response.result, &candidate_count) != 0) {
+            response.status = P0_ED_SERVICE_PIPELINE_FAILURE;
+            (void)send_response(client, &response, response_buffer);
+            return;
+        }
+        response.status = P0_ED_SERVICE_OK;
+        response.raw_candidate_count = (uint32_t)candidate_count;
+        if ((request.flags & P0_ED_REQUEST_FLAG_PARAMETER) != 0U) {
+            if (p0_ed_pipeline_measure(
+                    pipeline,
+                    (request.flags & P0_ED_REQUEST_FLAG_PARAMETER_START) != 0U,
+                    request.parameter_intent_id, request.parameter_event_id,
+                    request.frame_id, request.sample_rate_hz,
+                    request.center_frequency_hz,
+                    request.parameter_lower_shifted_bin,
+                    request.parameter_upper_shifted_bin, request.iq,
+                    P0_ED_IQ_FRAME_BYTES, &response.result,
+                    &response.parameter) != 0) {
+                p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+                response.status = P0_ED_SERVICE_INTERNAL_FAILURE;
+                (void)send_response(client, &response, response_buffer);
+                return;
+            }
+            response.parameter_present = 1U;
+        } else {
+            p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+        }
+        if (send_response(client, &response, response_buffer) != 0)
+            return;
     }
-    (void)send_response(client, &response, response_buffer);
 }
 
 int main(int argc, char **argv)

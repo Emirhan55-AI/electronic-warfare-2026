@@ -31,7 +31,7 @@ def test_linux_host_acceptance_evidence_matches_sources() -> None:
     for name, expected in evidence["source_sha256"].items():
         source = ROOT / "platforms/embedded/p0/src" / name
         assert hashlib.sha256(source.read_bytes()).hexdigest() == expected
-    assert "physical DMA through the service" in evidence["not_verified"]
+    assert "physical sustained throughput" in evidence["not_verified"]
 
 
 def test_petalinux_build_evidence_matches_packaging_sources() -> None:
@@ -44,6 +44,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "p0-dma_1.0.bb": ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
         "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
         "p0_ed_client.c": ROOT / "platforms/embedded/p0/src/p0_ed_client.c",
+        "p0_ed_throughput_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c",
         "p0_parameter_runtime.c": ROOT / "platforms/embedded/p0/src/p0_parameter_runtime.c",
         "p0_parameter_run.c": ROOT / "platforms/embedded/p0/src/p0_parameter_run.c",
         "p0_parameter_client.c": ROOT / "platforms/embedded/p0/src/p0_parameter_client.c",
@@ -56,7 +57,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     assert evidence["physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )
-    assert "real-time throughput" in evidence["not_verified"]
+    assert "physical sustained throughput" in evidence["not_verified"]
 
 
 def test_parameter_host_evidence_matches_sources() -> None:
@@ -92,7 +93,7 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     }
 
     assert evidence["status"] == "passed"
-    assert evidence["build"]["tasks_attempted"] == 5679
+    assert evidence["build"]["tasks_attempted"] == 6090
     assert evidence["build"]["tasks_failed"] == 0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]

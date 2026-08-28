@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-28",
+  "status": "failed",
+  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance",
+  "platform": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2 armv7l",
+    "fpga_manager_state": "operating",
+    "image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "service_binary_sha256": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd",
+    "throughput_binary_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4"
+  },
+  "locked_profile": {
+    "sample_rate_hz": 2000000,
+    "frame_samples": 4096,
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "required_frames_per_second": 488.28125
+  },
+  "completion": {
+    "completed_frames": 4096,
+    "request_failures": 0,
+    "service_failures": 0,
+    "sequence_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "dma_status_flags": 7
+  },
+  "throughput": {
+    "elapsed_seconds": 80.830720271,
+    "measured_frames_per_second": 50.673803057,
+    "real_time_margin": 0.103779949,
+    "gate_passed": false,
+    "shortfall_factor": 9.635773
+  },
+  "component_characterization": {
+    "dma_only": {
+      "iterations": 100,
+      "elapsed_seconds": 0.666,
+      "mean_milliseconds_per_run": 6.66,
+      "method": "ZedBoard üzerinde root p0-dma-run; aynı 8192 baytlık ci8 karesi ve aynı 32768 baytlık çıktı dosyası"
+    },
+    "claim_boundary": "Bu ayrıştırma ölçümü kabul kapısı değildir; DMA çağrısının kare başına maliyetini karakterize eder ve tam hizmet gecikmesinin yerine geçmez."
+  },
+  "latency_seconds": {
+    "minimum": 0.018593532,
+    "p50": 0.018910200,
+    "p95": 0.019985484,
+    "p99": 0.020044782,
+    "maximum": 0.025075308
+  },
+  "input": {
+    "path": "acceptance-frame.ci8",
+    "bytes": 8192,
+    "sha256": "2c40ece75dafd722b00d02a2f790bacf576664ae0e4bf789f281f7dc60206b11"
+  },
+  "source_sha256": {
+    "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
+    "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
+    "p0_ed_service_protocol.c": "f3b23e9a88c313a800c9a58094205f849685abda39f56c0d20d46aabc52d424a",
+    "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
+    "p0-dma_1.0.bb": "415c5b6086e46bcdf4edf991644c8ba5efa7da3beffc0943794d9da79dba0245"
+  },
+  "artifact_sha256": {
+    "physical_result.json": "ff82583d3093f6383a7ae55906cc6863278bc44e68710b789cf344df433428a9",
+    "image.ub": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "p0-ed-throughput-run": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
+    "p0-ed-service": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd"
+  },
+  "failure_reason": "Yeniden ölçümde bütün kareler ve DMA tamamlandı; fiziksel kare süresi yaklaşık 19,7 ms (p50 18,9 ms). 2 MS/s profili için gereken 2,048 ms kare süresi karşılanmadı. Darboğaz ayrıştırması ve RTL/PS boruhattı optimizasyonu gereklidir.",
+  "claim_boundary": "Bu kayıt, deterministik yerel kart hizmeti için tekrarlanabilir başarısız bir sürekli-hız ölçümüdür. Canlı HackRF, RF doğruluğu, kalibrasyon, Ethernet aktarımı veya RF yayını hakkında iddia oluşturmaz."
+}

@@ -53,6 +53,7 @@ def verify() -> dict[str, object]:
         nobody = pwd.getpwnam("nobody")
         service = directory / "p0-ed-service"
         client = directory / "p0-ed-client"
+        throughput = directory / "p0-ed-throughput-run"
         parameter_client = directory / "p0-parameter-client"
         runtime_directory = directory / "run"
         output_directory = directory / "out"
@@ -79,6 +80,11 @@ def verify() -> dict[str, object]:
         _compile(
             cc, client,
             [P0 / "src/p0_ed_service_protocol.c", P0 / "src/p0_ed_client.c"],
+        )
+        _compile(
+            cc, throughput,
+            [P0 / "src/p0_ed_service_protocol.c", P0 / "src/p0_ed_throughput_run.c"],
+            ["-lm"],
         )
         _compile(
             cc, parameter_client,
@@ -155,6 +161,21 @@ def verify() -> dict[str, object]:
                         f"parameter client frame {offset} failed:\n{run.stdout}\n{run.stderr}"
                     )
                 parameter_results.append(json.loads(output.read_text(encoding="utf-8")))
+            throughput_run = _run_as_nobody(
+                [str(throughput), "64", "8", "100000", str(tone), str(socket_path)]
+            )
+            if throughput_run.returncode:
+                raise RuntimeError(
+                    "throughput client failed:\n"
+                    f"{throughput_run.stdout}\n{throughput_run.stderr}"
+                )
+            throughput_result = json.loads(throughput_run.stdout)
+            if (
+                throughput_result.get("status") != "passed"
+                or throughput_result["completion"]["completed_frames"] != 64
+                or throughput_result["completion"]["dma_flag_failures"] != 0
+            ):
+                raise AssertionError(f"throughput result mismatch: {throughput_result}")
         finally:
             process.terminate()
             try:
@@ -197,6 +218,8 @@ def verify() -> dict[str, object]:
         "clean_shutdown_removed_socket": True,
         "parameter_observations": [1, 2, 3, 4],
         "parameter_numeric_fields_valid": True,
+        "throughput_client_frames": 64,
+        "throughput_client_status": throughput_result["status"],
     }
 
 

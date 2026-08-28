@@ -37,3 +37,23 @@ girişten ilk çıkışa 476.131 saat aralığı ve 4096 çıkış çevrimidir. 
 veya 422.859 karmaşık örnek/s'dir. Post-detector 50 MHz timing doğrulanmadığı için bu
 yalnız mimari üst sınırdır, canlı detector hızı değildir. P0 yetkili tespit kararı
 bu nedenle PS OS-CFAR'dır.
+
+## Fiziksel sürekli-hız ölçümü
+
+ADR-0029 ile önceden kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm
+karesi) ZedBoard üzerindeki aynı `PL → DMA → ARM` hizmet yolu 4096/4096 kareyi
+ve her yanıtta DMA `0x7` durumunu tamamladı; ancak yeniden ölçülen toplam hız
+50,67380 kare/s (p50 18,910 ms/kare) oldu. Gereken alt sınır 488,28125
+kare/s olduğundan kapı yaklaşık 9,63577 kat eksik kaldı. Bu sonuç DMA veya
+protokol hatası değil, hizmet yolunun kare başına işlem süresinin baskın
+olduğunu gösteren başarısız bir sürekli-hız kabulüdür; kanıt
+`results/evidence/p0/ed-throughput-physical-acceptance.json` dosyasındadır.
+
+Bu ölçümden sonra kabul profilini gevşetmek veya sonucu gerçek-zamanlı ilan
+etmek yerine DMA ioctl/aktarımı, PL çekirdek beklemesi ve ARM aday/temporal
+işlemesi ayrı zamanlanmalıdır. Aynı kartta yalnız DMA ioctl/aktarımı 100 tekrar
+karakterizasyonunda 0,666 s toplam (yaklaşık 6,66 ms/kare) ölçülmüştür; bu
+ölçüm kabul hızının kendisi değildir, ancak 2,048 ms/kare bütçesinin DMA
+katmanında bile aşıldığını gösterir. Yeni RTL/PS boruhattı veya paralel tamponlama
+kararı ancak bu ayrıştırılmış ölçümden sonra verilecek ve ayrı fiziksel kabul
+ile kapatılacaktır.

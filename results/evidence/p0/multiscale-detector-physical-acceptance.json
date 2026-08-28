@@ -9,8 +9,8 @@
     "fpga_manager_state": "operating",
     "data_path": "CI8 -> PL Hann/4096 FFT/power -> AXI DMA -> PS/ARM detector",
     "service_boundary": "unprivileged petalinux client through local p0ed service",
-    "image_sha256": "d4f39dec1748970098e4bd96eccc5807a22aafd4160480bbff5b8a535669e14d",
-    "service_sha256": "23ec65e763dd4113c71e00722d98f1c9731573f817c396d0f6f3060ea918a283",
+    "image_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "service_sha256": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd",
     "runtime_runner_sha256": "0df4663012ba7a5c12f991f14828aaf4662e976dbc821d188488f1c8ecce8a62"
   },
   "method": {
@@ -62,7 +62,7 @@
     "p0_multiscale_detector.c": "79a8e54ef13a60c28a826da072828641a301d8fd218b55e57e70627fbc7608e4",
     "p0_multiscale_detector.h": "026065b5b5479ba2605e1171cfa6956e12c7ee993cd970868b957d6b7a775f01",
     "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
-    "p0_ed_service.c": "a7cb3bb0c57b9869049356ac385bb1d86a058baf7d4c0c76cdf5eb2f79d7de1b",
+    "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
     "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d",
     "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea"
   },

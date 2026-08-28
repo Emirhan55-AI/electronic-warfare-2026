@@ -89,7 +89,8 @@ def verify() -> dict[str, object]:
     for token in (
         "inherit module update-rc.d useradd", 'GROUPADD_PARAM:${PN} = "--system p0ed"',
         'INITSCRIPT_PARAMS = "defaults 99"',
-        "p0-ed-service", "p0-ed-client", "p0-parameter-run", "p0-parameter-client",
+        "p0-ed-service", "p0-ed-client", "p0-ed-throughput-run",
+        "p0-parameter-run", "p0-parameter-client", "p0_ed_throughput_run.c",
         "p0_multiscale_detector.c", "p0_multiscale_detector.h",
     ):
         if token not in recipe:
