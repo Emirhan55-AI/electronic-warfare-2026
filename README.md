@@ -38,12 +38,12 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
 | HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
-| Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı; canlı RF ve sürekli throughput bekliyor |
+| Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Sürekli 2 MS/s kabulünde 4.096/4.096 kare ve sıfır aktarım hatasıyla 116,34 kare/s ölçüldü; gereken 488,28 kare/s kapısı henüz geçilmedi |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL Hann/FFT/güç zinciri | SystemVerilog ve AMD FFT IP ile temiz Vivado bitstream/XSA üretimi doğrulandı |
 | FPGA tespit, gruplama ve aday paketleme blokları | SystemVerilog/golden doğrulaması mevcut; kanonik P0 bitstream zincirine henüz alınmadı |
-| ZedBoard üzerinde DMA ve tespit zinciri | Deterministik fiziksel karelerde PL güç → ARM OS-CFAR + 32-bin bütünleşik enerji → 2/3 doğrulandı; geniş bant dizisinde tek olay sahibi ve gürültü-negatif kapı geçti. Sürekli throughput ve canlı RF ölçülmedi |
+| ZedBoard üzerinde DMA ve tespit zinciri | Deterministik fiziksel karelerde PL güç → ARM OS-CFAR + 32-bin bütünleşik enerji → 2/3 doğrulandı; geniş bant dizisinde tek olay sahibi ve gürültü-negatif kapı geçti. Sürekli hız ölçümü 116,34 kare/s oldu; 488,28 kare/s kapısı başarısız ve canlı RF kapsam dışı |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 
