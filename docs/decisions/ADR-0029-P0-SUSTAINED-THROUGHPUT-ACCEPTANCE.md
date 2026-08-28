@@ -51,11 +51,12 @@ fiziksel kabul yapılır.
 
 ## Güvenlik ve iddia sınırı
 
-Kabul koşusu sonrasında darboğazı ayırmak için aynı kartta yalnız
-`p0-dma-run` 100 kez çalıştırılmış ve 0,666 s toplam (yaklaşık 6,66 ms/kare)
-karakterizasyonu elde edilmiştir. Bu ek ölçüm kabul kapısı değildir; yalnızca
-2,048 ms/kare bütçesinin DMA katmanında dahi aşıldığını gösterir. Tam hizmet
-ölçümü 50,67380 kare/s sonucunu değiştirmez.
+Kabul koşusundan sonra aynı süreçte DMA, ARM ve birleşik aşama süreleri ayrı
+ölçülmüştür. DMA ortalaması 0,457 ms, ARM zinciri 5,700 ms, birleşik süre
+6,158 ms'dir; OS-CFAR alt aşaması 4,790 ms ile baskındır. Önceki 100 ayrı
+`p0-dma-run` sürecindeki 6,66 ms değeri süreç başlatma ve dosya I/O içerdiği
+için DMA gecikmesi olarak kullanılmaz. Ayrıştırma kabul kapısı değildir;
+`results/evidence/p0/ed-stage-profile-physical.json` içinde tutulur.
 
 Araç RF yayın işlevi içermez. Yerel hizmet izinlerini, `/dev/p0-dma` sahipliğini
 ve sürümlü ABI'yi değiştirmez. Başarılı sonuç yalnız deterministik kabul karesiyle

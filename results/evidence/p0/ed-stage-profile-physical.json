@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-28",
+  "status": "passed",
+  "scope": "physical ZedBoard PL-DMA-ARM stage characterization",
+  "platform": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2 armv7l",
+    "boot_image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "built_image_ub_sha256": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
+    "service_binary_sha256": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
+    "profiler_binary_sha256": "9003a50b275f6c289f1500188e43cd9cb2a760d442e69a73b33257a9e5109ed7"
+  },
+  "profile": {"warmup_frames": 64, "measured_frames": 1024, "frame_samples": 4096},
+  "completion": {"completed_frames": 1024, "dma_failures": 0, "pipeline_failures": 0, "dma_flag_failures": 0, "dropped_candidates": 0, "probe_failures": 0},
+  "timing_milliseconds": {
+    "dma": {"minimum": 0.433446, "p50": 0.443448, "p95": 0.484116, "p99": 0.500778, "maximum": 0.5082, "mean": 0.457359},
+    "arm_pipeline": {"minimum": 5.580072, "p50": 5.676, "p95": 5.897136, "p99": 5.927718, "maximum": 6.07956, "mean": 5.70031},
+    "combined": {"minimum": 6.026226, "p50": 6.13134, "p95": 6.346104, "p99": 6.394309, "maximum": 6.552355, "mean": 6.157668}
+  },
+  "algorithm_probe_milliseconds": {
+    "power_unpack": {"minimum": 0.329226, "p50": 0.333654, "p95": 0.413184, "p99": 0.41364, "maximum": 0.430362, "mean": 0.339486},
+    "os_cfar_only": {"minimum": 4.700346, "p50": 4.783518, "p95": 4.843302, "p99": 4.87092, "maximum": 5.235493, "mean": 4.789571},
+    "multiscale_total": {"minimum": 5.401458, "p50": 5.489473, "p95": 5.556702, "p99": 5.593914, "maximum": 5.935722, "mean": 5.49342}
+  },
+  "expected_dma_status_flags": 7,
+  "claim_boundary": "Aynı süreçte aşama süreleri; servis soketi, canlı RF, Ethernet, kalibrasyon veya RF doğruluğu değildir."
+}

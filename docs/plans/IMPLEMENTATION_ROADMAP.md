@@ -98,12 +98,15 @@ DMA, ARM tespiti ve yanıt doğrulamayı birlikte ölçer. Kapı 64 ısınma ve 
 ölçüm karesi, tüm yanıtlarda DMA `0x7`, sıfır istek/hizmet/sıra/DMA hatası,
 sıfır aday düşürme ve en az `488,28125 kare/s` ister. Hostta sahte DMA ile araç,
 yetki ve protokol sözleşmesi geçmiştir. PetaLinux 2025.2 imajı 6.090/6.090
-görevle hatasız üretilmiştir. Fiziksel kartta 4.096/4.096 kare ve tüm DMA
-bayrakları geçmesine rağmen yeniden ölçülen hız 50,67380 kare/s olmuş, kilitli
-488,28125 kare/s kapısı geçilememiştir. Sonuç
+görevle hatasız üretilmiştir. Fiziksel kartta optimize edilmiş servisle
+4.096/4.096 kare, DMA `0x7`, sıfır hata ve sıfır aday düşürme geçmesine rağmen
+hız 116,33994 kare/s olmuş, kilitli 488,28125 kare/s kapısı geçilememiştir.
+İlk 50,67380 kare/s ölçümüne göre 2,295 kat iyileşme vardır. Sonuç
 `results/evidence/p0/ed-throughput-physical-acceptance.json` içinde
-başarısız kabul olarak korunmuştur; darboğaz profili ve RTL/PS boruhattı
-iyileştirmesi bu kapı kapanmadan tamamlanmış sayılmaz. Canlı HackRF,
+başarısız kabul olarak korunmuştur. Aynı süreçteki profil DMA'yı 0,457 ms,
+ARM zincirini 5,700 ms, OS-CFAR'ı 4,790 ms ölçmüş ve darboğazı PL/RTL'ye
+taşıma kararını gerekçelendirmiştir. Bu kapı kapanmadan sürekli gerçek-zaman
+başarısı ilan edilemez. Canlı HackRF,
 USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
 
 ### P0 Mandatory Closure Block A

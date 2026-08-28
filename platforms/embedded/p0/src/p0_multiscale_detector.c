@@ -5,20 +5,44 @@
 
 #define P0_REGIONAL_NOISE_MULTIPLIER 2.5
 
-static void insertion_sort_double(double *values, size_t count)
+static void max_heap_sift_down(double *values, size_t count, size_t root)
 {
+    for (;;) {
+        size_t largest = root;
+        size_t left = 2U * root + 1U;
+        size_t right = left + 1U;
+        double temporary;
+
+        if (left < count && values[left] > values[largest])
+            largest = left;
+        if (right < count && values[right] > values[largest])
+            largest = right;
+        if (largest == root)
+            return;
+        temporary = values[root];
+        values[root] = values[largest];
+        values[largest] = temporary;
+        root = largest;
+    }
+}
+
+static void regional_median_pair(const double *values, double *lower, double *upper)
+{
+    enum { MEDIAN_HEAP_COUNT = P0_MULTISCALE_REGION_BINS / 2U + 1U };
+    double heap[MEDIAN_HEAP_COUNT];
     size_t index;
 
-    for (index = 1U; index < count; ++index) {
-        double key = values[index];
-        size_t position = index;
-
-        while (position > 0U && values[position - 1U] > key) {
-            values[position] = values[position - 1U];
-            --position;
+    memcpy(heap, values, sizeof(heap));
+    for (index = MEDIAN_HEAP_COUNT / 2U; index > 0U; --index)
+        max_heap_sift_down(heap, MEDIAN_HEAP_COUNT, index - 1U);
+    for (index = MEDIAN_HEAP_COUNT; index < P0_MULTISCALE_REGION_BINS; ++index) {
+        if (values[index] < heap[0U]) {
+            heap[0U] = values[index];
+            max_heap_sift_down(heap, MEDIAN_HEAP_COUNT, 0U);
         }
-        values[position] = key;
     }
+    *upper = heap[0U];
+    *lower = heap[1U] > heap[2U] ? heap[1U] : heap[2U];
 }
 
 static int overlaps(const p0_candidate_region_t *first, const p0_candidate_region_t *second)
@@ -125,7 +149,6 @@ P0_API int p0_multiscale_process(
     p0_candidate_region_t recoveries[P0_MULTISCALE_MAX_RECOVERIES];
     double regional_noise[P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS];
     double regional_threshold[P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS];
-    double ordered[P0_MULTISCALE_REGION_BINS];
     size_t os_count = 0U;
     size_t found_recoveries = 0U;
     size_t radius;
@@ -155,11 +178,12 @@ P0_API int p0_multiscale_process(
 
     for (region = 0U; region < P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS; ++region) {
         size_t base = region * P0_MULTISCALE_REGION_BINS;
+        double median_lower;
+        double median_upper;
         double median_twice;
 
-        memcpy(ordered, power + base, sizeof(ordered));
-        insertion_sort_double(ordered, P0_MULTISCALE_REGION_BINS);
-        median_twice = ordered[127] + ordered[128];
+        regional_median_pair(power + base, &median_lower, &median_upper);
+        median_twice = median_lower + median_upper;
         regional_noise[region] = median_twice / (2.0 * log(2.0));
         regional_threshold[region] = regional_noise[region] * P0_REGIONAL_NOISE_MULTIPLIER;
     }

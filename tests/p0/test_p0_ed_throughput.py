@@ -86,6 +86,10 @@ def test_runtime_and_recipe_preserve_locked_physical_gate() -> None:
         "file://p0_ed_throughput_run.c",
         "-o ${S}/p0-ed-throughput-run",
         "install -m 0755 ${S}/p0-ed-throughput-run",
+        "file://p0_ed_stage_profile_run.c",
+        'P0_HOT_PATH_CFLAGS = "-O3"',
+        "-o ${S}/p0-ed-stage-profile-run",
+        "install -m 0755 ${S}/p0-ed-stage-profile-run",
     ):
         assert token in recipe
 

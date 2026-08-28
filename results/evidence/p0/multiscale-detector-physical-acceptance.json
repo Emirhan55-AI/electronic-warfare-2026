@@ -9,9 +9,10 @@
     "fpga_manager_state": "operating",
     "data_path": "CI8 -> PL Hann/4096 FFT/power -> AXI DMA -> PS/ARM detector",
     "service_boundary": "unprivileged petalinux client through local p0ed service",
-    "image_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
-    "service_sha256": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd",
-    "runtime_runner_sha256": "0df4663012ba7a5c12f991f14828aaf4662e976dbc821d188488f1c8ecce8a62"
+    "boot_image_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "built_image_sha256": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
+    "service_sha256": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
+    "runtime_runner_sha256": "c4b513caf2ef516c54c517a75b69d706beccab3e81f5d550e938bf72c219f087"
   },
   "method": {
     "local_detector": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
@@ -54,17 +55,18 @@
   "artifact_sha256": {
     "wideband_inputs_tar": "bc07cab8115fadf23dfe40d8969a6d009ebbd74bab93374d9c018dc5e9555bf7",
     "noise_inputs_tar": "6defea64229018b638005cc3e1d68092d7415f8ba893d0b459605e55efe284a9",
-    "wideband_results_tar": "34ad4f13cfc49935966a7b8c83096a08446ade9e4ced781b33dfe24d10f11174",
-    "noise_results_tar": "8e970480b597829ea12491979761defad22a5aa6d073ca98d3ee47f5342da17f",
-    "noise_parameter_results_tar": "6327b58b2ddd5b7fcec986dcc7503aae8546d95a65f32fe1b7acb2555dfab4b9"
+    "wideband_results_tar": "389a8c37755a11237ef149081ce2f53473c95a3381574c4326c04be7ab5d932b",
+    "noise_results_tar": "ec3b1a65ded77da136614686863925397008ec5260d7d98366db5863af0f5cb3",
+    "noise_parameter_results_tar": "4a52c26b9e9c8dda0d0562ed06751ada541519d5fd6385adc9f2c3fe0db14818"
   },
   "source_sha256": {
-    "p0_multiscale_detector.c": "79a8e54ef13a60c28a826da072828641a301d8fd218b55e57e70627fbc7608e4",
+    "p0_multiscale_detector.c": "48049f877da77e616cec7709edb4a349b86110561fef99679c333815db8f6c69",
     "p0_multiscale_detector.h": "026065b5b5479ba2605e1171cfa6956e12c7ee993cd970868b957d6b7a775f01",
     "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
     "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
     "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d",
-    "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea"
+    "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea",
+    "p0_os_cfar.c": "c1960cb77c3067f73afae566c633df5dfdb6892ba04f02427c4e30e033379155"
   },
   "claim_boundary": [
     "deterministic quantized CI8 fixtures through the physical PL/DMA/ARM path",

@@ -93,7 +93,7 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     }
 
     assert evidence["status"] == "passed"
-    assert evidence["build"]["tasks_attempted"] == 6090
+    assert evidence["build"]["tasks_attempted"] == 5679
     assert evidence["build"]["tasks_failed"] == 0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]

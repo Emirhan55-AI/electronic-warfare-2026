@@ -7,8 +7,9 @@
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
     "fpga_manager_state": "operating",
-    "image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
-    "service_binary_sha256": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd",
+    "boot_image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "built_image_ub_sha256": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
+    "service_binary_sha256": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
     "throughput_binary_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4"
   },
   "locked_profile": {
@@ -28,46 +29,49 @@
     "dma_status_flags": 7
   },
   "throughput": {
-    "elapsed_seconds": 80.830720271,
-    "measured_frames_per_second": 50.673803057,
-    "real_time_margin": 0.103779949,
+    "elapsed_seconds": 35.20716905,
+    "measured_frames_per_second": 116.339941851,
+    "real_time_margin": 0.238264201,
     "gate_passed": false,
-    "shortfall_factor": 9.635773
-  },
-  "component_characterization": {
-    "dma_only": {
-      "iterations": 100,
-      "elapsed_seconds": 0.666,
-      "mean_milliseconds_per_run": 6.66,
-      "method": "ZedBoard üzerinde root p0-dma-run; aynı 8192 baytlık ci8 karesi ve aynı 32768 baytlık çıktı dosyası"
-    },
-    "claim_boundary": "Bu ayrıştırma ölçümü kabul kapısı değildir; DMA çağrısının kare başına maliyetini karakterize eder ve tam hizmet gecikmesinin yerine geçmez."
+    "shortfall_factor": 4.200875
   },
   "latency_seconds": {
-    "minimum": 0.018593532,
-    "p50": 0.018910200,
-    "p95": 0.019985484,
-    "p99": 0.020044782,
-    "maximum": 0.025075308
+    "minimum": 0.007855506,
+    "p50": 0.008131782,
+    "p95": 0.008220768,
+    "p99": 0.008271534,
+    "maximum": 0.008642826
   },
-  "input": {
-    "path": "acceptance-frame.ci8",
-    "bytes": 8192,
-    "sha256": "2c40ece75dafd722b00d02a2f790bacf576664ae0e4bf789f281f7dc60206b11"
+  "component_characterization": {
+    "method": "Aynı süreçte açılan DMA ve ARM profiler; 64 ısınma + 1024 ölçüm karesi",
+    "dma_only_milliseconds": {"mean": 0.457359, "p50": 0.443448, "p95": 0.484116, "p99": 0.500778},
+    "arm_pipeline_milliseconds": {"mean": 5.70031, "p50": 5.676, "p95": 5.897136, "p99": 5.927718},
+    "combined_milliseconds": {"mean": 6.157668, "p50": 6.13134, "p95": 6.346104, "p99": 6.394309},
+    "algorithm_probe_milliseconds": {"power_unpack_mean": 0.339486, "os_cfar_mean": 4.789571, "multiscale_total_mean": 5.49342},
+    "claim_boundary": "Bu ayrıştırma aynı süreçteki aşama maliyetidir; servis soketi ve süreç başlatma maliyeti değildir."
+  },
+  "baseline_comparison": {
+    "previous_measured_frames_per_second": 50.673803057,
+    "current_measured_frames_per_second": 116.339941851,
+    "improvement_factor": 2.295295,
+    "physical_gate_remains_failed": true
   },
   "source_sha256": {
     "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
     "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
     "p0_ed_service_protocol.c": "f3b23e9a88c313a800c9a58094205f849685abda39f56c0d20d46aabc52d424a",
     "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
-    "p0-dma_1.0.bb": "415c5b6086e46bcdf4edf991644c8ba5efa7da3beffc0943794d9da79dba0245"
+    "p0_os_cfar.c": "c1960cb77c3067f73afae566c633df5dfdb6892ba04f02427c4e30e033379155",
+    "p0_multiscale_detector.c": "48049f877da77e616cec7709edb4a349b86110561fef99679c333815db8f6c69",
+    "p0-dma_1.0.bb": "7e3746f27fc623b9d18e12566db9846f982ed450715070a18cd132b3317e0038"
   },
   "artifact_sha256": {
-    "physical_result.json": "ff82583d3093f6383a7ae55906cc6863278bc44e68710b789cf344df433428a9",
-    "image.ub": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
+    "physical_result.json": "387354c50227f206cb38267a3ed184eee7f45ba63893e1af98adf3ef356a3f57",
+    "built_image.ub": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
     "p0-ed-throughput-run": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
-    "p0-ed-service": "50472ff53b1f5a00965fa9c45a863d7d36944d77997e2eb0ea4cb72c46a8e5dd"
+    "p0-ed-service": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
+    "p0-ed-stage-profile-run": "9003a50b275f6c289f1500188e43cd9cb2a760d442e69a73b33257a9e5109ed7"
   },
-  "failure_reason": "Yeniden ölçümde bütün kareler ve DMA tamamlandı; fiziksel kare süresi yaklaşık 19,7 ms (p50 18,9 ms). 2 MS/s profili için gereken 2,048 ms kare süresi karşılanmadı. Darboğaz ayrıştırması ve RTL/PS boruhattı optimizasyonu gereklidir.",
+  "failure_reason": "Tüm 4096 kare ve DMA 0x7 tamamlandı; optimize edilmiş fiziksel hız 116,33994 kare/s ve p50 kare gecikmesi 8,131782 ms oldu. 2 MS/s için gereken 488,28125 kare/s ve 2,048 ms kare bütçesi karşılanmadı. Aynı süreçteki aşama profili OS-CFAR maliyetinin 4,789571 ms ortalama ile baskın kaldığını gösterir.",
   "claim_boundary": "Bu kayıt, deterministik yerel kart hizmeti için tekrarlanabilir başarısız bir sürekli-hız ölçümüdür. Canlı HackRF, RF doğruluğu, kalibrasyon, Ethernet aktarımı veya RF yayını hakkında iddia oluşturmaz."
 }

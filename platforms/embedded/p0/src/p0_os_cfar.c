@@ -21,6 +21,97 @@ static void insertion_sort(double *values, size_t count) {
         values[position] = key;
     }
 }
+
+static size_t sorted_lower_bound(const double *values, size_t count, double value) {
+    size_t first = 0U;
+
+    while (first < count) {
+        size_t middle = first + (count - first) / 2U;
+
+        if (values[middle] < value) {
+            first = middle + 1U;
+        } else {
+            count = middle;
+        }
+    }
+    return first;
+}
+
+static size_t sorted_upper_bound(const double *values, size_t count, double value) {
+    size_t first = 0U;
+
+    while (first < count) {
+        size_t middle = first + (count - first) / 2U;
+
+        if (values[middle] <= value) {
+            first = middle + 1U;
+        } else {
+            count = middle;
+        }
+    }
+    return first;
+}
+
+static int sorted_remove_one(double *values, size_t count, double value) {
+    size_t position = sorted_lower_bound(values, count, value);
+
+    if (position == count || values[position] != value)
+        return -1;
+    if (position + 1U < count) {
+        memmove(values + position, values + position + 1U,
+                (count - position - 1U) * sizeof(*values));
+    }
+    return 0;
+}
+
+static void sorted_insert(double *values, size_t count, double value) {
+    size_t position = sorted_upper_bound(values, count, value);
+    if (position < count) {
+        memmove(values + position + 1U, values + position,
+                (count - position) * sizeof(*values));
+    }
+    values[position] = value;
+}
+
+static double sorted_union_order_statistic(
+    const double *first,
+    size_t first_count,
+    const double *second,
+    size_t second_count,
+    size_t rank
+)
+{
+    size_t low;
+    size_t high;
+
+    if (first_count > second_count)
+        return sorted_union_order_statistic(second, second_count,
+                                            first, first_count, rank);
+    low = rank > second_count ? rank - second_count : 0U;
+    high = rank < first_count ? rank : first_count;
+    for (;;) {
+        size_t first_partition = low + (high - low) / 2U;
+        size_t second_partition = rank - first_partition;
+
+        if (first_partition > 0U && second_partition < second_count &&
+            first[first_partition - 1U] > second[second_partition]) {
+            high = first_partition - 1U;
+            continue;
+        }
+        if (second_partition > 0U && first_partition < first_count &&
+            second[second_partition - 1U] > first[first_partition]) {
+            low = first_partition + 1U;
+            continue;
+        }
+        if (first_partition == 0U)
+            return second[second_partition - 1U];
+        if (second_partition == 0U)
+            return first[first_partition - 1U];
+        return first[first_partition - 1U] > second[second_partition - 1U]
+                   ? first[first_partition - 1U]
+                   : second[second_partition - 1U];
+    }
+}
 static int valid_config(const p0_os_cfar_config_t *config) {
     uint64_t reference_total;
     if (config == NULL || config->reference_cells_per_side == 0U ||
@@ -102,14 +193,17 @@ P0_API int p0_os_cfar_process(
 ) {
     size_t index;
     size_t radius;
+    size_t reference_per_side;
     size_t output_count = 0U;
-    double references[P0_OS_CFAR_MAX_REFERENCE_CELLS];
+    double left_references[P0_OS_CFAR_MAX_REFERENCE_CELLS / 2U];
+    double right_references[P0_OS_CFAR_MAX_REFERENCE_CELLS / 2U];
 
     if (power == NULL || power_count < 3U || !valid_config(config) || detections == NULL ||
         noise_power == NULL || threshold_power == NULL || candidates == NULL || candidate_count == NULL) {
         return P0_OS_CFAR_INVALID_ARGUMENT;
     }
     radius = (size_t)config->reference_cells_per_side + config->guard_cells_per_side;
+    reference_per_side = config->reference_cells_per_side;
     memset(detections, 0, power_count * sizeof(*detections));
     for (index = 0U; index < power_count; ++index) {
         if (!isfinite(power[index]) || power[index] < 0.0) {
@@ -123,22 +217,50 @@ P0_API int p0_os_cfar_process(
         return P0_OS_CFAR_OK;
     }
 
-    for (index = radius; index < power_count - radius; ++index) {
-        size_t reference_index = 0U;
+    {
+        size_t left_index = 0U;
+        size_t right_index = 0U;
         size_t source;
-        size_t right_start = index + config->guard_cells_per_side + 1U;
+        size_t right_start;
+
+        index = radius;
+        right_start = index + config->guard_cells_per_side + 1U;
+        for (source = index - radius;
+             source < index - config->guard_cells_per_side; ++source) {
+            left_references[left_index++] = power[source];
+        }
+        for (source = right_start;
+             source < right_start + config->reference_cells_per_side; ++source) {
+            right_references[right_index++] = power[source];
+        }
+        insertion_sort(left_references, left_index);
+        insertion_sort(right_references, right_index);
+    }
+    for (index = radius; index < power_count - radius; ++index) {
         double noise;
-        for (source = index - radius; source < index - config->guard_cells_per_side; ++source) {
-            references[reference_index++] = power[source];
-        }
-        for (source = right_start; source < right_start + config->reference_cells_per_side; ++source) {
-            references[reference_index++] = power[source];
-        }
-        insertion_sort(references, reference_index);
-        noise = references[config->order_statistic_rank - 1U];
+
+        noise = sorted_union_order_statistic(
+            left_references, reference_per_side,
+            right_references, reference_per_side,
+            config->order_statistic_rank);
         noise_power[index] = noise;
         threshold_power[index] = noise * config->threshold_coefficient;
         detections[index] = power[index] > threshold_power[index] ? 1U : 0U;
+        if (index + 1U < power_count - radius) {
+            size_t right_start = index + config->guard_cells_per_side + 1U;
+            double left_out = power[index - radius];
+            double right_out = power[right_start];
+            double left_in = power[index - config->guard_cells_per_side];
+            double right_in =
+                power[right_start + config->reference_cells_per_side];
+
+            if (sorted_remove_one(left_references, reference_per_side, left_out) != 0 ||
+                sorted_remove_one(right_references, reference_per_side, right_out) != 0) {
+                return P0_OS_CFAR_INVALID_ARGUMENT;
+            }
+            sorted_insert(left_references, reference_per_side - 1U, left_in);
+            sorted_insert(right_references, reference_per_side - 1U, right_in);
+        }
     }
 
     index = radius;

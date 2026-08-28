@@ -43,17 +43,19 @@ bu nedenle PS OS-CFAR'dır.
 ADR-0029 ile önceden kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm
 karesi) ZedBoard üzerindeki aynı `PL → DMA → ARM` hizmet yolu 4096/4096 kareyi
 ve her yanıtta DMA `0x7` durumunu tamamladı; ancak yeniden ölçülen toplam hız
-50,67380 kare/s (p50 18,910 ms/kare) oldu. Gereken alt sınır 488,28125
-kare/s olduğundan kapı yaklaşık 9,63577 kat eksik kaldı. Bu sonuç DMA veya
+116,33994 kare/s (p50 8,132 ms/kare) oldu. Gereken alt sınır 488,28125
+kare/s olduğundan kapı hâlâ başarısızdır; gerçek-zaman marjı 0,238264'tür.
+İlk 50,67380 kare/s ölçümüne göre 2,295 kat iyileşme vardır. Bu sonuç DMA veya
 protokol hatası değil, hizmet yolunun kare başına işlem süresinin baskın
 olduğunu gösteren başarısız bir sürekli-hız kabulüdür; kanıt
 `results/evidence/p0/ed-throughput-physical-acceptance.json` dosyasındadır.
 
 Bu ölçümden sonra kabul profilini gevşetmek veya sonucu gerçek-zamanlı ilan
 etmek yerine DMA ioctl/aktarımı, PL çekirdek beklemesi ve ARM aday/temporal
-işlemesi ayrı zamanlanmalıdır. Aynı kartta yalnız DMA ioctl/aktarımı 100 tekrar
-karakterizasyonunda 0,666 s toplam (yaklaşık 6,66 ms/kare) ölçülmüştür; bu
-ölçüm kabul hızının kendisi değildir, ancak 2,048 ms/kare bütçesinin DMA
-katmanında bile aşıldığını gösterir. Yeni RTL/PS boruhattı veya paralel tamponlama
-kararı ancak bu ayrıştırılmış ölçümden sonra verilecek ve ayrı fiziksel kabul
-ile kapatılacaktır.
+işlemesi ayrı zamanlanmıştır. Aynı süreçteki aşama profili DMA'yı ortalama
+0,457 ms, ARM zincirini 5,700 ms ve birleşik maliyeti 6,158 ms ölçmüştür.
+Alt aşama probu güç dönüşümünü 0,339 ms, OS-CFAR'ı 4,790 ms ve çok ölçekli
+zinciri 5,493 ms bulmuştur. Önceki ayrı `p0-dma-run` süreçlerinden gelen
+6,66 ms değeri süreç başlatma ve dosya I/O içerdiği için DMA gecikmesi olarak
+kullanılmamalıdır. Yeni RTL/PS boruhattı veya paralel tamponlama kararı bu
+ayrıştırılmış kanıtla, özellikle OS-CFAR'ın PL'ye taşınması hedefiyle verilecektir.
