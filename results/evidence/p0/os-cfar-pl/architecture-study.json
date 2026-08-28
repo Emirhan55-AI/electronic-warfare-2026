@@ -1,0 +1,25 @@
+{
+  "alternatives": [
+    {
+      "name": "32-input full sorting network",
+      "reason": "unnecessary comparator and routing pressure",
+      "selected": false
+    },
+    {
+      "name": "per-CUT 58-pass radix selection",
+      "reason": "exceeds the 50 MHz frame-cycle budget",
+      "selected": false
+    },
+    {
+      "name": "quantized histogram",
+      "reason": "does not preserve the exact rank-24 contract",
+      "selected": false
+    }
+  ],
+  "ping_pong": false,
+  "runtime_profile": "fixed P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+  "selected": "sliding dual sorted 16-cell windows with fixed union rank selection",
+  "status": "passed",
+  "stored_metadata_bits_per_bin": 2,
+  "stored_power_bins": 4096
+}

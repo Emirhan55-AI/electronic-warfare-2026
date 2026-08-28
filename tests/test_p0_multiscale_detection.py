@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 
 import numpy as np
 import pytest
@@ -72,9 +73,6 @@ def test_physical_evidence_passes_locked_wideband_and_noise_gates() -> None:
     )
     wideband = evidence["wideband_positive"]
     noise = evidence["noise_negative"]
-    source_roots = {
-        "p0_multiscale_detector.h": ROOT / "platforms/embedded/p0/include",
-    }
 
     assert evidence["status"] == "passed"
     assert evidence["platform"]["fpga_manager_state"] == "operating"
@@ -85,6 +83,12 @@ def test_physical_evidence_passes_locked_wideband_and_noise_gates() -> None:
     assert noise["recovery_observations"] == 0
     assert noise["confirmed_observed_counts"] == [0] * 10
     assert noise["valid_parameter_fields"] == 0
+    assert evidence["current_source_status"] == "superseded_by_adr_0030_pending_rebuild_and_physical_retest"
+    commit = evidence["source_commit"]
     for name, expected in evidence["source_sha256"].items():
-        directory = source_roots.get(name, ROOT / "platforms/embedded/p0/src")
-        assert hashlib.sha256((directory / name).read_bytes()).hexdigest() == expected
+        directory = "include" if name.endswith(".h") else "src"
+        historical = subprocess.run(
+            ["git", "show", f"{commit}:platforms/embedded/p0/{directory}/{name}"],
+            cwd=ROOT, capture_output=True, check=True,
+        ).stdout
+        assert hashlib.sha256(historical).hexdigest() == expected

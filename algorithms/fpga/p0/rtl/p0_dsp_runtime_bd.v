@@ -20,6 +20,7 @@ module p0_dsp_runtime_bd (
   wire        unused_configuration_done;
   wire [5:0]  unused_status_events;
   wire        unused_keep_error;
+  wire        unused_detector_frame_error;
 
   p0_dsp_runtime_top core (
     .aclk(aclk), .aresetn(aresetn),
@@ -30,6 +31,7 @@ module p0_dsp_runtime_bd (
     .m_axis_bin_index(unused_bin_index),
     .configuration_done(unused_configuration_done),
     .status_events_sticky(unused_status_events),
-    .input_keep_error_sticky(unused_keep_error)
+    .input_keep_error_sticky(unused_keep_error),
+    .detector_frame_error_sticky(unused_detector_frame_error)
   );
 endmodule

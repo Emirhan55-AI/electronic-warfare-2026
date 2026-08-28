@@ -34,6 +34,8 @@ set rtl_sources [list \
   [file join $repository_root algorithms fpga phase06c rtl axis_fft_wrapper.sv] \
   [file join $repository_root algorithms fpga phase06d rtl amd_xfft_adapter.sv] \
   [file join $repository_root algorithms fpga phase06f rtl axis_fft_linear_power.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_os_cfar_pkg.sv] \
+  [file join $repository_root algorithms fpga p0 rtl axis_p0_os_cfar.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_top.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_bd.v] \
 ]

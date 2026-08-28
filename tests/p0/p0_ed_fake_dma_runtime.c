@@ -49,8 +49,17 @@ int p0_dma_runtime_run(p0_dma_runtime_t *runtime, const uint8_t *input, size_t i
     if (input[0] == 0x7EU) {
         store_le64(output, UINT64_C(1) << 58);
     } else if (!empty) {
-        for (index = 0U; index < 4096U; ++index)
-            store_le64(output + index * 8U, index == 256U ? UINT64_C(1000000) : UINT64_C(100));
+        for (index = 0U; index < 4096U; ++index) {
+            size_t shifted_index = index ^ 2048U;
+            uint64_t word = UINT64_C(0xA) << 60;
+
+            word |= index == 256U ? UINT64_C(1000000) : UINT64_C(100);
+            if (shifted_index >= 20U && shifted_index < 4076U)
+                word |= UINT64_C(1) << 58;
+            if (index == 256U)
+                word |= UINT64_C(1) << 59;
+            store_le64(output + index * 8U, word);
+        }
     }
     memset(status, 0, sizeof(*status));
     status->abi_version = P0_DMA_ABI_VERSION;

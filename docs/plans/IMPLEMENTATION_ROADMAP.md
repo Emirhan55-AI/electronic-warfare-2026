@@ -109,6 +109,45 @@ taşıma kararını gerekçelendirmiştir. Bu kapı kapanmadan sürekli gerçek-
 başarısı ilan edilemez. Canlı HackRF,
 USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
 
+### P0 ED OS-CFAR PL throughput düzeltmesi
+
+Kullanıcının 2026-08-28 onayıyla ADR-0030 kapsamında kanonik OS-CFAR hücre
+kararı PL'ye taşınmıştır. Profil değişmemiştir: 16 referans/yan, 4 koruma/yan,
+yükselen rank 24/32, Pfa `1e-4`, Q32 alpha `36.851.433.755` ve strict `>`.
+SystemVerilog çekirdeği Python tam-sayı modeliyle 11 kare/45.056 adet 64-bit DMA
+kelimesinde bit-doğru geçmiştir. İlk tam karenin simülasyon süresi 50 MHz'te
+48.910 çevrimdir; 2 MS/s için kilitli 102.400 çevrim RTL kapasite bütçesini
+geçer. Vivado 2025.2 ile `xc7z020clg484-1` üzerinde tam
+FFT→güç→OS-CFAR zinciri yerleştirilip yönlendirilmiş; 50 MHz'te setup marjı
+`+2,400 ns`, hold marjı `+0,050 ns`, route hata ağı `0` olmuştur. Son kullanım
+17.387/53.200 LUT, 13.769/106.400 register, 21/140 BRAM tile ve 45/220 DSP'dir.
+Standalone üstte board pinleri bulunmadığı için DRC'deki yalnız `NSTD-1` ve
+`UCIO-1` uyarıları gerçek block design'ın I/O katmanına bırakılmıştır. Bu
+post-route kapasite kanıtıdır; fiziksel throughput sonucu değildir.
+
+Aynı zincir Avnet ZedBoard `1.5` kart tanımıyla PS7, DDR, AXI DMA, saat, reset
+ve kesme yollarını içeren tam block design içinde de temiz kurulmuştur. Tam
+tasarım 50 MHz'te `+0,372 ns` setup, `+0,018 ns` hold, sıfır başarısız uç ve
+sıfır route hatasıyla geçmiştir; bitstream ile bitstream içeren XSA üretilmiştir.
+Kullanım 19.587/53.200 LUT, 17.183/106.400 register, 23,5/140 BRAM tile ve
+47/220 DSP'dir. Bitstream ön koşulu DRC sonucu sıfır hata ve sıfır kritik
+uyarıdır. Bu üretim kanıtı kart üzerinde çalıştırma veya fiziksel hız kabulü
+değildir.
+
+PS yolu bütün karede `0xA` biçim işaretini ve değerlendirme maskesini fail-closed
+doğrular. PL kararlarıyla aday gruplama ve yalnız aday tepesinde OS gürültü/eşik
+hesabı yapar; geniş bant kurtarma, 2/3 zamansal doğrulama ve parametre çıkarımı
+PS'de kalır. Yeni ve eski PS yolları dondurulmuş üç gerçek FFT karesi dahil 11
+karede birleşik aday ve geniş bant sonucunda sıfır fark vermiş, PL işaretli sahte
+DMA ile ayrıcalıksız Linux hizmet kabulü geçmiştir. Çekirdek kanonik Vivado
+üst zincirine bağlanmış; tam block design sentez/route/timing/bitstream/XSA
+kapıları geçmiştir. Güncel XSA ve ADR-0030 ARM kaynaklarıyla PetaLinux paketi
+5.679/5.679, tam imaj 6.090/6.090 görevle derlenmiş; kök dosya sistemi, `image.ub`
+ve yeni bitstream'i içeren `BOOT.BIN` üretilmiştir. Açık kapı, ADR-0029 fiziksel
+488,28125 kare/s tekrarıdır.
+Önceki fiziksel kanıtlar `56f5f333df4551517fa170ef3dff1da9367913b5`
+kaynağına aittir ve güncel ADR-0030 kaynaklarını kabul etmez.
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

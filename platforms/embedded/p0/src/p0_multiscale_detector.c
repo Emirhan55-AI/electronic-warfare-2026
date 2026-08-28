@@ -133,7 +133,7 @@ static int append_integrated_recovery(
                            support_start, support_end, peak, recoveries, count);
 }
 
-P0_API int p0_multiscale_process(
+static int complete_multiscale(
     const double *power,
     size_t power_count,
     const p0_os_cfar_config_t *os_config,
@@ -142,6 +142,7 @@ P0_API int p0_multiscale_process(
     double *threshold_power,
     p0_candidate_region_t *candidates,
     size_t candidate_capacity,
+    size_t os_count,
     size_t *candidate_count,
     size_t *recovery_count
 )
@@ -149,7 +150,6 @@ P0_API int p0_multiscale_process(
     p0_candidate_region_t recoveries[P0_MULTISCALE_MAX_RECOVERIES];
     double regional_noise[P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS];
     double regional_threshold[P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS];
-    size_t os_count = 0U;
     size_t found_recoveries = 0U;
     size_t radius;
     size_t evaluated_start;
@@ -166,14 +166,7 @@ P0_API int p0_multiscale_process(
     if (power == NULL || os_config == NULL || detections == NULL || noise_power == NULL ||
         threshold_power == NULL || candidates == NULL || candidate_count == NULL ||
         recovery_count == NULL || power_count != P0_MULTISCALE_FRAME_BINS ||
-        candidate_capacity == 0U)
-        return P0_MULTISCALE_INVALID_ARGUMENT;
-
-    code = p0_os_cfar_process(power, power_count, os_config, detections, noise_power,
-                              threshold_power, candidates, candidate_capacity, &os_count);
-    if (code == P0_OS_CFAR_CANDIDATE_OVERFLOW)
-        return P0_MULTISCALE_CANDIDATE_OVERFLOW;
-    if (code != P0_OS_CFAR_OK)
+        candidate_capacity == 0U || os_count > candidate_capacity)
         return P0_MULTISCALE_INVALID_ARGUMENT;
 
     for (region = 0U; region < P0_MULTISCALE_FRAME_BINS / P0_MULTISCALE_REGION_BINS; ++region) {
@@ -268,4 +261,69 @@ P0_API int p0_multiscale_process(
     *candidate_count = output_count;
     *recovery_count = found_recoveries;
     return P0_MULTISCALE_OK;
+}
+
+P0_API int p0_multiscale_process(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *os_config,
+    uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count,
+    size_t *recovery_count
+)
+{
+    size_t os_count = 0U;
+    int code;
+
+    if (power == NULL || os_config == NULL || detections == NULL || noise_power == NULL ||
+        threshold_power == NULL || candidates == NULL || candidate_count == NULL ||
+        recovery_count == NULL || power_count != P0_MULTISCALE_FRAME_BINS ||
+        candidate_capacity == 0U)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    code = p0_os_cfar_process(power, power_count, os_config, detections, noise_power,
+                              threshold_power, candidates, candidate_capacity, &os_count);
+    if (code == P0_OS_CFAR_CANDIDATE_OVERFLOW)
+        return P0_MULTISCALE_CANDIDATE_OVERFLOW;
+    if (code != P0_OS_CFAR_OK)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    return complete_multiscale(power, power_count, os_config, detections, noise_power,
+                               threshold_power, candidates, candidate_capacity, os_count,
+                               candidate_count, recovery_count);
+}
+
+P0_API int p0_multiscale_process_pl(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *os_config,
+    uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count,
+    size_t *recovery_count
+)
+{
+    size_t os_count = 0U;
+    int code;
+
+    if (power == NULL || os_config == NULL || detections == NULL || noise_power == NULL ||
+        threshold_power == NULL || candidates == NULL || candidate_count == NULL ||
+        recovery_count == NULL || power_count != P0_MULTISCALE_FRAME_BINS ||
+        candidate_capacity == 0U)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    code = p0_os_cfar_group_detections(power, power_count, os_config, detections,
+                                        noise_power, threshold_power, candidates,
+                                        candidate_capacity, &os_count);
+    if (code == P0_OS_CFAR_CANDIDATE_OVERFLOW)
+        return P0_MULTISCALE_CANDIDATE_OVERFLOW;
+    if (code != P0_OS_CFAR_OK)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    return complete_multiscale(power, power_count, os_config, detections, noise_power,
+                               threshold_power, candidates, candidate_capacity, os_count,
+                               candidate_count, recovery_count);
 }

@@ -1,0 +1,31 @@
+{
+  "absolute_error": 4.552802579382842e-11,
+  "fixture_boundary_cases": [
+    {
+      "boundary_case": true,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "threshold_floor"
+    },
+    {
+      "boundary_case": true,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 1,
+      "floating_detections": 1,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "threshold_floor_plus_one"
+    }
+  ],
+  "fixture_evaluation_mask_mismatches": 0,
+  "fixture_non_boundary_decision_mismatches": 0,
+  "float64_alpha": 8.58014304069906,
+  "q32_integer": 36851433755,
+  "q32_value": 8.580143040744588,
+  "status": "passed"
+}

@@ -59,6 +59,18 @@ P0_API int p0_os_cfar_process(
     size_t *candidate_count
 );
 
+P0_API int p0_os_cfar_group_detections(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *config,
+    const uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count
+);
+
 #ifdef __cplusplus
 }
 #endif

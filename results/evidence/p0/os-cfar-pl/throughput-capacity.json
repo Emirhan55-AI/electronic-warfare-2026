@@ -1,0 +1,13 @@
+{
+  "capacity_ratio": 2.0936413821304436,
+  "claim_limit": "functional RTL cycle capacity only; not post-route or physical service throughput",
+  "clock_hz": 50000000,
+  "cycle_budget": 102400,
+  "frame_length": 4096,
+  "functional_capacity_frames_per_second": 1022.2858311183807,
+  "functional_frame_seconds": 0.0009782,
+  "measured_functional_cycles": 48910,
+  "required_frames_per_second": 488.28125,
+  "sample_rate_hz": 2000000,
+  "status": "passed"
+}

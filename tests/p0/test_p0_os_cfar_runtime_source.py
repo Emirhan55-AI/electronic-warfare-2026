@@ -7,6 +7,8 @@ RECIPE = ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb"
 TEMPORAL_SOURCE = ROOT / "platforms/embedded/p0/src/p0_ed_runtime_run.c"
 PACKET_SOURCE = ROOT / "platforms/embedded/p0/src/p0_candidate_packet.c"
 MULTISCALE_SOURCE = ROOT / "platforms/embedded/p0/src/p0_multiscale_detector.c"
+PL_SOURCE = ROOT / "platforms/embedded/p0/src/p0_pl_os_cfar.c"
+PIPELINE_SOURCE = ROOT / "platforms/embedded/p0/src/p0_ed_pipeline.c"
 
 
 def test_arm_runtime_uses_fixed_physical_power_contract() -> None:
@@ -38,6 +40,20 @@ def test_petalinux_recipe_builds_and_installs_arm_runtime() -> None:
     assert "${bindir}/p0-os-cfar-run" in recipe
 
 
+def test_pl_dma_format_is_validated_before_accelerated_processing() -> None:
+    decoder = PL_SOURCE.read_text(encoding="utf-8")
+    pipeline = PIPELINE_SOURCE.read_text(encoding="utf-8")
+
+    for token in (
+        "P0_FORMAT_MARKER", "marked_words != 0U && marked_words != P0_PL_OS_CFAR_FRAME_BINS",
+        "evaluated != expected_evaluated", "detected && !evaluated",
+    ):
+        assert token in decoder
+    assert pipeline.index("p0_pl_os_cfar_decode(") < pipeline.index("p0_multiscale_process_pl(")
+    assert "p0_multiscale_process(" in pipeline
+    assert "p0_multiscale_process_pl(" in pipeline
+
+
 def test_temporal_runtime_preserves_versioned_packet_boundary() -> None:
     runtime = TEMPORAL_SOURCE.read_text(encoding="utf-8")
     packet = PACKET_SOURCE.read_text(encoding="utf-8")
@@ -59,6 +75,7 @@ def test_petalinux_recipe_builds_and_installs_temporal_runtime() -> None:
     for required in (
         "p0_candidate_packet.c", "p0_candidate_packet.h", "p0_ed_runtime_run.c",
         "p0_multiscale_detector.c", "p0_multiscale_detector.h",
+        "p0_pl_os_cfar.c", "p0_pl_os_cfar.h",
         "phase06i_transport_abi.h", "phase06j_temporal.c", "phase06j_temporal.h",
     ):
         assert f"file://{required}" in recipe

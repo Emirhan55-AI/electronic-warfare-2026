@@ -1,0 +1,16 @@
+{
+  "comparison": "(CUT << 32) > order_statistic * alpha_q32",
+  "evaluated_shifted_bins": [
+    20,
+    4075
+  ],
+  "frame_length": 4096,
+  "guard_cells_per_side": 4,
+  "input_format": "natural-order unsigned 58-bit UQ28.30 power",
+  "order_statistic_rank": 24,
+  "output": "64-bit natural-order power/evaluated/detected/marker word",
+  "profile": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+  "reference_cells_per_side": 16,
+  "shift_mapping": "shifted_index = natural_index XOR 0x800",
+  "status": "passed"
+}

@@ -1,0 +1,27 @@
+{
+  "build_location": "external temporary directory",
+  "checked_dma_words": 45056,
+  "coverage": [
+    "bit-exact 64-bit DMA output",
+    "strict threshold floor and floor-plus-one",
+    "duplicate reference removal and insertion",
+    "shifted evaluation edges",
+    "unsigned 58-bit extrema",
+    "frozen real FFT power frames",
+    "partial-frame reset",
+    "output backpressure payload stability",
+    "malformed TLAST and index rejection",
+    "no drop and no duplication"
+  ],
+  "deterministic_rerun": "passed",
+  "frame_completion_cycles": 48910,
+  "input_stalls": 460345,
+  "last_input_to_first_output_cycles": 36625,
+  "malformed_frames_checked": 3,
+  "mismatch_count": 0,
+  "normalized_output_sha256": "3afb5f1b5d110a6911381ca9499d7594a9c3b01b52ae8d32ad17ecfeaa18f0d6",
+  "output_stalls": 6827,
+  "payload_stability_checks": 6827,
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed"
+}

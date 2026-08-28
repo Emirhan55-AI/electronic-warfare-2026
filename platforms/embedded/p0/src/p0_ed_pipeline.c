@@ -6,22 +6,12 @@
 
 #include "p0_candidate_packet.h"
 #include "p0_multiscale_detector.h"
+#include "p0_pl_os_cfar.h"
 #include "phase06i_transport_abi.h"
 
 #define P0_FRAME_BINS PHASE06I_FFT_SIZE
 #define P0_POWER_BYTES_PER_BIN 8U
 #define P0_POWER_FRAME_BYTES (P0_FRAME_BINS * P0_POWER_BYTES_PER_BIN)
-#define P0_POWER_FRACTION_BITS 30U
-
-static uint64_t load_u64_le(const uint8_t *source)
-{
-    uint64_t value = 0U;
-    unsigned int index;
-
-    for (index = 0U; index < P0_POWER_BYTES_PER_BIN; ++index)
-        value |= (uint64_t)source[index] << (index * 8U);
-    return value;
-}
 
 int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
 {
@@ -85,10 +75,10 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
                            const uint8_t *natural_power, size_t power_bytes,
                            phase06j_frame_result_v1 *result, size_t *raw_candidate_count)
 {
-    size_t natural_bin;
     size_t candidate_count = 0U;
     size_t recovery_count = 0U;
     size_t packet_bytes = 0U;
+    int pl_decisions_present = 0;
     int code;
 
     if (pipeline == NULL || pipeline->temporal_state == NULL ||
@@ -102,23 +92,27 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
         memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
         return -1;
     }
-    for (natural_bin = 0U; natural_bin < P0_FRAME_BINS; ++natural_bin) {
-        size_t shifted_bin = natural_bin ^ (P0_FRAME_BINS / 2U);
-        uint64_t raw = load_u64_le(natural_power + natural_bin * P0_POWER_BYTES_PER_BIN);
-
-        if (raw >= (UINT64_C(1) << 58)) {
-            memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
-            errno = ERANGE;
-            return -1;
-        }
-        pipeline->raw_power[shifted_bin] = raw;
-        pipeline->power[shifted_bin] =
-            (double)raw / (double)(UINT64_C(1) << P0_POWER_FRACTION_BITS);
+    code = p0_pl_os_cfar_decode(natural_power, power_bytes, pipeline->raw_power,
+                                pipeline->power, pipeline->detections,
+                                &pl_decisions_present);
+    if (code != P0_PL_OS_CFAR_OK) {
+        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
+        errno = EPROTO;
+        return -1;
     }
-    code = p0_multiscale_process(pipeline->power, P0_FRAME_BINS, &pipeline->config,
-                                 pipeline->detections, pipeline->noise, pipeline->threshold,
-                                 pipeline->candidates, PHASE06I_MAX_CANDIDATES,
-                                 &candidate_count, &recovery_count);
+    if (pl_decisions_present) {
+        code = p0_multiscale_process_pl(
+            pipeline->power, P0_FRAME_BINS, &pipeline->config,
+            pipeline->detections, pipeline->noise, pipeline->threshold,
+            pipeline->candidates, PHASE06I_MAX_CANDIDATES,
+            &candidate_count, &recovery_count);
+    } else {
+        code = p0_multiscale_process(
+            pipeline->power, P0_FRAME_BINS, &pipeline->config,
+            pipeline->detections, pipeline->noise, pipeline->threshold,
+            pipeline->candidates, PHASE06I_MAX_CANDIDATES,
+            &candidate_count, &recovery_count);
+    }
     if (code != P0_MULTISCALE_OK) {
         memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
         errno = EPROTO;

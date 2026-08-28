@@ -1,0 +1,22 @@
+{
+  "files": {
+    "axis-power-input.mem": {
+      "bytes": 856064,
+      "sha256": "ea69bcd6bc9b0cbf5123540ca40443afef57dbcbbf7635d5636a522363d5dfc6"
+    },
+    "dma-expected.mem": {
+      "bytes": 765952,
+      "sha256": "09494beb6c63982bc72efe79def93774494840a4127194a57acfa0838aff5936"
+    },
+    "golden-vectors.json": {
+      "bytes": 4177,
+      "sha256": "8357f8a17a62401a503273fe21f92d00fd97ae5d5166d4f55554b0b9ad74e82e"
+    }
+  },
+  "immutable_source": {
+    "path": "datasets/fixtures/phase06f/real-power-expected.mem",
+    "sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed"
+  },
+  "profile": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+  "status": "passed"
+}

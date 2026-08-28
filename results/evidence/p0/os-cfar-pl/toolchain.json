@@ -1,0 +1,11 @@
+{
+  "bitstream": "not_generated",
+  "hardware": "not_exercised",
+  "implementation": "passed",
+  "python": "3.13.7",
+  "rtl_language": "SystemVerilog",
+  "simulator": "Icarus Verilog 13.0 stable",
+  "status": "passed",
+  "synthesis": "passed",
+  "vivado": "Vivado 2025.2 build 6299465"
+}

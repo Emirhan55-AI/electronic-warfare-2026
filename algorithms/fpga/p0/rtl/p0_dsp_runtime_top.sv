@@ -21,7 +21,8 @@ module p0_dsp_runtime_top (
   output logic [11:0] m_axis_bin_index,
   output logic        configuration_done,
   output logic [5:0]  status_events_sticky,
-  output logic        input_keep_error_sticky
+  output logic        input_keep_error_sticky,
+  output logic        detector_frame_error_sticky
 );
   logic        hann_valid;
   logic        hann_ready;
@@ -33,9 +34,14 @@ module p0_dsp_runtime_top (
   logic        fft_last;
   logic [11:0] fft_index;
   logic        power_valid;
+  logic        power_ready;
   logic [57:0] power_data;
   logic        power_last;
   logic [11:0] power_index;
+  logic        detector_valid;
+  logic [63:0] detector_data;
+  logic        detector_last;
+  logic [11:0] detector_index;
 
   logic        fft_s_axis_config_tvalid;
   logic        fft_s_axis_config_tready;
@@ -125,15 +131,26 @@ module p0_dsp_runtime_top (
     .aclk(aclk), .aresetn(aresetn),
     .s_axis_tvalid(fft_valid), .s_axis_tready(fft_ready),
     .s_axis_tdata(fft_data), .s_axis_tlast(fft_last), .s_axis_tuser_index(fft_index),
-    .m_axis_tvalid(power_valid), .m_axis_tready(m_axis_tready),
+    .m_axis_tvalid(power_valid), .m_axis_tready(power_ready),
     .m_axis_tdata(power_data), .m_axis_tlast(power_last), .m_axis_tuser_index(power_index)
   );
 
-  assign m_axis_tvalid = power_valid;
-  assign m_axis_tdata = {6'd0, power_data};
+  axis_p0_os_cfar detector (
+    .aclk(aclk), .aresetn(aresetn),
+    .s_axis_tvalid(power_valid), .s_axis_tready(power_ready),
+    .s_axis_tdata(power_data), .s_axis_tlast(power_last),
+    .s_axis_tuser_index(power_index),
+    .m_axis_tvalid(detector_valid), .m_axis_tready(m_axis_tready),
+    .m_axis_tdata(detector_data), .m_axis_tlast(detector_last),
+    .m_axis_tuser_index(detector_index),
+    .status_frame_error_sticky(detector_frame_error_sticky)
+  );
+
+  assign m_axis_tvalid = detector_valid;
+  assign m_axis_tdata = detector_data;
   assign m_axis_tkeep = 8'hFF;
-  assign m_axis_tlast = power_last;
-  assign m_axis_bin_index = power_index;
+  assign m_axis_tlast = detector_last;
+  assign m_axis_bin_index = detector_index;
 
   always_ff @(posedge aclk) begin
     if (!aresetn) input_keep_error_sticky <= 1'b0;

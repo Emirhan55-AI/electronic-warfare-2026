@@ -120,7 +120,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(68, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(101, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -192,7 +192,11 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/phase06i/rtl/phase06i_pkg.sv",
                 "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv",
                 "algorithms/fpga/phase06i/tb/tb_axis_candidate_packetizer.sv",
+                "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv",
+                "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv",
+                "algorithms/fpga/p0/rtl/p0_os_cfar_synthesis_top.sv",
                 "algorithms/fpga/p0/rtl/p0_dsp_runtime_top.sv",
+                "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv",
             },
             {path for path in VERIFY._repository_files() if path.endswith(".sv")},
         )

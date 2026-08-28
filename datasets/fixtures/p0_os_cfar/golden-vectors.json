@@ -1,0 +1,135 @@
+{
+  "acceptance_policy": {
+    "boundary_cases": "reported separately without tolerance",
+    "evaluation_mask": "zero mismatches",
+    "float_to_fixed_non_boundary_decisions": "zero mismatches",
+    "integer_model_to_rtl": "bit-exact 64-bit DMA words"
+  },
+  "alpha_float64": 8.58014304069906,
+  "alpha_q32": 36851433755,
+  "evaluation_mask_mismatches": 0,
+  "frame_count": 11,
+  "frame_length": 4096,
+  "non_boundary_decision_mismatches": 0,
+  "profile": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+  "real_phase06f_frames": 3,
+  "real_power_source": {
+    "path": "datasets/fixtures/phase06f/real-power-expected.mem",
+    "sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed"
+  },
+  "samples": 45056,
+  "status": "passed",
+  "synthetic_frames": 8,
+  "vectors": [
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "all_zero"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "uniform_noise"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 4,
+      "floating_detections": 4,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "multiple_tones"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "excluded_shifted_edges"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 4,
+      "floating_detections": 4,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "duplicate_reference_transitions"
+    },
+    {
+      "boundary_case": true,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "threshold_floor"
+    },
+    {
+      "boundary_case": true,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 1,
+      "floating_detections": 1,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "threshold_floor_plus_one"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 0,
+      "floating_detections": 0,
+      "source": "deterministic synthetic UQ28.30 power",
+      "vector_id": "extreme_unsigned_range"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 4,
+      "floating_detections": 4,
+      "source": "frozen PHASE-06F AMD FFT linear-power output",
+      "vector_id": "real_phase06f_single_tone"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 4,
+      "floating_detections": 4,
+      "source": "frozen PHASE-06F AMD FFT linear-power output",
+      "vector_id": "real_phase06f_multiple_tones"
+    },
+    {
+      "boundary_case": false,
+      "decision_mismatches": 0,
+      "evaluated_cells": 4056,
+      "evaluation_mask_mismatches": 0,
+      "fixed_detections": 171,
+      "floating_detections": 171,
+      "source": "frozen PHASE-06F AMD FFT linear-power output",
+      "vector_id": "real_phase06f_representative_hann"
+    }
+  ]
+}

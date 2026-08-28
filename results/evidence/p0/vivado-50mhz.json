@@ -1,8 +1,13 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "status": "passed",
   "tool": "Vivado v2025.2 build 6299465",
   "target": "xc7z020clg484-1",
+  "board_definition": {
+    "board_part": "avnet-tria:zedboard:part0:1.5",
+    "repository": "https://github.com/Avnet/bdf",
+    "commit": "e9723b55a68b106fb4cdb645974d096cd3594a2a"
+  },
   "clock_hz": 50000000,
   "dma": {
     "scatter_gather": false,
@@ -19,38 +24,47 @@
   },
   "block_design_validation": "PASS",
   "canonical_source_root": "algorithms/fpga",
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "e4a1a16200db325c737913a7e58773ec9cc5a2c8f5c1ed1e88281107a8201256",
+    "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "fc7b606912c157313c273352fa0d35b167db5f13d5c7992e993808a9215b6020",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_top.sv": "bfdae3c533fa085712addf259b2d1e5e8626785799cd3571dca427a241bef463",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_bd.v": "a60792dc7be7abf78983c759f009055118c34988d2c1c5eb9db079b04ea8b75e",
+    "scripts/create_p0_vivado_project.tcl": "f13dde3fbadc08f0e7efed354ba207d2ac5e661c2fb102e166168b766ade475a",
+    "scripts/run_p0_vivado.tcl": "2408d94e09663ceb6e69967eb5deb33ed0ef36acd59e43f5a912242f290405a2"
+  },
   "clean_rebuild_after_source_tree_reorganization": true,
   "synthesis": "PASS",
   "implementation": "ROUTE_DESIGN_COMPLETE",
   "route": {
-    "routable_nets": 16815,
-    "fully_routed_nets": 16815,
+    "routable_nets": 28018,
+    "fully_routed_nets": 28018,
     "routing_errors": 0
   },
   "timing": {
-    "setup_wns_ns": 0.578,
+    "setup_wns_ns": 0.372,
     "setup_tns_ns": 0.0,
     "setup_failing_endpoints": 0,
-    "hold_whs_ns": 0.006,
+    "hold_whs_ns": 0.018,
     "hold_ths_ns": 0.0,
     "hold_failing_endpoints": 0,
     "check_timing_max_issue_count": 0
   },
   "post_route_resources": {
-    "slice_luts": 7366,
-    "slice_lut_utilization_percent": 13.85,
-    "slice_registers": 10902,
-    "slice_register_utilization_percent": 10.25,
-    "block_ram_tiles": 17,
-    "block_ram_utilization_percent": 12.14,
-    "dsps": 40,
-    "dsp_utilization_percent": 18.18
+    "slice_luts": 19587,
+    "slice_lut_utilization_percent": 36.82,
+    "slice_registers": 17183,
+    "slice_register_utilization_percent": 16.15,
+    "block_ram_tiles": 23.5,
+    "block_ram_utilization_percent": 16.79,
+    "dsps": 47,
+    "dsp_utilization_percent": 21.36
   },
   "drc_errors": 0,
+  "drc_critical_warnings": 0,
   "drc_warnings": {
     "DPIP-1": 18,
-    "DPOP-1": 6,
-    "DPOP-2": 10,
+    "DPOP-1": 7,
+    "DPOP-2": 14,
     "PDCN-1569": 3,
     "REQP-1839": 8,
     "RTSTAT-10": 1
@@ -63,13 +77,13 @@
     "status": "PASS",
     "relative_path": "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
     "bytes": 4045693,
-    "sha256": "f8edf6755bd655961cba376c8290c3542183c1c02e56b5a6f096deea766af462"
+    "sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e"
   },
   "hardware_platform": {
     "relative_path": "build/p0/hardware/p0_system_50mhz.xsa",
-    "bytes": 534845,
-    "xsa_sha256": "e7a387e91f2ffc86e58785cdd36b5aded63c4f7e2b23b6a8e4dd2a0c38232cde",
-    "hwh_sha256": "28588e1ace0b4e015de93c495eceb8af7bff30b4fa2b38da04b44f4946c40cb6"
+    "bytes": 1016179,
+    "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
+    "hwh_sha256": "2e748a42d3b43c9a87d8626ca586d0fecbdf12afe2681ee62e110c9869b5379c"
   },
   "historical_invalid_for_current_packet": {
     "length_width_bits": 14,
@@ -78,10 +92,12 @@
     "bitstream_sha256": "5f69fa3f60849ada80a7a01e279bf56c5af6691431931d0af428a4d63e58af3a"
   },
   "throughput": {
-    "cycles_per_frame_steady_state": 4096,
-    "maximum_frames_per_second": 12207.03125,
-    "maximum_complex_samples_per_second": 50000000,
-    "hackrf_20msps_arithmetic_margin_ratio": 2.5
+    "cycles_per_frame_functional_rtl": 48910,
+    "required_frames_per_second_at_2msps": 488.28125,
+    "functional_capacity_frames_per_second": 1022.2858311183807,
+    "functional_capacity_complex_samples_per_second": 4187282.764260887,
+    "functional_capacity_margin_ratio_at_2msps": 2.0936413821304436,
+    "claim_limit": "Functional RTL cycle capacity only; DMA, driver and ARM service throughput must be measured on the board."
   },
-  "claim_boundary": "Local Vivado/XSA build proof only; not ARM boot, live DMA, ZedBoard execution, FPGA numerical golden, or live HackRF evidence."
+  "claim_boundary": "Local Vivado block-design, post-route timing, bitstream and XSA build proof only; not ARM boot, live DMA, ZedBoard execution, physical throughput, calibrated RF accuracy or live HackRF evidence."
 }

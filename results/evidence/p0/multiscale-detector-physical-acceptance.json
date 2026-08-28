@@ -3,6 +3,8 @@
   "recorded_at": "2026-08-28",
   "status": "passed",
   "checkpoint": "P0 integrated-energy wideband physical acceptance",
+  "source_commit": "56f5f333df4551517fa170ef3dff1da9367913b5",
+  "current_source_status": "superseded_by_adr_0030_pending_rebuild_and_physical_retest",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2",
@@ -73,6 +75,7 @@
     "not live RF",
     "not calibrated RF accuracy",
     "not sustained throughput",
-    "not a PL implementation of the integrated-energy detector"
+    "not a PL implementation of the integrated-energy detector",
+    "result applies to source_commit and does not accept the current ADR-0030 runtime"
   ]
 }

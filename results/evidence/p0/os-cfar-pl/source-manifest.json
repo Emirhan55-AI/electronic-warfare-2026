@@ -1,0 +1,28 @@
+{
+  "files": {
+    "algorithms/fpga/p0/constraints/p0_os_cfar_50mhz.xdc": "3a33efc1c9b40d45e4adafc2e5eb8541e2266f8db7424ef21a4f37cfffe38bba",
+    "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "fc7b606912c157313c273352fa0d35b167db5f13d5c7992e993808a9215b6020",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "e4a1a16200db325c737913a7e58773ec9cc5a2c8f5c1ed1e88281107a8201256",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_synthesis_top.sv": "7703ea145d6a66c30d1c1836a9efe21bcc806229eca24e3a7bc2ce556f712353",
+    "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv": "037b361b1cdd0ac69ef4acc3774f7bd5a296e79841f25ba4e1dbc73690b6952c",
+    "algorithms/rtl/p0_os_cfar.py": "d203149fa8c8b873dacc14a9d1333e9ede2717f4c66b3a29eb02ce04bebfa4c9",
+    "algorithms/rtl/p0_os_cfar_vectors.py": "91699d637582160f326fce42a70c06db3baa0314a6a827fc2060fe6fa6f7d06c",
+    "datasets/fixtures/p0_os_cfar/axis-power-input.mem": "ea69bcd6bc9b0cbf5123540ca40443afef57dbcbbf7635d5636a522363d5dfc6",
+    "datasets/fixtures/p0_os_cfar/dma-expected.mem": "09494beb6c63982bc72efe79def93774494840a4127194a57acfa0838aff5936",
+    "datasets/fixtures/p0_os_cfar/fixture-manifest.json": "97f4a9b4215a8bbe40570226b8517e07b5c23725119a2e9037d80e63b06cc703",
+    "datasets/fixtures/p0_os_cfar/golden-vectors.json": "8357f8a17a62401a503273fe21f92d00fd97ae5d5166d4f55554b0b9ad74e82e",
+    "docs/decisions/ADR-0030-P0-OS-CFAR-PL-OFFLOAD.md": "c33686827b01889ab37dfe5b70fedc13581c3c9a75ec3beb7b85fb595ab4b684",
+    "docs/interfaces/P0_PL_OS_CFAR_CONTRACT.md": "2dd5e23e6d55733579e20c8764e550d6f0686d39e3cdc419babaa624c18b89f7",
+    "scripts/generate_p0_os_cfar_vectors.py": "4680b464c224bd029cd36f9b45b1638baeb48a9063aaa977c8eb978f4443bb08",
+    "scripts/run_p0_os_cfar_vivado.tcl": "42d15f82706cf90da1b77c86d315d0aacd9a432c120cbe60d95c7b77c54a69ff",
+    "scripts/verify_p0_os_cfar_pl.py": "ec99d97964a4b4c280e49f4974fa569868c9ce97da2f8f98da1a2648f48f6c5d",
+    "tests/p0/test_p0_os_cfar_pl_model.py": "3fc748513e7bed3c79ca2fc5da734bae1e1244cd9114097740fec76d24a53db3",
+    "tests/p0/test_p0_os_cfar_pl_vectors.py": "6bbff815efebcc22a964dbed2b5b2a3878fe38799c7f3b71de4db9f690bdddb1",
+    "tests/p0/test_p0_os_cfar_pl_verifier.py": "b5669321167cc32adc27436a32e3f77c6741581a5245f6997ed76ad1e4381b2d"
+  },
+  "frozen_phase06f_source": {
+    "path": "datasets/fixtures/phase06f/real-power-expected.mem",
+    "sha256": "0831890326b0c8b94ea1dde4312e79aef89a12ac5e164e051242d403eed245ed"
+  },
+  "status": "passed"
+}

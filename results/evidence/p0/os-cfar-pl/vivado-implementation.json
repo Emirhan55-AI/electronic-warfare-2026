@@ -1,0 +1,62 @@
+{
+  "block_ram_tiles": {
+    "available": 140,
+    "used": 21,
+    "utilization_percent": 15.0
+  },
+  "check_timing_issue_counts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "claim_limit": "post-route implementation evidence; no bitstream or physical-board throughput claim",
+  "clock_frequency_mhz": 50.0,
+  "clock_period_ns": 20.0,
+  "drc_critical_warning_rules": [
+    "NSTD-1",
+    "UCIO-1"
+  ],
+  "drc_disposition": {
+    "NSTD-1": "expected on the standalone synthesis wrapper; the deployed block design owns I/O standards",
+    "UCIO-1": "expected on the standalone synthesis wrapper; the deployed block design owns package locations"
+  },
+  "drc_error_count": 0,
+  "drc_scope": "standalone internal-chain implementation; no board-level package pins",
+  "dsps": {
+    "available": 220,
+    "used": 45,
+    "utilization_percent": 20.45
+  },
+  "hold_failing_endpoints": 0,
+  "part": "xc7z020clg484-1",
+  "route_error_nets": 0,
+  "route_status": "fully_routed",
+  "setup_failing_endpoints": 0,
+  "slice_luts": {
+    "available": 53200,
+    "used": 17387,
+    "utilization_percent": 32.68
+  },
+  "slice_registers": {
+    "available": 106400,
+    "used": 13769,
+    "utilization_percent": 12.94
+  },
+  "status": "passed",
+  "timing_constraints_met": true,
+  "tool": "Vivado 2025.2 build 6299465",
+  "top": "p0_os_cfar_synthesis_top",
+  "total_hold_slack_ns": 0.0,
+  "total_setup_slack_ns": 0.0,
+  "worst_hold_slack_ns": 0.05,
+  "worst_setup_slack_ns": 2.4
+}

@@ -1,0 +1,14 @@
+{
+  "bitstream": "not_generated",
+  "float_reference_non_boundary": "passed",
+  "functional_verification": "passed",
+  "integer_model": "passed",
+  "physical_service_acceptance": "not_run",
+  "post_route_timing": "passed",
+  "release_ready": false,
+  "rtl_bit_exact": "passed",
+  "rtl_compile": "passed",
+  "rtl_cycle_capacity_50mhz": "passed",
+  "runtime_software_integration": "passed",
+  "synthesis": "passed"
+}

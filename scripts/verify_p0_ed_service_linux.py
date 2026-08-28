@@ -71,6 +71,7 @@ def verify() -> dict[str, object]:
                 P0 / "src/p0_ed_service_protocol.c",
                 P0 / "src/p0_ed_service.c",
                 P0 / "src/p0_os_cfar.c",
+                P0 / "src/p0_pl_os_cfar.c",
                 P0 / "src/p0_multiscale_detector.c",
                 P0 / "src/p0_candidate_packet.c",
                 P06J / "src/phase06j_temporal.c",

@@ -305,3 +305,95 @@ P0_API int p0_os_cfar_process(
     *candidate_count = output_count;
     return P0_OS_CFAR_OK;
 }
+
+P0_API int p0_os_cfar_group_detections(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *config,
+    const uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count
+) {
+    double references[P0_OS_CFAR_MAX_REFERENCE_CELLS];
+    size_t radius;
+    size_t index;
+    size_t output_count = 0U;
+
+    if (power == NULL || power_count < 3U || !valid_config(config) || detections == NULL ||
+        noise_power == NULL || threshold_power == NULL || candidates == NULL ||
+        candidate_count == NULL) {
+        return P0_OS_CFAR_INVALID_ARGUMENT;
+    }
+    radius = (size_t)config->reference_cells_per_side + config->guard_cells_per_side;
+    for (index = 0U; index < power_count; ++index) {
+        if (!isfinite(power[index]) || power[index] < 0.0)
+            return P0_OS_CFAR_NONFINITE_POWER;
+        if (detections[index] > 1U ||
+            (detections[index] != 0U && (index < radius || index >= power_count - radius)))
+            return P0_OS_CFAR_INVALID_ARGUMENT;
+        noise_power[index] = NAN;
+        threshold_power[index] = NAN;
+    }
+    if (power_count <= 2U * radius) {
+        *candidate_count = 0U;
+        return P0_OS_CFAR_OK;
+    }
+
+    index = radius;
+    while (index < power_count - radius) {
+        size_t start;
+        size_t end;
+        size_t peak;
+        size_t reference_count = 0U;
+        size_t source;
+        size_t right_start;
+        double noise;
+
+        if (detections[index] == 0U) {
+            ++index;
+            continue;
+        }
+        start = index;
+        end = index;
+        peak = index;
+        ++index;
+        while (index < power_count - radius) {
+            if (detections[index] != 0U) {
+                if (index - end > (size_t)config->maximum_gap_bins + 1U)
+                    break;
+                end = index;
+                if (power[index] > power[peak])
+                    peak = index;
+            } else if (index - end > (size_t)config->maximum_gap_bins + 1U) {
+                break;
+            }
+            ++index;
+        }
+        if (output_count >= candidate_capacity) {
+            *candidate_count = output_count;
+            return P0_OS_CFAR_CANDIDATE_OVERFLOW;
+        }
+        for (source = peak - radius; source < peak - config->guard_cells_per_side; ++source)
+            references[reference_count++] = power[source];
+        right_start = peak + config->guard_cells_per_side + 1U;
+        for (source = right_start;
+             source < right_start + config->reference_cells_per_side; ++source)
+            references[reference_count++] = power[source];
+        insertion_sort(references, reference_count);
+        noise = references[config->order_statistic_rank - 1U];
+        noise_power[peak] = noise;
+        threshold_power[peak] = noise * config->threshold_coefficient;
+        candidates[output_count].start_bin = (uint32_t)start;
+        candidates[output_count].end_bin = (uint32_t)end;
+        candidates[output_count].peak_bin = (uint32_t)peak;
+        candidates[output_count].peak_power = power[peak];
+        candidates[output_count].noise_power_per_bin = noise_power[peak];
+        candidates[output_count].threshold_power = threshold_power[peak];
+        ++output_count;
+    }
+    *candidate_count = output_count;
+    return P0_OS_CFAR_OK;
+}

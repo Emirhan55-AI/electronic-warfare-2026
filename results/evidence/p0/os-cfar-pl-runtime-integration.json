@@ -1,0 +1,30 @@
+{
+  "claim_limit": "host C integration; PetaLinux ARM and physical FPGA are not exercised",
+  "combined_candidate_mismatches": 0,
+  "compiler": "MSVC C11",
+  "decode_mismatches": 0,
+  "dma_words": 45056,
+  "frames": 11,
+  "legacy_power_only_frame_compatibility": "passed",
+  "malformed_frames_rejected": 3,
+  "recovery_count_mismatches": 0,
+  "runtime_path": {
+    "full_frame_marker_validation": "required before PL decisions are used",
+    "mixed_or_malformed_frame_policy": "reject without temporal-state advancement",
+    "pl_owned": "OS-CFAR cell decisions",
+    "ps_owned": "candidate grouping, wideband recovery, temporal confirmation and parameters"
+  },
+  "sources": {
+    "platforms/embedded/p0/include/p0_multiscale_detector.h": "468e250daa769d2690ada1af5caf40b19840c7a5fcb267662f8fc97eaae143a1",
+    "platforms/embedded/p0/include/p0_os_cfar.h": "1aa640804dbc41aaf4e9402cb348966e86c65eaa12981fbd1a533acf8beb2009",
+    "platforms/embedded/p0/include/p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "af48ac10d4eb8cd22f9befac85769e38a47d1890f6c02a1a3c736bd182335eb3",
+    "platforms/embedded/p0/src/p0_multiscale_detector.c": "36d9dd5c16040a04688e539134a7d53b58984e2cc2ef138e481b0e544358d682",
+    "platforms/embedded/p0/src/p0_os_cfar.c": "c65ca4b9c0537e9f0d14da940e99cbfe0bef3cad958ba3d223b1eb4e7479f8e9",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
+    "scripts/verify_p0_os_cfar_pl_runtime.py": "c0ff61871f2c74301272458bed80abfe0fb4c278a284515d85cdf63c1c672067",
+    "tests/p0/test_p0_os_cfar_pl_runtime.py": "ba62df1f515f720a8a0cf10ac6d33823b53e664f8abc273a56e3b3042bd06a7a"
+  },
+  "status": "passed"
+}

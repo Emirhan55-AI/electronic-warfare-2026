@@ -31,6 +31,9 @@ def test_linux_host_acceptance_evidence_matches_sources() -> None:
     for name, expected in evidence["source_sha256"].items():
         source = ROOT / "platforms/embedded/p0/src" / name
         assert hashlib.sha256(source.read_bytes()).hexdigest() == expected
+    for name, expected in evidence["acceptance_source_sha256"].items():
+        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
+    assert evidence["acceptance"]["pl_decision_path_exercised"] is True
     assert "physical sustained throughput" in evidence["not_verified"]
 
 
@@ -48,16 +51,50 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "p0_parameter_runtime.c": ROOT / "platforms/embedded/p0/src/p0_parameter_runtime.c",
         "p0_parameter_run.c": ROOT / "platforms/embedded/p0/src/p0_parameter_run.c",
         "p0_parameter_client.c": ROOT / "platforms/embedded/p0/src/p0_parameter_client.c",
+        "p0_multiscale_detector.c": ROOT / "platforms/embedded/p0/src/p0_multiscale_detector.c",
+        "p0_multiscale_detector.h": ROOT / "platforms/embedded/p0/include/p0_multiscale_detector.h",
+        "p0_ed_pipeline.c": ROOT / "platforms/embedded/p0/src/p0_ed_pipeline.c",
+        "p0_ed_runtime_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_runtime_run.c",
+        "p0_os_cfar.c": ROOT / "platforms/embedded/p0/src/p0_os_cfar.c",
+        "p0_os_cfar.h": ROOT / "platforms/embedded/p0/include/p0_os_cfar.h",
+        "p0_pl_os_cfar.c": ROOT / "platforms/embedded/p0/src/p0_pl_os_cfar.c",
+        "p0_pl_os_cfar.h": ROOT / "platforms/embedded/p0/include/p0_pl_os_cfar.h",
+        "p0_ed_stage_profile_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_stage_profile_run.c",
+        "p0_candidate_packet.c": ROOT / "platforms/embedded/p0/src/p0_candidate_packet.c",
     }
 
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_failed"] == 0
+    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
+    assert evidence["build"]["full_image_tasks_failed"] == 0
+    vivado = json.loads(
+        (ROOT / "results/evidence/p0/vivado-50mhz.json").read_text(encoding="utf-8")
+    )
+    assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
+    assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
-    assert evidence["physical_acceptance"] == (
+    assert evidence["prior_physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )
     assert "physical sustained throughput" in evidence["not_verified"]
+
+
+def test_vivado_build_evidence_matches_current_sources() -> None:
+    evidence = json.loads(
+        (ROOT / "results/evidence/p0/vivado-50mhz.json").read_text(encoding="utf-8")
+    )
+
+    assert evidence["status"] == "passed"
+    assert evidence["block_design_validation"] == "PASS"
+    assert evidence["route"]["routing_errors"] == 0
+    assert evidence["timing"]["setup_failing_endpoints"] == 0
+    assert evidence["timing"]["hold_failing_endpoints"] == 0
+    assert evidence["drc_errors"] == 0
+    assert evidence["drc_critical_warnings"] == 0
+    assert evidence["bitstream"]["status"] == "PASS"
+    for name, expected in evidence["source_sha256"].items():
+        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
 
 
 def test_parameter_host_evidence_matches_sources() -> None:
@@ -95,6 +132,8 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_attempted"] == 5679
     assert evidence["build"]["tasks_failed"] == 0
+    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
+    assert evidence["build"]["full_image_tasks_failed"] == 0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
 

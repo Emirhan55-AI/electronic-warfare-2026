@@ -9,6 +9,8 @@ SRC_URI = "file://Makefile \
            file://p0_os_cfar.c \
            file://p0_os_cfar.h \
            file://p0_os_cfar_run.c \
+           file://p0_pl_os_cfar.c \
+           file://p0_pl_os_cfar.h \
            file://p0_multiscale_detector.c \
            file://p0_multiscale_detector.h \
            file://p0_candidate_packet.c \
@@ -50,10 +52,10 @@ do_compile:append() {
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_dma_run.c ${LDFLAGS} -o ${S}/p0-dma-run
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_os_cfar.c ${S}/p0_os_cfar_run.c ${LDFLAGS} -lm -o ${S}/p0-os-cfar-run
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${S}/p0_ed_runtime_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-runtime-run
-    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_service.c ${S}/p0_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${LDFLAGS} -lm -o ${S}/p0-ed-service
+    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_service.c ${S}/p0_os_cfar.c ${S}/p0_pl_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${LDFLAGS} -lm -o ${S}/p0-ed-service
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_ed_client.c ${LDFLAGS} -o ${S}/p0-ed-client
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_ed_throughput_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-throughput-run
-    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${S}/p0_ed_stage_profile_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-stage-profile-run
+    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_os_cfar.c ${S}/p0_pl_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/phase06j_temporal.c ${S}/p0_ed_stage_profile_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-stage-profile-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_parameter_runtime.c ${S}/p0_parameter_run.c ${LDFLAGS} -lm -o ${S}/p0-parameter-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_parameter_client.c ${LDFLAGS} -o ${S}/p0-parameter-client
 }
