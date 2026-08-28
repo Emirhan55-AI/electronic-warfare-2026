@@ -53,7 +53,10 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     assert evidence["build"]["tasks_failed"] == 0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
-    assert "ZedBoard boot with this image" in evidence["not_verified"]
+    assert evidence["physical_acceptance"] == (
+        "results/evidence/p0/multiscale-detector-physical-acceptance.json"
+    )
+    assert "real-time throughput" in evidence["not_verified"]
 
 
 def test_parameter_host_evidence_matches_sources() -> None:

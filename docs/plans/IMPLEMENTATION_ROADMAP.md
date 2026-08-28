@@ -71,6 +71,24 @@ alanları host referansıyla eşleşmiştir. Hizmetin SysV yeniden başlatma ve 
 istek kabulü de geçmiştir. Bu kontrol noktası sonraki faz için otomatik
 kullanıcı onayı oluşturmaz.
 
+### P0 ED geniş bant düzeltmesi
+
+Kullanıcının 2026-08-28 onayıyla, yeni bir yol haritası fazı açılmadan mevcut P0
+ED kapanışındaki geniş bant olay sahipliği düzeltilmektedir. ADR-0028 sonuçlardan
+önce yöntemi ve kapıları kilitlemiştir: OS-CFAR yerel tespit sahibi olarak kalır;
+32-bin bütünleşik enerji desteği aşındırıldıktan sonra yalnız tam 41-bin OS
+penceresinden geniş destekler kurtarma adayı olur. Host referansı 256/256 geniş
+bant kareyi, 128/128 dört-kare tek olay dizisini,
+7.168 gürültü ve 4.992 yerel sinyal karesinde sıfır ek geniş aday kapısını ve
+64/64 Python/C aday eşdeğerliğini geçmiştir. İlk tek-bin bölgesel imaj fiziksel
+geniş bant kapısında olay üretememiş ve bu başarısızlık ADR-0028'e kaydedilmiştir.
+Bütünleşik enerji sürümü PetaLinux'ta 5.679/5.679 görevle derlenmiş ve fiziksel
+PL→DMA→ARM yolunda kabul edilmiştir. 10/10 geniş bant karesi kurtarma adayı
+üretmiş; tek olay kare 1–9 boyunca doğrulanmış ve gözlenmiş, en kötü coverage ve
+IoU `0,6475409836`, overreach `0` olmuştur. 10 yalnız-gürültü karesinde geniş
+aday/doğrulanmış olay ve dört parametre isteğinde geçerli alan oluşmamıştır.
+Canlı RF, kalibre doğruluk ve sürekli throughput bu kabul kapsamı dışındadır.
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

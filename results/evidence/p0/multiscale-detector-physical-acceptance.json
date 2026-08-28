@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-28",
+  "status": "passed",
+  "checkpoint": "P0 integrated-energy wideband physical acceptance",
+  "platform": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2",
+    "fpga_manager_state": "operating",
+    "data_path": "CI8 -> PL Hann/4096 FFT/power -> AXI DMA -> PS/ARM detector",
+    "service_boundary": "unprivileged petalinux client through local p0ed service",
+    "image_sha256": "d4f39dec1748970098e4bd96eccc5807a22aafd4160480bbff5b8a535669e14d",
+    "service_sha256": "23ec65e763dd4113c71e00722d98f1c9731573f817c396d0f6f3060ea918a283",
+    "runtime_runner_sha256": "0df4663012ba7a5c12f991f14828aaf4662e976dbc821d188488f1c8ecce8a62"
+  },
+  "method": {
+    "local_detector": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    "regional_noise_bins": 256,
+    "integration_bins": 32,
+    "noise_multiplier": 2.5,
+    "support_erosion_bins": [15, 16],
+    "minimum_recovery_span_bins": 41,
+    "temporal_rule": "2_of_3"
+  },
+  "wideband_positive": {
+    "frames": 10,
+    "truth_shifted_span": [2455, 2576],
+    "raw_candidate_counts": [1, 1, 1, 2, 2, 3, 2, 1, 3, 2],
+    "recovery_observations": 10,
+    "confirmed_observed_counts": [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "owner_event_id": 1,
+    "owner_confirmed_observed_frames": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "four_frame_owner_windows": 6,
+    "minimum_coverage": 0.6475409836065574,
+    "minimum_iou": 0.6475409836065574,
+    "maximum_overreach": 0.0,
+    "required_minimum_coverage": 0.6,
+    "required_minimum_iou": 0.5,
+    "required_maximum_overreach": 0.25,
+    "dma_status_flags": [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+    "dropped_candidates": 0
+  },
+  "noise_negative": {
+    "frames": 10,
+    "raw_candidate_counts": [0, 3, 2, 1, 0, 0, 0, 0, 1, 0],
+    "recovery_observations": 0,
+    "confirmed_observed_counts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "parameter_observations": [0, 0, 0, 0],
+    "valid_parameter_fields": 0,
+    "final_parameter_reason": "context_lost",
+    "dma_status_flags": [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+    "dropped_candidates": 0
+  },
+  "artifact_sha256": {
+    "wideband_inputs_tar": "bc07cab8115fadf23dfe40d8969a6d009ebbd74bab93374d9c018dc5e9555bf7",
+    "noise_inputs_tar": "6defea64229018b638005cc3e1d68092d7415f8ba893d0b459605e55efe284a9",
+    "wideband_results_tar": "34ad4f13cfc49935966a7b8c83096a08446ade9e4ced781b33dfe24d10f11174",
+    "noise_results_tar": "8e970480b597829ea12491979761defad22a5aa6d073ca98d3ee47f5342da17f",
+    "noise_parameter_results_tar": "6327b58b2ddd5b7fcec986dcc7503aae8546d95a65f32fe1b7acb2555dfab4b9"
+  },
+  "source_sha256": {
+    "p0_multiscale_detector.c": "79a8e54ef13a60c28a826da072828641a301d8fd218b55e57e70627fbc7608e4",
+    "p0_multiscale_detector.h": "026065b5b5479ba2605e1171cfa6956e12c7ee993cd970868b957d6b7a775f01",
+    "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
+    "p0_ed_service.c": "a7cb3bb0c57b9869049356ac385bb1d86a058baf7d4c0c76cdf5eb2f79d7de1b",
+    "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d",
+    "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea"
+  },
+  "claim_boundary": [
+    "deterministic quantized CI8 fixtures through the physical PL/DMA/ARM path",
+    "not live RF",
+    "not calibrated RF accuracy",
+    "not sustained throughput",
+    "not a PL implementation of the integrated-energy detector"
+  ]
+}

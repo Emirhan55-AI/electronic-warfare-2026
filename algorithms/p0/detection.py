@@ -219,3 +219,139 @@ class OSCFARDetector:
                 )
             )
         return tuple(candidates)
+
+
+@dataclass(frozen=True)
+class WidebandRecoveryConfig:
+    """Bounded integrated-energy profile for emissions wider than the OS window."""
+
+    region_size: int = 256
+    integration_bins: int = 32
+    noise_multiplier: float = 2.5
+    minimum_span_bins: int = 2 * (
+        P0_DETECTOR_PROFILE.reference_cells_per_side
+        + P0_DETECTOR_PROFILE.guard_cells_per_side
+    ) + 1
+
+    def __post_init__(self) -> None:
+        if self.region_size <= 0 or 4096 % self.region_size:
+            raise ValueError("region_size must divide the 4096-bin P0 frame")
+        if self.integration_bins <= 1 or self.integration_bins % 2:
+            raise ValueError("integration_bins must be an even integer greater than one")
+        if not np.isfinite(self.noise_multiplier) or self.noise_multiplier <= 1.0:
+            raise ValueError("noise_multiplier must be finite and greater than one")
+        if self.minimum_span_bins < 1:
+            raise ValueError("minimum_span_bins must be positive")
+
+
+P0_WIDEBAND_RECOVERY_PROFILE = WidebandRecoveryConfig()
+
+
+@dataclass(frozen=True)
+class MultiscaleFrameResult:
+    """OS-CFAR result plus qualified integrated-energy recovery candidates."""
+
+    frame_id: int
+    os_cfar: OSCFARFrameResult
+    recovery_candidates: tuple[CandidateRegion, ...]
+    candidates: tuple[CandidateRegion, ...]
+
+
+class MultiscaleDetector:
+    """Preserve OS-CFAR and recover only support wider than its full window."""
+
+    def __init__(
+        self,
+        os_config: OSCFARConfig | None = None,
+        recovery_config: WidebandRecoveryConfig | None = None,
+    ) -> None:
+        self.os_detector = OSCFARDetector(os_config)
+        self.recovery_config = recovery_config or P0_WIDEBAND_RECOVERY_PROFILE
+
+    def process(self, power: npt.ArrayLike, *, frame_id: int) -> MultiscaleFrameResult:
+        values = np.asarray(power, dtype=np.float64)
+        os_result = self.os_detector.process(values, frame_id=frame_id)
+        recoveries = self._regional_recoveries(values, os_result.evaluated_start_bin)
+        retained = tuple(
+            candidate
+            for candidate in os_result.candidates
+            if not any(self._overlaps(candidate, recovery) for recovery in recoveries)
+        )
+        combined = tuple(sorted(
+            (*retained, *recoveries),
+            key=lambda candidate: (candidate.start_bin, candidate.end_bin, candidate.peak_bin),
+        ))
+        return MultiscaleFrameResult(frame_id, os_result, recoveries, combined)
+
+    def recovery_candidates(self, power: npt.ArrayLike) -> tuple[CandidateRegion, ...]:
+        """Return qualified integrated-energy proposals without running OS-CFAR."""
+
+        values = np.asarray(power, dtype=np.float64)
+        if values.ndim != 1 or values.size != 4096:
+            raise ValueError("power must contain exactly 4096 cells")
+        if not np.all(np.isfinite(values)) or np.any(values < 0.0):
+            raise ValueError("power must contain finite non-negative values")
+        radius = (
+            self.os_detector.config.reference_cells_per_side
+            + self.os_detector.config.guard_cells_per_side
+        )
+        return self._regional_recoveries(values, radius)
+
+    def _regional_recoveries(
+        self,
+        power: npt.NDArray[np.float64],
+        edge_cells: int,
+    ) -> tuple[CandidateRegion, ...]:
+        cfg = self.recovery_config
+        shaped = power.reshape(-1, cfg.region_size)
+        region_noise = np.median(shaped, axis=1) / np.log(2.0)
+        region_threshold = region_noise * cfg.noise_multiplier
+        threshold = np.repeat(region_threshold, cfg.region_size)
+        noise = np.repeat(region_noise, cfg.region_size)
+        left_window = cfg.integration_bins // 2 - 1
+        right_window = cfg.integration_bins // 2
+        evaluated_start = max(edge_cells, left_window)
+        evaluated_stop = power.size - max(edge_cells, right_window)
+        prefix = np.concatenate(([0.0], np.cumsum(power, dtype=np.float64)))
+        centers = np.arange(evaluated_start, evaluated_stop, dtype=np.int64)
+        means = (
+            prefix[centers + right_window + 1]
+            - prefix[centers - left_window]
+        ) / cfg.integration_bins
+        detected = np.zeros(power.size, dtype=np.bool_)
+        detected[centers] = means > threshold[centers]
+
+        bins = np.flatnonzero(detected)
+        if not bins.size:
+            return ()
+        groups: list[list[int]] = [[int(bins[0])]]
+        maximum_step = self.os_detector.config.maximum_gap_bins + 1
+        for raw_bin in bins[1:]:
+            bin_index = int(raw_bin)
+            if bin_index - groups[-1][-1] <= maximum_step:
+                groups[-1].append(bin_index)
+            else:
+                groups.append([bin_index])
+
+        candidates: list[CandidateRegion] = []
+        for group in groups:
+            start = group[0] + left_window
+            end = group[-1] - right_window
+            if end < start:
+                continue
+            if end - start + 1 < cfg.minimum_span_bins:
+                continue
+            peak = start + int(np.argmax(power[start : end + 1]))
+            candidates.append(CandidateRegion(
+                start,
+                end,
+                peak,
+                float(power[peak]),
+                float(noise[peak]),
+                float(threshold[peak]),
+            ))
+        return tuple(candidates)
+
+    @staticmethod
+    def _overlaps(first: CandidateRegion, second: CandidateRegion) -> bool:
+        return first.start_bin <= second.end_bin and second.start_bin <= first.end_bin

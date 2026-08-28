@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "checkpoint": "P0 ED wideband recovery correction",
+  "status": "passed",
+  "method": {
+    "local_detector": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    "region_bins": 256,
+    "integration_bins": 32,
+    "noise_multiplier": 2.5,
+    "support_erosion_bins": [
+      15,
+      16
+    ],
+    "minimum_recovery_span_bins": 41,
+    "fusion": "qualified integrated-energy owner suppresses overlapping OS-CFAR fragments"
+  },
+  "wideband": {
+    "status": "passed",
+    "trials": 256,
+    "successful_frames": 256,
+    "successful_frame_rate": 1.0,
+    "minimum_coverage": 0.6,
+    "minimum_iou": 0.5,
+    "maximum_overreach": 0.25,
+    "mean_coverage": 1.0,
+    "mean_iou": 0.9718324203772764,
+    "mean_overreach": 0.028167579622723565,
+    "minimum_recovery_candidates": 1,
+    "maximum_recovery_candidates": 1,
+    "maximum_combined_candidates": 6
+  },
+  "no_added_broad_false_candidates": {
+    "status": "passed",
+    "noise_records": [
+      {
+        "scene": "awgn-low",
+        "frames": 1024,
+        "recovery_candidates": 0
+      },
+      {
+        "scene": "awgn-medium",
+        "frames": 4096,
+        "recovery_candidates": 0
+      },
+      {
+        "scene": "awgn-high",
+        "frames": 1024,
+        "recovery_candidates": 0
+      },
+      {
+        "scene": "sloped-noise",
+        "frames": 512,
+        "recovery_candidates": 0
+      },
+      {
+        "scene": "stepped-noise",
+        "frames": 512,
+        "recovery_candidates": 0
+      }
+    ],
+    "local_signal_frames": 4992,
+    "local_signal_recovery_candidates": 0,
+    "acceptance": "no added >=41-bin recovery candidate"
+  },
+  "wideband_temporal": {
+    "status": "passed",
+    "sequences": 128,
+    "four_frame_single_owner_sequences": 128,
+    "success_rate": 1.0,
+    "minimum_rate": 0.99
+  },
+  "portable_c_equivalence": {
+    "status": "passed",
+    "compiler": "MSVC C11",
+    "frames": 64,
+    "candidate_boundary_mismatches": 0
+  },
+  "existing_os_false_alarm": {
+    "distribution_assumption": "independent identically distributed exponential square-law power",
+    "frame_count": 256,
+    "evaluated_cell_count": 1038336,
+    "false_alarm_count": 95,
+    "configured_pfa": 0.0001,
+    "observed_false_alarm_probability": 9.1492541913215e-05,
+    "confidence_method": "two-sided 99% Wilson interval",
+    "confidence_lower": 7.029883509434694e-05,
+    "confidence_upper": 0.00011907497080798152,
+    "acceptance": "configured Pfa must lie inside the finite-sample 99% interval",
+    "status": "passed"
+  },
+  "bounded_contract": {
+    "status": "passed",
+    "maximum_candidates": 1352,
+    "maximum_active_events": 64,
+    "abi_version": 1
+  },
+  "claim_boundary": "Host reference and portable C evidence; not ARM, FPGA execution, throughput, or live RF."
+}

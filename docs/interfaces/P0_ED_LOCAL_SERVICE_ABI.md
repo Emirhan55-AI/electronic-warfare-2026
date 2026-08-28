@@ -116,8 +116,9 @@ değerdir; ölçüm tamamlanmadan mevcut olmayan metrikler sıfırla serileştir
 
 ## İşleme ve iddia sınırı
 
-Başarılı temel yol `ci8 → DMA → FPGA Hann/FFT/UQ28.30 güç → ARM OS-CFAR →
-PHASE-06I ABI v1 → PHASE-06J 2/3 temporal` zinciridir. ABI v2 parametre isteği,
+Başarılı temel yol `ci8 → DMA → FPGA Hann/FFT/UQ28.30 güç → ARM OS-CFAR +
+41-bin geniş bant kurtarma → PHASE-06I ABI v1 → PHASE-06J 2/3 temporal`
+zinciridir. ABI v2 parametre isteği,
 aynı karelerin FPGA güç çıktısını ve giriş `ci8` örneklerini dört ardışık
 doğrulanmış gözlem boyunca ARM parametre çekirdeğine verir. Seçilen olay mevcut
 karede doğrulanmış ve gözlenmiş olmalı, tepe bini onaylı aralıkta bulunmalı ve

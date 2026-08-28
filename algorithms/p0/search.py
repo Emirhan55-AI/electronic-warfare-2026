@@ -9,7 +9,7 @@ from typing import Protocol
 import numpy as np
 import numpy.typing as npt
 
-from .detection import OSCFARDetector
+from .detection import MultiscaleDetector
 from .models import P0ParameterResult
 from .parameters import ParameterExtractor
 from .temporal import TemporalConfirmation
@@ -170,7 +170,7 @@ class P0SearchEngine:
                 iq = np.asarray(raw_frame, dtype=np.complex128)
                 periodic_hann = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(iq.size, dtype=np.float64) / iq.size)
                 power = np.abs(np.fft.fftshift(np.fft.fft(iq * periodic_hann))) ** 2
-                detection = OSCFARDetector().process(power, frame_id=frame_id)
+                detection = MultiscaleDetector().process(power, frame_id=frame_id)
                 candidates = self._filter_candidates(request, window, detection.candidates, iq.size)
                 tracks = tracker.update(candidates, frame_id=frame_id)
                 final_iq, final_power, final_detection, final_tracks = iq, power, detection, tracks
@@ -187,7 +187,7 @@ class P0SearchEngine:
                         candidate=track.candidate,
                         confirmed=True,
                         provenance=window.provenance,
-                        backend=f"{self.backend.backend_name} -> {request.mode.value} -> P0 OS-CFAR",
+                        backend=f"{self.backend.backend_name} -> {request.mode.value} -> P0 çok ölçekli tespit",
                         neighboring_candidates=final_detection.candidates,
                     )
                 )

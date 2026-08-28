@@ -90,6 +90,7 @@ def verify() -> dict[str, object]:
         "inherit module update-rc.d useradd", 'GROUPADD_PARAM:${PN} = "--system p0ed"',
         'INITSCRIPT_PARAMS = "defaults 99"',
         "p0-ed-service", "p0-ed-client", "p0-parameter-run", "p0-parameter-client",
+        "p0_multiscale_detector.c", "p0_multiscale_detector.h",
     ):
         if token not in recipe:
             raise AssertionError(f"PetaLinux recipe token missing: {token}")

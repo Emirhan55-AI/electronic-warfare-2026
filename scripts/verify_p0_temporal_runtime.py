@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and exercise the P0 OS-CFAR to temporal runtime bridge."""
+"""Build and exercise the P0 multiscale detector to temporal runtime bridge."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ PHASE06I_INCLUDE = ROOT / "platforms" / "embedded" / "phase06i" / "include"
 PHASE06J_INCLUDE = ROOT / "platforms" / "embedded" / "phase06j" / "include"
 SOURCES = (
     ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_os_cfar.c",
+    ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_multiscale_detector.c",
     ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_candidate_packet.c",
     ROOT / "platforms" / "embedded" / "phase06j" / "src" / "phase06j_temporal.c",
     ROOT / "platforms" / "embedded" / "p0" / "src" / "p0_ed_runtime_run.c",

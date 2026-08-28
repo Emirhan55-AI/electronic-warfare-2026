@@ -24,7 +24,7 @@ arasında aynı olay kimliğiyle korunur.
 
 İlk sekmede deterministik replay spektrumu, waterfall geçmişi ve doğrulanmış P0
 OS-CFAR sonucu görünür. `GÖREV` bölümündeki üç hakem girişi de aynı işleme
-zincirini kullanır: IQ → periyodik Hann → FFT → OS-CFAR → 2/3 zamansal onay →
+zincirini kullanır: IQ → periyodik Hann → FFT → OS-CFAR + geniş bant kurtarma → 2/3 zamansal onay →
 parametre çıkarımı. Arayüz MHz kabul eder; işleme katmanı yalnızca Hz kullanır.
 
 ### Doğrulama A — bilinmeyen frekans
@@ -49,7 +49,7 @@ girişler reddedilir. `99.950`–`99.960` MHz dışlama bandı sinyal üretmez.
 3. `Taramayı Başlat` düğmesine basın ve sinyalin bulunduğunu doğrulayın.
 
 Bu kip taşıyıcıyı doğrudan sonuç olarak yazmaz; bildirilen frekans çevresinde
-50 kHz pencere toplar ve aynı OS-CFAR/zamansal onay zincirini çalıştırır.
+50 kHz pencere toplar ve aynı çok ölçekli tespit/zamansal onay zincirini çalıştırır.
 `100.200` MHz yanlış frekans girişi sinyal üretmez.
 
 Üç olumlu senaryonun replay çıktısı, arayüz yuvarlamasıyla şöyledir:

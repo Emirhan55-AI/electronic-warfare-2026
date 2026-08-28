@@ -6,6 +6,7 @@ SOURCE = ROOT / "platforms/embedded/p0/src/p0_os_cfar_run.c"
 RECIPE = ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb"
 TEMPORAL_SOURCE = ROOT / "platforms/embedded/p0/src/p0_ed_runtime_run.c"
 PACKET_SOURCE = ROOT / "platforms/embedded/p0/src/p0_candidate_packet.c"
+MULTISCALE_SOURCE = ROOT / "platforms/embedded/p0/src/p0_multiscale_detector.c"
 
 
 def test_arm_runtime_uses_fixed_physical_power_contract() -> None:
@@ -41,6 +42,7 @@ def test_temporal_runtime_preserves_versioned_packet_boundary() -> None:
     runtime = TEMPORAL_SOURCE.read_text(encoding="utf-8")
     packet = PACKET_SOURCE.read_text(encoding="utf-8")
 
+    assert "p0_multiscale_process(" in runtime
     assert "p0_candidate_packet_encode(" in runtime
     assert "phase06j_process_packet(" in runtime
     assert "phase06j_state_init(" in runtime
@@ -56,8 +58,21 @@ def test_petalinux_recipe_builds_and_installs_temporal_runtime() -> None:
 
     for required in (
         "p0_candidate_packet.c", "p0_candidate_packet.h", "p0_ed_runtime_run.c",
+        "p0_multiscale_detector.c", "p0_multiscale_detector.h",
         "phase06i_transport_abi.h", "phase06j_temporal.c", "phase06j_temporal.h",
     ):
         assert f"file://{required}" in recipe
     assert "-o ${S}/p0-ed-runtime-run" in recipe
     assert "install -m 0755 ${S}/p0-ed-runtime-run ${D}${bindir}/p0-ed-runtime-run" in recipe
+
+
+def test_multiscale_source_keeps_locked_recovery_boundary() -> None:
+    source = MULTISCALE_SOURCE.read_text(encoding="utf-8")
+
+    assert "P0_MULTISCALE_MINIMUM_RECOVERY_SPAN" in source
+    assert "P0_MULTISCALE_INTEGRATION_BINS" in source
+    assert "P0_REGIONAL_NOISE_MULTIPLIER 2.5" in source
+    assert "append_integrated_recovery" in source
+    assert "p0_os_cfar_process(" in source
+    assert "P0_MULTISCALE_REGION_BINS" in source
+    assert "overlaps(&candidates[index], &recoveries[recovery_index])" in source

@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "p0_candidate_packet.h"
+#include "p0_multiscale_detector.h"
 #include "p0_os_cfar.h"
 #include "phase06i_transport_abi.h"
 #include "phase06j_temporal.h"
@@ -198,11 +199,12 @@ int main(int argc, char **argv)
         goto done;
     }
     fputs("{\n  \"schema_version\":1,\n  \"status\":\"passed\",\n"
-          "  \"detector\":\"canonical_os_cfar\",\n  \"temporal_rule\":\"2_of_3\",\n"
+          "  \"detector\":\"p0_multiscale_os_cfar_integrated_energy\",\n  \"temporal_rule\":\"2_of_3\",\n"
           "  \"frames\":[\n", output);
     for (frame_id = 0U; frame_id < (uint32_t)(argc - 2); ++frame_id) {
         const char *input = argv[frame_id + 2U];
         size_t candidate_count = 0U;
+        size_t recovery_count = 0U;
         size_t packet_bytes = 0U;
         phase06j_frame_result_v1 frame_result;
         int code;
@@ -215,11 +217,12 @@ int main(int argc, char **argv)
                 fprintf(stderr, "FPGA güç çerçevesi okunamadı (%s): %s\n", input, strerror(errno));
                 goto done;
             }
-            code = p0_os_cfar_process(memory.power, P0_FRAME_BINS, &config,
-                                      memory.detections, memory.noise, memory.threshold,
-                                      memory.candidates, P0_MAX_CANDIDATES, &candidate_count);
-            if (code != P0_OS_CFAR_OK) {
-                fprintf(stderr, "OS-CFAR çalıştırılamadı: %d\n", code);
+            code = p0_multiscale_process(memory.power, P0_FRAME_BINS, &config,
+                                         memory.detections, memory.noise, memory.threshold,
+                                         memory.candidates, P0_MAX_CANDIDATES,
+                                         &candidate_count, &recovery_count);
+            if (code != P0_MULTISCALE_OK) {
+                fprintf(stderr, "Çok ölçekli tespit çalıştırılamadı: %d\n", code);
                 goto done;
             }
         }

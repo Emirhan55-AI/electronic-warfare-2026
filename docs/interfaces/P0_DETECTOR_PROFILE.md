@@ -1,8 +1,8 @@
-# P0 Kanonik OS-CFAR Profili
+# P0 Çok Ölçekli Tespit Profili
 
 ## Yöntem ve mühendislik profili ayrımı
 
-KTR niyeti yerel uyarlamalı `OS-CFAR` yöntemidir. KTR; algorithms/guard hücre
+KTR niyeti yerel uyarlamalı `OS-CFAR` yöntemidir. KTR; reference/guard hücre
 adetlerini, sıra istatistiğini, Pfa değerini veya eşik katsayısını sayısal sabit
 olarak vermez. Aşağıdaki değerler KTR sabiti değil, P0 için doğrulanan mühendislik
 profilidir.
@@ -38,4 +38,32 @@ bu sonlu-örnek aralığındadır; gözlenen değer teorik değere eşit ilan ed
 
 Python ve portable C aynı katsayıyı bağımsız türetir. Host doğrulamasında katsayı
 farkı `0.0`, 8 frame/32.768 hücre ve adaylarda mismatch `0` olmuştur. ARM ve
-ZedBoard çalıştırılmamıştır.
+ZedBoard üzerinde bu OS-CFAR yolu fiziksel PL güç çerçeveleriyle çalıştırılmıştır.
+
+## Geniş bant kurtarma
+
+OS-CFAR'ın tam yerel penceresini dolduran emisyonlarda referans hücreleri sinyal
+gücüyle kirlenebilir. ADR-0028 bu durum için PHASE-03/PHASE-06G bölgesel sağlam
+tabanını yalnız geniş bant öneri yolu olarak ekler:
+
+| Alan | Değer |
+|---|---:|
+| Bölge | 16 × 256 bin |
+| Gürültü kestirimi | `median / ln(2)` |
+| Enerji penceresi | `[bin-15, bin+16]`, 32 bin |
+| Karar | `mean_power > 2,5 × noise` |
+| Destek düzeltmesi | Grup başlangıcından 15, bitişinden 16 bin aşındırma |
+| En küçük kurtarma span'i | 41 bin |
+| Birleşim | Kurtarma adayıyla çakışan OS parçaları tek olay altında bastırılır |
+
+`41 = 2 × (16 reference + 4 guard) + 1` OS-CFAR tam pencere genişliğidir.
+Hücre bazında koşulsuz OS/regional OR yapılmaz. Host kabulünde 256 geniş bant
+karenin tamamı önceden kilitlenen kapıyı geçmiş, 7.168 gürültü karesinde ve 4.992
+yerel sinyal karesinde ek geniş bant adayı oluşmamış, 64 Python/C karşılaştırma
+karesinde aday sınırı farkı görülmemiştir. İlk tek-bin bölgesel sürüm ZedBoard
+fiziksel kapısında geniş bant olayı oluşturamamıştır. Düzeltme sonrası fiziksel
+PL→DMA→ARM kabulünde 10/10 geniş bant karesi kurtarma adayı üretmiş, aynı olay
+kimliği kare 1–9 boyunca doğrulanmış ve gözlenmiş, en kötü coverage/IoU
+`0,6475409836`, overreach `0` olmuştur. 10 yalnız-gürültü karesinde geniş aday,
+doğrulanmış olay ve dört parametre isteğinde geçerli alan oluşmamıştır. Bu sonuç
+deterministik CI8 kabulüdür; canlı RF, kalibrasyon veya throughput iddiası değildir.

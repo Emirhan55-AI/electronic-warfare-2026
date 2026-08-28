@@ -43,58 +43,14 @@ static uint32_t crc32_ieee(const uint8_t *data, size_t length)
     return crc ^ UINT32_MAX;
 }
 
-static void insertion_sort_u64(uint64_t *values, size_t count)
+static int rounded_uq30(double value, unsigned int width, uint64_t *encoded)
 {
-    size_t index;
+    double scaled = value * (double)(UINT64_C(1) << 30);
 
-    for (index = 1U; index < count; ++index) {
-        uint64_t key = values[index];
-        size_t position = index;
-
-        while (position > 0U && values[position - 1U] > key) {
-            values[position] = values[position - 1U];
-            --position;
-        }
-        values[position] = key;
-    }
-}
-
-static int exact_noise_power(
-    const uint64_t *power,
-    size_t power_count,
-    const p0_os_cfar_config_t *config,
-    uint32_t peak_bin,
-    uint64_t *noise
-)
-{
-    uint64_t references[P0_OS_CFAR_MAX_REFERENCE_CELLS];
-    size_t radius = (size_t)config->reference_cells_per_side + config->guard_cells_per_side;
-    size_t count = 0U;
-    size_t source;
-
-    if ((size_t)peak_bin < radius || (size_t)peak_bin + radius >= power_count)
+    if (encoded == NULL || !isfinite(scaled) || scaled < 0.0 ||
+        width > 63U || scaled >= (double)(UINT64_C(1) << width))
         return P0_CANDIDATE_PACKET_RANGE;
-    for (source = (size_t)peak_bin - radius;
-         source < (size_t)peak_bin - config->guard_cells_per_side; ++source)
-        references[count++] = power[source];
-    for (source = (size_t)peak_bin + config->guard_cells_per_side + 1U;
-         source < (size_t)peak_bin + radius + 1U; ++source)
-        references[count++] = power[source];
-    if (count != 2U * config->reference_cells_per_side ||
-        config->order_statistic_rank == 0U || config->order_statistic_rank > count)
-        return P0_CANDIDATE_PACKET_RANGE;
-    insertion_sort_u64(references, count);
-    *noise = references[config->order_statistic_rank - 1U];
-    return P0_CANDIDATE_PACKET_OK;
-}
-
-static int rounded_threshold(uint64_t noise, double coefficient, uint64_t *threshold)
-{
-    double scaled = (double)noise * coefficient;
-
-    if (!isfinite(scaled) || scaled < 0.0 || scaled >= (double)(UINT64_C(1) << 62))
-        return P0_CANDIDATE_PACKET_RANGE;
-    *threshold = (uint64_t)floor(scaled + 0.5);
+    *encoded = (uint64_t)floor(scaled + 0.5);
     return P0_CANDIDATE_PACKET_OK;
 }
 
@@ -148,10 +104,10 @@ int p0_candidate_packet_encode(
         if (candidate->start_bin > candidate->peak_bin ||
             candidate->peak_bin > candidate->end_bin || candidate->end_bin >= power_count ||
             shifted_power_uq28_30[candidate->peak_bin] >= (UINT64_C(1) << 58) ||
-            exact_noise_power(shifted_power_uq28_30, power_count, config,
-                              candidate->peak_bin, &noise) != P0_CANDIDATE_PACKET_OK ||
-            noise >= (UINT64_C(1) << 58) ||
-            rounded_threshold(noise, config->threshold_coefficient, &threshold) !=
+            !isfinite(config->threshold_coefficient) || config->threshold_coefficient <= 0.0 ||
+            rounded_uq30(candidate->noise_power_per_bin, 58U, &noise) !=
+                P0_CANDIDATE_PACKET_OK ||
+            rounded_uq30(candidate->threshold_power, 62U, &threshold) !=
                 P0_CANDIDATE_PACKET_OK)
             return P0_CANDIDATE_PACKET_RANGE;
         store_le16(record, (uint16_t)candidate->start_bin);

@@ -32,9 +32,12 @@ kontrollü istisna olarak öne alır. P1'e ve isteğe bağlı puan işlevlerine 
   geliştirme sırasında host referans/oracle yürütümü.
 - Bilgisayar-2: HackRF-2 için yalnız iletimsiz/loopback P0 ET kontrolü.
 
-P0'nun yetkili tespit kararı KTR uyumlu PS OS-CFAR çekirdeğidir. PHASE-06G
-`regional` detector, doğrulanmış kaba FPGA hızlandırıcısı olarak korunur; sürekli
-canlı akış hızı kanıtlanana kadar yetkili P0 kararı sayılmaz.
+P0'nun yerel tespit kararı KTR uyumlu PS OS-CFAR çekirdeğidir. ADR-0028 ile,
+OS-CFAR'ın tam referans penceresinden geniş destekler için PS üzerinde sınırlı
+bölgesel tabanlı 32-bin bütünleşik enerji önerisi eklenmiştir. PHASE-06G
+`regional` detectorün PL sürümü doğrulanmış kaba FPGA hızlandırıcısı olarak
+korunur; sürekli canlı akış hızı ve bitstream entegrasyonu kanıtlanana kadar
+kanonik P0 PL yolu sayılmaz.
 
 PC→ZedBoard yolu `HackRF-1 → USB → Bilgisayar-1 → Ethernet → ZedBoard PS → DDR
 → AXI DMA → PL` olur. ZedBoard'ın HackRF USB host olması P0 bağımlılığı değildir.

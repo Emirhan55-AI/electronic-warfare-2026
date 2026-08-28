@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "p0_candidate_packet.h"
+#include "p0_multiscale_detector.h"
 #include "phase06i_transport_abi.h"
 
 #define P0_FRAME_BINS PHASE06I_FFT_SIZE
@@ -86,6 +87,7 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
 {
     size_t natural_bin;
     size_t candidate_count = 0U;
+    size_t recovery_count = 0U;
     size_t packet_bytes = 0U;
     int code;
 
@@ -113,11 +115,11 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
         pipeline->power[shifted_bin] =
             (double)raw / (double)(UINT64_C(1) << P0_POWER_FRACTION_BITS);
     }
-    code = p0_os_cfar_process(pipeline->power, P0_FRAME_BINS, &pipeline->config,
-                              pipeline->detections, pipeline->noise, pipeline->threshold,
-                              pipeline->candidates, PHASE06I_MAX_CANDIDATES,
-                              &candidate_count);
-    if (code != P0_OS_CFAR_OK) {
+    code = p0_multiscale_process(pipeline->power, P0_FRAME_BINS, &pipeline->config,
+                                 pipeline->detections, pipeline->noise, pipeline->threshold,
+                                 pipeline->candidates, PHASE06I_MAX_CANDIDATES,
+                                 &candidate_count, &recovery_count);
+    if (code != P0_MULTISCALE_OK) {
         memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
         errno = EPROTO;
         return -1;

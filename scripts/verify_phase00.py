@@ -1040,6 +1040,7 @@ APPROVED_APP_HARDENING_FILES = (
 # P0 kart güvenlik sınırı ile gerçek, operatörce sağlanan kayıtların çevrimdışı
 # analizi.  Yerel kayıt byte'ları bu listede değildir ve release'e girmez.
 APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
+    "docs/decisions/ADR-0028-P0-MULTISCALE-DETECTION.md",
     "docs/interfaces/P0_ARM_PARAMETER_RUNTIME_CONTRACT.md",
     "docs/interfaces/P0_ED_LOCAL_SERVICE_ABI.md",
     "platforms/embedded/p0/include/p0_fclk_guard_logic.h",
@@ -1067,6 +1068,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "platforms/embedded/p0/include/p0_ed_pipeline.h",
     "platforms/embedded/p0/include/p0_ed_service_protocol.h",
     "platforms/embedded/p0/include/p0_parameter_runtime.h",
+    "platforms/embedded/p0/include/p0_multiscale_detector.h",
     "platforms/embedded/p0/src/p0_candidate_packet.c",
     "platforms/embedded/p0/src/p0_dma_runtime.c",
     "platforms/embedded/p0/src/p0_ed_client.c",
@@ -1077,6 +1079,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "platforms/embedded/p0/src/p0_parameter_client.c",
     "platforms/embedded/p0/src/p0_parameter_run.c",
     "platforms/embedded/p0/src/p0_parameter_runtime.c",
+    "platforms/embedded/p0/src/p0_multiscale_detector.c",
     "platforms/embedded/p0/petalinux/p0-ed-service.init",
     "scripts/verify_p0_ed_service.py",
     "scripts/verify_p0_ed_service_linux.py",
@@ -1084,14 +1087,18 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "scripts/verify_p0_parameter_runtime.py",
     "scripts/verify_p0_parameter_runtime_physical.py",
     "scripts/verify_p0_temporal_runtime.py",
+    "scripts/verify_p0_multiscale_detection.py",
     "tests/p0/p0_ed_service_protocol_test.c",
     "tests/p0/p0_parameter_runtime_test.c",
     "results/evidence/p0/parameter-runtime-host-acceptance.json",
     "results/evidence/p0/parameter-runtime-petalinux-build.json",
     "results/evidence/p0/parameter-runtime-physical-acceptance.json",
+    "results/evidence/p0/multiscale-detector-host-acceptance.json",
+    "results/evidence/p0/multiscale-detector-physical-acceptance.json",
     "tests/p0/p0_ed_fake_dma_runtime.c",
     "tests/p0/test_p0_ed_service.py",
     "tests/p0/test_p0_temporal_runtime.py",
+    "tests/test_p0_multiscale_detection.py",
     "tests/test_hackrf_recorded_integration.py",
     "tests/test_two_point_df.py",
 )
