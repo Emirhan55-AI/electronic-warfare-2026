@@ -31,7 +31,10 @@ P0 tespiti iki tamamlayıcı ölçek kullanır:
    `Pfa=1e-4` iddiasını paylaşmaz; aşağıdaki popülasyon kapılarıyla sınırlanan
    ayrı bir ürün sabitidir.
 4. Alt-bant tespit merkezleri mevcut `maximum_gap_bins=1` kuralıyla gruplanır.
-   Yalnız inclusive span'i en az 41 bin olan gruplar geniş bant kurtarma adayıdır.
+   32-bin pencerenin dar bir emisyonu yapay olarak genişletmemesi için grup,
+   `support_start = group_start + 15` ve `support_end = group_end - 16`
+   sınırlarıyla muhafazakâr ham desteğe aşındırılır. Yalnız bu desteğin inclusive
+   span'i en az 41 bin ise geniş bant kurtarma adayı oluşur.
    `41 = 2 × (16 reference + 4 guard) + 1`, yani OS-CFAR'ın tam yerel pencere
    genişliğidir; bu sınır değerlendirme sonucundan türetilmez.
 5. Kurtarma adayıyla çakışan OS-CFAR parçaları tek geniş bant adayının altında
