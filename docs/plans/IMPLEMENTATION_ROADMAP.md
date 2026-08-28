@@ -179,7 +179,15 @@ karşılaştırması strict/trusted yollarında karar, aday, gürültü, eşik v
 çıktılarında sıfır fark vermiştir. Bu adım yeni imaj veya RTL üretmez; mevcut
 PetaLinux kanıtı bu kaynakları kapsamadığı için fiziksel 64+4.096 profiler ve
 `488,28125 kare/s` kapısı yeniden çalıştırılana kadar performans sonucu açık
-kalır. **Host eşdeğerliği tamamlandı; ARM/fiziksel kabul beklemede.**
+kalır. **Host eşdeğerliği ve geçici ARM çalıştırması tamamlandı; yeni imaj ve
+gerçek-zaman kabulü beklemede.**
+
+Geçici çapraz derlenmiş ARM profilerı mevcut ZedBoard imajına kalıcı kurulum
+yapmadan çalıştırılmış; 64+4.096 koşusu 4.096/4.096 ve sıfır hata ile bitmiştir.
+ARM ortalaması `2,723289 ms`, birleşik yol `4,173240 ms` olduğundan ADR-0032
+kısa yolu hız kapısını kapatmamış ve sonucu iyileştirme olarak ilan edilmemiştir.
+Bu ölçüm yalnız çalışma uyumluluğudur; yeni PetaLinux imajı ve sürekli hız kapısı
+ayrıca beklemektedir.
 
 ### P0 Mandatory Closure Block A
 

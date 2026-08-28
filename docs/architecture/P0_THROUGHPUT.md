@@ -66,3 +66,8 @@ strict ve decoder-sonrası trusted yolun karar, aday, gürültü, eşik ve recov
 çıktıları sıfır fark vermiştir. Bu değişiklik henüz PetaLinux imajına veya
 fiziksel karta uygulanmış kabul edilmez; yeni imajla aynı 64+4.096 koşusu ve
 `488,28125 kare/s` kapısı yeniden ölçülmeden hız iddiası kurulamaz.
+
+Geçici ARM ölçümünde ADR-0032 ikilisi mevcut kernel/driver/PL üzerinde
+4096/4096 kareyi sıfır hatayla tamamladı; ARM `2,723289 ms`, birleşik yol
+`4,173240 ms` ölçüldü. ADR-0031'e göre hızlanma gözlenmedi. Bu sonuç yeni
+PetaLinux imajı veya gerçek-zaman kabulü değildir.

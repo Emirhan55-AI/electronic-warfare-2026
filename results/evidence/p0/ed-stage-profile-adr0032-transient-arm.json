@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-29",
+  "status": "passed",
+  "scope": "transient ARM execution on physical ZedBoard using an uninstalled ADR-0032 profiler",
+  "platform": {
+    "model": "Zynq Zed Development Board",
+    "fpga_manager_state": "operating",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "base_image_sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6",
+    "deployment": "/tmp/p0-ed-stage-profile-run",
+    "persistent_install": false
+  },
+  "binary": {
+    "compiler": "gcc-arm-linux-gnueabihf 11.4.0",
+    "flags": "-O3 -mfloat-abi=hard -mfpu=vfpv3-d16 -march=armv7-a",
+    "bytes": 50584,
+    "sha256": "7e42652abd1c14df3651e2dd1669552f5b4f1d79bce70a51f5e4b111eb8bc135"
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_dma_runtime.c": "bcc150608432e5ed0a6284c52253991e520ac8e107432a99462e9868f5343081",
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "e3d31a1306f06fc4da545f6a50be1194ee56369a1c6a32e8c7f4808bb2a80742",
+    "platforms/embedded/p0/src/p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
+    "platforms/embedded/p0/src/p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
+    "platforms/embedded/p0/src/p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "a276f9448331ecfe0ac941073de757f384b6d6e86fa12578dac699f92ae9849d",
+    "platforms/embedded/p0/src/p0_ed_stage_profile_run.c": "b9b669dce823c88dafcf90a987dfe5415756b088db220e916086b58a40a38890"
+  },
+  "profile": {
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "frame_samples": 4096,
+    "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "completion": {
+    "completed_frames": 4096,
+    "dma_failures": 0,
+    "pipeline_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "probe_failures": 0,
+    "expected_dma_status_flags": 7
+  },
+  "timing_milliseconds": {
+    "dma": {"minimum": 1.438884, "p50": 1.442166, "p95": 1.487478, "p99": 1.493844, "maximum": 1.530642, "mean": 1.449951},
+    "arm_pipeline": {"minimum": 2.540982, "p50": 2.705490, "p95": 2.805432, "p99": 2.824782, "maximum": 2.867628, "mean": 2.723289},
+    "combined": {"minimum": 4.022598, "p50": 4.161324, "p95": 4.259586, "p99": 4.288692, "maximum": 4.325022, "mean": 4.173240}
+  },
+  "algorithm_probe_milliseconds": {
+    "pl_frame_decode": {"minimum": 0.578652, "p50": 0.585474, "p95": 0.666360, "p99": 0.671610, "maximum": 1.002312, "mean": 0.603986},
+    "candidate_detection": {"minimum": 1.538646, "p50": 1.575288, "p95": 1.616358, "p99": 1.631118, "maximum": 2.002248, "mean": 1.579021},
+    "candidate_record_encode": {"minimum": 0.022782, "p50": 0.023226, "p95": 0.023946, "p99": 0.024288, "maximum": 0.057966, "mean": 0.023378},
+    "temporal_association": {"minimum": 0.346506, "p50": 0.505626, "p95": 0.528168, "p99": 0.541110, "maximum": 0.921444, "mean": 0.507198}
+  },
+  "comparison_to_adr0031": {
+    "adr0031_arm_pipeline_mean_ms": 2.612712,
+    "adr0031_combined_mean_ms": 4.075004,
+    "arm_pipeline_delta_percent": 4.232,
+    "combined_delta_percent": 2.410,
+    "optimization_result": "no_measurable_improvement"
+  },
+  "claim_boundary": "Bu geçici ikili mevcut image.ub içine kurulmamıştır; sonuç yalnız aynı kernel, driver ve PL üzerinde ARM kaynak yürütümünü gösterir. PetaLinux yeniden derlemesi, sürekli hizmet throughput kapısı ve RF doğruluğu değildir."
+}

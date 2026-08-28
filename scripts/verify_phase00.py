@@ -1074,6 +1074,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "results/evidence/p0/ed-local-service-host-acceptance.json",
     "results/evidence/p0/ed-local-service-petalinux-build.json",
     "results/evidence/p0/ed-local-service-physical-acceptance.json",
+    "results/evidence/p0/ed-stage-profile-adr0032-transient-arm.json",
     "scripts/analyze_hackrf_amplitude_df.py",
     "scripts/wrap_hackrf_iq_as_sigmf.py",
     "tests/p0/test_p0_fclk_guard_logic.c",

@@ -1,6 +1,6 @@
 # ADR-0032 — P0 Doğrulanmış Aday Yolunun Kısaltılması
 
-- Durum: İlk uygulama adımı tamamlandı; PetaLinux ve fiziksel hız kapısı beklemede
+- Durum: Host eşdeğerliği ve geçici ARM ölçümü tamamlandı; imaj/gerçek-zaman kapısı beklemede
 - Kapsam: P0 `PL → DMA → ARM` aday üretim yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-6
 - Ön koşul: ADR-0031
@@ -53,3 +53,14 @@ PHASE-06I/06J ABI, temporal durum ve eşikler değiştirilmez.
 Bu karar yeni RTL, DMA ping-pong, örnekleme hızı, FFT boyu, eşik, RF yayın,
 HackRF canlı alımı veya kalibrasyon eklemez. Trusted giriş noktası decoder
 sonrası iç sözleşmedir; genel amaçlı veri doğrulama API'si değildir.
+
+## Geçici ARM ölçümü
+
+Kaynaktaki değişiklikleri içeren, PetaLinux imajına kalıcı olarak kurulmamış ARM
+hard-float ikilisi aynı ZedBoard kernel/driver/PL üzerinde `/tmp` altında
+çalıştırıldı. 64 ısınma ve 4.096 ölçüm karesinin tamamı DMA `0x7`, pipeline,
+probe ve aday düşürme hatası olmadan tamamlandı. ARM ortalaması `2,723289 ms`,
+birleşik yol `4,173240 ms` oldu; ADR-0031 referansına göre sırasıyla `%4,232`
+ve `%2,410` daha yüksektir. Bu nedenle kısa yol işlevsel olarak kabul edilmiş,
+ölçülebilir hız kazanımı olarak kabul edilmemiştir. Ayrıntılı kayıt
+`results/evidence/p0/ed-stage-profile-adr0032-transient-arm.json` içindedir.
