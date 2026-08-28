@@ -70,9 +70,25 @@ değildir.
 Bu XSA ve güncel PS kaynakları PetaLinux 2025.2 projesine içe aktarılmıştır.
 `p0-dma` paketi ile kök dosya sistemi 5.679/5.679, tam imaj 6.090/6.090 görevle
 hatasız derlenmiş; ARM hizmet araçlarını içeren `image.ub` ve yeni PL
-bitstream'ini içeren `BOOT.BIN` üretilmiştir. Kart üzerindeki açılış, DMA
-sayısal eşdeğerliği ve sürdürülebilir hizmet hızı fiziksel kabul kapısında açık
-kalır.
+bitstream'ini içeren `BOOT.BIN` üretilmiştir.
+
+Yeni imaj fiziksel ZedBoard üzerinde DONE, Linux, FPGA `operating`, DMA aygıtı
+ve ayrıcalıksız yerel hizmet kapılarını geçmiştir. Bilinen karede alt 58 bitlik
+4.096 güç değeri eski golden çıktı ile, işaret/değerlendirme/karar alanlarını
+içeren 4.096 tam kelime ise Python tam sayı modeliyle sıfır fark vermiştir.
+Hizmet beş karelik 2/3 geçici–doğrulanmış–sonlanmış olay dizisini sıfır hizmet,
+sıra, DMA veya aday düşürme hatasıyla tamamlamıştır.
+
+Sürekli hız kapısı geçmemiştir. Kilitli 64 ısınma + 4.096 ölçüm koşusunda bütün
+kareler ve DMA `0x7` tamamlansa da hizmet `95,62877 kare/s` ölçülmüş; gerekli
+`488,28125 kare/s` değerin yalnız `0,19585` katına ulaşmıştır. PL işaretini bilen
+düzeltilmiş aşama profili 1.024 karede ortalama DMA `1,456537 ms`, ARM zinciri
+`6,714248 ms` ve birleşik `8,170784 ms` ölçmüştür. ARM içindeki güç açma
+`0,481628 ms`, PL aday gruplama `0,711251 ms`, PL sonrası çok ölçekli toplam
+`1,559754 ms`; henüz ayrı ayrı araçlanmamış kalan zincir farkı `4,672866 ms`dir.
+Bu nedenle ADR-0030 sayısal ve işlevsel olarak kabul edilmiş, fakat gerçek-zaman
+amacını kapatamamıştır. Sonuca göre profil, örnekleme hızı veya kabul karesi
+değiştirilmemiştir.
 
 Bir kapı geçmezse OS-CFAR profili, örnekleme hızı veya kabul karesi sonuca göre
 değiştirilmez. Eski fiziksel imaj, yeni imaj bütün host/RTL/Vivado kapılarını
@@ -81,6 +97,6 @@ geçmeden değiştirilmez.
 ## İddia sınırı
 
 RTL simülasyonu veya Vivado zamanlama sonucu FPGA üzerinde çalışmayı kanıtlamaz.
-Fiziksel başarı ancak yeni imajla aynı 64+4096 karelik ADR-0029 koşusu ve mevcut
-geniş bant/gürültü/parametre regresyonları tekrarlandığında ilan edilir. Canlı RF,
-kalibrasyon, Ethernet ve RF yayın bu kararın kapsamı dışındadır.
+Fiziksel sayısal eşdeğerlik başarıyla, sürdürülebilir hız ise başarısız sonuçla
+kaydedilmiştir. Canlı RF, kalibrasyon, Ethernet ve RF yayın bu kararın kapsamı
+dışındadır; gerçek-zaman başarısı ilan edilmez.

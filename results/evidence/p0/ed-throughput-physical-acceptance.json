@@ -1,16 +1,19 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "recorded_at": "2026-08-28",
   "status": "failed",
-  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance",
+  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance after PL OS-CFAR offload",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
     "fpga_manager_state": "operating",
-    "boot_image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
-    "built_image_ub_sha256": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
-    "service_binary_sha256": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
-    "throughput_binary_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4"
+    "boot_bin_sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3",
+    "boot_image_ub_sha256": "6c97f8efdca492a80db43ba01fefaf3699383ddda2d65e6ba8b68b79e09226d6",
+    "system_bit_sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e",
+    "service_binary_sha256": "4b2034222c2f4a0f0961d29b486ff1cafe2e46bf609a1a9ddc8f6fb546bf91e2",
+    "throughput_binary_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
+    "installed_stage_profile_sha256": "2bd570e75b9b499b7eef4ef5f2e82e37970333f5f7262818deeba99f6723e360",
+    "temporary_corrected_stage_profile_sha256": "5a6f0c925a56ca24e755794bf2ef3935e45f82d95b78d8be016b8d445bba5359"
   },
   "locked_profile": {
     "sample_rate_hz": 2000000,
@@ -18,6 +21,18 @@
     "warmup_frames": 64,
     "measured_frames": 4096,
     "required_frames_per_second": 488.28125
+  },
+  "numerical_equivalence": {
+    "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+    "packed_card_frame_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
+    "packed_integer_model_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
+    "raw_power_sha256": "73b9560bdf05855ec0e2c6d49268746cbe96dcff23197d625c369991d2562ddf",
+    "raw_power_mismatches": 0,
+    "packed_word_mismatches": 0,
+    "format_marker_mismatches": 0,
+    "evaluated_cells": 4056,
+    "detected_cells": 171,
+    "detected_without_evaluated": 0
   },
   "completion": {
     "completed_frames": 4096,
@@ -29,49 +44,56 @@
     "dma_status_flags": 7
   },
   "throughput": {
-    "elapsed_seconds": 35.20716905,
-    "measured_frames_per_second": 116.339941851,
-    "real_time_margin": 0.238264201,
+    "elapsed_seconds": 42.832299354,
+    "measured_frames_per_second": 95.628767584,
+    "real_time_margin": 0.195847716,
     "gate_passed": false,
-    "shortfall_factor": 4.200875
+    "shortfall_factor": 5.106008
   },
   "latency_seconds": {
-    "minimum": 0.007855506,
-    "p50": 0.008131782,
-    "p95": 0.008220768,
-    "p99": 0.008271534,
-    "maximum": 0.008642826
+    "minimum": 0.005855862,
+    "p50": 0.00994026,
+    "p95": 0.010080138,
+    "p99": 0.010102986,
+    "maximum": 0.010297626
   },
   "component_characterization": {
-    "method": "Aynı süreçte açılan DMA ve ARM profiler; 64 ısınma + 1024 ölçüm karesi",
-    "dma_only_milliseconds": {"mean": 0.457359, "p50": 0.443448, "p95": 0.484116, "p99": 0.500778},
-    "arm_pipeline_milliseconds": {"mean": 5.70031, "p50": 5.676, "p95": 5.897136, "p99": 5.927718},
-    "combined_milliseconds": {"mean": 6.157668, "p50": 6.13134, "p95": 6.346104, "p99": 6.394309},
-    "algorithm_probe_milliseconds": {"power_unpack_mean": 0.339486, "os_cfar_mean": 4.789571, "multiscale_total_mean": 5.49342},
-    "claim_boundary": "Bu ayrıştırma aynı süreçteki aşama maliyetidir; servis soketi ve süreç başlatma maliyeti değildir."
+    "method": "Corrected PL-marker-aware profiler; 64 warmup plus 1024 measured frames",
+    "dma_milliseconds": {"mean": 1.456537, "p50": 1.443174, "p95": 1.487976, "p99": 1.492296},
+    "arm_pipeline_milliseconds": {"mean": 6.714248, "p50": 6.709098, "p95": 6.792702, "p99": 6.807253},
+    "combined_milliseconds": {"mean": 8.170784, "p50": 8.167464, "p95": 8.260878, "p99": 8.285712},
+    "algorithm_probe_milliseconds": {
+      "power_unpack_mean": 0.481628,
+      "pl_candidate_grouping_mean": 0.711251,
+      "pl_multiscale_total_mean": 1.559754,
+      "pipeline_remainder_mean": 4.672866
+    },
+    "claim_boundary": "The remainder is a measured difference, not yet a separately instrumented stage attribution."
   },
   "baseline_comparison": {
-    "previous_measured_frames_per_second": 50.673803057,
-    "current_measured_frames_per_second": 116.339941851,
-    "improvement_factor": 2.295295,
+    "pre_offload_frames_per_second": 116.339941851,
+    "post_offload_frames_per_second": 95.628767584,
+    "post_to_pre_ratio": 0.821977096,
     "physical_gate_remains_failed": true
   },
   "source_sha256": {
     "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
     "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
     "p0_ed_service_protocol.c": "f3b23e9a88c313a800c9a58094205f849685abda39f56c0d20d46aabc52d424a",
-    "p0_ed_pipeline.c": "93ac9427bfa6e5a0251cef83d8441378a434a3b59aa6bca19e554bacef30c920",
-    "p0_os_cfar.c": "c1960cb77c3067f73afae566c633df5dfdb6892ba04f02427c4e30e033379155",
-    "p0_multiscale_detector.c": "48049f877da77e616cec7709edb4a349b86110561fef99679c333815db8f6c69",
-    "p0-dma_1.0.bb": "7e3746f27fc623b9d18e12566db9846f982ed450715070a18cd132b3317e0038"
+    "p0_ed_pipeline.c": "af48ac10d4eb8cd22f9befac85769e38a47d1890f6c02a1a3c736bd182335eb3",
+    "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
+    "p0_os_cfar.c": "c65ca4b9c0537e9f0d14da940e99cbfe0bef3cad958ba3d223b1eb4e7479f8e9",
+    "p0_multiscale_detector.c": "36d9dd5c16040a04688e539134a7d53b58984e2cc2ef138e481b0e544358d682",
+    "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d",
+    "phase06j_temporal.c": "54809e09dce4b06de7d1b2edbaa9722a4377f367f9546bcf5c6b8f1714aae8c0",
+    "p0_ed_stage_profile_run.c": "55c25edf77c05577338fe5a8a81b814d6bf89b8991d5aec6175c81030ae9c4dc",
+    "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3"
   },
   "artifact_sha256": {
-    "physical_result.json": "387354c50227f206cb38267a3ed184eee7f45ba63893e1af98adf3ef356a3f57",
-    "built_image.ub": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
-    "p0-ed-throughput-run": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
-    "p0-ed-service": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
-    "p0-ed-stage-profile-run": "9003a50b275f6c289f1500188e43cd9cb2a760d442e69a73b33257a9e5109ed7"
+    "throughput.json": "e28c4bddb912e9275a84459db056b74a00178cebdd57f339b4ecc163f617b9e0",
+    "stage-profile.json": "a3d268be258ea89812bbd23de9c6380aab3cd93c8e14013f0cd58b8d375b3d4b",
+    "packed-power-frame.u64": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a"
   },
-  "failure_reason": "Tüm 4096 kare ve DMA 0x7 tamamlandı; optimize edilmiş fiziksel hız 116,33994 kare/s ve p50 kare gecikmesi 8,131782 ms oldu. 2 MS/s için gereken 488,28125 kare/s ve 2,048 ms kare bütçesi karşılanmadı. Aynı süreçteki aşama profili OS-CFAR maliyetinin 4,789571 ms ortalama ile baskın kaldığını gösterir.",
-  "claim_boundary": "Bu kayıt, deterministik yerel kart hizmeti için tekrarlanabilir başarısız bir sürekli-hız ölçümüdür. Canlı HackRF, RF doğruluğu, kalibrasyon, Ethernet aktarımı veya RF yayını hakkında iddia oluşturmaz."
+  "failure_reason": "All numerical, DMA and completion checks passed, but the service sustained 95.62877 frames/s against the locked 488.28125 frames/s requirement. PL OS-CFAR preserved bit-exact output but did not close the end-to-end frame budget.",
+  "claim_boundary": "This is a repeatable deterministic local-card failure result. It does not claim live HackRF throughput, RF sensitivity, calibration, Ethernet performance or field accuracy."
 }

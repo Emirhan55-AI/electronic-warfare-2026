@@ -9,6 +9,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c"
+STAGE_PROFILE_SOURCE = ROOT / "platforms/embedded/p0/src/p0_ed_stage_profile_run.c"
 RECIPE = ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb"
 VERIFY_PATH = ROOT / "scripts/verify_p0_ed_throughput_physical.py"
 SPEC = importlib.util.spec_from_file_location("verify_p0_ed_throughput_physical", VERIFY_PATH)
@@ -92,6 +93,20 @@ def test_runtime_and_recipe_preserve_locked_physical_gate() -> None:
         "install -m 0755 ${S}/p0-ed-stage-profile-run",
     ):
         assert token in recipe
+
+
+def test_stage_profiler_uses_the_pl_os_cfar_frame_contract() -> None:
+    source = STAGE_PROFILE_SOURCE.read_text(encoding="utf-8")
+
+    for token in (
+        "p0_pl_os_cfar_decode(",
+        "!pl_decisions_present",
+        "p0_os_cfar_group_detections(",
+        "p0_multiscale_process_pl(",
+        'print_summary("pl_candidate_grouping"',
+        'print_summary("pl_multiscale_total"',
+    ):
+        assert token in source
 
 
 def test_physical_verifier_accepts_only_the_registered_profile(tmp_path: Path) -> None:

@@ -143,8 +143,15 @@ DMA ile ayrıcalıksız Linux hizmet kabulü geçmiştir. Çekirdek kanonik Viva
 üst zincirine bağlanmış; tam block design sentez/route/timing/bitstream/XSA
 kapıları geçmiştir. Güncel XSA ve ADR-0030 ARM kaynaklarıyla PetaLinux paketi
 5.679/5.679, tam imaj 6.090/6.090 görevle derlenmiş; kök dosya sistemi, `image.ub`
-ve yeni bitstream'i içeren `BOOT.BIN` üretilmiştir. Açık kapı, ADR-0029 fiziksel
-488,28125 kare/s tekrarıdır.
+ve yeni bitstream'i içeren `BOOT.BIN` üretilmiştir. Fiziksel kartta DONE, Linux,
+FPGA `operating`, DMA, yerel hizmet ve tam 4.096 kelimelik bit-doğru PL çıktısı
+geçmiştir. Beş karelik 2/3 olay dizisi de sıfır hata ve sıfır aday düşürmeyle
+tamamlanmıştır. Buna karşılık kilitli 64+4.096 sürekli hizmet koşusu
+`95,62877 kare/s` ölçülmüş ve gerekli `488,28125 kare/s` kapısı geçilememiştir.
+Düzeltilmiş fiziksel profil DMA'yı `1,456537 ms`, ARM zincirini `6,714248 ms`,
+birleşik yolu `8,170784 ms` ölçmüştür. ADR-0030 sayısal/işlevsel sonucu kabul,
+gerçek-zaman sonucu başarısızdır; sonraki mimari hız düzeltmesi ayrı karar ve
+kullanıcı onayı gerektirir.
 Önceki fiziksel kanıtlar `56f5f333df4551517fa170ef3dff1da9367913b5`
 kaynağına aittir ve güncel ADR-0030 kaynaklarını kabul etmez.
 

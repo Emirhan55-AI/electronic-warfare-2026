@@ -32,7 +32,7 @@
     "parameter_client_binary": "/usr/bin/p0-parameter-client",
     "parameter_runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
     "parameter_client_sha256": "f0d0d5d6c64e20e250729bc16da29973d14d98a7f5294fcdb8e9cbbe12353272",
-    "stage_profile_sha256": "2bd570e75b9b499b7eef4ef5f2e82e37970333f5f7262818deeba99f6723e360"
+    "stage_profile_sha256": "5a6f0c925a56ca24e755794bf2ef3935e45f82d95b78d8be016b8d445bba5359"
   },
   "hardware_input": {
     "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
@@ -40,8 +40,8 @@
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24009639,
-    "sha256": "6c97f8efdca492a80db43ba01fefaf3699383ddda2d65e6ba8b68b79e09226d6"
+    "bytes": 24009487,
+    "sha256": "9a8e240eeffe75aac83f35ccfd298cd6c0c954af0540071b71d9b830ebc4cf7f"
   },
   "boot_image": {
     "name": "BOOT.BIN",
@@ -64,12 +64,12 @@
     "p0_os_cfar.h": "1aa640804dbc41aaf4e9402cb348966e86c65eaa12981fbd1a533acf8beb2009",
     "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
     "p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
-    "p0_ed_stage_profile_run.c": "dda21723b42b381857c10a2afacbe960646cfcb5e3f86506723ae2c4b84503fa",
+    "p0_ed_stage_profile_run.c": "55c25edf77c05577338fe5a8a81b814d6bf89b8991d5aec6175c81030ae9c4dc",
     "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d"
   },
   "prior_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
   "not_verified": [
-    "ZedBoard boot with this current ADR-0030 image",
+    "ZedBoard boot with the profile-tool-only rebuilt image.ub",
     "Ethernet transport",
     "live HackRF",
     "physical sustained throughput"

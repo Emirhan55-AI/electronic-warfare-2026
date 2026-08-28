@@ -11,7 +11,7 @@
     "datasets/fixtures/p0_os_cfar/dma-expected.mem": "09494beb6c63982bc72efe79def93774494840a4127194a57acfa0838aff5936",
     "datasets/fixtures/p0_os_cfar/fixture-manifest.json": "97f4a9b4215a8bbe40570226b8517e07b5c23725119a2e9037d80e63b06cc703",
     "datasets/fixtures/p0_os_cfar/golden-vectors.json": "8357f8a17a62401a503273fe21f92d00fd97ae5d5166d4f55554b0b9ad74e82e",
-    "docs/decisions/ADR-0030-P0-OS-CFAR-PL-OFFLOAD.md": "c33686827b01889ab37dfe5b70fedc13581c3c9a75ec3beb7b85fb595ab4b684",
+    "docs/decisions/ADR-0030-P0-OS-CFAR-PL-OFFLOAD.md": "7913374df681f9ba18fef638a73fc4e2604f09b2a477dfe39624553fe413e2cf",
     "docs/interfaces/P0_PL_OS_CFAR_CONTRACT.md": "2dd5e23e6d55733579e20c8764e550d6f0686d39e3cdc419babaa624c18b89f7",
     "scripts/generate_p0_os_cfar_vectors.py": "4680b464c224bd029cd36f9b45b1638baeb48a9063aaa977c8eb978f4443bb08",
     "scripts/run_p0_os_cfar_vivado.tcl": "42d15f82706cf90da1b77c86d315d0aacd9a432c120cbe60d95c7b77c54a69ff",

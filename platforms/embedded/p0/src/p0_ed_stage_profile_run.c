@@ -12,12 +12,11 @@
 #include "p0_dma_runtime.h"
 #include "p0_ed_pipeline.h"
 #include "p0_multiscale_detector.h"
+#include "p0_pl_os_cfar.h"
 
 #define P0_PROFILE_MAX_FRAMES 100000U
 #define P0_PROFILE_EXPECTED_DMA_FLAGS 7U
 #define P0_PROFILE_FRAME_BINS 4096U
-#define P0_PROFILE_POWER_BYTES_PER_BIN 8U
-#define P0_PROFILE_POWER_FRACTION_BITS 30U
 
 typedef struct {
     double minimum;
@@ -37,6 +36,7 @@ typedef struct {
 } failure_counts_t;
 
 typedef struct {
+    uint64_t *raw_power;
     double *power;
     double *noise;
     double *threshold;
@@ -85,16 +85,6 @@ static double milliseconds_between(const struct timespec *start,
 {
     return (double)(end->tv_sec - start->tv_sec) * 1000.0 +
            (double)(end->tv_nsec - start->tv_nsec) / 1000000.0;
-}
-
-static uint64_t load_u64_le(const uint8_t *source)
-{
-    uint64_t value = 0U;
-    unsigned int index;
-
-    for (index = 0U; index < P0_PROFILE_POWER_BYTES_PER_BIN; ++index)
-        value |= (uint64_t)source[index] << (index * 8U);
-    return value;
 }
 
 static int compare_double(const void *left, const void *right)
@@ -199,33 +189,26 @@ static int profile_algorithm_stages(
     struct timespec multiscale_finished;
     size_t candidate_count = 0U;
     size_t recovery_count = 0U;
-    size_t natural_bin;
+    int pl_decisions_present = 0;
     int code;
 
     if (clock_gettime(CLOCK_MONOTONIC, &started) != 0)
         return -1;
-    for (natural_bin = 0U; natural_bin < P0_PROFILE_FRAME_BINS; ++natural_bin) {
-        size_t shifted_bin = natural_bin ^ (P0_PROFILE_FRAME_BINS / 2U);
-        uint64_t raw = load_u64_le(
-            natural_power + natural_bin * P0_PROFILE_POWER_BYTES_PER_BIN);
-
-        if (raw >= (UINT64_C(1) << 58)) {
-            errno = ERANGE;
-            return -1;
-        }
-        probe->power[shifted_bin] =
-            (double)raw / (double)(UINT64_C(1) << P0_PROFILE_POWER_FRACTION_BITS);
-    }
+    code = p0_pl_os_cfar_decode(
+        natural_power, P0_DMA_OUTPUT_BYTES, probe->raw_power, probe->power,
+        probe->detections, &pl_decisions_present);
+    if (code != P0_PL_OS_CFAR_OK || !pl_decisions_present)
+        return -1;
     if (clock_gettime(CLOCK_MONOTONIC, &unpack_finished) != 0)
         return -1;
-    code = p0_os_cfar_process(
+    code = p0_os_cfar_group_detections(
         probe->power, P0_PROFILE_FRAME_BINS, config, probe->detections,
         probe->noise, probe->threshold, probe->candidates,
         PHASE06I_MAX_CANDIDATES, &candidate_count);
     if (code != P0_OS_CFAR_OK ||
         clock_gettime(CLOCK_MONOTONIC, &os_cfar_finished) != 0)
         return -1;
-    code = p0_multiscale_process(
+    code = p0_multiscale_process_pl(
         probe->power, P0_PROFILE_FRAME_BINS, config, probe->detections,
         probe->noise, probe->threshold, probe->candidates,
         PHASE06I_MAX_CANDIDATES, &candidate_count, &recovery_count);
@@ -294,6 +277,7 @@ int main(int argc, char **argv)
     os_cfar_samples = calloc((size_t)measured_frames, sizeof(*os_cfar_samples));
     multiscale_samples = calloc((size_t)measured_frames, sizeof(*multiscale_samples));
     probe.power = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.power));
+    probe.raw_power = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.raw_power));
     probe.noise = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.noise));
     probe.threshold = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.threshold));
     probe.detections = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.detections));
@@ -301,7 +285,7 @@ int main(int argc, char **argv)
     if (iq == NULL || power == NULL || dma_samples == NULL ||
         pipeline_samples == NULL || combined_samples == NULL ||
         unpack_samples == NULL || os_cfar_samples == NULL ||
-        multiscale_samples == NULL || probe.power == NULL ||
+        multiscale_samples == NULL || probe.raw_power == NULL || probe.power == NULL ||
         probe.noise == NULL || probe.threshold == NULL ||
         probe.detections == NULL || probe.candidates == NULL) {
         fputs("Profil belleği ayrılamadı.\n", stderr);
@@ -393,9 +377,9 @@ report:
         "  \"algorithm_probe_milliseconds\": {\n");
     print_summary("power_unpack", &unpack_summary);
     puts(",");
-    print_summary("os_cfar_only", &os_cfar_summary);
+    print_summary("pl_candidate_grouping", &os_cfar_summary);
     puts(",");
-    print_summary("multiscale_total", &multiscale_summary);
+    print_summary("pl_multiscale_total", &multiscale_summary);
     printf(
         "\n  },\n"
         "  \"expected_dma_status_flags\": 7,\n"
@@ -416,6 +400,7 @@ done:
     free(probe.threshold);
     free(probe.noise);
     free(probe.power);
+    free(probe.raw_power);
     free(multiscale_samples);
     free(os_cfar_samples);
     free(unpack_samples);
