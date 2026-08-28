@@ -1283,7 +1283,7 @@ def check_readme_truthfulness() -> dict[str, object]:
         "yalnız ölçülmüş veya tekrarlanabilir testle doğrulanmış",
         "zedboard üzerinde dma ve tespit zinciri",
         "deterministik fiziksel karelerde",
-        "sürekli throughput ve canlı rf ölçülmedi",
+        "sürekli 2 ms/s kabulünde 4.096/4.096 kare",
         "am/nfm izleme zinciri",
         "qml ürün akışında doğrulandı",
         "canlı hackrf/ses saha kabulü bekliyor",
