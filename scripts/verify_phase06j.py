@@ -152,6 +152,11 @@ def _configure(library: ctypes.CDLL) -> None:
         ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(FrameResult)
     ]
     library.phase06j_process_packet.restype = ctypes.c_int
+    library.phase06j_process_candidates.argtypes = [
+        ctypes.c_void_p, ctypes.c_size_t, ctypes.c_uint32, ctypes.c_void_p,
+        ctypes.c_uint16, ctypes.POINTER(FrameResult)
+    ]
+    library.phase06j_process_candidates.restype = ctypes.c_int
 
 
 def _candidate(candidate: Candidate) -> dict[str, object]:
@@ -231,6 +236,7 @@ def run_host_verification() -> dict[str, object]:
     golden = json.loads((FIXTURES / "golden-sequences.json").read_text(encoding="utf-8"))
     stream = (FIXTURES / "packets.bin").read_bytes()
     mismatch_count = 0
+    typed_mismatch_count = 0
     decoded_records = 0
     with tempfile.TemporaryDirectory(prefix="TEKNOFEST-phase06j-") as temporary:
         library_path, compiler = _compile_library(Path(temporary))
@@ -238,12 +244,17 @@ def run_host_verification() -> dict[str, object]:
         _configure(library)
         state_bytes = int(library.phase06j_state_bytes())
         state = ctypes.create_string_buffer(state_bytes)
+        typed_state = ctypes.create_string_buffer(state_bytes)
         if library.phase06j_state_init(state, state_bytes) != 0:
             raise AssertionError("C state initialization failed")
+        if library.phase06j_state_init(typed_state, state_bytes) != 0:
+            raise AssertionError("typed C state initialization failed")
         first_record_packet: bytes | None = None
         for sequence in golden["sequences"]:
             if library.phase06j_state_reset(state, state_bytes) != 0:
                 raise AssertionError("C state reset failed")
+            if library.phase06j_state_reset(typed_state, state_bytes) != 0:
+                raise AssertionError("typed C state reset failed")
             for frame in sequence["frames"]:
                 offset = int(frame["packet_offset"])
                 length = int(frame["packet_bytes"])
@@ -268,6 +279,18 @@ def run_host_verification() -> dict[str, object]:
                     raise AssertionError(f"C temporal process failed: {code}")
                 if _result(output) != frame["expected"]:
                     mismatch_count += 1
+                typed_output = FrameResult()
+                records = ctypes.byref(packet_buffer, 32) if decoded_count.value else None
+                code = library.phase06j_process_candidates(
+                    typed_state, state_bytes, decoded_frame.value, records,
+                    decoded_count.value, ctypes.byref(typed_output)
+                )
+                if code != 0:
+                    raise AssertionError(f"typed C temporal process failed: {code}")
+                if ctypes.string_at(ctypes.byref(output), ctypes.sizeof(output)) != ctypes.string_at(
+                    ctypes.byref(typed_output), ctypes.sizeof(typed_output)
+                ):
+                    typed_mismatch_count += 1
                 decoded_records += decoded_count.value
         if first_record_packet is None:
             raise AssertionError("record-bearing fixture is missing")
@@ -298,6 +321,8 @@ def run_host_verification() -> dict[str, object]:
             _ctypes.FreeLibrary(handle)
     if mismatch_count:
         raise AssertionError(f"Python/C temporal mismatch count: {mismatch_count}")
+    if typed_mismatch_count:
+        raise AssertionError(f"packet/typed temporal mismatch count: {typed_mismatch_count}")
     return {
         "compiler": compiler,
         "state_bytes": state_bytes,
@@ -311,6 +336,7 @@ def run_host_verification() -> dict[str, object]:
         "malformed_packet_checks": malformed_checks,
         "rejected_packet_state_unchanged_checks": rejected_state_checks,
         "mismatch_count": mismatch_count,
+        "typed_mismatch_count": typed_mismatch_count,
     }
 
 

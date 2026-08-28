@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "recorded_at": "2026-08-28",
+  "recorded_at": "2026-08-29",
   "status": "passed",
   "scope": "PetaLinux 2025.2 ARM package and rootfs build",
   "current_source_status": "current_sources_petalinux_build_passed",
@@ -9,7 +9,7 @@
     "machine": "zynq_generic_7z020",
     "tasks_attempted": 5679,
     "tasks_failed": 0,
-    "full_image_tasks_attempted": 6090,
+    "full_image_tasks_attempted": 5679,
     "full_image_tasks_failed": 0,
     "warning": "TFTP copy skipped because /tftpboot is not configured"
   },
@@ -23,16 +23,16 @@
     "init_script": "/etc/init.d/p0-ed-service",
     "runlevels_started": [2, 3, 4, 5],
     "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
-    "service_sha256": "4b2034222c2f4a0f0961d29b486ff1cafe2e46bf609a1a9ddc8f6fb546bf91e2",
-    "client_sha256": "e0068516ff78d790cfc9ddfd87f82efb830b7c6c5b4e327407edda55b00c62d2",
-    "throughput_runner_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
+    "service_sha256": "3f5288b2d691d67de037081ef3f8a57b75d905e38fe348e2ce86284a3e7fbb61",
+    "client_sha256": "85a5a6e59c4a256b0f77b2938c73fe7795f93663142136eede7f1ebac5f3bb27",
+    "throughput_runner_sha256": "1f9000882ba32519b3c32d7906301ea9716b9806ee95295571fac7f18b73eb39",
     "runtime_runner_binary": "/usr/bin/p0-ed-runtime-run",
-    "runtime_runner_sha256": "318742c309ab080b93ab4752b29ca9b4d492e12560bd0f1dc076ab966f036ef7",
+    "runtime_runner_sha256": "7052b243fc3fb0487f44b6f22f00f43effd740cb305f3dc984236296a7c3e000",
     "parameter_runner_binary": "/usr/bin/p0-parameter-run",
     "parameter_client_binary": "/usr/bin/p0-parameter-client",
     "parameter_runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
-    "parameter_client_sha256": "f0d0d5d6c64e20e250729bc16da29973d14d98a7f5294fcdb8e9cbbe12353272",
-    "stage_profile_sha256": "5a6f0c925a56ca24e755794bf2ef3935e45f82d95b78d8be016b8d445bba5359"
+    "parameter_client_sha256": "16be89743fa6c69d017c91423979f4d9eaf30457402a569b89f9b4602af771d6",
+    "stage_profile_sha256": "5da8a57f31cecb304ef26fac83a99d5885c14688ba8c1d38664fbe85ba0b3fdf"
   },
   "hardware_input": {
     "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
@@ -40,8 +40,8 @@
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24009487,
-    "sha256": "9a8e240eeffe75aac83f35ccfd298cd6c0c954af0540071b71d9b830ebc4cf7f"
+    "bytes": 24010591,
+    "sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6"
   },
   "boot_image": {
     "name": "BOOT.BIN",
@@ -58,18 +58,17 @@
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
     "p0_multiscale_detector.c": "36d9dd5c16040a04688e539134a7d53b58984e2cc2ef138e481b0e544358d682",
     "p0_multiscale_detector.h": "468e250daa769d2690ada1af5caf40b19840c7a5fcb267662f8fc97eaae143a1",
-    "p0_ed_pipeline.c": "af48ac10d4eb8cd22f9befac85769e38a47d1890f6c02a1a3c736bd182335eb3",
+    "p0_ed_pipeline.c": "0fdd8e512b9d6b0feba56f2463b953fb745f48af567614a2e47080166cb003ac",
     "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea",
     "p0_os_cfar.c": "c65ca4b9c0537e9f0d14da940e99cbfe0bef3cad958ba3d223b1eb4e7479f8e9",
     "p0_os_cfar.h": "1aa640804dbc41aaf4e9402cb348966e86c65eaa12981fbd1a533acf8beb2009",
     "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
     "p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
-    "p0_ed_stage_profile_run.c": "55c25edf77c05577338fe5a8a81b814d6bf89b8991d5aec6175c81030ae9c4dc",
-    "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d"
+    "p0_ed_stage_profile_run.c": "058f210cd270a713fce614aefce391cb387ebfac4cdc33162cdc9b3aff846034",
+    "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2"
   },
   "prior_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
   "not_verified": [
-    "ZedBoard boot with the profile-tool-only rebuilt image.ub",
     "Ethernet transport",
     "live HackRF",
     "physical sustained throughput"

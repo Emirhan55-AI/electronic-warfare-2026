@@ -26,12 +26,13 @@ int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
     pipeline->threshold = calloc(P0_FRAME_BINS, sizeof(*pipeline->threshold));
     pipeline->detections = calloc(P0_FRAME_BINS, sizeof(*pipeline->detections));
     pipeline->candidates = calloc(PHASE06I_MAX_CANDIDATES, sizeof(*pipeline->candidates));
-    pipeline->packet = malloc(PHASE06I_MAX_FRAME_BYTES);
+    pipeline->candidate_records = calloc(PHASE06I_MAX_CANDIDATES,
+                                         sizeof(*pipeline->candidate_records));
     pipeline->temporal_state = calloc(1U, phase06j_state_bytes());
     pipeline->temporal_backup = malloc(phase06j_state_bytes());
     if (pipeline->power == NULL || pipeline->raw_power == NULL || pipeline->noise == NULL ||
         pipeline->threshold == NULL || pipeline->detections == NULL ||
-        pipeline->candidates == NULL || pipeline->packet == NULL ||
+        pipeline->candidates == NULL || pipeline->candidate_records == NULL ||
         pipeline->temporal_state == NULL || pipeline->temporal_backup == NULL ||
         p0_os_cfar_canonical_config(&pipeline->config) != P0_OS_CFAR_OK ||
         phase06j_state_init(pipeline->temporal_state, phase06j_state_bytes()) != PHASE06J_OK ||
@@ -50,7 +51,7 @@ void p0_ed_pipeline_release(p0_ed_pipeline_t *pipeline)
     p0_parameter_runtime_release(&pipeline->parameter_runtime);
     free(pipeline->temporal_backup);
     free(pipeline->temporal_state);
-    free(pipeline->packet);
+    free(pipeline->candidate_records);
     free(pipeline->candidates);
     free(pipeline->detections);
     free(pipeline->threshold);
@@ -77,7 +78,6 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
 {
     size_t candidate_count = 0U;
     size_t recovery_count = 0U;
-    size_t packet_bytes = 0U;
     int pl_decisions_present = 0;
     int code;
 
@@ -118,16 +118,18 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
         errno = EPROTO;
         return -1;
     }
-    code = p0_candidate_packet_encode(frame_id, pipeline->raw_power, P0_FRAME_BINS,
-                                      &pipeline->config, pipeline->candidates, candidate_count,
-                                      pipeline->packet, PHASE06I_MAX_FRAME_BYTES, &packet_bytes);
+    code = p0_candidate_records_encode(
+        pipeline->raw_power, P0_FRAME_BINS, &pipeline->config,
+        pipeline->candidates, candidate_count, pipeline->candidate_records,
+        PHASE06I_MAX_CANDIDATES);
     if (code != P0_CANDIDATE_PACKET_OK) {
         memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
         errno = EPROTO;
         return -1;
     }
-    code = phase06j_process_packet(pipeline->temporal_state, phase06j_state_bytes(),
-                                   pipeline->packet, packet_bytes, result);
+    code = phase06j_process_candidates(
+        pipeline->temporal_state, phase06j_state_bytes(), frame_id,
+        pipeline->candidate_records, (uint16_t)candidate_count, result);
     if (code != PHASE06J_OK) {
         memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
         errno = EPROTO;

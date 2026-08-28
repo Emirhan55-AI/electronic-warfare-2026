@@ -120,7 +120,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(101, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(102, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

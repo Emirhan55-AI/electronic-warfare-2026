@@ -15,7 +15,7 @@ typedef struct {
     double *threshold;
     uint8_t *detections;
     p0_candidate_region_t *candidates;
-    uint8_t *packet;
+    phase06i_candidate_v1 *candidate_records;
     void *temporal_state;
     void *temporal_backup;
     p0_os_cfar_config_t config;

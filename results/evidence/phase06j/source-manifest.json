@@ -11,13 +11,13 @@
     "datasets/fixtures/phase06j/packets.bin": "b83c706cb29b633bbf53431f93ade1e0f2b76347589d4c9dce142533691cfeda",
     "docs/decisions/ADR-0021-PHASE06J-PS-TEMPORAL-CONFIRMATION.md": "df8d23877a14de5c7bcff28953f800e55f1c0264f066352388b2ba380f492da4",
     "docs/interfaces/PS_TEMPORAL_CANDIDATE_CONTRACT.md": "e43e3d2479b9365529739cdd3580d968c3ad15c1849f440bfb683c3f18b5e5f2",
-    "platforms/embedded/phase06j/include/phase06j_temporal.h": "7754e885faa843ab1c38b663fff24cb1a4aedfa607d0f0439e8a6252e30f4932",
-    "platforms/embedded/phase06j/src/phase06j_temporal.c": "54809e09dce4b06de7d1b2edbaa9722a4377f367f9546bcf5c6b8f1714aae8c0",
+    "platforms/embedded/phase06j/include/phase06j_temporal.h": "eb338efced5f6b4e56abce5988446649ebfc56926498eb22e993f917a827449a",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "a276f9448331ecfe0ac941073de757f384b6d6e86fa12578dac699f92ae9849d",
     "scripts/generate_phase06j_vectors.py": "00d28069836699f5ce6e3688db03fc21a2e22c5e1badb292c5904f455507d9a3",
-    "scripts/verify_phase06j.py": "140f5456f7bc8ff881ed4f80a9ef35a9653a1311de5c0895e890108b9367f116",
+    "scripts/verify_phase06j.py": "22b3617ee9a8e2288c5dd5d3b013fa8b225b44edb24a758f4cf9b09e97ddb897",
     "tests/test_phase06j_model.py": "a7665e1b6774448616ac0e8f4e2a14cf0c881fb42997ea48b106dc6dbf13db57",
     "tests/test_phase06j_vectors.py": "7eb8fc939569ae510432a27ddb5ba4257aa8ee66862b97f327b67c6588488837",
-    "tests/test_phase06j_verifier.py": "7904d826cc0242bc114d196d6632d9220be50c8137014b6aec5e53a5977fc6a2"
+    "tests/test_phase06j_verifier.py": "377bdc30846826c88f9fcf7cef2154a05a98b468446a6ef6cd667e83a8fb38ce"
   },
   "frozen_phase06i_packet_source": {
     "path": "datasets/fixtures/phase06i/transport-packets.bin",

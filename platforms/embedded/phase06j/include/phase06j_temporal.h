@@ -74,6 +74,10 @@ PHASE06J_API int phase06j_validate_packet(const void *packet, size_t packet_byte
 PHASE06J_API int phase06j_process_packet(void *memory, size_t bytes,
                                         const void *packet, size_t packet_bytes,
                                         phase06j_frame_result_v1 *result);
+PHASE06J_API int phase06j_process_candidates(
+    void *memory, size_t bytes, uint32_t frame_id,
+    const phase06i_candidate_v1 *candidates, uint16_t candidate_count,
+    phase06j_frame_result_v1 *result);
 PHASE06J_API const char *phase06j_error_string(int code);
 
 #endif

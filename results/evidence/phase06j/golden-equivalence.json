@@ -11,5 +11,6 @@
   "rejected_packet_state_unchanged_checks": 1,
   "sequence_count": 10,
   "state_bytes": 13352,
-  "status": "passed"
+  "status": "passed",
+  "typed_mismatch_count": 0
 }

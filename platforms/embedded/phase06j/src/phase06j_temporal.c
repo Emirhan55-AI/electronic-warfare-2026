@@ -37,6 +37,14 @@ typedef struct {
 } packet_view_t;
 
 typedef struct {
+  candidate_t candidate;
+  int overlap;
+  uint16_t distance;
+  uint16_t region_index;
+  uint8_t valid;
+} match_choice_t;
+
+typedef struct {
   uint32_t magic;
   uint8_t has_last_frame;
   uint8_t reserved[3];
@@ -70,14 +78,20 @@ static uint64_t read_le64(const uint8_t *p) {
 }
 
 static uint32_t crc32_ieee(const uint8_t *data, size_t length) {
+  static const uint32_t table[16] = {
+      UINT32_C(0x00000000), UINT32_C(0x1DB71064), UINT32_C(0x3B6E20C8),
+      UINT32_C(0x26D930AC), UINT32_C(0x76DC4190), UINT32_C(0x6B6B51F4),
+      UINT32_C(0x4DB26158), UINT32_C(0x5005713C), UINT32_C(0xEDB88320),
+      UINT32_C(0xF00F9344), UINT32_C(0xD6D6A3E8), UINT32_C(0xCB61B38C),
+      UINT32_C(0x9B64C2B0), UINT32_C(0x86D3D2D4), UINT32_C(0xA00AE278),
+      UINT32_C(0xBDBDF21C),
+  };
   uint32_t crc = UINT32_MAX;
   size_t i;
-  unsigned bit;
   for (i = 0; i < length; ++i) {
     crc ^= data[i];
-    for (bit = 0; bit < 8; ++bit) {
-      crc = (crc >> 1) ^ (0xEDB88320u & (uint32_t)-(int32_t)(crc & 1u));
-    }
+    crc = (crc >> 4) ^ table[crc & 0x0fu];
+    crc = (crc >> 4) ^ table[crc & 0x0fu];
   }
   return crc ^ UINT32_MAX;
 }
@@ -103,6 +117,25 @@ static void read_candidate(const packet_view_t *view, uint16_t index, candidate_
   out->threshold_power = read_le64(p + 32);
 }
 
+static int validate_candidate_records(const packet_view_t *view) {
+  uint16_t i;
+  for (i = 0; i < view->candidate_count; ++i) {
+    const uint8_t *p = view->payload + (size_t)i * sizeof(phase06i_candidate_v1);
+    candidate_t candidate;
+    read_candidate(view, i, &candidate);
+    if ((p[9] & ~3u) != 0u || (p[9] & 1u) == 0u || !all_zero(p + 10, 6u) ||
+        candidate.start_bin > candidate.peak_bin || candidate.peak_bin > candidate.end_bin ||
+        candidate.end_bin >= PHASE06I_FFT_SIZE ||
+        candidate.span_bins != (uint16_t)(candidate.end_bin - candidate.start_bin + 1u) ||
+        candidate.pfa_select > 2u || candidate.peak_power >= (UINT64_C(1) << 58) ||
+        candidate.noise_power >= (UINT64_C(1) << 58) ||
+        candidate.threshold_power >= (UINT64_C(1) << 62)) {
+      return PHASE06J_ERR_CANDIDATE;
+    }
+  }
+  return PHASE06J_OK;
+}
+
 static int decode_packet(const void *packet, size_t packet_bytes, packet_view_t *view) {
   const uint8_t *bytes = (const uint8_t *)packet;
   const uint8_t *trailer;
@@ -110,7 +143,6 @@ static int decode_packet(const void *packet, size_t packet_bytes, packet_view_t 
   uint32_t payload_bytes;
   uint16_t count;
   uint16_t status;
-  uint16_t i;
   if (bytes == NULL || view == NULL || packet_bytes < 64u || packet_bytes > PHASE06I_MAX_FRAME_BYTES) {
     return PHASE06J_ERR_PACKET_BOUNDS;
   }
@@ -142,21 +174,7 @@ static int decode_packet(const void *packet, size_t packet_bytes, packet_view_t 
   view->payload = bytes + 32;
   view->frame_id = read_le32(bytes + 8);
   view->candidate_count = count;
-  for (i = 0; i < count; ++i) {
-    const uint8_t *p = view->payload + (size_t)i * 40u;
-    candidate_t candidate;
-    read_candidate(view, i, &candidate);
-    if ((p[9] & ~3u) != 0u || (p[9] & 1u) == 0u || !all_zero(p + 10, 6u) ||
-        candidate.start_bin > candidate.peak_bin || candidate.peak_bin > candidate.end_bin ||
-        candidate.end_bin >= PHASE06I_FFT_SIZE ||
-        candidate.span_bins != (uint16_t)(candidate.end_bin - candidate.start_bin + 1u) ||
-        candidate.pfa_select > 2u || candidate.peak_power >= (UINT64_C(1) << 58) ||
-        candidate.noise_power >= (UINT64_C(1) << 58) ||
-        candidate.threshold_power >= (UINT64_C(1) << 62)) {
-      return PHASE06J_ERR_CANDIDATE;
-    }
-  }
-  return PHASE06J_OK;
+  return validate_candidate_records(view);
 }
 
 static uint128_pair_t multiply_u64(uint64_t a, uint64_t b) {
@@ -210,6 +228,58 @@ static int association_overlap(const candidate_t *previous, const candidate_t *c
   if (start < (int)current->start_bin) start = current->start_bin;
   if (end > (int)current->end_bin) end = current->end_bin;
   return end >= start ? end - start + 1 : 0;
+}
+
+static uint16_t peak_distance(const candidate_t *previous, const candidate_t *current) {
+  return previous->peak_bin > current->peak_bin
+             ? (uint16_t)(previous->peak_bin - current->peak_bin)
+             : (uint16_t)(current->peak_bin - previous->peak_bin);
+}
+
+static int track_choice_better(const match_choice_t *candidate,
+                               const match_choice_t *current) {
+  if (!current->valid) return candidate->valid != 0u;
+  if (!candidate->valid) return 0;
+  if (candidate->overlap != current->overlap) return candidate->overlap > current->overlap;
+  if (candidate->distance != current->distance) return candidate->distance < current->distance;
+  if (candidate->candidate.start_bin != current->candidate.start_bin) {
+    return candidate->candidate.start_bin < current->candidate.start_bin;
+  }
+  return candidate->region_index < current->region_index;
+}
+
+static void refresh_match_choice(const track_t *track, const packet_view_t *view,
+                                 const uint8_t *matched_regions, match_choice_t *choice) {
+  uint16_t ri;
+  memset(choice, 0, sizeof(*choice));
+  for (ri = 0; ri < view->candidate_count; ++ri) {
+    match_choice_t candidate_choice;
+    if (matched_regions[ri]) continue;
+    memset(&candidate_choice, 0, sizeof(candidate_choice));
+    read_candidate(view, ri, &candidate_choice.candidate);
+    candidate_choice.overlap = association_overlap(&track->candidate, &candidate_choice.candidate);
+    if (candidate_choice.overlap <= 0) continue;
+    candidate_choice.distance = peak_distance(&track->candidate, &candidate_choice.candidate);
+    candidate_choice.region_index = ri;
+    candidate_choice.valid = 1u;
+    if (track_choice_better(&candidate_choice, choice)) *choice = candidate_choice;
+  }
+}
+
+static int global_choice_better(const state_t *state, uint16_t candidate_track,
+                                const match_choice_t *candidate, uint16_t current_track,
+                                const match_choice_t *current) {
+  if (!current->valid) return candidate->valid != 0u;
+  if (!candidate->valid) return 0;
+  if (candidate->overlap != current->overlap) return candidate->overlap > current->overlap;
+  if (candidate->distance != current->distance) return candidate->distance < current->distance;
+  if (state->tracks[candidate_track].event_id != state->tracks[current_track].event_id) {
+    return state->tracks[candidate_track].event_id < state->tracks[current_track].event_id;
+  }
+  if (candidate->candidate.start_bin != current->candidate.start_bin) {
+    return candidate->candidate.start_bin < current->candidate.start_bin;
+  }
+  return candidate->region_index < current->region_index;
 }
 
 static void append_history(track_t *track, uint8_t observed) {
@@ -294,21 +364,21 @@ int phase06j_validate_packet(const void *packet, size_t packet_bytes,
   return PHASE06J_OK;
 }
 
-int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
-                            size_t packet_bytes, phase06j_frame_result_v1 *result) {
+static int process_view(void *memory, size_t bytes, const packet_view_t *input,
+                        phase06j_frame_result_v1 *result) {
   state_t *state = (state_t *)memory;
   packet_view_t view;
   uint8_t matched_tracks[PHASE06J_MAX_ACTIVE_TRACKS] = {0};
   uint8_t matched_regions[PHASE06I_MAX_CANDIDATES] = {0};
+  match_choice_t track_choices[PHASE06J_MAX_ACTIVE_TRACKS] = {0};
   uint16_t original_tracks;
   uint16_t match_count = 0;
   uint16_t i;
-  int code;
-  if (state == NULL || result == NULL || bytes < sizeof(state_t) || state->magic != PHASE06J_STATE_MAGIC) {
+  if (state == NULL || input == NULL || result == NULL || bytes < sizeof(state_t) ||
+      state->magic != PHASE06J_STATE_MAGIC) {
     return PHASE06J_ERR_STATE;
   }
-  code = decode_packet(packet, packet_bytes, &view);
-  if (code != PHASE06J_OK) return code;
+  view = *input;
   memset(result, 0, sizeof(*result));
   result->frame_id = view.frame_id;
   if (state->has_last_frame && view.frame_id != state->last_frame_id + 1u) {
@@ -316,55 +386,24 @@ int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
     result->reset_applied = 1u;
   }
   original_tracks = state->track_count;
+  for (i = 0; i < original_tracks; ++i) {
+    refresh_match_choice(&state->tracks[i], &view, matched_regions, &track_choices[i]);
+  }
   while (match_count < original_tracks && match_count < view.candidate_count) {
-    int have_best = 0;
-    int best_overlap = 0;
-    uint16_t best_distance = 0;
     uint16_t best_track = 0;
-    uint16_t best_region = 0;
-    candidate_t best_candidate = {0};
+    match_choice_t best_choice = {0};
     uint16_t ti;
     for (ti = 0; ti < original_tracks; ++ti) {
-      uint16_t ri;
       if (matched_tracks[ti]) continue;
-      for (ri = 0; ri < view.candidate_count; ++ri) {
-        candidate_t current;
-        int overlap;
-        uint16_t distance;
-        int better = 0;
-        if (matched_regions[ri]) continue;
-        read_candidate(&view, ri, &current);
-        overlap = association_overlap(&state->tracks[ti].candidate, &current);
-        if (overlap <= 0) continue;
-        distance = (uint16_t)(state->tracks[ti].candidate.peak_bin > current.peak_bin
-                                  ? state->tracks[ti].candidate.peak_bin - current.peak_bin
-                                  : current.peak_bin - state->tracks[ti].candidate.peak_bin);
-        if (!have_best || overlap > best_overlap ||
-            (overlap == best_overlap && distance < best_distance) ||
-            (overlap == best_overlap && distance == best_distance &&
-             state->tracks[ti].event_id < state->tracks[best_track].event_id) ||
-            (overlap == best_overlap && distance == best_distance &&
-             state->tracks[ti].event_id == state->tracks[best_track].event_id &&
-             current.start_bin < best_candidate.start_bin) ||
-            (overlap == best_overlap && distance == best_distance &&
-             state->tracks[ti].event_id == state->tracks[best_track].event_id &&
-             current.start_bin == best_candidate.start_bin && ri < best_region)) {
-          better = 1;
-        }
-        if (better) {
-          have_best = 1;
-          best_overlap = overlap;
-          best_distance = distance;
-          best_track = ti;
-          best_region = ri;
-          best_candidate = current;
-        }
+      if (global_choice_better(state, ti, &track_choices[ti], best_track, &best_choice)) {
+        best_track = ti;
+        best_choice = track_choices[ti];
       }
     }
-    if (!have_best) break;
+    if (!best_choice.valid) break;
     matched_tracks[best_track] = 1u;
-    matched_regions[best_region] = 1u;
-    state->tracks[best_track].candidate = best_candidate;
+    matched_regions[best_choice.region_index] = 1u;
+    state->tracks[best_track].candidate = best_choice.candidate;
     state->tracks[best_track].last_seen_frame_id = view.frame_id;
     state->tracks[best_track].seen_count++;
     state->tracks[best_track].consecutive_misses = 0u;
@@ -372,6 +411,12 @@ int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
     append_history(&state->tracks[best_track], 1u);
     if (history_sum(&state->tracks[best_track]) >= PHASE06J_CONFIRMATIONS_REQUIRED) {
       state->tracks[best_track].confirmed = 1u;
+    }
+    for (ti = 0; ti < original_tracks; ++ti) {
+      if (!matched_tracks[ti] && track_choices[ti].valid &&
+          track_choices[ti].region_index == best_choice.region_index) {
+        refresh_match_choice(&state->tracks[ti], &view, matched_regions, &track_choices[ti]);
+      }
     }
     match_count++;
   }
@@ -441,6 +486,43 @@ int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
   state->has_last_frame = 1u;
   state->last_frame_id = view.frame_id;
   return PHASE06J_OK;
+}
+
+int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
+                            size_t packet_bytes, phase06j_frame_result_v1 *result) {
+  state_t *state = (state_t *)memory;
+  packet_view_t view;
+  int code;
+  if (state == NULL || result == NULL || bytes < sizeof(state_t) ||
+      state->magic != PHASE06J_STATE_MAGIC) {
+    return PHASE06J_ERR_STATE;
+  }
+  code = decode_packet(packet, packet_bytes, &view);
+  if (code != PHASE06J_OK) return code;
+  return process_view(memory, bytes, &view, result);
+}
+
+int phase06j_process_candidates(void *memory, size_t bytes, uint32_t frame_id,
+                                const phase06i_candidate_v1 *candidates,
+                                uint16_t candidate_count,
+                                phase06j_frame_result_v1 *result) {
+  state_t *state = (state_t *)memory;
+  packet_view_t view;
+  int code;
+  if (state == NULL || result == NULL || bytes < sizeof(state_t) ||
+      state->magic != PHASE06J_STATE_MAGIC) {
+    return PHASE06J_ERR_STATE;
+  }
+  if (candidate_count > PHASE06I_MAX_CANDIDATES ||
+      (candidate_count != 0u && candidates == NULL)) {
+    return PHASE06J_ERR_PACKET_BOUNDS;
+  }
+  view.payload = (const uint8_t *)candidates;
+  view.frame_id = frame_id;
+  view.candidate_count = candidate_count;
+  code = validate_candidate_records(&view);
+  if (code != PHASE06J_OK) return code;
+  return process_view(memory, bytes, &view, result);
 }
 
 const char *phase06j_error_string(int code) {

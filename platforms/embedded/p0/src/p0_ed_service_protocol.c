@@ -58,16 +58,25 @@ static void store_le_double(uint8_t *target, double value)
 
 uint32_t p0_ed_crc32(const uint8_t *data, size_t length)
 {
+    static const uint32_t table[16] = {
+        UINT32_C(0x00000000), UINT32_C(0x1DB71064),
+        UINT32_C(0x3B6E20C8), UINT32_C(0x26D930AC),
+        UINT32_C(0x76DC4190), UINT32_C(0x6B6B51F4),
+        UINT32_C(0x4DB26158), UINT32_C(0x5005713C),
+        UINT32_C(0xEDB88320), UINT32_C(0xF00F9344),
+        UINT32_C(0xD6D6A3E8), UINT32_C(0xCB61B38C),
+        UINT32_C(0x9B64C2B0), UINT32_C(0x86D3D2D4),
+        UINT32_C(0xA00AE278), UINT32_C(0xBDBDF21C),
+    };
     uint32_t crc = UINT32_MAX;
     size_t index;
-    unsigned int bit;
 
     if (data == NULL && length != 0U)
         return 0U;
     for (index = 0U; index < length; ++index) {
         crc ^= data[index];
-        for (bit = 0U; bit < 8U; ++bit)
-            crc = (crc >> 1) ^ (UINT32_C(0xEDB88320) & (uint32_t)-(int32_t)(crc & 1U));
+        crc = (crc >> 4) ^ table[crc & 0x0FU];
+        crc = (crc >> 4) ^ table[crc & 0x0FU];
     }
     return crc ^ UINT32_MAX;
 }

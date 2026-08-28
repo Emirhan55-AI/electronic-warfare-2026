@@ -1,19 +1,18 @@
 {
-  "schema_version": 2,
-  "recorded_at": "2026-08-28",
+  "schema_version": 3,
+  "recorded_at": "2026-08-29",
   "status": "failed",
-  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance after PL OS-CFAR offload",
+  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance after ADR-0031",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
     "fpga_manager_state": "operating",
     "boot_bin_sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3",
-    "boot_image_ub_sha256": "6c97f8efdca492a80db43ba01fefaf3699383ddda2d65e6ba8b68b79e09226d6",
+    "image_ub_sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6",
     "system_bit_sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e",
-    "service_binary_sha256": "4b2034222c2f4a0f0961d29b486ff1cafe2e46bf609a1a9ddc8f6fb546bf91e2",
-    "throughput_binary_sha256": "b1fcd12655e84010d9b0e7d8a2304f389df56d6d5d36b28c12cd9e82c11328e4",
-    "installed_stage_profile_sha256": "2bd570e75b9b499b7eef4ef5f2e82e37970333f5f7262818deeba99f6723e360",
-    "temporary_corrected_stage_profile_sha256": "5a6f0c925a56ca24e755794bf2ef3935e45f82d95b78d8be016b8d445bba5359"
+    "service_binary_sha256": "3f5288b2d691d67de037081ef3f8a57b75d905e38fe348e2ce86284a3e7fbb61",
+    "throughput_binary_sha256": "1f9000882ba32519b3c32d7906301ea9716b9806ee95295571fac7f18b73eb39",
+    "stage_profile_binary_sha256": "5da8a57f31cecb304ef26fac83a99d5885c14688ba8c1d38664fbe85ba0b3fdf"
   },
   "locked_profile": {
     "sample_rate_hz": 2000000,
@@ -24,15 +23,14 @@
   },
   "numerical_equivalence": {
     "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
-    "packed_card_frame_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
-    "packed_integer_model_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
-    "raw_power_sha256": "73b9560bdf05855ec0e2c6d49268746cbe96dcff23197d625c369991d2562ddf",
-    "raw_power_mismatches": 0,
-    "packed_word_mismatches": 0,
-    "format_marker_mismatches": 0,
-    "evaluated_cells": 4056,
-    "detected_cells": 171,
-    "detected_without_evaluated": 0
+    "unchanged_pl_image_from_adr0030": true,
+    "prior_packed_card_frame_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
+    "prior_packed_integer_model_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
+    "prior_raw_power_mismatches": 0,
+    "prior_packed_word_mismatches": 0,
+    "typed_vs_packet_frames": 33,
+    "typed_vs_packet_candidate_records": 1501,
+    "typed_vs_packet_mismatches": 0
   },
   "completion": {
     "completed_frames": 4096,
@@ -44,56 +42,54 @@
     "dma_status_flags": 7
   },
   "throughput": {
-    "elapsed_seconds": 42.832299354,
-    "measured_frames_per_second": 95.628767584,
-    "real_time_margin": 0.195847716,
+    "elapsed_seconds": 20.795423792,
+    "measured_frames_per_second": 196.966411503,
+    "real_time_margin": 0.403387211,
     "gate_passed": false,
-    "shortfall_factor": 5.106008
+    "shortfall_factor": 2.479007696
   },
   "latency_seconds": {
-    "minimum": 0.005855862,
-    "p50": 0.00994026,
-    "p95": 0.010080138,
-    "p99": 0.010102986,
-    "maximum": 0.010297626
+    "minimum": 0.004678482,
+    "p50": 0.004884792,
+    "p95": 0.00498402,
+    "p99": 0.005008062,
+    "maximum": 0.005406828
   },
   "component_characterization": {
-    "method": "Corrected PL-marker-aware profiler; 64 warmup plus 1024 measured frames",
-    "dma_milliseconds": {"mean": 1.456537, "p50": 1.443174, "p95": 1.487976, "p99": 1.492296},
-    "arm_pipeline_milliseconds": {"mean": 6.714248, "p50": 6.709098, "p95": 6.792702, "p99": 6.807253},
-    "combined_milliseconds": {"mean": 8.170784, "p50": 8.167464, "p95": 8.260878, "p99": 8.285712},
+    "method": "Exact in-process stage profiler; 64 warmup plus 4096 measured frames",
+    "dma_milliseconds": {"mean": 1.462292, "p50": 1.445658, "p95": 1.49442, "p99": 1.508988},
+    "arm_pipeline_milliseconds": {"mean": 2.612712, "p50": 2.621724, "p95": 2.7048, "p99": 2.741022},
+    "combined_milliseconds": {"mean": 4.075004, "p50": 4.077505, "p95": 4.175514, "p99": 4.211844},
     "algorithm_probe_milliseconds": {
-      "power_unpack_mean": 0.481628,
-      "pl_candidate_grouping_mean": 0.711251,
-      "pl_multiscale_total_mean": 1.559754,
-      "pipeline_remainder_mean": 4.672866
-    },
-    "claim_boundary": "The remainder is a measured difference, not yet a separately instrumented stage attribution."
+      "pl_frame_decode_mean": 0.489663,
+      "candidate_detection_mean": 1.552521,
+      "candidate_record_encode_mean": 0.027665,
+      "temporal_association_mean": 0.511338
+    }
   },
   "baseline_comparison": {
-    "pre_offload_frames_per_second": 116.339941851,
-    "post_offload_frames_per_second": 95.628767584,
-    "post_to_pre_ratio": 0.821977096,
+    "adr0030_frames_per_second": 95.628767584,
+    "adr0031_frames_per_second": 196.966411503,
+    "speedup_ratio": 2.059698315,
+    "adr0030_arm_pipeline_mean_ms": 6.714248,
+    "adr0031_arm_pipeline_mean_ms": 2.612712,
+    "arm_pipeline_reduction_ratio": 0.610870495,
     "physical_gate_remains_failed": true
   },
   "source_sha256": {
     "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
     "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
-    "p0_ed_service_protocol.c": "f3b23e9a88c313a800c9a58094205f849685abda39f56c0d20d46aabc52d424a",
-    "p0_ed_pipeline.c": "af48ac10d4eb8cd22f9befac85769e38a47d1890f6c02a1a3c736bd182335eb3",
-    "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
-    "p0_os_cfar.c": "c65ca4b9c0537e9f0d14da940e99cbfe0bef3cad958ba3d223b1eb4e7479f8e9",
-    "p0_multiscale_detector.c": "36d9dd5c16040a04688e539134a7d53b58984e2cc2ef138e481b0e544358d682",
-    "p0_candidate_packet.c": "a13ab57bbe46b1aa8d7f2adfebced5bae1a54f57034044234d140a49bc02cb7d",
-    "phase06j_temporal.c": "54809e09dce4b06de7d1b2edbaa9722a4377f367f9546bcf5c6b8f1714aae8c0",
-    "p0_ed_stage_profile_run.c": "55c25edf77c05577338fe5a8a81b814d6bf89b8991d5aec6175c81030ae9c4dc",
+    "p0_ed_service_protocol.c": "dc987c71672dae2d4e01882bcc31416a3620e0a1a6674e9e0a87933e52e20f06",
+    "p0_ed_pipeline.c": "0fdd8e512b9d6b0feba56f2463b953fb745f48af567614a2e47080166cb003ac",
+    "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
+    "phase06j_temporal.c": "a276f9448331ecfe0ac941073de757f384b6d6e86fa12578dac699f92ae9849d",
+    "p0_ed_stage_profile_run.c": "058f210cd270a713fce614aefce391cb387ebfac4cdc33162cdc9b3aff846034",
     "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3"
   },
   "artifact_sha256": {
-    "throughput.json": "e28c4bddb912e9275a84459db056b74a00178cebdd57f339b4ecc163f617b9e0",
-    "stage-profile.json": "a3d268be258ea89812bbd23de9c6380aab3cd93c8e14013f0cd58b8d375b3d4b",
-    "packed-power-frame.u64": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a"
+    "throughput.json": "269a4c6cde28c10f95d40a53f993248edc8f7eba40dc3e9ac1fbf596332fa418",
+    "stage-profile.json": "c82635cca6c87fb1426b8e0d41033d233e5aa53d5d779355e00d4191883865e5"
   },
-  "failure_reason": "All numerical, DMA and completion checks passed, but the service sustained 95.62877 frames/s against the locked 488.28125 frames/s requirement. PL OS-CFAR preserved bit-exact output but did not close the end-to-end frame budget.",
+  "failure_reason": "All numerical-invariance, DMA and completion checks passed, but the service sustained 196.966411503 frames/s against the locked 488.28125 frames/s requirement.",
   "claim_boundary": "This is a repeatable deterministic local-card failure result. It does not claim live HackRF throughput, RF sensitivity, calibration, Ethernet performance or field accuracy."
 }

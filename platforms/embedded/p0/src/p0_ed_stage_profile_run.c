@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "p0_dma_runtime.h"
+#include "p0_candidate_packet.h"
 #include "p0_ed_pipeline.h"
 #include "p0_multiscale_detector.h"
 #include "p0_pl_os_cfar.h"
@@ -36,12 +37,8 @@ typedef struct {
 } failure_counts_t;
 
 typedef struct {
-    uint64_t *raw_power;
-    double *power;
-    double *noise;
-    double *threshold;
-    uint8_t *detections;
-    p0_candidate_region_t *candidates;
+    p0_ed_pipeline_t pipeline;
+    int pipeline_ready;
 } algorithm_probe_t;
 
 static int parse_u64(const char *text, uint64_t minimum, uint64_t maximum,
@@ -177,48 +174,72 @@ static int execute_frame(p0_dma_runtime_t *dma, p0_ed_pipeline_t *pipeline,
 
 static int profile_algorithm_stages(
     const uint8_t *natural_power,
-    const p0_os_cfar_config_t *config,
+    uint32_t frame_id,
+    int reset_requested,
     algorithm_probe_t *probe,
-    double *unpack_ms,
-    double *os_cfar_ms,
-    double *multiscale_ms)
+    double *decode_ms,
+    double *detection_ms,
+    double *packet_ms,
+    double *temporal_ms)
 {
     struct timespec started;
-    struct timespec unpack_finished;
-    struct timespec os_cfar_finished;
-    struct timespec multiscale_finished;
+    struct timespec decode_finished;
+    struct timespec detection_finished;
+    struct timespec packet_finished;
+    struct timespec temporal_finished;
+    phase06j_frame_result_v1 result;
     size_t candidate_count = 0U;
     size_t recovery_count = 0U;
     int pl_decisions_present = 0;
     int code;
 
+    memset(&result, 0, sizeof(result));
+    memcpy(probe->pipeline.temporal_backup, probe->pipeline.temporal_state,
+           phase06j_state_bytes());
+    if (reset_requested && p0_ed_pipeline_reset(&probe->pipeline) != 0)
+        goto rollback;
     if (clock_gettime(CLOCK_MONOTONIC, &started) != 0)
-        return -1;
+        goto rollback;
     code = p0_pl_os_cfar_decode(
-        natural_power, P0_DMA_OUTPUT_BYTES, probe->raw_power, probe->power,
-        probe->detections, &pl_decisions_present);
+        natural_power, P0_DMA_OUTPUT_BYTES, probe->pipeline.raw_power,
+        probe->pipeline.power, probe->pipeline.detections,
+        &pl_decisions_present);
     if (code != P0_PL_OS_CFAR_OK || !pl_decisions_present)
-        return -1;
-    if (clock_gettime(CLOCK_MONOTONIC, &unpack_finished) != 0)
-        return -1;
-    code = p0_os_cfar_group_detections(
-        probe->power, P0_PROFILE_FRAME_BINS, config, probe->detections,
-        probe->noise, probe->threshold, probe->candidates,
-        PHASE06I_MAX_CANDIDATES, &candidate_count);
-    if (code != P0_OS_CFAR_OK ||
-        clock_gettime(CLOCK_MONOTONIC, &os_cfar_finished) != 0)
-        return -1;
+        goto rollback;
+    if (clock_gettime(CLOCK_MONOTONIC, &decode_finished) != 0)
+        goto rollback;
     code = p0_multiscale_process_pl(
-        probe->power, P0_PROFILE_FRAME_BINS, config, probe->detections,
-        probe->noise, probe->threshold, probe->candidates,
+        probe->pipeline.power, P0_PROFILE_FRAME_BINS, &probe->pipeline.config,
+        probe->pipeline.detections, probe->pipeline.noise,
+        probe->pipeline.threshold, probe->pipeline.candidates,
         PHASE06I_MAX_CANDIDATES, &candidate_count, &recovery_count);
     if (code != P0_MULTISCALE_OK ||
-        clock_gettime(CLOCK_MONOTONIC, &multiscale_finished) != 0)
-        return -1;
-    *unpack_ms = milliseconds_between(&started, &unpack_finished);
-    *os_cfar_ms = milliseconds_between(&unpack_finished, &os_cfar_finished);
-    *multiscale_ms = milliseconds_between(&os_cfar_finished, &multiscale_finished);
+        clock_gettime(CLOCK_MONOTONIC, &detection_finished) != 0)
+        goto rollback;
+    code = p0_candidate_records_encode(
+        probe->pipeline.raw_power, P0_PROFILE_FRAME_BINS,
+        &probe->pipeline.config, probe->pipeline.candidates, candidate_count,
+        probe->pipeline.candidate_records, PHASE06I_MAX_CANDIDATES);
+    if (code != P0_CANDIDATE_PACKET_OK ||
+        clock_gettime(CLOCK_MONOTONIC, &packet_finished) != 0)
+        goto rollback;
+    code = phase06j_process_candidates(
+        probe->pipeline.temporal_state, phase06j_state_bytes(),
+        frame_id, probe->pipeline.candidate_records,
+        (uint16_t)candidate_count, &result);
+    if (code != PHASE06J_OK ||
+        clock_gettime(CLOCK_MONOTONIC, &temporal_finished) != 0)
+        goto rollback;
+    *decode_ms = milliseconds_between(&started, &decode_finished);
+    *detection_ms = milliseconds_between(&decode_finished, &detection_finished);
+    *packet_ms = milliseconds_between(&detection_finished, &packet_finished);
+    *temporal_ms = milliseconds_between(&packet_finished, &temporal_finished);
     return 0;
+
+rollback:
+    memcpy(probe->pipeline.temporal_state, probe->pipeline.temporal_backup,
+           phase06j_state_bytes());
+    return -1;
 }
 
 static void print_summary(const char *name, const timing_summary_t *summary)
@@ -240,17 +261,19 @@ int main(int argc, char **argv)
     timing_summary_t dma_summary;
     timing_summary_t pipeline_summary;
     timing_summary_t combined_summary;
-    timing_summary_t unpack_summary;
-    timing_summary_t os_cfar_summary;
-    timing_summary_t multiscale_summary;
+    timing_summary_t decode_summary;
+    timing_summary_t detection_summary;
+    timing_summary_t packet_summary;
+    timing_summary_t temporal_summary;
     uint8_t *iq = NULL;
     uint8_t *power = NULL;
     double *dma_samples = NULL;
     double *pipeline_samples = NULL;
     double *combined_samples = NULL;
-    double *unpack_samples = NULL;
-    double *os_cfar_samples = NULL;
-    double *multiscale_samples = NULL;
+    double *decode_samples = NULL;
+    double *detection_samples = NULL;
+    double *packet_samples = NULL;
+    double *temporal_samples = NULL;
     uint64_t measured_frames;
     uint64_t warmup_frames;
     uint64_t index;
@@ -273,21 +296,14 @@ int main(int argc, char **argv)
     dma_samples = calloc((size_t)measured_frames, sizeof(*dma_samples));
     pipeline_samples = calloc((size_t)measured_frames, sizeof(*pipeline_samples));
     combined_samples = calloc((size_t)measured_frames, sizeof(*combined_samples));
-    unpack_samples = calloc((size_t)measured_frames, sizeof(*unpack_samples));
-    os_cfar_samples = calloc((size_t)measured_frames, sizeof(*os_cfar_samples));
-    multiscale_samples = calloc((size_t)measured_frames, sizeof(*multiscale_samples));
-    probe.power = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.power));
-    probe.raw_power = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.raw_power));
-    probe.noise = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.noise));
-    probe.threshold = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.threshold));
-    probe.detections = calloc(P0_PROFILE_FRAME_BINS, sizeof(*probe.detections));
-    probe.candidates = calloc(PHASE06I_MAX_CANDIDATES, sizeof(*probe.candidates));
+    decode_samples = calloc((size_t)measured_frames, sizeof(*decode_samples));
+    detection_samples = calloc((size_t)measured_frames, sizeof(*detection_samples));
+    packet_samples = calloc((size_t)measured_frames, sizeof(*packet_samples));
+    temporal_samples = calloc((size_t)measured_frames, sizeof(*temporal_samples));
     if (iq == NULL || power == NULL || dma_samples == NULL ||
         pipeline_samples == NULL || combined_samples == NULL ||
-        unpack_samples == NULL || os_cfar_samples == NULL ||
-        multiscale_samples == NULL || probe.raw_power == NULL || probe.power == NULL ||
-        probe.noise == NULL || probe.threshold == NULL ||
-        probe.detections == NULL || probe.candidates == NULL) {
+        decode_samples == NULL || detection_samples == NULL ||
+        packet_samples == NULL || temporal_samples == NULL) {
         fputs("Profil belleği ayrılamadı.\n", stderr);
         goto done;
     }
@@ -304,6 +320,11 @@ int main(int argc, char **argv)
         goto done;
     }
     pipeline_ready = 1;
+    if (p0_ed_pipeline_init(&probe.pipeline) != 0) {
+        fprintf(stderr, "Profil ED boruhattı başlatılamadı: %s\n", strerror(errno));
+        goto done;
+    }
+    probe.pipeline_ready = 1;
     for (index = 0U; index < warmup_frames; ++index) {
         double ignored_dma = 0.0;
         double ignored_pipeline = 0.0;
@@ -325,8 +346,9 @@ int main(int argc, char **argv)
     if (completed == measured_frames) {
         for (index = 0U; index < measured_frames; ++index) {
             if (profile_algorithm_stages(
-                    power, &pipeline.config, &probe, &unpack_samples[index],
-                    &os_cfar_samples[index], &multiscale_samples[index]) != 0) {
+                    power, (uint32_t)index, index == 0U, &probe,
+                    &decode_samples[index], &detection_samples[index],
+                    &packet_samples[index], &temporal_samples[index]) != 0) {
                 failures.probe_failures += 1U;
                 break;
             }
@@ -337,12 +359,14 @@ report:
     dma_summary = summarize(dma_samples, (size_t)completed);
     pipeline_summary = summarize(pipeline_samples, (size_t)completed);
     combined_summary = summarize(combined_samples, (size_t)completed);
-    unpack_summary = summarize(unpack_samples,
+    decode_summary = summarize(decode_samples,
                                failures.probe_failures == 0U ? (size_t)completed : 0U);
-    os_cfar_summary = summarize(os_cfar_samples,
-                                failures.probe_failures == 0U ? (size_t)completed : 0U);
-    multiscale_summary = summarize(
-        multiscale_samples, failures.probe_failures == 0U ? (size_t)completed : 0U);
+    detection_summary = summarize(detection_samples,
+                                  failures.probe_failures == 0U ? (size_t)completed : 0U);
+    packet_summary = summarize(packet_samples,
+                               failures.probe_failures == 0U ? (size_t)completed : 0U);
+    temporal_summary = summarize(temporal_samples,
+                                 failures.probe_failures == 0U ? (size_t)completed : 0U);
     printf(
         "{\n"
         "  \"schema_version\": 1,\n"
@@ -375,11 +399,13 @@ report:
     printf(
         "\n  },\n"
         "  \"algorithm_probe_milliseconds\": {\n");
-    print_summary("power_unpack", &unpack_summary);
+    print_summary("pl_frame_decode", &decode_summary);
     puts(",");
-    print_summary("pl_candidate_grouping", &os_cfar_summary);
+    print_summary("candidate_detection", &detection_summary);
     puts(",");
-    print_summary("pl_multiscale_total", &multiscale_summary);
+    print_summary("candidate_record_encode", &packet_summary);
+    puts(",");
+    print_summary("temporal_association", &temporal_summary);
     printf(
         "\n  },\n"
         "  \"expected_dma_status_flags\": 7,\n"
@@ -392,18 +418,15 @@ report:
         exit_code = EXIT_SUCCESS;
 
 done:
+    if (probe.pipeline_ready)
+        p0_ed_pipeline_release(&probe.pipeline);
     if (pipeline_ready)
         p0_ed_pipeline_release(&pipeline);
     p0_dma_runtime_close(&dma);
-    free(probe.candidates);
-    free(probe.detections);
-    free(probe.threshold);
-    free(probe.noise);
-    free(probe.power);
-    free(probe.raw_power);
-    free(multiscale_samples);
-    free(os_cfar_samples);
-    free(unpack_samples);
+    free(temporal_samples);
+    free(packet_samples);
+    free(detection_samples);
+    free(decode_samples);
     free(combined_samples);
     free(pipeline_samples);
     free(dma_samples);

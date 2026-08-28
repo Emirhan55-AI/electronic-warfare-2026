@@ -95,16 +95,19 @@ def test_runtime_and_recipe_preserve_locked_physical_gate() -> None:
         assert token in recipe
 
 
-def test_stage_profiler_uses_the_pl_os_cfar_frame_contract() -> None:
+def test_stage_profiler_measures_the_exact_pl_pipeline_stages() -> None:
     source = STAGE_PROFILE_SOURCE.read_text(encoding="utf-8")
 
     for token in (
         "p0_pl_os_cfar_decode(",
         "!pl_decisions_present",
-        "p0_os_cfar_group_detections(",
         "p0_multiscale_process_pl(",
-        'print_summary("pl_candidate_grouping"',
-        'print_summary("pl_multiscale_total"',
+        "p0_candidate_records_encode(",
+        "phase06j_process_candidates(",
+        'print_summary("pl_frame_decode"',
+        'print_summary("candidate_detection"',
+        'print_summary("candidate_record_encode"',
+        'print_summary("temporal_association"',
     ):
         assert token in source
 

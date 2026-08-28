@@ -40,22 +40,20 @@ bu nedenle PS OS-CFAR'dır.
 
 ## Fiziksel sürekli-hız ölçümü
 
-ADR-0029 ile önceden kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm
-karesi) ZedBoard üzerindeki aynı `PL → DMA → ARM` hizmet yolu 4096/4096 kareyi
-ve her yanıtta DMA `0x7` durumunu tamamladı; ancak yeniden ölçülen toplam hız
-116,33994 kare/s (p50 8,132 ms/kare) oldu. Gereken alt sınır 488,28125
-kare/s olduğundan kapı hâlâ başarısızdır; gerçek-zaman marjı 0,238264'tür.
-İlk 50,67380 kare/s ölçümüne göre 2,295 kat iyileşme vardır. Bu sonuç DMA veya
-protokol hatası değil, hizmet yolunun kare başına işlem süresinin baskın
-olduğunu gösteren başarısız bir sürekli-hız kabulüdür; kanıt
-`results/evidence/p0/ed-throughput-physical-acceptance.json` dosyasındadır.
+ADR-0029 ile kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm karesi)
+ADR-0031 sonrası ZedBoard `PL → DMA → ARM` hizmet yolu 4096/4096 kareyi ve her
+yanıtta DMA `0x7` durumunu sıfır hizmet, sıra veya aday düşürme hatasıyla
+tamamlamıştır. Ölçülen hız `196,966411503 kare/s`, gerekli alt sınır
+`488,28125 kare/s` ve gerçek-zaman marjı `0,403387211` olmuştur. Kapı hâlâ
+başarısızdır; ancak ADR-0030'un `95,628767584 kare/s` sonucuna göre 2,0597 kat
+iyileşme vardır.
 
-Bu ölçümden sonra kabul profilini gevşetmek veya sonucu gerçek-zamanlı ilan
-etmek yerine DMA ioctl/aktarımı, PL çekirdek beklemesi ve ARM aday/temporal
-işlemesi ayrı zamanlanmıştır. Aynı süreçteki aşama profili DMA'yı ortalama
-0,457 ms, ARM zincirini 5,700 ms ve birleşik maliyeti 6,158 ms ölçmüştür.
-Alt aşama probu güç dönüşümünü 0,339 ms, OS-CFAR'ı 4,790 ms ve çok ölçekli
-zinciri 5,493 ms bulmuştur. Önceki ayrı `p0-dma-run` süreçlerinden gelen
-6,66 ms değeri süreç başlatma ve dosya I/O içerdiği için DMA gecikmesi olarak
-kullanılmamalıdır. Yeni RTL/PS boruhattı veya paralel tamponlama kararı bu
-ayrıştırılmış kanıtla, özellikle OS-CFAR'ın PL'ye taşınması hedefiyle verilecektir.
+Kesin 64+4096 aşama profili DMA'yı ortalama `1,462292 ms`, ARM zincirini
+`2,612712 ms` ve birleşik yolu `4,075004 ms` ölçmüştür. ARM içinde PL frame
+decode `0,489663 ms`, aday üretimi `1,552521 ms`, typed aday kayıt üretimi
+`0,027665 ms` ve temporal association `0,511338 ms` ortalamadadır. DMA ve ARM
+seri yürüdüğü için `2,048 ms` kare bütçesi kapanmamaktadır. Kabul profilini
+gevşetmeden sonraki mimari inceleme, DMA N+1 ile ARM N işlemesini ping-pong
+tamponlarla örtüştürmeyi ve aday üretim yükünün PL/PS dağılımını birlikte ele
+almalıdır. Kanıt `results/evidence/p0/ed-throughput-physical-acceptance.json`
+dosyasındadır.

@@ -61,6 +61,12 @@ def test_temporal_runtime_preserves_versioned_packet_boundary() -> None:
     assert "p0_multiscale_process(" in runtime
     assert "p0_candidate_packet_encode(" in runtime
     assert "phase06j_process_packet(" in runtime
+
+    pipeline = (ROOT / "platforms/embedded/p0/src/p0_ed_pipeline.c").read_text(
+        encoding="utf-8"
+    )
+    assert "p0_candidate_records_encode(" in pipeline
+    assert "phase06j_process_candidates(" in pipeline
     assert "phase06j_state_init(" in runtime
     assert "rename(output_temporary, argv[1])" in runtime
     assert "remove(output_temporary)" in runtime

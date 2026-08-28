@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "p0_os_cfar.h"
+#include "phase06i_transport_abi.h"
 
 enum {
     P0_CANDIDATE_PACKET_OK = 0,
@@ -14,6 +15,16 @@ enum {
 };
 
 size_t p0_candidate_packet_bytes(size_t candidate_count);
+
+int p0_candidate_records_encode(
+    const uint64_t *shifted_power_uq28_30,
+    size_t power_count,
+    const p0_os_cfar_config_t *config,
+    const p0_candidate_region_t *candidates,
+    size_t candidate_count,
+    phase06i_candidate_v1 *records,
+    size_t record_capacity
+);
 
 int p0_candidate_packet_encode(
     uint32_t frame_id,

@@ -155,6 +155,20 @@ kullanıcı onayı gerektirir.
 Önceki fiziksel kanıtlar `56f5f333df4551517fa170ef3dff1da9367913b5`
 kaynağına aittir ve güncel ADR-0030 kaynaklarını kabul etmez.
 
+### P0 ARM sıcak yol gecikme düzeltmesi
+
+Kullanıcının 2026-08-28 devam onayıyla ADR-0031 uygulanmıştır. IEEE CRC32 nibble
+tablosu, semantik sırayı koruyan temporal eşleşme önbelleği ve strict packet
+yolunu regresyon için koruyan typed iç aday yolu tamamlanmıştır. Paket/typed
+karşılaştırması 33 kare ve 1.501 aday kaydında sıfır fark vermiş, PetaLinux
+5.679/5.679 görevle derlenmiştir. Fiziksel kartta kesin 64+4.096 profiler
+4.096/4.096 kareyi sıfır DMA/pipeline/flag/drop/probe hatasıyla tamamlamış; ARM
+ortalaması `6,714248 ms` değerinden `2,612712 ms` değerine inmiştir. Yerel hizmet
+`196,966411503 kare/s` ile önceki sonucun 2,0597 katına çıkmış ancak kilitli
+`488,28125 kare/s` kapısını geçememiştir. ADR-0031 tamamlandı; gerçek-zaman kapısı
+açıktır. DMA/ARM ping-pong veya yeni RTL ayrı karar ve kullanıcı onayı gerektirir.
+**Tamamlandı; performans kapısı başarısız.**
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

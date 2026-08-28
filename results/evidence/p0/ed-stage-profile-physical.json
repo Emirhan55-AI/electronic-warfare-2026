@@ -1,28 +1,51 @@
 {
-  "schema_version": 1,
-  "recorded_at": "2026-08-28",
+  "schema_version": 2,
+  "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "physical ZedBoard PL-DMA-ARM stage characterization",
+  "scope": "physical ZedBoard PL-DMA-ARM exact stage characterization after ADR-0031",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
-    "boot_image_ub_sha256": "3bcb1e319212fdb9f2e09a82f9fdec8dc7d9af0336e17a1b4567df253f614025",
-    "built_image_ub_sha256": "cf98a4214fd08cc161d843f9e3d64529b936f8819ecd3a59b89e90514ea4f373",
-    "service_binary_sha256": "44ca61c675aac743bb836da28796495d3a3213911d701056f5dd68bfa7dd3375",
-    "profiler_binary_sha256": "9003a50b275f6c289f1500188e43cd9cb2a760d442e69a73b33257a9e5109ed7"
+    "fpga_manager_state": "operating",
+    "image_ub_sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6",
+    "service_binary_sha256": "3f5288b2d691d67de037081ef3f8a57b75d905e38fe348e2ce86284a3e7fbb61",
+    "profiler_binary_sha256": "5da8a57f31cecb304ef26fac83a99d5885c14688ba8c1d38664fbe85ba0b3fdf"
   },
-  "profile": {"warmup_frames": 64, "measured_frames": 1024, "frame_samples": 4096},
-  "completion": {"completed_frames": 1024, "dma_failures": 0, "pipeline_failures": 0, "dma_flag_failures": 0, "dropped_candidates": 0, "probe_failures": 0},
+  "profile": {
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "frame_samples": 4096,
+    "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "completion": {
+    "completed_frames": 4096,
+    "dma_failures": 0,
+    "pipeline_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "probe_failures": 0
+  },
   "timing_milliseconds": {
-    "dma": {"minimum": 0.433446, "p50": 0.443448, "p95": 0.484116, "p99": 0.500778, "maximum": 0.5082, "mean": 0.457359},
-    "arm_pipeline": {"minimum": 5.580072, "p50": 5.676, "p95": 5.897136, "p99": 5.927718, "maximum": 6.07956, "mean": 5.70031},
-    "combined": {"minimum": 6.026226, "p50": 6.13134, "p95": 6.346104, "p99": 6.394309, "maximum": 6.552355, "mean": 6.157668}
+    "dma": {"minimum": 1.4388, "p50": 1.445658, "p95": 1.49442, "p99": 1.508988, "maximum": 1.803882, "mean": 1.462292},
+    "arm_pipeline": {"minimum": 2.344464, "p50": 2.621724, "p95": 2.7048, "p99": 2.741022, "maximum": 2.76489, "mean": 2.612712},
+    "combined": {"minimum": 3.783432, "p50": 4.077505, "p95": 4.175514, "p99": 4.211844, "maximum": 4.349532, "mean": 4.075004}
   },
   "algorithm_probe_milliseconds": {
-    "power_unpack": {"minimum": 0.329226, "p50": 0.333654, "p95": 0.413184, "p99": 0.41364, "maximum": 0.430362, "mean": 0.339486},
-    "os_cfar_only": {"minimum": 4.700346, "p50": 4.783518, "p95": 4.843302, "p99": 4.87092, "maximum": 5.235493, "mean": 4.789571},
-    "multiscale_total": {"minimum": 5.401458, "p50": 5.489473, "p95": 5.556702, "p99": 5.593914, "maximum": 5.935722, "mean": 5.49342}
+    "pl_frame_decode": {"minimum": 0.477552, "p50": 0.480426, "p95": 0.566328, "p99": 0.569526, "maximum": 0.890334, "mean": 0.489663},
+    "candidate_detection": {"minimum": 1.498452, "p50": 1.551816, "p95": 1.593726, "p99": 1.608558, "maximum": 2.009118, "mean": 1.552521},
+    "candidate_record_encode": {"minimum": 0.026844, "p50": 0.027516, "p95": 0.028164, "p99": 0.028548, "maximum": 0.06558, "mean": 0.027665},
+    "temporal_association": {"minimum": 0.342582, "p50": 0.509466, "p95": 0.534594, "p99": 0.544326, "maximum": 0.919704, "mean": 0.511338}
+  },
+  "baseline_comparison": {
+    "baseline_dma_mean_ms": 1.456537,
+    "baseline_arm_pipeline_mean_ms": 6.714248,
+    "baseline_combined_mean_ms": 8.170784,
+    "arm_pipeline_reduction_ratio": 0.610870495,
+    "combined_reduction_ratio": 0.501271359
   },
   "expected_dma_status_flags": 7,
-  "claim_boundary": "Aynı süreçte aşama süreleri; servis soketi, canlı RF, Ethernet, kalibrasyon veya RF doğruluğu değildir."
+  "artifact_sha256": {
+    "stage-profile.json": "c82635cca6c87fb1426b8e0d41033d233e5aa53d5d779355e00d4191883865e5"
+  },
+  "claim_boundary": "Aynı süreçte deterministik kart içi aşama süreleridir; canlı RF, Ethernet, kalibrasyon veya saha doğruluğu değildir."
 }
