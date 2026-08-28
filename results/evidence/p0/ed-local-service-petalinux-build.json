@@ -3,7 +3,7 @@
   "recorded_at": "2026-08-29",
   "status": "passed",
   "scope": "PetaLinux 2025.2 ARM package and rootfs build",
-  "current_source_status": "current_sources_petalinux_build_passed",
+  "current_source_status": "baseline_build_superseded_pending_adr0032_rebuild",
   "build": {
     "target": "p0-dma",
     "machine": "zynq_generic_7z020",
@@ -71,6 +71,7 @@
   "not_verified": [
     "Ethernet transport",
     "live HackRF",
-    "physical sustained throughput"
+    "physical sustained throughput",
+    "ADR-0032 source rebuild and physical acceptance"
   ]
 }

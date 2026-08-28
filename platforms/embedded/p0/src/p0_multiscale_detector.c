@@ -327,3 +327,36 @@ P0_API int p0_multiscale_process_pl(
                                threshold_power, candidates, candidate_capacity, os_count,
                                candidate_count, recovery_count);
 }
+
+P0_API int p0_multiscale_process_pl_trusted(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *os_config,
+    uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count,
+    size_t *recovery_count
+)
+{
+    size_t os_count = 0U;
+    int code;
+
+    if (power == NULL || os_config == NULL || detections == NULL || noise_power == NULL ||
+        threshold_power == NULL || candidates == NULL || candidate_count == NULL ||
+        recovery_count == NULL || power_count != P0_MULTISCALE_FRAME_BINS ||
+        candidate_capacity == 0U)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    code = p0_os_cfar_group_detections_trusted(
+        power, power_count, os_config, detections, noise_power, threshold_power,
+        candidates, candidate_capacity, &os_count);
+    if (code == P0_OS_CFAR_CANDIDATE_OVERFLOW)
+        return P0_MULTISCALE_CANDIDATE_OVERFLOW;
+    if (code != P0_OS_CFAR_OK)
+        return P0_MULTISCALE_INVALID_ARGUMENT;
+    return complete_multiscale(power, power_count, os_config, detections, noise_power,
+                               threshold_power, candidates, candidate_capacity, os_count,
+                               candidate_count, recovery_count);
+}

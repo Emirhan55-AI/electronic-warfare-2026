@@ -1044,6 +1044,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "docs/decisions/ADR-0029-P0-SUSTAINED-THROUGHPUT-ACCEPTANCE.md",
     "docs/decisions/ADR-0030-P0-OS-CFAR-PL-OFFLOAD.md",
     "docs/decisions/ADR-0031-P0-ARM-HOT-PATH-OPTIMIZATION.md",
+    "docs/decisions/ADR-0032-P0-VALIDATED-CANDIDATE-SHORTCUT.md",
     "docs/interfaces/P0_ARM_PARAMETER_RUNTIME_CONTRACT.md",
     "docs/interfaces/P0_ED_LOCAL_SERVICE_ABI.md",
     "docs/interfaces/P0_PL_OS_CFAR_CONTRACT.md",

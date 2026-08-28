@@ -57,3 +57,12 @@ gevşetmeden sonraki mimari inceleme, DMA N+1 ile ARM N işlemesini ping-pong
 tamponlarla örtüştürmeyi ve aday üretim yükünün PL/PS dağılımını birlikte ele
 almalıdır. Kanıt `results/evidence/p0/ed-throughput-physical-acceptance.json`
 dosyasındadır.
+
+## ADR-0032 doğrulanmış aday kısa yolu
+
+ADR-0032 ile PL decoder sonrasında aday gruplamada yinelenen güç/karar giriş
+doğrulaması kaldırılmış, strict dış API korunmuştur. Host C doğrulamasında
+strict ve decoder-sonrası trusted yolun karar, aday, gürültü, eşik ve recovery
+çıktıları sıfır fark vermiştir. Bu değişiklik henüz PetaLinux imajına veya
+fiziksel karta uygulanmış kabul edilmez; yeni imajla aynı 64+4.096 koşusu ve
+`488,28125 kare/s` kapısı yeniden ölçülmeden hız iddiası kurulamaz.

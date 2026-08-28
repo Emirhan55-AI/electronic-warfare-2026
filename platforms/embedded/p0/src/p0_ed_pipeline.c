@@ -101,7 +101,7 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
         return -1;
     }
     if (pl_decisions_present) {
-        code = p0_multiscale_process_pl(
+        code = p0_multiscale_process_pl_trusted(
             pipeline->power, P0_FRAME_BINS, &pipeline->config,
             pipeline->detections, pipeline->noise, pipeline->threshold,
             pipeline->candidates, PHASE06I_MAX_CANDIDATES,

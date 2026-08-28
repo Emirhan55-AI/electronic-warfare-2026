@@ -65,15 +65,21 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
 
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_failed"] == 0
-    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
+    assert evidence["current_source_status"] in {
+        "current_sources_petalinux_build_passed",
+        "baseline_build_superseded_pending_adr0032_rebuild",
+    }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     vivado = json.loads(
         (ROOT / "results/evidence/p0/vivado-50mhz.json").read_text(encoding="utf-8")
     )
     assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
     assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
-    for name, source in paths.items():
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
+        for name, source in paths.items():
+            assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    else:
+        assert evidence["current_source_status"].startswith("baseline_build_superseded_pending_")
     assert evidence["prior_physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )

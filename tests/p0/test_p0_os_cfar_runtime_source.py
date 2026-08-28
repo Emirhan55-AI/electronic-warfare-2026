@@ -49,9 +49,9 @@ def test_pl_dma_format_is_validated_before_accelerated_processing() -> None:
         "evaluated != expected_evaluated", "detected && !evaluated",
     ):
         assert token in decoder
-    assert pipeline.index("p0_pl_os_cfar_decode(") < pipeline.index("p0_multiscale_process_pl(")
+    assert pipeline.index("p0_pl_os_cfar_decode(") < pipeline.index("p0_multiscale_process_pl_trusted(")
     assert "p0_multiscale_process(" in pipeline
-    assert "p0_multiscale_process_pl(" in pipeline
+    assert "p0_multiscale_process_pl_trusted(" in pipeline
 
 
 def test_temporal_runtime_preserves_versioned_packet_boundary() -> None:

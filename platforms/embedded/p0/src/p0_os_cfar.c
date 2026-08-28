@@ -306,7 +306,7 @@ P0_API int p0_os_cfar_process(
     return P0_OS_CFAR_OK;
 }
 
-P0_API int p0_os_cfar_group_detections(
+static int group_detections_impl(
     const double *power,
     size_t power_count,
     const p0_os_cfar_config_t *config,
@@ -315,7 +315,8 @@ P0_API int p0_os_cfar_group_detections(
     double *threshold_power,
     p0_candidate_region_t *candidates,
     size_t candidate_capacity,
-    size_t *candidate_count
+    size_t *candidate_count,
+    int trusted_input
 ) {
     double references[P0_OS_CFAR_MAX_REFERENCE_CELLS];
     size_t radius;
@@ -329,11 +330,14 @@ P0_API int p0_os_cfar_group_detections(
     }
     radius = (size_t)config->reference_cells_per_side + config->guard_cells_per_side;
     for (index = 0U; index < power_count; ++index) {
-        if (!isfinite(power[index]) || power[index] < 0.0)
-            return P0_OS_CFAR_NONFINITE_POWER;
-        if (detections[index] > 1U ||
-            (detections[index] != 0U && (index < radius || index >= power_count - radius)))
-            return P0_OS_CFAR_INVALID_ARGUMENT;
+        if (!trusted_input) {
+            if (!isfinite(power[index]) || power[index] < 0.0)
+                return P0_OS_CFAR_NONFINITE_POWER;
+            if (detections[index] > 1U ||
+                (detections[index] != 0U &&
+                 (index < radius || index >= power_count - radius)))
+                return P0_OS_CFAR_INVALID_ARGUMENT;
+        }
         noise_power[index] = NAN;
         threshold_power[index] = NAN;
     }
@@ -396,4 +400,36 @@ P0_API int p0_os_cfar_group_detections(
     }
     *candidate_count = output_count;
     return P0_OS_CFAR_OK;
+}
+
+P0_API int p0_os_cfar_group_detections(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *config,
+    const uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count
+) {
+    return group_detections_impl(power, power_count, config, detections,
+                                 noise_power, threshold_power, candidates,
+                                 candidate_capacity, candidate_count, 0);
+}
+
+P0_API int p0_os_cfar_group_detections_trusted(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *config,
+    const uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count
+) {
+    return group_detections_impl(power, power_count, config, detections,
+                                 noise_power, threshold_power, candidates,
+                                 candidate_capacity, candidate_count, 1);
 }

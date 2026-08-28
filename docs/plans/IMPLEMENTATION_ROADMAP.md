@@ -169,6 +169,18 @@ ortalaması `6,714248 ms` değerinden `2,612712 ms` değerine inmiştir. Yerel h
 açıktır. DMA/ARM ping-pong veya yeni RTL ayrı karar ve kullanıcı onayı gerektirir.
 **Tamamlandı; performans kapısı başarısız.**
 
+### P0 doğrulanmış aday yolu kısaltması
+
+Kullanıcının 2026-08-29 devam onayıyla ADR-0032'nin ilk uygulama adımı
+tamamlanmıştır. PL decoder tarafından biçim ve aralık açısından doğrulanmış
+güç/karar hücreleri için ikinci kez yapılan genel giriş taraması ürün yolundan
+çıkarılmış; strict dış OS-CFAR ve çok ölçekli API'leri korunmuştur. Host C
+karşılaştırması strict/trusted yollarında karar, aday, gürültü, eşik ve kurtarma
+çıktılarında sıfır fark vermiştir. Bu adım yeni imaj veya RTL üretmez; mevcut
+PetaLinux kanıtı bu kaynakları kapsamadığı için fiziksel 64+4.096 profiler ve
+`488,28125 kare/s` kapısı yeniden çalıştırılana kadar performans sonucu açık
+kalır. **Host eşdeğerliği tamamlandı; ARM/fiziksel kabul beklemede.**
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

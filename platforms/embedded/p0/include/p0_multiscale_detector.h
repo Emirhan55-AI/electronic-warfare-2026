@@ -45,4 +45,22 @@ P0_API int p0_multiscale_process_pl(
     size_t *recovery_count
 );
 
+/*
+ * p0_pl_os_cfar_decode() sonrasında kullanılan doğrulanmış PL kısa yolu.
+ * Dışarıdan sağlanan karar/güç dizilerinde kullanılmaz; strict API yukarıdaki
+ * p0_multiscale_process_pl() olarak korunur.
+ */
+P0_API int p0_multiscale_process_pl_trusted(
+    const double *power,
+    size_t power_count,
+    const p0_os_cfar_config_t *os_config,
+    uint8_t *detections,
+    double *noise_power,
+    double *threshold_power,
+    p0_candidate_region_t *candidates,
+    size_t candidate_capacity,
+    size_t *candidate_count,
+    size_t *recovery_count
+);
+
 #endif

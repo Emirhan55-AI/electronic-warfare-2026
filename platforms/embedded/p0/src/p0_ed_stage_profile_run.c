@@ -208,7 +208,7 @@ static int profile_algorithm_stages(
         goto rollback;
     if (clock_gettime(CLOCK_MONOTONIC, &decode_finished) != 0)
         goto rollback;
-    code = p0_multiscale_process_pl(
+    code = p0_multiscale_process_pl_trusted(
         probe->pipeline.power, P0_PROFILE_FRAME_BINS, &probe->pipeline.config,
         probe->pipeline.detections, probe->pipeline.noise,
         probe->pipeline.threshold, probe->pipeline.candidates,

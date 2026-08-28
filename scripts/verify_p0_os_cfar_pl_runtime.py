@@ -8,6 +8,7 @@ import _ctypes
 import ctypes
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -136,6 +137,10 @@ def _candidate_tuple(candidate: CCandidate) -> tuple[int, int, int, float, float
     )
 
 
+def _float_tuple(values: object) -> tuple[float | None, ...]:
+    return tuple(None if math.isnan(value) else value for value in values)
+
+
 def _word_payload(words: tuple[int, ...]) -> bytes:
     return b"".join(word.to_bytes(8, "little") for word in words)
 
@@ -150,6 +155,7 @@ def evaluate() -> dict[str, object]:
     )
     decode_mismatches = 0
     candidate_mismatches = 0
+    trusted_candidate_mismatches = 0
     recovery_mismatches = 0
     malformed_rejections = 0
     compiler = ""
@@ -162,6 +168,8 @@ def evaluate() -> dict[str, object]:
         process.restype = ctypes.c_int
         process_pl = library.p0_multiscale_process_pl
         process_pl.restype = ctypes.c_int
+        process_pl_trusted = library.p0_multiscale_process_pl_trusted
+        process_pl_trusted.restype = ctypes.c_int
 
         first_payload: bytes | None = None
         for vector in p0_os_cfar_vectors():
@@ -227,8 +235,27 @@ def evaluate() -> dict[str, object]:
                 ctypes.byref(pl_count),
                 ctypes.byref(pl_recoveries),
             )
+            trusted_detections = (ctypes.c_uint8 * FRAME_LENGTH)(*tuple(decoded_detections))
+            trusted_noise = (ctypes.c_double * FRAME_LENGTH)()
+            trusted_threshold = (ctypes.c_double * FRAME_LENGTH)()
+            trusted_candidates = (CCandidate * CANDIDATE_CAPACITY)()
+            trusted_count = ctypes.c_size_t()
+            trusted_recoveries = ctypes.c_size_t()
+            trusted_status = process_pl_trusted(
+                shifted_power,
+                FRAME_LENGTH,
+                ctypes.byref(config),
+                trusted_detections,
+                trusted_noise,
+                trusted_threshold,
+                trusted_candidates,
+                CANDIDATE_CAPACITY,
+                ctypes.byref(trusted_count),
+                ctypes.byref(trusted_recoveries),
+            )
             reference_rows = [_candidate_tuple(reference_candidates[index]) for index in range(reference_count.value)]
             pl_rows = [_candidate_tuple(pl_candidates[index]) for index in range(pl_count.value)]
+            trusted_rows = [_candidate_tuple(trusted_candidates[index]) for index in range(trusted_count.value)]
             candidate_mismatches += int(
                 reference_status != 0
                 or pl_status != 0
@@ -236,6 +263,15 @@ def evaluate() -> dict[str, object]:
                 or reference_rows != pl_rows
             )
             recovery_mismatches += int(reference_recoveries.value != pl_recoveries.value)
+            trusted_candidate_mismatches += int(
+                trusted_status != 0
+                or trusted_count.value != pl_count.value
+                or trusted_rows != pl_rows
+                or trusted_recoveries.value != pl_recoveries.value
+                or tuple(trusted_detections) != tuple(pl_detections)
+                or _float_tuple(trusted_noise) != _float_tuple(pl_noise)
+                or _float_tuple(trusted_threshold) != _float_tuple(pl_threshold)
+            )
 
         assert first_payload is not None
         malformed = []
@@ -291,6 +327,7 @@ def evaluate() -> dict[str, object]:
         del decode
         del process
         del process_pl
+        del process_pl_trusted
         del library
         if os.name == "nt":
             _ctypes.FreeLibrary(handle)
@@ -298,6 +335,7 @@ def evaluate() -> dict[str, object]:
     passed = (
         decode_mismatches == 0
         and candidate_mismatches == 0
+        and trusted_candidate_mismatches == 0
         and recovery_mismatches == 0
         and malformed_rejections == 3
         and legacy_compatibility
@@ -321,6 +359,7 @@ def evaluate() -> dict[str, object]:
         "dma_words": len(p0_os_cfar_vectors()) * FRAME_LENGTH,
         "decode_mismatches": decode_mismatches,
         "combined_candidate_mismatches": candidate_mismatches,
+        "trusted_candidate_mismatches": trusted_candidate_mismatches,
         "recovery_count_mismatches": recovery_mismatches,
         "malformed_frames_rejected": malformed_rejections,
         "legacy_power_only_frame_compatibility": "passed" if legacy_compatibility else "failed",
