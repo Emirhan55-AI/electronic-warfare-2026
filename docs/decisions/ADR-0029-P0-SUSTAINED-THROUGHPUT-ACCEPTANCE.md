@@ -20,10 +20,11 @@ tamamlayabilmesini sınar.
 ## Karar
 
 Ürün hizmetiyle aynı yerel `AF_UNIX/SOCK_SEQPACKET` ABI'sini kullanan ayrı bir
-`p0-ed-throughput-run` kabul aracı sağlanır. Araç her kare için bağlantı kurma,
-istek gönderme, fiziksel DMA/PL işlemi, ARM işleme ve yanıt doğrulamayı ölçüm
-süresine dahil eder. Ölçüm, hizmetin mevcut tek-istek/tek-bağlantı davranışını
-gizlemez veya özel bir hızlı yol kullanmaz.
+`p0-ed-throughput-run` kabul aracı sağlanır. Araç tek bağlantıda istek gönderme,
+fiziksel DMA/PL işlemi, ARM işleme ve yanıt doğrulamayı ölçüm süresine dahil
+eder. ADR-0034 sonrasında istemci en fazla dört isteği sırayla önden kuyruğa
+alır; hizmet kareleri yine tek tek ve sırayla işler. Bu özel bir algoritma hızlı
+yolu değildir; her yanıtın ABI, kare sırası ve DMA sonucu doğrulanır.
 
 Araç yalnız tam 8192 baytlık bir `ci8` kabul karesini tekrarlar. İlk ölçülen
 karede temporal durum açıkça sıfırlanır. Her yanıtın ABI, kare kimliği, hizmet

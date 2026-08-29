@@ -1,16 +1,19 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance",
+  "scope": "persistent physical ZedBoard PL-DMA-ARM sustained local service acceptance",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "boot_id": "0b3666cd-b8b0-4e64-a20d-b5a2c9a9be62",
     "fpga_manager_state": "operating",
-    "image_ub_sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25",
-    "service_binary_sha256": "377d7dd1b5544bd0970afe5c7e5f3184e0185ec49764f735601ee452a96ec8d7",
-    "throughput_binary_sha256": "b1e61fafdaef4b6fef1b7c1820d541e1f9eadadd66fa38d0c908af01cd5589bd",
+    "image_ub_sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18",
+    "service_binary_sha256": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
+    "throughput_binary_sha256": "5df499bc6c27d7c43f3098bf9d81466cc4e714f86fb3b2852b20d78e1552e058",
     "service_cpu": 1,
+    "service_nice": 0,
     "dma_interrupt_cpu": 0,
     "throughput_client_cpu": 0
   },
@@ -19,13 +22,15 @@
     "frame_samples": 4096,
     "warmup_frames_per_run": 64,
     "measured_frames_per_run": 4096,
-    "required_frames_per_second": 488.28125
+    "required_frames_per_second": 488.28125,
+    "request_pipeline_depth": 4
   },
   "protocol": {
     "transport": "AF_UNIX SOCK_SEQPACKET",
     "abi_version": 3,
     "request_bytes": 8224,
     "steady_known_frame_response_bytes": 3740,
+    "request_pipeline": "bounded depth-4 in-order queue; service processing remains sequential",
     "compatibility": "ABI v1 and v2 byte contracts retained",
     "integrity": "kernel-local sequenced-packet transport and CRC-protected header; v1/v2 payload CRC retained"
   },
@@ -39,45 +44,50 @@
     "sequence_failures": 0,
     "dma_flag_failures": 0,
     "dropped_candidates": 0,
-    "minimum_frames_per_second": 490.151683483,
-    "mean_frames_per_second": 490.555162694,
-    "maximum_frames_per_second": 491.019617012,
-    "minimum_real_time_margin": 1.003830648,
-    "maximum_p95_latency_seconds": 0.002055888
+    "minimum_frames_per_second": 508.759225230,
+    "mean_frames_per_second": 509.458386609,
+    "maximum_frames_per_second": 509.884071480,
+    "minimum_real_time_margin": 1.041938893,
+    "maximum_p95_latency_seconds": 0.007790058,
+    "maximum_latency_seconds": 0.008189214
   },
   "runs": [
-    {"index": 1, "elapsed_seconds": 8.344998023, "frames_per_second": 490.832950315, "real_time_margin": 1.005225882, "p95_latency_seconds": 0.002052864, "sha256": "cafcaa044dd98425030b8adcbd0a64f634dddced4601f59b2905be260711e0c6"},
-    {"index": 2, "elapsed_seconds": 8.341825577, "frames_per_second": 491.019617012, "real_time_margin": 1.005608176, "p95_latency_seconds": 0.002051886, "sha256": "dd8c3832decc28791ffe1ef046e8f4da4ce12470b35708189b528a3e93e14528"},
-    {"index": 3, "elapsed_seconds": 8.348705879, "frames_per_second": 490.614959895, "real_time_margin": 1.004779438, "p95_latency_seconds": 0.002053728, "sha256": "4df4daa52cf99e8f3ca1a717cc7ad2ac766110b0ed9f1fef07391a4c473bdf7d"},
-    {"index": 4, "elapsed_seconds": 8.356596821, "frames_per_second": 490.151683483, "real_time_margin": 1.003830648, "p95_latency_seconds": 0.002055576, "sha256": "b812504f8b59294995ec139e22aa60995033c262cccd73c19bda0f9788c20964"},
-    {"index": 5, "elapsed_seconds": 8.356512953, "frames_per_second": 490.156602764, "real_time_margin": 1.003840722, "p95_latency_seconds": 0.002055888, "sha256": "aeb0d904263764798fec0b5a86fb7163e9cbf47cfd3a1313dab8bb695f90f418"}
+    {"index": 1, "elapsed_seconds": 8.033198582, "frames_per_second": 509.884071480, "real_time_margin": 1.044242578, "p95_latency_seconds": 0.007773624, "sha256": "c09cfd167d7f465060eb1fe8d5e98be9cea4b27da83a042504ca65b376c694eb"},
+    {"index": 2, "elapsed_seconds": 8.039837588, "frames_per_second": 509.463027725, "real_time_margin": 1.043380281, "p95_latency_seconds": 0.007780986, "sha256": "9c32699d6806376d35f6a2f9464738557289a76f1ec727cdc8384bc3170a1bf2"},
+    {"index": 3, "elapsed_seconds": 8.039994182, "frames_per_second": 509.453104975, "real_time_margin": 1.043359959, "p95_latency_seconds": 0.007780482, "sha256": "bdd0b98a79d76c6974192b7ead975207ad8630165f0c4c84cf9730916da47ecb"},
+    {"index": 4, "elapsed_seconds": 8.050959662, "frames_per_second": 508.759225230, "real_time_margin": 1.041938893, "p95_latency_seconds": 0.007790058, "sha256": "4add1d210acb117490dd5e2337f925839b0ebb80329b2aa3f93a4c72a98a45be"},
+    {"index": 5, "elapsed_seconds": 8.035587236, "frames_per_second": 509.732503637, "real_time_margin": 1.043932167, "p95_latency_seconds": 0.007781172, "sha256": "66623a5ce13ae898fa883f2c6f4122e333af75160410892341b3e3c8b8a2ac01"}
   ],
   "functional_regression": {
     "status": "passed",
     "known_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+    "physical_packet_sha256": "615d778b8ba2dc41bcd05f9750fad5b3ccd91c5f417dc301b3211739d4dd7486",
+    "final_candidates": 54,
     "raw_candidate_counts": [54, 54, 54, 0, 0],
     "active_counts": [54, 54, 54, 54, 0],
     "ended_counts": [0, 0, 0, 0, 54],
     "dma_status_flags_all_frames": 7,
+    "candidate_field_equivalence": true,
     "event_field_equivalence": true
   },
   "baseline_comparison": {
     "pre_optimization_frames_per_second": 353.663076221,
-    "accepted_minimum_frames_per_second": 490.151683483,
-    "minimum_speedup_ratio": 1.385928349,
+    "accepted_minimum_frames_per_second": 508.759225230,
+    "minimum_speedup_ratio": 1.438542102,
     "gate_closed": true
   },
   "persistent_image_acceptance": {
     "status": "passed",
     "evidence": "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json",
-    "image_ub_sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032",
-    "completed_frames": 4096,
-    "frames_per_second": 489.276042855,
-    "real_time_margin": 1.002037336,
+    "image_ub_sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18",
+    "completed_frames": 20480,
+    "minimum_frames_per_second": 508.759225230,
+    "mean_frames_per_second": 509.458386609,
+    "minimum_real_time_margin": 1.041938893,
     "functional_event_field_equivalence": true
   },
   "source_sha256": {
-    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
+    "p0_ed_throughput_run.c": "3fdd135fd94792060756a87d3daf8e5964878fe85d0e2394f8d1db490bf399ab",
     "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
     "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
     "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
@@ -88,5 +98,5 @@
     "calibrated RF accuracy",
     "broad physical signal-family coverage"
   ],
-  "claim_boundary": "This proves repeatable deterministic 2 MS/s-equivalent processing capacity through the physical PL-DMA-ARM local service. It does not prove live HackRF throughput, RF sensitivity, calibrated measurements, Ethernet performance or field accuracy."
+  "claim_boundary": "This proves repeatable deterministic 2 MS/s-equivalent processing capacity through the persistent physical PL-DMA-ARM local service with a bounded in-order request pipeline. It does not prove live HackRF throughput, RF sensitivity, calibrated measurements, Ethernet performance or field accuracy."
 }

@@ -253,6 +253,7 @@ def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
     assert evidence["repeatability"]["runs"] == 5
     assert evidence["repeatability"]["passed_runs"] == 5
     assert evidence["repeatability"]["completed_frames"] == 20_480
+    assert evidence["locked_profile"]["request_pipeline_depth"] == 4
     assert evidence["repeatability"]["minimum_frames_per_second"] >= 2_000_000 / 4096
     assert evidence["repeatability"]["minimum_real_time_margin"] >= 1.0
     assert all(run["real_time_margin"] >= 1.0 for run in evidence["runs"])
@@ -282,9 +283,12 @@ def test_persistent_service_image_cold_boot_evidence_is_traceable() -> None:
     assert evidence["boot"]["service_started_by_image"] is True
     assert evidence["functional_acceptance"]["candidate_field_equivalence"] is True
     assert evidence["functional_acceptance"]["event_field_equivalence"] is True
-    assert evidence["throughput_acceptance"]["completed_frames"] == 4096
-    assert evidence["throughput_acceptance"]["measured_frames_per_second"] >= 2_000_000 / 4096
-    assert evidence["throughput_acceptance"]["real_time_margin"] >= 1.0
+    assert evidence["throughput_acceptance"]["repeat_runs"] == 5
+    assert evidence["throughput_acceptance"]["passed_runs"] == 5
+    assert evidence["throughput_acceptance"]["completed_frames"] == 20_480
+    assert evidence["throughput_acceptance"]["request_pipeline_depth"] == 4
+    assert evidence["throughput_acceptance"]["minimum_frames_per_second"] >= 2_000_000 / 4096
+    assert evidence["throughput_acceptance"]["minimum_real_time_margin"] >= 1.0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     assert "live HackRF throughput" in evidence["claim_boundary"]

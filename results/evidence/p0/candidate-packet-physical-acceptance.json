@@ -8,7 +8,8 @@
     "linux": "6.12.40-xilinx-g31626ef92ff1 armv7l",
     "fpga_manager_state": "operating",
     "dma_device": "/dev/p0-dma",
-    "dma_module": "p0_dma_client"
+    "dma_module": "p0_dma_client",
+    "image_ub_sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18"
   },
   "known_frame": {
     "bytes": 8192,
@@ -37,17 +38,18 @@
     "ended_counts": [0, 0, 0, 0, 54],
     "rule": "2-of-3 confirmation; two consecutive missing frames expire a track",
     "physical_result_sha256": {
-      "service-frame0.json": "099ec0f549468a01dc6e532fd61871f41b92adca861a23d6c387593dc3065d9c",
-      "service-frame1.json": "2710aaaa333702a75d3ebf8df2c927bc5843d552b2b8c3d264ddf80125b8f0f1",
-      "service-frame2.json": "479d2093d91042d2925a0a44f8d10c21081751bcc06bb7166f921858f36f1741",
-      "service-frame3.json": "9653ff38fc172c0fbf7b6bfaa2559f8f902b7942b357754bd69bdba6b4ecb01b",
-      "service-frame4.json": "067d4368393ffab090100c86981fc163d36f1f515ebfae311225be8b7cfa0795"
+      "pipeline-cold-frame0.json": "099ec0f549468a01dc6e532fd61871f41b92adca861a23d6c387593dc3065d9c",
+      "pipeline-cold-frame1.json": "2710aaaa333702a75d3ebf8df2c927bc5843d552b2b8c3d264ddf80125b8f0f1",
+      "pipeline-cold-frame2.json": "479d2093d91042d2925a0a44f8d10c21081751bcc06bb7166f921858f36f1741",
+      "pipeline-cold-frame3.json": "9653ff38fc172c0fbf7b6bfaa2559f8f902b7942b357754bd69bdba6b4ecb01b",
+      "pipeline-cold-frame4.json": "067d4368393ffab090100c86981fc163d36f1f515ebfae311225be8b7cfa0795"
     }
   },
   "throughput": {
     "status": "passed",
     "sample_rate_hz": 2000000,
     "frame_samples": 4096,
+    "request_pipeline_depth": 4,
     "warmup_frames": 64,
     "repeat_runs": 5,
     "measured_frames_per_run": 4096,
@@ -58,10 +60,10 @@
     "dma_flag_failures": 0,
     "dropped_candidates": 0,
     "required_frames_per_second": 488.28125,
-    "minimum_frames_per_second": 490.151683483,
-    "mean_frames_per_second": 490.555162694,
-    "maximum_frames_per_second": 491.019617012,
-    "minimum_real_time_margin": 1.003830648,
+    "minimum_frames_per_second": 508.759225230,
+    "mean_frames_per_second": 509.458386609,
+    "maximum_frames_per_second": 509.884071480,
+    "minimum_real_time_margin": 1.041938893,
     "evidence": "results/evidence/p0/ed-throughput-physical-acceptance.json"
   },
   "stage_profile": {

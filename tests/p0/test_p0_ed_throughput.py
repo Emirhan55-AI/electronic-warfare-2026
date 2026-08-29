@@ -25,6 +25,7 @@ def _physical_result(frame_rate: float = 600.0) -> dict[str, object]:
         "schema_version": 1,
         "status": "passed",
         "scope": "yerel PL-DMA-ARM ED hizmeti",
+        "request_pipeline_depth": 4,
         "profile": {
             "sample_rate_hz": 2_000_000,
             "frame_samples": 4096,
@@ -76,11 +77,13 @@ def test_runtime_and_recipe_preserve_locked_physical_gate() -> None:
         "P0_ED_EXPECTED_DMA_FLAGS 7U",
         "CLOCK_MONOTONIC",
         "P0_ED_REQUEST_FLAG_RESET",
+        "P0_ED_REQUEST_PIPELINE_DEPTH 4U",
+        "execute_batch(",
         "service_connection_t",
         "open_connection(&connection, socket_path)",
         "close_connection(&connection)",
         "measured_frames_per_second >= required_frames_per_second",
-        "response.result.dropped_candidates",
+        "response->result.dropped_candidates",
     ):
         assert token in source
     for token in (

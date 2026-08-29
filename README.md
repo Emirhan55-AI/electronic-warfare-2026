@@ -38,12 +38,12 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
 | HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
-| Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Sürekli 2 MS/s kabulünde 4.096/4.096 kare ve sıfır aktarım hatasıyla 116,34 kare/s ölçüldü; gereken 488,28 kare/s kapısı henüz geçilmedi |
+| Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Kalıcı kart imajıyla yapılan beş sürekli 2 MS/s kabul koşusunda toplam 20.480/20.480 kare sıfır hatayla işlendi; en düşük hız 508,76 kare/s oldu |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL CI8→Hann→FFT→güç→aday paketi zinciri | SystemVerilog ve AMD FFT IP ile kanonik P0 blok tasarımına alındı; Vivado sentez, route, 50 MHz setup/hold, bitstream ve XSA kapıları geçti |
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
-| ZedBoard üzerinde DMA ve tespit zinciri | Önceki güç→ARM yolu fiziksel kartta doğrulandı ancak 2 MS/s sürekli hız kapısını geçemedi. Yeni seyrek aday bitstream'i hazır; değişken 64–54.144 byte S2MM actual-length sürücüsü ve Linux servis yolu hostta doğrulandı. Yeni PetaLinux imajı, kart kabulü ve sürekli hız kapısı bekliyor |
+| ZedBoard üzerinde DMA ve tespit zinciri | Değişken 64–54.144 bayt aday paketi, S2MM gerçek uzunluk sürücüsü ve yerel Linux hizmeti kalıcı PetaLinux imajında doğrulandı. Soğuk açılış, bit-doğru 54 aday yaşam döngüsü ve tekrarlı 2 MS/s hız kapıları geçti |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 

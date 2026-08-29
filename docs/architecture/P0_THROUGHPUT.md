@@ -41,17 +41,19 @@ bu nedenle PS OS-CFAR'dır.
 ## Fiziksel sürekli-hız ölçümü
 
 ADR-0029 ile kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm karesi)
-Güncel aday-paket ZedBoard `PL → DMA → ARM` hizmet yolu, kompakt ABI v3 ve
-çekirdek yerleşimiyle beş bağımsız 4096-kare koşusunun tamamını geçmiştir.
+Güncel aday-paket ZedBoard `PL → DMA → ARM` hizmet yolu, kompakt ABI v3,
+dört derinlikli sınırlı istek kuyruğu ve çekirdek yerleşimiyle beş bağımsız
+4096-kare koşusunun tamamını kalıcı SD imajından geçmiştir.
 Toplam 20.480/20.480 karede her yanıtta DMA `0x7`; hizmet, sıra ve aday düşürme
 hatası sıfırdır. Ölçülen en düşük/ortalama/en yüksek hız sırasıyla
-`490,151683483 / 490,555162694 / 491,019617012 kare/s`, gerekli alt sınır
-`488,28125 kare/s` ve en düşük gerçek-zaman marjı `1,003830648` olmuştur.
+`508,759225230 / 509,458386609 / 509,884071480 kare/s`, gerekli alt sınır
+`488,28125 kare/s` ve en düşük gerçek-zaman marjı `1,041938893` olmuştur.
 Kilitli kart içi 2 MS/s hizmet kapısı tekrarlanabilir biçimde kapanmıştır.
 
-Önceki ayrıştırma, aday-paket çekirdek yolunun ortalama `1,925759 ms` ile
-hesaplama bütçesine sığdığını; kalan kaybın sabit boylu 8.772 bayt yanıt,
-protokol CRC maliyeti, IPC ve CPU göçlerinden geldiğini göstermiştir. v3 yalnız
+Güncel ayrıştırma, aday-paket çekirdek yolunun ortalama `1,928347 ms` ile
+hesaplama bütçesine sığdığını; tek-istek/tek-yanıt akışındaki kalan kaybın IPC
+ve zamanlayıcı bağlam değişiminden geldiğini göstermiştir. ADR-0034'teki dört
+derinlikli sıra bu maliyeti kareler arasında örter. v3 yalnız
 oluşan olayları taşır; bilinen 54-olay karesinde yanıt 3.740 bayttır. v1/v2
 uyumluluğu ve yük CRC'leri korunur; v3 aynı çekirdekteki `SOCK_SEQPACKET`
 güvencesiyle başlık CRC'sini korur. DMA kesmeleri CPU0'da kalırken hizmet CPU1'e,
@@ -59,11 +61,12 @@ kabul istemcisi CPU0'a sabitlenir. Kanıt
 `results/evidence/p0/ed-throughput-physical-acceptance.json` dosyasındadır.
 Güncel kaynaklar PetaLinux 2025.2'de 5.679/5.679 paket ve 6.090/6.090 tam
 imaj göreviyle yeniden derlenmiştir; yeni `image.ub` SHA-256 değeri
-`cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032`'dir.
+`da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18`'dir.
 Bu imaj fiziksel kartta soğuk açılmış; FPGA `operating`, kurulu ikili hashleri
 derleme çıktısıyla aynı ve 54-aday işlevsel yaşam döngüsü bit-doğru bulunmuştur.
-Aynı kalıcı imajdaki 64+4.096 kabul koşusu `489,276042855 kare/s` ve
-`1,002037336` marjla geçmiştir. Kalıcı imaj kanıtı
+Aynı kalıcı imajdaki beş 64+4.096 kabul koşusu toplam 20.480/20.480 kare,
+sıfır hata, en düşük `508,759225230 kare/s` ve `1,041938893` marjla geçmiştir.
+Kalıcı imaj kanıtı
 `results/evidence/p0/ed-service-v3-cold-boot-acceptance.json` dosyasındadır.
 
 ## ADR-0032 doğrulanmış aday kısa yolu
@@ -72,14 +75,14 @@ ADR-0032 ile PL decoder sonrasında aday gruplamada yinelenen güç/karar giriş
 doğrulaması kaldırılmış, strict dış API korunmuştur. Host C doğrulamasında
 strict ve decoder-sonrası trusted yolun karar, aday, gürültü, eşik ve recovery
 çıktıları sıfır fark vermiştir. Aday-paket DMA sürücüsü ve yerel hizmet kaynak
-entegrasyonu hostta doğrulanmıştır; bu değişiklik henüz PetaLinux imajına veya
-fiziksel karta uygulanmış kabul edilmez. Yeni imajla aynı 64+4.096 koşusu ve
-`488,28125 kare/s` kapısı yeniden ölçülmeden hız iddiası kurulamaz.
+entegrasyonu hostta, PetaLinux imajında ve fiziksel kartta doğrulanmıştır.
+Güncel kalıcı imaj ADR-0034'teki sınırlı istek boruhattıyla aynı 64+4.096
+kapısını beş kez geçmiştir.
 
 Geçici ARM ölçümünde ADR-0032 ikilisi mevcut kernel/driver/PL üzerinde
 4096/4096 kareyi sıfır hatayla tamamladı; ARM `2,723289 ms`, birleşik yol
-`4,173240 ms` ölçüldü. ADR-0031'e göre hızlanma gözlenmedi. Bu sonuç yeni
-PetaLinux imajı veya gerçek-zaman kabulü değildir.
+`4,173240 ms` ölçüldü. Bu tarihsel ara sonuç ADR-0031'e göre hızlanma
+göstermemiştir; sonraki kalıcı imaj ve fiziksel kabul yukarıda ayrıca kayıtlıdır.
 
 ## ADR-0033 seyrek çok ölçekli aday sınırı
 

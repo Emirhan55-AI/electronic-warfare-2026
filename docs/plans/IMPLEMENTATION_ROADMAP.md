@@ -100,16 +100,18 @@ sıfır aday düşürme ve en az `488,28125 kare/s` ister. Hostta sahte DMA ile 
 yetki ve protokol sözleşmesi geçmiştir. PetaLinux 2025.2 imajı 6.090/6.090
 görevle hatasız üretilmiştir. Aday-paket PL yolu, kompakt yerel ABI v3,
 slicing-by-4 CRC ve iki ARM çekirdeğinin görev odaklı yerleşimi sonrasında
-fiziksel kartta beş bağımsız koşunun tamamı geçmiştir. Toplam 20.480/20.480
-karede DMA `0x7`, istek/hizmet/sıra/DMA hatası ve aday düşürme sıfırdır. En
-düşük hız `490,151683483 kare/s`, gerekli alt sınır `488,28125 kare/s` ve en
-düşük gerçek-zaman marjı `1,003830648` olmuştur. Sonuç
-`results/evidence/p0/ed-throughput-physical-acceptance.json` içinde başarılı
-fiziksel kabul olarak korunur. Güncel kaynaklarla PetaLinux paketi 5.679/5.679,
-tam imaj 6.090/6.090 görevle yeniden derlenmiştir. Yeni imaj soğuk açılışta
-FPGA `operating`, kurulu ikili hash eşitliği, bit-doğru 54-aday yaşam döngüsü
-ve 4.096/4.096 karede `489,276042855 kare/s` ile kalıcı kabulü geçmiştir. Canlı HackRF,
-USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
+fiziksel kartta geçilmiştir. Güncel kaynaklarla PetaLinux paketi 5.679/5.679,
+tam imaj 6.090/6.090 görevle yeniden derlenmiştir. SHA-256 değeri
+`da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18`
+olan imaj SD karttan soğuk açılmış; FPGA `operating`, kurulu ikili hash
+eşitliği ve bit-doğru 54-aday yaşam döngüsü doğrulanmıştır. Dört derinlikli
+sınırlı yerel istek kuyruğuyla beş bağımsız koşunun tamamı geçmiş; toplam
+20.480/20.480 karede tüm hata sayaçları sıfır, en düşük/ortalama/en yüksek hız
+`508,759225230 / 509,458386609 / 509,884071480 kare/s` ve en düşük gerçek-zaman
+marjı `1,041938893` olmuştur. Sonuç
+`results/evidence/p0/ed-throughput-physical-acceptance.json` içinde korunur.
+Canlı HackRF, USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün
+dışındadır.
 
 ### P0 ED OS-CFAR PL throughput düzeltmesi
 
@@ -178,18 +180,17 @@ tamamlanmıştır. PL decoder tarafından biçim ve aralık açısından doğrul
 güç/karar hücreleri için ikinci kez yapılan genel giriş taraması ürün yolundan
 çıkarılmış; strict dış OS-CFAR ve çok ölçekli API'leri korunmuştur. Host C
 karşılaştırması strict/trusted yollarında karar, aday, gürültü, eşik ve kurtarma
-çıktılarında sıfır fark vermiştir. Bu adım yeni imaj veya RTL üretmez; mevcut
-PetaLinux kanıtı bu kaynakları kapsamadığı için fiziksel 64+4.096 profiler ve
-`488,28125 kare/s` kapısı yeniden çalıştırılana kadar performans sonucu açık
-kalır. **Host eşdeğerliği ve geçici ARM çalıştırması tamamlandı; yeni imaj ve
-gerçek-zaman kabulü beklemede.**
+çıktılarında sıfır fark vermiştir. İlk geçici ARM ölçümü hız kazanımı
+göstermemiştir; sonraki aday-paket imajı kaynakları kalıcı olarak içermiş,
+PetaLinux paket/tam-imaj ve fiziksel kart kapılarından geçmiştir. **Host
+eşdeğerliği, kalıcı imaj ve fiziksel aday-paket kabulü tamamlandı.**
 
 Geçici çapraz derlenmiş ARM profilerı mevcut ZedBoard imajına kalıcı kurulum
 yapmadan çalıştırılmış; 64+4.096 koşusu 4.096/4.096 ve sıfır hata ile bitmiştir.
 ARM ortalaması `2,723289 ms`, birleşik yol `4,173240 ms` olduğundan ADR-0032
 kısa yolu hız kapısını kapatmamış ve sonucu iyileştirme olarak ilan edilmemiştir.
-Bu ölçüm yalnız çalışma uyumluluğudur; yeni PetaLinux imajı ve sürekli hız kapısı
-ayrıca beklemektedir.
+Bu ölçüm tarihsel ara sonuçtur; güncel sürekli hız kabulü ADR-0034 ve
+`ed-throughput-physical-acceptance.json` içinde ayrıca kayıtlıdır.
 
 ### P0 seyrek çok ölçekli aday sınırı
 
@@ -214,9 +215,8 @@ Zynq-7020 üzerinde sentez/place/route ve 50 MHz setup/hold kapısını
 route hatasıyla geçti; kanıt `candidate-reducer-vivado.json` dosyasındadır.
 Final reducer → PHASE-06I AXI64 packetizer üst bağlantısı, beş kare/61 aday/345
 beat ve 30 backpressure kararlılık kontrolüyle bit-doğru geçti; kanıt
-`candidate-reducer-packetizer.json` dosyasındadır. Pin atanmış board top'u,
-DMA/driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ
-beklemededir. CI8 girişten FFT/güce ve aynı aday packetizer sınırına uzanan
+`candidate-reducer-packetizer.json` dosyasındadır. CI8 girişten FFT/güce ve aynı
+aday packetizer sınırına uzanan
 `p0_candidate_dsp_runtime_top` hiyerarşisi Icarus compile-only kapısından
 geçmiştir. Ardından aynı hiyerarşi ZedBoard PS/AXI DMA blok tasarımına alınmış;
 Vivado 2025.2 sentez, route ve 50 MHz kapısı `WNS=+0,423 ns`, `WHS=+0,021 ns`,
@@ -224,9 +224,31 @@ sıfır setup/hold endpoint ihlali, sıfır route hatası ve sıfır DRC error/c
 warning ile geçmiştir. Post-route kullanım 27.453 LUT, 27.154 register, 81,5
 Block RAM tile ve 71 DSP'dir; bitstream ve gömülü bitstream'li XSA üretilmiştir.
 Kanıt `vivado-50mhz.json` dosyasındadır. Yeni çıkış PHASE-06I değişken uzunluklu
-64–54.144 byte aday paketidir; mevcut 32.768-byte güç-frame sürücüsüyle uyumlu
-değildir. Sürücü/PetaLinux yeniden derleme, kart programlama, fiziksel
-`488,28125 kare/s` kabulü ve canlı HackRF hâlâ beklemededir.**
+64–54.144 byte aday paketidir. ABI v2 DMA sürücüsü, PetaLinux paketi, kart
+programlama, bit-doğru fiziksel aday paketi ve ADR-0034'teki
+`488,28125 kare/s` kabulü tamamlanmıştır. Canlı HackRF ve kalibre RF kabulü
+hâlâ beklemededir.**
+
+### P0 sınırlı yerel istek boruhattı
+
+Kullanıcının devam onayıyla ADR-0034 uygulanmıştır. Kalıcı ABI v3 imajındaki
+tek-istek/tek-yanıt ek tekrarlanabilirlik kontrolü 4/5 geçmiş; başarısız koşu
+4.096/4.096 doğru kareye rağmen `487,986461398 kare/s` ile sınırın `%0,0604`
+altında kalmıştır. Yöntem veya kabul paydası değiştirilmemiş; aynı sıralı
+`SOCK_SEQPACKET` ABI üzerinde dört derinlikli sınırlı istek kuyruğu eklenmiştir.
+Hizmet FPGA/DMA/ARM karelerini yine tek tek işler ve her yanıt kare kimliği,
+hizmet durumu, DMA `0x7` ve düşen aday sayısıyla doğrulanır.
+
+Güncel kaynaklar PetaLinux paketinde 5.679/5.679, tam imajda 6.090/6.090 görevle
+derlenmiştir. SHA-256 değeri
+`da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18`
+olan imaj SD karttan soğuk açılmıştır. Bilinen kare ve 2-of-3 yaşam döngüsü
+host referansıyla alan alan aynıdır. Beş bağımsız 64+4.096 koşuda toplam
+20.480/20.480 kare ve sıfır hata elde edilmiş; en düşük/ortalama/en yüksek hız
+`508,759225230 / 509,458386609 / 509,884071480 kare/s`, en düşük gerçek-zaman
+payı `1,041938893` olmuştur. **Kalıcı fiziksel 2 MS/s yerel hizmet kapısı
+tekrarlanabilir biçimde tamamlandı. Canlı HackRF, RF kalibrasyonu ve geniş saha
+doğruluğu açık kalır.**
 
 ### P0 Mandatory Closure Block A
 

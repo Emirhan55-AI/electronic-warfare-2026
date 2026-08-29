@@ -1,8 +1,8 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 candidate-packet ABI v3 ARM package and full image build",
+  "scope": "PetaLinux 2025.2 candidate-packet ABI v3 bounded-pipeline ARM package and full image build",
   "current_source_status": "current_sources_petalinux_build_passed",
   "build": {
     "target": "p0-dma",
@@ -24,7 +24,7 @@
     "os_cfar_runner_sha256": "2a52192d6d799c5915cf9ca77fc755de98937bb023d93918c60a1ec1dbea4638",
     "runtime_runner_sha256": "cdd34bd5b6b6fd5fb6f501baa0e813190a02e05e617e39d7101d60fbe9f50f40",
     "client_sha256": "4782391dff76952896d88b5c048afb9fada0a951418b74e9902ac49490caf819",
-    "throughput_runner_sha256": "3681917d3554bd42ea57d8bae184af0b2429f0e6c5077b5132484b211c2e18b8",
+    "throughput_runner_sha256": "5df499bc6c27d7c43f3098bf9d81466cc4e714f86fb3b2852b20d78e1552e058",
     "stage_profile_sha256": "3e3e5a0838337eb7d9c34020d524c0d478e9a2e1338d891b73d6fb818251b7bb",
     "parameter_runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
     "parameter_client_sha256": "49130a7f5ef359cc26d110287a4e8008861fba2301885b264d1b76424e5b99ac",
@@ -49,8 +49,8 @@
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24037487,
-    "sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032"
+    "bytes": 24037675,
+    "sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18"
   },
   "boot_image": {
     "status": "retained_hardware_boot_artifact",
@@ -70,7 +70,7 @@
     "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
     "p0_ed_service_protocol.h": "fa9dad6382c0b202ed64f90d9fff0fbe4876ce294e2244fd262aec6c555efc3a",
     "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
-    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
+    "p0_ed_throughput_run.c": "3fdd135fd94792060756a87d3daf8e5964878fe85d0e2394f8d1db490bf399ab",
     "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",

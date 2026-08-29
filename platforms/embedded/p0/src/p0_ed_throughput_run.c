@@ -21,6 +21,7 @@
 #define P0_ED_EXPECTED_DMA_FLAGS 7U
 #define P0_ED_MAX_MEASURED_FRAMES 1000000U
 #define P0_ED_THROUGHPUT_CPU 0
+#define P0_ED_REQUEST_PIPELINE_DEPTH 4U
 
 typedef struct {
     uint64_t request_failures;
@@ -157,56 +158,88 @@ done:
     return -1;
 }
 
-static int exchange_frame(service_connection_t *connection, uint32_t frame_id,
-                          uint32_t flags, const uint8_t *iq,
-                          p0_ed_response_t *response, double *latency_seconds)
+static int send_frame(service_connection_t *connection, uint32_t frame_id,
+                      uint32_t flags, const uint8_t *iq,
+                      struct timespec *started)
 {
-    struct timespec started;
-    struct timespec finished;
-    ssize_t received;
-
     if (p0_ed_request_encode_compact(frame_id, flags, iq, P0_ED_IQ_FRAME_BYTES,
                                      connection->request, P0_ED_REQUEST_BYTES) != 0 ||
-        clock_gettime(CLOCK_MONOTONIC, &started) != 0)
+        clock_gettime(CLOCK_MONOTONIC, started) != 0)
         return -1;
-    if (send(connection->descriptor, connection->request, P0_ED_REQUEST_BYTES,
-             MSG_NOSIGNAL) != (ssize_t)P0_ED_REQUEST_BYTES)
-        return -1;
-    received = recv(connection->descriptor, connection->reply,
-                    P0_ED_RESPONSE_BYTES, MSG_TRUNC);
+    return send(connection->descriptor, connection->request, P0_ED_REQUEST_BYTES,
+                MSG_NOSIGNAL) == (ssize_t)P0_ED_REQUEST_BYTES ? 0 : -1;
+}
+
+static int receive_frame(service_connection_t *connection,
+                         const struct timespec *started,
+                         p0_ed_response_t *response, double *latency_seconds)
+{
+    struct timespec finished;
+    ssize_t received = recv(connection->descriptor, connection->reply,
+                            P0_ED_RESPONSE_BYTES, MSG_TRUNC);
+
     if (received < 0 ||
         p0_ed_response_decode(connection->reply, (size_t)received, response) != 0 ||
         clock_gettime(CLOCK_MONOTONIC, &finished) != 0)
         return -1;
-    *latency_seconds = seconds_between(&started, &finished);
+    *latency_seconds = seconds_between(started, &finished);
     return 0;
 }
 
-static int execute_frame(service_connection_t *connection, uint32_t frame_id,
-                         uint32_t flags, const uint8_t *iq, double *latency,
-                         failure_counts_t *failures)
+static int validate_response(const p0_ed_response_t *response, uint32_t frame_id,
+                             failure_counts_t *failures)
 {
-    p0_ed_response_t response;
-
-    memset(&response, 0, sizeof(response));
-    if (exchange_frame(connection, frame_id, flags, iq, &response, latency) != 0) {
-        failures->request_failures += 1U;
-        return -1;
-    }
-    if (response.status != P0_ED_SERVICE_OK) {
+    if (response->status != P0_ED_SERVICE_OK) {
         failures->service_failures += 1U;
         return -1;
     }
-    if (response.frame_id != frame_id) {
+    if (response->frame_id != frame_id) {
         failures->sequence_failures += 1U;
         return -1;
     }
-    if (response.dma_status_flags != P0_ED_EXPECTED_DMA_FLAGS) {
+    if (response->dma_status_flags != P0_ED_EXPECTED_DMA_FLAGS) {
         failures->dma_flag_failures += 1U;
         return -1;
     }
-    failures->dropped_candidates += response.result.dropped_candidates;
+    failures->dropped_candidates += response->result.dropped_candidates;
     return 0;
+}
+
+static size_t execute_batch(service_connection_t *connection,
+                            uint32_t first_frame_id, size_t frame_count,
+                            int reset_first, const uint8_t *iq,
+                            double *latencies, failure_counts_t *failures)
+{
+    struct timespec started[P0_ED_REQUEST_PIPELINE_DEPTH];
+    size_t index;
+
+    if (frame_count == 0U || frame_count > P0_ED_REQUEST_PIPELINE_DEPTH)
+        return 0U;
+    for (index = 0U; index < frame_count; ++index) {
+        uint32_t flags = reset_first && index == 0U
+                             ? P0_ED_REQUEST_FLAG_RESET
+                             : 0U;
+
+        if (send_frame(connection, first_frame_id + (uint32_t)index,
+                       flags, iq, &started[index]) != 0) {
+            failures->request_failures += 1U;
+            return 0U;
+        }
+    }
+    for (index = 0U; index < frame_count; ++index) {
+        p0_ed_response_t response;
+
+        memset(&response, 0, sizeof(response));
+        if (receive_frame(connection, &started[index], &response,
+                          &latencies[index]) != 0) {
+            failures->request_failures += 1U;
+            return index;
+        }
+        if (validate_response(&response, first_frame_id + (uint32_t)index,
+                              failures) != 0)
+            return index;
+    }
+    return frame_count;
 }
 
 static void write_result(uint64_t measured_frames, uint64_t warmup_frames,
@@ -243,6 +276,7 @@ static void write_result(uint64_t measured_frames, uint64_t warmup_frames,
         "  \"schema_version\": 1,\n"
         "  \"status\": \"%s\",\n"
         "  \"scope\": \"yerel PL-DMA-ARM ED hizmeti\",\n"
+        "  \"request_pipeline_depth\": %u,\n"
         "  \"profile\": {\"sample_rate_hz\": %" PRIu64
         ", \"frame_samples\": %u, \"warmup_frames\": %" PRIu64
         ", \"measured_frames\": %" PRIu64 "},\n"
@@ -262,7 +296,8 @@ static void write_result(uint64_t measured_frames, uint64_t warmup_frames,
         "  \"claim_boundary\": \"Deterministik yerel hizmet yükü; canlı RF, "
         "USB/Ethernet aktarımı, kalibrasyon veya saha doğruluğu değildir.\"\n"
         "}\n",
-        passed ? "passed" : "failed", sample_rate_hz, P0_ED_FRAME_SAMPLES,
+        passed ? "passed" : "failed", P0_ED_REQUEST_PIPELINE_DEPTH,
+        sample_rate_hz, P0_ED_FRAME_SAMPLES,
         warmup_frames, measured_frames, completed_frames,
         failures->request_failures, failures->service_failures,
         failures->sequence_failures, failures->dma_flag_failures,
@@ -320,25 +355,37 @@ int main(int argc, char **argv)
         fprintf(stderr, "Yerel ED hizmetine bağlanılamadı: %s\n", strerror(errno));
         goto done;
     }
-    for (index = 0U; index < warmup_frames; ++index) {
-        double ignored_latency = 0.0;
-        uint32_t flags = index == 0U ? P0_ED_REQUEST_FLAG_RESET : 0U;
+    for (index = 0U; index < warmup_frames;) {
+        double ignored_latency[P0_ED_REQUEST_PIPELINE_DEPTH];
+        size_t batch = (size_t)(warmup_frames - index);
+        size_t completed_batch;
 
-        if (execute_frame(&connection, (uint32_t)index, flags, iq,
-                          &ignored_latency, &failures) != 0)
+        if (batch > P0_ED_REQUEST_PIPELINE_DEPTH)
+            batch = P0_ED_REQUEST_PIPELINE_DEPTH;
+        completed_batch = execute_batch(
+            &connection, (uint32_t)index, batch, index == 0U, iq,
+            ignored_latency, &failures);
+        index += completed_batch;
+        if (completed_batch != batch)
             break;
     }
     if (index != warmup_frames)
         goto report;
     if (clock_gettime(CLOCK_MONOTONIC, &started) != 0)
         goto done;
-    for (index = 0U; index < measured_frames; ++index) {
-        uint32_t flags = index == 0U ? P0_ED_REQUEST_FLAG_RESET : 0U;
+    for (index = 0U; index < measured_frames;) {
+        size_t batch = (size_t)(measured_frames - index);
+        size_t completed_batch;
 
-        if (execute_frame(&connection, (uint32_t)index, flags, iq,
-                          &latencies[index], &failures) != 0)
+        if (batch > P0_ED_REQUEST_PIPELINE_DEPTH)
+            batch = P0_ED_REQUEST_PIPELINE_DEPTH;
+        completed_batch = execute_batch(
+            &connection, (uint32_t)index, batch, index == 0U, iq,
+            &latencies[index], &failures);
+        index += completed_batch;
+        completed += completed_batch;
+        if (completed_batch != batch)
             break;
-        completed += 1U;
     }
     if (clock_gettime(CLOCK_MONOTONIC, &finished) != 0)
         goto done;

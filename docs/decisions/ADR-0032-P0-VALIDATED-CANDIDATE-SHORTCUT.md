@@ -1,6 +1,6 @@
 # ADR-0032 — P0 Doğrulanmış Aday Yolunun Kısaltılması
 
-- Durum: Host eşdeğerliği ve geçici ARM ölçümü tamamlandı; imaj/gerçek-zaman kapısı beklemede
+- Durum: Kalıcı PetaLinux ve fiziksel kart kabulü tamamlandı
 - Kapsam: P0 `PL → DMA → ARM` aday üretim yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-6
 - Ön koşul: ADR-0031
@@ -64,3 +64,13 @@ birleşik yol `4,173240 ms` oldu; ADR-0031 referansına göre sırasıyla `%4,23
 ve `%2,410` daha yüksektir. Bu nedenle kısa yol işlevsel olarak kabul edilmiş,
 ölçülebilir hız kazanımı olarak kabul edilmemiştir. Ayrıntılı kayıt
 `results/evidence/p0/ed-stage-profile-adr0032-transient-arm.json` içindedir.
+
+## Kalıcı entegrasyon sonucu
+
+Sonraki aday-paket imajı bu kaynakları kalıcı PetaLinux paketine almıştır.
+Paket 5.679/5.679, tam imaj 6.090/6.090 görevle derlenmiş; fiziksel kartta
+54-aday paket ve beş karelik 2-of-3 olay yaşam döngüsü host referansıyla alan
+alan aynı bulunmuştur. ADR-0034'te tanımlanan sınırlı yerel istek boruhattıyla
+beş bağımsız 64+4.096 koşunun tamamı geçmiştir. Güncel kalıcı imaj ve hız
+kanıtları `ed-service-v3-cold-boot-acceptance.json` ile
+`ed-throughput-physical-acceptance.json` dosyalarındadır.

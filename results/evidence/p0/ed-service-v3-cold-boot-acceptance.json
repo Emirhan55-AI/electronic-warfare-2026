@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "recorded_at": "2026-08-29",
   "status": "passed",
   "scope": "persistent PetaLinux ABI v3 service cold-boot acceptance on physical ZedBoard",
@@ -7,19 +7,20 @@
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
     "kernel": "6.12.40-xilinx-g31626ef92ff1",
-    "boot_id": "e43307f6-015d-4ffd-8a4c-5ab0802e1e25",
+    "boot_id": "0b3666cd-b8b0-4e64-a20d-b5a2c9a9be62",
     "fpga_manager_state": "operating",
-    "image_ub_bytes": 24037487,
-    "image_ub_sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032",
+    "image_ub_bytes": 24037675,
+    "image_ub_sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18",
     "service_started_by_image": true
   },
   "installed_binaries": {
     "/usr/sbin/p0-ed-service": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
-    "/usr/bin/p0-ed-throughput-run": "3681917d3554bd42ea57d8bae184af0b2429f0e6c5077b5132484b211c2e18b8",
+    "/usr/bin/p0-ed-throughput-run": "5df499bc6c27d7c43f3098bf9d81466cc4e714f86fb3b2852b20d78e1552e058",
     "/usr/bin/p0-ed-client": "4782391dff76952896d88b5c048afb9fada0a951418b74e9902ac49490caf819"
   },
   "cpu_and_dma": {
     "service_cpus_allowed_list": "1",
+    "service_nice": 0,
     "dma_mm2s_irq": 47,
     "dma_s2mm_irq": 48,
     "dma_interrupt_cpu": 0
@@ -48,26 +49,37 @@
     "status": "passed",
     "sample_rate_hz": 2000000,
     "frame_samples": 4096,
-    "warmup_frames": 64,
-    "measured_frames": 4096,
-    "completed_frames": 4096,
+    "request_pipeline_depth": 4,
+    "warmup_frames_per_run": 64,
+    "measured_frames_per_run": 4096,
+    "repeat_runs": 5,
+    "passed_runs": 5,
+    "completed_frames": 20480,
     "request_failures": 0,
     "service_failures": 0,
     "sequence_failures": 0,
     "dma_flag_failures": 0,
     "dropped_candidates": 0,
-    "elapsed_seconds": 8.371552337,
     "required_frames_per_second": 488.28125,
-    "measured_frames_per_second": 489.276042855,
-    "real_time_margin": 1.002037336,
-    "p95_latency_seconds": 0.002054778,
-    "physical_result_sha256": "a1e6bd27275e29f59961a324c99b93791a2606f755af394550c8f098e38cbac2"
+    "minimum_frames_per_second": 508.759225230,
+    "mean_frames_per_second": 509.458386609,
+    "maximum_frames_per_second": 509.884071480,
+    "minimum_real_time_margin": 1.041938893,
+    "maximum_p95_latency_seconds": 0.007790058,
+    "maximum_latency_seconds": 0.008189214,
+    "physical_result_sha256": [
+      "c09cfd167d7f465060eb1fe8d5e98be9cea4b27da83a042504ca65b376c694eb",
+      "9c32699d6806376d35f6a2f9464738557289a76f1ec727cdc8384bc3170a1bf2",
+      "bdd0b98a79d76c6974192b7ead975207ad8630165f0c4c84cf9730916da47ecb",
+      "4add1d210acb117490dd5e2337f925839b0ebb80329b2aa3f93a4c72a98a45be",
+      "66623a5ce13ae898fa883f2c6f4122e333af75160410892341b3e3c8b8a2ac01"
+    ]
   },
   "source_sha256": {
     "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
     "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
     "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
-    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
+    "p0_ed_throughput_run.c": "3fdd135fd94792060756a87d3daf8e5964878fe85d0e2394f8d1db490bf399ab",
     "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
     "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8"
   },
@@ -76,5 +88,5 @@
     "calibrated RF accuracy",
     "broad physical signal-family coverage"
   ],
-  "claim_boundary": "This proves persistent cold-boot execution, exact deterministic candidate and temporal equivalence, and one locked-profile 2 MS/s-equivalent local service run. It does not prove live HackRF throughput, calibrated RF sensitivity, broad signal-family accuracy or field performance."
+  "claim_boundary": "This proves persistent cold-boot execution, exact deterministic candidate and temporal equivalence, and five repeated locked-profile 2 MS/s-equivalent local service runs with a bounded in-order request pipeline. It does not prove live HackRF throughput, calibrated RF sensitivity, broad signal-family accuracy or field performance."
 }

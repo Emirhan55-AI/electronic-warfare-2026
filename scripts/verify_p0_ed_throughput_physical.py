@@ -16,6 +16,7 @@ WARMUP_FRAMES = 64
 SAMPLE_RATE_HZ = 2_000_000
 FRAME_SAMPLES = 4096
 REQUIRED_FRAMES_PER_SECOND = SAMPLE_RATE_HZ / FRAME_SAMPLES
+REQUEST_PIPELINE_DEPTH = 4
 SOURCE_PATHS = {
     "p0_ed_throughput_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c",
     "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
@@ -58,6 +59,8 @@ def verify(
         raise AssertionError("physical result sections are missing")
     if result.get("schema_version") != 1 or result.get("status") != "passed":
         raise AssertionError("physical throughput tool did not report a passed result")
+    if result.get("request_pipeline_depth") != REQUEST_PIPELINE_DEPTH:
+        raise AssertionError("physical throughput request pipeline differs from the locked gate")
     expected_profile = {
         "sample_rate_hz": SAMPLE_RATE_HZ,
         "frame_samples": FRAME_SAMPLES,
@@ -121,6 +124,7 @@ def verify(
         "status": "passed",
         "scope": "fiziksel ZedBoard PL-DMA-ARM sürekli işleme kabulü",
         "locked_profile": expected_profile,
+        "request_pipeline_depth": REQUEST_PIPELINE_DEPTH,
         "completion": expected_completion,
         "throughput": {
             "elapsed_seconds": elapsed,
