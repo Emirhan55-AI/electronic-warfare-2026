@@ -3,7 +3,7 @@
   "recorded_at": "2026-08-29",
   "status": "passed",
   "scope": "PetaLinux 2025.2 candidate-packet ABI v3 bounded-pipeline ARM package and full image build",
-  "current_source_status": "current_sources_petalinux_build_passed",
+  "current_source_status": "superseded_by_phase07_network_image",
   "build": {
     "target": "p0-dma",
     "machine": "zynq_generic_7z020",

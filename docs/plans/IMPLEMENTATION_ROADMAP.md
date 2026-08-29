@@ -279,9 +279,39 @@ tam byte uzunluğunda, doyan bileşen sayısı sıfırdır. **HackRF fiziksel bo
 RX ve host tespit kapısı tamamlandı. Sürekli USB akışı, 8→2 MS/s örnek oranı
 dönüşümü, PC→ZedBoard taşıması, FPGA canlı tespiti ve ürün UI kabulü açıktır.**
 
-**P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06**
+### PHASE-07A — Kanal Seçici ve Ağ Köprüsü Donanımsız Kabulü
 
-PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini doğrulamıştır; bu sonuç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. PHASE-06A–J tamamlanmış ve dondurulmuştur. PHASE-06J, PHASE-06I ABI v1 packet'ını strict tüketen bounded portable C11 PS temporal çekirdeğini host compile/link ve Python golden eşdeğerliğiyle doğrulamıştır. PetaLinux/ARM, gerçek DMA/driver/device tree, fiziksel birim dönüşümü, post-detector timing ve hardware sonucu değildir. Gerçek canlı HackRF dinleme, PHASE-07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.
+Kullanıcının devam onayıyla, Ethernet kablosu gerektirmeyen PHASE-07 alt kapısı
+tamamlanmıştır. HackRF'nin `8 MS/s × 16.384` girişi stateful NCO, 193 tap
+anti-alias FIR ve 4:1 polyphase örnek azaltmayla FPGA'nın tam
+`2 MS/s × 4.096 ci8` çerçevesine dönüştürülmüştür. Sürüm 2 `P0IQ/P0RS`
+protokolü metadata ve payload için ayrı CRC, ardışık sıra ve dört derinlikli
+bounded pipeline kullanır. Taşınabilir C decoder MSVC'de; tam IPv4 bind/peer
+allowlist kullanan Linux TCP→`AF_UNIX/SOCK_SEQPACKET` köprüsü GCC/WSL2
+loopback'te geçmiştir. Üç tekrarlı 1.024-kare host hız kapısında en düşük sonuç
+`488,28125 kare/s` gereksinimini aşmış; drop, sıra hatası ve doyum sıfır kalmıştır.
+Kanıt `results/evidence/p0/phase07-host-loopback.json` dosyasındadır.
+
+PHASE-05 kayıtlı/sentetik I/Q kapsamındaki operatör seçimli AM/NFM dinleme
+zinciri tamamlanmıştır. Gerçek canlı HackRF dinleme ve ses saha kabulü ayrı
+donanım kapısıdır; bu sonuç PHASE-04'ün fiziksel parametre doğrulamasının
+tamamlandığı anlamına gelmez.
+
+Doğrudan 1 Gbps Ethernet alt kapısı fiziksel ZedBoard üzerinde tamamlanmıştır.
+Köprü sürekli dört istekli akış, CPU0 bağı ve kopyasız yerel istek ile çalışır.
+Bilinen CI8 yaşam döngüsü 54 aday için alan bazında eşleşmiş; beş bağımsız
+64+4.096-kare koşusunda 20.480/20.480 ölçüm karesi sıfır sıra hatası ve sıfır
+aday düşümüyle bitmiştir. En düşük/ortalama/en yüksek hız
+`504,759253742 / 507,559962598 / 509,019828886 kare/s`, gereken alt sınır
+`488,28125 kare/s` ve en düşük gerçek zaman marjı `1,033746952` olmuştur. Kanıt
+`results/evidence/p0/phase07-ethernet-physical-acceptance.json` dosyasındadır.
+
+SHA-256 değeri `5d749d4c2a8a86f2bbcc3be9a700ea32efc8104196b237700740886003e2e61d`
+olan PetaLinux imajı soğuk açılıştan sonra FPGA `operating` durumuyla başlamış;
+kalıcı ağ köprüsü değişken ağ arayüzünü `auto` seçerek aynı kabulü geçmiştir.
+Köprü güvenli varsayılan olarak kapalıdır ve bu kontrollü kabul oturumunda açıkça
+etkinleştirilmiştir. **PHASE-07 henüz tamamlanmadı.** Kesintisiz canlı HackRF
+callback akışı ile USB→kanal seçici→Ethernet→ZedBoard→FPGA sonucu açıktır.
 
 Kullanıcının 2026-08-26 onayıyla `ET-A — Offline ET Ortak Matematiksel Kabul`
 bakım paketi uygulanmıştır. Önceden izinli P0 offline kaynaklarında KTR-5.1–5.4
@@ -492,4 +522,4 @@ FPGA, canlı RF, dBm kalibrasyonu ve saha kabulü bu sonuç kapsamında değildi
 
 ## Erken hazırlık istisnası: PHASE-08A
 
-PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik mock backend, bounded süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı PHASE-08 donanım kabul turuna aittir. Bu istisna PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez.
+PHASE-04 ana açık faz olarak kalırken, kullanıcı onayıyla PHASE-08'in yalnız donanımdan bağımsız host hazırlığı `PHASE-08A — HackRF Canlı RX Host Altyapısının Donanımsız Ön Hazırlığı` adıyla erken yürütülmüştür. PHASE-08'in asıl kapsamı değişmez. PHASE-08A yalnız acquisition adaptörü, deterministik test kaynağı, sınırlı süreç güvenliği ve dürüst UI durumlarını kapsar. Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım kanıtı PHASE-08 donanım kabul turuna aittir. Bu tarihsel istisna PHASE-07 veya PHASE-08'in tamamlandığı anlamına gelmez ve sonraki ana fazlar için otomatik onay oluşturmaz.

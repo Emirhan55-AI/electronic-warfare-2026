@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "PHASE-07 donanımdan bağımsız kanal seçici ve Ethernet paket sözleşmesi",
+  "profile": {
+    "input_sample_rate_hz": 8000000,
+    "input_complex_samples": 16384,
+    "output_sample_rate_hz": 2000000,
+    "output_complex_samples": 4096,
+    "output_payload_bytes": 8192,
+    "tuning_offset_hz": 1500000,
+    "passband_edge_hz": 800000,
+    "stopband_edge_hz": 1000000,
+    "fir_taps": 193,
+    "transport_version": 2,
+    "transport_header_bytes": 48
+  },
+  "filter_acceptance": {
+    "passband_ripple_db": 0.005271925906475571,
+    "stopband_peak_db": -65.97134213104465
+  },
+  "throughput_acceptance": {
+    "warmup_frames": 64,
+    "measured_frames_per_run": 1024,
+    "repeat_runs": 3,
+    "required_frames_per_second": 488.28125,
+    "minimum_frames_per_second": 1119.8095624190842,
+    "minimum_real_time_margin": 2.2933699838342845,
+    "runs": [
+      {
+        "measured_frames": 1024,
+        "elapsed_seconds": 0.9144411999732256,
+        "frames_per_second": 1119.8095624190842,
+        "real_time_margin": 2.2933699838342845,
+        "frames_sent": 1024,
+        "frames_received": 1024,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "saturated_components": 0
+      },
+      {
+        "measured_frames": 1024,
+        "elapsed_seconds": 0.8321170001290739,
+        "frames_per_second": 1230.59617799079,
+        "real_time_margin": 2.520260972525138,
+        "frames_sent": 1024,
+        "frames_received": 1024,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "saturated_components": 0
+      },
+      {
+        "measured_frames": 1024,
+        "elapsed_seconds": 0.6983707000035793,
+        "frames_per_second": 1466.269990987239,
+        "real_time_margin": 3.0029209415418654,
+        "frames_sent": 1024,
+        "frames_received": 1024,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "saturated_components": 0
+      }
+    ]
+  },
+  "portable_decoder": {
+    "compiler": "MSVC C11",
+    "result": "P0_IQ_TRANSPORT_TEST=PASS"
+  },
+  "network_bridge_loopback": {
+    "compiler": "GCC C11 / WSL2 Linux",
+    "result": "P0_IQ_BRIDGE_LOOPBACK_TEST=PASS",
+    "pipeline_depth": 4,
+    "tcp_listener": "IPv4 exact bind and peer allowlist",
+    "local_boundary": "AF_UNIX SOCK_SEQPACKET"
+  },
+  "petalinux_packaging": {
+    "sources_declared": true,
+    "binary_and_configuration_installed": true,
+    "default_enabled": false,
+    "target_build_exercised": false
+  },
+  "source_sha256": {
+    "algorithms/p0/channelizer.py": "9dcd117cb302d7422f26192a80703211150cc1bdba91ed5e2b674b174afaa310",
+    "algorithms/p0/transport.py": "e493986fc91b32fb16981ffa85d196223efdf9ab8ab247dc0e8e280b0b8074f3",
+    "platforms/embedded/p0/include/p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28",
+    "platforms/embedded/p0/src/p0_iq_transport.c": "449ecbf65532367a1db4192a5085eb3ec2a30b8d4f317f4f3e89fc4cf15f3221",
+    "tests/p0/p0_iq_transport_test.c": "70cc3a693bc3cd855408069720168af89a2fa92e1ed9fa0b00e1d7eb6390610d",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "tests/p0/p0_iq_bridge_loopback_test.py": "76b5942b43ba62225ce864d26e7bf510b49a6cf0f1509dfc807a3a5d8a1e97db",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "a8bee3611d963065e20da6c2e7af33a54607d52244a843d50107e32c74f4d1f1",
+    "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init": "e8c823b063849920f0e6b4c5b56e065b100c60d730b80069d3bc3d3d65ebbb3f",
+    "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default": "60998f9363d870bc50cb1158842d096dd3ad2d72f8f1be982f3eb8c3f64d6c10",
+    "tests/test_p0_channelizer.py": "24d7bcaacd0f7db33a72dd592e8d3e52b14adaf822bdb7fb96e17d80c4e4ccf3",
+    "tests/test_p0_transport.py": "244ddfa85d364512538e81200c69e19dc84cb04d99486275449fee7a60f34b44"
+  },
+  "physical_ethernet_exercised": false,
+  "zedboard_network_service_exercised": false,
+  "hackrf_continuous_stream_exercised": false,
+  "claim_boundary": "Bu kanıt 8→2 MS/s kanal seçme, anti-alias süzme, CI8/4096 çerçeveleme, başlık ve payload CRC, sıra ve bounded loopback hızını doğrular. Fiziksel Ethernet, ZedBoard ağ hizmeti, kesintisiz HackRF akışı veya canlı FPGA sonucu değildir."
+}

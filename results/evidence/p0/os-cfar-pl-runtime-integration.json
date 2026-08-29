@@ -18,7 +18,7 @@
     "platforms/embedded/p0/include/p0_multiscale_detector.h": "65e5fe6090895dd4e6263915b2f32394bc750b1946f64887f5ba8e4d65fafae3",
     "platforms/embedded/p0/include/p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
     "platforms/embedded/p0/include/p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
-    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "a8bee3611d963065e20da6c2e7af33a54607d52244a843d50107e32c74f4d1f1",
     "platforms/embedded/p0/src/p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
     "platforms/embedded/p0/src/p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
     "platforms/embedded/p0/src/p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",

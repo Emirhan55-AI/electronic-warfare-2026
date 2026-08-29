@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "fiziksel PC Ethernet→ZedBoard PS→yerel hizmet→DMA→FPGA→ARM kabulü",
+  "endpoint": {
+    "pc_ipv4": "192.168.7.1",
+    "zedboard_ipv4": "192.168.7.2",
+    "tcp_port": 47007
+  },
+  "link_profile": {
+    "observed_speed_mbps": 1000,
+    "duplex": "full"
+  },
+  "input_profile": {
+    "sample_rate_hz": 2000000,
+    "complex_samples_per_frame": 4096,
+    "ci8_payload_bytes": 8192,
+    "known_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "functional_acceptance": [
+    {
+      "frame_id": 0,
+      "raw_candidate_count": 54,
+      "dma_status_flags": 7,
+      "active_count": 54,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3740
+    },
+    {
+      "frame_id": 1,
+      "raw_candidate_count": 54,
+      "dma_status_flags": 7,
+      "active_count": 54,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3740
+    },
+    {
+      "frame_id": 2,
+      "raw_candidate_count": 54,
+      "dma_status_flags": 7,
+      "active_count": 54,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3740
+    },
+    {
+      "frame_id": 3,
+      "raw_candidate_count": 0,
+      "dma_status_flags": 7,
+      "active_count": 54,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3740
+    },
+    {
+      "frame_id": 4,
+      "raw_candidate_count": 0,
+      "dma_status_flags": 7,
+      "active_count": 0,
+      "ended_count": 54,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3740
+    }
+  ],
+  "throughput_acceptance": {
+    "status": "passed",
+    "warmup_frames_per_run": 64,
+    "measured_frames_per_run": 4096,
+    "repeat_runs": 5,
+    "passed_runs": 5,
+    "completed_frames": 20480,
+    "request_pipeline_depth": 4,
+    "required_frames_per_second": 488.28125,
+    "minimum_frames_per_second": 504.7592537416004,
+    "mean_frames_per_second": 507.55996259825787,
+    "maximum_frames_per_second": 509.01982888553675,
+    "minimum_real_time_margin": 1.0337469516627975,
+    "client_sequence_errors": 0,
+    "runs": [
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 8.046837799949571,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 509.01982888553675,
+        "real_time_margin": 1.0424726095575794,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 15417344,
+        "bidirectional_payload_megabytes_per_second": 6.110274025941983,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 8.114759600022808,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 504.7592537416004,
+        "real_time_margin": 1.0337469516627975,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 15417344,
+        "bidirectional_payload_megabytes_per_second": 6.05913008191417,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 8.049243400106207,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 508.8677030124291,
+        "real_time_margin": 1.0421610557694547,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 15417344,
+        "bidirectional_payload_megabytes_per_second": 6.1084479069611985,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 8.082967199850827,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 506.74460241229144,
+        "real_time_margin": 1.0378129457403729,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 15417344,
+        "bidirectional_payload_megabytes_per_second": 6.082962207357146,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 8.05651480006054,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 508.4084249394317,
+        "real_time_margin": 1.0412204542759562,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 15417344,
+        "bidirectional_payload_megabytes_per_second": 6.102934732972939,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      }
+    ]
+  },
+  "persistent_image": {
+    "exercised": true,
+    "image_ub_sha256": "5d749d4c2a8a86f2bbcc3be9a700ea32efc8104196b237700740886003e2e61d",
+    "installed_bridge_sha256": "14c1fa6f5632c83dd6be07acc7e2e9fa2b855f9bf764b05f031f9bddf8b39de9",
+    "boot_id": "318214f5-8613-436d-85fa-0d9cbe1d2e5e",
+    "network_interface": "enxd65b581b1531",
+    "interface_selection": "auto",
+    "safe_default_enabled": false,
+    "authorized_test_activation": true
+  },
+  "source_sha256": {
+    "algorithms/p0/transport.py": "e493986fc91b32fb16981ffa85d196223efdf9ab8ab247dc0e8e280b0b8074f3",
+    "platforms/embedded/p0/include/p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28",
+    "platforms/embedded/p0/src/p0_iq_transport.c": "449ecbf65532367a1db4192a5085eb3ec2a30b8d4f317f4f3e89fc4cf15f3221",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "a8bee3611d963065e20da6c2e7af33a54607d52244a843d50107e32c74f4d1f1",
+    "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default": "60998f9363d870bc50cb1158842d096dd3ad2d72f8f1be982f3eb8c3f64d6c10",
+    "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init": "e8c823b063849920f0e6b4c5b56e065b100c60d730b80069d3bc3d3d65ebbb3f",
+    "scripts/verify_p0_phase07_physical.py": "44c0a7ac33424cddc0489bb2923ea54513790a2ef5e76349b9b813da5c1a8e4f"
+  },
+  "hackrf_stream_exercised": false,
+  "persistent_image_exercised": true,
+  "claim_boundary": "Bu kanıt kayıtlı bilinen CI8 çerçevelerinin fiziksel 1 Gbps Ethernet, ZedBoard ağ köprüsü, kalıcı yerel ED hizmeti, DMA, FPGA ve ARM yolunda işlevsel ve sürekli hız kabulünü gösterir. Ağ köprüsü doğrulanan PetaLinux imajından soğuk açılış sonrası çalıştırılmıştır. Canlı HackRF USB akışı, 8→2 MS/s canlı bağ, RF doğruluğu, dBm kalibrasyonu ve saha performansı bu kanıtın dışındadır."
+}

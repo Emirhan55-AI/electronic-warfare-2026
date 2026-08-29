@@ -1,0 +1,86 @@
+#!/bin/sh
+
+DAEMON=/usr/sbin/p0-ed-network-bridge
+PIDFILE=/run/p0-ed-network-bridge.pid
+DEFAULTS=/etc/default/p0-ed-network-bridge
+
+[ -r "$DEFAULTS" ] && . "$DEFAULTS"
+
+: "${P0_ED_NETWORK_ENABLED:=0}"
+: "${P0_ED_NETWORK_INTERFACE:=eth0}"
+: "${P0_ED_NETWORK_BIND_IP:=192.168.7.2}"
+: "${P0_ED_NETWORK_PREFIX_LENGTH:=24}"
+: "${P0_ED_NETWORK_PEER_IP:=192.168.7.1}"
+: "${P0_ED_NETWORK_PORT:=47007}"
+: "${P0_ED_LOCAL_SOCKET:=/run/p0-ed/p0-ed.sock}"
+
+resolve_network_interface() {
+    if [ "$P0_ED_NETWORK_INTERFACE" != "auto" ]; then
+        return 0
+    fi
+    resolved_interface=
+    for network_path in /sys/class/net/*; do
+        [ -e "$network_path/device" ] || continue
+        candidate=${network_path##*/}
+        [ "$candidate" != "lo" ] || continue
+        if [ -n "$resolved_interface" ]; then
+            echo 'Birden fazla fiziksel ağ arayüzü bulundu; arayüz açıkça seçilmeli.' >&2
+            return 1
+        fi
+        resolved_interface=$candidate
+    done
+    if [ -z "$resolved_interface" ]; then
+        echo 'Fiziksel ağ arayüzü bulunamadı.' >&2
+        return 1
+    fi
+    P0_ED_NETWORK_INTERFACE=$resolved_interface
+}
+
+case "$1" in
+    start)
+        if [ "$P0_ED_NETWORK_ENABLED" != "1" ]; then
+            echo 'P0 ED ağ köprüsü yapılandırmada kapalı.'
+            exit 0
+        fi
+        resolve_network_interface || exit 1
+        if ! ip link show dev "$P0_ED_NETWORK_INTERFACE" >/dev/null 2>&1; then
+            echo 'P0 ED ağ arayüzü bulunamadı.' >&2
+            exit 1
+        fi
+        ip link set dev "$P0_ED_NETWORK_INTERFACE" up || exit 1
+        ip address replace "$P0_ED_NETWORK_BIND_IP/$P0_ED_NETWORK_PREFIX_LENGTH" \
+            dev "$P0_ED_NETWORK_INTERFACE" || exit 1
+        count=0
+        while [ ! -S "$P0_ED_LOCAL_SOCKET" ] && [ "$count" -lt 50 ]; do
+            sleep 0.1
+            count=$((count + 1))
+        done
+        if [ ! -S "$P0_ED_LOCAL_SOCKET" ]; then
+            echo 'P0 ED yerel hizmet soketi hazır değil.' >&2
+            exit 1
+        fi
+        printf '%s' 'P0 ED ağ köprüsü başlatılıyor: '
+        start-stop-daemon --start --quiet --background --make-pidfile \
+            --pidfile "$PIDFILE" --exec "$DAEMON" -- \
+            "$P0_ED_NETWORK_BIND_IP" "$P0_ED_NETWORK_PEER_IP" \
+            "$P0_ED_NETWORK_PORT" "$P0_ED_LOCAL_SOCKET"
+        echo 'tamam'
+        ;;
+    stop)
+        printf '%s' 'P0 ED ağ köprüsü durduruluyor: '
+        start-stop-daemon --stop --quiet --retry TERM/5/KILL/1 \
+            --pidfile "$PIDFILE" --exec "$DAEMON"
+        rm -f "$PIDFILE"
+        echo 'tamam'
+        ;;
+    restart)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo "Kullanım: $0 {start|stop|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

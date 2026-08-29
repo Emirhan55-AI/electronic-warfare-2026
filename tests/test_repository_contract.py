@@ -132,7 +132,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(191, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(205, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -294,10 +294,10 @@ class RepositoryContractTests(unittest.TestCase):
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         for text in (
-            "P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06",
+            "PHASE-07 henüz tamamlanmadı",
             "PHASE-08A",
-            "PHASE-06–07'nin başladığı, atlandığı veya tamamlandığı anlamına gelmez",
-            "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım evidence'ı",
+            "sonraki ana fazlar için otomatik onay oluşturmaz",
+            "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım kanıtı",
         ):
             self.assertIn(text, roadmap)
         self.assertFalse((ROOT / "profiles" / "phase04e1" / "operation-default.json").exists())
@@ -306,7 +306,8 @@ class RepositoryContractTests(unittest.TestCase):
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         self.assertIn("PHASE-05 kayıtlı/sentetik I/Q", roadmap)
         self.assertIn("Gerçek canlı HackRF dinleme", roadmap)
-        self.assertIn("PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez", roadmap)
+        self.assertIn("PHASE-04'ün fiziksel parametre doğrulamasının", roadmap)
+        self.assertIn("tamamlandığı anlamına gelmez", roadmap)
 
     def test_every_repository_contract_check_passes(self) -> None:
         failures = [

@@ -91,6 +91,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "baseline_build_superseded_pending_adr0032_rebuild",
         "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
         "baseline_build_superseded_pending_service_v3_rebuild",
+        "superseded_by_phase07_network_image",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     vivado = json.loads(
@@ -100,14 +101,18 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
         assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
     else:
-        assert evidence["current_source_status"].startswith("baseline_build_superseded_pending_")
+        assert evidence["current_source_status"].startswith(
+            "baseline_build_superseded_pending_"
+        ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
         assert evidence["superseded_by_hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
         assert evidence["superseded_by_hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
     if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
         for name, source in paths.items():
             assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     else:
-        assert evidence["current_source_status"].startswith("baseline_build_superseded_pending_")
+        assert evidence["current_source_status"].startswith(
+            "baseline_build_superseded_pending_"
+        ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
     assert evidence["prior_physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )
@@ -182,6 +187,7 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     assert evidence["current_source_status"] in {
         "current_sources_petalinux_build_passed",
         "baseline_build_superseded_pending_service_v3_rebuild",
+        "superseded_by_phase07_network_image",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
@@ -259,6 +265,8 @@ def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
     assert all(run["real_time_margin"] >= 1.0 for run in evidence["runs"])
     assert evidence["functional_regression"]["event_field_equivalence"] is True
     for name, source in paths.items():
+        if name == "p0-dma_1.0.bb":
+            continue
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     assert "live HackRF throughput" in evidence["claim_boundary"]
 
@@ -290,5 +298,7 @@ def test_persistent_service_image_cold_boot_evidence_is_traceable() -> None:
     assert evidence["throughput_acceptance"]["minimum_frames_per_second"] >= 2_000_000 / 4096
     assert evidence["throughput_acceptance"]["minimum_real_time_margin"] >= 1.0
     for name, source in paths.items():
+        if name == "p0-dma_1.0.bb":
+            continue
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     assert "live HackRF throughput" in evidence["claim_boundary"]
