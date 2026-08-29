@@ -1212,6 +1212,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "results/evidence/p0/hackrf-rx-physical-acceptance.json",
     "results/evidence/p0/phase07-host-loopback.json",
     "results/evidence/p0/phase07-ethernet-physical-acceptance.json",
+    "results/evidence/p0/phase07-live-hackrf-fpga-acceptance.json",
     "results/evidence/p0/ed-stage-profile-physical.json",
     "results/evidence/p0/os-cfar-pl-runtime-integration.json",
     "results/evidence/p0/os-cfar-pl/algorithm-contract.json",
@@ -1231,6 +1232,9 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "tests/p0/p0_iq_transport_test.c",
     "tests/p0/p0_iq_bridge_loopback_test.py",
     "scripts/verify_p0_phase07_physical.py",
+    "scripts/verify_p0_phase07_live.py",
+    "platforms/acquisition/continuous.py",
+    "tests/test_hackrf_continuous.py",
     "tests/test_p0_channelizer.py",
     "tests/p0/test_p0_os_cfar_pl_model.py",
     "tests/p0/test_p0_os_cfar_pl_vectors.py",
@@ -1404,7 +1408,7 @@ def check_roadmap() -> dict[str, object]:
     phase_positions = [text.find(f"| PHASE-{number:02d} |") for number in range(14)]
     ordered = all(position >= 0 for position in phase_positions) and phase_positions == sorted(phase_positions)
     baseline_present = "| PHASE-00 | Repository ve mühendislik temeli |" in text
-    current_phase_present = "**PHASE-07 henüz tamamlanmadı.**" in text
+    current_phase_present = "**PHASE-07 tamamlandı. PHASE-08 henüz tamamlanmadı.**" in text
     return _result(
         "phase-roadmap",
         ordered and baseline_present and current_phase_present,

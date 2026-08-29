@@ -132,7 +132,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(205, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(209, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -294,7 +294,7 @@ class RepositoryContractTests(unittest.TestCase):
     def test_phase08a_is_an_explicit_preparation_exception(self) -> None:
         roadmap = (ROOT / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").read_text(encoding="utf-8")
         for text in (
-            "PHASE-07 henüz tamamlanmadı",
+            "PHASE-07 tamamlandı. PHASE-08 henüz tamamlanmadı",
             "PHASE-08A",
             "sonraki ana fazlar için otomatik onay oluşturmaz",
             "Gerçek cihaz keşfi, gerçek sweep, canlı I/Q, RF performansı ve donanım kanıtı",

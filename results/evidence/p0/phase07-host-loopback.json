@@ -24,14 +24,14 @@
     "measured_frames_per_run": 1024,
     "repeat_runs": 3,
     "required_frames_per_second": 488.28125,
-    "minimum_frames_per_second": 1119.8095624190842,
-    "minimum_real_time_margin": 2.2933699838342845,
+    "minimum_frames_per_second": 1147.9810332026161,
+    "minimum_real_time_margin": 2.351065155998958,
     "runs": [
       {
         "measured_frames": 1024,
-        "elapsed_seconds": 0.9144411999732256,
-        "frames_per_second": 1119.8095624190842,
-        "real_time_margin": 2.2933699838342845,
+        "elapsed_seconds": 0.892000799998641,
+        "frames_per_second": 1147.9810332026161,
+        "real_time_margin": 2.351065155998958,
         "frames_sent": 1024,
         "frames_received": 1024,
         "sequence_errors": 0,
@@ -40,9 +40,9 @@
       },
       {
         "measured_frames": 1024,
-        "elapsed_seconds": 0.8321170001290739,
-        "frames_per_second": 1230.59617799079,
-        "real_time_margin": 2.520260972525138,
+        "elapsed_seconds": 0.7670001999940723,
+        "frames_per_second": 1335.0713598352568,
+        "real_time_margin": 2.734226144942606,
         "frames_sent": 1024,
         "frames_received": 1024,
         "sequence_errors": 0,
@@ -51,9 +51,9 @@
       },
       {
         "measured_frames": 1024,
-        "elapsed_seconds": 0.6983707000035793,
-        "frames_per_second": 1466.269990987239,
-        "real_time_margin": 3.0029209415418654,
+        "elapsed_seconds": 0.6617254999000579,
+        "frames_per_second": 1547.4694569797557,
+        "real_time_margin": 3.16921744789454,
         "frames_sent": 1024,
         "frames_received": 1024,
         "sequence_errors": 0,
@@ -81,7 +81,7 @@
   },
   "source_sha256": {
     "algorithms/p0/channelizer.py": "9dcd117cb302d7422f26192a80703211150cc1bdba91ed5e2b674b174afaa310",
-    "algorithms/p0/transport.py": "e493986fc91b32fb16981ffa85d196223efdf9ab8ab247dc0e8e280b0b8074f3",
+    "algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
     "platforms/embedded/p0/include/p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28",
     "platforms/embedded/p0/src/p0_iq_transport.c": "449ecbf65532367a1db4192a5085eb3ec2a30b8d4f317f4f3e89fc4cf15f3221",
     "tests/p0/p0_iq_transport_test.c": "70cc3a693bc3cd855408069720168af89a2fa92e1ed9fa0b00e1d7eb6390610d",
@@ -91,7 +91,7 @@
     "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init": "e8c823b063849920f0e6b4c5b56e065b100c60d730b80069d3bc3d3d65ebbb3f",
     "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default": "60998f9363d870bc50cb1158842d096dd3ad2d72f8f1be982f3eb8c3f64d6c10",
     "tests/test_p0_channelizer.py": "24d7bcaacd0f7db33a72dd592e8d3e52b14adaf822bdb7fb96e17d80c4e4ccf3",
-    "tests/test_p0_transport.py": "244ddfa85d364512538e81200c69e19dc84cb04d99486275449fee7a60f34b44"
+    "tests/test_p0_transport.py": "3fd12f38e11f07e3ddfed9c249337ff01cc6d4f72d3b5f97ad5bcf9adf9a6589"
   },
   "physical_ethernet_exercised": false,
   "zedboard_network_service_exercised": false,

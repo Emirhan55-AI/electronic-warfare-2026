@@ -302,16 +302,23 @@ Köprü sürekli dört istekli akış, CPU0 bağı ve kopyasız yerel istek ile 
 Bilinen CI8 yaşam döngüsü 54 aday için alan bazında eşleşmiş; beş bağımsız
 64+4.096-kare koşusunda 20.480/20.480 ölçüm karesi sıfır sıra hatası ve sıfır
 aday düşümüyle bitmiştir. En düşük/ortalama/en yüksek hız
-`504,759253742 / 507,559962598 / 509,019828886 kare/s`, gereken alt sınır
-`488,28125 kare/s` ve en düşük gerçek zaman marjı `1,033746952` olmuştur. Kanıt
+`505,184524010 / 506,606589485 / 508,009093258 kare/s`, gereken alt sınır
+`488,28125 kare/s` ve en düşük gerçek zaman marjı `1,034617905` olmuştur. Kanıt
 `results/evidence/p0/phase07-ethernet-physical-acceptance.json` dosyasındadır.
 
 SHA-256 değeri `5d749d4c2a8a86f2bbcc3be9a700ea32efc8104196b237700740886003e2e61d`
 olan PetaLinux imajı soğuk açılıştan sonra FPGA `operating` durumuyla başlamış;
 kalıcı ağ köprüsü değişken ağ arayüzünü `auto` seçerek aynı kabulü geçmiştir.
 Köprü güvenli varsayılan olarak kapalıdır ve bu kontrollü kabul oturumunda açıkça
-etkinleştirilmiştir. **PHASE-07 henüz tamamlanmadı.** Kesintisiz canlı HackRF
-callback akışı ile USB→kanal seçici→Ethernet→ZedBoard→FPGA sonucu açıktır.
+etkinleştirilmiştir. Tek süreçli HackRF stdout RX, stateful kanal seçici ve ağ
+taşıması üç aşamalı sınırlı boru hattında birleştirilmiştir. Beş bağımsız canlı
+64+4.096-kare koşusunda 20.480/20.480 ölçüm karesi, sıfır USB overrun, sıfır sıra
+hatası ve toplam 32.927 FPGA adayıyla tamamlanmıştır. En düşük canlı hız
+`488,746900919 kare/s`, gerekli sınır `488,28125 kare/s`; 64-kare kuyruğun tepe
+kullanımı 8 olmuştur. Kanıt
+`results/evidence/p0/phase07-live-hackrf-fpga-acceptance.json` dosyasındadır.
+**PHASE-07 tamamlandı. PHASE-08 henüz tamamlanmadı.** Canlı backend kabulü
+mevcuttur; ürün arayüzüne bağlanması ve faz kapanışı ayrı kullanıcı onayı gerektirir.
 
 Kullanıcının 2026-08-26 onayıyla `ET-A — Offline ET Ortak Matematiksel Kabul`
 bakım paketi uygulanmıştır. Önceden izinli P0 offline kaynaklarında KTR-5.1–5.4

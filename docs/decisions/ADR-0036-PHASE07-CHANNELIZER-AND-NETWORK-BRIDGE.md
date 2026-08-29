@@ -1,6 +1,6 @@
 # ADR-0036 — PHASE-07 Kanal Seçici ve Ağ Köprüsü
 
-- Durum: Kabul edildi; donanımsız ve fiziksel Ethernet alt kapıları tamamlandı
+- Durum: Kabul edildi; PHASE-07 uçtan uca fiziksel kapıları tamamlandı
 - Kapsam: HackRF host çıkışı ile ZedBoard yerel ED hizmeti arasındaki veri yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-6
 - Ön koşullar: ADR-0034, ADR-0035
@@ -54,12 +54,12 @@ ikinci kez kopyalanmadan `sendmsg` ile `SOCK_SEQPACKET` hizmetine iletilir.
 Bilinen CI8 karesinin üç pozitif ve iki sıfır karelik yaşam döngüsü fiziksel
 Ethernet→yerel hizmet→DMA→FPGA→ARM yolunda 54 aday için eşleşmiştir. Ardından
 beş bağımsız koşuda toplam 20.480 ölçüm karesi tamamlanmıştır. En düşük/ortalama/
-en yüksek hız `504,759253742 / 507,559962598 / 509,019828886 kare/s`, gereken
-alt sınır `488,28125 kare/s` ve en düşük marj `1,033746952` olmuştur. Sıra hatası
+en yüksek hız `505,184524010 / 506,606589485 / 508,009093258 kare/s`, gereken
+alt sınır `488,28125 kare/s` ve en düşük marj `1,034617905` olmuştur. Sıra hatası
 ve aday düşümü sıfırdır. Kanıt `phase07-ethernet-physical-acceptance.json`
 kaydındadır.
 
-## Açık fiziksel kapı
+## Canlı uçtan uca kabul
 
 Köprü ve açılış yapılandırması PetaLinux imajına alınmış; SHA-256 değeri
 `5d749d4c2a8a86f2bbcc3be9a700ea32efc8104196b237700740886003e2e61d` olan
@@ -67,7 +67,13 @@ imajın soğuk açılışı sonrası FPGA `operating` ve kurulu köprü ikilisi 
 Değişken MAC tabanlı Linux adları tek fiziksel arayüzün `auto` seçimiyle çözülür;
 sıfır veya birden fazla fiziksel arayüz fail-closed davranır. Köprü ürün imajında
 güvenli varsayılan olarak kapalıdır ve bu kabulte açıkça etkinleştirilmiştir.
-Tekrarlı `hackrf_transfer` süreçleri
-kesintisiz USB akışı kanıtı değildir; ürün canlı yolu ayrıca callback veya
-eşdeğer sürekli backend ile 8→2 MS/s kanal seçici ve FPGA sonucunu birlikte
-doğrulamalıdır. Bu canlı uçtan uca kapı geçilmeden PHASE-07 tamamlanmış sayılmaz.
+Tekrarlı kısa alımların yerine her koşuda tek `hackrf_transfer` stdout RX süreci
+kullanılmıştır. USB okuma, stateful 8→2 MS/s kanal seçici ve dört-istekli ağ
+taşıması üç ayrı sınırlı aşamada çalışır. İlk ardışık uygulama koşusunda gözlenen
+10 USB overrun ve `485,291462661 kare/s` sonuç kabul edilmemiş; USB okuma ile
+kanal seçimi ağ yanıt beklemesinden ayrılmıştır. Son beş koşuda 20.480/20.480
+ölçüm karesi, sıfır USB overrun, sıfır sıra hatası, sıfır giriş/çıkış doyumu ve
+toplam 32.927 FPGA adayı elde edilmiştir. En düşük hız `488,746900919 kare/s`,
+gereken sınır `488,28125 kare/s`; 64-kare kuyruğun tepe kullanımı 8'dir.
+PHASE-07 tamamlanmıştır. Bu kabul dBm kalibrasyonu, tespit olasılığı, saha yanlış
+alarm oranı, yön bulma doğruluğu veya RF yayın işlevi iddiası oluşturmaz.

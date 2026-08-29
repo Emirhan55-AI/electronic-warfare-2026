@@ -26,9 +26,13 @@ yerine şu sonuç geçer: SHA-256 değeri
 PetaLinux imajı soğuk açılıştan sonra FPGA `operating` durumuyla başlamış ve
 MAC tabanlı adı değişen tek fiziksel ağ arayüzünü `auto` seçmiştir. Beş fiziksel
 Ethernet koşusunda 20.480/20.480 ölçüm karesi sıfır sıra hatası ve sıfır aday
-düşümüyle tamamlanmış; en düşük hız `504,759253742 kare/s`, gerekli alt sınır
-`488,28125 kare/s` olmuştur. Kesintisiz canlı HackRF→kanal seçici→Ethernet→
-ZedBoard→FPGA kabulü açık kalır.
+düşümüyle tamamlanmış; en düşük hız `505,184524010 kare/s`, gerekli alt sınır
+`488,28125 kare/s` olmuştur. Tek süreçli canlı HackRF→kanal seçici→Ethernet→
+ZedBoard→FPGA kabulü beş koşuda ayrıca geçmiştir: 20.480/20.480 ölçüm karesi,
+sıfır USB overrun, sıfır sıra hatası, 32.927 FPGA adayı ve
+`488,746900919 kare/s` en düşük hız. Bu kayıt KTR-4.1, KTR-4.1-OPS-B0 ve KTR-6
+satırlarındaki sürekli USB/ZedBoard/FPGA yolunun açık olduğuna dair eski sınırı
+geçersiz kılar; ürün UI, dBm kalibrasyonu ve saha doğruluğu kapsam dışıdır.
 
 ## Operatör uygulaması sağlamlaştırma izlenebilirliği
 

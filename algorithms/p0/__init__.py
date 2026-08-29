@@ -62,10 +62,12 @@ from .transport import (
     IQResponse,
     IQResponseCodec,
     IQTransport,
+    LocalEDResponse,
     LoopbackIQTransport,
     TCPClientIQTransport,
     TransportError,
     TransportStats,
+    decode_local_ed_response,
 )
 
 __all__ = [
@@ -88,6 +90,7 @@ __all__ = [
     "IQResponse",
     "IQResponseCodec",
     "IQTransport",
+    "LocalEDResponse",
     "LoopbackIQTransport",
     "ManualAmplitudeDF",
     "REAL_TWO_POINT_SOURCE",
@@ -127,6 +130,7 @@ __all__ = [
     "shifted_absolute_frequency_axis",
     "TransportError",
     "TransportStats",
+    "decode_local_ed_response",
     "TemporalConfirmation",
     "TCPClientIQTransport",
     "TrackedCandidate",

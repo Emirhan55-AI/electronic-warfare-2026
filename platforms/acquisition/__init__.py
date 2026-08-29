@@ -23,6 +23,12 @@ from .hackrf import (
 from .process import ProcessResult, SafeProcessRunner
 from .source import BoundedCI8FrameSource, decode_ci8
 from .search import HackRFSearchBackend
+from .continuous import (
+    HackRFContinuousRX,
+    HackRFStreamStatistics,
+    build_continuous_receive_argv,
+    parse_hackrf_buffer_statistics,
+)
 
 __all__ = [
     "AcquisitionError",
@@ -50,3 +56,9 @@ __all__ = [
 from .rx_sources import HackRFHostRxSource, NormalizedIQFrame, ReplayRxSource, RXSourceStatistics, RxSource
 
 __all__ += ["HackRFHostRxSource", "NormalizedIQFrame", "ReplayRxSource", "RXSourceStatistics", "RxSource"]
+__all__ += [
+    "HackRFContinuousRX",
+    "HackRFStreamStatistics",
+    "build_continuous_receive_argv",
+    "parse_hackrf_buffer_statistics",
+]

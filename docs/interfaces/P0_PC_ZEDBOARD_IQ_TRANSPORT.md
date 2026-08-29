@@ -73,13 +73,18 @@ dört-kare loopback yolu geçmiştir. Kanıt
 Doğrudan PC–ZedBoard 1 Gbps fiziksel linki ve kart üzerindeki ağ hızı geçmiştir.
 Bilinen CI8 yaşam döngüsünün ardından yapılan beş adet 64+4.096-kare koşusunda
 20.480/20.480 ölçüm karesi tamamlanmış; sıra hatası ve aday düşümü sıfır,
-en düşük hız `504,759253742 kare/s` ve en düşük gerçek zaman marjı
-`1,033746952` olmuştur. Kanıt
+en düşük hız `505,184524010 kare/s` ve en düşük gerçek zaman marjı
+`1,034617905` olmuştur. Kanıt
 `results/evidence/p0/phase07-ethernet-physical-acceptance.json` dosyasındadır.
 
 Ağ köprüsü kalıcı PetaLinux imajından soğuk açılış sonrası çalıştırılmıştır.
 Değişken MAC tabanlı ad yerine tek fiziksel ağ arayüzü açılış betiğinde `auto`
 seçilir; sıfır veya birden fazla fiziksel arayüzde başlangıç kapalı kalır. Ürün
 varsayılanı güvenlik için kapalıdır ve kabul oturumunda açıkça etkinleştirilmiştir.
-Canlı HackRF'nin kesintisiz callback akışı, 8→2 MS/s canlı kanal seçimi ve bu
-canlı verinin FPGA sonucuna dönüşmesi henüz doğrulanmamıştır.
+Canlı yol tek bir `hackrf_transfer` stdout RX sürecini kullanır. USB okuma,
+stateful 8→2 MS/s kanal seçimi ve dört-istekli ağ taşıması ayrı, sınırlı
+aşamalardır. Beş adet 64+4.096-kare fiziksel koşuda 20.480/20.480 ölçüm karesi,
+sıfır USB overrun, sıfır taşıma sıra hatası ve toplam 32.927 FPGA adayı elde
+edilmiştir. En düşük hız `488,746900919 kare/s`, sınır `488,28125 kare/s` ve
+64-kare kanal seçici kuyruğunun en yüksek kullanımı 8'dir. Kanıt
+`results/evidence/p0/phase07-live-hackrf-fpga-acceptance.json` dosyasındadır.

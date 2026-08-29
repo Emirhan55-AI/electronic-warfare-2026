@@ -7,6 +7,7 @@ import struct
 import socket
 import threading
 import unittest
+import zlib
 
 from algorithms.p0 import (
     IQFrame,
@@ -16,10 +17,71 @@ from algorithms.p0 import (
     LoopbackIQTransport,
     TCPClientIQTransport,
     TransportError,
+    decode_local_ed_response,
 )
 
 
 class P0TransportTests(unittest.TestCase):
+    def test_live_hackrf_fpga_evidence_is_repeatable_and_source_bound(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        evidence = json.loads(
+            (root / "results/evidence/p0/phase07-live-hackrf-fpga-acceptance.json")
+            .read_text(encoding="utf-8")
+        )
+        repeatability = evidence["repeatability"]
+        self.assertEqual(evidence["status"], "passed")
+        self.assertEqual(repeatability["runs"], 5)
+        self.assertEqual(repeatability["passed_runs"], 5)
+        self.assertEqual(repeatability["completed_measured_frames"], 20_480)
+        self.assertGreaterEqual(
+            repeatability["minimum_frames_per_second"], 2_000_000 / 4_096
+        )
+        self.assertEqual(repeatability["total_hackrf_overruns"], 0)
+        self.assertEqual(repeatability["total_transport_sequence_errors"], 0)
+        self.assertGreater(repeatability["total_raw_candidates"], 0)
+        self.assertFalse(evidence["hackrf_transmit_api_called"])
+        for run in evidence["runs"]:
+            self.assertEqual(run["hackrf_frames_received"], 4_160)
+            self.assertEqual(run["transport_frames_received"], 4_160)
+            self.assertEqual(run["input_saturated_components"], 0)
+            self.assertEqual(run["output_saturated_components"], 0)
+            self.assertLessEqual(
+                run["channelized_queue_high_watermark"],
+                run["channelized_queue_capacity"],
+            )
+        for relative, expected in evidence["source_sha256"].items():
+            actual = hashlib.sha256((root / relative).read_bytes()).hexdigest()
+            self.assertEqual(actual, expected, relative)
+
+    def test_local_service_response_decoder_validates_abi_v3(self) -> None:
+        frame_id = 17
+        result = bytearray(20)
+        struct.pack_into("<IHHHBB", result, 0, frame_id, 0, 0, 0, 0, 0)
+        header = bytearray(48)
+        struct.pack_into(
+            "<IHHIIIIII",
+            header,
+            0,
+            0x31534550,
+            3,
+            48,
+            68,
+            frame_id,
+            0,
+            len(result),
+            4,
+            7,
+        )
+        struct.pack_into("<I", header, 44, zlib.crc32(header[:44]) & 0xFFFFFFFF)
+        decoded = decode_local_ed_response(bytes(header + result), frame_id)
+        self.assertEqual(decoded.frame_id, frame_id)
+        self.assertEqual(decoded.raw_candidate_count, 4)
+        self.assertEqual(decoded.dma_status_flags, 7)
+        damaged = bytearray(header + result)
+        damaged[44] ^= 1
+        with self.assertRaisesRegex(TransportError, "başlığı"):
+            decode_local_ed_response(bytes(damaged), frame_id)
+
     def test_network_bridge_boot_configuration_does_not_pin_a_volatile_mac_name(self) -> None:
         root = Path(__file__).resolve().parents[1]
         defaults = (

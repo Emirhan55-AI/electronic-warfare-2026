@@ -36,8 +36,8 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Alan | Durum |
 |---|---|
 | SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
-| HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Seri numarasına bağlı fiziksel HackRF-1 ile 8 MS/s RX, DC-güvenli offset tuning ve host tespiti 5/5 tekrar geçti; ZedBoard/FPGA canlı aktarımı bekliyor |
-| PC kanal seçici ve ZedBoard ağ taşıması | 8→2 MS/s, 193 tap anti-alias, tam CI8/4096 çerçeve ve çift CRC'li dört derinlikli TCP→yerel hizmet yolu doğrulandı. Kalıcı PetaLinux imajının soğuk açılışı sonrası fiziksel 1 Gbps Ethernet üzerinden beş koşuda 20.480/20.480 ölçüm karesi geçti; en düşük hız 504,76 kare/s oldu. Kesintisiz canlı HackRF→FPGA akışı bekliyor |
+| HackRF araç/cihaz denetimi ve RX alımı | Seri numarasına bağlı fiziksel HackRF-1 ile 8 MS/s RX, DC-güvenli offset tuning ve host tespiti 5/5 tekrar geçti. Tek süreçli kesintisiz RX→FPGA kabulünde beş koşu ve 20.480/20.480 ölçüm karesi sıfır USB overrun ile tamamlandı |
+| PC kanal seçici ve ZedBoard ağ taşıması | 8→2 MS/s, 193 tap anti-alias, tam CI8/4096 çerçeve ve çift CRC'li dört derinlikli TCP→yerel hizmet yolu doğrulandı. Kalıcı PetaLinux imajının soğuk açılışı sonrası kayıtlı-I/Q Ethernet kabulünde en düşük hız 505,18 kare/s; kaynak hızına bağlı canlı HackRF kabulünde 488,75 kare/s oldu |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
 | Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Kalıcı kart imajıyla yapılan beş sürekli 2 MS/s kabul koşusunda toplam 20.480/20.480 kare sıfır hatayla işlendi; en düşük hız 508,76 kare/s oldu |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |

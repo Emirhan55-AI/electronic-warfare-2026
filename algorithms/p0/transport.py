@@ -25,6 +25,8 @@ P0_SAMPLE_RATE_HZ = 2_000_000
 P0_COMPLEX_SAMPLES = 4_096
 P0_PAYLOAD_BYTES = P0_COMPLEX_SAMPLES * 2
 P0_PIPELINE_DEPTH = 4
+LOCAL_ED_RESPONSE_MAGIC = 0x31534550
+LOCAL_ED_RESPONSE_HEADER_BYTES = 48
 
 
 class TransportError(RuntimeError):
@@ -53,6 +55,69 @@ class IQFrame:
 class IQResponse:
     sequence_number: int
     payload: bytes
+
+
+@dataclass(frozen=True)
+class LocalEDResponse:
+    frame_id: int
+    raw_candidate_count: int
+    dma_status_flags: int
+    active_count: int
+    ended_count: int
+    dropped_candidates: int
+    reset_applied: int
+    response_bytes: int
+
+
+def decode_local_ed_response(payload: bytes, expected_frame_id: int) -> LocalEDResponse:
+    """Decode the compact ABI-v3 response returned by the persistent board service."""
+    if len(payload) < LOCAL_ED_RESPONSE_HEADER_BYTES:
+        raise TransportError("local_response_short", "Yerel kart yanıtı başlıktan kısa.")
+    (
+        magic,
+        version,
+        header_bytes,
+        total_bytes,
+        frame_id,
+        status,
+        result_bytes,
+        raw_candidate_count,
+        dma_status_flags,
+    ) = struct.unpack_from("<IHHIIIIII", payload, 0)
+    header_crc = struct.unpack_from("<I", payload, 44)[0]
+    if (
+        magic != LOCAL_ED_RESPONSE_MAGIC
+        or version != 3
+        or header_bytes != LOCAL_ED_RESPONSE_HEADER_BYTES
+        or total_bytes != len(payload)
+        or frame_id != expected_frame_id
+        or status != 0
+        or header_crc != zlib.crc32(payload[:44]) & 0xFFFFFFFF
+        or any(payload[offset] != 0 for offset in range(32, 44))
+    ):
+        raise TransportError("local_response_header", "Yerel kart hizmeti sürüm 3 başlığı doğrulanamadı.")
+    result = payload[LOCAL_ED_RESPONSE_HEADER_BYTES:]
+    if len(result) != result_bytes or result_bytes < 20:
+        raise TransportError("local_response_length", "Yerel kart hizmeti sonuç uzunluğu geçersiz.")
+    result_frame_id = struct.unpack_from("<I", result, 0)[0]
+    active_count, ended_count, dropped_candidates = struct.unpack_from("<HHH", result, 4)
+    reset_applied = result[10]
+    if (
+        result_frame_id != expected_frame_id
+        or result[11] != 0
+        or result_bytes != 20 + 68 * (active_count + ended_count)
+    ):
+        raise TransportError("local_response_result", "Kompakt kart sonucu doğrulanamadı.")
+    return LocalEDResponse(
+        frame_id=frame_id,
+        raw_candidate_count=raw_candidate_count,
+        dma_status_flags=dma_status_flags,
+        active_count=active_count,
+        ended_count=ended_count,
+        dropped_candidates=dropped_candidates,
+        reset_applied=reset_applied,
+        response_bytes=len(payload),
+    )
 
 
 @dataclass(frozen=True)

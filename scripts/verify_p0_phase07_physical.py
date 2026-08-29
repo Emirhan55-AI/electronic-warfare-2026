@@ -4,21 +4,20 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import hashlib
 import json
 import math
 from pathlib import Path
-import struct
 import sys
 import time
-import zlib
 
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from algorithms.p0 import IQFrame, TCPClientIQTransport
+from algorithms.p0 import IQFrame, TCPClientIQTransport, decode_local_ed_response
 
 
 EVIDENCE_PATH = ROOT / "results/evidence/p0/phase07-ethernet-physical-acceptance.json"
@@ -30,8 +29,6 @@ PIPELINE_DEPTH = 4
 SAMPLE_RATE_HZ = 2_000_000
 FRAME_SAMPLES = 4096
 REQUIRED_FRAMES_PER_SECOND = SAMPLE_RATE_HZ / FRAME_SAMPLES
-LOCAL_RESPONSE_MAGIC = 0x31534550
-LOCAL_RESPONSE_HEADER_BYTES = 48
 EXPECTED_FUNCTIONAL = (
     (54, 54, 0, 0, 0),
     (54, 54, 0, 0, 0),
@@ -54,52 +51,7 @@ def _load_known_frame() -> bytes:
 
 
 def _parse_local_response(payload: bytes, expected_frame_id: int) -> dict[str, int]:
-    if len(payload) < LOCAL_RESPONSE_HEADER_BYTES:
-        raise RuntimeError("Yerel kart hizmeti yanıtı başlıktan kısa.")
-    (
-        magic,
-        version,
-        header_bytes,
-        total_bytes,
-        frame_id,
-        status,
-        result_bytes,
-        raw_candidate_count,
-        dma_status_flags,
-    ) = struct.unpack_from("<IHHIIIIII", payload, 0)
-    if (
-        magic != LOCAL_RESPONSE_MAGIC
-        or version != 3
-        or header_bytes != LOCAL_RESPONSE_HEADER_BYTES
-        or total_bytes != len(payload)
-        or frame_id != expected_frame_id
-        or status != 0
-        or struct.unpack_from("<I", payload, 44)[0] != zlib.crc32(payload[:44]) & 0xFFFFFFFF
-        or any(payload[offset] != 0 for offset in range(32, 44))
-    ):
-        raise RuntimeError("Yerel kart hizmeti sürüm 3 başlığı doğrulanamadı.")
-    result = payload[LOCAL_RESPONSE_HEADER_BYTES:]
-    if len(result) != result_bytes or result_bytes < 20:
-        raise RuntimeError("Yerel kart hizmeti sonuç uzunluğu geçersiz.")
-    result_frame_id = struct.unpack_from("<I", result, 0)[0]
-    active_count, ended_count, dropped_candidates = struct.unpack_from("<HHH", result, 4)
-    reset_applied = result[10]
-    if (
-        result_frame_id != expected_frame_id
-        or result[11] != 0
-        or result_bytes != 20 + 68 * (active_count + ended_count)
-    ):
-        raise RuntimeError("Kompakt kart sonucu doğrulanamadı.")
-    return {
-        "frame_id": frame_id,
-        "raw_candidate_count": raw_candidate_count,
-        "dma_status_flags": dma_status_flags,
-        "active_count": active_count,
-        "ended_count": ended_count,
-        "dropped_candidates": dropped_candidates,
-        "reset_applied": reset_applied,
-        "response_bytes": len(payload),
-    }
+    return asdict(decode_local_ed_response(payload, expected_frame_id))
 
 
 def _frames(first_frame_id: int, count: int, payload: bytes) -> tuple[IQFrame, ...]:
