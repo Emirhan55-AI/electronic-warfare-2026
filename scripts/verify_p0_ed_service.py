@@ -79,7 +79,8 @@ def verify() -> dict[str, object]:
     required_service_tokens = (
         "AF_UNIX", "SOCK_SEQPACKET", "MSG_TRUNC", "SO_RCVTIMEO", "setgroups(0U, NULL)",
         "setgid(gid)", "setuid(uid)", "P0_ED_IQ_FRAME_BYTES", "p0_dma_runtime_run(",
-        "p0_ed_pipeline_process(", "chmod(socket_path, 0660)",
+        "p0_ed_pipeline_process_packet(", "P0_DMA_OUTPUT_CAPACITY_BYTES",
+        "chmod(socket_path, 0660)",
         "P0_ED_REQUEST_BYTES_V2", "P0_ED_REQUEST_FLAG_PARAMETER",
         "p0_ed_pipeline_measure(",
     )

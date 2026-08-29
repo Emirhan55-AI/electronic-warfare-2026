@@ -112,6 +112,46 @@ static double magnitude_squared(p0_parameter_complex_t value)
     return value.real * value.real + value.imag * value.imag;
 }
 
+int p0_parameter_power_from_ci8(const uint8_t *iq_ci8, size_t iq_bytes,
+                                uint64_t *shifted_power_uq28_30,
+                                size_t power_count)
+{
+    p0_parameter_complex_t *work;
+    size_t index;
+
+    if (iq_ci8 == NULL || shifted_power_uq28_30 == NULL ||
+        iq_bytes != P0_PARAMETER_IQ_BYTES || power_count != P0_PARAMETER_FFT_SIZE) {
+        errno = EINVAL;
+        return -1;
+    }
+    work = malloc(P0_PARAMETER_FFT_SIZE * sizeof(*work));
+    if (work == NULL)
+        return -1;
+    for (index = 0U; index < P0_PARAMETER_FFT_SIZE; ++index) {
+        double window = 0.5 - 0.5 * cos(2.0 * P0_PARAMETER_PI * (double)index /
+                                        (double)P0_PARAMETER_FFT_SIZE);
+
+        work[index].real = (double)(int8_t)iq_ci8[2U * index] * window / 128.0;
+        work[index].imag = (double)(int8_t)iq_ci8[2U * index + 1U] * window / 128.0;
+    }
+    fft(work, P0_PARAMETER_FFT_SIZE, 0);
+    for (index = 0U; index < P0_PARAMETER_FFT_SIZE; ++index) {
+        double scaled = magnitude_squared(work[index]) *
+                        (double)(UINT64_C(1) << P0_PARAMETER_POWER_FRACTION_BITS);
+        size_t shifted = index ^ (P0_PARAMETER_FFT_SIZE / 2U);
+
+        if (!isfinite(scaled) || scaled < 0.0 ||
+            scaled >= (double)(UINT64_C(1) << 58)) {
+            free(work);
+            errno = ERANGE;
+            return -1;
+        }
+        shifted_power_uq28_30[shifted] = (uint64_t)floor(scaled + 0.5);
+    }
+    free(work);
+    return 0;
+}
+
 static int store_rectangular_fft(p0_parameter_runtime_t *runtime, const uint8_t *iq_ci8,
                                  unsigned int observation)
 {

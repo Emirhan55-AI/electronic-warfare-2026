@@ -24,6 +24,9 @@ eşlemesini korur.
 Paket gürültü, eşik ve tepe gücünü exact integer metadata olarak taşır. Fiziksel
 Hz/dBFS/OBW99 dönüşümü ve parametre ölçümü PS tarafında kalır. Periyodik Hann için
 `Σw²=3N/8` normalizasyonu korunur; kalibrasyon katsayısı olmadan dBm üretilmez.
+Parametre isteği açıkça verildiğinde ARM, aynı CI8 karesinden referans PSD'yi yeniden
+hesaplar; bu yardımcı yol FPGA'nın bit-tam aday/güç akışının yerine yeni bir donanım
+doğruluğu iddiası değildir.
 
 ## Çalışma zamanı ayrımı
 
@@ -44,14 +47,14 @@ Aşağıdaki fiziksel kanıtlar tarihsel `p0_dsp_runtime_top` güç→ARM yoluna
 bilinen deterministik çerçevelere aittir. Yeni aday-paket bitstream'i için kart
 kabulü sayılmaz.
 
-Native PetaLinux imajındaki `p0-os-cfar-run`, DMA'nın doğal FFT sıralı 4096 adet
+Tarihsel güç-frame imajındaki `p0-os-cfar-run`, DMA'nın doğal FFT sıralı 4096 adet
 little-endian UQ28.30 güç beat'ini okur, `fftshift` bin eşlemesini uygular ve kanonik
 `P0_OS_CFAR_EXPONENTIAL_PFA_1E4` profiliyle ham aday JSON'u üretir. Fiziksel kartta
 bilinen çerçevenin FPGA güç hash'i golden çıktıyla, ARM aday JSON'u ise host C
 çıktısıyla byte-tam eşleşmiştir. Bu tek deterministik çerçevedeki 147 ham aday,
 temporal doğrulanmış olay veya canlı RF detector doğruluğu olarak yorumlanmaz.
 
-`p0-ed-runtime-run`, aynı güç çerçevesindeki OS-CFAR adaylarını dondurulmuş
+Tarihsel güç-frame imajındaki `p0-ed-runtime-run`, aynı güç çerçevesindeki OS-CFAR adaylarını dondurulmuş
 PHASE-06I ABI v1 header/record/trailer ve IEEE CRC32 sınırına paketler; ardından
 PHASE-06J portable C çekirdeğini kalıcı durumla çalıştırır. Tepe gücü FPGA'nın
 UQ28.30 değerinden bit-tam korunur. OS-CFAR sıra istatistiği gürültüsü integer
@@ -67,26 +70,27 @@ Araç güncel rootfs içindeki `/usr/bin/p0-ed-runtime-run` yoluna kurulmuş; ye
 Direct-mode DMA sözleşmesi SG kapalı ve DRE kapalı olarak kalır. Bir giriş frame'i
 `4096×16 bit = 8192 byte`, bir çıkış paketi `64 + 40×candidate_count` byte olur;
 üst sınır 54.144 byte'dır. AXI DMA buffer-length alanı 16 bittir ve 65.535-byte
-üst sınırı paketi temsil eder. Mevcut Linux sürücüsü ise tarihsel güç-frame yolu
-için 32.768-byte sabit S2MM tamponu/programlama sözleşmesine sahiptir. Bu nedenle
-yeni bitstream sürücüyle birlikte henüz çalıştırılamaz; 54.144-byte kapasiteli
-tampon, TLAST ile biten gerçek paket uzunluğunun fail-closed alınması ve iki-buffer
-işletimi yeni PetaLinux kabulünden önce tamamlanmalıdır.
+üst sınırı paketi temsil eder. Sürücü 54.144-byte DMA-coherent tampon ayırır,
+S2MM'yi bu kapasiteyle önce kollar ve IOC sonrasında S2MM_LENGTH register'ından
+gerçekte yazılan paket uzunluğunu okur. 64–54.144 aralığı dışındaki veya 8-byte
+hizalı olmayan uzunluklar fail-closed reddedilir.
 
-`p0_dma_client` çekirdek sürücüsü 8192 ve 32768 byte'lık DMA-coherent tamponların
-sahibidir ve iki DMA adresinde de 8-byte hizalamayı zorunlu tutar. Her çalıştırmada
-DMA resetlenir, S2MM kanalına hedef adres ile 32768-byte length yazılarak alıcı
-önce hazırlanır, ardından MM2S kanalına kaynak adres ile 8192-byte length yazılır.
-İki kanal ayrı kesmelerle IOC/error tamamlanması, 5 saniye timeout ve AXI DMA
-`DMAIntErr`, `DMASlvErr`, `DMADecErr` ile SG hata bitleri açısından denetlenir.
-Kullanıcı aracı yalnız tam 8192-byte giriş ve tam 32768-byte çıkış kabul eder.
+`p0_dma_client` çekirdek sürücüsü iki DMA adresinde de 8-byte hizalamayı zorunlu
+tutar. Her çalıştırmada DMA resetlenir, S2MM kanalına hedef adres ve 54.144-byte
+kapasite yazılarak alıcı önce hazırlanır, ardından MM2S kanalına kaynak adres ile
+8192-byte length yazılır. İki kanal ayrı kesmelerle IOC/error tamamlanması,
+5 saniye timeout ve AXI DMA `DMAIntErr`, `DMASlvErr`, `DMADecErr` ile SG hata
+bitleri açısından denetlenir. Kullanıcı runtime'ı kapasiteyi alır, status'taki
+actual `output_bytes` değerini kontrol eder ve yalnız o kadar paketi okur.
 `/dev/p0-dma` izinleri bilinçli olarak `0600` kalır. Ürün uygulaması aygıta
 doğrudan erişmez. `P0_ED_LOCAL_SERVICE_ABI.md` ile tanımlanan yerel kart hizmeti
 aygıtı açtıktan sonra `p0ed` hesabına yetki düşürür; tam 8192-byte I/Q isteğini
-CRC ve sürüm kapılarından geçirir, DMA→OS-CFAR→ABI v1→2/3 sonucunu alan alan
-little-endian serileştirir. Protokol/Linux host kapıları ile PetaLinux 2025.2
-ARM paket, rootfs ve `image.ub` üretimi geçmiştir. Rootfs içinde `p0ed` hesabı,
-SysV başlatma bağlantıları ve ARM EABI5 servis/istemci doğrulanmıştır. Yeni imajın
+CRC ve sürüm kapılarından geçirir, DMA→PHASE-06I paket doğrulama→PHASE-06J
+ABI v1→2/3 sonucunu alan alan little-endian serileştirir. Bu paragraftaki
+PetaLinux 2025.2 ARM paket, rootfs ve `image.ub` sonuçları tarihsel güç-frame
+imajına aittir; yeni aday-paket ABI'si için yeniden üretilmelidir. Tarihsel
+rootfs içinde `p0ed` hesabı,
+SysV başlatma bağlantıları ve ARM EABI5 servis/istemci doğrulanmıştır. O tarihsel imajın
 fiziksel soğuk açılışında hizmet otomatik başlamış; DMA aygıtı `root:root 0600`,
 hizmet süreci ek grubu olmayan `p0ed` ve soket `p0ed:petalinux 0660` olarak
 ölçülmüştür. DMA aygıtını doğrudan okuyamayan `petalinux` kullanıcısı, soket
@@ -94,10 +98,10 @@ hizmet süreci ek grubu olmayan `p0ed` ve soket `p0ed:petalinux 0660` olarak
 host referansıyla eşleşmiştir. SysV yeniden başlatma sonrasında yeni süreç ve
 soketle ek bir fiziksel istek de geçmiştir.
 
-PetaLinux 2025.2 hedef derlemesi; ZedBoard PS önayarı, özel device-tree compatible
+Tarihsel PetaLinux 2025.2 hedef derlemesi; ZedBoard PS önayarı, özel device-tree compatible
 değeri, `/dev/p0-dma` sağlayan modül, `p0-dma-run`, salt-okuma varsayılanlı FCLK
-koruma modülü/aracı ve HackRF/OpenSSH/udev bağımlılıklarıyla tamamlanmıştır. Yeni
-FSBL, bitstream, U-Boot ve device tree içeren native `BOOT.BIN` fiziksel kartta
+koruma modülü/aracı ve HackRF/OpenSSH/udev bağımlılıklarıyla tamamlanmıştır. O
+imaja ait FSBL, bitstream, U-Boot ve device tree içeren native `BOOT.BIN` fiziksel kartta
 DONE, UART ve Linux giriş kapılarını geçmiş; DONE ve UART Linux giriş kapısı üç
 ardışık soğuk açılışta 3/3 tekrarlanmıştır. Bu konfigürasyonda 8192-byte MM2S,
 32768-byte S2MM, iki kanal IOC ve hata/timeout denetimleri geçmiştir. Sıfır çerçeve

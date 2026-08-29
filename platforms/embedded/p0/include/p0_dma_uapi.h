@@ -4,13 +4,16 @@
 #include <linux/ioctl.h>
 #include <linux/types.h>
 
-#define P0_DMA_ABI_VERSION 1U
+#define P0_DMA_ABI_VERSION 2U
 #define P0_DMA_INPUT_BYTES 8192U
-#define P0_DMA_OUTPUT_BYTES 32768U
+#define P0_DMA_OUTPUT_MINIMUM_BYTES 64U
+#define P0_DMA_OUTPUT_CAPACITY_BYTES 54144U
+#define P0_DMA_OUTPUT_ALIGNMENT_BYTES 8U
 
 struct p0_dma_status {
     __u32 abi_version;
     __u32 input_bytes;
+    __u32 output_capacity_bytes;
     __u32 output_bytes;
     __u32 input_dma_address;
     __u32 output_dma_address;
@@ -25,6 +28,8 @@ struct p0_dma_status {
     __u32 timed_out;
     __u32 dma_error;
 };
+
+_Static_assert(sizeof(struct p0_dma_status) == 64U, "P0 DMA status ABI drift");
 
 #define P0_DMA_IOC_MAGIC 'P'
 #define P0_DMA_IOC_RUN _IO(P0_DMA_IOC_MAGIC, 1)

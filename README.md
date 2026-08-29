@@ -43,7 +43,7 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
 | ZedBoard PL CI8→Hann→FFT→güç→aday paketi zinciri | SystemVerilog ve AMD FFT IP ile kanonik P0 blok tasarımına alındı; Vivado sentez, route, 50 MHz setup/hold, bitstream ve XSA kapıları geçti |
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
-| ZedBoard üzerinde DMA ve tespit zinciri | Önceki güç→ARM yolu fiziksel kartta doğrulandı ancak 2 MS/s sürekli hız kapısını geçemedi. Yeni seyrek aday bitstream'i hazır; değişken 64–54.144 byte S2MM sürücü sözleşmesi, PetaLinux yeniden derlemesi ve kart kabulü bekliyor |
+| ZedBoard üzerinde DMA ve tespit zinciri | Önceki güç→ARM yolu fiziksel kartta doğrulandı ancak 2 MS/s sürekli hız kapısını geçemedi. Yeni seyrek aday bitstream'i hazır; değişken 64–54.144 byte S2MM actual-length sürücüsü ve Linux servis yolu hostta doğrulandı. Yeni PetaLinux imajı, kart kabulü ve sürekli hız kapısı bekliyor |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 

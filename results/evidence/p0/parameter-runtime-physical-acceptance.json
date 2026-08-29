@@ -3,6 +3,7 @@
   "recorded_at": "2026-08-28",
   "status": "passed",
   "scope": "physical ZedBoard PL-DMA-ARM parameter execution",
+  "current_source_status": "historical_power_frame_path_superseded_pending_candidate_packet_board_acceptance",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
@@ -103,5 +104,5 @@
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
     "verify_p0_parameter_runtime_physical.py": "7cd3645faa3336a59370a169a5cacf3e54f4842013dac7b9c28577b36e94e41f"
   },
-  "claim_boundary": "This proves one deterministic AM sequence through physical PL FFT/power, DMA, the privileged local service and the ARM four-observation parameter runtime. Six ARM values exactly match the host C replay when both consume the captured physical PL power frames. Ideal NumPy-to-physical FFT differences are characterization only because no pre-execution physical equivalence tolerance was declared. This does not establish detector accuracy, broad-signal coverage, calibrated RF accuracy, live RF, sustained throughput, carrier-line extraction, signal-domain classification or RF transmission."
+  "claim_boundary": "This is historical evidence for the superseded power-frame PL path: one deterministic AM sequence through physical PL FFT/power, DMA, the privileged local service and the ARM four-observation parameter runtime. It does not validate the current candidate-packet bitstream, current source, calibrated RF accuracy, live RF, sustained throughput, carrier-line extraction, signal-domain classification or RF transmission."
 }

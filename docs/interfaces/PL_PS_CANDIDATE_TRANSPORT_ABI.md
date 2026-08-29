@@ -4,7 +4,7 @@
 
 Her PHASE-06H candidate frame'i bir AXI4-Stream packet'tır. Fiziksel data width 64 bit, `TKEEP=8'hFF`; yalnız trailer'ın son beat'inde `TLAST=1` olur. Byte offset 0, `TDATA[7:0]` üzerindedir. Bütün çok-byte alanlar unsigned little-endian'dır.
 
-Seçilen deployment sınırı packetizer → AXI DMA S2MM → bounded PS DDR buffer'dır. DMA descriptor maksimum 54.144 byte kabul eder; önerilen iki buffer toplam 108.288 byte'dır. Packet completion interrupt/descriptor actual-length ile PS'ye bildirilir. DMA/IP/device-tree/driver bu fazda uygulanmaz.
+Seçilen deployment sınırı packetizer → AXI DMA S2MM → bounded PS DDR buffer'dır. DMA descriptor maksimum 54.144 byte kabul eder; önerilen iki buffer toplam 108.288 byte'dır. Packet completion interrupt/descriptor actual-length ile PS'ye bildirilir. Bu ABI için Linux sürücü ve servis kaynak sözleşmesi P0 entegrasyon adımında uygulanmış, PetaLinux derlemesi ve kart kabulü ayrı kapılar olarak bırakılmıştır.
 
 ## Header — 32 byte
 

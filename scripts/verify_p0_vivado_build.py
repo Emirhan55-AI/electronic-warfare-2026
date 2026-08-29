@@ -236,7 +236,7 @@ def evaluate() -> dict[str, object]:
             "base_address": "0x40400000",
             "mm2s_stream_bits": 16,
             "s2mm_stream_bits": 64,
-            "software_contract": "pending_variable_candidate_packet_length_integration",
+            "software_contract": "host_source_implemented_pending_petalinux_rebuild_and_board_acceptance",
         },
         "block_design_validation": "PASS",
         "synthesis": "PASS",
@@ -287,9 +287,9 @@ def evaluate() -> dict[str, object]:
         "claim_boundary": (
             "This evidence proves local Vivado block-design validation, synthesis, routed "
             "50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet "
-            "PL hierarchy. It does not prove the pending variable-length DMA software contract, "
-            "PetaLinux rebuild, board programming, physical sustained throughput, calibrated RF "
-            "accuracy or live HackRF processing."
+            "PL hierarchy. The variable-length DMA contract is implemented and host-accepted in "
+            "source; PetaLinux rebuild, board programming, physical sustained throughput, "
+            "calibrated RF accuracy and live HackRF processing remain open."
         ),
     }
 

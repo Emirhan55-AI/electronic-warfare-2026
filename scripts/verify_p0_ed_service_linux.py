@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from pathlib import Path
 import pwd
@@ -94,7 +95,17 @@ def verify() -> dict[str, object]:
         tone = directory / "tone.ci8"
         empty = directory / "empty.ci8"
         invalid_power = directory / "invalid-power.ci8"
-        tone.write_bytes(bytes((index * 17 + 3) & 0xFF for index in range(8192)))
+        tone_bytes = bytearray()
+        noise_state = 0x13579BDF
+        for index in range(4096):
+            phase = 2.0 * math.pi * 256.0 * index / 4096.0
+            noise_state = (1664525 * noise_state + 1013904223) & 0xFFFFFFFF
+            noise_i = ((noise_state >> 24) & 0x0F) - 8
+            noise_state = (1664525 * noise_state + 1013904223) & 0xFFFFFFFF
+            noise_q = ((noise_state >> 24) & 0x0F) - 8
+            tone_bytes.extend((int(round(60.0 * math.cos(phase))) + noise_i & 0xFF,
+                               int(round(60.0 * math.sin(phase))) + noise_q & 0xFF))
+        tone.write_bytes(tone_bytes)
         empty.write_bytes(bytes(8192))
         invalid_power.write_bytes(bytes([0x7E]) + bytes(8191))
         tone.chmod(0o644)
@@ -145,7 +156,14 @@ def verify() -> dict[str, object]:
                 [str(client), "10", str(tone), str(reset_output), "--reset", str(socket_path)]
             )
             if reset.returncode:
-                raise RuntimeError(f"parameter precondition reset failed:\n{reset.stdout}\n{reset.stderr}")
+                service_error = ""
+                if process.poll() is not None and process.stderr is not None:
+                    service_error = process.stderr.read()
+                raise RuntimeError(
+                    "parameter precondition reset failed "
+                    f"(exit={reset.returncode}):\n{reset.stdout}\n{reset.stderr}"
+                    f"\nservice={service_error}"
+                )
             parameter_results: list[dict[str, object]] = []
             for offset in range(4):
                 output = output_directory / f"parameter-{offset}.json"
@@ -203,7 +221,10 @@ def verify() -> dict[str, object]:
         final_parameter = parameter_results[-1]["parameter"]
         for field in ("emission_center_frequency_hz", "channel_power_dbfs", "snr_estimate_db"):
             if final_parameter[field]["state"] != "valid":
-                raise AssertionError(f"final parameter field did not become valid: {field}")
+                raise AssertionError(
+                    f"final parameter field did not become valid: {field} "
+                    f"{final_parameter[field]} all={final_parameter}"
+                )
         if socket_path.exists():
             raise AssertionError("service socket remained after clean shutdown")
     return {

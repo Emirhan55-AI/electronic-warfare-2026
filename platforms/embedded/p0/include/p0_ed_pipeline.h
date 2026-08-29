@@ -28,6 +28,11 @@ int p0_ed_pipeline_reset(p0_ed_pipeline_t *pipeline);
 int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
                            const uint8_t *natural_power, size_t power_bytes,
                            phase06j_frame_result_v1 *result, size_t *raw_candidate_count);
+int p0_ed_pipeline_process_packet(p0_ed_pipeline_t *pipeline, int reset_requested,
+                                  const uint8_t *packet, size_t packet_bytes,
+                                  phase06j_frame_result_v1 *result,
+                                  size_t *raw_candidate_count,
+                                  uint32_t *packet_frame_id);
 int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
                            int start_measurement,
                            uint64_t intent_id,

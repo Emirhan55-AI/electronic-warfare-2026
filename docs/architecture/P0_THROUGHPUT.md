@@ -63,8 +63,9 @@ dosyasındadır.
 ADR-0032 ile PL decoder sonrasında aday gruplamada yinelenen güç/karar giriş
 doğrulaması kaldırılmış, strict dış API korunmuştur. Host C doğrulamasında
 strict ve decoder-sonrası trusted yolun karar, aday, gürültü, eşik ve recovery
-çıktıları sıfır fark vermiştir. Bu değişiklik henüz PetaLinux imajına veya
-fiziksel karta uygulanmış kabul edilmez; yeni imajla aynı 64+4.096 koşusu ve
+çıktıları sıfır fark vermiştir. Aday-paket DMA sürücüsü ve yerel hizmet kaynak
+entegrasyonu hostta doğrulanmıştır; bu değişiklik henüz PetaLinux imajına veya
+fiziksel karta uygulanmış kabul edilmez. Yeni imajla aynı 64+4.096 koşusu ve
 `488,28125 kare/s` kapısı yeniden ölçülmeden hız iddiası kurulamaz.
 
 Geçici ARM ölçümünde ADR-0032 ikilisi mevcut kernel/driver/PL üzerinde

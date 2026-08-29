@@ -45,6 +45,7 @@
     (P0_DMACR_RS | P0_DMACR_IOC_IRQ_EN | P0_DMACR_ERR_IRQ_EN)
 #define P0_RESET_TIMEOUT_US 100000
 #define P0_RUN_TIMEOUT_MS 5000
+#define P0_DMA_LENGTH_MASK 0xFFFFU
 
 struct p0_dma_device {
     struct device *device;
@@ -158,6 +159,7 @@ static int p0_run_locked(struct p0_dma_device *dma)
         return -ENODATA;
 
     dma->status.output_valid = 0;
+    dma->status.output_bytes = 0;
     dma->status.mm2s_completed = 0;
     dma->status.s2mm_completed = 0;
     dma->status.timed_out = 0;
@@ -166,7 +168,7 @@ static int p0_run_locked(struct p0_dma_device *dma)
     dma->status.s2mm_irq_status = 0;
     reinit_completion(&dma->mm2s_completion);
     reinit_completion(&dma->s2mm_completion);
-    memset(dma->output_cpu, 0, P0_DMA_OUTPUT_BYTES);
+    memset(dma->output_cpu, 0, P0_DMA_OUTPUT_CAPACITY_BYTES);
 
     result = p0_reset_locked(dma);
     if (result)
@@ -179,7 +181,7 @@ static int p0_run_locked(struct p0_dma_device *dma)
     if (result)
         goto fail;
     p0_write(dma, P0_S2MM_DA, lower_32_bits(dma->output_dma));
-    p0_write(dma, P0_S2MM_LENGTH, P0_DMA_OUTPUT_BYTES);
+    p0_write(dma, P0_S2MM_LENGTH, P0_DMA_OUTPUT_CAPACITY_BYTES);
 
     result = p0_start_channel(dma, P0_MM2S_DMACR, P0_MM2S_DMASR);
     if (result)
@@ -203,6 +205,14 @@ static int p0_run_locked(struct p0_dma_device *dma)
         (dma->status.mm2s_status & P0_DMASR_ERROR_MASK) ||
         (dma->status.s2mm_status & P0_DMASR_ERROR_MASK)) {
         result = -EIO;
+        goto fail;
+    }
+
+    dma->status.output_bytes = p0_read(dma, P0_S2MM_LENGTH) & P0_DMA_LENGTH_MASK;
+    if (dma->status.output_bytes < P0_DMA_OUTPUT_MINIMUM_BYTES ||
+        dma->status.output_bytes > P0_DMA_OUTPUT_CAPACITY_BYTES ||
+        dma->status.output_bytes % P0_DMA_OUTPUT_ALIGNMENT_BYTES != 0U) {
+        result = -EMSGSIZE;
         goto fail;
     }
 
@@ -232,6 +242,7 @@ static ssize_t p0_write_input(struct file *file, const char __user *buffer,
     else {
         dma->status.input_loaded = 1;
         dma->status.output_valid = 0;
+        dma->status.output_bytes = 0;
         result = count;
     }
     mutex_unlock(&dma->lock);
@@ -246,16 +257,18 @@ static ssize_t p0_read_output(struct file *file, char __user *buffer,
     int result = 0;
 
     (void)offset;
-    if (count != P0_DMA_OUTPUT_BYTES)
+    if (count < P0_DMA_OUTPUT_MINIMUM_BYTES)
         return -EINVAL;
     if (mutex_lock_interruptible(&dma->lock))
         return -ERESTARTSYS;
     if (!dma->status.output_valid)
         result = -ENODATA;
-    else if (copy_to_user(buffer, dma->output_cpu, count))
+    else if (count < dma->status.output_bytes)
+        result = -EMSGSIZE;
+    else if (copy_to_user(buffer, dma->output_cpu, dma->status.output_bytes))
         result = -EFAULT;
     else
-        result = count;
+        result = dma->status.output_bytes;
     mutex_unlock(&dma->lock);
     return result;
 }
@@ -286,6 +299,7 @@ static long p0_ioctl(struct file *file, unsigned int command,
         if (!result) {
             dma->status.input_loaded = 0;
             dma->status.output_valid = 0;
+            dma->status.output_bytes = 0;
         }
         break;
     default:
@@ -324,7 +338,7 @@ static int p0_probe(struct platform_device *platform)
         return result;
     dma->input_cpu = dmam_alloc_coherent(&platform->dev, P0_DMA_INPUT_BYTES,
                                          &dma->input_dma, GFP_KERNEL);
-    dma->output_cpu = dmam_alloc_coherent(&platform->dev, P0_DMA_OUTPUT_BYTES,
+    dma->output_cpu = dmam_alloc_coherent(&platform->dev, P0_DMA_OUTPUT_CAPACITY_BYTES,
                                           &dma->output_dma, GFP_KERNEL);
     if (!dma->input_cpu || !dma->output_cpu)
         return -ENOMEM;
@@ -337,7 +351,7 @@ static int p0_probe(struct platform_device *platform)
     init_completion(&dma->s2mm_completion);
     dma->status.abi_version = P0_DMA_ABI_VERSION;
     dma->status.input_bytes = P0_DMA_INPUT_BYTES;
-    dma->status.output_bytes = P0_DMA_OUTPUT_BYTES;
+    dma->status.output_capacity_bytes = P0_DMA_OUTPUT_CAPACITY_BYTES;
     dma->status.input_dma_address = lower_32_bits(dma->input_dma);
     dma->status.output_dma_address = lower_32_bits(dma->output_dma);
 
@@ -372,8 +386,9 @@ static int p0_probe(struct platform_device *platform)
         return result;
     }
     dev_info(&platform->dev,
-             "P0 DMA ready: input=%pad/8192 output=%pad/32768\n",
-             &dma->input_dma, &dma->output_dma);
+             "P0 DMA ready: input=%pad/%u output=%pad/%u\n",
+             &dma->input_dma, P0_DMA_INPUT_BYTES, &dma->output_dma,
+             P0_DMA_OUTPUT_CAPACITY_BYTES);
     return 0;
 }
 

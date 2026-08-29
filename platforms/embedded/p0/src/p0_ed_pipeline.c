@@ -139,6 +139,46 @@ int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int re
     return 0;
 }
 
+int p0_ed_pipeline_process_packet(p0_ed_pipeline_t *pipeline, int reset_requested,
+                                  const uint8_t *packet, size_t packet_bytes,
+                                  phase06j_frame_result_v1 *result,
+                                  size_t *raw_candidate_count,
+                                  uint32_t *packet_frame_id)
+{
+    uint32_t decoded_frame_id = 0U;
+    uint16_t candidate_count = 0U;
+    int code;
+
+    if (pipeline == NULL || pipeline->temporal_state == NULL ||
+        pipeline->temporal_backup == NULL || packet == NULL || result == NULL ||
+        raw_candidate_count == NULL || packet_frame_id == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    code = phase06j_validate_packet(packet, packet_bytes, &decoded_frame_id,
+                                    &candidate_count);
+    if (code != PHASE06J_OK) {
+        errno = EPROTO;
+        return -1;
+    }
+    memcpy(pipeline->temporal_backup, pipeline->temporal_state, phase06j_state_bytes());
+    if (reset_requested && p0_ed_pipeline_reset(pipeline) != 0) {
+        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
+        return -1;
+    }
+    code = phase06j_process_packet(pipeline->temporal_state,
+                                   phase06j_state_bytes(), packet,
+                                   packet_bytes, result);
+    if (code != PHASE06J_OK) {
+        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
+        errno = EPROTO;
+        return -1;
+    }
+    *raw_candidate_count = candidate_count;
+    *packet_frame_id = decoded_frame_id;
+    return 0;
+}
+
 int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
                            int start_measurement,
                            uint64_t intent_id,
@@ -162,6 +202,9 @@ int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
         errno = EINVAL;
         return -1;
     }
+    if (p0_parameter_power_from_ci8(iq, iq_bytes, pipeline->raw_power,
+                                    P0_FRAME_BINS) != 0)
+        return -1;
     protected_lower = lower_shifted_bin >= P0_PARAMETER_LOCAL_PADDING
                           ? lower_shifted_bin - P0_PARAMETER_LOCAL_PADDING
                           : 0U;

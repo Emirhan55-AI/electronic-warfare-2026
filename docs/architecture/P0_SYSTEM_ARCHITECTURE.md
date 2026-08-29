@@ -4,9 +4,10 @@
 
 HackRF-1 yalnız RX kaynağıdır ve USB ile Bilgisayar-1'e bağlanır. Bilgisayar-1
 bounded `ci8` I/Q frame'lerini CRC'li, sıralı Ethernet sözleşmesiyle ZedBoard PS'ye
-gönderir. PS DDR ve AXI DMA ile PL Hann→FFT→güç zincirini besler; güç frame'i PS'ye
-döner. PS OS-CFAR, gruplama, temporal doğrulama, zorunlu parametreler ve manuel DF
-durumunu üretir. PySide6 arayüzü sonuç nesnelerini görselleştirir.
+gönderir. PS DDR ve AXI DMA ile PL Hann→FFT→güç→OS-CFAR→aday indirgeme zincirini
+besler; PL'nin PHASE-06I aday paketi PS'ye döner. PS paket doğrulama, temporal
+doğrulama, zorunlu parametreler ve manuel DF durumunu üretir. PySide6 arayüzü sonuç
+nesnelerini görselleştirir.
 
 PetaLinux hazır olana kadar aynı sözleşmeler host referans/oracle üzerinde
 çalıştırılır. Bu geçici yürütüm PC'yi nihai algoritma sahibi yapmaz.

@@ -84,6 +84,10 @@ int p0_parameter_runtime_init(p0_parameter_runtime_t *runtime);
 void p0_parameter_runtime_release(p0_parameter_runtime_t *runtime);
 void p0_parameter_runtime_reset(p0_parameter_runtime_t *runtime);
 
+int p0_parameter_power_from_ci8(const uint8_t *iq_ci8, size_t iq_bytes,
+                                uint64_t *shifted_power_uq28_30,
+                                size_t power_count);
+
 int p0_parameter_runtime_observe(
     p0_parameter_runtime_t *runtime,
     int start_measurement,

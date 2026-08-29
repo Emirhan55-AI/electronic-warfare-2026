@@ -43,6 +43,7 @@ static void print_status(const struct p0_dma_status *status)
 {
     printf("ABI_VERSION=%u\n", status->abi_version);
     printf("INPUT_BYTES=%u\n", status->input_bytes);
+    printf("OUTPUT_CAPACITY_BYTES=%u\n", status->output_capacity_bytes);
     printf("OUTPUT_BYTES=%u\n", status->output_bytes);
     printf("INPUT_DMA=0x%08x\n", status->input_dma_address);
     printf("OUTPUT_DMA=0x%08x\n", status->output_dma_address);
@@ -61,15 +62,16 @@ int main(int argc, char **argv)
     struct p0_dma_status status;
     uint8_t *input;
     uint8_t *output;
+    size_t output_bytes = 0U;
     p0_dma_runtime_t dma = {-1};
     int result = EXIT_FAILURE;
 
     if (argc != 3) {
-        fprintf(stderr, "Kullanım: %s GIRIS_CI8 CIKIS_U64\n", argv[0]);
+        fprintf(stderr, "Kullanım: %s GIRIS_CI8 CIKIS_ADAY_PAKETI\n", argv[0]);
         return EXIT_FAILURE;
     }
     input = malloc(P0_DMA_INPUT_BYTES);
-    output = malloc(P0_DMA_OUTPUT_BYTES);
+    output = malloc(P0_DMA_OUTPUT_CAPACITY_BYTES);
     if (!input || !output) {
         fprintf(stderr, "Bellek ayrılamadı.\n");
         goto done;
@@ -82,14 +84,14 @@ int main(int argc, char **argv)
         fprintf(stderr, "/dev/p0-dma açılamadı: %s\n", strerror(errno));
         goto done;
     }
-    if (p0_dma_runtime_run(&dma, input, P0_DMA_INPUT_BYTES, output, P0_DMA_OUTPUT_BYTES,
-                           &status) != 0) {
+    if (p0_dma_runtime_run(&dma, input, P0_DMA_INPUT_BYTES, output,
+                           P0_DMA_OUTPUT_CAPACITY_BYTES, &output_bytes, &status) != 0) {
         print_status(&status);
         fprintf(stderr, "DMA çalıştırılamadı: %s\n", strerror(errno));
         goto close_device;
     }
     print_status(&status);
-    if (write_exact_file(argv[2], output, P0_DMA_OUTPUT_BYTES) != 0) {
+    if (write_exact_file(argv[2], output, output_bytes) != 0) {
         fprintf(stderr, "Çıkış yazılamadı: %s\n", strerror(errno));
         goto close_device;
     }

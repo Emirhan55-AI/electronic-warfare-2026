@@ -127,7 +127,7 @@ static int send_response(int client, p0_ed_response_t *response, uint8_t *buffer
 
 static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pipeline,
                          uint8_t *request_buffer, uint8_t *response_buffer,
-                         uint8_t *power_buffer)
+                         uint8_t *packet_buffer)
 {
     struct timeval timeout;
 
@@ -141,6 +141,8 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
         p0_ed_response_t response;
         ssize_t received;
         size_t candidate_count = 0U;
+        size_t packet_bytes = 0U;
+        uint32_t packet_frame_id = 0U;
 
         memset(&response, 0, sizeof(response));
         received = recv(client, request_buffer, P0_ED_REQUEST_BYTES_V2, MSG_TRUNC);
@@ -153,22 +155,28 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
         }
         response.abi_version = request.abi_version;
         response.frame_id = request.frame_id;
-        if (p0_dma_runtime_run(dma, request.iq, P0_ED_IQ_FRAME_BYTES, power_buffer,
-                               P0_DMA_OUTPUT_BYTES, &dma_status) != 0) {
+        if (p0_dma_runtime_run(dma, request.iq, P0_ED_IQ_FRAME_BYTES, packet_buffer,
+                               P0_DMA_OUTPUT_CAPACITY_BYTES, &packet_bytes,
+                               &dma_status) != 0) {
             response.status = P0_ED_SERVICE_DMA_FAILURE;
             response.dma_status_flags = dma_status_flags(&dma_status);
             (void)send_response(client, &response, response_buffer);
             return;
         }
         response.dma_status_flags = dma_status_flags(&dma_status);
-        if (p0_ed_pipeline_process(pipeline, request.frame_id,
-                                   (request.flags & P0_ED_REQUEST_FLAG_RESET) != 0U,
-                                   power_buffer, P0_DMA_OUTPUT_BYTES,
-                                   &response.result, &candidate_count) != 0) {
+        if (p0_ed_pipeline_process_packet(
+                pipeline, (request.flags & P0_ED_REQUEST_FLAG_RESET) != 0U,
+                packet_buffer, packet_bytes, &response.result, &candidate_count,
+                &packet_frame_id) != 0) {
             response.status = P0_ED_SERVICE_PIPELINE_FAILURE;
             (void)send_response(client, &response, response_buffer);
             return;
         }
+        /* The socket ABI correlates results to the request frame.  The
+         * packetizer's independent frame counter remains internal to the
+         * temporal state machine and is not exposed as a second wire ID. */
+        (void)packet_frame_id;
+        response.result.frame_id = request.frame_id;
         response.status = P0_ED_SERVICE_OK;
         response.raw_candidate_count = (uint32_t)candidate_count;
         if ((request.flags & P0_ED_REQUEST_FLAG_PARAMETER) != 0U) {
@@ -206,7 +214,7 @@ int main(int argc, char **argv)
     p0_ed_pipeline_t pipeline;
     uint8_t *request_buffer = NULL;
     uint8_t *response_buffer = NULL;
-    uint8_t *power_buffer = NULL;
+    uint8_t *packet_buffer = NULL;
     int server = -1;
     int result = EXIT_FAILURE;
 
@@ -234,8 +242,8 @@ int main(int argc, char **argv)
     }
     request_buffer = malloc(P0_ED_REQUEST_BYTES_V2);
     response_buffer = malloc(P0_ED_RESPONSE_BYTES);
-    power_buffer = malloc(P0_DMA_OUTPUT_BYTES);
-    if (request_buffer == NULL || response_buffer == NULL || power_buffer == NULL) {
+    packet_buffer = malloc(P0_DMA_OUTPUT_CAPACITY_BYTES);
+    if (request_buffer == NULL || response_buffer == NULL || packet_buffer == NULL) {
         fputs("Hizmet belleği ayrılamadı.\n", stderr);
         goto release_pipeline;
     }
@@ -264,7 +272,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "İstemci kabul edilemedi: %s\n", strerror(errno));
             break;
         }
-        serve_client(client, &dma, &pipeline, request_buffer, response_buffer, power_buffer);
+        serve_client(client, &dma, &pipeline, request_buffer, response_buffer, packet_buffer);
         close(client);
     }
     result = EXIT_SUCCESS;
@@ -273,7 +281,7 @@ release_pipeline:
     if (server >= 0)
         close(server);
     unlink(socket_path);
-    free(power_buffer);
+    free(packet_buffer);
     free(response_buffer);
     free(request_buffer);
     p0_ed_pipeline_release(&pipeline);

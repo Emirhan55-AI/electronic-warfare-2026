@@ -19,6 +19,22 @@ def test_bounded_local_ed_service_protocol() -> None:
     assert result["network_listener"] is False
 
 
+def test_candidate_packet_dma_runtime_contract_is_variable_length_and_fail_closed() -> None:
+    uapi = (ROOT / "platforms/embedded/p0/include/p0_dma_uapi.h").read_text(encoding="utf-8")
+    driver = (ROOT / "platforms/embedded/p0/src/p0_dma_client.c").read_text(encoding="utf-8")
+    runtime = (ROOT / "platforms/embedded/p0/src/p0_dma_runtime.c").read_text(encoding="utf-8")
+
+    assert "#define P0_DMA_ABI_VERSION 2U" in uapi
+    assert "#define P0_DMA_OUTPUT_CAPACITY_BYTES 54144U" in uapi
+    assert "__u32 output_capacity_bytes;" in uapi
+    assert "P0_S2MM_LENGTH" in driver
+    assert "P0_DMA_OUTPUT_CAPACITY_BYTES" in driver
+    assert "dma->status.output_bytes = p0_read(dma, P0_S2MM_LENGTH)" in driver
+    assert "status->output_bytes > P0_DMA_OUTPUT_CAPACITY_BYTES" in runtime
+    assert "status->output_bytes % P0_DMA_OUTPUT_ALIGNMENT_BYTES" in runtime
+    assert "read_packet(runtime->descriptor" in runtime
+
+
 def test_linux_host_acceptance_evidence_matches_sources() -> None:
     evidence = json.loads(
         (ROOT / "results/evidence/p0/ed-local-service-host-acceptance.json").read_text(
@@ -108,7 +124,7 @@ def test_vivado_build_evidence_matches_current_sources() -> None:
     assert evidence["scope"] == "ZedBoard CI8-to-candidate-packet Vivado build"
     assert evidence["dma"]["candidate_packet_bytes"] == {"minimum": 64, "maximum": 54144}
     assert evidence["dma"]["software_contract"] == (
-        "pending_variable_candidate_packet_length_integration"
+        "host_source_implemented_pending_petalinux_rebuild_and_board_acceptance"
     )
     assert evidence["post_route_resources"]["slice_luts"]["used"] == 27453
     assert evidence["post_route_resources"]["block_ram_tiles"]["used"] == 81.5
@@ -151,10 +167,13 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_attempted"] == 5679
     assert evidence["build"]["tasks_failed"] == 0
-    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
+    assert evidence["current_source_status"] == (
+        "baseline_build_superseded_pending_candidate_packet_runtime_rebuild"
+    )
     assert evidence["build"]["full_image_tasks_failed"] == 0
-    for name, source in paths.items():
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
+        for name, source in paths.items():
+            assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
 
 
 def test_parameter_physical_evidence_is_bounded_and_traceable() -> None:
@@ -179,8 +198,11 @@ def test_parameter_physical_evidence_is_bounded_and_traceable() -> None:
     assert evidence["measurement"]["final_valid_fields"] == 6
     assert evidence["cross_architecture_equivalence"]["maximum_absolute_error"] == 0.0
     assert evidence["ideal_fft_characterization"]["pass_fail_gate"] is None
-    for name, source in paths.items():
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    if evidence["current_source_status"].startswith("historical_"):
+        assert evidence["current_source_status"].endswith("candidate_packet_board_acceptance")
+    else:
+        for name, source in paths.items():
+            assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     assert "one deterministic AM sequence" in evidence["claim_boundary"]
 
 

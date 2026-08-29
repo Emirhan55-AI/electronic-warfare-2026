@@ -32,8 +32,8 @@
     "signal domain classification"
   ],
   "source_sha256": {
-    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
-    "p0_parameter_runtime.h": "64aa0caa94075fd1d13ff60d2ebbf92c5f2379dc6293d1e9e148515149d75506",
+    "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
+    "p0_parameter_runtime.h": "509b40efbc19a8f9d4001637ee0a58518fca0298f092dfe019e89b7c6009c699",
     "verify_p0_parameter_runtime.py": "2507083c1a37e1b2a50c33ca51f4a25321e4650dff751a6a9c92068a85e48cad"
   },
   "claim_boundary": "This proves host-compiled numeric and state equivalence for three deterministic scenes. It is not ARM execution, physical DMA, calibrated RF accuracy, live RF or sustained-throughput evidence."

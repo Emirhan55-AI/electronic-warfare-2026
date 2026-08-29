@@ -3,7 +3,7 @@
   "recorded_at": "2026-08-28",
   "status": "passed",
   "scope": "PetaLinux 2025.2 ARM parameter package and rootfs build",
-  "current_source_status": "current_sources_petalinux_build_passed",
+  "current_source_status": "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
   "build": {
     "target": "p0-dma",
     "machine": "zynq_generic_7z020",
@@ -45,6 +45,7 @@
   },
   "prior_image_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
   "not_verified": [
+    "current source and candidate-packet DMA integration build",
     "physical boot with this current ADR-0030 image",
     "positive-signal parameter numeric equivalence with this image",
     "live RF",

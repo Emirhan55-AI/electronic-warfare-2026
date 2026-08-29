@@ -47,7 +47,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         self.assertEqual(before, VERIFY.SUMMARY.read_bytes())
 
-    def test_p0_dma_length_field_covers_one_power_frame(self) -> None:
+    def test_p0_dma_length_field_covers_one_candidate_packet(self) -> None:
         vivado_tcl = (ROOT / "scripts" / "create_p0_vivado_project.tcl").read_text(
             encoding="utf-8"
         )
@@ -56,12 +56,12 @@ class RepositoryContractTests(unittest.TestCase):
             for name, value in re.findall(r"CONFIG\.(c_[a-z0-9_]+) \{(\d+)\}", vivado_tcl)
         }
         input_frame_bytes = 4096 * (properties["c_m_axis_mm2s_tdata_width"] // 8)
-        output_frame_bytes = 4096 * (properties["c_s_axis_s2mm_tdata_width"] // 8)
+        maximum_candidate_packet_bytes = 54144
         maximum_dma_length = (1 << properties["c_sg_length_width"]) - 1
 
         self.assertEqual(8192, input_frame_bytes)
-        self.assertEqual(32768, output_frame_bytes)
-        self.assertGreaterEqual(maximum_dma_length, output_frame_bytes)
+        self.assertEqual(8, properties["c_s_axis_s2mm_tdata_width"] // 8)
+        self.assertGreaterEqual(maximum_dma_length, maximum_candidate_packet_bytes)
 
     def test_p0_candidate_reducer_vivado_evidence_keeps_board_boundary(self) -> None:
         evidence = json.loads(
@@ -132,7 +132,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(182, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(183, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
