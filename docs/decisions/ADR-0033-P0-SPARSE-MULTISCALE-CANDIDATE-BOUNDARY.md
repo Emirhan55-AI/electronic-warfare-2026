@@ -1,6 +1,6 @@
 # ADR-0033 — P0 Seyrek Çok Ölçekli Aday Sınırı
 
-- Durum: Mimari, bit-doğru referans ve paralel median RTL alt-aşaması tamamlandı; final reducer ve fiziksel kabul beklemede
+- Durum: Mimari, bit-doğru referans ve median+geniş bant RTL zinciri tamamlandı; OS fusion ve fiziksel kabul beklemede
 - Kapsam: P0 sürekli `PL → DMA → ARM` sinyal tespiti yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-4.2, KTR-6
 - Ön koşullar: ADR-0028, ADR-0029, ADR-0030, ADR-0031, ADR-0032
@@ -74,8 +74,18 @@ bölgesel sonuçta bit farkı sıfır, en yüksek son-kabulden-sonuç gecikmesi 
 hata yolu ayrıca geçmiştir. Bu değer yalnız median alt-aşamasıdır; bütünleşik
 enerji, final aday fusion, sentez/place/route ve kart ölçümü değildir.
 
+Median motoruna bağlı geniş bant kurtarma çekirdeği 32-bin kayan toplamı Q48
+eşikle karşılaştırır, bir boş hücreyi köprüler, en az 41-bin desteği korur ve
+shifted sıradaki ilk maksimumu peak olarak seçer. Beş karede 22 semantik aday
+ve 24 AXI kaydının sınır, peak, güç, gürültü, eşik ve paket metadata'sı bit-doğru
+referansla aynıdır. Rastgele çıkış backpressure altında veri sabitliği, malformed
+frame ve fiziksel güç aralığı dışındaki girdinin fail-closed boş paket davranışı
+geçmiştir. Median dahil son girişten son çıkışa en yüksek gecikme `44.755`
+çevrimdir; 50 MHz yalnız kapasite karşılığı `0,89510 ms` olur.
+
 ## İddia sınırı
 
-Bu karar, referans model ve median RTL simülasyonu tam candidate reducer,
-sentez, fiziksel FPGA yürütümü veya gerçek-zaman başarısı değildir. Canlı
+Bu karar, referans model ve median+geniş bant RTL simülasyonu tam candidate
+reducer değildir. OS aday üretimi/fusion, PHASE-06I üst bağlantısı, sentez,
+fiziksel FPGA yürütümü ve gerçek-zaman başarısı henüz doğrulanmamıştır. Canlı
 HackRF, dBm kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.

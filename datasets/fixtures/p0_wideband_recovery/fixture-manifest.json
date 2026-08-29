@@ -1,0 +1,22 @@
+{
+  "files": {
+    "axis-power-input.mem": {
+      "bytes": 389120,
+      "sha256": "8fb3a2547cafd15f85f402b8f8d71cf9e5a255956c0296eb5cf6531b1302754d"
+    },
+    "candidate-expected.mem": {
+      "bytes": 1416,
+      "sha256": "e25c27b650c5589df08fdf5fa4662e12d9be4ac5cc5d7b11b027e3b4f7981da5"
+    },
+    "expected-record-counts.mem": {
+      "bytes": 15,
+      "sha256": "5c166875f9ee670e9a8a56f667d43edfad67e23bcff950b46a412ea213adb6a2"
+    },
+    "golden-vectors.json": {
+      "bytes": 8488,
+      "sha256": "fda5a351e183e03a3adf2c7c391800090835ab92cc0d75f37ca5c6d3969bfd66"
+    }
+  },
+  "schema_version": 1,
+  "status": "passed"
+}

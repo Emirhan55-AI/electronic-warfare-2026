@@ -1,0 +1,341 @@
+{
+  "frame_count": 5,
+  "frame_length": 4096,
+  "output_records": 24,
+  "schema_version": 1,
+  "semantic_candidates": 22,
+  "status": "passed",
+  "vectors": [
+    {
+      "axis_records": 1,
+      "candidates": [],
+      "integrated_detections": 0,
+      "region_median_twice": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "semantic_candidates": 0,
+      "source": "deterministic empty frame",
+      "vector_id": "all_zero"
+    },
+    {
+      "axis_records": 1,
+      "candidates": [],
+      "integrated_detections": 0,
+      "region_median_twice": [
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648
+      ],
+      "semantic_candidates": 0,
+      "source": "deterministic narrowband tones",
+      "vector_id": "multiple_tones"
+    },
+    {
+      "axis_records": 19,
+      "candidates": [
+        {
+          "coarse_span_bins": 82,
+          "end_shifted_bin": 116,
+          "peak_power": 7396,
+          "peak_shifted_bin": 57,
+          "regional_noise": 244,
+          "start_shifted_bin": 35,
+          "threshold": 610
+        },
+        {
+          "coarse_span_bins": 166,
+          "end_shifted_bin": 341,
+          "peak_power": 30446760100,
+          "peak_shifted_bin": 256,
+          "regional_noise": 208,
+          "start_shifted_bin": 176,
+          "threshold": 519
+        },
+        {
+          "coarse_span_bins": 41,
+          "end_shifted_bin": 438,
+          "peak_power": 9409,
+          "peak_shifted_bin": 411,
+          "regional_noise": 208,
+          "start_shifted_bin": 398,
+          "threshold": 519
+        },
+        {
+          "coarse_span_bins": 50,
+          "end_shifted_bin": 522,
+          "peak_power": 9801,
+          "peak_shifted_bin": 517,
+          "regional_noise": 175,
+          "start_shifted_bin": 473,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 67,
+          "end_shifted_bin": 700,
+          "peak_power": 8100,
+          "peak_shifted_bin": 649,
+          "regional_noise": 175,
+          "start_shifted_bin": 634,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 79,
+          "end_shifted_bin": 888,
+          "peak_power": 13456,
+          "peak_shifted_bin": 861,
+          "regional_noise": 283,
+          "start_shifted_bin": 810,
+          "threshold": 707
+        },
+        {
+          "coarse_span_bins": 41,
+          "end_shifted_bin": 962,
+          "peak_power": 6400,
+          "peak_shifted_bin": 947,
+          "regional_noise": 283,
+          "start_shifted_bin": 922,
+          "threshold": 707
+        },
+        {
+          "coarse_span_bins": 205,
+          "end_shifted_bin": 1216,
+          "peak_power": 12321,
+          "peak_shifted_bin": 1063,
+          "regional_noise": 175,
+          "start_shifted_bin": 1012,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 145,
+          "end_shifted_bin": 1400,
+          "peak_power": 759443364,
+          "peak_shifted_bin": 1280,
+          "regional_noise": 175,
+          "start_shifted_bin": 1256,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 403,
+          "end_shifted_bin": 1838,
+          "peak_power": 13924,
+          "peak_shifted_bin": 1605,
+          "regional_noise": 175,
+          "start_shifted_bin": 1436,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 267,
+          "end_shifted_bin": 2156,
+          "peak_power": 12100,
+          "peak_shifted_bin": 1933,
+          "regional_noise": 175,
+          "start_shifted_bin": 1890,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 209,
+          "end_shifted_bin": 2464,
+          "peak_power": 2741738201792100,
+          "peak_shifted_bin": 2304,
+          "regional_noise": 175,
+          "start_shifted_bin": 2256,
+          "threshold": 436
+        },
+        {
+          "coarse_span_bins": 155,
+          "end_shifted_bin": 2672,
+          "peak_power": 9025,
+          "peak_shifted_bin": 2651,
+          "regional_noise": 283,
+          "start_shifted_bin": 2518,
+          "threshold": 707
+        },
+        {
+          "coarse_span_bins": 209,
+          "end_shifted_bin": 2988,
+          "peak_power": 15129,
+          "peak_shifted_bin": 2845,
+          "regional_noise": 144,
+          "start_shifted_bin": 2780,
+          "threshold": 361
+        },
+        {
+          "coarse_span_bins": 327,
+          "end_shifted_bin": 3356,
+          "peak_power": 6349858596,
+          "peak_shifted_bin": 3328,
+          "regional_noise": 244,
+          "start_shifted_bin": 3030,
+          "threshold": 610
+        },
+        {
+          "coarse_span_bins": 51,
+          "end_shifted_bin": 3510,
+          "peak_power": 8100,
+          "peak_shifted_bin": 3467,
+          "regional_noise": 244,
+          "start_shifted_bin": 3460,
+          "threshold": 610
+        },
+        {
+          "coarse_span_bins": 93,
+          "end_shifted_bin": 3656,
+          "peak_power": 10000,
+          "peak_shifted_bin": 3565,
+          "regional_noise": 244,
+          "start_shifted_bin": 3564,
+          "threshold": 610
+        },
+        {
+          "coarse_span_bins": 93,
+          "end_shifted_bin": 3785,
+          "peak_power": 11236,
+          "peak_shifted_bin": 3761,
+          "regional_noise": 244,
+          "start_shifted_bin": 3693,
+          "threshold": 610
+        },
+        {
+          "coarse_span_bins": 46,
+          "end_shifted_bin": 4059,
+          "peak_power": 20736,
+          "peak_shifted_bin": 4043,
+          "regional_noise": 244,
+          "start_shifted_bin": 4014,
+          "threshold": 610
+        }
+      ],
+      "integrated_detections": 3747,
+      "region_median_twice": [
+        338,
+        288,
+        242,
+        392,
+        242,
+        242,
+        242,
+        242,
+        242,
+        242,
+        392,
+        200,
+        313,
+        338,
+        338,
+        338
+      ],
+      "semantic_candidates": 19,
+      "source": "frozen PHASE-06F AMD FFT linear-power output",
+      "vector_id": "real_phase06f_representative_hann"
+    },
+    {
+      "axis_records": 1,
+      "candidates": [
+        {
+          "coarse_span_bins": 78,
+          "end_shifted_bin": 687,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 650,
+          "regional_noise": 1549201027,
+          "start_shifted_bin": 610,
+          "threshold": 3873002568
+        }
+      ],
+      "integrated_detections": 109,
+      "region_median_twice": [
+        2147583648,
+        2147583648,
+        2147648648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648
+      ],
+      "semantic_candidates": 1,
+      "source": "deterministic regional wideband support",
+      "vector_id": "single_wideband"
+    },
+    {
+      "axis_records": 2,
+      "candidates": [
+        {
+          "coarse_span_bins": 74,
+          "end_shifted_bin": 685,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 650,
+          "regional_noise": 1549201027,
+          "start_shifted_bin": 612,
+          "threshold": 3873002568
+        },
+        {
+          "coarse_span_bins": 80,
+          "end_shifted_bin": 1288,
+          "peak_power": 15032385536,
+          "peak_shifted_bin": 1250,
+          "regional_noise": 1549188043,
+          "start_shifted_bin": 1209,
+          "threshold": 3872970107
+        }
+      ],
+      "integrated_detections": 216,
+      "region_median_twice": [
+        2147583648,
+        2147583648,
+        2147648648,
+        2147583648,
+        2147630648,
+        2147589648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648
+      ],
+      "semantic_candidates": 2,
+      "source": "deterministic separated wideband supports",
+      "vector_id": "two_wideband"
+    }
+  ]
+}

@@ -199,9 +199,12 @@ bant aday kümesi PHASE-06I seyrek paketiyle taşınacak; tam güç/IQ yalnız a
 parametre ölçüm yolunda korunacaktır. Q48 bit-doğru referans, dondurulmuş ve ek
 14 karede final aday metadata'sı ile paket round-trip için sıfır fark vermiştir.
 On altı bölgeyi paralel işleyen median RTL alt-aşaması beş kare/80 bölgede
-sıfır fark ve en fazla `29.756` çevrimle geçmiştir. **Mimari, referans ve median
-RTL alt-aşaması tamamlandı; bütünleşik enerji/fusion RTL, sentez,
-driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü beklemededir.**
+sıfır fark ve en fazla `29.756` çevrimle geçmiştir. Buna bağlı 32-bin
+bütünleşik enerji ve 41-bin geniş bant kurtarma RTL zinciri beş karede 22 aday
+ve 24 AXI kaydında sıfır metadata farkı vermiş; median dahil son girişten son
+çıkışa en fazla `44.755` çevrim ölçülmüştür. **Mimari, referans ve geniş bant
+RTL zinciri tamamlandı; OS aday üretimi/fusion, sentez, driver/iki-buffer,
+PetaLinux ve fiziksel `488,28125 kare/s` kabulü beklemededir.**
 
 ### P0 Mandatory Closure Block A
 

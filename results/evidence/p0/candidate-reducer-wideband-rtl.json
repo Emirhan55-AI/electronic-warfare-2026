@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 parallel regional-median and wideband-recovery RTL simulation",
+  "simulator": "Icarus Verilog SystemVerilog 2012",
+  "vectors": {
+    "frames": 5,
+    "axis_records": 24,
+    "semantic_candidates": 22,
+    "candidate_metadata_mismatches": 0,
+    "empty_frame_sentinel_checked": true,
+    "out_of_range_frame_failed_closed": true,
+    "malformed_frame_sticky_error": true,
+    "candidate_overflow_sticky": false,
+    "stalled_payload_stability_checks": 3,
+    "fixture_manifest_sha256": "87ec43f3294751f2d5d6a72d1c65500285e69f26936321201a77cf73082ea6e5"
+  },
+  "latency": {
+    "maximum_last_input_to_last_output_cycles": 44755,
+    "acceptance_limit_cycles": 50000,
+    "clock_hz_for_capacity_only": 50000000,
+    "maximum_processing_milliseconds_at_50mhz": 0.8951
+  },
+  "architecture": {
+    "regional_median": "16 parallel exact radix rank-127/128 engines",
+    "integration_bins": 32,
+    "integrated_threshold_coefficient": "Q48",
+    "minimum_recovery_span_bins": 41,
+    "maximum_gap_bins": 1,
+    "peak_tie_policy": "first maximum in shifted order",
+    "candidate_capacity": 96
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "0cbb549b9b101cd042a2e3c2c5350d2037cffd6b779bebe2039716792c4b7572",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "ce4a024f2e8ad10abd863bd0b880aeb0c535ad6793fc597e8c2f67f9eb91d5dd",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "7782ebd770d2677e5ff51ed5573dabbd776fd8483ece8d306d50dee672433591",
+    "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv": "157bc6cad46511cd7077308859a4c2e36d192118083ed137689d1023dad754ea"
+  },
+  "claim_boundary": "Icarus bit-true simulation of the median plus wideband-recovery chain only; OS-candidate fusion, PHASE-06I integration, synthesis, timing closure, board execution and real-time acceptance remain open."
+}
