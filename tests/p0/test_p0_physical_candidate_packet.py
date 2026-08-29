@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,9 @@ from algorithms.ps.candidate_transport import encode_packet
 from scripts.verify_p0_physical_candidate_packet import (
     INPUT_SHA256,
     expected_reduction,
+    expected_service_frames,
     verify,
+    verify_service,
 )
 
 
@@ -51,3 +54,39 @@ def test_candidate_mismatch_fails_closed(tmp_path: Path) -> None:
 
     with pytest.raises(AssertionError):
         verify(packet, _known_frame(tmp_path))
+
+
+def _service_results(tmp_path: Path, packet: Path) -> list[Path]:
+    paths: list[Path] = []
+    for index, frame in enumerate(expected_service_frames(packet)):
+        path = tmp_path / f"service-frame{index}.json"
+        path.write_text(
+            json.dumps({**frame, "dma_status_flags": 7}),
+            encoding="utf-8",
+        )
+        paths.append(path)
+    return paths
+
+
+def test_candidate_service_lifecycle_matches_temporal_oracle(tmp_path: Path) -> None:
+    packet = tmp_path / "candidate.packet"
+    packet.write_bytes(encode_packet(0, expected_reduction().candidates))
+
+    result = verify_service(packet, _service_results(tmp_path, packet))
+
+    assert result["status"] == "passed"
+    assert result["event_field_equivalence"] is True
+    assert [frame["active_count"] for frame in result["frames"]] == [54, 54, 54, 54, 0]
+    assert [frame["ended_count"] for frame in result["frames"]] == [0, 0, 0, 0, 54]
+
+
+def test_candidate_service_lifecycle_fails_on_event_mismatch(tmp_path: Path) -> None:
+    packet = tmp_path / "candidate.packet"
+    packet.write_bytes(encode_packet(0, expected_reduction().candidates))
+    paths = _service_results(tmp_path, packet)
+    document = json.loads(paths[1].read_text(encoding="utf-8"))
+    document["active"][0]["peak_bin"] += 1
+    paths[1].write_text(json.dumps(document), encoding="utf-8")
+
+    with pytest.raises(AssertionError):
+        verify_service(packet, paths)

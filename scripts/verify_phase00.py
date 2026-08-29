@@ -1125,6 +1125,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "results/evidence/p0/ed-local-service-host-acceptance.json",
     "results/evidence/p0/ed-local-service-petalinux-build.json",
     "results/evidence/p0/ed-local-service-physical-acceptance.json",
+    "results/evidence/p0/candidate-packet-physical-acceptance.json",
     "results/evidence/p0/ed-stage-profile-adr0032-transient-arm.json",
     "results/evidence/p0/ed-stage-profile-adr0033-bottleneck-split-arm.json",
     "results/evidence/p0/candidate-reducer-reference.json",
@@ -1187,6 +1188,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "scripts/verify_p0_candidate_reducer_packetizer.py",
     "scripts/verify_p0_candidate_dsp_runtime.py",
     "scripts/verify_p0_vivado_build.py",
+    "scripts/verify_p0_physical_candidate_packet.py",
     "tests/p0/p0_ed_service_protocol_test.c",
     "tests/p0/p0_parameter_runtime_test.c",
     "results/evidence/p0/parameter-runtime-host-acceptance.json",
@@ -1221,6 +1223,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "tests/p0/test_p0_final_candidate_rtl.py",
     "tests/p0/test_p0_candidate_reducer_packetizer.py",
     "tests/p0/test_p0_candidate_dsp_runtime.py",
+    "tests/p0/test_p0_physical_candidate_packet.py",
     "tests/test_hackrf_recorded_integration.py",
     "tests/test_two_point_df.py",
 )

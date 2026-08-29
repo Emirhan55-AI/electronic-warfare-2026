@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-29",
+  "status": "failed",
+  "scope": "Hann-memory-fixed P0 candidate-packet physical ZedBoard acceptance",
+  "boot": {
+    "fpga_done_led": true,
+    "linux": "6.12.40-xilinx-g31626ef92ff1 armv7l",
+    "fpga_manager_state": "operating",
+    "dma_device": "/dev/p0-dma",
+    "dma_module": "p0_dma_client"
+  },
+  "known_frame": {
+    "bytes": 8192,
+    "sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "candidate_packet": {
+    "status": "passed",
+    "bytes": 2224,
+    "sha256": "615d778b8ba2dc41bcd05f9750fad5b3ccd91c5f417dc301b3211739d4dd7486",
+    "frame_id": 0,
+    "status_flags": 0,
+    "dma_result": "passed",
+    "dma_timeout": 0,
+    "dma_error": 0,
+    "os_candidates": 147,
+    "recovery_candidates": 19,
+    "final_candidates": 54,
+    "candidate_field_equivalence": true
+  },
+  "service_lifecycle": {
+    "status": "passed",
+    "dma_status_flags": 7,
+    "event_field_equivalence": true,
+    "raw_candidate_counts": [54, 54, 54, 0, 0],
+    "active_counts": [54, 54, 54, 54, 0],
+    "ended_counts": [0, 0, 0, 0, 54],
+    "rule": "2-of-3 confirmation; two consecutive missing frames expire a track",
+    "physical_result_sha256": {
+      "service-frame0.json": "099ec0f549468a01dc6e532fd61871f41b92adca861a23d6c387593dc3065d9c",
+      "service-frame1.json": "2710aaaa333702a75d3ebf8df2c927bc5843d552b2b8c3d264ddf80125b8f0f1",
+      "service-frame2.json": "479d2093d91042d2925a0a44f8d10c21081751bcc06bb7166f921858f36f1741",
+      "service-frame3.json": "9653ff38fc172c0fbf7b6bfaa2559f8f902b7942b357754bd69bdba6b4ecb01b",
+      "service-frame4.json": "067d4368393ffab090100c86981fc163d36f1f515ebfae311225be8b7cfa0795"
+    }
+  },
+  "throughput": {
+    "status": "failed",
+    "sample_rate_hz": 2000000,
+    "frame_samples": 4096,
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "completed_frames": 4096,
+    "request_failures": 0,
+    "service_failures": 0,
+    "sequence_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "elapsed_seconds": 11.581644439,
+    "required_frames_per_second": 488.28125,
+    "measured_frames_per_second": 353.663076221,
+    "real_time_margin": 0.72430198,
+    "result_sha256": "6793187c63832054a5b2e3005368d387037b02358e2faf02186ccd6d7e4c4b9e"
+  },
+  "stage_profile": {
+    "status": "passed",
+    "measured_frames": 4096,
+    "dma_and_pl_mean_milliseconds": 1.261138,
+    "packet_validation_and_temporal_mean_milliseconds": 0.664621,
+    "combined_mean_milliseconds": 1.925759,
+    "combined_mean_frames_per_second": 519.276795,
+    "candidate_packet_bytes": 9251840,
+    "result_sha256": "22b4ebd8a4d8c4c74eefacfca5c82e550e504c0e1fbc7e3e3d9a9d063efb8a2f"
+  },
+  "open_gates": [
+    "2 MS/s sustained end-to-end service throughput",
+    "live HackRF acquisition",
+    "calibrated RF accuracy",
+    "broad physical signal-family coverage"
+  ],
+  "claim_boundary": "The deterministic known-tone CI8 frame proves exact physical PL candidate-packet and PS temporal equivalence. The end-to-end service remains below the locked 2 MS/s throughput gate, so this record is not full product or live-RF acceptance."
+}

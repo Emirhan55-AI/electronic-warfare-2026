@@ -322,11 +322,20 @@ adıyla bağlanmış ve aynı hata için zorunlu sentez kapısı eklenmiştir. D
 tasarım 50 MHz'te `WNS=+0,157 ns`, `TNS=0`, `WHS=+0,007 ns`, `THS=0` ve sıfır
 yönlendirme hatasıyla bitstream/XSA üretmiştir. Bu XSA, ABI v2 DMA kernel modülü,
 runtime ve ED hizmeti PetaLinux 2025.2 projesinde 6.090/6.090 görevle yeniden
-derlenmiştir. Bootgen paketi ve SD açılış dosyaları SHA-256 ile doğrulanmış olarak
-hazırdır. Düzeltilmiş imajın SD'ye yazılması, gerçek kart açılışı, pozitif-sinyal
-DMA aday-paket kabulü, fiziksel birim dönüşümü/PHASE-04 parametre ölçümü,
-throughput iyileştirmesi ve canlı RF ayrı fiziksel kapılardır; derleme başarısı
-bunları geçmiş saymaz.
+derlenmiştir. Bootgen paketi ve SD açılış dosyaları SHA-256 ile doğrulanmış,
+düzeltilmiş imaj fiziksel ZedBoard'da açılmıştır. FPGA manager `operating`,
+DMA aygıtı ve kernel modülü hazır durumdadır. Dondurulmuş 8.192-byte bilinen-ton
+CI8 karesinde DMA hatasız tamamlanmış; 2.224-byte aday paketinin 54 nihai adayı
+ve bütün aday alanları bit-doğru referansla eşdeğer bulunmuştur. Üç pozitif ve
+iki sıfır karelik servis dizisi 2-of-3 confirmation ile iki-miss expiry kuralını
+54 olayda alan-alan geçmiştir. 4.096/4.096 kare işlevsel hatasız tamamlansa da
+uçtan uca hizmet hızı `353,663076221/488,28125 kare/s` ve gerçek-zaman marjı
+`0,724301980` olduğundan sürekli 2 MS/s kapısı açıktır. Aşama profili
+PL+DMA için ortalama `1,261138 ms`, paket doğrulama+temporal için `0,664621 ms`
+ve birleşik çekirdek yol için `1,925759 ms` ölçmüştür; bir sonraki düzeltme
+servis/IPC maliyetini ve ardışık DMA–ARM çalışmasını hedeflemelidir. Fiziksel
+birim dönüşümü/PHASE-04 parametre ölçümü, canlı RF ve kalibrasyon ayrı
+kapılardır.
 
 ## PHASE-04 kontrollü kurtarma alt-fazı
 
