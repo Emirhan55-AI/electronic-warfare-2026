@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 parallel regional-median RTL simulation",
+  "simulator": "Icarus Verilog SystemVerilog 2012",
+  "vectors": {
+    "frames": 5,
+    "regions_per_frame": 16,
+    "median_mismatches": 0,
+    "malformed_frame_sticky_error": true,
+    "fixture_manifest_sha256": "53234ffc364ddef958a6b8defd6b4314e1d6da61e821d9a66647da6eb827629a"
+  },
+  "latency": {
+    "maximum_processing_cycles": 29756,
+    "acceptance_limit_cycles": 30000,
+    "clock_hz_for_capacity_only": 50000000,
+    "maximum_processing_milliseconds_at_50mhz": 0.59512
+  },
+  "architecture": {
+    "region_banks": 16,
+    "bins_per_region": 256,
+    "parallel_regions": 16,
+    "radix_passes": 58,
+    "selected_ranks_zero_based": [
+      127,
+      128
+    ]
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "ce4a024f2e8ad10abd863bd0b880aeb0c535ad6793fc597e8c2f67f9eb91d5dd",
+    "algorithms/fpga/p0/tb/tb_p0_parallel_region_median.sv": "3ac767bfa3b47bd2532902c8adf9875ab2f6de95e6edc808318929c83e85ac85"
+  },
+  "claim_boundary": "Icarus bit-true simulation of the regional-median substage only; integrated-energy grouping, final candidate fusion, synthesis, timing closure, board execution and real-time acceptance remain open."
+}

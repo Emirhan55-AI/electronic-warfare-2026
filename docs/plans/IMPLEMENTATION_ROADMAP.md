@@ -189,6 +189,20 @@ kısa yolu hız kapısını kapatmamış ve sonucu iyileştirme olarak ilan edil
 Bu ölçüm yalnız çalışma uyumluluğudur; yeni PetaLinux imajı ve sürekli hız kapısı
 ayrıca beklemektedir.
 
+### P0 seyrek çok ölçekli aday sınırı
+
+Kullanıcının devam onayıyla ADR-0033 başlatılmıştır. Fiziksel 64+4.096
+ayrıştırma, OS gruplamanın `0,635712 ms` ve çok ölçekli tespitin toplam
+`1,551391 ms` olduğunu göstermiştir. Yalnız mevcut PHASE-06H gruplamayı bağlamak
+gerçek-zaman için yeterli değildir. Sürekli tespit karelerinde final OS+geniş
+bant aday kümesi PHASE-06I seyrek paketiyle taşınacak; tam güç/IQ yalnız açık
+parametre ölçüm yolunda korunacaktır. Q48 bit-doğru referans, dondurulmuş ve ek
+14 karede final aday metadata'sı ile paket round-trip için sıfır fark vermiştir.
+On altı bölgeyi paralel işleyen median RTL alt-aşaması beş kare/80 bölgede
+sıfır fark ve en fazla `29.756` çevrimle geçmiştir. **Mimari, referans ve median
+RTL alt-aşaması tamamlandı; bütünleşik enerji/fusion RTL, sentez,
+driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü beklemededir.**
+
 ### P0 Mandatory Closure Block A
 
 Kullanıcının ayrı onayıyla P0 içindeki yalnız üç donanımdan bağımsız zorunlu açık

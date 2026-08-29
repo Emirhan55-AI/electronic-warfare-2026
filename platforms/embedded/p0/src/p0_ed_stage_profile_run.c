@@ -178,12 +178,14 @@ static int profile_algorithm_stages(
     int reset_requested,
     algorithm_probe_t *probe,
     double *decode_ms,
+    double *grouping_ms,
     double *detection_ms,
     double *packet_ms,
     double *temporal_ms)
 {
     struct timespec started;
     struct timespec decode_finished;
+    struct timespec grouping_finished;
     struct timespec detection_finished;
     struct timespec packet_finished;
     struct timespec temporal_finished;
@@ -208,6 +210,14 @@ static int profile_algorithm_stages(
         goto rollback;
     if (clock_gettime(CLOCK_MONOTONIC, &decode_finished) != 0)
         goto rollback;
+    code = p0_os_cfar_group_detections_trusted(
+        probe->pipeline.power, P0_PROFILE_FRAME_BINS, &probe->pipeline.config,
+        probe->pipeline.detections, probe->pipeline.noise,
+        probe->pipeline.threshold, probe->pipeline.candidates,
+        PHASE06I_MAX_CANDIDATES, &candidate_count);
+    if (code != P0_OS_CFAR_OK ||
+        clock_gettime(CLOCK_MONOTONIC, &grouping_finished) != 0)
+        goto rollback;
     code = p0_multiscale_process_pl_trusted(
         probe->pipeline.power, P0_PROFILE_FRAME_BINS, &probe->pipeline.config,
         probe->pipeline.detections, probe->pipeline.noise,
@@ -231,7 +241,8 @@ static int profile_algorithm_stages(
         clock_gettime(CLOCK_MONOTONIC, &temporal_finished) != 0)
         goto rollback;
     *decode_ms = milliseconds_between(&started, &decode_finished);
-    *detection_ms = milliseconds_between(&decode_finished, &detection_finished);
+    *grouping_ms = milliseconds_between(&decode_finished, &grouping_finished);
+    *detection_ms = milliseconds_between(&grouping_finished, &detection_finished);
     *packet_ms = milliseconds_between(&detection_finished, &packet_finished);
     *temporal_ms = milliseconds_between(&packet_finished, &temporal_finished);
     return 0;
@@ -262,6 +273,7 @@ int main(int argc, char **argv)
     timing_summary_t pipeline_summary;
     timing_summary_t combined_summary;
     timing_summary_t decode_summary;
+    timing_summary_t grouping_summary;
     timing_summary_t detection_summary;
     timing_summary_t packet_summary;
     timing_summary_t temporal_summary;
@@ -271,6 +283,7 @@ int main(int argc, char **argv)
     double *pipeline_samples = NULL;
     double *combined_samples = NULL;
     double *decode_samples = NULL;
+    double *grouping_samples = NULL;
     double *detection_samples = NULL;
     double *packet_samples = NULL;
     double *temporal_samples = NULL;
@@ -297,12 +310,13 @@ int main(int argc, char **argv)
     pipeline_samples = calloc((size_t)measured_frames, sizeof(*pipeline_samples));
     combined_samples = calloc((size_t)measured_frames, sizeof(*combined_samples));
     decode_samples = calloc((size_t)measured_frames, sizeof(*decode_samples));
+    grouping_samples = calloc((size_t)measured_frames, sizeof(*grouping_samples));
     detection_samples = calloc((size_t)measured_frames, sizeof(*detection_samples));
     packet_samples = calloc((size_t)measured_frames, sizeof(*packet_samples));
     temporal_samples = calloc((size_t)measured_frames, sizeof(*temporal_samples));
     if (iq == NULL || power == NULL || dma_samples == NULL ||
         pipeline_samples == NULL || combined_samples == NULL ||
-        decode_samples == NULL || detection_samples == NULL ||
+        decode_samples == NULL || grouping_samples == NULL || detection_samples == NULL ||
         packet_samples == NULL || temporal_samples == NULL) {
         fputs("Profil belleği ayrılamadı.\n", stderr);
         goto done;
@@ -347,7 +361,8 @@ int main(int argc, char **argv)
         for (index = 0U; index < measured_frames; ++index) {
             if (profile_algorithm_stages(
                     power, (uint32_t)index, index == 0U, &probe,
-                    &decode_samples[index], &detection_samples[index],
+                    &decode_samples[index], &grouping_samples[index],
+                    &detection_samples[index],
                     &packet_samples[index], &temporal_samples[index]) != 0) {
                 failures.probe_failures += 1U;
                 break;
@@ -361,6 +376,8 @@ report:
     combined_summary = summarize(combined_samples, (size_t)completed);
     decode_summary = summarize(decode_samples,
                                failures.probe_failures == 0U ? (size_t)completed : 0U);
+    grouping_summary = summarize(grouping_samples,
+                                 failures.probe_failures == 0U ? (size_t)completed : 0U);
     detection_summary = summarize(detection_samples,
                                   failures.probe_failures == 0U ? (size_t)completed : 0U);
     packet_summary = summarize(packet_samples,
@@ -401,7 +418,9 @@ report:
         "  \"algorithm_probe_milliseconds\": {\n");
     print_summary("pl_frame_decode", &decode_summary);
     puts(",");
-    print_summary("candidate_detection", &detection_summary);
+    print_summary("os_candidate_grouping", &grouping_summary);
+    puts(",");
+    print_summary("multiscale_detection_total", &detection_summary);
     puts(",");
     print_summary("candidate_record_encode", &packet_summary);
     puts(",");
@@ -426,6 +445,7 @@ done:
     free(temporal_samples);
     free(packet_samples);
     free(detection_samples);
+    free(grouping_samples);
     free(decode_samples);
     free(combined_samples);
     free(pipeline_samples);

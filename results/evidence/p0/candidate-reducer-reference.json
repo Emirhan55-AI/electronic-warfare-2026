@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 sparse final-candidate fixed-point reference",
+  "profile": {
+    "os_cfar": "P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
+    "region_bins": 256,
+    "integration_bins": 32,
+    "minimum_recovery_span_bins": 41,
+    "maximum_gap_bins": 1,
+    "fixed_coefficient_bits": 48
+  },
+  "equivalence": {
+    "frames": 14,
+    "candidate_metadata_mismatches": 0,
+    "phase06i_packet_mismatches": 0,
+    "vectors": [
+      {
+        "vector_id": "all_zero",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "uniform_noise",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "multiple_tones",
+        "candidate_count": 4,
+        "os_candidate_count": 4,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "excluded_shifted_edges",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "duplicate_reference_transitions",
+        "candidate_count": 3,
+        "os_candidate_count": 3,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "threshold_floor",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "threshold_floor_plus_one",
+        "candidate_count": 1,
+        "os_candidate_count": 1,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "extreme_unsigned_range",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "real_phase06f_single_tone",
+        "candidate_count": 4,
+        "os_candidate_count": 4,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "real_phase06f_multiple_tones",
+        "candidate_count": 4,
+        "os_candidate_count": 4,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "real_phase06f_representative_hann",
+        "candidate_count": 54,
+        "os_candidate_count": 147,
+        "recovery_candidate_count": 19,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "sloped_noise",
+        "candidate_count": 0,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 0,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "wideband",
+        "candidate_count": 1,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 1,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      },
+      {
+        "vector_id": "two_wideband",
+        "candidate_count": 1,
+        "os_candidate_count": 0,
+        "recovery_candidate_count": 1,
+        "candidate_metadata_mismatch": false,
+        "phase06i_packet_mismatch": false
+      }
+    ]
+  },
+  "coefficient_error": {
+    "os_threshold": 0.0,
+    "regional_noise": 2.220446049250313e-16,
+    "regional_threshold": 4.440892098500626e-16,
+    "integrated_threshold": 0.0
+  },
+  "architecture": {
+    "selected": "sparse final-candidate packet for detection frames",
+    "full_power_policy": "retained only for explicit parameter-measurement frames",
+    "local_detector": "P0 OS-CFAR rank-24/32 strict decision",
+    "wideband_detector": "32-bin integrated energy against 16 regional medians",
+    "fusion": "wideband recovery suppresses overlapping OS fragments",
+    "fixed_coefficient_bits": 48,
+    "maximum_candidates": 1352,
+    "requires_dma_overlap": true,
+    "physical_acceptance": false
+  },
+  "claim_boundary": "Bit-true software reference and existing PHASE-06I packet reuse; SystemVerilog, synthesis, PetaLinux image, physical execution and real-time acceptance are not yet complete."
+}

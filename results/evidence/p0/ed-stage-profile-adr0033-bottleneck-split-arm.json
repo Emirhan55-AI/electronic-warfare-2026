@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-29",
+  "status": "passed",
+  "scope": "transient ARM bottleneck decomposition on physical ZedBoard before candidate-reducer RTL",
+  "platform": {
+    "model": "Zynq Zed Development Board",
+    "fpga_manager_state": "operating",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "base_image_sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6",
+    "deployment": "/tmp/p0-ed-stage-profile-split",
+    "persistent_install": false
+  },
+  "binary": {
+    "compiler": "gcc-arm-linux-gnueabihf 11.4.0",
+    "flags": "-std=c11 -O3 -Wall -Wextra -Werror -mfloat-abi=hard -mfpu=vfpv3-d16 -march=armv7-a",
+    "bytes": 41804,
+    "sha256": "7ebbcd879ff4874c01f30670f741de3e978d2444ab0e254c51b0a7f6ae2762f2",
+    "profiler_source_sha256": "26350eaaa3cd6f628cf5e88f9974f8f0de4fbad1de6e2539a52fc42a3306e8f0"
+  },
+  "profile": {
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "frame_samples": 4096,
+    "frame_budget_milliseconds": 2.048,
+    "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "completion": {
+    "completed_frames": 4096,
+    "dma_failures": 0,
+    "pipeline_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "probe_failures": 0,
+    "expected_dma_status_flags": 7
+  },
+  "mean_timing_milliseconds": {
+    "dma": 1.443685,
+    "arm_pipeline": 2.654336,
+    "combined": 4.098021,
+    "pl_frame_decode": 0.584814,
+    "os_candidate_grouping": 0.635712,
+    "multiscale_detection_total": 1.551391,
+    "multiscale_exclusive_estimate": 0.915679,
+    "candidate_record_encode": 0.023626,
+    "temporal_association": 0.507758
+  },
+  "architecture_conclusion": {
+    "os_grouping_only_arm_floor_milliseconds": 2.018624,
+    "os_grouping_only_mean_overlap_margin": 1.014552487238832,
+    "full_multiscale_offload_arm_residual_milliseconds": 1.102945,
+    "full_multiscale_offload_sequential_total_milliseconds": 2.54663,
+    "full_multiscale_offload_sequential_margin": 0.8042000604720747,
+    "decision": "OS grouping alone is insufficient; the final multiscale candidate set must cross a sparse detection-frame boundary, and DMA/ARM execution must be overlapped or otherwise shortened."
+  },
+  "claim_boundary": "Geçici profiler mevcut imaja kurulmamıştır. Ayrıştırma aynı kernel, driver ve PL üzerinde ölçülmüştür; yeni RTL, PetaLinux imajı, sürekli hizmet throughput'u veya canlı RF kabulü değildir."
+}

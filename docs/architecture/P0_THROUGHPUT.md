@@ -71,3 +71,17 @@ Geçici ARM ölçümünde ADR-0032 ikilisi mevcut kernel/driver/PL üzerinde
 4096/4096 kareyi sıfır hatayla tamamladı; ARM `2,723289 ms`, birleşik yol
 `4,173240 ms` ölçüldü. ADR-0031'e göre hızlanma gözlenmedi. Bu sonuç yeni
 PetaLinux imajı veya gerçek-zaman kabulü değildir.
+
+## ADR-0033 seyrek çok ölçekli aday sınırı
+
+Kilitli 64+4.096 fiziksel ayrıştırmada OS aday gruplama `0,635712 ms`, OS
+gruplamayı içeren çok ölçekli tespit `1,551391 ms`, ARM `2,654336 ms` ve DMA
+`1,443685 ms` ölçüldü. Yalnız gruplamayı kaldıran ortalama ARM alt sınırı
+`2,018624 ms` ile `2,048 ms` bütçesine yalnız `%1,455` marj bırakır. Çok ölçekli
+tespit tamamen kaldırıldığında bile ardışık DMA+ARM tahmini `2,546630 ms` olur.
+Bu nedenle ADR-0033, sürekli tespit karesinde final çok ölçekli adayların
+PHASE-06I seyrek paketiyle taşınmasını ve DMA/ARM örtüşmesini birlikte zorunlu
+kılar. Tam güç/IQ yalnız açık parametre ölçüm yolunda korunur. Bit-doğru referans
+14 karede sıfır aday/metadata/packet farkı vermiştir. Paralel median RTL
+alt-aşaması beş kare/80 bölgede sıfır fark ve en fazla `29.756` çevrim vermiştir;
+bütünleşik enerji/fusion, sentez ve fiziksel kapılar henüz tamamlanmamıştır.

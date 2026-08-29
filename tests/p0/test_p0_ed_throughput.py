@@ -101,11 +101,13 @@ def test_stage_profiler_measures_the_exact_pl_pipeline_stages() -> None:
     for token in (
         "p0_pl_os_cfar_decode(",
         "!pl_decisions_present",
+        "p0_os_cfar_group_detections_trusted(",
         "p0_multiscale_process_pl_trusted(",
         "p0_candidate_records_encode(",
         "phase06j_process_candidates(",
         'print_summary("pl_frame_decode"',
-        'print_summary("candidate_detection"',
+        'print_summary("os_candidate_grouping"',
+        'print_summary("multiscale_detection_total"',
         'print_summary("candidate_record_encode"',
         'print_summary("temporal_association"',
     ):
