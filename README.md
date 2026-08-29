@@ -18,13 +18,13 @@ SigMF / HackRF RX
 Operatör bilgisayarı ── kontrol ve kayıt ──► ZedBoard PS / DDR
        │                                         │
        │                                         ▼
-       ◄──────────── sonuçlar ───── ZedBoard PS: OS-CFAR + geniş bant kurtarma
-                                                  │
-                                                  └──────────► 2/3 → Parametre
+       ◄──────────── sonuçlar ───── ZedBoard PS: paket doğrulama → 2/3 → parametre
                                                   ▲
                                                AXI DMA
                                                   ▲
                                      ZedBoard PL: Hann → 4096 FFT → Güç
+                                                  → OS-CFAR + geniş bant adayları
+                                                  → sürümlü aday paketi
 ```
 
 Hedef mimaride kritik FPGA sonuçları sürümlü ve sınırları belirli paketlerle PS
@@ -41,9 +41,9 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Sürekli 2 MS/s kabulünde 4.096/4.096 kare ve sıfır aktarım hatasıyla 116,34 kare/s ölçüldü; gereken 488,28 kare/s kapısı henüz geçilmedi |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |
 | Manuel açı–güç ölçümüne dayalı bağıl geliş açısı ve kerteriz | Host modelinde doğrulandı; saha doğruluğu ölçülmedi |
-| ZedBoard PL Hann/FFT/güç zinciri | SystemVerilog ve AMD FFT IP ile temiz Vivado bitstream/XSA üretimi doğrulandı |
-| FPGA tespit, gruplama ve aday paketleme blokları | SystemVerilog/golden doğrulaması mevcut; kanonik P0 bitstream zincirine henüz alınmadı |
-| ZedBoard üzerinde DMA ve tespit zinciri | Deterministik fiziksel karelerde PL güç → ARM OS-CFAR + 32-bin bütünleşik enerji → 2/3 doğrulandı; geniş bant dizisinde tek olay sahibi ve gürültü-negatif kapı geçti. Sürekli hız ölçümü 116,34 kare/s oldu; 488,28 kare/s kapısı başarısız ve canlı RF kapsam dışı |
+| ZedBoard PL CI8→Hann→FFT→güç→aday paketi zinciri | SystemVerilog ve AMD FFT IP ile kanonik P0 blok tasarımına alındı; Vivado sentez, route, 50 MHz setup/hold, bitstream ve XSA kapıları geçti |
+| FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
+| ZedBoard üzerinde DMA ve tespit zinciri | Önceki güç→ARM yolu fiziksel kartta doğrulandı ancak 2 MS/s sürekli hız kapısını geçemedi. Yeni seyrek aday bitstream'i hazır; değişken 64–54.144 byte S2MM sürücü sözleşmesi, PetaLinux yeniden derlemesi ve kart kabulü bekliyor |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
 | ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
 

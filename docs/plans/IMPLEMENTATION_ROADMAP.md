@@ -216,8 +216,15 @@ beat ve 30 backpressure kararlılık kontrolüyle bit-doğru geçti; kanıt
 DMA/driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ
 beklemededir. CI8 girişten FFT/güce ve aynı aday packetizer sınırına uzanan
 `p0_candidate_dsp_runtime_top` hiyerarşisi Icarus compile-only kapısından
-geçmiştir; vendor FFT işlevsel simülasyonu, yeni bitstream ve kart kabulü
-henüz yapılmamıştır.**
+geçmiştir. Ardından aynı hiyerarşi ZedBoard PS/AXI DMA blok tasarımına alınmış;
+Vivado 2025.2 sentez, route ve 50 MHz kapısı `WNS=+0,423 ns`, `WHS=+0,021 ns`,
+sıfır setup/hold endpoint ihlali, sıfır route hatası ve sıfır DRC error/critical
+warning ile geçmiştir. Post-route kullanım 27.453 LUT, 27.154 register, 81,5
+Block RAM tile ve 71 DSP'dir; bitstream ve gömülü bitstream'li XSA üretilmiştir.
+Kanıt `vivado-50mhz.json` dosyasındadır. Yeni çıkış PHASE-06I değişken uzunluklu
+64–54.144 byte aday paketidir; mevcut 32.768-byte güç-frame sürücüsüyle uyumlu
+değildir. Sürücü/PetaLinux yeniden derleme, kart programlama, fiziksel
+`488,28125 kare/s` kabulü ve canlı HackRF hâlâ beklemededir.**
 
 ### P0 Mandatory Closure Block A
 

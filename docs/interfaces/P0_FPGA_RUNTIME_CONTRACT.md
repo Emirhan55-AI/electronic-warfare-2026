@@ -2,38 +2,47 @@
 
 ## PL veri yolu
 
-Kanonik top `p0_dsp_runtime_top` aşağıdaki doğrulanmış blokları yeniden kullanır:
+Kanonik top `p0_candidate_dsp_runtime_top` aşağıdaki doğrulanmış blokları yeniden
+kullanır:
 
-`AXI4-Stream ci8 → PHASE-06B Hann → PHASE-06D AMD 4096 FFT → PHASE-06F exact lineer güç → AXI4-Stream UQ28.30`
+`AXI4-Stream ci8 → PHASE-06B Hann → PHASE-06D AMD 4096 FFT → PHASE-06F exact lineer güç → ADR-0033 final aday indirgeme → PHASE-06I AXI64 paket`
 
 Giriş her beat'te `{Q[7:0], I[7:0]}` ve `TKEEP=2'b11` taşır. Her frame tam 4096
 karmaşık örnektir; son örnekte `TLAST=1` olur. Hann çıkışı bileşen başına signed
 Q1.15, FFT çıkışı signed 29-bit Q14.15, güç çıkışı 58-bit unsigned UQ28.30'dur.
-DMA çıkış beat'i 64 bittir; üst altı bit sıfırdır ve `TKEEP=8'hFF` olur.
+Güç çıkışı 58-bit unsigned UQ28.30 olarak aday indirgeme zincirine girer. DMA
+çıkışı artık ham güç beat'i değil, `PL_PS_CANDIDATE_TRANSPORT_ABI.md` ile
+dondurulmuş 64-bit PHASE-06I paketidir. Paket 32-byte header, aday başına 40-byte
+record ve 32-byte trailer taşır; 0–1.352 aday için toplam uzunluk 64–54.144
+byte'dır. Son beat'te `TLAST`, son geçerli byte'larda `TKEEP` kullanılır.
 
 `TVALID`, `TREADY` ve `TLAST` bütün bloklarda AXI kurallarına göre korunur. FFT'nin
-natural `XK_INDEX` alanı güç bloğundan `m_axis_bin_index` tanı portuna taşınır;
-DMA belleğinde beat sırası natural FFT bin kimliğidir. PS fiziksel frekans
-dönüşümünde bu sırayı kullanır.
+natural `XK_INDEX` alanı güç bloğundan aday indirgeme zincirine taşınır. Paket
+record'larındaki shifted start/end/peak bin alanları ABI'nin tanımladığı frekans
+eşlemesini korur.
 
-PS göreli toplam gücü raw FFT-power toplamını `N × Σw²` ile normalize ederek FS²
-ölçeğine çevirir; periyodik Hann için `Σw²=3N/8` olur. dBFS bu lineer FS²
-değerinin `10·log10` sonucudur. Kalibrasyon katsayısı olmadan dBm üretilmez.
+Paket gürültü, eşik ve tepe gücünü exact integer metadata olarak taşır. Fiziksel
+Hz/dBFS/OBW99 dönüşümü ve parametre ölçümü PS tarafında kalır. Periyodik Hann için
+`Σw²=3N/8` normalizasyonu korunur; kalibrasyon katsayısı olmadan dBm üretilmez.
 
 ## Çalışma zamanı ayrımı
 
-`p0_candidate_dsp_runtime_top`, CI8 girişten Hann/FFT/lineer güce ve final
-candidate-reducer → PHASE-06I AXI64 packetizer sınırına uzanan yeni PL
-hiyerarşisidir. Bu hiyerarşi Icarus ile compile-only olarak doğrulanmıştır;
-vendor FFT işlevsel simülasyonu, yeni Vivado bitstream'i ve kart üzerindeki
-canlı HackRF kabulü henüz yapılmamıştır. Aşağıdaki fiziksel kanıtlar, mevcut
-`p0_dsp_runtime_top` güç→ARM yoluna ve bilinen deterministik çerçevelere aittir;
-yeni candidate runtime top'u için fiziksel kabul sayılmaz.
+`p0_candidate_dsp_runtime_top`, Icarus compile-only kapısından sonra kanonik
+ZedBoard PS/AXI DMA blok tasarımına alınmıştır. Vivado 2025.2 sentez, route ve
+50 MHz kapısı `WNS=+0,423 ns`, `WHS=+0,021 ns`, sıfır setup/hold endpoint
+ihlali, sıfır route hatası ve sıfır DRC error/critical warning ile geçmiştir.
+Post-route kullanım 27.453 LUT, 27.154 register, 81,5 Block RAM tile ve 71
+DSP'dir. Bitstream ve gömülü bitstream içeren XSA üretilmiştir. Bu sonuç kart
+programlama, DMA yazılım uyumluluğu veya fiziksel hız kabulü değildir.
 
-P0 blok tasarımında AXI DMA MM2S DDR'dan ci8 frame'i PL'ye, S2MM ise 64-bit güç
-beat'lerini DDR'a taşır. OS-CFAR, gruplama, temporal doğrulama ve fiziksel parametre
-çıkarımı PS/ARM sahibidir. PHASE-06G/H/I doğrulanmış hızlandırıcıları korunur fakat
-P0 DMA zincirinde yer almaz.
+P0 blok tasarımında AXI DMA MM2S DDR'dan ci8 frame'i PL'ye, S2MM ise 64-bit aday
+paketini DDR'a taşır. OS-CFAR hücre kararı, gruplama, geniş bant kurtarma ve
+PHASE-06I paketleme PL sahibidir; strict paket doğrulama, temporal doğrulama ve
+fiziksel parametre çıkarımı PS/ARM sahibidir.
+
+Aşağıdaki fiziksel kanıtlar tarihsel `p0_dsp_runtime_top` güç→ARM yoluna ve
+bilinen deterministik çerçevelere aittir. Yeni aday-paket bitstream'i için kart
+kabulü sayılmaz.
 
 Native PetaLinux imajındaki `p0-os-cfar-run`, DMA'nın doğal FFT sıralı 4096 adet
 little-endian UQ28.30 güç beat'ini okur, `fftshift` bin eşlemesini uygular ve kanonik
@@ -56,10 +65,13 @@ Araç güncel rootfs içindeki `/usr/bin/p0-ed-runtime-run` yoluna kurulmuş; ye
 üç byte-tam güç çerçevesi ve host/ARM olay eşdeğerliği yeniden geçmiştir.
 
 Direct-mode DMA sözleşmesi SG kapalı ve DRE kapalı olarak kalır. Bir giriş frame'i
-`4096×16 bit = 8192 byte`, bir çıkış frame'i `4096×64 bit = 32768 byte` olur.
-AXI DMA buffer-length alanı 16 bittir; `65535 byte` üst sınırı iki frame boyunu da
-temsil eder. 14 bitlik tarihsel yapılandırmanın `16383 byte` üst sınırı tek S2MM
-paketini temsil edemediğinden güncel kabul platformu değildir.
+`4096×16 bit = 8192 byte`, bir çıkış paketi `64 + 40×candidate_count` byte olur;
+üst sınır 54.144 byte'dır. AXI DMA buffer-length alanı 16 bittir ve 65.535-byte
+üst sınırı paketi temsil eder. Mevcut Linux sürücüsü ise tarihsel güç-frame yolu
+için 32.768-byte sabit S2MM tamponu/programlama sözleşmesine sahiptir. Bu nedenle
+yeni bitstream sürücüyle birlikte henüz çalıştırılamaz; 54.144-byte kapasiteli
+tampon, TLAST ile biten gerçek paket uzunluğunun fail-closed alınması ve iki-buffer
+işletimi yeni PetaLinux kabulünden önce tamamlanmalıdır.
 
 `p0_dma_client` çekirdek sürücüsü 8192 ve 32768 byte'lık DMA-coherent tamponların
 sahibidir ve iki DMA adresinde de 8-byte hizalamayı zorunlu tutar. Her çalıştırmada
@@ -94,11 +106,11 @@ yazılım referansıyla 10/10 byte-tam eşleşmiştir. Native açılışta FCLK0
 reset serbest ve 50 MHz doğrulama hata maskesi sıfırdır. Ayrı önceki fiziksel
 oturumda 50 MHz geçişi, reset sırası ve yasal 100 MHz geri dönüşü doğrulanmıştır.
 
-Kaynak ağacının `algorithms/fpga/` altında birleştirilmesinden sonra bütün Vivado
-TCL kaynak yolları bu kanonik dizine taşınmış ve proje 2026-08-27 tarihinde temiz
-durumdan yeniden üretilmiştir. Vivado 2025.2; blok tasarımı, sentez, route,
-setup/hold zamanlaması, bitstream ve gömülü bitstream içeren XSA üretimini tekrar
-geçmiştir. Bu çıktı yukarıdaki native boot ve DMA fiziksel kabulinde kullanılmıştır.
+Kaynak ağacının `algorithms/fpga/` altında birleştirilmesinden sonra önceki
+güç-frame platformu 2026-08-27 tarihinde temiz durumdan üretilmiş ve yukarıdaki
+native boot/DMA kabulinde kullanılmıştır. 2026-08-29 tarihinde üretilen yeni
+aday-paket bitstream/XSA ise farklı artefakttır; `vivado-50mhz.json` ile
+hash-kilitlidir ve henüz yeni PetaLinux imajı ya da fiziksel kart kabulü yoktur.
 
 ## Hata ve iddia sınırı
 

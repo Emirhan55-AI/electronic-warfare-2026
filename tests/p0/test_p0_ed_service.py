@@ -68,13 +68,19 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     assert evidence["current_source_status"] in {
         "current_sources_petalinux_build_passed",
         "baseline_build_superseded_pending_adr0032_rebuild",
+        "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     vivado = json.loads(
         (ROOT / "results/evidence/p0/vivado-50mhz.json").read_text(encoding="utf-8")
     )
-    assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
-    assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
+    if evidence.get("hardware_input_current", True):
+        assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
+        assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
+    else:
+        assert evidence["current_source_status"].startswith("baseline_build_superseded_pending_")
+        assert evidence["superseded_by_hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
+        assert evidence["superseded_by_hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
     if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
         for name, source in paths.items():
             assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
@@ -99,6 +105,13 @@ def test_vivado_build_evidence_matches_current_sources() -> None:
     assert evidence["drc_errors"] == 0
     assert evidence["drc_critical_warnings"] == 0
     assert evidence["bitstream"]["status"] == "PASS"
+    assert evidence["scope"] == "ZedBoard CI8-to-candidate-packet Vivado build"
+    assert evidence["dma"]["candidate_packet_bytes"] == {"minimum": 64, "maximum": 54144}
+    assert evidence["dma"]["software_contract"] == (
+        "pending_variable_candidate_packet_length_integration"
+    )
+    assert evidence["post_route_resources"]["slice_luts"]["used"] == 27453
+    assert evidence["post_route_resources"]["block_ram_tiles"]["used"] == 81.5
     for name, expected in evidence["source_sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
 

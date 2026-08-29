@@ -1186,6 +1186,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "scripts/generate_p0_candidate_reducer_packetizer_vectors.py",
     "scripts/verify_p0_candidate_reducer_packetizer.py",
     "scripts/verify_p0_candidate_dsp_runtime.py",
+    "scripts/verify_p0_vivado_build.py",
     "tests/p0/p0_ed_service_protocol_test.c",
     "tests/p0/p0_parameter_runtime_test.c",
     "results/evidence/p0/parameter-runtime-host-acceptance.json",
@@ -1396,7 +1397,7 @@ def check_readme_truthfulness() -> dict[str, object]:
     required = (
         "yalnız ölçülmüş veya tekrarlanabilir testle doğrulanmış",
         "zedboard üzerinde dma ve tespit zinciri",
-        "deterministik fiziksel karelerde",
+        "önceki güç→arm yolu fiziksel kartta doğrulandı",
         "sürekli 2 ms/s kabulünde 4.096/4.096 kare",
         "am/nfm izleme zinciri",
         "qml ürün akışında doğrulandı",

@@ -52,7 +52,8 @@ set rtl_sources [list \
   [file join $repository_root algorithms fpga p0 rtl p0_candidate_reducer_top.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_candidate_reducer_packetizer_top.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_candidate_dsp_runtime_top.sv] \
-  [file join $repository_root algorithms fpga p0 rtl p0_candidate_dsp_runtime_bd.v]
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_dsp_runtime_bd.v] \
+]
 add_files -fileset sources_1 -norecurse $rtl_sources
 set coefficient_file [file join $repository_root datasets fixtures phase06b hann-coefficients.mem]
 add_files -fileset sources_1 -norecurse $coefficient_file
