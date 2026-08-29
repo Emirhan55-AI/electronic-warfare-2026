@@ -202,9 +202,13 @@ On altı bölgeyi paralel işleyen median RTL alt-aşaması beş kare/80 bölged
 sıfır fark ve en fazla `29.756` çevrimle geçmiştir. Buna bağlı 32-bin
 bütünleşik enerji ve 41-bin geniş bant kurtarma RTL zinciri beş karede 22 aday
 ve 24 AXI kaydında sıfır metadata farkı vermiş; median dahil son girişten son
-çıkışa en fazla `44.755` çevrim ölçülmüştür. **Mimari, referans ve geniş bant
-RTL zinciri tamamlandı; OS aday üretimi/fusion, sentez, driver/iki-buffer,
-PetaLinux ve fiziksel `488,28125 kare/s` kabulü beklemededir.**
+çıkışa en fazla `44.755` çevrim ölçülmüştür. Seyrek OS motoru 5 kare/151 adayda,
+final fusion ise 5 kare/61 final aday ve 62 AXI kaydında sıfır metadata farkıyla
+geçmiştir. Uçtan uca son-girişten-son-çıkışa en yüksek `45.428`, bir örnek/çevrim
+giriş dahil ardışık işlevsel üst sınır `49.524 / 102.400` çevrimdir. **Mimari,
+referans ve final candidate-reducer RTL tamamlandı; PHASE-06I üst bağlantısı,
+sentez, driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü
+beklemededir.**
 
 ### P0 Mandatory Closure Block A
 

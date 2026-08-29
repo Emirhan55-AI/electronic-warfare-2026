@@ -1,6 +1,6 @@
 # ADR-0033 — P0 Seyrek Çok Ölçekli Aday Sınırı
 
-- Durum: Mimari, bit-doğru referans ve median+geniş bant RTL zinciri tamamlandı; OS fusion ve fiziksel kabul beklemede
+- Durum: Mimari, bit-doğru referans ve final candidate-reducer RTL tamamlandı; sentez ve fiziksel kabul beklemede
 - Kapsam: P0 sürekli `PL → DMA → ARM` sinyal tespiti yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-4.2, KTR-6
 - Ön koşullar: ADR-0028, ADR-0029, ADR-0030, ADR-0031, ADR-0032
@@ -83,9 +83,20 @@ frame ve fiziksel güç aralığı dışındaki girdinin fail-closed boş paket 
 geçmiştir. Median dahil son girişten son çıkışa en yüksek gecikme `44.755`
 çevrimdir; 50 MHz yalnız kapasite karşılığı `0,89510 ms` olur.
 
+OS karar motorunun seyrek çıkışı aynı rank-24/32 strict Q32 kararını korur;
+bir-bin boşluk köprüsü ve peak hücresindeki OS gürültü/eşik metadata'sıyla 5
+karede 151 aday ve 154 AXI kaydında sıfır fark vermiştir. Sıralı fusion taraması
+geniş bantla çakışan tüm OS parçalarını bastırıp kalan iki akışı shifted sırada
+birleştirir. Uçtan uca reducer aynı 5 karede 61 final aday ve boş kare dahil 62
+AXI kaydında sıfır metadata farkı vermiştir. En yüksek son-girişten-son-çıkışa
+gecikme `45.428`, bir örnek/çevrim giriş kabulüyle ardışık işlevsel üst sınır
+`49.524 / 102.400` çevrimdir. Kanonik en yüksek 1.352 OS adayı taşmasız
+çıkmış; birleşik RAM sınırını aşan bozuk akış sticky overflow ve boş paketle
+fail-closed olmuştur. Bu yalnız RTL simülasyon kapasitesidir.
+
 ## İddia sınırı
 
-Bu karar, referans model ve median+geniş bant RTL simülasyonu tam candidate
-reducer değildir. OS aday üretimi/fusion, PHASE-06I üst bağlantısı, sentez,
+Bit-doğru final candidate-reducer RTL simülasyonu tamamlanmıştır. PHASE-06I
+packetizer üst bağlantısı, sentez/place-route, zamanlama kapanışı, DMA/driver,
 fiziksel FPGA yürütümü ve gerçek-zaman başarısı henüz doğrulanmamıştır. Canlı
 HackRF, dBm kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.

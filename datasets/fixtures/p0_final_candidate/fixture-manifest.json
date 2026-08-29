@@ -1,0 +1,23 @@
+{
+  "files": {
+    "candidate-expected.mem": {
+      "bytes": 3658,
+      "sha256": "c7aa7bd994c239d03358346ac6529b2cf80835155425897cb26219355d965013"
+    },
+    "expected-record-counts.mem": {
+      "bytes": 25,
+      "sha256": "c6c5095e7e3e00398a55585df47bc2b6443687e46613d51e7858034c2896543c"
+    },
+    "golden-vectors.json": {
+      "bytes": 16982,
+      "sha256": "f4bd900601257d91e01303a5e5813568a99c7907ca649e822f9aa82a339e3d0f"
+    }
+  },
+  "schema_version": 1,
+  "shared_axis_power_input": {
+    "bytes": 389120,
+    "path": "datasets/fixtures/p0_wideband_recovery/axis-power-input.mem",
+    "sha256": "8fb3a2547cafd15f85f402b8f8d71cf9e5a255956c0296eb5cf6531b1302754d"
+  },
+  "status": "passed"
+}

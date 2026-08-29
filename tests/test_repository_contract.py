@@ -120,7 +120,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(135, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(161, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -201,8 +201,19 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
                 "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv",
                 "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
+                "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv",
+                "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv",
+                "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
+                "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
+                "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+                "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv",
+                "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv",
+                "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv",
                 "algorithms/fpga/p0/tb/tb_p0_parallel_region_median.sv",
                 "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv",
+                "algorithms/fpga/p0/tb/tb_p0_sparse_os_candidate.sv",
+                "algorithms/fpga/p0/tb/tb_p0_candidate_reducer.sv",
+                "algorithms/fpga/p0/tb/tb_p0_candidate_guards.sv",
             },
             {path for path in VERIFY._repository_files() if path.endswith(".sv")},
         )

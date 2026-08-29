@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 sparse OS-CFAR candidate and final multiscale candidate-reducer RTL simulation",
+  "simulator": "Icarus Verilog SystemVerilog 2012",
+  "sparse_os_candidates": {
+    "frames": 5,
+    "axis_records": 154,
+    "semantic_candidates": 151,
+    "candidate_metadata_mismatches": 0,
+    "maximum_last_input_to_last_output_cycles": 42873,
+    "stalled_payload_stability_checks": 33,
+    "fixture_manifest_sha256": "53ec8d7451ba008a299b3982e1ae6c7878936d806534f450f09c5c6ecd085481"
+  },
+  "final_candidates": {
+    "frames": 5,
+    "axis_records": 62,
+    "semantic_candidates": 61,
+    "candidate_metadata_mismatches": 0,
+    "wideband_overlap_suppression_checked": true,
+    "empty_frame_sentinel_checked": true,
+    "out_of_range_frame_failed_closed": true,
+    "malformed_frame_sticky_errors": true,
+    "maximum_last_input_to_last_output_cycles": 45428,
+    "stalled_payload_stability_checks": 13,
+    "fixture_manifest_sha256": "52d28c1d6dad9a40a96c2070668396beef01f896a73f36c8e2c8924146f51a2f"
+  },
+  "capacity": {
+    "clock_hz_for_capacity_only": 50000000,
+    "input_cycles_at_one_sample_per_cycle": 4096,
+    "maximum_sequential_functional_cycles": 49524,
+    "cycle_budget": 102400,
+    "functional_frames_per_second": 1009.611501494225,
+    "required_frames_per_second": 488.28125
+  },
+  "guards": {
+    "maximum_os_candidate_records": 1352,
+    "maximum_os_capacity_passed_without_overflow": true,
+    "fusion_overflow_failed_closed": true
+  },
+  "architecture": {
+    "os_detector": "rank-24/32 strict Q32 decision with sparse grouping",
+    "wideband_detector": "16 regional medians and 32-bin Q48 integrated energy",
+    "fusion": "sorted merge; every OS candidate overlapping a recovery is suppressed",
+    "output": "shifted-order candidate AXI stream with explicit empty sentinel"
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "e4a1a16200db325c737913a7e58773ec9cc5a2c8f5c1ed1e88281107a8201256",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "0cbb549b9b101cd042a2e3c2c5350d2037cffd6b779bebe2039716792c4b7572",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv": "01a46e1a951ac63f55916d3e2eb88aa4b92933e08caecdfb86600d763cd98da1",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv": "3f68c417dd4db0c96dbcfe5edacc61b3355f7d260d4f6ac8bbfa5f3b172e9ffb",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv": "897cfe5fdf64425b3fab7afe0dfa35b2569c6670351fc9c330ba50232d9136c1",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv": "55fa878ca2037443cce157ab44ea20733cc26de79a41f3effbf92761e6767666",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv": "2d6b50ad9816f59d1f9de2194714d47eaf80a5501ff74f22f2c2237b9d4aa64e",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "ce4a024f2e8ad10abd863bd0b880aeb0c535ad6793fc597e8c2f67f9eb91d5dd",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "7782ebd770d2677e5ff51ed5573dabbd776fd8483ece8d306d50dee672433591",
+    "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv": "6937d417365a5ff6d1a37590d8801cac8eef909ffe95964c3ed86de0568d76cd",
+    "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9c36c7ed5fd8f531577646e3341c2974e847010b5b28ca928eae09889e77af09",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "8eeea9c78ae8237f84055d0e2c1c5b734ed09533c404f7ca5f583b8d95128232",
+    "algorithms/fpga/p0/tb/tb_p0_sparse_os_candidate.sv": "ab8cc480888b69eb743fea9af1a7be5ff37bc45ea0f0d85f324c5497673f7af3",
+    "algorithms/fpga/p0/tb/tb_p0_candidate_reducer.sv": "28642d70c54ef39f8d17b0d2c5a76f13996fb341dad4cb481a6904ae296e6787",
+    "algorithms/fpga/p0/tb/tb_p0_candidate_guards.sv": "ebcd08319f96272695cc4df469d5f9bb1377a1f0832bc8df4c8d959c271967ad"
+  },
+  "claim_boundary": "Bit-true RTL simulation and functional cycle capacity only; PHASE-06I packetizer integration, synthesis, place-and-route, timing closure, DMA/driver integration, board execution and physical real-time acceptance remain open."
+}
