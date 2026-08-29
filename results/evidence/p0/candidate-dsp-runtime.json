@@ -38,7 +38,7 @@
     "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9c36c7ed5fd8f531577646e3341c2974e847010b5b28ca928eae09889e77af09",
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "8eeea9c78ae8237f84055d0e2c1c5b734ed09533c404f7ca5f583b8d95128232",
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_packetizer_top.sv": "4c13fecd2ba589341ffc28802145b56da3407011ec63dd8b3ace691c0acb4dbf",
-    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv": "6a44ea84748e22c9561fe0bbc7bbfbc9a26c565be2f3b7658eda784e82b2ff54",
+    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv": "bef61361fa1e4843b87c412144491da5af384fc51c2f23926c60aad861531739",
     "algorithms/fpga/p0/tb/tb_p0_candidate_dsp_runtime.sv": "e99a2b99a7bd143528c292a6adf35583be1e23dfd37b20d5da9aa975c1e88c82"
   },
   "claim_boundary": "This evidence proves that the complete CI8-to-packetizer RTL hierarchy elaborates against the vendor FFT boundary. It does not claim vendor-IP functional simulation, Vivado timing, bitstream generation, DMA/driver integration, board execution or live HackRF processing."

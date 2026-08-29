@@ -313,11 +313,20 @@ algoritma sonuçları değişmemiştir.
 - **PHASE-06J — Zynq PS Temporal Aday Doğrulama ve Frame Association:** Committed PHASE-06I ABI v1 packet'ını little-endian byte decoder ile strict doğrular ve authoritative PHASE-03 `DetectionPipeline._update_tracks` 2-of-3 state machine'ini bounded portable C11 PS çekirdeğine taşır. Previous span ±2 bin positive-overlap association, global deterministic tie order, iki ardışık miss expiry, 64 active/128 ended ring sınırı, empty/reset ve uint32 frame-wrap davranışı 10 sequence/33 frame/1.501 candidate record üzerinde Python golden ile sıfır semantic mismatch vermiştir. Geliştirme host'unda gerçek C compile/link geçmiştir. Yeni PL RTL yoktur; PetaLinux/ARM cross-build, ZedBoard execution, fiziksel Hz/dB/precise bandwidth, throughput iyileştirmesi ve live RF kapsam dışıdır. **Tamamlandı ve donduruldu.**
 
 PHASE-06J sonrasında aday paketinin Linux DMA sürücüsü, runtime ve ED yerel hizmet
-entegrasyonu kaynak düzeyinde tamamlanmış ve WSL2 host kabulünden geçmiştir. Yeni
-PetaLinux/ARM derlemesi, gerçek DMA/driver/device-tree çalıştırması, ZedBoard
-fiziksel kabulü, fiziksel birim dönüşümü/PHASE-04 parametre ölçümü ve detector
-throughput iyileştirmesi ayrı kapılardır; PHASE-06J bunları veya post-detector
-timing'i mevcut saymaz.
+entegrasyonu kaynak düzeyinde tamamlanmış ve WSL2 host kabulünden geçmiştir.
+İlk aday-paket imajı kartta Linux ve sıfır-girdi DMA taşıma kapılarını geçmiş,
+ancak pozitif bilinen-ton deneyi sıfır aday üretmiştir. Sentez günlüğündeki
+`$readmem` hatası Hann katsayı ROM'unun out-of-context çalışmada yüklenmediğini ve
+mantığın budandığını göstermiştir. Katsayı kaynağı Vivado'nun kopyaladığı dosya
+adıyla bağlanmış ve aynı hata için zorunlu sentez kapısı eklenmiştir. Düzeltilmiş
+tasarım 50 MHz'te `WNS=+0,157 ns`, `TNS=0`, `WHS=+0,007 ns`, `THS=0` ve sıfır
+yönlendirme hatasıyla bitstream/XSA üretmiştir. Bu XSA, ABI v2 DMA kernel modülü,
+runtime ve ED hizmeti PetaLinux 2025.2 projesinde 6.090/6.090 görevle yeniden
+derlenmiştir. Bootgen paketi ve SD açılış dosyaları SHA-256 ile doğrulanmış olarak
+hazırdır. Düzeltilmiş imajın SD'ye yazılması, gerçek kart açılışı, pozitif-sinyal
+DMA aday-paket kabulü, fiziksel birim dönüşümü/PHASE-04 parametre ölçümü,
+throughput iyileştirmesi ve canlı RF ayrı fiziksel kapılardır; derleme başarısı
+bunları geçmiş saymaz.
 
 ## PHASE-04 kontrollü kurtarma alt-fazı
 

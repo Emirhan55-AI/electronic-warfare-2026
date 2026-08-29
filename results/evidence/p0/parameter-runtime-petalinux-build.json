@@ -1,9 +1,9 @@
 {
-  "schema_version": 2,
-  "recorded_at": "2026-08-28",
+  "schema_version": 4,
+  "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 ARM parameter package and rootfs build",
-  "current_source_status": "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
+  "scope": "PetaLinux 2025.2 Hann-memory-fixed candidate-packet ARM parameter package and full image build",
+  "current_source_status": "current_sources_petalinux_build_passed",
   "build": {
     "target": "p0-dma",
     "machine": "zynq_generic_7z020",
@@ -19,37 +19,39 @@
     "service": "/usr/sbin/p0-ed-service",
     "runner": "/usr/bin/p0-parameter-run",
     "client": "/usr/bin/p0-parameter-client",
-    "service_sha256": "4b2034222c2f4a0f0961d29b486ff1cafe2e46bf609a1a9ddc8f6fb546bf91e2",
-    "runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
-    "client_sha256": "f0d0d5d6c64e20e250729bc16da29973d14d98a7f5294fcdb8e9cbbe12353272"
+    "service_sha256": "877821865399e10bd74f78aa09e34fbc3577fb1b63f9fe11ec62af237014be5a",
+    "runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
+    "client_sha256": "16be89743fa6c69d017c91423979f4d9eaf30457402a569b89f9b4602af771d6"
   },
   "hardware_input": {
-    "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
-    "system_bit_sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e"
+    "xsa_sha256": "6d4461a1245586db30463d14d467538bb09069a61cbc3292d3803cd3b17dd002",
+    "system_bit_sha256": "1f767abc0a81b0a2cae574d23beb41858f1533e3322ee4e544101bc3c01ac8e2"
   },
+  "hardware_input_current": true,
   "image": {
     "name": "image.ub",
-    "bytes": 24009639,
-    "sha256": "6c97f8efdca492a80db43ba01fefaf3699383ddda2d65e6ba8b68b79e09226d6"
+    "bytes": 24012323,
+    "sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25"
   },
   "boot_image": {
     "name": "BOOT.BIN",
     "bytes": 5228616,
-    "sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3"
+    "sha256": "b05bc6332c066c29761bfac78042b6430443d4b6b73dbfd235f005e5dc2e7a4a"
   },
   "source_sha256": {
     "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3",
-    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47"
   },
   "prior_image_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
   "not_verified": [
-    "current source and candidate-packet DMA integration build",
-    "physical boot with this current ADR-0030 image",
+    "Hann-memory-fixed candidate-packet image physical board boot",
+    "positive-signal physical candidate-packet parameter runtime",
     "positive-signal parameter numeric equivalence with this image",
     "live RF",
     "calibrated RF accuracy",
-    "sustained throughput"
-  ]
+    "physical sustained throughput"
+  ],
+  "claim_boundary": "This evidence proves that the current parameter runtime and Hann-memory-fixed candidate-packet DMA integration are present in a successful ARM/PetaLinux build. Physical ZedBoard execution and numerical parameter acceptance remain separate gates."
 }

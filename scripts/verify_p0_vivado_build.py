@@ -13,6 +13,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_ROOT = ROOT / "build/p0/vivado/reports"
+DSP_SYNTHESIS_LOG = (
+    ROOT
+    / "build/p0/vivado/p0_runtime.runs/p0_system_p0_dsp_runtime_0_0_synth_1/runme.log"
+)
 BITSTREAM = ROOT / "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit"
 XSA = ROOT / "build/p0/hardware/p0_system_50mhz.xsa"
 EVIDENCE = ROOT / "results/evidence/p0/vivado-50mhz.json"
@@ -109,6 +113,14 @@ def evaluate() -> dict[str, object]:
     drc = _read_report("implementation-drc.rpt")
     methodology = _read_report("methodology.rpt")
     check_timing = _read_report("check-timing.rpt")
+    if not DSP_SYNTHESIS_LOG.is_file():
+        raise FileNotFoundError(f"DSP sentez günlüğü eksik: {DSP_SYNTHESIS_LOG}")
+    dsp_synthesis_log = DSP_SYNTHESIS_LOG.read_text(encoding="utf-8", errors="replace")
+    memory_initialization_failures = re.findall(
+        r"could not open \$readmem data file|coefficient_rom[^\n]*does not have driver",
+        dsp_synthesis_log,
+        re.IGNORECASE,
+    )
 
     tool = _match(
         r"Tool Version\s*:\s*Vivado v\.([0-9.]+).*?Build\s+(\d+)",
@@ -200,10 +212,11 @@ def evaluate() -> dict[str, object]:
         and drc_errors == 0
         and drc_critical == 0
         and all(count == 0 for count in timing_issue_counts)
+        and not memory_initialization_failures
     )
 
     return {
-        "schema_version": 5,
+        "schema_version": 6,
         "status": "passed" if passed else "failed",
         "scope": "ZedBoard CI8-to-candidate-packet Vivado build",
         "tool": f"Vivado v{tool.group(1)} build {tool.group(2)}",
@@ -236,10 +249,15 @@ def evaluate() -> dict[str, object]:
             "base_address": "0x40400000",
             "mm2s_stream_bits": 16,
             "s2mm_stream_bits": 64,
-            "software_contract": "host_source_implemented_pending_petalinux_rebuild_and_board_acceptance",
+            "software_contract": "petalinux_rebuild_passed_pending_board_acceptance",
         },
         "block_design_validation": "PASS",
         "synthesis": "PASS",
+        "hann_memory_initialization": {
+            "status": "PASS" if not memory_initialization_failures else "FAIL",
+            "failure_count": len(memory_initialization_failures),
+            "log_sha256": _sha256(DSP_SYNTHESIS_LOG),
+        },
         "implementation": "ROUTE_DESIGN_COMPLETE",
         "route": route_values,
         "timing": {
@@ -287,9 +305,10 @@ def evaluate() -> dict[str, object]:
         "claim_boundary": (
             "This evidence proves local Vivado block-design validation, synthesis, routed "
             "50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet "
-            "PL hierarchy. The variable-length DMA contract is implemented and host-accepted in "
-            "source; PetaLinux rebuild, board programming, physical sustained throughput, "
-            "calibrated RF accuracy and live HackRF processing remain open."
+            "PL hierarchy. The variable-length DMA contract is implemented, host-accepted and "
+            "included in a successful PetaLinux rebuild; board programming, positive-signal "
+            "board acceptance, physical sustained throughput, calibrated RF accuracy and live "
+            "HackRF processing remain open."
         ),
     }
 

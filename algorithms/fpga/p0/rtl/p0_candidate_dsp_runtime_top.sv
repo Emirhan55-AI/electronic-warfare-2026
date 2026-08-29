@@ -65,7 +65,9 @@ module p0_candidate_dsp_runtime_top (
   assign input_keep_error_sticky = input_keep_error_sticky_reg;
 
   axis_hann_window #(
-    .COEFFICIENT_FILE("datasets/fixtures/phase06b/hann-coefficients.mem")
+    // Vivado copies registered memory-init sources into the out-of-context
+    // synthesis directory under their basename.
+    .COEFFICIENT_FILE("hann-coefficients.mem")
   ) hann (
     .aclk(aclk),
     .aresetn(aresetn),

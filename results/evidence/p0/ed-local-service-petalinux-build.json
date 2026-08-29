@@ -1,83 +1,95 @@
 {
-  "schema_version": 2,
+  "schema_version": 4,
   "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 ARM package and rootfs build",
-  "current_source_status": "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
+  "scope": "PetaLinux 2025.2 Hann-memory-fixed candidate-packet ARM package and full image build",
+  "current_source_status": "current_sources_petalinux_build_passed",
   "build": {
     "target": "p0-dma",
     "machine": "zynq_generic_7z020",
     "tasks_attempted": 5679,
     "tasks_failed": 0,
-    "full_image_tasks_attempted": 5679,
+    "full_image_tasks_attempted": 6090,
     "full_image_tasks_failed": 0,
+    "active_recipe_path_verified": true,
     "warning": "TFTP copy skipped because /tftpboot is not configured"
   },
   "rootfs": {
+    "package": "p0-dma 1.0",
     "service_account": "p0ed uid 996 gid 995",
-    "operator_group": "petalinux gid 1000",
     "service_binary": "/usr/sbin/p0-ed-service",
-    "client_binary": "/usr/bin/p0-ed-client",
-    "throughput_runner_binary": "/usr/bin/p0-ed-throughput-run",
-    "stage_profile_binary": "/usr/bin/p0-ed-stage-profile-run",
-    "init_script": "/etc/init.d/p0-ed-service",
-    "runlevels_started": [2, 3, 4, 5],
-    "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
-    "service_sha256": "3f5288b2d691d67de037081ef3f8a57b75d905e38fe348e2ce86284a3e7fbb61",
+    "service_sha256": "877821865399e10bd74f78aa09e34fbc3577fb1b63f9fe11ec62af237014be5a",
+    "dma_runner_binary": "/usr/bin/p0-dma-run",
+    "dma_runner_sha256": "d09e032f100202f959a3d9f493e5d1523f0044ef7d650d641e8844f7418c91cb",
+    "os_cfar_runner_sha256": "2a52192d6d799c5915cf9ca77fc755de98937bb023d93918c60a1ec1dbea4638",
+    "runtime_runner_sha256": "cdd34bd5b6b6fd5fb6f501baa0e813190a02e05e617e39d7101d60fbe9f50f40",
     "client_sha256": "85a5a6e59c4a256b0f77b2938c73fe7795f93663142136eede7f1ebac5f3bb27",
     "throughput_runner_sha256": "1f9000882ba32519b3c32d7906301ea9716b9806ee95295571fac7f18b73eb39",
-    "runtime_runner_binary": "/usr/bin/p0-ed-runtime-run",
-    "runtime_runner_sha256": "7052b243fc3fb0487f44b6f22f00f43effd740cb305f3dc984236296a7c3e000",
-    "parameter_runner_binary": "/usr/bin/p0-parameter-run",
-    "parameter_client_binary": "/usr/bin/p0-parameter-client",
-    "parameter_runner_sha256": "27a8b8972867a967ffa2f9960071f81e692a9eaff75eab6cd6ee67a7bf303c04",
+    "stage_profile_sha256": "3e3e5a0838337eb7d9c34020d524c0d478e9a2e1338d891b73d6fb818251b7bb",
+    "parameter_runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
     "parameter_client_sha256": "16be89743fa6c69d017c91423979f4d9eaf30457402a569b89f9b4602af771d6",
-    "stage_profile_sha256": "5da8a57f31cecb304ef26fac83a99d5885c14688ba8c1d38664fbe85ba0b3fdf"
+    "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
+    "init_script": "/etc/init.d/p0-ed-service",
+    "runlevels_started": [2, 3, 4, 5]
+  },
+  "kernel_module": {
+    "path": "/lib/modules/6.12.40-xilinx-g31626ef92ff1/updates/p0_dma_client.ko",
+    "sha256": "4e19ca3c3eccdbbab73b1ae92b2817df72da0b060fa5726355148c597fc8a630"
   },
   "hardware_input": {
-    "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
-    "system_bit_sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e"
+    "xsa_sha256": "6d4461a1245586db30463d14d467538bb09069a61cbc3292d3803cd3b17dd002",
+    "system_bit_sha256": "1f767abc0a81b0a2cae574d23beb41858f1533e3322ee4e544101bc3c01ac8e2"
   },
-  "hardware_input_current": false,
-  "superseded_by_hardware_input": {
-    "xsa_sha256": "24b69ffa1eba17c8d12a98ac1f969c1b8171354664f1399870749092d004c92d",
-    "system_bit_sha256": "5df4437ffdf6e6d996527ec182b848cad60000abf6c79960705a9647c198eb9e"
+  "hardware_input_current": true,
+  "device_tree": {
+    "compatible": "teknofest,p0-axi-dma-1.0",
+    "register_base": "0x40400000",
+    "status": "okay",
+    "sha256": "cae121ef363c068810f0618f33ae592f53bf1687a6b8930975a7d7fa4007b54f"
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24010591,
-    "sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6"
+    "bytes": 24012323,
+    "sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25"
   },
   "boot_image": {
     "name": "BOOT.BIN",
     "bytes": 5228616,
-    "sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3"
+    "sha256": "b05bc6332c066c29761bfac78042b6430443d4b6b73dbfd235f005e5dc2e7a4a"
+  },
+  "rootfs_manifest": {
+    "bytes": 23000,
+    "sha256": "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3"
   },
   "source_sha256": {
     "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3",
-    "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
+    "p0_dma_client.c": "132878442ca900343227c553570862a05fb8fcf0e47e6bc23337082659da645b",
+    "p0_dma_uapi.h": "85dbd8ca540847f0680f0881f6237df6e506c1fed8a9d14af720a17c118cf807",
+    "p0_ed_service.c": "cae8c56106623610252a54d17c29bbbd4498c9a2d6cbae171385336e0cfe7661",
     "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525",
     "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
-    "p0_parameter_runtime.c": "bbac6f2fdb2b67e3ff89a3efaa35330f987a68a61380e2581d2d7cc17346ff42",
+    "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
-    "p0_multiscale_detector.c": "36d9dd5c16040a04688e539134a7d53b58984e2cc2ef138e481b0e544358d682",
-    "p0_multiscale_detector.h": "468e250daa769d2690ada1af5caf40b19840c7a5fcb267662f8fc97eaae143a1",
-    "p0_ed_pipeline.c": "0fdd8e512b9d6b0feba56f2463b953fb745f48af567614a2e47080166cb003ac",
+    "p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
+    "p0_multiscale_detector.h": "65e5fe6090895dd4e6263915b2f32394bc750b1946f64887f5ba8e4d65fafae3",
+    "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
     "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea",
-    "p0_os_cfar.c": "c65ca4b9c0537e9f0d14da940e99cbfe0bef3cad958ba3d223b1eb4e7479f8e9",
-    "p0_os_cfar.h": "1aa640804dbc41aaf4e9402cb348966e86c65eaa12981fbd1a533acf8beb2009",
+    "p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
+    "p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
     "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
     "p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
-    "p0_ed_stage_profile_run.c": "058f210cd270a713fce614aefce391cb387ebfac4cdc33162cdc9b3aff846034",
+    "p0_ed_stage_profile_run.c": "2ee345cbe27756903bb4a02ee59a7c03584410de17e57060ecd9bb141b3a76e5",
     "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2"
   },
   "prior_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
   "not_verified": [
-    "Ethernet transport",
-    "live HackRF",
+    "Hann-memory-fixed candidate-packet image physical board boot",
+    "positive-signal candidate-packet DMA transfer on ZedBoard",
     "physical sustained throughput",
-    "candidate-packet DMA driver and PetaLinux rebuild",
-    "new candidate-packet bitstream board acceptance"
-  ]
+    "live HackRF",
+    "calibrated RF accuracy",
+    "RF transmission"
+  ],
+  "claim_boundary": "This evidence proves that the Hann-memory-fixed candidate-packet XSA, device tree, ABI v2 DMA module, ARM user-space services and full PetaLinux boot artifacts build together. It does not prove that this image boots or produces positive-signal candidate packets on the physical ZedBoard."
 }

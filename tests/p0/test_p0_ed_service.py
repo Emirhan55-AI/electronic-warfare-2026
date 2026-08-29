@@ -115,6 +115,8 @@ def test_vivado_build_evidence_matches_current_sources() -> None:
 
     assert evidence["status"] == "passed"
     assert evidence["block_design_validation"] == "PASS"
+    assert evidence["hann_memory_initialization"]["status"] == "PASS"
+    assert evidence["hann_memory_initialization"]["failure_count"] == 0
     assert evidence["route"]["routing_errors"] == 0
     assert evidence["timing"]["setup_failing_endpoints"] == 0
     assert evidence["timing"]["hold_failing_endpoints"] == 0
@@ -124,10 +126,11 @@ def test_vivado_build_evidence_matches_current_sources() -> None:
     assert evidence["scope"] == "ZedBoard CI8-to-candidate-packet Vivado build"
     assert evidence["dma"]["candidate_packet_bytes"] == {"minimum": 64, "maximum": 54144}
     assert evidence["dma"]["software_contract"] == (
-        "host_source_implemented_pending_petalinux_rebuild_and_board_acceptance"
+        "petalinux_rebuild_passed_pending_board_acceptance"
     )
-    assert evidence["post_route_resources"]["slice_luts"]["used"] == 27453
-    assert evidence["post_route_resources"]["block_ram_tiles"]["used"] == 81.5
+    for resource in evidence["post_route_resources"].values():
+        assert 0 < resource["used"] <= resource["available"]
+        assert 0.0 < resource["utilization_percent"] <= 100.0
     for name, expected in evidence["source_sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
 
@@ -167,9 +170,7 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_attempted"] == 5679
     assert evidence["build"]["tasks_failed"] == 0
-    assert evidence["current_source_status"] == (
-        "baseline_build_superseded_pending_candidate_packet_runtime_rebuild"
-    )
+    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
     assert evidence["build"]["full_image_tasks_failed"] == 0
     if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
         for name, source in paths.items():

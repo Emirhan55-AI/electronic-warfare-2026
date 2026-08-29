@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "status": "passed",
   "scope": "ZedBoard CI8-to-candidate-packet Vivado build",
   "tool": "Vivado v2025.2 build 6299465",
@@ -35,21 +35,26 @@
     "base_address": "0x40400000",
     "mm2s_stream_bits": 16,
     "s2mm_stream_bits": 64,
-    "software_contract": "host_source_implemented_pending_petalinux_rebuild_and_board_acceptance"
+    "software_contract": "petalinux_rebuild_passed_pending_board_acceptance"
   },
   "block_design_validation": "PASS",
   "synthesis": "PASS",
+  "hann_memory_initialization": {
+    "status": "PASS",
+    "failure_count": 0,
+    "log_sha256": "c04f3ee9bbb36ee1bb3350abf877ea1e0868b55efa677e84927e771525c87439"
+  },
   "implementation": "ROUTE_DESIGN_COMPLETE",
   "route": {
-    "routable_nets": 45136,
-    "fully_routed_nets": 45136,
+    "routable_nets": 45787,
+    "fully_routed_nets": 45787,
     "routing_errors": 0
   },
   "timing": {
-    "setup_wns_ns": 0.423,
+    "setup_wns_ns": 0.157,
     "setup_tns_ns": 0.0,
     "setup_failing_endpoints": 0,
-    "hold_whs_ns": 0.021,
+    "hold_whs_ns": 0.007,
     "hold_ths_ns": 0.0,
     "hold_failing_endpoints": 0,
     "check_timing_issue_counts": [
@@ -69,14 +74,14 @@
   },
   "post_route_resources": {
     "slice_luts": {
-      "used": 27453,
+      "used": 28259,
       "available": 53200,
-      "utilization_percent": 51.6
+      "utilization_percent": 53.12
     },
     "slice_registers": {
-      "used": 27154,
+      "used": 27170,
       "available": 106400,
-      "utilization_percent": 25.52
+      "utilization_percent": 25.54
     },
     "block_ram_tiles": {
       "used": 81.5,
@@ -92,7 +97,7 @@
   "drc_errors": 0,
   "drc_critical_warnings": 0,
   "drc_warnings": {
-    "DPIP-1": 40,
+    "DPIP-1": 42,
     "DPOP-1": 19,
     "DPOP-2": 26,
     "PDCN-1569": 3,
@@ -106,21 +111,21 @@
     "status": "PASS",
     "relative_path": "build/p0/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
     "bytes": 4045693,
-    "sha256": "5df4437ffdf6e6d996527ec182b848cad60000abf6c79960705a9647c198eb9e"
+    "sha256": "1f767abc0a81b0a2cae574d23beb41858f1533e3322ee4e544101bc3c01ac8e2"
   },
   "hardware_platform": {
     "relative_path": "build/p0/hardware/p0_system_50mhz.xsa",
-    "bytes": 1325833,
-    "xsa_sha256": "24b69ffa1eba17c8d12a98ac1f969c1b8171354664f1399870749092d004c92d",
-    "hwh_sha256": "0168e325af79726743c585aaa90ea0913a064d5dc90afe0018b48853826ae199"
+    "bytes": 1324767,
+    "xsa_sha256": "6d4461a1245586db30463d14d467538bb09069a61cbc3292d3803cd3b17dd002",
+    "hwh_sha256": "440e63bf6e4f6170927cd2f3ac23ae1d57f05660d31fd33317cab93411179594"
   },
   "report_sha256": {
-    "implementation-timing-summary.rpt": "68f016a55a517bac11e8d3874957cacfa35944908bd5b824ea50ede58336c99b",
-    "implementation-utilization-summary.rpt": "8d31d5bb3cd263cddb99c5bdb53e0c8a2d076708308cf694b12b359eaa662bef",
-    "route-status.rpt": "c16230cbd81c73e50bdebfe5f23a262e6d84a558e9078663da53eaa34db06ec9",
-    "implementation-drc.rpt": "f9bfbcf900960ab9ad73e17f2a956c48f152960b1e8a98396695618f9b0f0f90",
-    "methodology.rpt": "bee64a0d21a5adaf079b75a9fd175def0f4d803469fc9b9f6f52f6cba3cacffa",
-    "check-timing.rpt": "49a0f3f81eb145f4dead0012bb8b6b5c57e79f91b337a03ede231a728d59ed9a"
+    "implementation-timing-summary.rpt": "cf57cc2fe46f337caa9ae5845bc54e4ea275a70cb090dc86c17a016cda79bab4",
+    "implementation-utilization-summary.rpt": "67eeab3e01f6dfd0385c5350a11268cc0c73848601243b4737e32ac504af4a86",
+    "route-status.rpt": "1662953ad36f3ebbe98f3ce7c46d589f2267beb46f85764ebc27faaff80c0eff",
+    "implementation-drc.rpt": "94b27a9c7980f8273df5919e9b4a448e388884a4301b40fcb1be2419414c5664",
+    "methodology.rpt": "90acf13e468ca7d3cc4f12730ca808d3749d0a31cdfeda0a4c0367127507331e",
+    "check-timing.rpt": "4f32c72833a8ba5bc75683da9f95e5d20aa09f63c54213544ede77e0ea8461d8"
   },
   "source_sha256": {
     "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv": "b96dde6d5a415fd3ed428a0b7e09d60441ac09c1708d2c6c44fb42a566de66d9",
@@ -149,7 +154,7 @@
     "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9c36c7ed5fd8f531577646e3341c2974e847010b5b28ca928eae09889e77af09",
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "8eeea9c78ae8237f84055d0e2c1c5b734ed09533c404f7ca5f583b8d95128232",
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_packetizer_top.sv": "4c13fecd2ba589341ffc28802145b56da3407011ec63dd8b3ace691c0acb4dbf",
-    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv": "6a44ea84748e22c9561fe0bbc7bbfbc9a26c565be2f3b7658eda784e82b2ff54",
+    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv": "bef61361fa1e4843b87c412144491da5af384fc51c2f23926c60aad861531739",
     "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_bd.v": "6f9d6f4103591bca01e1571e983d32791d44bfa21efea71486bb0efcce0021a2",
     "scripts/create_p0_vivado_project.tcl": "7b1ddf991b288349d62d10b9ba1e6285eeb6a8765c6a50df2b0638614868ed68",
     "scripts/run_p0_vivado.tcl": "2408d94e09663ceb6e69967eb5deb33ed0ef36acd59e43f5a912242f290405a2"
@@ -159,5 +164,5 @@
     "xsa_sha256": "1426414a7350c9d8a903a5753f0867220393f22280eef690192ff43b46b36a08",
     "archive": "build/p0/archive/legacy-power-runtime-20260828"
   },
-  "claim_boundary": "This evidence proves local Vivado block-design validation, synthesis, routed 50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet PL hierarchy. The variable-length DMA contract is implemented and host-accepted in source; PetaLinux rebuild, board programming, physical sustained throughput, calibrated RF accuracy and live HackRF processing remain open."
+  "claim_boundary": "This evidence proves local Vivado block-design validation, synthesis, routed 50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet PL hierarchy. The variable-length DMA contract is implemented, host-accepted and included in a successful PetaLinux rebuild; board programming, positive-signal board acceptance, physical sustained throughput, calibrated RF accuracy and live HackRF processing remain open."
 }
