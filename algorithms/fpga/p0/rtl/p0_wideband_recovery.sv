@@ -54,8 +54,9 @@ module p0_wideband_recovery (
   } state_t;
 
   state_t state;
-  (* ram_style = "block" *) logic [POWER_WIDTH-1:0] frame_memory [0:FRAME_LENGTH-1];
-  logic [POWER_WIDTH-1:0] frame_read_data;
+  logic [POWER_WIDTH-1:0] frame_memory_read_data;
+  logic [11:0] frame_memory_read_address;
+  logic frame_memory_write_enable;
   logic [POWER_WIDTH-1:0] outgoing_power;
   logic [11:0] expected_input_index;
   logic frame_range_error;
@@ -121,6 +122,51 @@ module p0_wideband_recovery (
   assign m_axis_tuser_evaluate_center = 1'b0;
   assign m_axis_tuser_candidate_valid = output_candidate_valid;
 
+  assign frame_memory_write_enable =
+      s_axis_tvalid && s_axis_tready &&
+      (s_axis_tuser_index == expected_input_index) &&
+      (s_axis_tlast == (expected_input_index == FRAME_LENGTH - 1));
+
+  p0_region_bank #(
+    .DATA_WIDTH(POWER_WIDTH),
+    .ADDRESS_WIDTH(12),
+    .DEPTH(FRAME_LENGTH)
+  ) frame_memory_i (
+    .aclk,
+    .write_enable(frame_memory_write_enable),
+    .write_address(expected_input_index),
+    .write_data(s_axis_tdata),
+    .read_address(frame_memory_read_address),
+    .read_data(frame_memory_read_data)
+  );
+
+  always_comb begin
+    frame_memory_read_address = 12'd0;
+    case (state)
+      ST_WINDOW_INITIALIZE:
+        frame_memory_read_address = window_read_index ^ 12'h800;
+      ST_WINDOW_ACCUMULATE:
+        if (window_read_index != 12'd36)
+          frame_memory_read_address = (window_read_index + 1'b1) ^ 12'h800;
+      ST_EVALUATE_CENTER:
+        if (current_center != 12'd4075)
+          frame_memory_read_address = (current_center - INTEGRATION_LEFT) ^ 12'h800;
+      ST_UPDATE_CAPTURE_OUTGOING:
+        frame_memory_read_address =
+            (current_center + INTEGRATION_RIGHT + 1'b1) ^ 12'h800;
+      ST_PREPARE_RECOVERY:
+        if (!frame_overflow && recovery_count != 0)
+          frame_memory_read_address = recovery_start[0] ^ 12'h800;
+      ST_PEAK_COMPARE:
+        if (peak_scan_index != recovery_end[recovery_index])
+          frame_memory_read_address = (peak_scan_index + 1'b1) ^ 12'h800;
+      ST_PRESENT_OUTPUT:
+        if (!output_last)
+          frame_memory_read_address = recovery_start[recovery_index + 1'b1] ^ 12'h800;
+      default: ;
+    endcase
+  end
+
   always_comb begin
     case (state)
       ST_COEFFICIENT_NOISE: selected_coefficient = {6'd0, NOISE_Q48};
@@ -138,15 +184,14 @@ module p0_wideband_recovery (
       ({1'b0, group_end} >= ({1'b0, group_start} + 13'd71));
   assign group_support_start = group_start + INTEGRATION_LEFT;
   assign group_support_end = group_end - INTEGRATION_RIGHT;
-  assign current_peak_better = frame_read_data > peak_power;
+  assign current_peak_better = frame_memory_read_data > peak_power;
   assign final_peak_index = current_peak_better ? peak_scan_index : peak_index;
-  assign final_peak_power = current_peak_better ? frame_read_data : peak_power;
+  assign final_peak_power = current_peak_better ? frame_memory_read_data : peak_power;
 
   always_ff @(posedge aclk) begin
     if (!aresetn) begin
       state <= ST_COLLECT;
       expected_input_index <= 12'd0;
-      frame_read_data <= 58'd0;
       outgoing_power <= 58'd0;
       frame_range_error <= 1'b0;
       coefficient_region <= 4'd0;
@@ -192,7 +237,6 @@ module p0_wideband_recovery (
               if (!s_axis_tlast && expected_input_index != FRAME_LENGTH - 1)
                 state <= ST_RESYNC;
             end else begin
-              frame_memory[expected_input_index] <= s_axis_tdata;
               if (expected_input_index == 12'd0)
                 frame_range_error <= s_axis_tdata > POWER_MAX_REACHABLE;
               else if (s_axis_tdata > POWER_MAX_REACHABLE)
@@ -259,17 +303,15 @@ module p0_wideband_recovery (
         end
 
         ST_WINDOW_INITIALIZE: begin
-          frame_read_data <= frame_memory[window_read_index ^ 12'h800];
           state <= ST_WINDOW_ACCUMULATE;
         end
 
         ST_WINDOW_ACCUMULATE: begin
-          window_sum <= window_sum + frame_read_data;
+          window_sum <= window_sum + frame_memory_read_data;
           if (window_read_index == 12'd36) begin
             state <= ST_EVALUATE_CENTER;
           end else begin
             window_read_index <= window_read_index + 1'b1;
-            frame_read_data <= frame_memory[(window_read_index + 1'b1) ^ 12'h800];
           end
         end
 
@@ -312,20 +354,17 @@ module p0_wideband_recovery (
           if (current_center == 12'd4075) begin
             state <= ST_FINALIZE_GROUP;
           end else begin
-            frame_read_data <= frame_memory[(current_center - INTEGRATION_LEFT) ^ 12'h800];
             state <= ST_UPDATE_CAPTURE_OUTGOING;
           end
         end
 
         ST_UPDATE_CAPTURE_OUTGOING: begin
-          outgoing_power <= frame_read_data;
-          frame_read_data <=
-              frame_memory[(current_center + INTEGRATION_RIGHT + 1'b1) ^ 12'h800];
+          outgoing_power <= frame_memory_read_data;
           state <= ST_UPDATE_APPLY;
         end
 
         ST_UPDATE_APPLY: begin
-          window_sum <= window_sum - outgoing_power + frame_read_data;
+          window_sum <= window_sum - outgoing_power + frame_memory_read_data;
           current_center <= current_center + 1'b1;
           state <= ST_EVALUATE_CENTER;
         end
@@ -355,7 +394,6 @@ module p0_wideband_recovery (
             peak_scan_index <= recovery_start[0];
             peak_index <= recovery_start[0];
             peak_power <= 58'd0;
-            frame_read_data <= frame_memory[recovery_start[0] ^ 12'h800];
             state <= ST_PEAK_COMPARE;
           end
         end
@@ -374,10 +412,9 @@ module p0_wideband_recovery (
           end else begin
             if (current_peak_better) begin
               peak_index <= peak_scan_index;
-              peak_power <= frame_read_data;
+              peak_power <= frame_memory_read_data;
             end
             peak_scan_index <= peak_scan_index + 1'b1;
-            frame_read_data <= frame_memory[(peak_scan_index + 1'b1) ^ 12'h800];
           end
         end
 
@@ -393,8 +430,6 @@ module p0_wideband_recovery (
               peak_scan_index <= recovery_start[recovery_index + 1'b1];
               peak_index <= recovery_start[recovery_index + 1'b1];
               peak_power <= 58'd0;
-              frame_read_data <=
-                  frame_memory[recovery_start[recovery_index + 1'b1] ^ 12'h800];
               output_candidate_valid <= 1'b0;
               state <= ST_PEAK_COMPARE;
             end

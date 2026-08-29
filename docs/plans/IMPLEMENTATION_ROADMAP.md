@@ -206,9 +206,12 @@ ve 24 AXI kaydında sıfır metadata farkı vermiş; median dahil son girişten 
 final fusion ise 5 kare/61 final aday ve 62 AXI kaydında sıfır metadata farkıyla
 geçmiştir. Uçtan uca son-girişten-son-çıkışa en yüksek `45.428`, bir örnek/çevrim
 giriş dahil ardışık işlevsel üst sınır `49.524 / 102.400` çevrimdir. **Mimari,
-referans ve final candidate-reducer RTL tamamlandı; PHASE-06I üst bağlantısı,
-sentez, driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü
-beklemededir.**
+referans ve final candidate-reducer RTL tamamlandı. Synthesis-only wrapper,
+Zynq-7020 üzerinde sentez/place/route ve 50 MHz setup/hold kapısını
+`WNS=+0,670 ns`, `WHS=+0,053 ns`, sıfır setup/hold endpoint ihlali ve sıfır
+route hatasıyla geçti; kanıt `candidate-reducer-vivado.json` dosyasındadır.
+PHASE-06I üst bağlantısı, pin atanmış board top'u, driver/iki-buffer,
+PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ beklemededir.**
 
 ### P0 Mandatory Closure Block A
 

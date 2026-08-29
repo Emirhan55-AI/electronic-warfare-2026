@@ -33,8 +33,9 @@
   "source_sha256": {
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
     "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "0cbb549b9b101cd042a2e3c2c5350d2037cffd6b779bebe2039716792c4b7572",
-    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "ce4a024f2e8ad10abd863bd0b880aeb0c535ad6793fc597e8c2f67f9eb91d5dd",
-    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "7782ebd770d2677e5ff51ed5573dabbd776fd8483ece8d306d50dee672433591",
+    "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "6c43de31d7de487669def257e9f7f2a98cee9eb040d5bc2564c08511f4116ec3",
     "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv": "157bc6cad46511cd7077308859a4c2e36d192118083ed137689d1023dad754ea"
   },
   "claim_boundary": "Icarus bit-true simulation of the median plus wideband-recovery chain only; OS-candidate fusion, PHASE-06I integration, synthesis, timing closure, board execution and real-time acceptance remain open."

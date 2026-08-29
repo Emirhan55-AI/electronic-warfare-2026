@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 candidate reducer Vivado synthesis and routed 50 MHz timing gate",
+  "tool": "Vivado 2025.2",
+  "device": "xc7z020clg484-1",
+  "top": "p0_candidate_reducer_synthesis_top",
+  "clock": {
+    "frequency_hz": 50000000,
+    "period_ns": 20.0
+  },
+  "synthesis": {
+    "status": "complete"
+  },
+  "implementation": {
+    "status": "route_design Complete!",
+    "design_state": "Routed"
+  },
+  "timing": {
+    "wns_ns": 0.67,
+    "whs_ns": 0.053,
+    "setup_failing_endpoints": 0,
+    "hold_failing_endpoints": 0,
+    "setup_total_violation_ns": 0.0,
+    "hold_total_violation_ns": 0.0,
+    "check_timing_all_zero": true
+  },
+  "resources": {
+    "slice_luts": 22085,
+    "slice_registers": 15898,
+    "block_ram_tiles": 64.5,
+    "dsp48e1": 29,
+    "bonded_iob": 198
+  },
+  "routing": {
+    "fully_routed_nets": 27790,
+    "routable_nets": 27790,
+    "routing_error_nets": 0
+  },
+  "drc": {
+    "critical_warning_rules": [
+      "NSTD-1",
+      "UCIO-1"
+    ],
+    "critical_warning_rule_count": 2,
+    "board_ready": false,
+    "boundary": "Synthesis-only wrapper has no board pin locations or I/O standards; bitstream generation and board acceptance remain open."
+  },
+  "report_sha256": {
+    "implementation-timing-summary.rpt": "0e9c8ec352f7a71932589363401f54f9c02c67ed68c209f6de3068201b6ab788",
+    "implementation-utilization-summary.rpt": "ab399e05ab6e62cf2420abc03ba99a0f497196d07df2c95ee59e89dcfbc8543d",
+    "route-status.rpt": "0ddef2a5495e041a9aa6225e5f5767036bf88838f61369cad1589d18e23aa388",
+    "implementation-drc.rpt": "d40d4c7a353ece9f8693791a3ee459b0a63fa1225573a0d3766cb54b864cf8a8",
+    "check-timing.rpt": "91e1939a71c6a358a2811bb68409fb900cbf0090db5b4110e09d25c29e8f7525"
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/constraints/p0_candidate_reducer_50mhz.xdc": "58ed09a7ce4af2f6f715bfbe931bf1ffd4d23a867c2e5095bb338cceb6449c18",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "e4a1a16200db325c737913a7e58773ec9cc5a2c8f5c1ed1e88281107a8201256",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "0cbb549b9b101cd042a2e3c2c5350d2037cffd6b779bebe2039716792c4b7572",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv": "01a46e1a951ac63f55916d3e2eb88aa4b92933e08caecdfb86600d763cd98da1",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv": "3f68c417dd4db0c96dbcfe5edacc61b3355f7d260d4f6ac8bbfa5f3b172e9ffb",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv": "897cfe5fdf64425b3fab7afe0dfa35b2569c6670351fc9c330ba50232d9136c1",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv": "55fa878ca2037443cce157ab44ea20733cc26de79a41f3effbf92761e6767666",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv": "2d6b50ad9816f59d1f9de2194714d47eaf80a5501ff74f22f2c2237b9d4aa64e",
+    "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "6c43de31d7de487669def257e9f7f2a98cee9eb040d5bc2564c08511f4116ec3",
+    "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv": "6937d417365a5ff6d1a37590d8801cac8eef909ffe95964c3ed86de0568d76cd",
+    "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9c36c7ed5fd8f531577646e3341c2974e847010b5b28ca928eae09889e77af09",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "8eeea9c78ae8237f84055d0e2c1c5b734ed09533c404f7ca5f583b8d95128232",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_synthesis_top.sv": "6a39e0342f85217e2e04bb18f0e3b7e882f99148e7812e2836a2d8b0e99e0640",
+    "scripts/run_p0_candidate_reducer_vivado.tcl": "b8947fcda7a0e3ac981255eb8cf27ae19d861efa06c59986dac735bea7caf535"
+  },
+  "claim_boundary": "This evidence covers RTL synthesis, placement, routing and constrained 50 MHz timing only. It does not claim packetizer integration, bitstream generation, DMA/driver integration, board execution or physical real-time acceptance."
+}

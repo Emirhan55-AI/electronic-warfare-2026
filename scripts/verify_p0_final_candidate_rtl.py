@@ -24,6 +24,7 @@ COMMON_SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
 )
 FINAL_SOURCES = (
     *COMMON_SOURCES,

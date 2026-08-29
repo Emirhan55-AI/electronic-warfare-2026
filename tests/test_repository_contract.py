@@ -63,6 +63,18 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(32768, output_frame_bytes)
         self.assertGreaterEqual(maximum_dma_length, output_frame_bytes)
 
+    def test_p0_candidate_reducer_vivado_evidence_keeps_board_boundary(self) -> None:
+        evidence = json.loads(
+            (ROOT / "results" / "evidence" / "p0" / "candidate-reducer-vivado.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual("passed", evidence["status"])
+        self.assertEqual(0, evidence["timing"]["setup_failing_endpoints"])
+        self.assertEqual(0, evidence["timing"]["hold_failing_endpoints"])
+        self.assertEqual(0, evidence["routing"]["routing_error_nets"])
+        self.assertFalse(evidence["drc"]["board_ready"])
+
     def test_phase00_baseline_files_remain_required(self) -> None:
         self.assertEqual(19, len(VERIFY.REQUIRED_FILES))
 
@@ -120,7 +132,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
         self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(161, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(167, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -199,6 +211,7 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",
                 "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
+                "algorithms/fpga/p0/rtl/p0_region_bank.sv",
                 "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv",
                 "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
                 "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv",
@@ -209,6 +222,7 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv",
+                "algorithms/fpga/p0/rtl/p0_candidate_reducer_synthesis_top.sv",
                 "algorithms/fpga/p0/tb/tb_p0_parallel_region_median.sv",
                 "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv",
                 "algorithms/fpga/p0/tb/tb_p0_sparse_os_candidate.sv",

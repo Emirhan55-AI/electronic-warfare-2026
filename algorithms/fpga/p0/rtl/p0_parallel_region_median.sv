@@ -28,7 +28,6 @@ module p0_parallel_region_median (
   } state_t;
 
   state_t state;
-  (* ram_style = "block" *) logic [POWER_WIDTH-1:0] region_memory [0:REGION_COUNT-1][0:REGION_SIZE-1];
   logic [POWER_WIDTH-1:0] region_read_data [0:REGION_COUNT-1];
   logic [POWER_WIDTH-1:0] lower_prefix [0:REGION_COUNT-1];
   logic [POWER_WIDTH-1:0] upper_prefix [0:REGION_COUNT-1];
@@ -49,6 +48,26 @@ module p0_parallel_region_median (
   assign s_axis_tready = state == ST_COLLECT || state == ST_RESYNC;
   assign result_valid = state == ST_RESULT;
   assign write_region = expected_input_index[11:8] ^ 4'h8;
+
+  genvar bank_index;
+  generate
+    for (bank_index = 0; bank_index < REGION_COUNT; bank_index = bank_index + 1) begin : GEN_REGION_BANK
+      p0_region_bank region_bank_i (
+        .aclk,
+        .write_enable(
+          s_axis_tvalid && s_axis_tready &&
+          (write_region == bank_index[3:0]) &&
+          (s_axis_tuser_index == expected_input_index) &&
+          (s_axis_tlast ==
+           (expected_input_index == p0_candidate_reducer_pkg::FRAME_LENGTH - 1))
+        ),
+        .write_address(expected_input_index[7:0]),
+        .write_data(s_axis_tdata),
+        .read_address(selection_scan_index),
+        .read_data(region_read_data[bank_index])
+      );
+    end
+  endgenerate
 
   always_comb begin
     for (region = 0; region < REGION_COUNT; region = region + 1) begin
@@ -71,7 +90,6 @@ module p0_parallel_region_median (
       completed_frame_count <= 16'd0;
       status_frame_error_sticky <= 1'b0;
       for (region = 0; region < REGION_COUNT; region = region + 1) begin
-        region_read_data[region] <= '0;
         lower_prefix[region] <= '0;
         upper_prefix[region] <= '0;
         lower_rank[region] <= 8'd127;
@@ -91,7 +109,6 @@ module p0_parallel_region_median (
               if (!s_axis_tlast && expected_input_index != FRAME_LENGTH - 1)
                 state <= ST_RESYNC;
             end else begin
-              region_memory[write_region][expected_input_index[7:0]] <= s_axis_tdata;
               if (expected_input_index == FRAME_LENGTH - 1) begin
                 expected_input_index <= 12'd0;
                 state <= ST_SELECT_SETUP;
@@ -125,8 +142,6 @@ module p0_parallel_region_median (
         end
 
         ST_SELECT_READ: begin
-          for (region = 0; region < REGION_COUNT; region = region + 1)
-            region_read_data[region] <= region_memory[region][selection_scan_index];
           state <= ST_SELECT_COUNT;
         end
 

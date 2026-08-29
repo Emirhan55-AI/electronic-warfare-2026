@@ -1,6 +1,6 @@
 # ADR-0033 — P0 Seyrek Çok Ölçekli Aday Sınırı
 
-- Durum: Mimari, bit-doğru referans ve final candidate-reducer RTL tamamlandı; sentez ve fiziksel kabul beklemede
+- Durum: Mimari, bit-doğru referans, final candidate-reducer RTL ve Zynq-7020 50 MHz sentez/place/route kapısı tamamlandı; kart entegrasyonu ve fiziksel kabul beklemede
 - Kapsam: P0 sürekli `PL → DMA → ARM` sinyal tespiti yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-4.2, KTR-6
 - Ön koşullar: ADR-0028, ADR-0029, ADR-0030, ADR-0031, ADR-0032
@@ -58,7 +58,10 @@ round-trip farkı sıfırdır.
    synthesizable SystemVerilog; reset, malformed frame, overflow ve rastgele
    backpressure testleri.
 3. Zynq-7020 sentez/place/route ve 50 MHz setup/hold; kare başına en fazla
-   `102.400` çevrim.
+   `102.400` çevrim. Temiz sentez/route koşusunda `WNS=+0,670 ns`,
+   `WHS=+0,053 ns`, setup/hold failing endpoint `0` ve route hatası `0`
+   ölçülmüştür. Bu kapı synthesis-only wrapper içindir; board pin/IO standardı
+   tanımı içermez.
 4. Sürümlemeli DMA/driver ve iki-buffer hizmet entegrasyonu.
 5. Yeni PetaLinux imajı, fiziksel bit-doğru aday kabulü ve değişmeyen
    64+4.096 / `488,28125 kare/s` kapısı.
@@ -96,7 +99,10 @@ fail-closed olmuştur. Bu yalnız RTL simülasyon kapasitesidir.
 
 ## İddia sınırı
 
-Bit-doğru final candidate-reducer RTL simülasyonu tamamlanmıştır. PHASE-06I
-packetizer üst bağlantısı, sentez/place-route, zamanlama kapanışı, DMA/driver,
-fiziksel FPGA yürütümü ve gerçek-zaman başarısı henüz doğrulanmamıştır. Canlı
-HackRF, dBm kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.
+Bit-doğru final candidate-reducer RTL simülasyonu ile Zynq-7020 sentez,
+yerleştirme, yönlendirme ve 50 MHz setup/hold kapısı tamamlanmıştır. Kanıt,
+`results/evidence/p0/candidate-reducer-vivado.json` içinde kaynak ve rapor
+özetleriyle dondurulmuştur. PHASE-06I packetizer üst bağlantısı, DMA/driver,
+iki-buffer hizmeti, pin atanmış board top'u, bitstream üretimi, fiziksel FPGA
+yürütümü ve gerçek-zaman başarısı hâlâ doğrulanmamıştır. Canlı HackRF, dBm
+kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.

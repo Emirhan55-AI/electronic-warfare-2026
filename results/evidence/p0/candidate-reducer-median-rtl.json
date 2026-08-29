@@ -28,7 +28,8 @@
   },
   "source_sha256": {
     "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
-    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "ce4a024f2e8ad10abd863bd0b880aeb0c535ad6793fc597e8c2f67f9eb91d5dd",
+    "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
     "algorithms/fpga/p0/tb/tb_p0_parallel_region_median.sv": "3ac767bfa3b47bd2532902c8adf9875ab2f6de95e6edc808318929c83e85ac85"
   },
   "claim_boundary": "Icarus bit-true simulation of the regional-median substage only; integrated-energy grouping, final candidate fusion, synthesis, timing closure, board execution and real-time acceptance remain open."

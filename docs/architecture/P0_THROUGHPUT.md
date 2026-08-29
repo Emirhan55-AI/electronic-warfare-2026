@@ -84,4 +84,8 @@ PHASE-06I seyrek paketiyle taşınmasını ve DMA/ARM örtüşmesini birlikte zo
 kılar. Tam güç/IQ yalnız açık parametre ölçüm yolunda korunur. Bit-doğru referans
 14 karede sıfır aday/metadata/packet farkı vermiştir. Paralel median RTL
 alt-aşaması beş kare/80 bölgede sıfır fark ve en fazla `29.756` çevrim vermiştir;
-bütünleşik enerji/fusion, sentez ve fiziksel kapılar henüz tamamlanmamıştır.
+Bütünleşik enerji/fusion RTL'si ve final fusion, Zynq-7020 üzerinde synthesis,
+place/route ve 50 MHz setup/hold kapısını `WNS=+0,670 ns`, `WHS=+0,053 ns`,
+sıfır timing ihlali ve sıfır route hatasıyla geçmiştir. Bu sonuç
+synthesis-only wrapper'a aittir; PHASE-06I üst bağlantısı, pin atanmış board
+top'u, bitstream, DMA/driver ve fiziksel kapılar hâlâ açıktır.

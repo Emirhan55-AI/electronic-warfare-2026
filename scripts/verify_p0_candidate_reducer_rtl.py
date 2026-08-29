@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-median-rtl.json"
 SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
     ROOT / "algorithms/fpga/p0/tb/tb_p0_parallel_region_median.sv",
 )

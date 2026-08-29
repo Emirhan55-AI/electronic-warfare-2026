@@ -18,6 +18,7 @@ EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-wideband-rtl.json"
 SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
     ROOT / "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv",
