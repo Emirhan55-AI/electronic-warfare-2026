@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "recorded_at": "2026-08-29",
   "status": "passed",
   "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance",
@@ -67,6 +67,15 @@
     "minimum_speedup_ratio": 1.385928349,
     "gate_closed": true
   },
+  "persistent_image_acceptance": {
+    "status": "passed",
+    "evidence": "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json",
+    "image_ub_sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032",
+    "completed_frames": 4096,
+    "frames_per_second": 489.276042855,
+    "real_time_margin": 1.002037336,
+    "functional_event_field_equivalence": true
+  },
   "source_sha256": {
     "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
     "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
@@ -75,7 +84,6 @@
     "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8"
   },
   "open_gates": [
-    "cold-boot persistence of the newly built PetaLinux ABI v3 image",
     "live HackRF acquisition",
     "calibrated RF accuracy",
     "broad physical signal-family coverage"

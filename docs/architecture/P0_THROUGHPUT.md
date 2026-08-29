@@ -60,7 +60,11 @@ kabul istemcisi CPU0'a sabitlenir. Kanıt
 Güncel kaynaklar PetaLinux 2025.2'de 5.679/5.679 paket ve 6.090/6.090 tam
 imaj göreviyle yeniden derlenmiştir; yeni `image.ub` SHA-256 değeri
 `cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032`'dir.
-Bu imajın soğuk açılış kabulü henüz yapılmamıştır.
+Bu imaj fiziksel kartta soğuk açılmış; FPGA `operating`, kurulu ikili hashleri
+derleme çıktısıyla aynı ve 54-aday işlevsel yaşam döngüsü bit-doğru bulunmuştur.
+Aynı kalıcı imajdaki 64+4.096 kabul koşusu `489,276042855 kare/s` ve
+`1,002037336` marjla geçmiştir. Kalıcı imaj kanıtı
+`results/evidence/p0/ed-service-v3-cold-boot-acceptance.json` dosyasındadır.
 
 ## ADR-0032 doğrulanmış aday kısa yolu
 

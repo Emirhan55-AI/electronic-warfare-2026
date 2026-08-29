@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-29",
+  "status": "passed",
+  "scope": "persistent PetaLinux ABI v3 service cold-boot acceptance on physical ZedBoard",
+  "boot": {
+    "board": "ZedBoard Zynq-7000 P/N 410-248",
+    "os": "PetaLinux 2025.2 armv7l",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "boot_id": "e43307f6-015d-4ffd-8a4c-5ab0802e1e25",
+    "fpga_manager_state": "operating",
+    "image_ub_bytes": 24037487,
+    "image_ub_sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032",
+    "service_started_by_image": true
+  },
+  "installed_binaries": {
+    "/usr/sbin/p0-ed-service": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
+    "/usr/bin/p0-ed-throughput-run": "3681917d3554bd42ea57d8bae184af0b2429f0e6c5077b5132484b211c2e18b8",
+    "/usr/bin/p0-ed-client": "4782391dff76952896d88b5c048afb9fada0a951418b74e9902ac49490caf819"
+  },
+  "cpu_and_dma": {
+    "service_cpus_allowed_list": "1",
+    "dma_mm2s_irq": 47,
+    "dma_s2mm_irq": 48,
+    "dma_interrupt_cpu": 0
+  },
+  "functional_acceptance": {
+    "status": "passed",
+    "known_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+    "physical_packet_sha256": "615d778b8ba2dc41bcd05f9750fad5b3ccd91c5f417dc301b3211739d4dd7486",
+    "final_candidates": 54,
+    "candidate_field_equivalence": true,
+    "raw_candidate_counts": [54, 54, 54, 0, 0],
+    "active_counts": [54, 54, 54, 54, 0],
+    "ended_counts": [0, 0, 0, 0, 54],
+    "dma_status_flags_all_frames": 7,
+    "event_field_equivalence": true,
+    "temporal_rule": "2-of-3 confirmation; two consecutive missing frames expire a track",
+    "result_sha256": {
+      "frame0": "099ec0f549468a01dc6e532fd61871f41b92adca861a23d6c387593dc3065d9c",
+      "frame1": "2710aaaa333702a75d3ebf8df2c927bc5843d552b2b8c3d264ddf80125b8f0f1",
+      "frame2": "479d2093d91042d2925a0a44f8d10c21081751bcc06bb7166f921858f36f1741",
+      "frame3": "9653ff38fc172c0fbf7b6bfaa2559f8f902b7942b357754bd69bdba6b4ecb01b",
+      "frame4": "067d4368393ffab090100c86981fc163d36f1f515ebfae311225be8b7cfa0795"
+    }
+  },
+  "throughput_acceptance": {
+    "status": "passed",
+    "sample_rate_hz": 2000000,
+    "frame_samples": 4096,
+    "warmup_frames": 64,
+    "measured_frames": 4096,
+    "completed_frames": 4096,
+    "request_failures": 0,
+    "service_failures": 0,
+    "sequence_failures": 0,
+    "dma_flag_failures": 0,
+    "dropped_candidates": 0,
+    "elapsed_seconds": 8.371552337,
+    "required_frames_per_second": 488.28125,
+    "measured_frames_per_second": 489.276042855,
+    "real_time_margin": 1.002037336,
+    "p95_latency_seconds": 0.002054778,
+    "physical_result_sha256": "a1e6bd27275e29f59961a324c99b93791a2606f755af394550c8f098e38cbac2"
+  },
+  "source_sha256": {
+    "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
+    "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
+    "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
+    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
+    "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
+    "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8"
+  },
+  "open_gates": [
+    "live HackRF acquisition",
+    "calibrated RF accuracy",
+    "broad physical signal-family coverage"
+  ],
+  "claim_boundary": "This proves persistent cold-boot execution, exact deterministic candidate and temporal equivalence, and one locked-profile 2 MS/s-equivalent local service run. It does not prove live HackRF throughput, calibrated RF sensitivity, broad signal-family accuracy or field performance."
+}

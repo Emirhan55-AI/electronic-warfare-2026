@@ -106,8 +106,9 @@ düşük hız `490,151683483 kare/s`, gerekli alt sınır `488,28125 kare/s` ve 
 düşük gerçek-zaman marjı `1,003830648` olmuştur. Sonuç
 `results/evidence/p0/ed-throughput-physical-acceptance.json` içinde başarılı
 fiziksel kabul olarak korunur. Güncel kaynaklarla PetaLinux paketi 5.679/5.679,
-tam imaj 6.090/6.090 görevle yeniden derlenmiştir; yalnız yeni imajın soğuk
-açılış doğrulaması ayrı kapıdır. Canlı HackRF,
+tam imaj 6.090/6.090 görevle yeniden derlenmiştir. Yeni imaj soğuk açılışta
+FPGA `operating`, kurulu ikili hash eşitliği, bit-doğru 54-aday yaşam döngüsü
+ve 4.096/4.096 karede `489,276042855 kare/s` ile kalıcı kabulü geçmiştir. Canlı HackRF,
 USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
 
 ### P0 ED OS-CFAR PL throughput düzeltmesi

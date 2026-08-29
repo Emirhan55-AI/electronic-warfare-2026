@@ -86,13 +86,11 @@
     "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2"
   },
   "prior_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
+  "cold_boot_acceptance": "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json",
   "not_verified": [
-    "Hann-memory-fixed candidate-packet image physical board boot",
-    "positive-signal candidate-packet DMA transfer on ZedBoard",
-    "cold-boot persistence of the ABI v3 service image",
     "live HackRF",
     "calibrated RF accuracy",
     "RF transmission"
   ],
-  "claim_boundary": "This evidence proves that the current candidate-packet XSA, device tree, ABI v2 DMA module, ABI v3 ARM local service and full PetaLinux image build together. Physical throughput is established separately with the same sources; cold-boot execution of this newly built image remains an open gate."
+  "claim_boundary": "This evidence proves that the current candidate-packet XSA, device tree, ABI v2 DMA module, ABI v3 ARM local service and full PetaLinux image build together. Separate physical evidence proves cold-boot execution, deterministic candidate and temporal equivalence, and the locked local 2 MS/s-equivalent throughput profile."
 }

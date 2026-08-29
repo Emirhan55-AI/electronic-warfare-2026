@@ -46,13 +46,13 @@
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47"
   },
   "prior_image_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
+  "cold_boot_service_acceptance": "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json",
   "not_verified": [
-    "Hann-memory-fixed candidate-packet image physical board boot",
-    "positive-signal physical candidate-packet parameter runtime",
+    "positive-signal physical parameter runtime with this image",
     "positive-signal parameter numeric equivalence with this image",
     "live RF",
     "calibrated RF accuracy",
-    "cold-boot persistence of the ABI v3 service image"
+    "broad physical parameter coverage"
   ],
-  "claim_boundary": "This evidence proves that the current parameter runtime, candidate-packet DMA integration and ABI v3 local service are present in a successful ARM/PetaLinux build. The earlier physical numerical acceptance remains valid because the parameter core is unchanged; cold-boot execution of this newly built image remains a separate gate."
+  "claim_boundary": "This evidence proves that the current parameter runtime, candidate-packet DMA integration and ABI v3 local service are present in a successful ARM/PetaLinux build. Separate evidence proves cold-boot service execution; the earlier physical numerical parameter acceptance remains valid because the parameter core is unchanged."
 }

@@ -111,7 +111,10 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     assert evidence["prior_physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )
-    assert "cold-boot persistence of the ABI v3 service image" in evidence["not_verified"]
+    assert evidence["cold_boot_acceptance"] == (
+        "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json"
+    )
+    assert "cold-boot persistence of the ABI v3 service image" not in evidence["not_verified"]
 
 
 def test_vivado_build_evidence_matches_current_sources() -> None:
@@ -254,6 +257,34 @@ def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
     assert evidence["repeatability"]["minimum_real_time_margin"] >= 1.0
     assert all(run["real_time_margin"] >= 1.0 for run in evidence["runs"])
     assert evidence["functional_regression"]["event_field_equivalence"] is True
+    for name, source in paths.items():
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    assert "live HackRF throughput" in evidence["claim_boundary"]
+
+
+def test_persistent_service_image_cold_boot_evidence_is_traceable() -> None:
+    evidence = json.loads(
+        (ROOT / "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    paths = {
+        "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
+        "p0_ed_service_protocol.c": ROOT / "platforms/embedded/p0/src/p0_ed_service_protocol.c",
+        "p0_ed_client.c": ROOT / "platforms/embedded/p0/src/p0_ed_client.c",
+        "p0_ed_throughput_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c",
+        "p0_ed_pipeline.c": ROOT / "platforms/embedded/p0/src/p0_ed_pipeline.c",
+        "p0-dma_1.0.bb": ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
+    }
+
+    assert evidence["status"] == "passed"
+    assert evidence["boot"]["fpga_manager_state"] == "operating"
+    assert evidence["boot"]["service_started_by_image"] is True
+    assert evidence["functional_acceptance"]["candidate_field_equivalence"] is True
+    assert evidence["functional_acceptance"]["event_field_equivalence"] is True
+    assert evidence["throughput_acceptance"]["completed_frames"] == 4096
+    assert evidence["throughput_acceptance"]["measured_frames_per_second"] >= 2_000_000 / 4096
+    assert evidence["throughput_acceptance"]["real_time_margin"] >= 1.0
     for name, source in paths.items():
         assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
     assert "live HackRF throughput" in evidence["claim_boundary"]
