@@ -36,7 +36,7 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 | Alan | Durum |
 |---|---|
 | SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
-| HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Yazılım yolu hazır; fiziksel kabul bekliyor |
+| HackRF araç/cihaz denetimi ve sınırlandırılmış RX alımı | Seri numarasına bağlı fiziksel HackRF-1 ile 8 MS/s RX, DC-güvenli offset tuning ve host tespiti 5/5 tekrar geçti; ZedBoard/FPGA canlı aktarımı bekliyor |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
 | Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Kalıcı kart imajıyla yapılan beş sürekli 2 MS/s kabul koşusunda toplam 20.480/20.480 kare sıfır hatayla işlendi; en düşük hız 508,76 kare/s oldu |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |

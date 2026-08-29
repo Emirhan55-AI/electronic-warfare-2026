@@ -98,6 +98,7 @@ class TuningWindow:
     sample_rate_hz: float
     frames: tuple[npt.NDArray[np.complex128], ...]
     provenance: str = "REPLAY"
+    excluded_frequency_ranges_hz: tuple[tuple[float, float], ...] = ()
 
     def __post_init__(self) -> None:
         if not np.isfinite(self.center_frequency_hz) or not MIN_RECEIVER_FREQUENCY_HZ <= self.center_frequency_hz <= MAX_RECEIVER_FREQUENCY_HZ:
@@ -107,6 +108,9 @@ class TuningWindow:
         sizes = {np.asarray(frame).size for frame in self.frames}
         if len(sizes) != 1 or next(iter(sizes)) < 64:
             raise ValueError("Tuning-window frame boyları eşit ve bounded olmalıdır.")
+        for lower, upper in self.excluded_frequency_ranges_hz:
+            if not np.isfinite(lower) or not np.isfinite(upper) or lower >= upper:
+                raise ValueError("Tuning-window dışlanan frekans aralığı geçersiz.")
 
     @property
     def lower_frequency_hz(self) -> float:
@@ -162,10 +166,7 @@ class P0SearchEngine:
         results: list[P0ParameterResult] = []
         for window in windows:
             tracker = TemporalConfirmation()
-            final_iq: npt.NDArray[np.complex128] | None = None
-            final_power: npt.NDArray[np.float64] | None = None
-            final_detection = None
-            final_tracks = ()
+            confirmed_results: dict[int, P0ParameterResult] = {}
             for frame_id, raw_frame in enumerate(window.frames):
                 iq = np.asarray(raw_frame, dtype=np.complex128)
                 periodic_hann = 0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(iq.size, dtype=np.float64) / iq.size)
@@ -173,24 +174,22 @@ class P0SearchEngine:
                 detection = MultiscaleDetector().process(power, frame_id=frame_id)
                 candidates = self._filter_candidates(request, window, detection.candidates, iq.size)
                 tracks = tracker.update(candidates, frame_id=frame_id)
-                final_iq, final_power, final_detection, final_tracks = iq, power, detection, tracks
-            assert final_iq is not None and final_power is not None and final_detection is not None
-            confirmed = [track for track in final_tracks if track.state == "confirmed" and track.observed_this_frame]
-            for track in confirmed:
-                results.append(
-                    ParameterExtractor().extract(
-                        frame_id=len(window.frames) - 1,
-                        iq=final_iq,
-                        shifted_power=final_power,
+                for track in tracks:
+                    if track.state != "confirmed" or not track.observed_this_frame:
+                        continue
+                    confirmed_results[track.track_id] = ParameterExtractor().extract(
+                        frame_id=frame_id,
+                        iq=iq,
+                        shifted_power=power,
                         sample_rate_hz=window.sample_rate_hz,
                         center_frequency_hz=window.center_frequency_hz,
                         candidate=track.candidate,
                         confirmed=True,
                         provenance=window.provenance,
                         backend=f"{self.backend.backend_name} -> {request.mode.value} -> P0 çok ölçekli tespit",
-                        neighboring_candidates=final_detection.candidates,
+                        neighboring_candidates=detection.candidates,
                     )
-                )
+            results.extend(confirmed_results.values())
         results = self._deduplicate_overlaps(results)
         results.sort(key=lambda item: (-item.candidate.peak_power, item.emission_center_frequency_hz))
         return SearchExecutionResult(
@@ -220,14 +219,18 @@ class P0SearchEngine:
     @staticmethod
     def _filter_candidates(request: SearchRequest, window: TuningWindow, candidates: tuple, frame_length: int) -> tuple:
         bounds = request.analysis_bounds_hz()
-        if bounds is None:
-            return candidates
-        lower, upper = bounds
         bin_width = window.sample_rate_hz / frame_length
         frequencies = window.center_frequency_hz + np.fft.fftshift(np.fft.fftfreq(frame_length, d=1.0 / window.sample_rate_hz))
-        return tuple(
-            candidate
-            for candidate in candidates
-            if float(frequencies[candidate.end_bin] + bin_width / 2.0) >= lower
-            and float(frequencies[candidate.start_bin] - bin_width / 2.0) <= upper
-        )
+        filtered = []
+        for candidate in candidates:
+            candidate_lower = float(frequencies[candidate.start_bin] - bin_width / 2.0)
+            candidate_upper = float(frequencies[candidate.end_bin] + bin_width / 2.0)
+            if bounds is not None and (candidate_upper < bounds[0] or candidate_lower > bounds[1]):
+                continue
+            if any(
+                candidate_upper >= excluded_lower and candidate_lower <= excluded_upper
+                for excluded_lower, excluded_upper in window.excluded_frequency_ranges_hz
+            ):
+                continue
+            filtered.append(candidate)
+        return tuple(filtered)

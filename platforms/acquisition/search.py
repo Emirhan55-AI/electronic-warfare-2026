@@ -57,6 +57,10 @@ class HackRFSearchBackend:
                     self.planner.profile.sample_rate_hz,
                     tuple(frame.samples for frame in frames if frame is not None),
                     provenance="LIVE_HACKRF",
+                    excluded_frequency_ranges_hz=((
+                        item.center_frequency_hz - self.planner.profile.dc_exclusion_hz,
+                        item.center_frequency_hz + self.planner.profile.dc_exclusion_hz,
+                    ),),
                 )
             )
             self.last_progress = (len(windows), len(plan.windows))

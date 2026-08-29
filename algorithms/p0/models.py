@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 
-Provenance = Literal["REPLAY", "HOST REFERENCE", "FUTURE ZEDBOARD HARDWARE"]
+Provenance = Literal["REPLAY", "HOST REFERENCE", "LIVE_HACKRF", "FUTURE ZEDBOARD HARDWARE"]
 SignalDomain = Literal["Analog", "Sayısal", "Belirsiz"]
 
 

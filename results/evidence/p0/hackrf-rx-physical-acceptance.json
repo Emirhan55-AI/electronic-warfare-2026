@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-08-29",
+  "status": "passed",
+  "scope": "fiziksel HackRF-1 RX ve host ED tespit kabulü",
+  "device": {
+    "serial": "0000000000000000a32868dc35138247",
+    "board_id": "4 (HackRF One)",
+    "firmware_version": "v2.4.0 (API:1.11)",
+    "part_id": "0xa000cb3c 0xbc3d4747",
+    "role": "ED_RX"
+  },
+  "receive_profile": {
+    "sample_rate_hz": 8000000,
+    "sample_count_per_window": 16384,
+    "rf_amplifier": false,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "dc_exclusion_hz": 100000,
+    "offset_tuning_hz": 500000,
+    "requested_lower_frequency_hz": 104400000,
+    "requested_upper_frequency_hz": 104900000,
+    "planned_windows": [
+      {
+        "index": 0,
+        "center_frequency_hz": 103900000,
+        "covered_lower_frequency_hz": 100900000,
+        "covered_upper_frequency_hz": 106900000,
+        "requested_lower_frequency_hz": 104400000,
+        "requested_upper_frequency_hz": 104900000
+      }
+    ]
+  },
+  "repeatability": {
+    "runs": 5,
+    "passed_runs": 5,
+    "capture_count": 5,
+    "expected_capture_count": 5,
+    "all_capture_lengths_exact": true,
+    "total_complex_samples": 81920,
+    "total_saturated_components": 0
+  },
+  "captures": [
+    {
+      "center_frequency_hz": 103900000,
+      "sample_rate_hz": 8000000,
+      "complex_samples": 16384,
+      "bytes": 32768,
+      "sha256": "4ec863ba71d2124b9f09392f8b2b0dcb600c957eed893796d427685cde459133",
+      "saturated_components": 0
+    },
+    {
+      "center_frequency_hz": 103900000,
+      "sample_rate_hz": 8000000,
+      "complex_samples": 16384,
+      "bytes": 32768,
+      "sha256": "7be3ff32002b10c6b427b3e31e74dc743814ffdc3653e355e4486f40131f0753",
+      "saturated_components": 0
+    },
+    {
+      "center_frequency_hz": 103900000,
+      "sample_rate_hz": 8000000,
+      "complex_samples": 16384,
+      "bytes": 32768,
+      "sha256": "3707a0ef7e07af4b064ff0adba829d751de684271cefa13f0dc164abe09d9ffd",
+      "saturated_components": 0
+    },
+    {
+      "center_frequency_hz": 103900000,
+      "sample_rate_hz": 8000000,
+      "complex_samples": 16384,
+      "bytes": 32768,
+      "sha256": "3a3d6a03fbe25ea98964b86f06011b77205b0e79b590055cd566b3f70a9660ca",
+      "saturated_components": 0
+    },
+    {
+      "center_frequency_hz": 103900000,
+      "sample_rate_hz": 8000000,
+      "complex_samples": 16384,
+      "bytes": 32768,
+      "sha256": "1287a7f5c034ed90ad3683cff3d9292840381899cab775eb3aa9f91b5d2e60a2",
+      "saturated_components": 0
+    }
+  ],
+  "runs": [
+    {
+      "index": 1,
+      "status": "COMPLETED_SIGNAL_FOUND",
+      "examined_window_ids": ["hackrf-window-0000"],
+      "confirmed_signal_count": 1,
+      "signals": [
+        {
+          "emission_center_frequency_hz": 104546258.66650271,
+          "lower_frequency_hz": 104541601.5625,
+          "upper_frequency_hz": 104555273.4375,
+          "bandwidth_hz": 13671.875,
+          "snr_db": 14.654469528711777,
+          "channel_power_dbfs": -39.942503765011494,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "status": "COMPLETED_SIGNAL_FOUND",
+      "examined_window_ids": ["hackrf-window-0000"],
+      "confirmed_signal_count": 2,
+      "signals": [
+        {
+          "emission_center_frequency_hz": 104676370.36484082,
+          "lower_frequency_hz": 104668554.6875,
+          "upper_frequency_hz": 104682226.5625,
+          "bandwidth_hz": 13671.875,
+          "snr_db": 18.8186453993347,
+          "channel_power_dbfs": -38.932956614302626,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        },
+        {
+          "emission_center_frequency_hz": 104662455.89381841,
+          "lower_frequency_hz": 104654882.8125,
+          "upper_frequency_hz": 104668554.6875,
+          "bandwidth_hz": 13671.875,
+          "snr_db": 14.377314724203833,
+          "channel_power_dbfs": -39.67145077616132,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "status": "COMPLETED_SIGNAL_FOUND",
+      "examined_window_ids": ["hackrf-window-0000"],
+      "confirmed_signal_count": 1,
+      "signals": [
+        {
+          "emission_center_frequency_hz": 104611217.1348047,
+          "lower_frequency_hz": 104606054.6875,
+          "upper_frequency_hz": 104617773.4375,
+          "bandwidth_hz": 11718.75,
+          "snr_db": 18.745493767413237,
+          "channel_power_dbfs": -38.932071668884944,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "status": "COMPLETED_SIGNAL_FOUND",
+      "examined_window_ids": ["hackrf-window-0000"],
+      "confirmed_signal_count": 1,
+      "signals": [
+        {
+          "emission_center_frequency_hz": 104629611.6868678,
+          "lower_frequency_hz": 104600195.3125,
+          "upper_frequency_hz": 104664648.4375,
+          "bandwidth_hz": 64453.125,
+          "snr_db": 24.664968561036975,
+          "channel_power_dbfs": -38.533125593878815,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "status": "COMPLETED_SIGNAL_FOUND",
+      "examined_window_ids": ["hackrf-window-0000"],
+      "confirmed_signal_count": 1,
+      "signals": [
+        {
+          "emission_center_frequency_hz": 104673786.36441013,
+          "lower_frequency_hz": 104670507.8125,
+          "upper_frequency_hz": 104676367.1875,
+          "bandwidth_hz": 5859.375,
+          "snr_db": 11.183580732248464,
+          "channel_power_dbfs": -42.43493186755961,
+          "signal_domain": "Analog",
+          "confirmed": true,
+          "provenance": "LIVE_HACKRF"
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "hackrf_search.py": "4cd3d46b680824512c72f990a9c209db2472f1e0d249e2fc03ff98b7eaae723a",
+    "search.py": "a46c2bbe01e68062e6664f6326032db9a1610f93e99f1406d3ee6c962fae4b29",
+    "acquisition_hackrf.py": "c7f6b8a32595bb8bade71414227aabb7c35cbd053e8c2f39d0675770a4578fe0",
+    "acquisition_search.py": "5b5b9ecb03b4fec8aab0f0037a36d35b14362d3684f03c97c344e6236e24d22e",
+    "hackrf_ed_rx.json": "d938f91850a67fd4f4ae0faf0b12d03c1f25808485b92da2b669e365117ea7e0",
+    "verify_p0_hackrf_rx_physical.py": "7db6113f3683d0ed1cb5ee6741c32e84aa2cf634ba2bd55ddcc702729ee2108d"
+  },
+  "transmit_api_called": false,
+  "claim_boundary": "Bu kanıt fiziksel HackRF üzerinde bounded RX, offset tuning, DC dışlama ve host tespit tekrarlanabilirliğini gösterir. ZedBoard/FPGA aktarımı, dBm kalibrasyonu, yayın kimliği, parametre doğruluğu, yön bulma, saha kapsaması veya RF TX kanıtı değildir."
+}

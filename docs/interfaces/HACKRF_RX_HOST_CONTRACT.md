@@ -4,7 +4,7 @@
 
 `platforms/acquisition/` Qt ve DSP import etmez. Gerçek ve deterministik test backend'leri aynı `HackRFBackend` sözleşmesini uygular. Controller yalnız bu sözleşmeyi kullanır; UI ve controller `subprocess` çağırmaz. Gerçek backend `hackrf_info`, `hackrf_transfer` ve `hackrf_sweep` dışında executable kabul etmez.
 
-Araç keşfi dosya sistemi üzerinden yapılır. Güvenli yardım sorguları açık `argv`, `shell=False`, iki saniyelik zaman aşımı ve 32.768 byte stdout/stderr sınırıyla çalışır. Cihaz keşfi ancak operatör denetim düğmesine bastığında ve gerekli araç doğrulandığında worker içinde yapılabilir. B0'da araç self-test'i çalıştırılmış, fiziksel cihaz bulunmadığından discovery `NO_DEVICE` dönmüştür; RF alımı çalıştırılmamıştır.
+Araç keşfi dosya sistemi üzerinden yapılır. Güvenli yardım sorguları açık `argv`, `shell=False`, iki saniyelik zaman aşımı ve 32.768 byte stdout/stderr sınırıyla çalışır. Cihaz keşfi ancak operatör denetim düğmesine bastığında ve gerekli araç doğrulandığında worker içinde yapılabilir. B0'daki `NO_DEVICE` hazırlık sonucu, PHASE-08 fiziksel turunda tek `ED_RX` HackRF keşfi ve bounded RX kabulüyle aşılmıştır.
 
 Discovery sonuçları `TOOLCHAIN_UNAVAILABLE`, `NO_DEVICE`, `ONE_DEVICE`,
 `MULTIPLE_DEVICES` ve `DEVICE_ERROR` olarak ayrıdır. Bir veya daha çok cihaz
@@ -27,12 +27,23 @@ Gerçek RX ancak yerel `hackrf_transfer -h` çıktısında `-d`, `-r`, `-f`, `-s
 
 Gerçek `hackrf_sweep` çıktı biçimi henüz donanımla doğrulanmadığından production sweep `not_exercised` döner. Bounded fixture parser'ı yalnız iki alanlı `frequency_hz,power_dbfs` test biçimini doğrular. Sweep coarse keşiftir; PHASE-03 detector sonucu değildir.
 
+HackRF One zero-IF merkez çıkıntısı RF sinyali kabul edilmez. Ürün profili merkez
+çevresindeki ±100 kHz'i adaylardan çıkarır ve istenen aralığı 500 kHz offset
+tuning ile en çok 2,5 MHz'lik bitişik alt aralıklarda kapsar. Capture içinde
+herhangi bir karede 2-of-3 ile doğrulanan son geçerli gözlem, capture'ın boş
+kareyle bitmesi nedeniyle kaybedilmez; capture'lar arasında gizli durum tutulmaz.
+
 ## Worker ve kullanıcı arayüzü
 
 Araç/cihaz keşfi, capture, `ci8` çözümleme, FFT ve detector worker tarafında çalışır. Mevcut `QThreadPool` üst sınırı `1`, pending niyet üst sınırı `1` ve generation/stale-result reddi korunur. Kaynak değişimi ve pencere kapanışı acquisition işlemini iptal eder, kaynak durumunu ve temporal zinciri sıfırlar.
 
 Kaynak adları `SigMF Kaydı`, `HackRF Canlı RX` ve `Deterministik Test Kaynağı`dır. Test backend'i canlı veya bağlı cihaz olarak gösterilmez. Araç ya da cihaz yokken canlı kontroller pasiftir. PHASE-04 alanları `Henüz doğrulanmadı` kalır.
 
-## Donanım kabulüne kalanlar
+## Fiziksel kabul ve kalanlar
 
-Sonraki fiziksel turda gerçek seri keşfi/seçimi, WinUSB erişimi, bounded dört-frame capture, gerçek tuning, USB sürekliliği ve kontrollü RX performansı ayrıca doğrulanacaktır. İlk komut `python -B scripts/check_hackrf_rx_ready.py`dir. Bu sözleşme canlı HackRF, dBm veya saha başarısı kanıtı değildir.
+Seri numarası `0000000000000000a32868dc35138247` olan cihazda WinUSB erişimi,
+beş bounded dört-frame capture, gerçek offset tuning ve host tespiti geçmiştir.
+Toplam 81.920 kompleks örnekte byte uzunlukları tam, doyan bileşen sayısı
+sıfırdır. Fiziksel kanıt `results/evidence/p0/hackrf-rx-physical-acceptance.json`
+dosyasındadır. USB sürekli akış, ZedBoard/FPGA yolu, dBm kalibrasyonu, parametre
+doğruluğu ve saha başarısı hâlâ bu sözleşmenin dışındadır.

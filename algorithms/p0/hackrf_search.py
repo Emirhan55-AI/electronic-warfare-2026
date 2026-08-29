@@ -21,6 +21,8 @@ class HackRFTuningProfile:
     edge_guard_hz: int = 1_000_000
     overlap_hz: int = 500_000
     sample_count: int = 16_384
+    dc_exclusion_hz: int = 100_000
+    offset_tuning_hz: int = 500_000
 
     def __post_init__(self) -> None:
         if self.sample_rate_hz not in {8_000_000, 10_000_000, 20_000_000}:
@@ -31,6 +33,10 @@ class HackRFTuningProfile:
             raise ValueError("HackRF pencere overlap değeri geçersizdir.")
         if not 4_096 <= self.sample_count <= 65_536 or self.sample_count % 4_096:
             raise ValueError("HackRF bounded capture örnek sayısı geçersizdir.")
+        if not 0 < self.dc_exclusion_hz < self.offset_tuning_hz:
+            raise ValueError("HackRF DC dışlama ve offset tuning değerleri geçersizdir.")
+        if self.offset_tuning_hz >= self.analysis_bandwidth_hz // 2:
+            raise ValueError("HackRF offset tuning değeri kullanılabilir yarı banttan küçük olmalıdır.")
 
     @property
     def analysis_bandwidth_hz(self) -> int:
@@ -39,6 +45,10 @@ class HackRFTuningProfile:
     @property
     def tuning_step_hz(self) -> int:
         return self.analysis_bandwidth_hz - self.overlap_hz
+
+    @property
+    def maximum_dc_safe_interval_hz(self) -> int:
+        return self.analysis_bandwidth_hz // 2 - self.offset_tuning_hz
 
 
 @dataclass(frozen=True)
@@ -93,10 +103,7 @@ class HackRFSearchPlanner:
             center = round(request.center_frequency_hz)
             half = round(request.frequency_window_hz / 2.0)
             self._validate_interval(center - half, center + half)
-            width = self.profile.analysis_bandwidth_hz
-            covered_lower = max(round(MIN_RECEIVER_FREQUENCY_HZ), center - width // 2)
-            covered_upper = min(round(MAX_RECEIVER_FREQUENCY_HZ), center + width // 2)
-            window = HackRFTuningWindowPlan(0, center, covered_lower, covered_upper, center - half, center + half)
+            window = self._offset_window(center - half, center + half, index=0)
             return HackRFTuningPlan(request.mode, (window,), ((center - half, center + half),))
 
         windows: list[HackRFTuningWindowPlan] = []
@@ -106,34 +113,33 @@ class HackRFSearchPlanner:
         return HackRFTuningPlan(request.mode, tuple(windows), tuple((round(a), round(b)) for a, b in ranges))
 
     def _plan_interval(self, lower: int, upper: int, *, start_index: int) -> list[HackRFTuningWindowPlan]:
-        width = self.profile.analysis_bandwidth_hz
-        step = self.profile.tuning_step_hz
-        span = upper - lower
-        if span <= width:
-            centers = [round((lower + upper) / 2.0)]
-        else:
-            first = lower + width // 2
-            last = upper - width // 2
-            centers = [first]
-            while centers[-1] + step < last:
-                centers.append(centers[-1] + step)
-            if centers[-1] != last:
-                centers.append(last)
         result: list[HackRFTuningWindowPlan] = []
-        for offset, center in enumerate(centers):
-            covered_lower = max(round(MIN_RECEIVER_FREQUENCY_HZ), center - width // 2)
-            covered_upper = min(round(MAX_RECEIVER_FREQUENCY_HZ), center + width // 2)
-            result.append(
-                HackRFTuningWindowPlan(
-                    start_index + offset,
-                    center,
-                    covered_lower,
-                    covered_upper,
-                    max(lower, covered_lower),
-                    min(upper, covered_upper),
-                )
-            )
+        cursor = lower
+        while cursor < upper:
+            segment_upper = min(cursor + self.profile.maximum_dc_safe_interval_hz, upper)
+            result.append(self._offset_window(cursor, segment_upper, index=start_index + len(result)))
+            cursor = segment_upper
         return result
+
+    def _offset_window(self, lower: int, upper: int, *, index: int) -> HackRFTuningWindowPlan:
+        span = upper - lower
+        if span > self.profile.maximum_dc_safe_interval_hz:
+            raise ValueError("HackRF DC-güvenli tuning aralığı tek pencere sınırını aşıyor.")
+        offset = self.profile.offset_tuning_hz
+        minimum = round(MIN_RECEIVER_FREQUENCY_HZ)
+        maximum = round(MAX_RECEIVER_FREQUENCY_HZ)
+        if lower - offset >= minimum:
+            center = lower - offset
+        elif upper + offset <= maximum:
+            center = upper + offset
+        else:
+            raise ValueError("HackRF DC-güvenli offset tuning alıcı sınırında kurulamıyor.")
+        half_width = self.profile.analysis_bandwidth_hz // 2
+        covered_lower = max(minimum, center - half_width)
+        covered_upper = min(maximum, center + half_width)
+        if covered_lower > lower or covered_upper < upper:
+            raise AssertionError("HackRF DC-güvenli tuning penceresi istenen aralığı kapsamıyor.")
+        return HackRFTuningWindowPlan(index, center, covered_lower, covered_upper, lower, upper)
 
 
 def shifted_absolute_frequency_axis(
@@ -149,4 +155,3 @@ def shifted_absolute_frequency_axis(
         center_frequency_hz + np.fft.fftshift(np.fft.fftfreq(fft_length, d=1.0 / sample_rate_hz)),
         dtype=np.float64,
     )
-

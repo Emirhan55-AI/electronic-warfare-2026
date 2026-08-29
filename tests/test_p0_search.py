@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from algorithms.p0 import P0SearchEngine, SearchRequest
-from algorithms.p0.fixtures import build_judge_demo_engine
+import numpy as np
+
+from algorithms.p0 import P0SearchEngine, ReplaySearchBackend, SearchRequest, TuningWindow
+from algorithms.p0.fixtures import CENTER_FREQUENCY_HZ, SAMPLE_RATE_HZ, build_fixtures, build_judge_demo_engine
 
 
 def build_engine() -> P0SearchEngine:
@@ -55,6 +57,23 @@ class P0SearchExecutionTests(unittest.TestCase):
         self.assertEqual(len(correct.parameters), 1)
         self.assertTrue(correct.parameters[0].confirmed)
         self.assertEqual(wrong.status, "COMPLETED_NO_SIGNAL")
+
+    def test_confirmed_observation_is_retained_when_capture_ends_with_misses(self) -> None:
+        fixture = next(item for item in build_fixtures() if item.fixture_id == "nfm-like")
+        quiet = np.zeros_like(fixture.iq)
+        window = TuningWindow(
+            "bounded-burst",
+            CENTER_FREQUENCY_HZ,
+            SAMPLE_RATE_HZ,
+            (fixture.iq, fixture.iq, quiet, quiet),
+        )
+        engine = P0SearchEngine(ReplaySearchBackend((window,)))
+
+        result = engine.execute(SearchRequest.judge_frequency_mhz(100.09))
+
+        self.assertEqual("COMPLETED_SIGNAL_FOUND", result.status)
+        self.assertEqual(1, len(result.parameters))
+        self.assertTrue(result.parameters[0].confirmed)
 
 
 if __name__ == "__main__":

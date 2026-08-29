@@ -122,11 +122,11 @@ class HackRFAcquisitionTests(unittest.TestCase):
         runner.run = lambda *args, **kwargs: ProcessResult(0, b"unexpected", b"", False, False)  # type: ignore[method-assign]
         self.assertEqual("DEVICE_ERROR", backend.discover_device().state)
 
-    def test_ed_rx_config_is_unassigned_and_receive_argv_is_rx_only(self) -> None:
+    def test_ed_rx_config_is_serial_bound_and_receive_argv_is_rx_only(self) -> None:
         identity = load_ed_rx_config()
         self.assertEqual("ED_RX", identity.role)
         self.assertEqual("HackRF One", identity.device_type)
-        self.assertIsNone(identity.serial)
+        self.assertEqual("0000000000000000a32868dc35138247", identity.serial)
         with self.assertRaisesRegex(AcquisitionError, "atanmadı"):
             build_receive_argv("hackrf_transfer", RXConfig(), Path("capture.ci8"))
         argv = build_receive_argv(

@@ -267,6 +267,18 @@ atanmamış ED_RX seri config'i, RX-only bounded argv/queue, üç hakem modu tun
 planları ve dürüst disconnected UI doğrulanır. `B0 READY`; canlı HackRF, Block B,
 hardware RX, FPGA/ZedBoard veya TX PASS anlamına gelmez.
 
+### P0 Block B / PHASE-08 — HackRF Fiziksel RX ve Host Tespiti
+
+Kullanıcının 2026-08-29 onayıyla tek HackRF One, seri numarasıyla `ED_RX`
+rolüne bağlanmıştır. İlk merkez-tuned ölçümde zero-IF DC çıkıntısının aday gibi
+doğrulandığı görülmüş ve sonuç kabul edilmemiştir. ADR-0035 ile ±100 kHz DC
+dışlama, 500 kHz offset tuning ve boşluksuz DC-güvenli alt aralık planı
+uygulanmıştır. Beş bağımsız 104,4–104,9 MHz canlı RX koşusunun tamamında en az
+bir `LIVE_HACKRF` aday 2-of-3 ile doğrulanmıştır. Toplam 81.920 kompleks örnek
+tam byte uzunluğunda, doyan bileşen sayısı sıfırdır. **HackRF fiziksel bounded
+RX ve host tespit kapısı tamamlandı. Sürekli USB akışı, 8→2 MS/s örnek oranı
+dönüşümü, PC→ZedBoard taşıması, FPGA canlı tespiti ve ürün UI kabulü açıktır.**
+
 **P0 öncesindeki kayıtlı ana açık fazlar: PHASE-04 ve PHASE-06**
 
 PHASE-05 kayıtlı/sentetik I/Q üzerinde operatör seçimli AM/NFM dinleme zincirini doğrulamıştır; bu sonuç PHASE-04 parametre doğrulamasının tamamlandığı anlamına gelmez. PHASE-06A–J tamamlanmış ve dondurulmuştur. PHASE-06J, PHASE-06I ABI v1 packet'ını strict tüketen bounded portable C11 PS temporal çekirdeğini host compile/link ve Python golden eşdeğerliğiyle doğrulamıştır. PetaLinux/ARM, gerçek DMA/driver/device tree, fiziksel birim dönüşümü, post-detector timing ve hardware sonucu değildir. Gerçek canlı HackRF dinleme, PHASE-07, PHASE-08 donanım kabulü ve TX başlatılmamıştır.
