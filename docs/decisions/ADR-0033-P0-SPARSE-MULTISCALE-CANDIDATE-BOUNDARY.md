@@ -105,6 +105,9 @@ yerleştirme, yönlendirme ve 50 MHz setup/hold kapısı tamamlanmıştır. Kan�
 özetleriyle dondurulmuştur. Final reducer'ın PHASE-06I AXI64 packetizer üst
 bağlantısı beş karelik backpressure simülasyonunda 61 aday ve 345 beat ile
 bit-doğru geçmiştir; kanıt `results/evidence/p0/candidate-reducer-packetizer.json`
-içindedir. DMA/driver, iki-buffer hizmeti, pin atanmış board top'u, bitstream
-üretimi, fiziksel FPGA yürütümü ve gerçek-zaman başarısı hâlâ doğrulanmamıştır. Canlı HackRF, dBm
+içindedir. Ayrıca CI8 girişten FFT/güce ve bu packetizer sınırına uzanan
+`p0_candidate_dsp_runtime_top` hiyerarşisi compile-only kapısından geçmiştir;
+vendor FFT işlevsel simülasyonu ve yeni kart imajı henüz çalıştırılmamıştır.
+DMA/driver, iki-buffer hizmeti, pin atanmış board top'u, bitstream üretimi,
+fiziksel FPGA yürütümü ve gerçek-zaman başarısı hâlâ doğrulanmamıştır. Canlı HackRF, dBm
 kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.

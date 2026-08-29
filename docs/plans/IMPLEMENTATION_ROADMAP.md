@@ -214,7 +214,10 @@ Final reducer → PHASE-06I AXI64 packetizer üst bağlantısı, beş kare/61 ad
 beat ve 30 backpressure kararlılık kontrolüyle bit-doğru geçti; kanıt
 `candidate-reducer-packetizer.json` dosyasındadır. Pin atanmış board top'u,
 DMA/driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ
-beklemededir.**
+beklemededir. CI8 girişten FFT/güce ve aynı aday packetizer sınırına uzanan
+`p0_candidate_dsp_runtime_top` hiyerarşisi Icarus compile-only kapısından
+geçmiştir; vendor FFT işlevsel simülasyonu, yeni bitstream ve kart kabulü
+henüz yapılmamıştır.**
 
 ### P0 Mandatory Closure Block A
 

@@ -89,5 +89,7 @@ place/route ve 50 MHz setup/hold kapısını `WNS=+0,670 ns`, `WHS=+0,053 ns`,
 sıfır timing ihlali ve sıfır route hatasıyla geçmiştir. Bu sonuç
 synthesis-only wrapper'a aittir. Final reducer → PHASE-06I AXI64 packetizer
 bağlantısı beş kare/61 aday/345 beat ve 30 backpressure kararlılık kontrolüyle
-bit-doğru geçmiştir. Pin atanmış board top'u, bitstream, DMA/driver ve fiziksel
-kapılar hâlâ açıktır.
+bit-doğru geçmiştir. CI8 girişten FFT/güce ve aynı packetizer sınırına uzanan
+`p0_candidate_dsp_runtime_top` hiyerarşisi compile-only olarak doğrulanmıştır;
+vendor FFT işlevsel simülasyonu, pin atanmış board top'u, bitstream, DMA/driver
+ve fiziksel kapılar hâlâ açıktır.

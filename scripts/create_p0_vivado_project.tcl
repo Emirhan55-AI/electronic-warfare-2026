@@ -34,11 +34,25 @@ set rtl_sources [list \
   [file join $repository_root algorithms fpga phase06c rtl axis_fft_wrapper.sv] \
   [file join $repository_root algorithms fpga phase06d rtl amd_xfft_adapter.sv] \
   [file join $repository_root algorithms fpga phase06f rtl axis_fft_linear_power.sv] \
+  [file join $repository_root algorithms fpga phase06i rtl phase06i_pkg.sv] \
+  [file join $repository_root algorithms fpga phase06i rtl axis_candidate_packetizer.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_os_cfar_pkg.sv] \
-  [file join $repository_root algorithms fpga p0 rtl axis_p0_os_cfar.sv] \
-  [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_top.sv] \
-  [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_bd.v] \
-]
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_reducer_pkg.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_wideband_recovery_pkg.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_sparse_os_candidate_pkg.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_os_cfar_decision_engine.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_os_candidate_ram.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_os_candidate_grouping.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_sparse_os_candidate_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_region_bank.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_parallel_region_median.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_wideband_recovery.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_record_ram.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_fusion.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_reducer_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_reducer_packetizer_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_dsp_runtime_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_candidate_dsp_runtime_bd.v]
 add_files -fileset sources_1 -norecurse $rtl_sources
 set coefficient_file [file join $repository_root datasets fixtures phase06b hann-coefficients.mem]
 add_files -fileset sources_1 -norecurse $coefficient_file
@@ -73,7 +87,7 @@ set_property -dict [list \
   CONFIG.c_s2mm_burst_size {16} \
 ] $dma
 
-set dsp [create_bd_cell -type module -reference p0_dsp_runtime_bd p0_dsp_runtime_0]
+set dsp [create_bd_cell -type module -reference p0_candidate_dsp_runtime_bd p0_dsp_runtime_0]
 set control_ic [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_control_interconnect]
 set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {1}] $control_ic
 set memory_ic [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_memory_interconnect]

@@ -22,6 +22,14 @@ değerinin `10·log10` sonucudur. Kalibrasyon katsayısı olmadan dBm üretilmez
 
 ## Çalışma zamanı ayrımı
 
+`p0_candidate_dsp_runtime_top`, CI8 girişten Hann/FFT/lineer güce ve final
+candidate-reducer → PHASE-06I AXI64 packetizer sınırına uzanan yeni PL
+hiyerarşisidir. Bu hiyerarşi Icarus ile compile-only olarak doğrulanmıştır;
+vendor FFT işlevsel simülasyonu, yeni Vivado bitstream'i ve kart üzerindeki
+canlı HackRF kabulü henüz yapılmamıştır. Aşağıdaki fiziksel kanıtlar, mevcut
+`p0_dsp_runtime_top` güç→ARM yoluna ve bilinen deterministik çerçevelere aittir;
+yeni candidate runtime top'u için fiziksel kabul sayılmaz.
+
 P0 blok tasarımında AXI DMA MM2S DDR'dan ci8 frame'i PL'ye, S2MM ise 64-bit güç
 beat'lerini DDR'a taşır. OS-CFAR, gruplama, temporal doğrulama ve fiziksel parametre
 çıkarımı PS/ARM sahibidir. PHASE-06G/H/I doğrulanmış hızlandırıcıları korunur fakat
