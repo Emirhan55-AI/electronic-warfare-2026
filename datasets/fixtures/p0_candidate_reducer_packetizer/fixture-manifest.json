@@ -1,0 +1,19 @@
+{
+  "files": {
+    "golden-vectors.json": {
+      "bytes": 1182,
+      "sha256": "31f797fba155fb276b7380a63d4004726378d2e28891f3d884be026e6c2a3e9f"
+    },
+    "transport-axis64-expected.mem": {
+      "bytes": 6210,
+      "sha256": "8505dc0ef64964c81e431f1fa9bd6f94c25b98c44bd3dcee6f3b0e09a1981b2b"
+    }
+  },
+  "schema_version": 1,
+  "shared_axis_power_input": {
+    "bytes": 389120,
+    "path": "datasets/fixtures/p0_wideband_recovery/axis-power-input.mem",
+    "sha256": "8fb3a2547cafd15f85f402b8f8d71cf9e5a255956c0296eb5cf6531b1302754d"
+  },
+  "status": "passed"
+}

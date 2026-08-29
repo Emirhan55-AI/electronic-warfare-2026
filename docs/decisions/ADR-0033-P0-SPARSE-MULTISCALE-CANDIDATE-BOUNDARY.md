@@ -102,7 +102,9 @@ fail-closed olmuştur. Bu yalnız RTL simülasyon kapasitesidir.
 Bit-doğru final candidate-reducer RTL simülasyonu ile Zynq-7020 sentez,
 yerleştirme, yönlendirme ve 50 MHz setup/hold kapısı tamamlanmıştır. Kanıt,
 `results/evidence/p0/candidate-reducer-vivado.json` içinde kaynak ve rapor
-özetleriyle dondurulmuştur. PHASE-06I packetizer üst bağlantısı, DMA/driver,
-iki-buffer hizmeti, pin atanmış board top'u, bitstream üretimi, fiziksel FPGA
-yürütümü ve gerçek-zaman başarısı hâlâ doğrulanmamıştır. Canlı HackRF, dBm
+özetleriyle dondurulmuştur. Final reducer'ın PHASE-06I AXI64 packetizer üst
+bağlantısı beş karelik backpressure simülasyonunda 61 aday ve 345 beat ile
+bit-doğru geçmiştir; kanıt `results/evidence/p0/candidate-reducer-packetizer.json`
+içindedir. DMA/driver, iki-buffer hizmeti, pin atanmış board top'u, bitstream
+üretimi, fiziksel FPGA yürütümü ve gerçek-zaman başarısı hâlâ doğrulanmamıştır. Canlı HackRF, dBm
 kalibrasyonu, yön bulma ve RF yayın kapsamı değişmez.

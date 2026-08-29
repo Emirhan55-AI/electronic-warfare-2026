@@ -210,8 +210,11 @@ referans ve final candidate-reducer RTL tamamlandı. Synthesis-only wrapper,
 Zynq-7020 üzerinde sentez/place/route ve 50 MHz setup/hold kapısını
 `WNS=+0,670 ns`, `WHS=+0,053 ns`, sıfır setup/hold endpoint ihlali ve sıfır
 route hatasıyla geçti; kanıt `candidate-reducer-vivado.json` dosyasındadır.
-PHASE-06I üst bağlantısı, pin atanmış board top'u, driver/iki-buffer,
-PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ beklemededir.**
+Final reducer → PHASE-06I AXI64 packetizer üst bağlantısı, beş kare/61 aday/345
+beat ve 30 backpressure kararlılık kontrolüyle bit-doğru geçti; kanıt
+`candidate-reducer-packetizer.json` dosyasındadır. Pin atanmış board top'u,
+DMA/driver/iki-buffer, PetaLinux ve fiziksel `488,28125 kare/s` kabulü hâlâ
+beklemededir.**
 
 ### P0 Mandatory Closure Block A
 
