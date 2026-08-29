@@ -98,15 +98,16 @@ DMA, ARM tespiti ve yanıt doğrulamayı birlikte ölçer. Kapı 64 ısınma ve 
 ölçüm karesi, tüm yanıtlarda DMA `0x7`, sıfır istek/hizmet/sıra/DMA hatası,
 sıfır aday düşürme ve en az `488,28125 kare/s` ister. Hostta sahte DMA ile araç,
 yetki ve protokol sözleşmesi geçmiştir. PetaLinux 2025.2 imajı 6.090/6.090
-görevle hatasız üretilmiştir. Fiziksel kartta optimize edilmiş servisle
-4.096/4.096 kare, DMA `0x7`, sıfır hata ve sıfır aday düşürme geçmesine rağmen
-hız 116,33994 kare/s olmuş, kilitli 488,28125 kare/s kapısı geçilememiştir.
-İlk 50,67380 kare/s ölçümüne göre 2,295 kat iyileşme vardır. Sonuç
-`results/evidence/p0/ed-throughput-physical-acceptance.json` içinde
-başarısız kabul olarak korunmuştur. Aynı süreçteki profil DMA'yı 0,457 ms,
-ARM zincirini 5,700 ms, OS-CFAR'ı 4,790 ms ölçmüş ve darboğazı PL/RTL'ye
-taşıma kararını gerekçelendirmiştir. Bu kapı kapanmadan sürekli gerçek-zaman
-başarısı ilan edilemez. Canlı HackRF,
+görevle hatasız üretilmiştir. Aday-paket PL yolu, kompakt yerel ABI v3,
+slicing-by-4 CRC ve iki ARM çekirdeğinin görev odaklı yerleşimi sonrasında
+fiziksel kartta beş bağımsız koşunun tamamı geçmiştir. Toplam 20.480/20.480
+karede DMA `0x7`, istek/hizmet/sıra/DMA hatası ve aday düşürme sıfırdır. En
+düşük hız `490,151683483 kare/s`, gerekli alt sınır `488,28125 kare/s` ve en
+düşük gerçek-zaman marjı `1,003830648` olmuştur. Sonuç
+`results/evidence/p0/ed-throughput-physical-acceptance.json` içinde başarılı
+fiziksel kabul olarak korunur. Güncel kaynaklarla PetaLinux paketi 5.679/5.679,
+tam imaj 6.090/6.090 görevle yeniden derlenmiştir; yalnız yeni imajın soğuk
+açılış doğrulaması ayrı kapıdır. Canlı HackRF,
 USB/Ethernet aktarımı, kalibrasyon ve saha doğruluğu bu kabulün dışındadır.
 
 ### P0 ED OS-CFAR PL throughput düzeltmesi

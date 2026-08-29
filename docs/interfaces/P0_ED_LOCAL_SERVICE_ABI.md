@@ -1,4 +1,4 @@
-# P0 Yerel ED Kart Hizmeti ABI v1/v2
+# P0 Yerel ED Kart Hizmeti ABI v1/v2/v3
 
 ## Amaç ve güvenlik sınırı
 
@@ -9,10 +9,11 @@ gruplarını temizleyerek `p0ed` kullanıcı/grubuna geçer. TCP/UDP dinleyicisi
 uzaktan komut, istemciden dosya yolu veya kabuk çalıştırma yüzeyi yoktur.
 
 Soket `AF_UNIX/SOCK_SEQPACKET`, sahibi `p0ed:petalinux`, modu `0660` olur. Böylece
-operatör hesabının ek grup üyeliği gerekmez. Her bağlantı tam bir istek ve tam bir yanıtla
-sınırlıdır; iki saniyelik alma/gönderme zaman aşımı uygulanır. Çekirdek dosya
-izinleri bağlantı yetkisini denetler. İstek boyutu, sürüm, izinli bayraklar ve iki
-CRC alanı geçmeden DMA veya algoritma durumu değiştirilmez.
+operatör hesabının ek grup üyeliği gerekmez. Her sıralı-paket mesajı tam bir istek
+ve tam bir yanıt taşır; bağlantı ardışık karelerde yeniden kullanılabilir. İki
+saniyelik alma/gönderme zaman aşımı uygulanır. Çekirdek dosya izinleri bağlantı
+yetkisini denetler. İstek boyutu, sürüm, izinli bayraklar, ayrılmış alanlar ve
+sürüme ait bütünlük alanları geçmeden DMA veya algoritma durumu değiştirilmez.
 
 ## ABI uyumluluğu
 
@@ -20,6 +21,11 @@ ABI v1, yalnız tespit ve zamansal olay sonucu isteyen mevcut istemciler için b
 düzeyinde korunur. ABI v2 aynı hizmet üzerinde operatörce başlatılmış parametre
 ölçümünü ekler. Hizmet isteğin sürümüyle yanıt verir; bilinmeyen sürüm, boyut,
 bayrak veya ayrılmış alan sıfır olmadan reddedilir.
+
+ABI v3, yalnız aynı çekirdek içindeki tespit akışı için v1 ile aynı istek boyunu
+ve 48 baytlık yanıt başlığını kullanır. Yalnız mevcut active/ended olayları
+serileştirerek sabit 8.724 baytlık sonuç yükünü kaldırır. v1/v2 mesajlarının byte
+sözleşmesi değişmez.
 
 ## ABI v1 istek mesajı
 
@@ -64,6 +70,22 @@ Sonuç içindeki reserved alanlar sıfırdır. Active/ended sayıları ayrı ayr
 alan alan little-endian serileştirilir. İstemci; mesaj boyunu, iki CRC'yi, reserved
 alanları, sayaç sınırlarını ve header/sonuç frame ID eşitliğini doğrulamadan sonuç
 yayınlamaz.
+
+## ABI v3 kompakt yerel tespit yolu
+
+ABI v3 isteği 8.224 bayttır; v1 alan düzenini kullanır ve sürüm alanı `3` olur.
+I/Q CRC alanı sıfırdır. Başlık CRC32, tam mesaj boyu, `SOCK_SEQPACKET` mesaj
+sınırı, yerel soket izinleri ve bütün semantik alan doğrulamaları korunur. Yük
+CRC'siz hızlı yol yalnız aynı Linux çekirdeği içindeki bu yerel soket için
+tanımlıdır; v1/v2 yük CRC'leri kaldırılmaz.
+
+Başarılı v3 yanıtında 20 baytlık sonuç başlığından sonra yalnız `active_count`
+ve `ended_count` kadar 68 baytlık olay kaydı bulunur. Sonuç boyu
+`20 + 68 × (active_count + ended_count)` olarak doğrulanır. Sonuç CRC alanı
+sıfırdır; 48 baytlık yanıt başlığının CRC32 alanı korunur. Bilinen kabul
+karesindeki 54 etkin olay için toplam yanıt 3.740 bayttır. Hata yanıtı yine
+yalnız 48 bayttır. Sayı sınırları, ayrılmış alanlar ve frame kimliği eşitliği
+v1 ile aynı şekilde fail-closed doğrulanır.
 
 ## ABI v2 parametre isteği
 

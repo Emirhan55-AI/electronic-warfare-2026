@@ -2,7 +2,7 @@
   "schema_version": 4,
   "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 Hann-memory-fixed candidate-packet ARM package and full image build",
+  "scope": "PetaLinux 2025.2 candidate-packet ABI v3 ARM package and full image build",
   "current_source_status": "current_sources_petalinux_build_passed",
   "build": {
     "target": "p0-dma",
@@ -18,16 +18,16 @@
     "package": "p0-dma 1.0",
     "service_account": "p0ed uid 996 gid 995",
     "service_binary": "/usr/sbin/p0-ed-service",
-    "service_sha256": "877821865399e10bd74f78aa09e34fbc3577fb1b63f9fe11ec62af237014be5a",
+    "service_sha256": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
     "dma_runner_binary": "/usr/bin/p0-dma-run",
     "dma_runner_sha256": "d09e032f100202f959a3d9f493e5d1523f0044ef7d650d641e8844f7418c91cb",
     "os_cfar_runner_sha256": "2a52192d6d799c5915cf9ca77fc755de98937bb023d93918c60a1ec1dbea4638",
     "runtime_runner_sha256": "cdd34bd5b6b6fd5fb6f501baa0e813190a02e05e617e39d7101d60fbe9f50f40",
-    "client_sha256": "85a5a6e59c4a256b0f77b2938c73fe7795f93663142136eede7f1ebac5f3bb27",
-    "throughput_runner_sha256": "1f9000882ba32519b3c32d7906301ea9716b9806ee95295571fac7f18b73eb39",
+    "client_sha256": "4782391dff76952896d88b5c048afb9fada0a951418b74e9902ac49490caf819",
+    "throughput_runner_sha256": "3681917d3554bd42ea57d8bae184af0b2429f0e6c5077b5132484b211c2e18b8",
     "stage_profile_sha256": "3e3e5a0838337eb7d9c34020d524c0d478e9a2e1338d891b73d6fb818251b7bb",
     "parameter_runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
-    "parameter_client_sha256": "16be89743fa6c69d017c91423979f4d9eaf30457402a569b89f9b4602af771d6",
+    "parameter_client_sha256": "49130a7f5ef359cc26d110287a4e8008861fba2301885b264d1b76424e5b99ac",
     "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
     "init_script": "/etc/init.d/p0-ed-service",
     "runlevels_started": [2, 3, 4, 5]
@@ -49,10 +49,11 @@
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24012323,
-    "sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25"
+    "bytes": 24037487,
+    "sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032"
   },
   "boot_image": {
+    "status": "retained_hardware_boot_artifact",
     "name": "BOOT.BIN",
     "bytes": 5228616,
     "sha256": "b05bc6332c066c29761bfac78042b6430443d4b6b73dbfd235f005e5dc2e7a4a"
@@ -62,12 +63,14 @@
     "sha256": "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3"
   },
   "source_sha256": {
-    "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3",
+    "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8",
     "p0_dma_client.c": "132878442ca900343227c553570862a05fb8fcf0e47e6bc23337082659da645b",
     "p0_dma_uapi.h": "85dbd8ca540847f0680f0881f6237df6e506c1fed8a9d14af720a17c118cf807",
-    "p0_ed_service.c": "cae8c56106623610252a54d17c29bbbd4498c9a2d6cbae171385336e0cfe7661",
-    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525",
-    "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
+    "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
+    "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
+    "p0_ed_service_protocol.h": "fa9dad6382c0b202ed64f90d9fff0fbe4876ce294e2244fd262aec6c555efc3a",
+    "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
+    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
     "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
@@ -86,10 +89,10 @@
   "not_verified": [
     "Hann-memory-fixed candidate-packet image physical board boot",
     "positive-signal candidate-packet DMA transfer on ZedBoard",
-    "physical sustained throughput",
+    "cold-boot persistence of the ABI v3 service image",
     "live HackRF",
     "calibrated RF accuracy",
     "RF transmission"
   ],
-  "claim_boundary": "This evidence proves that the Hann-memory-fixed candidate-packet XSA, device tree, ABI v2 DMA module, ARM user-space services and full PetaLinux boot artifacts build together. It does not prove that this image boots or produces positive-signal candidate packets on the physical ZedBoard."
+  "claim_boundary": "This evidence proves that the current candidate-packet XSA, device tree, ABI v2 DMA module, ABI v3 ARM local service and full PetaLinux image build together. Physical throughput is established separately with the same sources; cold-boot execution of this newly built image remains an open gate."
 }

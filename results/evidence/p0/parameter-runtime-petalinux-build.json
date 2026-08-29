@@ -2,7 +2,7 @@
   "schema_version": 4,
   "recorded_at": "2026-08-29",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 Hann-memory-fixed candidate-packet ARM parameter package and full image build",
+  "scope": "PetaLinux 2025.2 candidate-packet ABI v3 ARM parameter package and full image build",
   "current_source_status": "current_sources_petalinux_build_passed",
   "build": {
     "target": "p0-dma",
@@ -19,9 +19,9 @@
     "service": "/usr/sbin/p0-ed-service",
     "runner": "/usr/bin/p0-parameter-run",
     "client": "/usr/bin/p0-parameter-client",
-    "service_sha256": "877821865399e10bd74f78aa09e34fbc3577fb1b63f9fe11ec62af237014be5a",
+    "service_sha256": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
     "runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
-    "client_sha256": "16be89743fa6c69d017c91423979f4d9eaf30457402a569b89f9b4602af771d6"
+    "client_sha256": "49130a7f5ef359cc26d110287a4e8008861fba2301885b264d1b76424e5b99ac"
   },
   "hardware_input": {
     "xsa_sha256": "6d4461a1245586db30463d14d467538bb09069a61cbc3292d3803cd3b17dd002",
@@ -30,16 +30,17 @@
   "hardware_input_current": true,
   "image": {
     "name": "image.ub",
-    "bytes": 24012323,
-    "sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25"
+    "bytes": 24037487,
+    "sha256": "cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032"
   },
   "boot_image": {
+    "status": "retained_hardware_boot_artifact",
     "name": "BOOT.BIN",
     "bytes": 5228616,
     "sha256": "b05bc6332c066c29761bfac78042b6430443d4b6b73dbfd235f005e5dc2e7a4a"
   },
   "source_sha256": {
-    "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3",
+    "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8",
     "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_parameter_run.c": "3b53cf52a6dd03ae4e24e046cb7667feee6b4c506cb63484854d88a9127a1a28",
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47"
@@ -51,7 +52,7 @@
     "positive-signal parameter numeric equivalence with this image",
     "live RF",
     "calibrated RF accuracy",
-    "physical sustained throughput"
+    "cold-boot persistence of the ABI v3 service image"
   ],
-  "claim_boundary": "This evidence proves that the current parameter runtime and Hann-memory-fixed candidate-packet DMA integration are present in a successful ARM/PetaLinux build. Physical ZedBoard execution and numerical parameter acceptance remain separate gates."
+  "claim_boundary": "This evidence proves that the current parameter runtime, candidate-packet DMA integration and ABI v3 local service are present in a successful ARM/PetaLinux build. The earlier physical numerical acceptance remains valid because the parameter core is unchanged; cold-boot execution of this newly built image remains a separate gate."
 }

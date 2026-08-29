@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <math.h>
+#include <sched.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@
 #define P0_ED_FRAME_SAMPLES 4096U
 #define P0_ED_EXPECTED_DMA_FLAGS 7U
 #define P0_ED_MAX_MEASURED_FRAMES 1000000U
+#define P0_ED_THROUGHPUT_CPU 0
 
 typedef struct {
     uint64_t request_failures;
@@ -33,6 +35,17 @@ typedef struct {
     uint8_t *request;
     uint8_t *reply;
 } service_connection_t;
+
+static int pin_throughput_cpu(void)
+{
+    cpu_set_t set;
+
+    if (sysconf(_SC_NPROCESSORS_CONF) <= P0_ED_THROUGHPUT_CPU)
+        return 0;
+    CPU_ZERO(&set);
+    CPU_SET(P0_ED_THROUGHPUT_CPU, &set);
+    return sched_setaffinity(0, sizeof(set), &set);
+}
 
 static int parse_u64(const char *text, uint64_t minimum, uint64_t maximum,
                      uint64_t *value)
@@ -152,8 +165,8 @@ static int exchange_frame(service_connection_t *connection, uint32_t frame_id,
     struct timespec finished;
     ssize_t received;
 
-    if (p0_ed_request_encode(frame_id, flags, iq, P0_ED_IQ_FRAME_BYTES,
-                             connection->request, P0_ED_REQUEST_BYTES) != 0 ||
+    if (p0_ed_request_encode_compact(frame_id, flags, iq, P0_ED_IQ_FRAME_BYTES,
+                                     connection->request, P0_ED_REQUEST_BYTES) != 0 ||
         clock_gettime(CLOCK_MONOTONIC, &started) != 0)
         return -1;
     if (send(connection->descriptor, connection->request, P0_ED_REQUEST_BYTES,
@@ -289,6 +302,10 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     socket_path = argc == 6 ? argv[5] : P0_ED_DEFAULT_SOCKET;
+    if (pin_throughput_cpu() != 0) {
+        fprintf(stderr, "Ölçüm CPU yerleşimi uygulanamadı: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     iq = malloc(P0_ED_IQ_FRAME_BYTES);
     latencies = calloc((size_t)measured_frames, sizeof(*latencies));
     if (iq == NULL || latencies == NULL) {

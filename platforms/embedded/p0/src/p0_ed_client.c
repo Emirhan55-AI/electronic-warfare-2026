@@ -161,8 +161,9 @@ int main(int argc, char **argv)
         goto done;
     }
     if (read_exact_file(argv[2], iq, P0_ED_IQ_FRAME_BYTES) != 0 ||
-        p0_ed_request_encode((uint32_t)parsed_frame, flags, iq, P0_ED_IQ_FRAME_BYTES,
-                             request, P0_ED_REQUEST_BYTES) != 0) {
+        p0_ed_request_encode_compact((uint32_t)parsed_frame, flags, iq,
+                                     P0_ED_IQ_FRAME_BYTES, request,
+                                     P0_ED_REQUEST_BYTES) != 0) {
         fprintf(stderr, "I/Q çerçevesi hazırlanamadı: %s\n", strerror(errno));
         goto done;
     }

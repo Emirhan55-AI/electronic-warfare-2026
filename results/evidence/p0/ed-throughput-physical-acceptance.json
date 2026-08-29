@@ -1,95 +1,84 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "recorded_at": "2026-08-29",
-  "status": "failed",
-  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance after ADR-0031",
+  "status": "passed",
+  "scope": "physical ZedBoard PL-DMA-ARM sustained local service acceptance",
   "platform": {
     "board": "ZedBoard Zynq-7000 P/N 410-248",
     "os": "PetaLinux 2025.2 armv7l",
     "fpga_manager_state": "operating",
-    "boot_bin_sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3",
-    "image_ub_sha256": "78e79e98bb4152293d487c1cd235ab2bf22b806f5f735170b9bb0ed33978fbf6",
-    "system_bit_sha256": "287fb88b093e317c80aee363712d279f6b27dd7afbb758a21a5a16b6a4d3845e",
-    "service_binary_sha256": "3f5288b2d691d67de037081ef3f8a57b75d905e38fe348e2ce86284a3e7fbb61",
-    "throughput_binary_sha256": "1f9000882ba32519b3c32d7906301ea9716b9806ee95295571fac7f18b73eb39",
-    "stage_profile_binary_sha256": "5da8a57f31cecb304ef26fac83a99d5885c14688ba8c1d38664fbe85ba0b3fdf"
+    "image_ub_sha256": "a73e6200e3e80c2b17a9e1478b66f0411fa74351d58f03f74b66363303299a25",
+    "service_binary_sha256": "377d7dd1b5544bd0970afe5c7e5f3184e0185ec49764f735601ee452a96ec8d7",
+    "throughput_binary_sha256": "b1e61fafdaef4b6fef1b7c1820d541e1f9eadadd66fa38d0c908af01cd5589bd",
+    "service_cpu": 1,
+    "dma_interrupt_cpu": 0,
+    "throughput_client_cpu": 0
   },
   "locked_profile": {
     "sample_rate_hz": 2000000,
     "frame_samples": 4096,
-    "warmup_frames": 64,
-    "measured_frames": 4096,
+    "warmup_frames_per_run": 64,
+    "measured_frames_per_run": 4096,
     "required_frames_per_second": 488.28125
   },
-  "numerical_equivalence": {
-    "input_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
-    "unchanged_pl_image_from_adr0030": true,
-    "prior_packed_card_frame_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
-    "prior_packed_integer_model_sha256": "89a4f2bb0e1c8cfe42fa68e0a6c9abbbd9ad5118ba59c93b24c331e1988ed13a",
-    "prior_raw_power_mismatches": 0,
-    "prior_packed_word_mismatches": 0,
-    "typed_vs_packet_frames": 33,
-    "typed_vs_packet_candidate_records": 1501,
-    "typed_vs_packet_mismatches": 0
+  "protocol": {
+    "transport": "AF_UNIX SOCK_SEQPACKET",
+    "abi_version": 3,
+    "request_bytes": 8224,
+    "steady_known_frame_response_bytes": 3740,
+    "compatibility": "ABI v1 and v2 byte contracts retained",
+    "integrity": "kernel-local sequenced-packet transport and CRC-protected header; v1/v2 payload CRC retained"
   },
-  "completion": {
-    "completed_frames": 4096,
+  "repeatability": {
+    "runs": 5,
+    "passed_runs": 5,
+    "total_measured_frames": 20480,
+    "completed_frames": 20480,
     "request_failures": 0,
     "service_failures": 0,
     "sequence_failures": 0,
     "dma_flag_failures": 0,
     "dropped_candidates": 0,
-    "dma_status_flags": 7
+    "minimum_frames_per_second": 490.151683483,
+    "mean_frames_per_second": 490.555162694,
+    "maximum_frames_per_second": 491.019617012,
+    "minimum_real_time_margin": 1.003830648,
+    "maximum_p95_latency_seconds": 0.002055888
   },
-  "throughput": {
-    "elapsed_seconds": 20.795423792,
-    "measured_frames_per_second": 196.966411503,
-    "real_time_margin": 0.403387211,
-    "gate_passed": false,
-    "shortfall_factor": 2.479007696
-  },
-  "latency_seconds": {
-    "minimum": 0.004678482,
-    "p50": 0.004884792,
-    "p95": 0.00498402,
-    "p99": 0.005008062,
-    "maximum": 0.005406828
-  },
-  "component_characterization": {
-    "method": "Exact in-process stage profiler; 64 warmup plus 4096 measured frames",
-    "dma_milliseconds": {"mean": 1.462292, "p50": 1.445658, "p95": 1.49442, "p99": 1.508988},
-    "arm_pipeline_milliseconds": {"mean": 2.612712, "p50": 2.621724, "p95": 2.7048, "p99": 2.741022},
-    "combined_milliseconds": {"mean": 4.075004, "p50": 4.077505, "p95": 4.175514, "p99": 4.211844},
-    "algorithm_probe_milliseconds": {
-      "pl_frame_decode_mean": 0.489663,
-      "candidate_detection_mean": 1.552521,
-      "candidate_record_encode_mean": 0.027665,
-      "temporal_association_mean": 0.511338
-    }
+  "runs": [
+    {"index": 1, "elapsed_seconds": 8.344998023, "frames_per_second": 490.832950315, "real_time_margin": 1.005225882, "p95_latency_seconds": 0.002052864, "sha256": "cafcaa044dd98425030b8adcbd0a64f634dddced4601f59b2905be260711e0c6"},
+    {"index": 2, "elapsed_seconds": 8.341825577, "frames_per_second": 491.019617012, "real_time_margin": 1.005608176, "p95_latency_seconds": 0.002051886, "sha256": "dd8c3832decc28791ffe1ef046e8f4da4ce12470b35708189b528a3e93e14528"},
+    {"index": 3, "elapsed_seconds": 8.348705879, "frames_per_second": 490.614959895, "real_time_margin": 1.004779438, "p95_latency_seconds": 0.002053728, "sha256": "4df4daa52cf99e8f3ca1a717cc7ad2ac766110b0ed9f1fef07391a4c473bdf7d"},
+    {"index": 4, "elapsed_seconds": 8.356596821, "frames_per_second": 490.151683483, "real_time_margin": 1.003830648, "p95_latency_seconds": 0.002055576, "sha256": "b812504f8b59294995ec139e22aa60995033c262cccd73c19bda0f9788c20964"},
+    {"index": 5, "elapsed_seconds": 8.356512953, "frames_per_second": 490.156602764, "real_time_margin": 1.003840722, "p95_latency_seconds": 0.002055888, "sha256": "aeb0d904263764798fec0b5a86fb7163e9cbf47cfd3a1313dab8bb695f90f418"}
+  ],
+  "functional_regression": {
+    "status": "passed",
+    "known_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209",
+    "raw_candidate_counts": [54, 54, 54, 0, 0],
+    "active_counts": [54, 54, 54, 54, 0],
+    "ended_counts": [0, 0, 0, 0, 54],
+    "dma_status_flags_all_frames": 7,
+    "event_field_equivalence": true
   },
   "baseline_comparison": {
-    "adr0030_frames_per_second": 95.628767584,
-    "adr0031_frames_per_second": 196.966411503,
-    "speedup_ratio": 2.059698315,
-    "adr0030_arm_pipeline_mean_ms": 6.714248,
-    "adr0031_arm_pipeline_mean_ms": 2.612712,
-    "arm_pipeline_reduction_ratio": 0.610870495,
-    "physical_gate_remains_failed": true
+    "pre_optimization_frames_per_second": 353.663076221,
+    "accepted_minimum_frames_per_second": 490.151683483,
+    "minimum_speedup_ratio": 1.385928349,
+    "gate_closed": true
   },
   "source_sha256": {
-    "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
-    "p0_ed_service.c": "086f5afc9925da5d3bb2d5c7af15b22280ffb2e0ac5b79e709798eecb01094fb",
-    "p0_ed_service_protocol.c": "dc987c71672dae2d4e01882bcc31416a3620e0a1a6674e9e0a87933e52e20f06",
-    "p0_ed_pipeline.c": "0fdd8e512b9d6b0feba56f2463b953fb745f48af567614a2e47080166cb003ac",
-    "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
-    "phase06j_temporal.c": "a276f9448331ecfe0ac941073de757f384b6d6e86fa12578dac699f92ae9849d",
-    "p0_ed_stage_profile_run.c": "058f210cd270a713fce614aefce391cb387ebfac4cdc33162cdc9b3aff846034",
-    "p0-dma_1.0.bb": "8f8d9dc514de1f0505a608f76a6a236767248321aabcab3bb1dbec7a0d899be3"
+    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
+    "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
+    "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
+    "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
+    "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8"
   },
-  "artifact_sha256": {
-    "throughput.json": "269a4c6cde28c10f95d40a53f993248edc8f7eba40dc3e9ac1fbf596332fa418",
-    "stage-profile.json": "c82635cca6c87fb1426b8e0d41033d233e5aa53d5d779355e00d4191883865e5"
-  },
-  "failure_reason": "All numerical-invariance, DMA and completion checks passed, but the service sustained 196.966411503 frames/s against the locked 488.28125 frames/s requirement.",
-  "claim_boundary": "This is a repeatable deterministic local-card failure result. It does not claim live HackRF throughput, RF sensitivity, calibration, Ethernet performance or field accuracy."
+  "open_gates": [
+    "cold-boot persistence of the newly built PetaLinux ABI v3 image",
+    "live HackRF acquisition",
+    "calibrated RF accuracy",
+    "broad physical signal-family coverage"
+  ],
+  "claim_boundary": "This proves repeatable deterministic 2 MS/s-equivalent processing capacity through the physical PL-DMA-ARM local service. It does not prove live HackRF throughput, RF sensitivity, calibrated measurements, Ethernet performance or field accuracy."
 }

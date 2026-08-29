@@ -20,6 +20,9 @@ int main(void)
     size_t reply_bytes = 0U;
     size_t index;
 
+    REQUIRE(p0_ed_crc32((const uint8_t *)"123456789", 9U) ==
+            UINT32_C(0xCBF43926));
+    REQUIRE(p0_ed_crc32(NULL, 0U) == 0U);
     for (index = 0U; index < sizeof(iq); ++index)
         iq[index] = (uint8_t)(index * 37U + 11U);
     REQUIRE(p0_ed_request_encode(UINT32_C(0xFFFFFFFE), P0_ED_REQUEST_FLAG_RESET,
@@ -36,6 +39,22 @@ int main(void)
     REQUIRE(p0_ed_request_decode(request, sizeof(request) - 1U, &request_view) != 0);
     REQUIRE(p0_ed_request_encode(1U, 0x80000000U, iq, sizeof(iq), request,
                                  sizeof(request)) != 0);
+    REQUIRE(p0_ed_request_encode_compact(17U, P0_ED_REQUEST_FLAG_RESET, iq,
+                                         sizeof(iq), request,
+                                         sizeof(request)) == 0);
+    REQUIRE(p0_ed_request_decode(request, sizeof(request), &request_view) == 0);
+    REQUIRE(request_view.abi_version == P0_ED_SERVICE_ABI_VERSION_V3);
+    REQUIRE(request_view.frame_id == 17U);
+    REQUIRE(request_view.flags == P0_ED_REQUEST_FLAG_RESET);
+    REQUIRE(memcmp(request_view.iq, iq, sizeof(iq)) == 0);
+    REQUIRE(request[24U] == 0U && request[25U] == 0U &&
+            request[26U] == 0U && request[27U] == 0U);
+    request[28U] ^= 1U;
+    REQUIRE(p0_ed_request_decode(request, sizeof(request), &request_view) != 0);
+    request[28U] ^= 1U;
+    REQUIRE(p0_ed_request_encode_compact(17U, P0_ED_REQUEST_FLAG_PARAMETER, iq,
+                                         sizeof(iq), request,
+                                         sizeof(request)) != 0);
     REQUIRE(p0_ed_request_encode_v2(
                 9U, P0_ED_REQUEST_FLAG_PARAMETER | P0_ED_REQUEST_FLAG_PARAMETER_START,
                 UINT64_C(2000000), INT64_C(2600000000), UINT64_C(77), UINT64_C(5),
@@ -97,6 +116,20 @@ int main(void)
     reply[44U] ^= 1U;
     REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) != 0);
     REQUIRE(p0_ed_response_decode(reply, sizeof(reply) + 1U, &decoded) != 0);
+
+    response.abi_version = P0_ED_SERVICE_ABI_VERSION_V3;
+    REQUIRE(p0_ed_response_encode(&response, reply, sizeof(reply), &reply_bytes) == 0);
+    REQUIRE(reply_bytes == P0_ED_RESPONSE_HEADER_BYTES_V3 +
+                               P0_ED_RESULT_HEADER_BYTES + 2U * P0_ED_EVENT_BYTES);
+    REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) == 0);
+    REQUIRE(decoded.abi_version == P0_ED_SERVICE_ABI_VERSION_V3);
+    REQUIRE(memcmp(&decoded.result, &response.result, sizeof(response.result)) == 0);
+    REQUIRE(reply[32U] == 0U && reply[33U] == 0U &&
+            reply[34U] == 0U && reply[35U] == 0U);
+    reply[44U] ^= 1U;
+    REQUIRE(p0_ed_response_decode(reply, reply_bytes, &decoded) != 0);
+    reply[44U] ^= 1U;
+    REQUIRE(p0_ed_response_decode(reply, reply_bytes - 1U, &decoded) != 0);
 
     response.result.frame_id = 43U;
     REQUIRE(p0_ed_response_encode(&response, reply, sizeof(reply), &reply_bytes) != 0);

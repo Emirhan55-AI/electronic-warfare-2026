@@ -14,8 +14,11 @@ def test_bounded_local_ed_service_protocol() -> None:
     assert result["status"] == "passed"
     assert result["request_bytes_v1"] == 8224
     assert result["request_bytes_v2"] == 8272
+    assert result["request_bytes_v3"] == 8224
     assert result["maximum_response_bytes_v1"] == 8772
     assert result["maximum_response_bytes_v2"] == 8916
+    assert result["maximum_response_bytes_v3"] == 8772
+    assert result["compact_response_bytes_for_two_events_v3"] == 204
     assert result["network_listener"] is False
 
 
@@ -50,7 +53,7 @@ def test_linux_host_acceptance_evidence_matches_sources() -> None:
     for name, expected in evidence["acceptance_source_sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
     assert evidence["acceptance"]["pl_decision_path_exercised"] is True
-    assert "physical sustained throughput" in evidence["not_verified"]
+    assert "cold-boot persistence of the ABI v3 service image" in evidence["not_verified"]
 
 
 def test_petalinux_build_evidence_matches_packaging_sources() -> None:
@@ -62,6 +65,8 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     paths = {
         "p0-dma_1.0.bb": ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
         "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
+        "p0_ed_service_protocol.c": ROOT / "platforms/embedded/p0/src/p0_ed_service_protocol.c",
+        "p0_ed_service_protocol.h": ROOT / "platforms/embedded/p0/include/p0_ed_service_protocol.h",
         "p0_ed_client.c": ROOT / "platforms/embedded/p0/src/p0_ed_client.c",
         "p0_ed_throughput_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c",
         "p0_parameter_runtime.c": ROOT / "platforms/embedded/p0/src/p0_parameter_runtime.c",
@@ -85,6 +90,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "current_sources_petalinux_build_passed",
         "baseline_build_superseded_pending_adr0032_rebuild",
         "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
+        "baseline_build_superseded_pending_service_v3_rebuild",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     vivado = json.loads(
@@ -105,7 +111,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     assert evidence["prior_physical_acceptance"] == (
         "results/evidence/p0/multiscale-detector-physical-acceptance.json"
     )
-    assert "physical sustained throughput" in evidence["not_verified"]
+    assert "cold-boot persistence of the ABI v3 service image" in evidence["not_verified"]
 
 
 def test_vivado_build_evidence_matches_current_sources() -> None:
@@ -170,7 +176,10 @@ def test_parameter_petalinux_build_evidence_matches_sources() -> None:
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_attempted"] == 5679
     assert evidence["build"]["tasks_failed"] == 0
-    assert evidence["current_source_status"] == "current_sources_petalinux_build_passed"
+    assert evidence["current_source_status"] in {
+        "current_sources_petalinux_build_passed",
+        "baseline_build_superseded_pending_service_v3_rebuild",
+    }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
         for name, source in paths.items():
@@ -221,3 +230,30 @@ def test_physical_service_evidence_is_bounded_and_traceable() -> None:
     assert evidence["privilege_boundary"]["unprivileged_client"] == "passed"
     assert evidence["service_lifecycle"]["pid_before_restart"] != evidence["service_lifecycle"]["pid_after_restart"]
     assert "does not establish detector accuracy" in evidence["claim_boundary"]
+
+
+def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
+    evidence = json.loads(
+        (ROOT / "results/evidence/p0/ed-throughput-physical-acceptance.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    paths = {
+        "p0_ed_throughput_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_throughput_run.c",
+        "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
+        "p0_ed_service_protocol.c": ROOT / "platforms/embedded/p0/src/p0_ed_service_protocol.c",
+        "p0_ed_pipeline.c": ROOT / "platforms/embedded/p0/src/p0_ed_pipeline.c",
+        "p0-dma_1.0.bb": ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
+    }
+
+    assert evidence["status"] == "passed"
+    assert evidence["repeatability"]["runs"] == 5
+    assert evidence["repeatability"]["passed_runs"] == 5
+    assert evidence["repeatability"]["completed_frames"] == 20_480
+    assert evidence["repeatability"]["minimum_frames_per_second"] >= 2_000_000 / 4096
+    assert evidence["repeatability"]["minimum_real_time_margin"] >= 1.0
+    assert all(run["real_time_margin"] >= 1.0 for run in evidence["runs"])
+    assert evidence["functional_regression"]["event_field_equivalence"] is True
+    for name, source in paths.items():
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    assert "live HackRF throughput" in evidence["claim_boundary"]

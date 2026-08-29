@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#include <sched.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -30,8 +31,20 @@
 #define P0_ED_OPERATOR_GROUP "petalinux"
 #endif
 #define P0_ED_IO_TIMEOUT_SECONDS 2
+#define P0_ED_SERVICE_CPU 1
 
 static volatile sig_atomic_t stop_requested;
+
+static int pin_service_cpu(void)
+{
+    cpu_set_t set;
+
+    if (sysconf(_SC_NPROCESSORS_CONF) <= P0_ED_SERVICE_CPU)
+        return 0;
+    CPU_ZERO(&set);
+    CPU_SET(P0_ED_SERVICE_CPU, &set);
+    return sched_setaffinity(0, sizeof(set), &set);
+}
 
 static void handle_signal(int signal_number)
 {
@@ -259,6 +272,10 @@ int main(int argc, char **argv)
     }
     if (install_signal_handlers() != 0) {
         fprintf(stderr, "Sinyal işleyicileri kurulamadı: %s\n", strerror(errno));
+        goto release_pipeline;
+    }
+    if (pin_service_cpu() != 0) {
+        fprintf(stderr, "Hizmet CPU yerleşimi uygulanamadı: %s\n", strerror(errno));
         goto release_pipeline;
     }
     puts("P0 ED kart hizmeti hazır.");

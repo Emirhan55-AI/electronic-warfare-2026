@@ -41,22 +41,26 @@ bu nedenle PS OS-CFAR'dır.
 ## Fiziksel sürekli-hız ölçümü
 
 ADR-0029 ile kilitlenen 2 MS/s profilinde (64 ısınma ve 4096 ölçüm karesi)
-ADR-0031 sonrası ZedBoard `PL → DMA → ARM` hizmet yolu 4096/4096 kareyi ve her
-yanıtta DMA `0x7` durumunu sıfır hizmet, sıra veya aday düşürme hatasıyla
-tamamlamıştır. Ölçülen hız `196,966411503 kare/s`, gerekli alt sınır
-`488,28125 kare/s` ve gerçek-zaman marjı `0,403387211` olmuştur. Kapı hâlâ
-başarısızdır; ancak ADR-0030'un `95,628767584 kare/s` sonucuna göre 2,0597 kat
-iyileşme vardır.
+Güncel aday-paket ZedBoard `PL → DMA → ARM` hizmet yolu, kompakt ABI v3 ve
+çekirdek yerleşimiyle beş bağımsız 4096-kare koşusunun tamamını geçmiştir.
+Toplam 20.480/20.480 karede her yanıtta DMA `0x7`; hizmet, sıra ve aday düşürme
+hatası sıfırdır. Ölçülen en düşük/ortalama/en yüksek hız sırasıyla
+`490,151683483 / 490,555162694 / 491,019617012 kare/s`, gerekli alt sınır
+`488,28125 kare/s` ve en düşük gerçek-zaman marjı `1,003830648` olmuştur.
+Kilitli kart içi 2 MS/s hizmet kapısı tekrarlanabilir biçimde kapanmıştır.
 
-Kesin 64+4096 aşama profili DMA'yı ortalama `1,462292 ms`, ARM zincirini
-`2,612712 ms` ve birleşik yolu `4,075004 ms` ölçmüştür. ARM içinde PL frame
-decode `0,489663 ms`, aday üretimi `1,552521 ms`, typed aday kayıt üretimi
-`0,027665 ms` ve temporal association `0,511338 ms` ortalamadadır. DMA ve ARM
-seri yürüdüğü için `2,048 ms` kare bütçesi kapanmamaktadır. Kabul profilini
-gevşetmeden sonraki mimari inceleme, DMA N+1 ile ARM N işlemesini ping-pong
-tamponlarla örtüştürmeyi ve aday üretim yükünün PL/PS dağılımını birlikte ele
-almalıdır. Kanıt `results/evidence/p0/ed-throughput-physical-acceptance.json`
-dosyasındadır.
+Önceki ayrıştırma, aday-paket çekirdek yolunun ortalama `1,925759 ms` ile
+hesaplama bütçesine sığdığını; kalan kaybın sabit boylu 8.772 bayt yanıt,
+protokol CRC maliyeti, IPC ve CPU göçlerinden geldiğini göstermiştir. v3 yalnız
+oluşan olayları taşır; bilinen 54-olay karesinde yanıt 3.740 bayttır. v1/v2
+uyumluluğu ve yük CRC'leri korunur; v3 aynı çekirdekteki `SOCK_SEQPACKET`
+güvencesiyle başlık CRC'sini korur. DMA kesmeleri CPU0'da kalırken hizmet CPU1'e,
+kabul istemcisi CPU0'a sabitlenir. Kanıt
+`results/evidence/p0/ed-throughput-physical-acceptance.json` dosyasındadır.
+Güncel kaynaklar PetaLinux 2025.2'de 5.679/5.679 paket ve 6.090/6.090 tam
+imaj göreviyle yeniden derlenmiştir; yeni `image.ub` SHA-256 değeri
+`cd0b843e2fc559790ed683138a40f564aa701b3da6e61e53294a24ee23f3f032`'dir.
+Bu imajın soğuk açılış kabulü henüz yapılmamıştır.
 
 ## ADR-0032 doğrulanmış aday kısa yolu
 

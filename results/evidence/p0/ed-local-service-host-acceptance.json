@@ -10,10 +10,13 @@
   },
   "protocol": {
     "transport": "AF_UNIX SOCK_SEQPACKET",
-    "abi_versions": [1, 2],
-    "request_bytes": {"v1": 8224, "v2": 8272},
-    "maximum_response_bytes": {"v1": 8772, "v2": 8916},
-    "header_and_payload_crc32": true,
+    "abi_versions": [1, 2, 3],
+    "request_bytes": {"v1": 8224, "v2": 8272, "v3": 8224},
+    "maximum_response_bytes": {"v1": 8772, "v2": 8916, "v3": 8772},
+    "compact_response_bytes_for_two_events_v3": 204,
+    "v3_integrity_boundary": "AF_UNIX SOCK_SEQPACKET plus header CRC32; payload CRC32 retained in v1/v2",
+    "header_crc32_versions": [1, 2, 3],
+    "payload_crc32_versions": [1, 2],
     "strict_length_version_reserved_validation": true,
     "network_listener": false
   },
@@ -40,12 +43,12 @@
     "pl_decision_path_exercised": true
   },
   "source_sha256": {
-    "p0_ed_service.c": "cae8c56106623610252a54d17c29bbbd4498c9a2d6cbae171385336e0cfe7661",
-    "p0_ed_service_protocol.c": "dc987c71672dae2d4e01882bcc31416a3620e0a1a6674e9e0a87933e52e20f06",
+    "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
+    "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
     "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
     "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
-    "p0_ed_client.c": "4125a58986fde7240bef334b12812736b808cc8e7b55a0f519c558533d072525",
-    "p0_ed_throughput_run.c": "aae1e365e5e04677d4aa7208401af1f11250babf0dfe12cea99cba4a5490c6de",
+    "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
+    "p0_ed_throughput_run.c": "2780ac45aa7a40bbed7a2b92fbf1ecb7311de11b0c86a9fadc4bdeb386a654d2",
     "p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
     "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
     "p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
@@ -58,7 +61,7 @@
   "not_verified": [
     "Ethernet transport",
     "live HackRF",
-    "physical sustained throughput",
+    "cold-boot persistence of the ABI v3 service image",
     "physical parameter accuracy"
   ]
 }

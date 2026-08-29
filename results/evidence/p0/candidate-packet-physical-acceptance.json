@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "recorded_at": "2026-08-29",
-  "status": "failed",
+  "status": "passed",
   "scope": "Hann-memory-fixed P0 candidate-packet physical ZedBoard acceptance",
   "boot": {
     "fpga_done_led": true,
@@ -45,22 +45,24 @@
     }
   },
   "throughput": {
-    "status": "failed",
+    "status": "passed",
     "sample_rate_hz": 2000000,
     "frame_samples": 4096,
     "warmup_frames": 64,
-    "measured_frames": 4096,
-    "completed_frames": 4096,
+    "repeat_runs": 5,
+    "measured_frames_per_run": 4096,
+    "completed_frames_total": 20480,
     "request_failures": 0,
     "service_failures": 0,
     "sequence_failures": 0,
     "dma_flag_failures": 0,
     "dropped_candidates": 0,
-    "elapsed_seconds": 11.581644439,
     "required_frames_per_second": 488.28125,
-    "measured_frames_per_second": 353.663076221,
-    "real_time_margin": 0.72430198,
-    "result_sha256": "6793187c63832054a5b2e3005368d387037b02358e2faf02186ccd6d7e4c4b9e"
+    "minimum_frames_per_second": 490.151683483,
+    "mean_frames_per_second": 490.555162694,
+    "maximum_frames_per_second": 491.019617012,
+    "minimum_real_time_margin": 1.003830648,
+    "evidence": "results/evidence/p0/ed-throughput-physical-acceptance.json"
   },
   "stage_profile": {
     "status": "passed",
@@ -73,10 +75,9 @@
     "result_sha256": "22b4ebd8a4d8c4c74eefacfca5c82e550e504c0e1fbc7e3e3d9a9d063efb8a2f"
   },
   "open_gates": [
-    "2 MS/s sustained end-to-end service throughput",
     "live HackRF acquisition",
     "calibrated RF accuracy",
     "broad physical signal-family coverage"
   ],
-  "claim_boundary": "The deterministic known-tone CI8 frame proves exact physical PL candidate-packet and PS temporal equivalence. The end-to-end service remains below the locked 2 MS/s throughput gate, so this record is not full product or live-RF acceptance."
+  "claim_boundary": "The deterministic known-tone CI8 frame proves exact physical PL candidate-packet and PS temporal equivalence, and five repeated runs close the local 2 MS/s service-throughput gate. This is not full product, live-RF, calibrated-accuracy or field acceptance."
 }
