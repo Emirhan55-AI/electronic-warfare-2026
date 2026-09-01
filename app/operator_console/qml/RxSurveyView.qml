@@ -103,7 +103,7 @@ Item {
                         GainChoice { id: vga; Layout.preferredWidth: 75; model: [0,8,16,24,32,40,48,56]; currentIndex: 4; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
                     }
                     Item { Layout.fillWidth: true }
-                    Action { text: operatorViewModel.hackrfReady ? "Alıcı bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+                    Action { text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
                     Action {
                         objectName: "surveyStart"
                         text: "Taramayı Başlat"

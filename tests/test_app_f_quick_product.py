@@ -22,6 +22,179 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_fpga_error_revokes_ready_controls_and_header_badge_is_hidden_only_on_detection(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+view_model._hackrf_ready = True
+view_model._hackrf_transfer_executable = "hackrf_transfer"
+view_model._source_state = "Hazır"
+view_model.stateChanged.emit(); app.processEvents()
+header = root.findChild(QObject, "receiverHeaderBadge")
+settings = root.findChild(QObject, "receiverSettingsBadge")
+start = root.findChild(QObject, "liveStartButton")
+before = {"ready": view_model.hackrfReady, "start": start.property("enabled"),
+          "header_visible": header.property("visible"), "settings": settings.property("state")}
+view_model._live_failed(view_model._generation, "connection_failed", "FPGA hizmetine bağlanılamadı.")
+app.processEvents()
+failed = {"ready": view_model.hackrfReady, "start": start.property("enabled"),
+          "header_visible": header.property("visible"), "settings": settings.property("state"),
+          "error": view_model.errorTitle}
+root.setProperty("spectrumTaskTab", 1); app.processEvents()
+parameter = {"header_visible": header.property("visible"), "header_state": header.property("state")}
+root.setProperty("workspace", 1); app.processEvents()
+listening = {"header_visible": header.property("visible"), "header_state": header.property("state")}
+payload = {"before": before, "failed": failed, "parameter": parameter, "listening": listening}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual(
+            {"ready": True, "start": True, "header_visible": False, "settings": "Hazır"},
+            payload["before"],
+        )
+        self.assertEqual(
+            {"ready": False, "start": False, "header_visible": False, "settings": "Hata", "error": "FPGA bağlantısı kurulamadı"},
+            payload["failed"],
+        )
+        self.assertEqual({"header_visible": True, "header_state": "Hata"}, payload["parameter"])
+        self.assertEqual({"header_visible": True, "header_state": "Hata"}, payload["listening"])
+
+    def test_brand_logo_toggles_primary_task_navigation(self) -> None:
+        payload = self.run_qml(
+            """
+from PySide6.QtCore import QMetaObject
+root = engine.rootObjects()[0]
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+def find_item(item, name):
+    if item.objectName() == name: return item
+    for child in item.childItems():
+        found = find_item(child, name)
+        if found is not None: return found
+    return None
+button = find_item(root.contentItem(), "primaryMenuButton")
+navigation = root.findChild(QObject, "primaryNavigation")
+items = [find_item(root.contentItem(), "workspaceNavigation" + str(index)) for index in range(5)]
+initial = {"open": root.property("navigationOpen"), "visible": navigation.property("visible"),
+           "busy": view_model.busy, "playing": view_model.playing}
+assert QMetaObject.invokeMethod(button, "clicked")
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+opened = {"open": root.property("navigationOpen"), "visible": navigation.property("visible"),
+          "width": navigation.property("width"), "items": [item.property("visible") for item in items],
+          "busy": view_model.busy, "playing": view_model.playing}
+assert QMetaObject.invokeMethod(button, "clicked")
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+closed = {"open": root.property("navigationOpen"), "visible": navigation.property("visible"),
+          "width": navigation.property("width")}
+payload = {"initial": initial, "opened": opened, "closed": closed}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual({"open": False, "visible": False, "busy": False, "playing": False}, payload["initial"])
+        self.assertTrue(payload["opened"]["open"])
+        self.assertTrue(payload["opened"]["visible"])
+        self.assertGreater(payload["opened"]["width"], 70)
+        self.assertEqual([True] * 5, payload["opened"]["items"])
+        self.assertFalse(payload["opened"]["busy"])
+        self.assertFalse(payload["opened"]["playing"])
+        self.assertFalse(payload["closed"]["open"])
+        self.assertFalse(payload["closed"]["visible"])
+        self.assertLess(payload["closed"]["width"], 1.0)
+
+    def test_detection_symbol_toggles_receiver_options_without_starting_an_operation(self) -> None:
+        payload = self.run_qml(
+            """
+from PySide6.QtCore import QMetaObject
+root = engine.rootObjects()[0]
+root.setProperty("navigationOpen", True)
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+def find_item(item, name):
+    if item.objectName() == name: return item
+    for child in item.childItems():
+        found = find_item(child, name)
+        if found is not None: return found
+    return None
+button = find_item(root.contentItem(), "workspaceNavigation0")
+panel = root.findChild(QObject, "sourcePanel")
+initial = {"open": root.property("sourcePanelOpen"), "visible": panel.property("visible"),
+           "busy": view_model.busy, "playing": view_model.playing}
+assert QMetaObject.invokeMethod(button, "clicked")
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+opened = {"open": root.property("sourcePanelOpen"), "visible": panel.property("visible"),
+          "workspace": root.property("workspace"), "task": root.property("spectrumTaskTab"),
+          "domain": root.property("operatingDomain"), "busy": view_model.busy,
+          "playing": view_model.playing}
+assert QMetaObject.invokeMethod(button, "clicked")
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+closed = {"open": root.property("sourcePanelOpen"), "visible": panel.property("visible")}
+root.setProperty("workspace", 3); app.processEvents()
+assert QMetaObject.invokeMethod(button, "clicked")
+deadline = time.perf_counter() + .4
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+returned = {"open": root.property("sourcePanelOpen"), "workspace": root.property("workspace"),
+            "task": root.property("spectrumTaskTab"), "domain": root.property("operatingDomain")}
+payload = {"initial": initial, "opened": opened, "closed": closed, "returned": returned}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual({"open": False, "visible": False, "busy": False, "playing": False}, payload["initial"])
+        self.assertEqual(
+            {"open": True, "visible": True, "workspace": 0, "task": 0, "domain": "ED", "busy": False, "playing": False},
+            payload["opened"],
+        )
+        self.assertEqual({"open": False, "visible": False}, payload["closed"])
+        self.assertEqual({"open": True, "workspace": 0, "task": 0, "domain": "ED"}, payload["returned"])
+
+    def test_application_starts_waiting_without_automatic_receiver_probe(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+app.processEvents()
+header_badge = root.findChild(QObject, "receiverHeaderBadge")
+settings_badge = root.findChild(QObject, "receiverSettingsBadge")
+payload = {"header": header_badge.property("state"), "settings": settings_badge.property("state"),
+           "source_state": view_model.sourceState, "error": view_model.errorMessage,
+           "status": view_model.statusMessage}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual("Bekliyor", payload["header"])
+        self.assertEqual("Bekliyor", payload["settings"])
+        self.assertEqual("Kullanılmıyor", payload["source_state"])
+        self.assertEqual("", payload["error"])
+        self.assertEqual("Alıcı bağlantısı bekleniyor.", payload["status"])
+
+    def test_missing_receiver_state_is_rendered_as_error_in_both_badges(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+view_model._source_state = "Hata"
+view_model._error_title = "Alıcı bağlı değil"
+view_model._error_message = "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin."
+view_model._status_message = view_model._error_message
+view_model.stateChanged.emit(); app.processEvents()
+header_badge = root.findChild(QObject, "receiverHeaderBadge")
+settings_badge = root.findChild(QObject, "receiverSettingsBadge")
+payload = {"header": header_badge.property("state"), "settings": settings_badge.property("state")}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual("Hata", payload["header"])
+        self.assertEqual("Hata", payload["settings"])
+
     def test_live_status_guards_detection_fields_when_list_is_empty(self) -> None:
         source = QML.read_text(encoding="utf-8")
         self.assertIn("readonly property var leadingDetection:", source)
@@ -140,6 +313,7 @@ print(json.dumps(payload))
         payload = self.run_qml(
             """
 root = engine.rootObjects()[0]
+root.setProperty("navigationOpen", True)
 root.setWidth(1180); root.setHeight(680); app.processEvents()
 minimum_width=root.width(); minimum_height=root.height()
 root.setProperty("spectrumCursorNormalized",.5); root.setProperty("spectrumCursorVisible",True); app.processEvents()
@@ -219,6 +393,8 @@ print(json.dumps(payload,ensure_ascii=False))
 from PySide6.QtCore import QMetaObject
 root = engine.rootObjects()[0]
 root.setWidth(1180); root.setHeight(680)
+root.setProperty("navigationOpen", True)
+root.setProperty("sourcePanelOpen", True)
 def settle():
     deadline = time.perf_counter() + .4
     while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
@@ -610,6 +786,11 @@ print(json.dumps(payload,ensure_ascii=False))
         for forbidden in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "demo", "mock"):
             self.assertNotIn(forbidden, text)
         self.assertNotIn("startHackrfCapture", text)
+
+    def test_release_entry_point_does_not_probe_receiver_automatically(self) -> None:
+        source = (ROOT / "app" / "operator_console" / "quick_application.py").read_text(encoding="utf-8")
+        self.assertIn("auto_probe_hackrf=False", source)
+        self.assertNotIn("build_quick_application([sys.argv[0]], auto_probe_hackrf=True)", source)
 
 
 if __name__ == "__main__":

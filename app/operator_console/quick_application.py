@@ -92,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     # Keep the QML engine and view model alive for the full event loop. Using
     # the same throwaway name for both drops the engine reference immediately,
     # which destroys the root window before it reaches the desktop.
-    app, engine, view_model = build_quick_application([sys.argv[0]], auto_probe_hackrf=True)
+    app, engine, view_model = build_quick_application([sys.argv[0]], auto_probe_hackrf=False)
     if args.smoke_test:
         QTimer.singleShot(350, app.quit)
     exit_code = app.exec()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import time
 from typing import Callable, Literal
@@ -41,6 +42,7 @@ from algorithms.pipeline import (
     resolve_default_operation_profile,
 )
 from algorithms.spectrum import SigMFFrameSource
+from algorithms.p0.transport import TCPClientIQTransport, TransportError
 from platforms.acquisition import (
     DeviceStatus,
     HackRFBackend,
@@ -57,6 +59,8 @@ from .live_ed import (
     LIVE_AUDIO_WINDOW_SECONDS,
     LIVE_DEFAULT_LNA_GAIN_DB,
     LIVE_DEFAULT_VGA_GAIN_DB,
+    LIVE_BOARD_HOST,
+    LIVE_BOARD_PORT,
     LIVE_USABLE_HALF_BAND_HZ,
     LiveEDConfiguration,
     LiveEDSession,
@@ -85,11 +89,26 @@ from .quick_runtime import (
 
 
 __all__ = (
+    "MISSING_RECEIVER_ERROR_DISPLAY_MS",
     "OperatorViewModel",
     "_LatestWorkMailbox",
     "_LiveMailbox",
     "_LiveTask",
     "_reduce_display_max",
+)
+
+
+MISSING_RECEIVER_ERROR_DISPLAY_MS = 10_000
+READINESS_INVALIDATING_LIVE_ERRORS = frozenset(
+    {
+        "connection_failed",
+        "dma_status",
+        "candidate_drop",
+        "transport_integrity",
+        "stream_integrity",
+        "live_queue_timeout",
+        "live_capture_timeout",
+    }
 )
 
 
@@ -121,6 +140,7 @@ class OperatorViewModel(
         acquisition_backend: HackRFBackend | None = None,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
         live_session_factory: Callable[[str, LiveEDConfiguration], LiveEDSession] = LiveEDSession,
+        fpga_transport_factory: Callable[[], TCPClientIQTransport] = TCPClientIQTransport,
         survey_factory=RXSurvey,
         developer_mode: bool | None = None,
     ) -> None:
@@ -133,6 +153,7 @@ class OperatorViewModel(
         self._parameter_estimator = F5ParameterEstimator() if self._parameter_capability is not None else None
         self._source_factory = source_factory
         self._live_session_factory = live_session_factory
+        self._fpga_transport_factory = fpga_transport_factory
         self._backend = acquisition_backend or RealHackRFBackend()
         self._device_config = load_ed_rx_config()
         self._pool = QThreadPool(self)
@@ -143,6 +164,10 @@ class OperatorViewModel(
         self._playback_timer = QTimer(self)
         self._playback_timer.setInterval(100)
         self._playback_timer.timeout.connect(self._refresh_listening_playback)
+        self._probe_error_timer = QTimer(self)
+        self._probe_error_timer.setSingleShot(True)
+        self._probe_error_timer.setInterval(MISSING_RECEIVER_ERROR_DISPLAY_MS)
+        self._probe_error_timer.timeout.connect(self._clear_missing_receiver_error)
 
         self._generation = 0
         self._closed = False
@@ -152,10 +177,11 @@ class OperatorViewModel(
         self._source: object | None = None
         self._source_mode: Literal["sigmf", "hackrf"] = "hackrf"
         self._source_name = "Alıcı"
-        self._source_state = "Denetleniyor"
-        self._status_message = "Alıcı bağlantısı denetleniyor."
+        self._source_state = "Kullanılmıyor"
+        self._status_message = "Alıcı bağlantısı bekleniyor."
         self._error_title = ""
         self._error_message = ""
+        self._missing_receiver_error_visible = False
         self._frame_index = 0
         self._frame_count = 0
         self._last_result: RuntimeFrameResult | None = None
@@ -917,6 +943,8 @@ class OperatorViewModel(
         if self._busy or mode not in {"sigmf", "hackrf"} or mode == self._source_mode:
             return
         self.stop()
+        self._probe_error_timer.stop()
+        self._missing_receiver_error_visible = False
         self._generation += 1
         self._close_source()
         self._source_mode = mode  # type: ignore[assignment]
@@ -965,17 +993,39 @@ class OperatorViewModel(
         if self._source_mode != "hackrf" or self._busy:
             return
         self.stop()
+        self._probe_error_timer.stop()
+        self._missing_receiver_error_visible = False
         self._generation += 1
         generation = self._generation
         self._set_busy(True, "Alıcı bağlantısı denetleniyor…")
 
-        def operation() -> tuple[ToolInventory, DeviceStatus]:
-            inventory = self._backend.discover_tools(inspect_help=True)
-            if not inventory.receive_available:
-                return inventory, DeviceStatus("TOOLCHAIN_UNAVAILABLE", reason_code="tools_unavailable")
-            return inventory, self._backend.discover_device()
+        def operation() -> tuple[ToolInventory, DeviceStatus, bool, str]:
+            with ThreadPoolExecutor(max_workers=2, thread_name_prefix="receiver-probe") as executor:
+                hackrf_future = executor.submit(self._probe_hackrf_device)
+                fpga_future = executor.submit(self._probe_fpga_service)
+                inventory, device = hackrf_future.result()
+                fpga_ready, fpga_reason = fpga_future.result()
+            return inventory, device, fpga_ready, fpga_reason
 
         self._submit(generation, "probe", operation)
+
+    def _probe_hackrf_device(self) -> tuple[ToolInventory, DeviceStatus]:
+        inventory = self._backend.discover_tools(inspect_help=True)
+        if not inventory.receive_available:
+            return inventory, DeviceStatus("TOOLCHAIN_UNAVAILABLE", reason_code="tools_unavailable")
+        return inventory, self._backend.discover_device()
+
+    def _probe_fpga_service(self) -> tuple[bool, str]:
+        transport = self._fpga_transport_factory()
+        try:
+            transport.connect(LIVE_BOARD_HOST, LIVE_BOARD_PORT, timeout_seconds=2.0)
+            return True, ""
+        except TransportError as exc:
+            return False, exc.code
+        except OSError:
+            return False, "connection_failed"
+        finally:
+            transport.close()
 
 
     @Slot(int)
@@ -1048,6 +1098,7 @@ class OperatorViewModel(
             return
         self._closed = True
         self.stop()
+        self._probe_error_timer.stop()
         self._playback_timer.stop()
         self._generation += 1
         self._backend.cancel()
@@ -1186,6 +1237,9 @@ class OperatorViewModel(
             self._pending_live_measurement = None
             self._pending_live_listening = None
             self._measurement_requested = False
+            if code in READINESS_INVALIDATING_LIVE_ERRORS:
+                self._hackrf_ready = False
+                self._hackrf_transfer_executable = ""
             self._live_has_data = False
             self._live_frames_per_second = 0.0
             self._clear_results(keep_source=True)
@@ -1211,8 +1265,8 @@ class OperatorViewModel(
         if kind == "open":
             self._install_source(result, Path(getattr(result, "metadata_path")).name)
         elif kind == "probe":
-            inventory, device = result  # type: ignore[misc]
-            self._apply_probe(inventory, device)
+            inventory, device, fpga_ready, fpga_reason = result  # type: ignore[misc]
+            self._apply_probe(inventory, device, fpga_ready, fpga_reason)
         elif kind == "frame":
             if not isinstance(result, RuntimeFrameResult):
                 self._show_error("processing_failed", "İşleme sonucu sözleşmeyle eşleşmedi.")
@@ -1350,42 +1404,80 @@ class OperatorViewModel(
         self.pipelineChanged.emit()
         self._request_frame()
 
-    def _apply_probe(self, inventory: ToolInventory, device: DeviceStatus) -> None:
+    def _apply_probe(
+        self,
+        inventory: ToolInventory,
+        device: DeviceStatus,
+        fpga_ready: bool,
+        fpga_reason: str,
+    ) -> None:
         serial = self._device_config.serial
         transfer = inventory.get("hackrf_transfer")
         self._hackrf_transfer_executable = ""
+        self._error_title = ""
+        self._error_message = ""
+        hackrf_error = ""
+        hackrf_detail = device.reason_code
         if not inventory.receive_available or device.state == "TOOLCHAIN_UNAVAILABLE":
-            self._hackrf_ready = False
-            self._source_state = "Hata"
-            self._status_message = "Alıcı yazılımı kullanılamıyor. Kurulumu doğrulayın."
+            hackrf_error = "tools_unavailable"
         elif device.state == "NO_DEVICE":
-            self._hackrf_ready = False
-            self._source_state = "Kullanılmıyor"
-            self._status_message = "Alıcı bulunamadı. USB bağlantısını denetleyin."
+            hackrf_error = "device_not_found"
         elif serial is None:
-            self._hackrf_ready = False
-            self._source_state = "Kullanılmıyor"
-            self._status_message = "Alıcı seri kimliği yapılandırılmamış."
+            hackrf_error = "device_serial_unassigned"
+            hackrf_detail = "device_serial_unassigned"
         elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
             item.serial.casefold() == serial.casefold() for item in device.devices
         ) and transfer.executable_path and "-B" in transfer.supported_options:
-            self._hackrf_ready = True
             self._hackrf_transfer_executable = transfer.executable_path
-            self._source_state = "Hazır"
-            self._source_name = f"Alıcı bağlı · …{serial[-8:]}"
-            self._status_message = "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
         elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
             item.serial.casefold() == serial.casefold() for item in device.devices
         ):
-            self._hackrf_ready = False
-            self._source_state = "Hata"
-            self._status_message = "Alıcı veri bütünlüğü desteği doğrulanamadı."
+            hackrf_error = "stream_integrity"
+            hackrf_detail = "cli_options_unverified"
         else:
+            hackrf_error = "configured_serial_not_found"
+
+        if hackrf_error or not fpga_ready:
             self._hackrf_ready = False
-            self._source_state = "Hata"
-            self._status_message = "Yapılandırılmış alıcı bulunamadı."
+            self._hackrf_transfer_executable = ""
+            if hackrf_error and not fpga_ready:
+                code = "receiver_and_fpga_unavailable"
+                detail = f"hackrf={hackrf_detail or hackrf_error}; fpga={fpga_reason or 'connection_failed'}"
+            elif hackrf_error:
+                code = hackrf_error
+                detail = hackrf_detail or hackrf_error
+            else:
+                code = "connection_failed"
+                detail = fpga_reason or "connection_failed"
+            self._show_transient_probe_error(code, detail)
+            self.pipelineChanged.emit()
+            return
+
+        self._hackrf_ready = True
+        self._source_state = "Hazır"
+        self._source_name = f"Alıcı ve FPGA bağlı · …{serial[-8:]}"
+        self._status_message = "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
         self._add_log("Alıcı", self._status_message)
         self.pipelineChanged.emit()
+
+    def _show_transient_probe_error(self, code: str, detail: str) -> None:
+        self._show_error(code, detail)
+        self._missing_receiver_error_visible = True
+        self._probe_error_timer.start()
+
+    @Slot()
+    def _clear_missing_receiver_error(self) -> None:
+        if not self._missing_receiver_error_visible:
+            return
+        self._missing_receiver_error_visible = False
+        if self._closed or self._busy or self._source_mode != "hackrf" or self._hackrf_ready:
+            return
+        self._source_state = "Kullanılmıyor"
+        self._error_title = ""
+        self._error_message = ""
+        self._status_message = "Alıcı bağlantısı bekleniyor."
+        self.pipelineChanged.emit()
+        self.stateChanged.emit()
 
     def _update_spectrum(self, result: RuntimeFrameResult) -> None:
         self._update_spectrum_result(result.spectrum)

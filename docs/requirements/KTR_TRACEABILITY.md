@@ -2,6 +2,19 @@
 
 ## Güncel sinyal tespiti kapsamı
 
+1 Eylül 2026 bağlantısız alıcı bakımında `KTR-4.1-OPS-B0` operatör sunumu
+netleştirilmiştir. Uygulama otomatik cihaz denetimi yapmadan `Bekliyor` durumunda
+açılır. Operatörün açık denetimi HackRF keşfi ile ZedBoard FPGA hizmet uç noktası
+bağlantısını iki sınırlı işte paralel yürütür; `Hazır` yalnız ikisi de geçerse
+verilir. Tekil HackRF/FPGA ve birleşik hata nedenleri ayrı gösterilir; kaynak
+durumu ve iki görünür durum rozeti 10 saniye boyunca `Hata` olur. Süre sonunda
+bağlantı kurulmamışsa yüzey yeniden `Bekliyor` durumuna döner. TCP hizmet bağlantısı
+PL algoritmasının işlediğini veya doğru sonuç verdiğini tek başına kanıtlamaz; bu
+yalnız cihaz/hizmet erişimi ve dürüst operatör geri bildirimi sözleşmesidir. Donanım,
+RF doğruluğu veya faz kabulü oluşturmaz. Sözleşme
+`tests/test_live_ed_view_model.py` ve `tests/test_app_f_quick_product.py` ile
+doğrulanır.
+
 31 Ağustos 2026 bakım kaydı: `KTR-4.1` görünümü için Qt görüntü tamponu,
 tepe koruyan frekans projeksiyonu, sabit renk ölçeği, gerçek kare zamanı,
 sınırlı GUI bildirimi ve tarama penceresine bağlı waterfall uygulanmıştır.
@@ -237,7 +250,8 @@ adayı` olarak gösterebilir; `harici verici doğrulandı` iddiası kontrollü T
 referans ve aynı ayarlı TX açık tur olmadan üretilemez.
 
 On üçüncü bakım paketi KTR-4.1 operatör akışını iki göreve indirmiştir: sabit
-frekansta tarama ve bant taraması. Alıcı açılışta otomatik denetlenir; frekans,
+frekansta tarama ve bant taraması. Sonraki bağlantı bakımıyla alıcı açılışta
+otomatik denetlenmez; operatör `Alıcıyı Denetle` eylemini açıkça başlatır. Frekans,
 LNA ve VGA kontrolleri korunurken SigMF seçimi, olay konsolu, görünür
 yakınlaştırma/geçmiş, taban/aralık ve tepe-tut kontrolleri yarışma yüzeyinden
 kaldırılmıştır. Kayıtlı I/Q arka ucu yalnız hash-bağlı tekrarlanabilir doğrulama
@@ -251,6 +265,20 @@ spektrum örneği yokken FPGA izleme penceresi, merkez çizgisi ve aday kılavuz
 çizilmez. Ham 2/3 öncesi aday denetimi yarışma yüzeyinden kaldırılmış, yalnız
 kararlı aday listesi korunmuştur. Değişiklik eşik/RTL/ARM davranışını etkilemez;
 canlı görünüm ve ürün sınırı regresyonu 98/98 geçmiştir.
+
+1 Eylül seçenek menüsü bakımında ana görev şeridi başlangıçta kapatılmış; `Tespit`,
+`Parametre`, `Dinleme`, `Yön Bulma` ve `Sistem` girişleri `BÂZ` logosuna bağlı
+erişilebilir aç/kapat menüsüne taşınmıştır. `Alıcı Ayarları` da başlangıçta kapalıdır
+ve açılan görev şeridindeki `Tespit` sembolüyle yönetilir. Tespit sembolü başka
+bir görevden kullanılırsa ED/Tespit sabit-frekans yüzeyine döner; view-model
+başlatma, durdurma veya donanım denetimi çağrısı yapmaz. Bu yalnız
+`KTR-4.1-OPS-B0` sunum bağıdır; RX/FPGA işleyişi veya faz durumu değişmez.
+
+Aynı gün yapılan hazır-durum bakımında canlı oturumun FPGA hizmet/taşıma erişim
+hataları önceki birleşik `Hazır` yetkisini ve tarama başlatma iznini iptal eder;
+yeniden açık HackRF+FPGA denetimi gerekir. ED/Tespit yüzeyindeki tekrarlı üst sağ
+rozet gizlenmiş, aynı rozet diğer görevlerde korunmuştur. Bu sunum ve fail-closed
+yetki bağı algoritma, RTL veya fiziksel doğruluk kabulü değildir.
 
 Fiziksel hata ayrıştırmasında bağlı HackRF'in 8 MS/s örnek ürettiği ve FPGA
 hizmetinin erişilebilir olduğu doğrulanmıştır. Yüksek kazançtaki I/Q kırpılması

@@ -1,6 +1,6 @@
 # Operatör Görev Akışları
 
-- Sürüm: 1.7
+- Sürüm: 1.8
 - Güncelleme tarihi: 2026-09-01
 - Kapsam: APP-F için ürün bilgi mimarisi
 
@@ -14,8 +14,14 @@
 4. `Yön Bulma`: anten açısı–güç ölçümü, bağıl geliş açısı ve kerteriz.
 5. `Sistem`: bileşen sağlığı, performans ve son olaylar.
 
-Üst görev çubuğu logo ile `BÂZ` kimliğini ve alıcının hazır/çalışıyor
-durumunu gösterir. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
+Üst görev çubuğundaki `BÂZ` logosu; `Tespit`, `Parametre`, `Dinleme`, `Yön Bulma`
+ve `Sistem` girişlerini taşıyan ana görev menüsünü açıp kapatır. Menü başlangıçta
+kapalıdır ve bu görünüm değişikliği çalışan görevlere komut göndermez. Açılan sol
+görev şeridindeki `Tespit` dalga sembolü, ED/Tespit sabit-frekans yüzeyindeki
+`Alıcı Ayarları` seçenek menüsünü açıp kapatır. Menü başlangıçta kapalıdır;
+sembol başka bir görevde kullanılırsa ED/Tespit yüzeyine dönerek açılır. Bu
+geçiş çalışan alım veya taramaya başlatma/durdurma komutu göndermez. Üst görev
+çubuğu alıcının hazır/çalışıyor durumunu da gösterir. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
 varken görünür. Ana tespit yüzeyi yalnız sabit frekans taraması ile bant
 taraması arasında geçiş verir. Olay konsolu ve geliştiriciye yönelik görünüm
 kontrolleri ana operatör yüzeyinde yer almaz.
@@ -25,12 +31,21 @@ tespit kimliği her adımda korunur.
 
 ## Akış 1 — Kaynağı hazırlama
 
-1. Uygulama açılışta canlı alıcıyı otomatik denetler.
-2. Bağlantı hazır değilse operatör `Alıcıyı Denetle` ile denetimi tekrarlar.
+1. Uygulama alıcıyı otomatik denetlemeden `Alıcı bekleniyor` durumunda açılır.
+2. Operatör `Alıcıyı Denetle` ile HackRF ve FPGA hizmet denetimini birlikte
+   başlatır. `Hazır` için iki bağlantı da zorunludur. HackRF, FPGA veya ikisi
+   birden kullanılamıyorsa uygun hata 10 saniye gösterilir; ardından bağlantı
+   kurulmadıysa görünüm yeniden bekleme durumuna döner.
 3. Başarılıysa alıcı `Hazır` olur; tarama başladıktan sonra merkez frekansı ve
    örnekleme hızı üst durum alanında görünür.
 4. Başarısızsa hata yalnız `Alıcı Ayarları` alanında, kısa bir neden ve
    uygulanabilir kurtarma eylemiyle gösterilir; aynı hata başlıkta tekrarlanmaz.
+   FPGA hizmet/taşıma erişim hatası birleşik `Hazır` yetkisini iptal eder ve
+   taramadan önce yeniden `Alıcıyı Denetle` gerekir.
+
+ED/Tespit yüzeyinde alıcı ayarlarındaki durum rozeti yeterli olduğundan üst sağ
+durum rozeti gizlidir. Üst sağ rozet Parametre, Dinleme, Yön Bulma, Sistem ve ET
+görevlerinde görünür kalır.
 
 Çıkış koşulu: kaynak gerçek ve erişilebilir durumdadır. Yerine başka veri
 konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.

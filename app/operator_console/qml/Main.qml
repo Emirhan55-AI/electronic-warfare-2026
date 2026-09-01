@@ -16,7 +16,8 @@ ApplicationWindow {
 
     property int workspace: 0
     property string operatingDomain: "ED"
-    property bool sourcePanelOpen: true
+    property bool navigationOpen: false
+    property bool sourcePanelOpen: false
     property bool rfSearchMode: false
     property real spectrumViewStart: 0
     property real spectrumViewEnd: 1
@@ -195,6 +196,34 @@ ApplicationWindow {
         return textMuted
     }
 
+    function receiverBadgeState() {
+        if (operatorViewModel.busy || operatorViewModel.liveSessionActive) return "Çalışıyor"
+        if (operatorViewModel.sourceState === "Hata") return "Hata"
+        if (operatorViewModel.hackrfReady) return "Hazır"
+        return "Bekliyor"
+    }
+
+    function activateWorkspaceNavigation(item) {
+        if (item.workspace === 0 && item.task === 0) {
+            var optionsAlreadyVisible = operatingDomain === "ED"
+                                        && workspace === 0
+                                        && spectrumTaskTab === 0
+                                        && !rfSearchMode
+                                        && sourcePanelOpen
+            workspace = 0
+            spectrumTaskTab = 0
+            rfSearchMode = false
+            sourcePanelOpen = !optionsAlreadyVisible
+            return
+        }
+        workspace = item.workspace
+        if (item.task >= 0) spectrumTaskTab = item.task
+    }
+
+    function togglePrimaryNavigation() {
+        navigationOpen = !navigationOpen
+    }
+
     function etBadgeState() {
         if (operatorViewModel.etStatus === "ÇALIŞIYOR") return "Çalışıyor"
         if (operatorViewModel.etStatus === "HATA") return "Hata"
@@ -275,24 +304,6 @@ ApplicationWindow {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     FileDialog {
         id: wavDialog
         title: "WAV çıktısını kaydet"
@@ -334,16 +345,33 @@ ApplicationWindow {
                 Layout.preferredWidth: 246
                 spacing: 8
 
-                Image {
-                    objectName: "brandLogo"
+                Button {
+                    id: primaryMenuButton
+                    objectName: "primaryMenuButton"
                     Layout.preferredWidth: 96
                     Layout.preferredHeight: 58
-                    source: "../assets/baz-logo-glow.png"
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
-                    mipmap: true
-                    asynchronous: true
-                    Accessible.name: "BÂZ logosu"
+                    flat: true
+                    Accessible.name: "Ana görev menüsü"
+                    Accessible.description: navigationOpen ? "Görev menüsü açık; kapat" : "Görev menüsünü aç"
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 450
+                    ToolTip.text: navigationOpen ? "Görev menüsünü kapat" : "Görev menüsünü aç"
+                    onClicked: root.togglePrimaryNavigation()
+                    background: Rectangle {
+                        radius: 4
+                        color: primaryMenuButton.hovered || primaryMenuButton.activeFocus || root.navigationOpen
+                               ? root.accentSoft : "transparent"
+                        border.color: primaryMenuButton.activeFocus || root.navigationOpen ? root.accent : "transparent"
+                        Behavior on color { ColorAnimation { duration: root.transitionDuration } }
+                    }
+                    contentItem: Image {
+                        objectName: "brandLogo"
+                        source: "../assets/baz-logo-glow.png"
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                        mipmap: true
+                        asynchronous: true
+                    }
                 }
 
                 Label {
@@ -401,8 +429,11 @@ ApplicationWindow {
                     text: root.operatingDomain === "ET" ? operatorViewModel.etResultTitle
                           : operatorViewModel.liveSessionActive ? "Sabit frekans taraması çalışıyor"
                           : operatorViewModel.hackrfReady ? "Sabit frekans taramasına hazır"
+                          : operatorViewModel.sourceState === "Hata" ? "Alıcı veya FPGA bağlantısı kurulamadı"
                           : "Alıcı bağlantısı bekleniyor"
-                    color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary
+                    color: (root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA")
+                           || (root.operatingDomain !== "ET" && operatorViewModel.sourceState === "Hata")
+                           ? root.danger : root.textSecondary
                     font.pixelSize: 10
                     elide: Text.ElideRight
                     Layout.fillWidth: true
@@ -421,7 +452,11 @@ ApplicationWindow {
                 Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
-            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy || operatorViewModel.liveSessionActive ? "Çalışıyor" : operatorViewModel.hackrfReady ? "Hazır" : "Bekliyor" }
+            StateBadge {
+                objectName: "receiverHeaderBadge"
+                visible: root.operatingDomain === "ET" || root.workspace !== 0 || root.spectrumTaskTab !== 0
+                state: root.operatingDomain === "ET" ? root.etBadgeState() : root.receiverBadgeState()
+            }
         }
     }
 
@@ -430,11 +465,21 @@ ApplicationWindow {
         spacing: 0
 
         Rectangle {
-            Layout.preferredWidth: 76
+            id: primaryNavigation
+            objectName: "primaryNavigation"
+            property real animatedWidth: root.navigationOpen ? 76 : 0
+            Layout.preferredWidth: animatedWidth
+            Layout.minimumWidth: animatedWidth
+            Layout.maximumWidth: animatedWidth
             Layout.fillHeight: true
+            visible: animatedWidth > 0.5
+            opacity: root.navigationOpen ? 1 : 0
+            clip: true
             color: "#071018"
             border.color: root.border
             border.width: 1
+            Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
 
             ColumnLayout {
                 anchors.fill: parent
@@ -467,13 +512,11 @@ ApplicationWindow {
                         property bool selected: root.workspace === modelData.workspace
                                                 && (modelData.task < 0 || root.spectrumTaskTab === modelData.task)
                         Accessible.description: modelData.title + " çalışma alanı, Ctrl+" + modelData.shortcut
+                                                + (modelData.task === 0 ? "; tekrar seçildiğinde alıcı seçeneklerini açar veya kapatır" : "")
                         ToolTip.visible: hovered
                         ToolTip.delay: 500
                         ToolTip.text: modelData.title + " · Ctrl+" + modelData.shortcut
-                        onClicked: {
-                            root.workspace = modelData.workspace
-                            if (modelData.task >= 0) root.spectrumTaskTab = modelData.task
-                        }
+                        onClicked: root.activateWorkspaceNavigation(modelData)
                         background: Rectangle {
                             color: navControl.selected ? root.accentSoft : "transparent"
                             radius: 4
@@ -544,7 +587,8 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "ALICI AYARLARI"; Layout.fillWidth: true }
                                 StateBadge {
-                                    state: operatorViewModel.playing || operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.hackrfReady ? "Hazır" : "Bekliyor"
+                                    objectName: "receiverSettingsBadge"
+                                    state: root.receiverBadgeState()
                                 }
                             }
 

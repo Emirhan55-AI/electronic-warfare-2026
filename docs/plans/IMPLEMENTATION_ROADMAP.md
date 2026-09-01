@@ -476,8 +476,12 @@ sıfır route ve DRC hatasıyla geçirmiş; bitstream, FPGA Manager ikilisi ve X
 canlı kontrollü RF doğruluğu açık kalır.
 
 Yarışma tespit yüzeyi sabit frekans ve bant taraması olarak sadeleştirilmiştir.
-Canlı alıcı açılışta otomatik denetlenir; ana eylemler `Taramayı Başlat` ve
-`Durdur` olarak ortaklaştırılmıştır. SigMF kaynak seçimi, olay konsolu,
+Canlı alıcı için otomatik açılış denetimi sonraki bağlantı bakımında kaldırılmış;
+ürün `Bekliyor` durumunda açılır ve denetim operatörün `Alıcıyı Denetle` eylemiyle
+başlar. Bu eylem HackRF keşfi ile FPGA hizmet erişimini paralel denetler ve yalnız
+ikisi de erişilebilirse `Hazır` olur. Tekil veya birleşik bağlantı hatası 10 saniye
+sonra yeniden bekleme durumuna döner.
+Ana eylemler `Taramayı Başlat` ve `Durdur` olarak ortaklaştırılmıştır. SigMF kaynak seçimi, olay konsolu,
 yakınlaştırma/geçmiş, taban/aralık ve tepe-tut düğmeleri operatör yüzeyinden
 kaldırılmış; frekans ile LNA/VGA denetimleri korunmuştur. Kayıtlı I/Q arka ucu
 yalnız tekrarlanabilir test için tutulur. İlgili ürün/QML koşusu 98/98 geçmiştir.
@@ -488,6 +492,17 @@ metinleri ve ham aday açma denetimi kaldırılmıştır. Hata tek yerde operat�
 ve kurtarma eylemiyle gösterilir. Spektrum örneği yokken FPGA izleme penceresi ve
 merkez kılavuzu çizilmez. Bu bakım tespit eşiklerini ve FPGA/ARM karar zincirini
 değiştirmez; ilgili regresyon paketi 98/98 geçmiştir.
+
+Sonraki seçenek menüsü bakımında ana görev şeridi ve `Alıcı Ayarları` başlangıçta
+kapalı hale getirilmiştir. `BÂZ` logosu ana görev şeridini; açılan şeritteki
+`Tespit` sembolü ise alıcı seçeneklerini açıp kapatır. Başka bir
+görevden yapılan sembol seçimi ED/Tespit sabit-frekans yüzeyine döner; alım,
+tarama, FPGA/ARM karar zinciri ve donanım denetimi durumu değiştirilmez.
+
+Hazır-durum bakımında canlı FPGA hizmet/taşıma erişim hatası önceki birleşik
+`Hazır` yetkisini düşürür ve yeni denetim olmadan tarama başlatılamaz. ED/Tespit
+yüzeyindeki tekrarlı üst sağ rozet kaldırılmış; Parametre, Dinleme, Yön Bulma,
+Sistem ve ET görevlerinde korunmuştur. DSP/RTL/ARM işleyişi değiştirilmez.
 
 Aynı bakımın fiziksel hata incelemesinde alıcı probe'u ve 8 MS/s kısa I/Q alımı
 başarılıyken 32/32 dB kazançta oluşan I/Q kırpılmasının beş saniye sonra genel

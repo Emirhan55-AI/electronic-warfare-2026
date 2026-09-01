@@ -18,6 +18,7 @@ from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtTest import QSignalSpy
 
 from algorithms.p0 import IQFrame, TransportStats
+from algorithms.p0.transport import TransportError
 from algorithms.monitoring import AnalogMonitorResult
 from app.operator_console.live_ed import (
     LIVE_AUDIO_WINDOW_FRAMES,
@@ -27,7 +28,7 @@ from app.operator_console.live_ed import (
     LiveEDSessionResult,
     LiveEDSnapshot,
 )
-from app.operator_console.quick_view_model import OperatorViewModel
+from app.operator_console.quick_view_model import MISSING_RECEIVER_ERROR_DISPLAY_MS, OperatorViewModel
 from app.operator_console.detection_model import DetectionListModel
 from platforms.acquisition import (
     AcquisitionError,
@@ -70,6 +71,39 @@ class _Backend:
 
     def close(self):
         pass
+
+
+class _DisconnectedBackend(_Backend):
+    def discover_device(self, cancellation=None):
+        del cancellation
+        return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+
+
+class _ToolsUnavailableBackend(_Backend):
+    def discover_tools(self, *, inspect_help=False):
+        del inspect_help
+        return ToolInventory(
+            (
+                ToolStatus("hackrf_info", "unavailable", False),
+                ToolStatus("hackrf_transfer", "unavailable", False),
+            )
+        )
+
+
+class _FPGAReadyTransport:
+    def connect(self, host, port, *, timeout_seconds):
+        assert host == "192.168.7.2"
+        assert port == 47_007
+        assert timeout_seconds == 2.0
+
+    def close(self):
+        pass
+
+
+class _FPGAMissingTransport(_FPGAReadyTransport):
+    def connect(self, host, port, *, timeout_seconds):
+        super().connect(host, port, timeout_seconds=timeout_seconds)
+        raise TransportError("connection_failed", "FPGA hizmetine bağlanılamadı.")
 
 
 class _Session:
@@ -251,6 +285,12 @@ class _FailedSession(_Session):
         raise AcquisitionError("usb_overrun", "USB akışında tampon taşması.")
 
 
+class _ConnectionFailedSession(_Session):
+    def run(self, snapshot_handler):
+        del snapshot_handler
+        raise AcquisitionError("connection_failed", "FPGA hizmetine bağlanılamadı.")
+
+
 class _InvalidSnapshotSession(_Session):
     def run(self, snapshot_handler):
         def invalid_snapshot(snapshot):
@@ -271,6 +311,7 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
         live_session_factory=_Session,
+        fpga_transport_factory=_FPGAReadyTransport,
     )
     view_model.setSourceMode("hackrf")
     view_model.probeHackrf()
@@ -299,6 +340,100 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     assert blocks["temporal"]["runtime"] == "ZYNQ PS"
     assert view_model.performanceText == "Canlı yol 500.00 kare/s"
     view_model.shutdown()
+
+
+def test_missing_receiver_probe_reports_an_actionable_error() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["missing-receiver-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_DisconnectedBackend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.busy
+        assert not view_model.hackrfReady
+        assert view_model.sourceState == "Hata"
+        assert view_model.errorTitle == "Alıcı bağlı değil"
+        assert view_model.errorMessage == "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin."
+        assert view_model.statusMessage == view_model.errorMessage
+        assert view_model._probe_error_timer.interval() == MISSING_RECEIVER_ERROR_DISPLAY_MS
+        assert view_model._probe_error_timer.isActive()
+
+        view_model._clear_missing_receiver_error()
+        assert view_model.sourceState == "Kullanılmıyor"
+        assert view_model.errorTitle == ""
+        assert view_model.errorMessage == ""
+        assert view_model.statusMessage == "Alıcı bağlantısı bekleniyor."
+    finally:
+        view_model.shutdown()
+
+
+def test_missing_receiver_tools_error_also_returns_to_waiting() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["missing-receiver-tools-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_ToolsUnavailableBackend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert view_model.sourceState == "Hata"
+        assert view_model.errorTitle == "Alıcı yazılımı bulunamadı"
+        assert view_model._probe_error_timer.isActive()
+
+        view_model._clear_missing_receiver_error()
+        assert view_model.sourceState == "Kullanılmıyor"
+        assert view_model.errorMessage == ""
+        assert view_model.statusMessage == "Alıcı bağlantısı bekleniyor."
+    finally:
+        view_model.shutdown()
+
+
+def test_fpga_service_failure_blocks_ready_state_and_returns_to_waiting() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["missing-fpga-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        fpga_transport_factory=_FPGAMissingTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.hackrfReady
+        assert view_model.sourceState == "Hata"
+        assert view_model.errorTitle == "FPGA bağlantısı kurulamadı"
+        assert view_model.errorMessage == "FPGA hizmetine bağlanılamadı."
+        assert view_model._probe_error_timer.isActive()
+
+        view_model._clear_missing_receiver_error()
+        assert view_model.sourceState == "Kullanılmıyor"
+        assert view_model.errorMessage == ""
+    finally:
+        view_model.shutdown()
+
+
+def test_receiver_and_fpga_failures_are_reported_together() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["missing-receiver-and-fpga-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_ToolsUnavailableBackend(),
+        fpga_transport_factory=_FPGAMissingTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.hackrfReady
+        assert view_model.sourceState == "Hata"
+        assert view_model.errorTitle == "Alıcı ve FPGA bağlı değil"
+        assert view_model.errorMessage == (
+            "Alıcı ve FPGA bağlantısı kurulamadı. USB ve FPGA ağ bağlantılarını denetleyin."
+        )
+        assert view_model._probe_error_timer.isActive()
+    finally:
+        view_model.shutdown()
 
 
 def test_live_pipeline_locations_match_display_without_claiming_an_active_device() -> None:
@@ -486,6 +621,7 @@ def test_operator_can_cancel_live_session_without_false_error_state() -> None:
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
         live_session_factory=_BlockingSession,
+        fpga_transport_factory=_FPGAReadyTransport,
     )
     view_model.setSourceMode("hackrf")
     view_model.probeHackrf()
@@ -505,11 +641,36 @@ def test_operator_can_cancel_live_session_without_false_error_state() -> None:
     view_model.shutdown()
 
 
+def test_fpga_connection_failure_revokes_combined_receiver_readiness() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["fpga-readiness-revocation-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_ConnectionFailedSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert view_model.hackrfReady
+
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.hackrfReady
+        assert view_model._hackrf_transfer_executable == ""
+        assert view_model.sourceState == "Hata"
+        assert view_model.errorTitle == "FPGA bağlantısı kurulamadı"
+        assert view_model.errorMessage == "FPGA hizmetine bağlanılamadı."
+    finally:
+        view_model.shutdown()
+
+
 def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-measurement-test"])
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
         live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
     )
     try:
         view_model.setSourceMode("hackrf")
@@ -550,6 +711,7 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
         live_session_factory=_LiveListeningSession,
+        fpga_transport_factory=_FPGAReadyTransport,
     )
     audio = np.zeros(240_000, dtype=np.float64)
     monitor_result = AnalogMonitorResult(
@@ -605,7 +767,11 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
 @pytest.mark.parametrize("session_factory", [_FailedSession, _InvalidSnapshotSession])
 def test_failed_live_session_clears_results_and_can_retry(session_factory) -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-retry-test"])
-    view_model = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=session_factory)
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=session_factory,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
     try:
         view_model.setSourceMode("hackrf")
         view_model.probeHackrf()
@@ -661,7 +827,12 @@ def test_frequency_survey_excludes_other_sources_and_keeps_historical_selection(
             assert self.cancelled.wait(3)
             return SurveyResult("cancelled", len(self.config.windows()), 1, 0, .6, str(self.audit_path))
     app = QGuiApplication.instance() or QGuiApplication(["survey-view-model-test"])
-    view = OperatorViewModel(acquisition_backend=_Backend(), survey_factory=SurveyStub, live_session_factory=_Session)
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        survey_factory=SurveyStub,
+        live_session_factory=_Session,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
     try:
         view.setSourceMode("hackrf")
         view.probeHackrf()

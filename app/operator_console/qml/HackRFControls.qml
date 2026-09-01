@@ -7,7 +7,7 @@ ColumnLayout {
     width: parent ? parent.width : 240
     spacing: 7
     QuietButton { Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
-    QuietButton { Layout.fillWidth: true; text: operatorViewModel.hackrfReady ? "Alıcı bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+    QuietButton { Layout.fillWidth: true; text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
     Label { text: "Merkez frekansı (Hz)"; color: shell.textSecondary; font.pixelSize: 10 }
     AppField { id: centerInput; objectName: "liveCenterInput"; Layout.fillWidth: true; text: String(operatorViewModel.liveReceiveSettings.center_hz); enabled: !operatorViewModel.busy; inputMethodHints: Qt.ImhDigitsOnly; Accessible.name: "İzleme merkez frekansı" }
     Connections {
@@ -33,6 +33,7 @@ ColumnLayout {
         }
     }
     PrimaryButton {
+        objectName: "liveStartButton"
         Layout.fillWidth: true
         text: "Taramayı Başlat"
         visible: !operatorViewModel.liveSessionActive
