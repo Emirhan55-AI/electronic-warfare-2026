@@ -14,7 +14,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-wideband-rtl.json"
+EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-wideband-rtl-v2.json"
 SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv",
@@ -91,9 +91,9 @@ def evaluate() -> dict[str, object]:
     cycles = int(match.group("cycles"))
     stability = int(match.group("stability"))
     passed = (
-        frames == 5
-        and records == 24
-        and semantic == 22
+        frames == 8
+        and records == 27
+        and semantic == 24
         and cycles <= MAX_PROCESSING_CYCLES
         and stability > 0
     )
@@ -128,6 +128,9 @@ def evaluate() -> dict[str, object]:
             "maximum_gap_bins": 1,
             "peak_tie_policy": "first maximum in shifted order",
             "candidate_capacity": 96,
+            "broad_reference_region_rank": 4,
+            "broad_minimum_recovery_span_bins": 257,
+            "broad_flank_policy": "one complete region beyond each support edge",
         },
         "source_sha256": {path.relative_to(ROOT).as_posix(): _sha256(path) for path in SOURCES},
         "claim_boundary": (

@@ -68,7 +68,7 @@ def build_application(
     audio_playback: AudioPlayback | None = None,
 ) -> tuple[QApplication, MainWindow, OperatorController]:
     app = QApplication.instance() or QApplication(argv or [])
-    app.setApplicationName("Elektronik Harp Operatör Konsolu")
+    app.setApplicationName("BÂZ")
     app.setOrganizationName("TEKNOFEST 2026 Elektronik Harp")
     app.setStyle("Fusion")
     app.setFont(_ui_font())

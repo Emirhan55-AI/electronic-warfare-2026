@@ -1,0 +1,418 @@
+from dataclasses import dataclass, replace
+import json
+
+import pytest
+
+from algorithms.p0.channelizer import P0ChannelizerProfile
+from algorithms.p0.transport import IQFrame
+from app.operator_console.live_ed import LiveEDConfiguration, LiveEDEvent, LiveEDResponse, LiveEDSnapshot
+from app.operator_console.rx_survey import (
+    RXSurvey,
+    SURVEY_CHANNELIZER_PASSBAND_HALF_HZ,
+    SURVEY_MAX_FULL_SUPPORT_HZ,
+    SurveyConfig,
+    survey_gain_profiles,
+)
+from platforms.acquisition.contracts import AcquisitionError
+
+
+SERIAL = "0" * 32
+
+
+@dataclass
+class _Result:
+    completed_frames: int
+
+
+class _Session:
+    def __init__(self, executable, config):
+        self.config = config
+        self.cancelled = False
+
+    def cancel(self):
+        self.cancelled = True
+
+    def run(self, callback):
+        for index in range(self.config.frame_count):
+            if self.cancelled:
+                raise AcquisitionError("operation_cancelled", "test")
+            event = LiveEDEvent(17, 0, index, index + 1, "confirmed", True,
+                               2046, 2050, 2048, 5, 1, 0, 100., 1., 10.)
+            frame = IQFrame(index, 2_000_000, self.config.output_center_frequency_hz, bytes(8192), frame_id=index)
+            callback(LiveEDSnapshot(index, frame, LiveEDResponse(index, 1, 7, 0, False, 0, (event,), (), 136)))
+        return _Result(self.config.frame_count)
+
+
+def _records(path):
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+
+
+def test_full_device_plan_has_no_gaps_and_uses_passband_not_filter_edges():
+    windows = SurveyConfig().windows()
+    profile = P0ChannelizerProfile()
+    assert len(windows) == 9999
+    assert windows[0].lower_hz == 1_000_000
+    assert windows[-1].upper_hz == 6_000_000_000
+    assert windows[-1].include_upper
+    assert all(not item.include_upper for item in windows[:-1])
+    for previous, current in zip(windows, windows[1:]):
+        assert previous.upper_hz == current.lower_hz
+    for item in windows:
+        assert item.center_hz - item.lower_hz <= profile.passband_edge_hz
+        assert item.upper_hz - item.center_hz <= profile.passband_edge_hz
+        config = LiveEDConfiguration(item.center_hz, SERIAL)
+        assert 1_000_000 <= config.input_center_frequency_hz <= 6_000_000_000
+        assert abs(config.output_center_frequency_hz - config.input_center_frequency_hz) == 1_500_000
+        assert not config.rx_config.rf_amplifier
+
+
+def test_overlapping_tunings_keep_one_mhz_support_inside_validated_passband():
+    windows = SurveyConfig(2_400_000_000, 2_500_000_000).windows()
+    half_support = SURVEY_MAX_FULL_SUPPORT_HZ / 2
+    for item in windows:
+        for frequency_hz in (item.lower_hz, (item.lower_hz + item.upper_hz) / 2, item.upper_hz):
+            assert abs(frequency_hz - item.center_hz) + half_support <= SURVEY_CHANNELIZER_PASSBAND_HALF_HZ
+
+            first_bin = 2048 + (frequency_hz - half_support - item.center_hz) * 4096 / 2_000_000
+            final_bin = 2048 + (frequency_hz + half_support - item.center_hz) * 4096 / 2_000_000
+            assert first_bin >= 256
+            assert final_bin < 3840
+
+
+@pytest.mark.parametrize("center,expected", [(1_000_000, 2_500_000), (1_700_000, 3_200_000),
+                                            (104_650_000, 103_150_000), (6_000_000_000, 5_998_500_000)])
+def test_live_tuning_stays_inside_device_limits_at_both_edges(center, expected):
+    assert LiveEDConfiguration(center, SERIAL).input_center_frequency_hz == expected
+
+
+def test_live_tuning_accepts_only_validated_opposite_side_override():
+    config = LiveEDConfiguration(
+        104_650_000,
+        SERIAL,
+        input_center_frequency_hz_override=107_150_000,
+    )
+    assert config.input_center_frequency_hz == 107_150_000
+    with pytest.raises(AcquisitionError) as error:
+        LiveEDConfiguration(
+            104_650_000,
+            SERIAL,
+            input_center_frequency_hz_override=105_650_000,
+        )
+    assert error.value.code == "invalid_tuning_offset"
+
+
+@pytest.mark.parametrize("bounds", [(0, 6_000_000_000), (1_000_000, 6_000_000_001),
+                                     (2_000_000, 1_000_000), (1_000_000., 3_000_000)])
+def test_invalid_search_envelopes_are_rejected(bounds):
+    with pytest.raises(ValueError):
+        SurveyConfig(*bounds)
+
+
+def test_survey_gain_profiles_reach_zero_without_invalid_steps():
+    assert survey_gain_profiles(32, 32) == ((32, 32), (24, 24), (16, 16), (8, 8), (0, 0))
+    assert survey_gain_profiles(24, 18) == ((24, 18), (16, 10), (8, 2), (0, 0))
+
+
+def test_survey_commits_only_complete_windows_and_ignores_guard_frames(tmp_path):
+    path = tmp_path / "scan.jsonl"
+    updates = []
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 2_200_000), path,
+                      session_factory=_Session).run(updates.append)
+    assert result.state == "completed"
+    assert result.completed_windows == result.total_windows == 2
+    previews = [item for item in updates if item.state == "preview"]
+    assert previews and all(not item.observations for item in previews)
+    assert updates.index(previews[0]) < next(i for i, item in enumerate(updates) if item.state == "complete")
+    completed = [item for item in updates if item.state == "complete"]
+    assert len(completed) == 2
+    assert len(completed[0].display_snapshots) == 8
+    assert [snapshot.sequence_number for snapshot in completed[0].display_snapshots] == list(range(15, 128, 16))
+    assert all(snapshot.output_frame.center_frequency_hz == completed[0].window.center_hz
+               for snapshot in completed[0].display_snapshots)
+    first = completed[0].observations[0]
+    assert first["first_frame"] == 8
+    assert first["last_frame"] == 127
+    assert first["observed_frames"] == 120
+    assert first["frequency_hz"] == 1_300_000
+    assert first["verification"]["observed_frames"] == 40
+    assert first["verification"]["input_center_hz"] == 3_800_000
+    assert len(first["iq_sha256"]) == 64
+    assert first["key"] != completed[1].observations[0]["key"]
+    assert _records(path)[0]["transmit_enabled"] is False
+    completed_record = next(row for row in _records(path) if row["type"] == "window_complete")
+    assert completed_record["window_metrics"] == {
+        "channel_power_dbfs": None,
+        "power_frame_count": 120,
+        "power_component_count": 120 * 8192,
+        "lna_gain_db": 32,
+        "vga_gain_db": 32,
+        "input_center_hz": 2_800_000,
+        "output_center_hz": 1_300_000,
+        "sample_rate_hz": 2_000_000,
+        "power_reference": "mean_abs_iq_squared_ci8_div128",
+    }
+    assert _records(path)[-1]["state"] == "completed"
+    with pytest.raises(FileExistsError):
+        RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(), path, session_factory=_Session).run()
+
+
+def test_channel_power_uses_complex_iq_normalization_and_excludes_guard_frames(tmp_path):
+    import math
+
+    class PowerSession(_Session):
+        def run(self, callback):
+            def with_power(snapshot):
+                sample = bytes([127, 127]) if snapshot.sequence_number < 8 else bytes([64, 32])
+                frame = replace(snapshot.output_frame, payload=sample * 4096)
+                callback(replace(snapshot, output_frame=frame))
+            return super().run(with_power)
+
+    path = tmp_path / "channel-power.jsonl"
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000), path,
+                      session_factory=PowerSession).run()
+    assert result.state == "completed"
+    record = next(row for row in _records(path) if row["type"] == "window_complete")
+    assert record["window_metrics"]["channel_power_dbfs"] == pytest.approx(10 * math.log10(.5**2 + .25**2))
+    assert record["observations"][0]["mean_peak_power"] == 100.0
+    assert record["observations"][0]["verification"]["mean_peak_power"] == 100.0
+
+
+def test_preview_is_published_before_session_returns_or_coverage_is_committed(tmp_path):
+    updates = []
+    class PreviewSession(_Session):
+        def run(self, callback):
+            result = super().run(callback)
+            if self.config.input_center_frequency_hz_override is None:
+                assert any(item.state == "preview" for item in updates)
+                assert not any(item.state == "complete" for item in updates)
+            return result
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000),
+        tmp_path / "preview-first.jsonl", session_factory=PreviewSession).run(updates.append)
+    assert result.state == "completed"
+
+
+def test_survey_mailbox_coalesces_only_previews_and_preserves_control_order():
+    from app.operator_console.rx_survey import SurveyUpdate
+    from app.operator_console.survey_controller import _SurveyMailbox
+    mailbox = _SurveyMailbox()
+    window = SurveyConfig(1_000_000, 1_600_000).windows()[0]
+    assert mailbox.publish(SurveyUpdate(window, "running", 0), lambda: False)
+    for index in range(1000):
+        assert not mailbox.publish(SurveyUpdate(window, "preview", index), lambda: False)
+    assert len(mailbox.items) == 2
+    mailbox.publish(SurveyUpdate(window, "failed", 1001), lambda: False)
+    items = mailbox.take()
+    assert [item.state for item in items] == ["running", "preview", "failed"]
+    assert items[1].elapsed_seconds == 999
+    for index in range(64):
+        mailbox.publish(SurveyUpdate(window, "running", index), lambda: False)
+    assert not mailbox.publish(SurveyUpdate(window, "complete", 65), lambda: True)
+    assert len(mailbox.items) == 64
+
+
+def test_survey_clusters_nearby_event_ids_once_per_frame(tmp_path):
+    class Fragmented(_Session):
+        def run(self, callback):
+            for index in range(self.config.frame_count):
+                events = (
+                    LiveEDEvent(100 + index, 0, index, 2, "confirmed", True,
+                                2026, 2030, 2028, 5, 1, 0, 100., 1., 10.),
+                    LiveEDEvent(300 + index, 0, index, 2, "confirmed", True,
+                                2066, 2070, 2068, 5, 1, 0, 80., 1., 10.),
+                )
+                frame = IQFrame(index, 2_000_000, self.config.output_center_frequency_hz,
+                                bytes(8192), frame_id=index)
+                callback(LiveEDSnapshot(index, frame,
+                    LiveEDResponse(index, 2, 7, 0, False, 0, events, (), 136)))
+            return _Result(self.config.frame_count)
+
+    updates = []
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000),
+        tmp_path / "clustered.jsonl", session_factory=Fragmented,
+    ).run(updates.append)
+    assert result.state == "completed"
+    completed = next(item for item in updates if item.state == "complete")
+    assert len(completed.observations) == 1
+    assert completed.observations[0]["observed_frames"] == 120
+
+
+def test_survey_rejects_candidate_that_moves_after_independent_retune(tmp_path):
+    class MovingSpur(_Session):
+        def run(self, callback):
+            peak = 2048 if self.config.input_center_frequency_hz_override is None else 2300
+            for index in range(self.config.frame_count):
+                event = LiveEDEvent(17, 0, index, index + 1, "confirmed", True,
+                                    peak - 2, peak + 2, peak, 5, 1, 0, 100., 1., 10.)
+                frame = IQFrame(index, 2_000_000, self.config.output_center_frequency_hz,
+                                bytes(8192), frame_id=index)
+                callback(LiveEDSnapshot(index, frame,
+                    LiveEDResponse(index, 1, 7, 0, False, 0, (event,), (), 136)))
+            return _Result(self.config.frame_count)
+
+    updates = []
+    RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000),
+        tmp_path / "moving-spur.jsonl", session_factory=MovingSpur,
+    ).run(updates.append)
+    completed = next(item for item in updates if item.state == "complete")
+    assert completed.observations == ()
+
+
+def test_broad_observation_is_verified_by_absolute_support_when_peak_moves(tmp_path):
+    signal_center_hz = 100_001_000
+    support_bins = 2048
+
+    class BroadNoiseLike(_Session):
+        def run(self, callback):
+            spacing = 2_000_000 / 4096
+            center_bin = round(2048 + (signal_center_hz - self.config.output_center_frequency_hz) / spacing)
+            start = center_bin - support_bins // 2
+            end = start + support_bins - 1
+            assert 256 <= start <= end < 3840
+            peak = start + 100 if self.config.input_center_frequency_hz_override is None else end - 100
+            for index in range(self.config.frame_count):
+                event = LiveEDEvent(
+                    17, 0, index, index + 1, "confirmed", True,
+                    start, end, peak, support_bins, 1, 0, 100., 1., 10.,
+                )
+                frame = IQFrame(
+                    index, 2_000_000, self.config.output_center_frequency_hz,
+                    bytes(8192), frame_id=index,
+                )
+                callback(LiveEDSnapshot(
+                    index, frame, LiveEDResponse(index, 1, 7, 0, False, 0, (event,), (), 136)
+                ))
+            return _Result(self.config.frame_count)
+
+    updates = []
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(100_000_000, 100_600_000),
+        tmp_path / "broad-support.jsonl", session_factory=BroadNoiseLike,
+    ).run(updates.append)
+    assert result.state == "completed"
+    observation = next(item for item in updates if item.state == "complete").observations[0]
+    assert observation["bandwidth_hz"] == pytest.approx(1_000_000)
+    assert observation["verification"]["observed_frames"] == 40
+    assert observation["verification"]["bandwidth_hz"] == pytest.approx(1_000_000)
+    assert abs(observation["verification"]["frequency_hz"] - observation["frequency_hz"]) < 1_000
+    assert abs(observation["verification"]["peak_frequency_hz"] - observation["peak_frequency_hz"]) > 800_000
+
+
+def test_clipped_window_is_failed_not_empty_or_covered(tmp_path):
+    class Clipped(_Session):
+        def run(self, callback):
+            super().run(callback)
+            raise AcquisitionError("iq_saturation", "clipped after observations")
+    updates = []
+    path = tmp_path / "clipped.jsonl"
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 2_200_000), path,
+                      session_factory=Clipped).run(updates.append)
+    assert result.state == "partial"
+    assert result.completed_windows == 0
+    assert result.failed_windows == 2
+    assert not any(item.observations for item in updates)
+    assert not any(row["type"] == "window_complete" for row in _records(path))
+
+
+def test_saturated_window_is_retried_at_lower_gain_before_coverage_is_committed(tmp_path):
+    class GainSensitive(_Session):
+        def run(self, callback):
+            if self.config.lna_gain_db > 16 or self.config.vga_gain_db > 16:
+                raise AcquisitionError("iq_saturation", "test overload")
+            return super().run(callback)
+
+    updates = []
+    path = tmp_path / "gain-fallback.jsonl"
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000), path,
+        session_factory=GainSensitive,
+    ).run(updates.append)
+    assert result.state == "completed"
+    assert result.completed_windows == 1
+    records = _records(path)
+    retries = [row for row in records if row["type"] == "window_gain_retry"]
+    assert [(row["lna_gain_db"], row["vga_gain_db"]) for row in retries] == [(32, 32), (24, 24)]
+    completed = next(row for row in records if row["type"] == "window_complete")
+    assert completed["gain"] == {"lna_gain_db": 16, "vga_gain_db": 16}
+    assert completed["observations"][0]["lna_gain_db"] == 16
+    assert completed["observations"][0]["verification"]["lna_gain_db"] == 16
+
+
+def test_candidate_capacity_drop_fails_without_hiding_signals_by_lowering_gain(tmp_path):
+    class CandidateLimited(_Session):
+        def run(self, callback):
+            if self.config.lna_gain_db > 24:
+                raise AcquisitionError("candidate_drop", "test candidate capacity")
+            return super().run(callback)
+
+    path = tmp_path / "candidate-fallback.jsonl"
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000), path,
+        session_factory=CandidateLimited,
+    ).run()
+    assert result.state == "failed"
+    assert result.error_code == "candidate_drop"
+    assert result.completed_windows == 0
+    assert not any(row["type"] in {"window_gain_retry", "window_complete"} for row in _records(path))
+
+
+def test_transient_usb_overrun_retries_same_window_without_creating_a_coverage_gap(tmp_path):
+    class TransientOverrun(_Session):
+        attempts = {}
+
+        def run(self, callback):
+            key = (self.config.output_center_frequency_hz,
+                   self.config.input_center_frequency_hz_override)
+            self.attempts[key] = self.attempts.get(key, 0) + 1
+            if self.attempts[key] == 1:
+                raise AcquisitionError("usb_overrun", "test transient")
+            return super().run(callback)
+
+    path = tmp_path / "transport-retry.jsonl"
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000), path,
+        session_factory=TransientOverrun,
+    ).run()
+    assert result.state == "completed"
+    assert result.completed_windows == 1
+    records = _records(path)
+    retries = [row for row in records if row["type"] == "window_transport_retry"]
+    assert len(retries) == 1
+    assert retries[0]["error_code"] == "usb_overrun"
+    completed = next(row for row in records if row["type"] == "window_complete")
+    assert completed["observations"][0]["verification"]["retries"][0]["error_code"] == "usb_overrun"
+
+
+def test_transport_fault_stops_scan_without_pretending_remaining_band_is_empty(tmp_path):
+    class Disconnected(_Session):
+        def run(self, callback):
+            raise AcquisitionError("connection_failed", "no card")
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(), tmp_path / "failed.jsonl",
+                      session_factory=Disconnected).run()
+    assert result.state == "failed"
+    assert result.completed_windows == 0
+    assert result.failed_windows == 1
+    assert result.total_windows == 9999
+
+
+def test_operator_stop_preserves_completed_window_and_does_not_visit_next(tmp_path):
+    survey = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(), tmp_path / "cancel.jsonl", session_factory=_Session)
+    def update(item):
+        if item.state == "complete":
+            survey.cancel()
+    result = survey.run(update)
+    assert result.state == "cancelled"
+    assert result.completed_windows == 1
+    assert result.failed_windows == 0
+
+
+def test_sequence_or_tuning_mismatch_does_not_commit_a_window(tmp_path):
+    class WrongFrequency(_Session):
+        def run(self, callback):
+            return super().run(lambda snap: callback(replace(snap,
+                output_frame=replace(snap.output_frame, center_frequency_hz=100_000_000))))
+    result = RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(), tmp_path / "wrong.jsonl", session_factory=WrongFrequency).run()
+    assert result.state == "failed"
+    assert result.error_code == "survey_frequency"
+    assert result.completed_windows == 0

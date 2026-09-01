@@ -33,11 +33,46 @@ nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
 
 ## Mevcut yetenekler
 
+31 Ağustos sinyal tespiti bakımında spektrum ve waterfall çizimi Qt görüntü
+tamponuna taşınmıştır: 128 satır, dar tepe koruma, sabit güç/renk ölçeği ve
+15 DSP karesinde bir canlı görünüm hedefi bulunur. Tarama görünümü, bütünlüğü
+geçen pencerenin gerçek karelerinden geçmiş gösterir. Yeni görünümün canlı
+kabulü eski fiziksel kayıtlardan devralınmaz. Geniş bant kurtarmanın bölgesel
+gürültü tabanı kirlenmesi sınırı ve güncel SystemVerilog/ARM sahipliği
+[durum belgesinde](docs/interfaces/SIGNAL_DETECTION_STATUS.md) açıklanmıştır.
+
+8 MS/s, 16.384 noktalı canlı görünüm gücü için ayrıca hostta kaba aday yolu
+bulunur. Dörder hücrenin enerjisi toplanarak mevcut 4.096-hücre OS-CFAR ve
+geniş bant referansına verilir; sarı kaba RX alanı, yeşil FPGA doğrulamasından
+ayrıdır. Bağımsız sentetik kabulte 100 kHz–4 MHz aileleri 32/32 geçmiş, 6 MHz
+31/32 ile yalnız karakterize edilmiş, bütün 8 MHz doluluğu çözülememiştir.
+Bu sonuç RF veya FPGA kabulü değildir; ayrıntı ADR-0038 ve
+`results/evidence/phase08/coarse-rx-detection-v1.json` içindedir.
+
+Güncel çalışma, frekansı bilinmeyen yayının **yalnız alımla aranmasına** odaklanır.
+HackRF görünümündeki `Frekans Taraması`, 1–6.000 MHz aralığını 9.999 bitişik
+600 kHz sorumluluk hücresinde, örtüşen 2 MHz alıcı ayarlarıyla sırayla işler;
+bütün aralık aynı anda dinlenmez. Her pencere 128 gerçek
+I/Q karesinin kartta işlenmesi ve alım bütünlüğünün geçmesiyle kapsama eklenir.
+Başarısız ve ziyaret edilmemiş bantlar boş bant sayılmaz. Gözlemler tur boyunca
+korunur; tarama durdurulduktan sonra seçilen frekans sabit bantta izlenebilir.
+Bu geometri 1 MHz desteği en az bir ayarın doğrulanmış kanal seçici geçiş bandı
+içinde tutar; RF algılama olasılığı garantisi değildir. Kısa yayınlar kaçabilir
+ve tek antenin bütün aralıkta duyarlı olduğu varsayılmaz.
+
+**Kanıt sürümü sınırı:** Aşağıdaki eski fiziksel kabul kayıtları, içlerinde
+belirtilen kaynak sürümlerine aittir. Yeni tarama ve Windows ikili I/Q taşıma
+değişiklikleri bu kayıtların güncel kaynak kabulü olduğu anlamına gelmez;
+kaynak özeti denetimleri korunur. Yeni çalıştırmalar, yapılandırma/kaynak özetleri
+ve gerçek kart sonuçlarıyla `build/acceptance/rx-survey/` altında ayrı JSONL
+kayıtları oluşturur. Kısa alıcı denemeleri tam bant doğruluğu, gizli vericiyi
+bulma başarısı veya saha kabulü değildir.
+
 | Alan | Durum |
 |---|---|
 | SigMF kayıt açma, sözleşme denetimi ve gerçek I/Q işleme | Doğrulandı |
-| HackRF araç/cihaz denetimi ve RX alımı | Seri numarasına bağlı fiziksel HackRF-1 ile 8 MS/s RX, DC-güvenli offset tuning ve host tespiti 5/5 tekrar geçti. Tek süreçli kesintisiz RX→FPGA kabulünde beş koşu ve 20.480/20.480 ölçüm karesi sıfır USB overrun ile tamamlandı |
-| PC kanal seçici ve ZedBoard ağ taşıması | 8→2 MS/s, 193 tap anti-alias, tam CI8/4096 çerçeve ve çift CRC'li dört derinlikli TCP→yerel hizmet yolu doğrulandı. Kalıcı PetaLinux imajının soğuk açılışı sonrası kayıtlı-I/Q Ethernet kabulünde en düşük hız 505,18 kare/s; kaynak hızına bağlı canlı HackRF kabulünde 488,75 kare/s oldu |
+| HackRF araç/cihaz denetimi ve RX alımı | Seri numarasına bağlı fiziksel HackRF-1 ile 8 MS/s RX, DC-güvenli offset tuning ve host tespiti önceki kaynaklarda geçti. Güncel ADR-0039 sürümünde görünüm 32,15 Hz hedefini geçmiştir; ancak hem ürün hem doğrudan aktarım shortfall ürettiğinden farklı USB port/kablo tekrarı ve uzun kabul açıktır |
+| PC kanal seçici ve ZedBoard ağ taşıması | 8→2 MS/s, 193 tap anti-alias kanal seçici C++17 AVX2/FMA3 yolunda NumPy referansına 80 karede bayt-tam eşdeğerdir; p95 süre 0,525 ms'dir. Tam CI8/4096 çerçeve ve çift CRC'li dört derinlikli TCP→yerel hizmet yolu önceki fiziksel kaynak sürümünde doğrulanmıştır. Güncel kartta TCP 47007 açıktır; son ADR-0037 bitstream kabulü açıktır |
 | Hann, 4096 FFT, dBFS spektrum ve spektrogram | Host referansında doğrulandı |
 | Uyarlanabilir hücre tespiti, bütünleşik geniş bant enerjisi, aday gruplama ve 2/3 zamansal doğrulama | Host referansı ve fiziksel PL→DMA→ARM zincirinde doğrulandı. Kalıcı kart imajıyla yapılan beş sürekli 2 MS/s kabul koşusunda toplam 20.480/20.480 kare sıfır hatayla işlendi; en düşük hız 508,76 kare/s oldu |
 | Emisyon merkezi, gözlenen taşıyıcı, OBW99, göreli güç, SNR ve sınırlı sinyal türü ölçümü | Host ürün profilinde operatör onaylı analiz aralığında doğrulandı; emisyon merkezi, bant kenarları, OBW99, kalibrasyonsuz dBFS güç ve SNR fiziksel PL→DMA→ARM zincirinde dört gözlemle çalıştı. Taşıyıcı çizgisi ve sinyal türü ARM paketinde yok |
@@ -62,6 +97,76 @@ sonuçları fiziksel RF sonucu olmadığını açıkça belirtir. Yayın çalı�
 yalnız gerçek SigMF/HackRF RX kaynaklarını ve doğrulanmış çevrimdışı ET
 modellerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
 arayüzleri ürün paketine girmez.
+
+`HackRF Canlı RX` görünümü izleme merkezini, LNA/VGA kazançlarını ve sınırlı
+canlı ED oturumunu yönetir. Gösterilen geniş spektrum aynı alımın ham 8 MS/s
+I/Q karesine, ayrıntılı tespitler ise 2 MS/s kanal seçilmiş kareye verilen
+ZedBoard FPGA/ARM yanıtına bağlıdır. Sarı kaba RX adayı host önerisidir; yeşil
+durum FPGA doğrulamasıdır. Kart bağlantısı yoksa uygulama FPGA sonucu üretmez.
+
+Fiziksel ürün arayüzünden başlatılan beş ardışık 4.096-kare oturumu toplam
+20.480 kareyi sıfır USB taşması, taşıma CRC/sıra hatası ve I/Q kırpılmasıyla
+tamamlamıştır. Bu kabul 104,65 MHz izleme merkezi ve LNA/VGA 0/0 dB koşulundadır;
+ortam RF sinyallerinden tespit doğruluğu yüzdesi çıkarılmaz. İlk 16/16 dB
+denemesinde kırpılma oluşmuş ve oturum sonuç üretmeden reddedilmiştir.
+[Ölçüm kaydı](results/evidence/phase08/product-live-acceptance.json) başarısız
+denemeyi de korur. Oturum açılışını içeren hızlar FPGA azami kapasitesi veya
+C/C++ karşısında hızlanma iddiası değildir. Fiziksel durdurma ve yeniden
+başlatma geçmiştir. Canlı parametre ürün bağı dört ardışık gerçek FPGA karesiyle
+işlevsel olarak geçmiştir; kontrollü RF doğruluğu, canlı ses ve saha kalibrasyonu
+ayrı kapılardır.
+
+Kayıtların bütünlüğü `python scripts/verify_phase08_product.py` ile denetlenir.
+Yeni fiziksel gözlem için `python scripts/capture_phase08_product.py --output
+build/acceptance/new-product-run` ürün penceresini açar; cihaz denetimi ve oturum
+başlatma operatör tarafından yapılır. Araç yalnız gerçek alımı gözlemler;
+örnek veri veya kart yanıtı üretmez.
+
+8 MS/s canlı ürün yolu derlenmiş kanal seçici gerektirir. Windows Release
+çekirdeği şu komutlarla hazırlanır; DLL oluşmazsa fiziksel ürün yavaş Python
+yoluna sessizce düşmez:
+
+```powershell
+cmake -S algorithms\p0\native -B build\native\p0_channelizer -G "Visual Studio 17 2022" -A x64
+cmake --build build\native\p0_channelizer --config Release
+python scripts\verify_phase08_native_channelizer.py
+```
+
+Canlı tespit listesi varsayılan olarak doğrulanmış gözlemleri gösterir;
+`Adayları göster` henüz doğrulanmamış olayları açar. Ölçüm için gereken son dört
+ardışık FPGA karesi görünür tespitlerle birlikte otomatik korunur; operatörün
+listeyi dondurması gerekmez. Seçili olay kaybolduğunda `Son gözlem`, oturum bittiğinde
+`Son oturum` gösterilir; aynı frekanstaki yeni olay otomatik olarak eski
+seçime bağlanmaz. Spektrum ve spektrogram seçili frekansı ortak kılavuzla
+gösterir. Önceki kabulde görüntüleme yaklaşık 10 Hz'dir. Yeni görünüm 15 karede
+bir, nominal 32,55 Hz güncelleme hedefler; FPGA bütün I/Q karelerini işler.
+Güncel arayüz ölçüsü geçmiştir, fakat USB shortfall nedeniyle uzun fiziksel
+kabul açıktır.
+[Canlı seçim görünümü](results/evidence/phase08/detection-selection-aligned.png)
+frekans kılavuzunun spektrum ve spektrogramdaki ortak konumunu gösterir.
+UI yük karşılaştırmasının olumlu ve olumsuz ham kayıtları ile sınırları
+[`detection-ui-decoupling.json`](results/evidence/phase08/detection-ui-decoupling.json)
+özetindedir; `python scripts/verify_phase08_detection_ui.py` arşivi yeniden
+hesaplayarak doğrular. USB okuma, 512 karelik sınırlı ham-I/Q kuyruğuyla kanal
+seçimi ve FPGA taşımasından ayrılmıştır. Önceki kaynak sürümü sekiz tam fiziksel ürün
+koşusunda 32.768/32.768 kareyi sıfır USB taşmasıyla tamamlamış; operatör iptali
+750. karede ve ardından yeniden başlatma ayrı ayrı geçmiştir. En yüksek kuyruk
+kullanımı 111/512'dir. Ayrı kesintisiz dayanıklılık kabulü 15 dakika boyunca
+439.453/439.453 kareyi ve 14.399.995.904 ham baytı sıfır USB/CRC/sıra/kuyruk
+hatası ve sıfır kırpılmayla tamamlamıştır; ham kuyruk tepe kullanımı
+170/512'dir. Hash-bağlı özet
+[`live-rx-endurance-v2.json`](results/evidence/phase08/live-rx-endurance-v2.json)
+içindedir ve `python scripts/verify_phase08_endurance.py` ile yeniden
+doğrulanır. Bu kayıtlar ADR-0039 kaynak sürümüne devredilmez; güncel
+`live-rx-display-8msps-v2.json` üç USB shortfall nedeniyle başarısızdır. Ortam
+sinyalleri kontrollü RF doğruluğu kanıtı değildir.
+
+Dört ardışık confirmed+observed FPGA karesine bağlı canlı parametre ürün akışı
+gerçek HackRF oturumunda dokuz sonuç alanını üretmiştir. Hash-bağlı işlevsel kanıt
+[`live-parameter-functional.json`](results/evidence/phase08/live-parameter-functional.json)
+içindedir ve `python scripts/verify_phase08_live_parameter.py` ile yeniden
+doğrulanır. Bu kayıt ürün bağını kanıtlar; ortam sinyalinden frekans, bant
+genişliği, güç veya sınıflandırma doğruluğu yüzdesi çıkarmaz.
 
 ### Kurulum
 
@@ -119,6 +224,10 @@ altında tutulur.
 ## Depo düzeni
 
 - `app/`: Qt Quick operatör uygulaması ve sunum katmanı.
+- `app/operator_console/quick_*_actions.py`: tarama, ölçüm, dinleme, yön bulma
+  ve çevrimdışı ET kullanıcı eylemlerini ayıran sunum denetleyicileri.
+- `app/operator_console/qml/`: ana kabuk, görev çalışma alanları ve ortak görsel
+  bileşenler; QML dosyaları tek bir dev ekran tanımı olarak tutulmaz.
 - `algorithms/`: host referans DSP, tespit, parametre, izleme ve FPGA RTL kaynakları.
 - `platforms/`: HackRF alım katmanı ile Zynq PS/embedded bileşenleri.
 - `profiles/`: doğrulama kapılarını geçmiş çalışma profilleri.

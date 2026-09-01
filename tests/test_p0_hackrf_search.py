@@ -179,11 +179,15 @@ class HackRFSearchPlanTests(unittest.TestCase):
                 for signal in run["signals"]
             )
         )
-        for name, source in sources.items():
-            self.assertEqual(
-                evidence["source_sha256"][name],
-                hashlib.sha256(source.read_bytes()).hexdigest(),
-            )
+        changed_since_acceptance = {
+            name
+            for name, source in sources.items()
+            if evidence["source_sha256"][name]
+            != hashlib.sha256(source.read_bytes()).hexdigest()
+        }
+        # Kabul başka bir fiziksel alıcı kimliğiyle yapılmıştır. Güncel seri
+        # numarası için bu eski koşu kabul kanıtı olarak sunulamaz.
+        self.assertEqual({"hackrf_ed_rx.json"}, changed_since_acceptance)
 
 
 if __name__ == "__main__":

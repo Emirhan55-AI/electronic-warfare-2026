@@ -86,6 +86,7 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_PHASE03_FILES)
             | set(VERIFY.APPROVED_PHASE04_FILES)
             | set(VERIFY.APPROVED_PHASE08A_FILES)
+            | set(VERIFY.APPROVED_PHASE08_FILES)
             | set(VERIFY.APPROVED_PHASE05_FILES)
             | set(VERIFY.APPROVED_PHASE06A_FILES)
             | set(VERIFY.APPROVED_PHASE06B_FILES)
@@ -116,6 +117,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(52, len(VERIFY.APPROVED_PHASE04_F5_FILES))
         self.assertEqual(346, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
+        self.assertEqual(70, len(VERIFY.APPROVED_PHASE08_FILES))
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
@@ -131,8 +133,8 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
-        self.assertEqual(44, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(209, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(74, len(VERIFY.APPROVED_APP_HARDENING_FILES))
+        self.assertEqual(214, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

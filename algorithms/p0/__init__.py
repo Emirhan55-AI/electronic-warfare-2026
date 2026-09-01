@@ -2,6 +2,18 @@
 
 from .bandwidth import BandwidthEstimate, BandwidthEstimator, BandwidthProfile
 from .channelizer import ChannelizedFrame, P0Channelizer, P0ChannelizerProfile
+from .native_channelizer import (
+    NativeP0Channelizer,
+    create_realtime_channelizer,
+    find_native_channelizer_library,
+    native_channelizer_cpu_supported,
+)
+from .coarse_detection import (
+    CoarseDetection,
+    CoarseDetectionConfig,
+    CoarseDetectionFrame,
+    CoarseSpectrumDetector,
+)
 from .detection import (
     P0_DETECTOR_PROFILE,
     OSCFARConfig,
@@ -78,6 +90,10 @@ __all__ = [
     "AntennaReference",
     "CandidateRegion",
     "ChannelizedFrame",
+    "CoarseDetection",
+    "CoarseDetectionConfig",
+    "CoarseDetectionFrame",
+    "CoarseSpectrumDetector",
     "DFEstimate",
     "DFMeasurement",
     "LocationFix",
@@ -113,6 +129,10 @@ __all__ = [
     "P0ParameterResult",
     "P0Channelizer",
     "P0ChannelizerProfile",
+    "NativeP0Channelizer",
+    "create_realtime_channelizer",
+    "find_native_channelizer_library",
+    "native_channelizer_cpu_supported",
     "P0SearchEngine",
     "ParameterExtractor",
     "ParameterProfile",

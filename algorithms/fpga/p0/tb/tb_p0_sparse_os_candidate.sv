@@ -1,10 +1,10 @@
 `timescale 1ns/1ps
 
 module tb_p0_sparse_os_candidate;
-  localparam int FRAME_COUNT = 5;
+  localparam int FRAME_COUNT = 8;
   localparam int FRAME_LENGTH = 4096;
   localparam int TOTAL_INPUT_RECORDS = FRAME_COUNT * FRAME_LENGTH;
-  localparam int TOTAL_OUTPUT_RECORDS = 154;
+  localparam int TOTAL_OUTPUT_RECORDS = 157;
   localparam int MAX_PROCESSING_CYCLES = 50000;
 
   logic aclk = 1'b0;

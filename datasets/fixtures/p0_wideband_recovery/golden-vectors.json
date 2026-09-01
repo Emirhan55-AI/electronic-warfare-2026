@@ -1,14 +1,16 @@
 {
-  "frame_count": 5,
+  "frame_count": 8,
   "frame_length": 4096,
-  "output_records": 24,
+  "output_records": 27,
   "schema_version": 1,
-  "semantic_candidates": 22,
+  "semantic_candidates": 24,
   "status": "passed",
   "vectors": [
     {
       "axis_records": 1,
+      "broad_integrated_detections": 0,
       "candidates": [],
+      "frame_reference_twice": 0,
       "integrated_detections": 0,
       "region_median_twice": [
         0,
@@ -28,13 +30,16 @@
         0,
         0
       ],
+      "regional_integrated_detections": 0,
       "semantic_candidates": 0,
       "source": "deterministic empty frame",
       "vector_id": "all_zero"
     },
     {
       "axis_records": 1,
+      "broad_integrated_detections": 0,
       "candidates": [],
+      "frame_reference_twice": 2147483648,
       "integrated_detections": 0,
       "region_median_twice": [
         2147483648,
@@ -54,12 +59,14 @@
         2147483648,
         2147483648
       ],
+      "regional_integrated_detections": 0,
       "semantic_candidates": 0,
       "source": "deterministic narrowband tones",
       "vector_id": "multiple_tones"
     },
     {
       "axis_records": 19,
+      "broad_integrated_detections": 3899,
       "candidates": [
         {
           "coarse_span_bins": 82,
@@ -233,7 +240,8 @@
           "threshold": 610
         }
       ],
-      "integrated_detections": 3747,
+      "frame_reference_twice": 242,
+      "integrated_detections": 3911,
       "region_median_twice": [
         338,
         288,
@@ -252,12 +260,14 @@
         338,
         338
       ],
+      "regional_integrated_detections": 3747,
       "semantic_candidates": 19,
       "source": "frozen PHASE-06F AMD FFT linear-power output",
       "vector_id": "real_phase06f_representative_hann"
     },
     {
       "axis_records": 1,
+      "broad_integrated_detections": 109,
       "candidates": [
         {
           "coarse_span_bins": 78,
@@ -269,6 +279,7 @@
           "threshold": 3873002568
         }
       ],
+      "frame_reference_twice": 2147583648,
       "integrated_detections": 109,
       "region_median_twice": [
         2147583648,
@@ -288,12 +299,14 @@
         2147583648,
         2147583648
       ],
+      "regional_integrated_detections": 109,
       "semantic_candidates": 1,
       "source": "deterministic regional wideband support",
       "vector_id": "single_wideband"
     },
     {
       "axis_records": 2,
+      "broad_integrated_detections": 216,
       "candidates": [
         {
           "coarse_span_bins": 74,
@@ -314,6 +327,7 @@
           "threshold": 3872970107
         }
       ],
+      "frame_reference_twice": 2147583648,
       "integrated_detections": 216,
       "region_median_twice": [
         2147583648,
@@ -333,9 +347,117 @@
         2147583648,
         2147583648
       ],
+      "regional_integrated_detections": 216,
       "semantic_candidates": 2,
       "source": "deterministic separated wideband supports",
       "vector_id": "two_wideband"
+    },
+    {
+      "axis_records": 1,
+      "broad_integrated_detections": 521,
+      "candidates": [
+        {
+          "coarse_span_bins": 490,
+          "end_shifted_bin": 2291,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 2048,
+          "regional_noise": 1549154139,
+          "start_shifted_bin": 1802,
+          "threshold": 3872885349
+        }
+      ],
+      "frame_reference_twice": 2147583648,
+      "integrated_detections": 521,
+      "region_median_twice": [
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        17179869184,
+        17179869184,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648
+      ],
+      "regional_integrated_detections": 9,
+      "semantic_candidates": 1,
+      "source": "flanked 512-bin support that contaminates two regional medians",
+      "vector_id": "broad_512"
+    },
+    {
+      "axis_records": 1,
+      "broad_integrated_detections": 2057,
+      "candidates": [
+        {
+          "coarse_span_bins": 2026,
+          "end_shifted_bin": 3059,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 2048,
+          "regional_noise": 1549154139,
+          "start_shifted_bin": 1034,
+          "threshold": 3872885349
+        }
+      ],
+      "frame_reference_twice": 2147583648,
+      "integrated_detections": 2057,
+      "region_median_twice": [
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648,
+        17179869184,
+        17179869184,
+        17179869184,
+        17179869184,
+        17179869184,
+        17179869184,
+        17179869184,
+        17179869184,
+        2147583648,
+        2147583648,
+        2147583648,
+        2147583648
+      ],
+      "regional_integrated_detections": 9,
+      "semantic_candidates": 1,
+      "source": "flanked 2048-bin support that contaminates eight regional medians",
+      "vector_id": "broad_2048"
+    },
+    {
+      "axis_records": 1,
+      "broad_integrated_detections": 2039,
+      "candidates": [],
+      "frame_reference_twice": 2147483648,
+      "integrated_detections": 2039,
+      "region_median_twice": [
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        2147483648,
+        34359738368,
+        34359738368,
+        34359738368,
+        34359738368,
+        34359738368,
+        34359738368,
+        34359738368,
+        34359738368
+      ],
+      "regional_integrated_detections": 11,
+      "semantic_candidates": 0,
+      "source": "12 dB spectral step without two independent low-noise flanks",
+      "vector_id": "colored_step_negative"
     }
   ]
 }

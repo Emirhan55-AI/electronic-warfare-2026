@@ -14,7 +14,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-final-rtl.json"
+EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-final-rtl-v2.json"
 COMMON_SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",
@@ -133,18 +133,18 @@ def evaluate() -> dict[str, object]:
     total_functional_cycles = FRAME_LENGTH + final["cycles"]
     passed = (
         sparse == {
-            "frames": 5,
-            "records": 154,
+            "frames": 8,
+            "records": 157,
             "semantic": 151,
             "cycles": 42873,
             "stability": sparse["stability"],
         }
         and sparse["stability"] > 0
         and final == {
-            "frames": 5,
-            "records": 62,
-            "semantic": 61,
-            "cycles": 45428,
+            "frames": 8,
+            "records": 65,
+            "semantic": 63,
+            "cycles": 45557,
             "stability": final["stability"],
         }
         and final["stability"] > 0
@@ -195,7 +195,7 @@ def evaluate() -> dict[str, object]:
         },
         "architecture": {
             "os_detector": "rank-24/32 strict Q32 decision with sparse grouping",
-            "wideband_detector": "16 regional medians and 32-bin Q48 integrated energy",
+            "wideband_detector": "regional recovery plus flanked fourth-region-order broad recovery",
             "fusion": "sorted merge; every OS candidate overlapping a recovery is suppressed",
             "output": "shifted-order candidate AXI stream with explicit empty sentinel",
         },

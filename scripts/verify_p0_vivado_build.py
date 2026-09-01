@@ -314,11 +314,23 @@ def evaluate() -> dict[str, object]:
 
 
 def main() -> int:
+    global REPORT_ROOT, DSP_SYNTHESIS_LOG, BITSTREAM, XSA, EVIDENCE
     parser = argparse.ArgumentParser()
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--write", action="store_true")
+    parser.add_argument("--variant", help="Ayrı derleme dizini; tarihsel kanıtın üzerine yazmaz")
     args = parser.parse_args()
+
+    if args.variant:
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", args.variant):
+            parser.error("variant yalnız harf, rakam, alt çizgi veya tire içerebilir")
+        variant_root = ROOT / "build/p0" / args.variant
+        REPORT_ROOT = variant_root / "vivado/reports"
+        DSP_SYNTHESIS_LOG = variant_root / "vivado/p0_runtime.runs/p0_system_p0_dsp_runtime_0_0_synth_1/runme.log"
+        BITSTREAM = variant_root / "vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit"
+        XSA = variant_root / "hardware/p0_system_50mhz.xsa"
+        EVIDENCE = variant_root / "vivado-evidence.json"
 
     if args.check and not REPORT_ROOT.is_dir():
         if not EVIDENCE.is_file():
@@ -333,9 +345,20 @@ def main() -> int:
         return 0 if stored.get("status") == "passed" else 1
 
     result = evaluate()
+    if args.variant:
+        manifest = json.loads((variant_root / "source-manifest.json").read_text(encoding="utf-8"))
+        if manifest["sources"] != result["source_sha256"]:
+            raise ValueError("Derleme sırasında kaynaklar değişmiş; yeni kanıt üretilemez.")
+        result["build_variant"] = args.variant
+        result["supersedes"] = None
+        result["verifier_sha256"] = _sha256(Path(__file__))
     serialized = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.write:
-        EVIDENCE.write_bytes(serialized.encode("utf-8"))
+        if args.variant:
+            with EVIDENCE.open("xb") as stream:
+                stream.write(serialized.encode("utf-8"))
+        else:
+            EVIDENCE.write_bytes(serialized.encode("utf-8"))
     elif not EVIDENCE.is_file() or EVIDENCE.read_text(encoding="utf-8") != serialized:
         print("P0 Vivado kanıtı eksik veya güncel değil.")
         return 1

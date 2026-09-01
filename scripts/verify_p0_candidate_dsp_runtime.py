@@ -13,7 +13,7 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-dsp-runtime.json"
+EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-dsp-runtime-v2.json"
 SOURCES = (
     ROOT / "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv",
     ROOT / "algorithms/fpga/phase06b/rtl/phase06b_pkg.sv",

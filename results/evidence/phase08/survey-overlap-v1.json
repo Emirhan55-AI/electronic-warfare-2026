@@ -1,0 +1,34 @@
+{
+  "schema": "phase08-survey-overlap-v1",
+  "status": "pass",
+  "scope": "host_only_geometry_and_matching_not_rf_or_fpga_acceptance",
+  "transmit_enabled": false,
+  "profile": {
+    "responsibility_width_hz": 600000,
+    "detector_window_hz": 2000000,
+    "channelizer_passband_half_hz": 800000,
+    "maximum_full_support_hz": 1000000
+  },
+  "geometry": {
+    "integer_center_offsets_checked": 600001,
+    "maximum_absolute_center_offset_hz": 300000,
+    "minimum_frame_edge_margin_bins": 409.5999999999999,
+    "full_support_inside_passband": true,
+    "two_detector_flank_regions_fit_in_frame": true
+  },
+  "independent_retune_matching": {
+    "broad_support_matches_after_900khz_peak_move": true,
+    "unrelated_broad_support_rejected": true,
+    "narrow_100khz_peak_move_rejected": true
+  },
+  "limits": [
+    "Bu rapor sentetik geometri ve host eşleştirme kanıtıdır.",
+    "Kanal seçici dalga şekli, RF algılama olasılığı ve yanlış alarm ölçülmemiştir.",
+    "Bütün 2 MHz pencereyi dolduran yayın bu yöntemle çözülmüş sayılmaz.",
+    "Güncel SystemVerilog bitstream ve fiziksel ZedBoard kabulü bu raporun dışındadır."
+  ],
+  "source_sha256": {
+    "app/operator_console/rx_survey.py": "d47dfd569db1b09cd5171945c08333dca3e4d3d492a542df2115179e0a425ea8",
+    "scripts/verify_phase08_survey_overlap.py": "16c34cef61f22026aefee6d71b87cbd838e69964295ae9f8ff8d835d1ad80834"
+  }
+}

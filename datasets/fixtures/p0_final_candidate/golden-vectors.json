@@ -1,9 +1,9 @@
 {
-  "frame_count": 5,
+  "frame_count": 8,
   "frame_length": 4096,
-  "output_records": 62,
+  "output_records": 65,
   "schema_version": 1,
-  "semantic_candidates": 61,
+  "semantic_candidates": 63,
   "status": "passed",
   "vectors": [
     {
@@ -603,6 +603,53 @@
       "semantic_candidates": 2,
       "source": "deterministic separated wideband supports",
       "vector_id": "two_wideband"
+    },
+    {
+      "axis_records": 1,
+      "candidates": [
+        {
+          "coarse_span_bins": 490,
+          "end_shifted_bin": 2291,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 2048,
+          "regional_noise": 1549154139,
+          "start_shifted_bin": 1802,
+          "threshold": 3872885349
+        }
+      ],
+      "os_candidates": 0,
+      "recovery_candidates": 1,
+      "semantic_candidates": 1,
+      "source": "flanked 512-bin support that contaminates two regional medians",
+      "vector_id": "broad_512"
+    },
+    {
+      "axis_records": 1,
+      "candidates": [
+        {
+          "coarse_span_bins": 2026,
+          "end_shifted_bin": 3059,
+          "peak_power": 13958643712,
+          "peak_shifted_bin": 2048,
+          "regional_noise": 1549154139,
+          "start_shifted_bin": 1034,
+          "threshold": 3872885349
+        }
+      ],
+      "os_candidates": 0,
+      "recovery_candidates": 1,
+      "semantic_candidates": 1,
+      "source": "flanked 2048-bin support that contaminates eight regional medians",
+      "vector_id": "broad_2048"
+    },
+    {
+      "axis_records": 1,
+      "candidates": [],
+      "os_candidates": 0,
+      "recovery_candidates": 0,
+      "semantic_candidates": 0,
+      "source": "12 dB spectral step without two independent low-noise flanks",
+      "vector_id": "colored_step_negative"
     }
   ]
 }

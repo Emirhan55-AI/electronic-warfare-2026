@@ -1,6 +1,11 @@
 # ADR-0033 — P0 Seyrek Çok Ölçekli Aday Sınırı
 
-- Durum: Mimari, bit-doğru referans, final candidate-reducer RTL ve Zynq-7020 50 MHz sentez/place/route kapısı tamamlandı; kart entegrasyonu ve fiziksel kabul beklemede
+- Durum: Mimari ve RTL kapıları sonrasında kart entegrasyonu, soğuk açılış ve kayıtlı 2 MS/s fiziksel hizmet kabulü tamamlandı. Kontrollü RF doğruluğu ve geniş yayın kapsamı açıktır.
+
+> 31 Ağustos 2026 güncellemesi: Metnin aşağıdaki "beklemede/henüz" ifadeleri
+> ilk kapanıştaki tarihsel durumu korur. Sonraki kart kanıtları
+> `candidate-packet-physical-acceptance.json` ve `ed-service-v3-cold-boot-acceptance.json`
+> dosyalarındadır. [Güncel sahiplik ve kapsam](../interfaces/SIGNAL_DETECTION_STATUS.md).
 - Kapsam: P0 sürekli `PL → DMA → ARM` sinyal tespiti yolu
 - Bağlı gereksinimler: KTR-4.1, KTR-4.2, KTR-6
 - Ön koşullar: ADR-0028, ADR-0029, ADR-0030, ADR-0031, ADR-0032
@@ -97,14 +102,24 @@ gecikme `45.428`, bir örnek/çevrim giriş kabulüyle ardışık işlevsel üst
 çıkmış; birleşik RAM sınırını aşan bozuk akış sticky overflow ve boş paketle
 fail-closed olmuştur. Bu yalnız RTL simülasyon kapasitesidir.
 
+## 31 Ağustos 2026 geniş bant eki
+
+ADR-0037, mevcut 41-bin bölgesel yolun 256 bin üzerindeki median kirlenmesi
+sınırını iki taraflı bölge referansıyla tamamlar. Güncel referans/RTL vektör
+zinciri sekiz karede 24 geniş aday / 27 AXI kaydı; final azaltıcı sekiz karede
+63 aday / 65 kayıt ve packetizer 379 AXI64 beat için bit-doğru geçmiştir.
+Alt-aşama en kötü gecikmesi `44.886`, final azaltıcı `45.557` çevrimdir.
+Bu ek için güncel sentez, route, bitstream ve kart kabulü henüz yoktur; aşağıdaki
+tarihsel fiziksel iddialar önceki imaja aittir.
+
 ## İddia sınırı
 
 Bit-doğru final candidate-reducer RTL simülasyonu ile Zynq-7020 sentez,
 yerleştirme, yönlendirme ve 50 MHz setup/hold kapısı tamamlanmıştır. Kanıt,
 `results/evidence/p0/candidate-reducer-vivado.json` içinde kaynak ve rapor
 özetleriyle dondurulmuştur. Final reducer'ın PHASE-06I AXI64 packetizer üst
-bağlantısı beş karelik backpressure simülasyonunda 61 aday ve 345 beat ile
-bit-doğru geçmiştir; kanıt `results/evidence/p0/candidate-reducer-packetizer.json`
+bağlantısı sekiz karelik backpressure simülasyonunda 63 aday ve 379 beat ile
+bit-doğru geçmiştir; güncel kanıt `results/evidence/p0/candidate-reducer-packetizer-v2.json`
 içindedir. Ayrıca CI8 girişten FFT/güce ve bu packetizer sınırına uzanan
 `p0_candidate_dsp_runtime_top` hiyerarşisi compile-only kapısından geçmiştir;
 vendor FFT işlevsel simülasyonu ve yeni kart imajı henüz çalıştırılmamıştır.

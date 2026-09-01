@@ -28,6 +28,9 @@ OS_THRESHOLD_Q48 = 2_415_095_562_554_865
 NOISE_Q48 = 203_041_276_517_400
 REGIONAL_THRESHOLD_Q48 = 507_603_191_293_500
 INTEGRATED_THRESHOLD_Q48 = 16_243_302_121_391_996
+BROAD_REFERENCE_REGION_INDEX = 3
+BROAD_MINIMUM_RECOVERY_SPAN = REGION_SIZE + 1
+FLANK_MEDIAN_RATIO_Q48 = 703_687_441_776_640
 
 
 @dataclass(frozen=True)
@@ -38,6 +41,9 @@ class CandidateReductionFrame:
     os_candidates: tuple[CandidateRecord, ...]
     recovery_candidates: tuple[CandidateRecord, ...]
     integrated_detections: tuple[bool, ...]
+    regional_integrated_detections: tuple[bool, ...]
+    broad_integrated_detections: tuple[bool, ...]
+    frame_reference_twice: int
     region_median_twice: tuple[int, ...]
 
 
@@ -147,10 +153,30 @@ def _integrated_detections(
     return tuple(detected)
 
 
+def _broad_integrated_detections(
+    power: tuple[int, ...], frame_reference_twice: int
+) -> tuple[bool, ...]:
+    detected = [False] * FRAME_LENGTH
+    evaluated_start = max(RADIUS, INTEGRATION_LEFT)
+    evaluated_stop = FRAME_LENGTH - max(RADIUS, INTEGRATION_RIGHT)
+    window_sum = sum(
+        power[evaluated_start - INTEGRATION_LEFT : evaluated_start + INTEGRATION_RIGHT + 1]
+    )
+    threshold = frame_reference_twice * INTEGRATED_THRESHOLD_Q48
+    for center in range(evaluated_start, evaluated_stop):
+        detected[center] = (window_sum << FIXED_COEFFICIENT_BITS) > threshold
+        if center + 1 < evaluated_stop:
+            window_sum -= power[center - INTEGRATION_LEFT]
+            window_sum += power[center + INTEGRATION_RIGHT + 1]
+    return tuple(detected)
+
+
 def _recovery_candidates(
     power: tuple[int, ...],
     detected: tuple[bool, ...],
     region_median_twice: tuple[int, ...],
+    *,
+    require_flanks: bool = False,
 ) -> tuple[CandidateRecord, ...]:
     recoveries = []
     for group_start, group_end in _groups(detected, RADIUS, FRAME_LENGTH - RADIUS):
@@ -160,6 +186,26 @@ def _recovery_candidates(
             continue
         peak = _peak(power, start, end)
         median_twice = region_median_twice[peak // REGION_SIZE]
+        if require_flanks:
+            if end - start + 1 < BROAD_MINIMUM_RECOVERY_SPAN:
+                continue
+            left_region = start // REGION_SIZE - 1
+            right_region = end // REGION_SIZE + 1
+            if left_region < 0 or right_region >= REGION_COUNT:
+                continue
+            inside_start = start // REGION_SIZE
+            inside_stop = end // REGION_SIZE + 1
+            if inside_start >= inside_stop:
+                continue
+            inside_median_twice = max(region_median_twice[inside_start:inside_stop])
+            flank_median_twice = max(
+                region_median_twice[left_region], region_median_twice[right_region]
+            )
+            if (inside_median_twice << FIXED_COEFFICIENT_BITS) <= (
+                flank_median_twice * FLANK_MEDIAN_RATIO_Q48
+            ):
+                continue
+            median_twice = flank_median_twice
         noise = _round_fixed(median_twice, NOISE_Q48)
         threshold = _round_fixed(median_twice, REGIONAL_THRESHOLD_Q48)
         recoveries.append(_candidate(start, end, peak, power, noise, threshold))
@@ -175,8 +221,25 @@ def reduce_candidates(natural_power: Iterable[int]) -> CandidateReductionFrame:
         shifted, os_frame.detected_shifted, os_frame.order_statistic_shifted
     )
     medians = _regional_medians(shifted)
-    integrated = _integrated_detections(shifted, medians)
-    recoveries = _recovery_candidates(shifted, integrated, medians)
+    frame_reference_twice = sorted(medians)[BROAD_REFERENCE_REGION_INDEX]
+    regional_integrated = _integrated_detections(shifted, medians)
+    broad_integrated = _broad_integrated_detections(shifted, frame_reference_twice)
+    integrated = tuple(first or second for first, second in zip(regional_integrated, broad_integrated))
+    regional_recoveries = _recovery_candidates(shifted, regional_integrated, medians)
+    broad_recoveries = _recovery_candidates(
+        shifted, broad_integrated, medians, require_flanks=True
+    )
+    recoveries = tuple(sorted(
+        (*[candidate for candidate in regional_recoveries
+           if not any(
+               candidate.start_shifted_bin <= broad.end_shifted_bin
+               and broad.start_shifted_bin <= candidate.end_shifted_bin
+               for broad in broad_recoveries
+           )], *broad_recoveries),
+        key=lambda item: (
+            item.start_shifted_bin, item.end_shifted_bin, item.peak_shifted_bin
+        ),
+    ))
     retained = tuple(
         candidate
         for candidate in os_candidates
@@ -203,6 +266,9 @@ def reduce_candidates(natural_power: Iterable[int]) -> CandidateReductionFrame:
         os_candidates=os_candidates,
         recovery_candidates=recoveries,
         integrated_detections=integrated,
+        regional_integrated_detections=regional_integrated,
+        broad_integrated_detections=broad_integrated,
+        frame_reference_twice=frame_reference_twice,
         region_median_twice=medians,
     )
 
@@ -212,7 +278,7 @@ def architecture_study() -> dict[str, object]:
         "selected": "sparse final-candidate packet for detection frames",
         "full_power_policy": "retained only for explicit parameter-measurement frames",
         "local_detector": "P0 OS-CFAR rank-24/32 strict decision",
-        "wideband_detector": "32-bin integrated energy against 16 regional medians",
+        "wideband_detector": "32-bin regional recovery plus flanked fourth-region-order broad recovery",
         "fusion": "wideband recovery suppresses overlapping OS fragments",
         "fixed_coefficient_bits": FIXED_COEFFICIENT_BITS,
         "maximum_candidates": MAX_CANDIDATES,

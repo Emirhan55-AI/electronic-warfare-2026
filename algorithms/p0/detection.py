@@ -228,6 +228,8 @@ class WidebandRecoveryConfig:
     region_size: int = 256
     integration_bins: int = 32
     noise_multiplier: float = 2.5
+    broad_reference_region_rank: int = 4
+    broad_minimum_span_bins: int = 257
     minimum_span_bins: int = 2 * (
         P0_DETECTOR_PROFILE.reference_cells_per_side
         + P0_DETECTOR_PROFILE.guard_cells_per_side
@@ -240,6 +242,10 @@ class WidebandRecoveryConfig:
             raise ValueError("integration_bins must be an even integer greater than one")
         if not np.isfinite(self.noise_multiplier) or self.noise_multiplier <= 1.0:
             raise ValueError("noise_multiplier must be finite and greater than one")
+        if not 1 <= self.broad_reference_region_rank <= 4096 // self.region_size:
+            raise ValueError("broad_reference_region_rank must select an existing region")
+        if self.broad_minimum_span_bins <= self.region_size:
+            raise ValueError("broad_minimum_span_bins must exceed one complete region")
         if self.minimum_span_bins < 1:
             raise ValueError("minimum_span_bins must be positive")
 
@@ -271,7 +277,13 @@ class MultiscaleDetector:
     def process(self, power: npt.ArrayLike, *, frame_id: int) -> MultiscaleFrameResult:
         values = np.asarray(power, dtype=np.float64)
         os_result = self.os_detector.process(values, frame_id=frame_id)
-        recoveries = self._regional_recoveries(values, os_result.evaluated_start_bin)
+        regional = self._regional_recoveries(values, os_result.evaluated_start_bin)
+        broad = self._flanked_broad_recoveries(values, os_result.evaluated_start_bin)
+        recoveries = tuple(sorted(
+            (*[candidate for candidate in regional
+               if not any(self._overlaps(candidate, item) for item in broad)], *broad),
+            key=lambda candidate: (candidate.start_bin, candidate.end_bin, candidate.peak_bin),
+        ))
         retained = tuple(
             candidate
             for candidate in os_result.candidates
@@ -295,7 +307,13 @@ class MultiscaleDetector:
             self.os_detector.config.reference_cells_per_side
             + self.os_detector.config.guard_cells_per_side
         )
-        return self._regional_recoveries(values, radius)
+        regional = self._regional_recoveries(values, radius)
+        broad = self._flanked_broad_recoveries(values, radius)
+        return tuple(sorted(
+            (*[candidate for candidate in regional
+               if not any(self._overlaps(candidate, item) for item in broad)], *broad),
+            key=lambda candidate: (candidate.start_bin, candidate.end_bin, candidate.peak_bin),
+        ))
 
     def _regional_recoveries(
         self,
@@ -349,6 +367,66 @@ class MultiscaleDetector:
                 float(power[peak]),
                 float(noise[peak]),
                 float(threshold[peak]),
+            ))
+        return tuple(candidates)
+
+    def _flanked_broad_recoveries(
+        self,
+        power: npt.NDArray[np.float64],
+        edge_cells: int,
+    ) -> tuple[CandidateRegion, ...]:
+        """Recover broad support only when independent regions exist on both sides."""
+        cfg = self.recovery_config
+        shaped = power.reshape(-1, cfg.region_size)
+        region_medians = np.median(shaped, axis=1)
+        reference_median = float(np.partition(
+            region_medians, cfg.broad_reference_region_rank - 1
+        )[cfg.broad_reference_region_rank - 1])
+        frame_noise = reference_median / np.log(2.0)
+        left_window = cfg.integration_bins // 2 - 1
+        right_window = cfg.integration_bins // 2
+        evaluated_start = max(edge_cells, left_window)
+        evaluated_stop = power.size - max(edge_cells, right_window)
+        prefix = np.concatenate(([0.0], np.cumsum(power, dtype=np.float64)))
+        centers = np.arange(evaluated_start, evaluated_stop, dtype=np.int64)
+        means = (
+            prefix[centers + right_window + 1]
+            - prefix[centers - left_window]
+        ) / cfg.integration_bins
+        detected_bins = centers[means > frame_noise * cfg.noise_multiplier]
+        if not detected_bins.size:
+            return ()
+        groups = np.split(
+            detected_bins,
+            np.flatnonzero(np.diff(detected_bins) > self.os_detector.config.maximum_gap_bins + 1) + 1,
+        )
+        candidates: list[CandidateRegion] = []
+        for group in groups:
+            start = int(group[0]) + left_window
+            end = int(group[-1]) - right_window
+            if end - start + 1 < cfg.broad_minimum_span_bins:
+                continue
+            left_region = start // cfg.region_size - 1
+            right_region = end // cfg.region_size + 1
+            if left_region < 0 or right_region >= region_medians.size:
+                continue
+            inside_start = start // cfg.region_size
+            inside_stop = end // cfg.region_size + 1
+            if inside_start >= inside_stop:
+                continue
+            inside_median = float(np.max(region_medians[inside_start:inside_stop]))
+            flank_median = float(max(region_medians[left_region], region_medians[right_region]))
+            if inside_median <= cfg.noise_multiplier * flank_median:
+                continue
+            peak = start + int(np.argmax(power[start : end + 1]))
+            flank_noise = flank_median / np.log(2.0)
+            candidates.append(CandidateRegion(
+                start,
+                end,
+                peak,
+                float(power[peak]),
+                flank_noise,
+                flank_noise * cfg.noise_multiplier,
             ))
         return tuple(candidates)
 

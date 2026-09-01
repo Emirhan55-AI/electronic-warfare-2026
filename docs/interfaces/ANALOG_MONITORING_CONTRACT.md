@@ -17,6 +17,11 @@ Zincir `SigMF/test I/Q → PHASE-02 FFT/PSD → PHASE-03 regional tespit → con
 - Ses filtresi: `65` tap bounded alçak geçiren filtre ve DC giderimi.
 - PCM: mono signed little-endian PCM16; normalizasyon yalnız dinleme içindir, taşma kırpma öncesi sayılır ve zorunlu kapıda sıfırdır.
 - I/Q blok üst sınırı: `20` saniye; UI worker'ı kaydı birer saniyelik kesintisiz okuma bloklarıyla işler.
+- Canlı ürün girişi: host kanal seçicisinin karta gönderilmiş ve yanıtı
+  doğrulanmış 2 MS/s CI8 kareleri; FPGA'nın geri döndürdüğü I/Q değildir.
+  `2.442 × 4.096` kompleks örnek, `5,001216` saniye ve yaklaşık `19,1 MiB`
+  sınırlı ring tamponudur. Sıra boşluğu tamponu temizler. Seçili olay her karede
+  confirmed+observed olmadan dinleme kapısı açılmaz; toplam gözlem sayısı yetmez.
 - Ses ring/WAV üst sınırı: `20 saniye`, `960.000` mono örnek.
 - PHASE-03 event sınırı `64`; worker/pending sınırı `1/1` kalır.
 
@@ -28,4 +33,4 @@ Clean AM/NFM fixture'larında 48 kHz çıkış, sonlu değerler, sıfır PCM ta�
 
 ## UI ve donanım sınırı
 
-`Dinleme` çalışma alanı seçili kaynak/olay, `AM / Dar Bant FM`, merkez ofseti, kanal genişliği, ses seviyesi, hazırlama, oynatma ve WAV kontrollerini gösterir. Operatör spektrum üzerindeki taşıyıcı tepesine tıklayarak merkez ofsetini seçebilir; NFM kanal seçenekleri `12,5` ve `25` kHz aralığındadır. Fixture ve mock kaynak `Deterministik test kaynağı — canlı RF değildir` olarak işaretlenir. QtMultimedia çıkışı yoksa oynatma pasif kalır, WAV çalışır. Haricî ISM kaydına modülasyon veya yayın türü atanmaz; gerçek canlı HackRF dinleme uygulanmış sayılmaz.
+`Dinleme` çalışma alanı seçili kaynak/olay, `AM / Dar Bant FM`, merkez ofseti, kanal genişliği, ses seviyesi, hazırlama, oynatma ve WAV kontrollerini gösterir. Operatör spektrum üzerindeki taşıyıcı tepesine tıklayarak merkez ofsetini seçebilir; NFM kanal seçenekleri `12,5` ve `25` kHz aralığındadır. Canlı hazırla komutu immutable beş saniyelik pencereyi sabitler, RX oturumunu iptal yaşam döngüsüyle kapatır ve demodülasyonu worker üzerinde başlatır; yakalama ile ağır DSP aynı anda çalışmaz. Fixture ve mock kaynak `Deterministik test kaynağı — canlı RF değildir` olarak işaretlenir. QtMultimedia çıkışı yoksa oynatma pasif kalır, WAV çalışır. Haricî ISM kaydına modülasyon veya yayın türü atanmaz. Kontrollü AM/NFM RF ve fiziksel ses kabulü olmadan gerçek canlı HackRF dinleme başarısı iddia edilmez.

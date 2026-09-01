@@ -9,37 +9,29 @@ import time
 from typing import Callable, Literal
 
 import numpy as np
-from PySide6.QtCore import QObject, Property, QRunnable, QThreadPool, QTimer, QUrl, Signal, Slot
+from PySide6.QtCore import QObject, Property, QThreadPool, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QDesktopServices
 
+from .rx_survey import RXSurvey
+from .survey_controller import SurveyController
+
 from algorithms.et import (
-    AnalogDeceptionConfig,
     AnalogDeceptionEngine,
-    ContinuousJammingConfig,
     ContinuousJammingEngine,
     ETMissionController,
-    GNSSScenario,
     GNSSScenarioValidator,
-    InterleavedConfig,
     InterleavedTaskController,
     SafetyMode,
 )
 from algorithms.monitoring import (
-    AnalogMonitor,
-    AnalogMonitorConfig,
     AnalogMonitorResult,
-    MonitoringError,
-    write_wav,
 )
-from algorithms.p0.df import DFMeasurement, ManualAmplitudeDF
-from algorithms.p0.field_df import AntennaReference, geographic_bearing_from_manual_reference
+from algorithms.p0.df import ManualAmplitudeDF
+from algorithms.p0.coarse_detection import CoarseDetectionFrame
 from algorithms.parameters import (
     AnalysisSpan,
     F1ParameterResult,
     F5ParameterEstimator,
-    MeasurementCandidate,
-    MeasurementContext,
-    MeasurementIntent,
     suggest_analysis_span,
 )
 from algorithms.pipeline import (
@@ -50,143 +42,65 @@ from algorithms.pipeline import (
 )
 from algorithms.spectrum import SigMFFrameSource
 from platforms.acquisition import (
-    BoundedCI8FrameSource,
-    CaptureResult,
     DeviceStatus,
     HackRFBackend,
-    RXConfig,
     RealHackRFBackend,
     ToolInventory,
     load_ed_rx_config,
 )
 
 from .audio_playback import AudioPlayback
-
-
-ERROR_TEXT = {
-    "invalid_sigmf_contract": "SigMF sözleşmesi geçerli değil.",
-    "source_open_failed": "Kayıt açılamadı.",
-    "processing_failed": "İşleme tamamlanamadı.",
-    "tools_unavailable": "HackRF komut satırı araçları bulunamadı.",
-    "device_not_found": "Yapılandırılmış HackRF bulunamadı.",
-    "operation_timeout": "Donanım yanıt süresi aşıldı.",
-    "operation_cancelled": "İşlem durduruldu.",
-    "insufficient_iq": "Dinleme için kaynakta yeterli kesintisiz I/Q örneği yok.",
-    "insufficient_audio": "Seçili kanaldan kullanılabilir ses üretilemedi.",
-    "invalid_channel_bandwidth": "Kanal bant genişliği kaynak sınırlarıyla uyumlu değil.",
-    "nyquist_limit": "Seçili kanal kaynak Nyquist sınırını aşıyor.",
-    "invalid_volume": "Ses düzeyi 0 ile 100 arasında olmalıdır.",
-    "wav_write_failed": "WAV dosyası kaydedilemedi.",
-}
-
-
-def _reduce_display_max(values: np.ndarray, width: int) -> np.ndarray:
-    """Preserve every display interval's maximum without a Python loop."""
-    bounded_width = max(1, min(int(width), int(values.size)))
-    edges = np.linspace(0, values.size, bounded_width + 1, dtype=np.int64)
-    return np.maximum.reduceat(values, edges[:-1])
-
-
-PIPELINE_COMPONENTS = (
-    {
-        "id": "source",
-        "name": "I/Q Kaynağı",
-        "runtime": "HOST",
-        "implementation": "Python",
-        "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
-        "hostPath": "algorithms/spectrum/source.py",
-        "rtlPath": "",
-    },
-    {
-        "id": "preprocess",
-        "name": "Ön İşleme",
-        "runtime": "HOST",
-        "implementation": "Python · SystemVerilog karşılığı",
-        "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
-        "hostPath": "algorithms/spectrum/dsp.py",
-        "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-    },
-    {
-        "id": "fft_power",
-        "name": "FFT ve Lineer Güç",
-        "runtime": "HOST",
-        "implementation": "Python · SystemVerilog karşılığı",
-        "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
-        "hostPath": "algorithms/spectrum/dsp.py",
-        "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-    },
-    {
-        "id": "regional",
-        "name": "Bölgesel Eşik",
-        "runtime": "HOST",
-        "implementation": "Python · SystemVerilog karşılığı",
-        "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
-        "hostPath": "algorithms/detection/pipeline.py",
-        "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-    },
-    {
-        "id": "temporal",
-        "name": "Zamansal Doğrulama",
-        "runtime": "HOST",
-        "implementation": "Python · taşınabilir C karşılığı",
-        "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
-        "hostPath": "algorithms/detection/pipeline.py",
-        "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-    },
-    {
-        "id": "parameters",
-        "name": "Parametre Ölçümü",
-        "runtime": "HOST",
-        "implementation": "Python",
-        "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
-        "hostPath": "algorithms/parameters/f5_estimator.py",
-        "rtlPath": "",
-    },
-    {
-        "id": "monitoring",
-        "name": "Analog Dinleme",
-        "runtime": "HOST",
-        "implementation": "Python",
-        "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
-        "hostPath": "algorithms/monitoring/dsp.py",
-        "rtlPath": "",
-    },
+from .detection_model import DetectionListModel
+from .spectral_display import SpectralDisplay
+from .live_ed import (
+    LIVE_AUDIO_WINDOW_FRAMES,
+    LIVE_AUDIO_WINDOW_SECONDS,
+    LIVE_DEFAULT_LNA_GAIN_DB,
+    LIVE_DEFAULT_VGA_GAIN_DB,
+    LIVE_USABLE_HALF_BAND_HZ,
+    LiveEDConfiguration,
+    LiveEDSession,
+    LiveEDSessionResult,
+    LiveEDSnapshot,
+    LiveEDPreview,
 )
 
 
-class _TaskSignals(QObject):
-    completed = Signal(int, str, object, float)
-    failed = Signal(int, str, str)
+from .quick_direction_actions import QuickDirectionActionsMixin
+from .quick_et_actions import QuickETActionsMixin
+from .quick_listening_actions import QuickListeningActionsMixin
+from .quick_measurement_actions import QuickMeasurementActionsMixin
+from .quick_scan_actions import QuickScanActionsMixin
+from .quick_runtime import (
+    ERROR_TEXT,
+    ERROR_TITLE,
+    LIVE_PIPELINE_DETAILS,
+    PIPELINE_COMPONENTS,
+    _LatestWorkMailbox,
+    _LiveMailbox,
+    _LiveTask,
+    _Task,
+    _reduce_display_max,
+)
 
 
-class _Task(QRunnable):
-    """Run one bounded operation outside the GUI thread."""
-
-    def __init__(self, generation: int, kind: str, operation: Callable[[], object]) -> None:
-        super().__init__()
-        self.generation = generation
-        self.kind = kind
-        self.operation = operation
-        self.signals = _TaskSignals()
-
-    @Slot()
-    def run(self) -> None:
-        started = time.perf_counter()
-        try:
-            result = self.operation()
-        except Exception as exc:
-            code = str(getattr(exc, "code", f"{self.kind}_failed"))
-            self.signals.failed.emit(self.generation, code, type(exc).__name__)
-            return
-        self.signals.completed.emit(
-            self.generation,
-            self.kind,
-            result,
-            time.perf_counter() - started,
-        )
+__all__ = (
+    "OperatorViewModel",
+    "_LatestWorkMailbox",
+    "_LiveMailbox",
+    "_LiveTask",
+    "_reduce_display_max",
+)
 
 
-class OperatorViewModel(QObject):
+class OperatorViewModel(
+    QuickDirectionActionsMixin,
+    QuickETActionsMixin,
+    QuickListeningActionsMixin,
+    QuickMeasurementActionsMixin,
+    QuickScanActionsMixin,
+    QObject,
+):
     """Bounded product state exposed to QML; it never manufactures RF data."""
 
     stateChanged = Signal()
@@ -198,6 +112,7 @@ class OperatorViewModel(QObject):
     playbackChanged = Signal()
     pipelineChanged = Signal()
     etChanged = Signal()
+    liveReceiveSettingsChanged = Signal()
 
     def __init__(
         self,
@@ -205,6 +120,8 @@ class OperatorViewModel(QObject):
         *,
         acquisition_backend: HackRFBackend | None = None,
         source_factory: Callable[..., SigMFFrameSource] = SigMFFrameSource,
+        live_session_factory: Callable[[str, LiveEDConfiguration], LiveEDSession] = LiveEDSession,
+        survey_factory=RXSurvey,
         developer_mode: bool | None = None,
     ) -> None:
         super().__init__(parent)
@@ -215,6 +132,7 @@ class OperatorViewModel(QObject):
         self._parameter_capability = load_phase04f5_capability()
         self._parameter_estimator = F5ParameterEstimator() if self._parameter_capability is not None else None
         self._source_factory = source_factory
+        self._live_session_factory = live_session_factory
         self._backend = acquisition_backend or RealHackRFBackend()
         self._device_config = load_ed_rx_config()
         self._pool = QThreadPool(self)
@@ -232,19 +150,32 @@ class OperatorViewModel(QObject):
         self._pending_frame = False
         self._playing = False
         self._source: object | None = None
-        self._source_mode: Literal["sigmf", "hackrf"] = "sigmf"
-        self._source_name = "Kaynak seçilmedi"
-        self._source_state = "Kullanılmıyor"
-        self._status_message = "Gerçek bir SigMF kaydı seçin veya HackRF durumunu denetleyin."
+        self._source_mode: Literal["sigmf", "hackrf"] = "hackrf"
+        self._source_name = "Alıcı"
+        self._source_state = "Denetleniyor"
+        self._status_message = "Alıcı bağlantısı denetleniyor."
+        self._error_title = ""
         self._error_message = ""
         self._frame_index = 0
         self._frame_count = 0
         self._last_result: RuntimeFrameResult | None = None
         self._spectrum_values: list[float] = []
+        self._spectral_display = SpectralDisplay(self)
+        self._spectral_display.levelsChanged.connect(self.spectrumChanged)
         self._spectrum_min_db = -120.0
         self._spectrum_max_db = 0.0
         self._viewport_points = 900
         self._detections: list[dict[str, object]] = []
+        self._detection_model = DetectionListModel(self)
+        self._live_detection_rows: list[dict[str, object]] = []
+        self._live_detection_history: list[dict[str, object]] = []
+        self._coarse_detection_frame: CoarseDetectionFrame | None = None
+        self._coarse_detection_sequence = -1
+        self._coarse_detection_error = ""
+        self._selected_live_detection: dict[str, object] | None = None
+        self._visible_live_measurement_windows: dict[int, tuple[LiveEDSnapshot, ...]] = {}
+        self._show_live_candidates = False
+        self._live_list_frame = -1
         self._selected_detection_id = -1
         self._measurement_requested = False
         self._parameter_rows: list[dict[str, str]] = []
@@ -254,6 +185,35 @@ class OperatorViewModel(QObject):
         self._event_observation_history: dict[int, list[tuple[int, bool]]] = {}
         self._reduced_motion = False
         self._hackrf_ready = False
+        self._hackrf_transfer_executable = ""
+        self._live_session: LiveEDSession | None = None
+        self._live_presentation_error: tuple[str, str] | None = None
+        self._live_has_data = False
+        self._live_received_at = 0.0
+        self._live_response_at = 0.0
+        self._live_age_ms = 0.0
+        self._live_fpga_enabled = True
+        self._live_health_timer = QTimer(self)
+        self._live_health_timer.setInterval(250)
+        self._live_health_timer.timeout.connect(self._refresh_live_health)
+        self._live_output_center_frequency_hz = 0
+        self._spectrum_center_frequency_hz = 0.0
+        self._spectrum_sample_rate_hz = 0.0
+        self._live_receive_settings = {
+            "center_hz": 104_650_000,
+            "lna_db": LIVE_DEFAULT_LNA_GAIN_DB,
+            "vga_db": LIVE_DEFAULT_VGA_GAIN_DB,
+        }
+        self._live_sample_rate_hz = 0
+        self._live_frames_per_second = 0.0
+        self._survey_controller = SurveyController(self, factory=survey_factory)
+        self._survey_controller.preview.connect(self._survey_preview)
+        self._survey_controller.finished.connect(self._survey_finished)
+        self._pending_live_measurement: Callable[[], F1ParameterResult] | None = None
+        self._pending_live_listening: Callable[
+            [], tuple[AnalogMonitorResult, str, float, float, float]
+        ] | None = None
+        self._selected_live_measurement_window: tuple[LiveEDSnapshot, ...] = ()
         self._operation_samples_ms: list[float] = []
         self._event_log: list[dict[str, str]] = []
         self._log_sequence = 0
@@ -323,12 +283,32 @@ class OperatorViewModel(QObject):
     def errorMessage(self) -> str:
         return self._error_message
 
+    @Property(str, notify=stateChanged)
+    def errorTitle(self) -> str:
+        return self._error_title
+
     @Property(bool, notify=stateChanged)
     def busy(self) -> bool:
         return self._busy
 
     @Property(bool, notify=stateChanged)
     def sourceReady(self) -> bool:
+        return self._source is not None or self._live_has_data
+
+    @Property(bool, notify=stateChanged)
+    def hackrfReady(self) -> bool:
+        return self._hackrf_ready
+
+    @Property(bool, notify=stateChanged)
+    def liveSessionActive(self) -> bool:
+        return self._live_session is not None and self._playing
+
+    @Property(QObject, constant=True)
+    def survey(self):
+        return self._survey_controller
+
+    @Property(bool, notify=stateChanged)
+    def recordedIQReady(self) -> bool:
         return self._source is not None
 
     @Property(bool, notify=stateChanged)
@@ -337,6 +317,8 @@ class OperatorViewModel(QObject):
 
     @Property(int, notify=stateChanged)
     def frameIndex(self) -> int:
+        if self._source_mode == "hackrf" and not self._live_has_data:
+            return 0
         return self._frame_index + 1 if self._frame_count else 0
 
     @Property(int, notify=stateChanged)
@@ -345,27 +327,96 @@ class OperatorViewModel(QObject):
 
     @Property(str, notify=stateChanged)
     def centerFrequencyText(self) -> str:
-        if self._source is None:
+        if self._source is None and not self._live_has_data:
             return "—"
-        return self._format_frequency(float(getattr(self._source, "center_frequency_hz")))
+        return self._format_frequency(self.centerFrequencyHz)
 
     @Property(str, notify=stateChanged)
     def sampleRateText(self) -> str:
-        if self._source is None:
+        if self._source is None and not self._live_has_data:
             return "—"
-        return self._format_rate(float(getattr(self._source, "sample_rate_hz")))
+        if self._source_mode == "hackrf" and self._live_has_data and self._spectrum_sample_rate_hz > self.sampleRateHz:
+            return f"RX {self._spectrum_sample_rate_hz / 1_000_000:g} · FPGA {self.sampleRateHz / 1_000_000:g} MS/s"
+        return f"{self.sampleRateHz / 1_000_000:g} MS/s" if self.sampleRateHz >= 1_000_000 else f"{self.sampleRateHz / 1_000:g} kS/s"
+
+    @Property(str, notify=stateChanged)
+    def liveHealthText(self) -> str:
+        if self._source_mode != "hackrf":
+            return "Kayıtlı I/Q"
+        if not self.liveSessionActive:
+            return "Alım durdu" if self._live_has_data else "RX bekleniyor"
+        now = time.perf_counter()
+        rx = "RX bekleniyor" if not self._live_received_at else f"RX veri yaşı {(now - self._live_received_at) * 1000:.0f} ms"
+        fpga = "FPGA yanıtı bekleniyor" if not self._live_response_at else (
+            "FPGA yanıtı gecikti" if now - self._live_response_at > .25 else "FPGA yanıtı güncel")
+        if not self._live_fpga_enabled:
+            fpga = "Yalnız RX önizleme · FPGA tespiti kapalı"
+        return f"{rx} · {fpga}"
+
+    @Property(str, notify=stateChanged)
+    def liveTuningText(self) -> str:
+        if self._source_mode != "hackrf" or not self._live_has_data:
+            return ""
+        if self._spectrum_sample_rate_hz <= self._live_sample_rate_hz:
+            return f"FPGA pencere merkezi {self._format_precise_rf(self._live_output_center_frequency_hz)}"
+        return (
+            f"İzleme merkezi {self._format_precise_rf(self._live_output_center_frequency_hz)} · "
+            f"ham RX LO {self._format_precise_rf(self._spectrum_center_frequency_hz)} · "
+            "ham merkez çizgisi DC/LO olabilir; tek başına yayın değildir"
+        )
+
+    @Property(bool, notify=stateChanged)
+    def liveDetectionEnabled(self) -> bool:
+        return self._live_fpga_enabled
+
+    @Slot()
+    def _refresh_live_health(self):
+        if self.liveSessionActive:
+            # Stale detections must not remain marked as current during a stall.
+            if self._live_response_at and time.perf_counter() - self._live_response_at > .25:
+                self._live_detection_rows = [self._last_observation(row) for row in self._live_detection_rows]
+                self._refresh_live_detection_list(force=True)
+            self.stateChanged.emit()
 
     @Property(float, notify=stateChanged)
     def centerFrequencyHz(self) -> float:
-        return float(getattr(self._source, "center_frequency_hz", 0.0))
+        if self._source is not None:
+            return float(getattr(self._source, "center_frequency_hz", 0.0))
+        return float(self._live_output_center_frequency_hz)
+
+    @Property(float, notify=spectrumChanged)
+    def spectrumCenterFrequencyHz(self) -> float:
+        return self._spectrum_center_frequency_hz or self.centerFrequencyHz
+
+    @Property(float, notify=spectrumChanged)
+    def spectrumSampleRateHz(self) -> float:
+        return self._spectrum_sample_rate_hz or self.sampleRateHz
+
+    @Property(float, notify=stateChanged)
+    def liveDetectionStartNormalized(self) -> float:
+        return self._normalized_live_frequency(self._live_output_center_frequency_hz - LIVE_USABLE_HALF_BAND_HZ)
+
+    @Property(float, notify=stateChanged)
+    def liveDetectionEndNormalized(self) -> float:
+        return self._normalized_live_frequency(self._live_output_center_frequency_hz + LIVE_USABLE_HALF_BAND_HZ)
+
+    @Property(float, notify=stateChanged)
+    def liveOutputCenterNormalized(self) -> float:
+        return self._normalized_live_frequency(self._live_output_center_frequency_hz)
+
+    @Property("QVariantMap", notify=liveReceiveSettingsChanged)
+    def liveReceiveSettings(self):
+        return dict(self._live_receive_settings)
 
     @Property(float, notify=stateChanged)
     def sampleRateHz(self) -> float:
-        return float(getattr(self._source, "sample_rate_hz", 0.0))
+        if self._source is not None:
+            return float(getattr(self._source, "sample_rate_hz", 0.0))
+        return float(self._live_sample_rate_hz)
 
     @Property(str, notify=stateChanged)
     def calibrationText(self) -> str:
-        return "Kalibrasyonsuz · dBFS" if self._source is not None else "—"
+        return "Kalibrasyonsuz · dBFS" if self.sourceReady else "—"
 
     @Property(str, constant=True)
     def profileSummary(self) -> str:
@@ -375,17 +426,75 @@ class OperatorViewModel(QObject):
     def spectrumValues(self) -> list[float]:
         return self._spectrum_values
 
+    @Property(int, notify=spectrumChanged)
+    def spectrumPointCount(self) -> int:
+        return len(self._spectrum_values)
+
     @Property(float, notify=spectrumChanged)
     def spectrumMinDb(self) -> float:
-        return self._spectrum_min_db
+        return self._spectral_display.floorDb
 
     @Property(float, notify=spectrumChanged)
     def spectrumMaxDb(self) -> float:
-        return self._spectrum_max_db
+        return self._spectral_display.floorDb + self._spectral_display.spanDb
+
+    @Property(QObject, constant=True)
+    def spectralDisplay(self):
+        return self._spectral_display
 
     @Property("QVariantList", notify=detectionsChanged)
     def detections(self) -> list[dict[str, object]]:
         return self._detections
+
+    @Property(QObject, constant=True)
+    def detectionModel(self):
+        return self._detection_model
+
+    @Property(bool, notify=detectionsChanged)
+    def showLiveCandidates(self) -> bool:
+        return self._show_live_candidates
+
+    @Property(bool, notify=detectionsChanged)
+    def selectedDetectionCurrent(self) -> bool:
+        selected = self._selected_detection_item()
+        return selected is not None and bool(selected.get("observed", True)) and (
+            self._source_mode != "hackrf" or self._live_session is not None
+        )
+
+    @Property("QVariantList", notify=detectionsChanged)
+    def detectionMarkers(self) -> list[dict[str, object]]:
+        rows = self._live_detection_rows if self._source_mode == "hackrf" else self._detections
+        if self._source_mode == "hackrf" and self._live_session is None:
+            return []
+        return [row for row in rows if row["stateKey"] == "confirmed" and row.get("observed", True)][:12]
+
+    @Property("QVariantList", notify=detectionsChanged)
+    def coarseDetectionMarkers(self) -> list[dict[str, object]]:
+        frame = self._coarse_detection_frame
+        if frame is None or self._live_session is None:
+            return []
+        return [
+            {
+                "eventId": int(item.track_id),
+                "startNormalized": self._normalized_live_frequency(item.lower_frequency_hz),
+                "endNormalized": self._normalized_live_frequency(item.upper_frequency_hz),
+                "peakNormalized": self._normalized_live_frequency(item.peak_frequency_hz),
+                "frequency": self._format_frequency(item.peak_frequency_hz),
+                "contrast": f"{item.peak_to_noise_db:.1f} dB" if math.isfinite(item.peak_to_noise_db) else "—",
+            }
+            for item in frame.candidates
+            if item.state == "confirmed" and item.observed_this_frame
+        ][:12]
+
+    @Property(str, notify=detectionsChanged)
+    def coarseDetectionStatusText(self) -> str:
+        if self._coarse_detection_error and self._live_session is not None:
+            return "8 MHz kaba RX tespiti kullanılamıyor"
+        frame = self._coarse_detection_frame
+        if frame is None or self._live_session is None:
+            return "8 MHz kaba RX tespiti bekleniyor"
+        count = sum(item.state == "confirmed" and item.observed_this_frame for item in frame.candidates)
+        return f"Kaba RX adayı: {count} · FPGA doğrulaması değildir"
 
     @Property(int, notify=detectionsChanged)
     def selectedDetectionId(self) -> int:
@@ -393,10 +502,28 @@ class OperatorViewModel(QObject):
 
     @Property(bool, notify=detectionsChanged)
     def selectedDetectionReady(self) -> bool:
+        if self._source_mode == "hackrf":
+            selected = self._selected_detection_item()
+            return self.selectedDetectionCurrent and selected is not None and selected["stateKey"] == "confirmed"
         return any(
             int(item["eventId"]) == self._selected_detection_id and item["stateKey"] == "confirmed"
             for item in self._detections
         )
+
+    @Property(bool, notify=detectionsChanged)
+    def measurementSelectionReady(self) -> bool:
+        if self._source_mode != "hackrf":
+            return self.selectedDetectionReady
+        session = self._live_session
+        selected = self._selected_detection_item()
+        if (
+            session is None
+            or selected is None
+            or not bool(selected.get("confirmed", selected["stateKey"] == "confirmed"))
+            or not hasattr(session, "measurement_window")
+        ):
+            return False
+        return len(self._live_measurement_window()) == 4
 
     @Property(str, notify=detectionsChanged)
     def selectedDetectionTitle(self) -> str:
@@ -416,6 +543,8 @@ class OperatorViewModel(QObject):
     @Property(str, notify=detectionsChanged)
     def selectedDetectionStateText(self) -> str:
         selected = self._selected_detection_item()
+        if selected is not None and self._source_mode == "hackrf" and self._live_session is None:
+            return "Alım durdu"
         return str(selected["state"]) if selected is not None else "Seçim bekleniyor"
 
     @Property(float, notify=detectionsChanged)
@@ -433,12 +562,16 @@ class OperatorViewModel(QObject):
     @Property(float, notify=detectionsChanged)
     def analysisSpanStartNormalized(self) -> float:
         bins = self._analysis_span_bins()
-        return self._normalized_shifted_bin(bins[0]) if bins is not None else -1.0
+        if bins is None:
+            return -1.0
+        return self._normalized_live_bin(bins[0]) if self._source_mode == "hackrf" else self._normalized_shifted_bin(bins[0])
 
     @Property(float, notify=detectionsChanged)
     def analysisSpanEndNormalized(self) -> float:
         bins = self._analysis_span_bins()
-        return self._normalized_shifted_bin(bins[1]) if bins is not None else -1.0
+        if bins is None:
+            return -1.0
+        return self._normalized_live_bin(bins[1]) if self._source_mode == "hackrf" else self._normalized_shifted_bin(bins[1])
 
     @Property("QVariantList", notify=detectionsChanged)
     def parameterRows(self) -> list[dict[str, str]]:
@@ -462,8 +595,15 @@ class OperatorViewModel(QObject):
 
     @Property(bool, notify=detectionsChanged)
     def measurementReady(self) -> bool:
+        if self._source_mode == "hackrf":
+            return (
+                self.parameterCapabilityReady
+                and self.measurementSelectionReady
+                and self._analysis_span is not None
+            )
         return (
             self.parameterCapabilityReady
+            and self._source is not None
             and self.selectedDetectionReady
             and self._analysis_span is not None
             and self._has_four_observed_frames(self._selected_detection_id)
@@ -528,11 +668,12 @@ class OperatorViewModel(QObject):
 
     @Property("QVariantList", notify=pipelineChanged)
     def pipelineBlocks(self) -> list[dict[str, object]]:
-        source = "Hata" if self._error_message and self._source is None else self._source_state
+        live = self._source_mode == "hackrf"
+        source = "Hata" if self._error_message and not self.sourceReady else self._source_state
         processing = (
             "Çalışıyor"
-            if (self._playing or self._busy) and self._source is not None
-            else "Hazır" if self._source is not None else "Kullanılmıyor"
+            if (self._playing or self._busy) and self.sourceReady
+            else "Hazır" if self.sourceReady else "Kullanılmıyor"
         )
         states = {
             "source": source,
@@ -551,17 +692,37 @@ class OperatorViewModel(QObject):
                 "Çalışıyor"
                 if self._busy and self._active_task_kind == "listening"
                 else "Hazır" if self._listening_result is not None
-                else "Bekliyor" if self._source is not None
+                else "Bekliyor" if self.sourceReady
                 else "Kullanılmıyor"
             ),
         }
-        return [dict(component, state=states[str(component["id"])]) for component in PIPELINE_COMPONENTS]
+        blocks: list[dict[str, object]] = []
+        for component in PIPELINE_COMPONENTS:
+            block = dict(component, state=states[str(component["id"])])
+            if live:
+                block.update(LIVE_PIPELINE_DETAILS.get(str(component["id"]), {}))
+            if block["runtime"] in {"FPGA", "ZYNQ PS"}:
+                block["hardwareStatus"] = (
+                    "Bu oturumda kart yanıtı alındı"
+                    if self._live_response_at > 0
+                    else "Kart yanıtı bekleniyor" if self._live_session is not None
+                    else "Bu oturumda kart yanıtı yok"
+                )
+                if not self._live_fpga_enabled:
+                    block["state"] = "Kullanılmıyor"
+                    block["hardwareStatus"] = "RX önizleme modu; FPGA tespiti yapılmıyor"
+                elif self._live_session is not None and not self._live_response_at:
+                    block["state"] = "Bekliyor"
+            else:
+                block["hardwareStatus"] = "Bilgisayar üzerinde yürütülür"
+            blocks.append(block)
+        return blocks
 
     @Slot(str, str, result=bool)
     def openImplementationLocation(self, component_id: str, target: str) -> bool:
         if not self._developer_mode or target not in {"host", "rtl"}:
             return False
-        component = next((item for item in PIPELINE_COMPONENTS if item["id"] == component_id), None)
+        component = next((item for item in self.pipelineBlocks if item["id"] == component_id), None)
         if component is None:
             return False
         relative = str(component["hostPath"] if target == "host" else component["rtlPath"])
@@ -580,181 +741,11 @@ class OperatorViewModel(QObject):
             self._add_log("Sistem", f"{component['name']} kaynak konumu açıldı")
         return opened
 
-    @Slot(str)
-    def selectETTask(self, task: str) -> None:
-        if task not in {"continuous", "interleaved", "analog", "gnss"} or task == self._et_task:
-            return
-        self._et_task = task
-        self._et_status = "HAZIR"
-        self._et_result_title = "Görev seçildi"
-        self._et_result_detail = "Çalışma parametrelerini seçip görevi başlatın."
-        self._et_metric_rows = []
-        self._et_primary_values = []
-        self._et_secondary_values = []
-        self._et_timeline = []
-        self._et_primary_title = "Zaman Alanı"
-        self._et_secondary_title = "Spektrum"
-        self.etChanged.emit()
-
-    @Slot(str, str)
-    def runETTask(self, task: str, option: str) -> None:
-        if task not in {"continuous", "interleaved", "analog"}:
-            return
-        self.selectETTask(task)
-        try:
-            if self._et_mission.state == "ÇALIŞIYOR":
-                self._et_mission.stop()
-            self._et_mission.set_mode(SafetyMode.OFFLINE)
-            self._et_status = "ÇALIŞIYOR"
-            self.etChanged.emit()
-            if task == "continuous":
-                self._run_continuous_et(option)
-            elif task == "interleaved":
-                self._run_interleaved_et(option)
-            else:
-                self._run_analog_et(option)
-            self._et_status = "TAMAMLANDI"
-            self._add_log("ET", f"{self._et_result_title} · görev tamamlandı")
-        except (ValueError, RuntimeError, PermissionError) as exc:
-            self._et_status = "HATA"
-            self._et_result_title = "Görev tamamlanamadı"
-            self._et_result_detail = str(exc)
-            self._add_log("Hata", f"ET görevi · {type(exc).__name__}")
-        self.etChanged.emit()
-
-    @Slot(float, float, str, str)
-    def validateETGNSS(self, latitude: float, longitude: float, utc_text: str, prn_text: str) -> None:
-        self.selectETTask("gnss")
-        try:
-            prns = tuple(int(value.strip()) for value in prn_text.split(",") if value.strip())
-        except ValueError:
-            prns = (0,)
-        scenario = GNSSScenario(float(latitude), float(longitude), utc_text.strip(), prns)
-        result = self._et_gnss.validate(scenario)
-        self._et_primary_values = []
-        self._et_secondary_values = []
-        self._et_timeline = []
-        self._et_primary_title = "Metadata"
-        self._et_secondary_title = "Dalga Şekli Yok"
-        self._et_result_title = "GPS L1 C/A senaryo denetimi"
-        self._et_status = "TAMAMLANDI" if result.valid else "HATA"
-        self._et_result_detail = (
-            "Konum, kesin UTC ve PRN sözleşmesi geçerli. Dalga şekli üretilmedi."
-            if result.valid
-            else " · ".join(result.errors)
-        )
-        self._et_metric_rows = [
-            {"label": "Servis", "value": result.service},
-            {"label": "Konum / zaman", "value": "PASS" if result.position_time_consistent else "FAIL"},
-            {"label": "Metadata", "value": "PASS" if result.metadata_contract_valid else "FAIL"},
-            {"label": "PRN", "value": ", ".join(str(value) for value in prns)},
-            {"label": "Dalga şekli", "value": "YOK"},
-        ]
-        self._add_log("ET", f"GPS L1 C/A metadata · {'PASS' if result.valid else 'FAIL'}")
-        self.etChanged.emit()
-
-    def _run_continuous_et(self, family: str) -> None:
-        choices = {
-            "single": ContinuousJammingConfig("single", 48_000, 0.25, (4_000.0,)),
-            "multiple": ContinuousJammingConfig("multiple", 48_000, 0.25, (-8_000.0, 0.0, 8_000.0)),
-            "barrage": ContinuousJammingConfig("barrage", 48_000, 0.25, barrage_bandwidth_hz=16_000.0),
-            "sweep": ContinuousJammingConfig("sweep", 48_000, 0.50, sweep_start_hz=-9_000.0, sweep_stop_hz=9_000.0),
-        }
-        config = choices.get(family)
-        if config is None:
-            raise ValueError("bilinmeyen sürekli görev ailesi")
-        self._et_mission.start(duration_seconds=config.duration_seconds, detail=f"continuous/{family}")
-        result = self._et_continuous.generate(config)
-        self._et_mission.complete(detail=f"continuous/{family} tamamlandı")
-        frequencies, power = self._et_continuous.spectrum(result.samples, result.sample_rate_hz)
-        self._et_primary_values = self._bounded_series(result.samples.real)
-        self._et_secondary_values = self._spectrum_series(power)
-        self._et_timeline = []
-        self._et_primary_title = "Kompleks Taban Bant · I Bileşeni"
-        self._et_secondary_title = "Normalize Spektrum · dB"
-        family_name = {"single": "Tekli", "multiple": "Çoklu", "barrage": "Baraj", "sweep": "Doğrusal Süpürme"}[family]
-        self._et_result_title = f"{family_name} taban bant analizi"
-        self._et_result_detail = "Kompleks örnek tamponu üretildi ve spektral ölçümler tamamlandı."
-        self._et_metric_rows = [
-            {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
-            {"label": "Örnekleme", "value": f"{result.sample_rate_hz / 1000:.0f} kHz"},
-            {"label": "Tepe", "value": f"{result.peak_magnitude:.3f}"},
-            {"label": "RMS", "value": f"{result.rms_magnitude:.3f}"},
-            {"label": "OBW99", "value": f"{result.occupied_bandwidth_hz / 1000:.3f} kHz"},
-        ]
-
-    def _run_interleaved_et(self, scenario: str) -> None:
-        if scenario not in {"absent", "present", "intermittent", "edge"}:
-            raise ValueError("bilinmeyen arabakışlı analiz girdisi")
-        config = InterleavedConfig(scenario=scenario)  # type: ignore[arg-type]
-        self._et_mission.start(duration_seconds=config.windows * config.window_samples / config.sample_rate_hz, detail=f"interleaved/{scenario}")
-        result = self._et_interleaved.run(config)
-        self._et_mission.complete(detail=f"interleaved/{scenario} tamamlandı")
-        self._et_primary_values = [
-            None if item.measured_band_power is None else float(item.measured_band_power)
-            for item in result.windows
-        ]
-        self._et_secondary_values = self._bounded_series(result.task_output_samples.real)
-        self._et_timeline = [
-            {"index": str(item.index + 1), "state": item.state, "decision": item.decision}
-            for item in result.windows
-        ]
-        self._et_primary_title = "Dinleme Penceresi Bant Gücü"
-        self._et_secondary_title = "Maskeli Görev Çıkışı · I Bileşeni"
-        scenario_name = {"absent": "Hedef Yok", "present": "Sürekli Hedef", "intermittent": "Kesintili Hedef", "edge": "Eşik Kenarı"}[scenario]
-        self._et_result_title = f"Arabakışlı zamanlama · {scenario_name}"
-        self._et_result_detail = "Dinleme ve görev pencereleri ayrık; görev dışındaki çıkış örnekleri sıfırdır."
-        self._et_metric_rows = [
-            {"label": "Dinleme", "value": f"{result.listen_window_count} pencere"},
-            {"label": "Gecikme", "value": f"{result.response_delay_window_count} pencere"},
-            {"label": "Görev", "value": f"{result.task_window_count} pencere"},
-            {"label": "Koruma", "value": f"{result.guard_window_count} pencere"},
-            {"label": "Görev çevrimi", "value": f"%{result.task_duty_cycle * 100.0:.1f}"},
-        ]
-
-    def _run_analog_et(self, mode: str) -> None:
-        normalized_mode = mode.upper()
-        if normalized_mode not in {"AM", "FM", "NFM"}:
-            raise ValueError("bilinmeyen analog görev modu")
-        config = AnalogDeceptionConfig(mode=normalized_mode, duration_seconds=0.25)  # type: ignore[arg-type]
-        time_axis = np.arange(config.audio_sample_rate_hz, dtype=np.float64) / config.audio_sample_rate_hz
-        audio = np.sin(2.0 * np.pi * 1_000.0 * time_axis)
-        self._et_mission.start(duration_seconds=config.duration_seconds, detail=f"analog/{normalized_mode}")
-        result = self._et_analog.generate(audio, config)
-        self._et_mission.complete(detail=f"analog/{normalized_mode} tamamlandı")
-        _, power = self._et_continuous.spectrum(result.samples, result.sample_rate_hz)
-        self._et_primary_values = self._bounded_series(result.normalized_audio)
-        self._et_secondary_values = self._spectrum_series(power)
-        self._et_timeline = []
-        self._et_primary_title = "3 kHz Bant Sınırlı Test Sesi"
-        self._et_secondary_title = f"{normalized_mode} Normalize Spektrumu · dB"
-        self._et_result_title = f"{normalized_mode} yerel döngü analizi"
-        self._et_result_detail = "1 kHz sınama sesiyle üretim ve geri çözümleme tamamlandı."
-        self._et_metric_rows = [
-            {"label": "Örnek", "value": f"{result.samples.size:,}".replace(",", ".")},
-            {"label": "Ses bandı", "value": f"{result.audio_bandwidth_hz / 1000:.1f} kHz"},
-            {"label": "Tepe", "value": f"{result.peak_magnitude:.3f}"},
-            {"label": "Loopback uyumu", "value": f"{result.loopback_correlation:.6f}"},
-            {"label": "Örnekleme", "value": f"{result.sample_rate_hz / 1000:.0f} kHz"},
-        ]
-
-    @staticmethod
-    def _bounded_series(values: np.ndarray, maximum: int = 768) -> list[float]:
-        source = np.asarray(values, dtype=np.float64)
-        if source.size <= maximum:
-            return [float(value) for value in source]
-        indices = np.linspace(0, source.size - 1, maximum, dtype=np.int64)
-        return [float(value) for value in source[indices]]
-
-    @staticmethod
-    def _spectrum_series(power: np.ndarray, maximum: int = 768) -> list[float]:
-        values = np.asarray(power, dtype=np.float64)
-        peak = max(float(np.max(values)), np.finfo(np.float64).tiny)
-        db = 10.0 * np.log10(np.maximum(values / peak, 1e-12))
-        return OperatorViewModel._bounded_series(db, maximum)
 
     @Property(str, notify=stateChanged)
     def performanceText(self) -> str:
+        if self._source_mode == "hackrf" and self._live_frames_per_second > 0.0:
+            return f"Canlı yol {self._live_frames_per_second:.2f} kare/s"
         if not self._operation_samples_ms:
             return "Henüz ölçüm yok"
         measured = self._operation_samples_ms[5:] if len(self._operation_samples_ms) > 10 else self._operation_samples_ms
@@ -844,6 +835,33 @@ class OperatorViewModel(QObject):
     def listeningReady(self) -> bool:
         return self._listening_result is not None
 
+    @Property(bool, notify=stateChanged)
+    def listeningSelectionReady(self) -> bool:
+        if self._source_mode != "hackrf":
+            return self.selectedDetectionReady
+        session = self._live_session
+        selected = self._selected_detection_item()
+        return bool(
+            session is not None
+            and selected is not None
+            and self.selectedDetectionReady
+            and self._pending_live_listening is None
+            and self._pending_live_measurement is None
+            and hasattr(session, "audio_window_ready")
+            and session.audio_window_ready(self._selected_detection_id)
+        )
+
+    @Property(str, notify=stateChanged)
+    def liveListeningBufferText(self) -> str:
+        if self._source_mode != "hackrf":
+            return ""
+        session = self._live_session
+        if session is None or not hasattr(session, "audio_window_frame_count"):
+            return "Canlı I/Q tamponu hazır değil"
+        frames = min(LIVE_AUDIO_WINDOW_FRAMES, int(session.audio_window_frame_count(self._selected_detection_id)))
+        seconds = frames * 4096.0 / self.sampleRateHz if self.sampleRateHz > 0.0 else 0.0
+        return f"Canlı I/Q tamponu {seconds:.1f} / {LIVE_AUDIO_WINDOW_SECONDS:.1f} s"
+
     @Property(bool, notify=listeningChanged)
     def listeningAudioAvailable(self) -> bool:
         return self._audio_playback.available and self._listening_result is not None
@@ -888,9 +906,10 @@ class OperatorViewModel(QObject):
 
     @Property(str, notify=stateChanged)
     def sourceDurationText(self) -> str:
-        if self._source is None:
+        if self._source is None and not self._live_has_data:
             return "—"
-        duration = self._frame_count * int(getattr(self._source, "frame_length")) / self.sampleRateHz
+        frame_length = int(getattr(self._source, "frame_length", 4096))
+        duration = self._frame_count * frame_length / self.sampleRateHz
         return f"{duration:.3f} s"
 
     @Slot(str)
@@ -903,20 +922,30 @@ class OperatorViewModel(QObject):
         self._source_mode = mode  # type: ignore[assignment]
         self._source_name = "Kaynak seçilmedi"
         self._source_state = "Kullanılmıyor"
+        self._error_title = ""
         self._error_message = ""
         self._hackrf_ready = False
+        self._hackrf_transfer_executable = ""
+        self._live_has_data = False
+        self._live_output_center_frequency_hz = 0
+        self._live_sample_rate_hz = 0
+        self._spectrum_center_frequency_hz = 0.0
+        self._spectrum_sample_rate_hz = 0.0
+        self._live_frames_per_second = 0.0
         self._status_message = (
             "Standart bir .sigmf-meta kaydı seçin."
             if mode == "sigmf"
-            else "Önce yapılandırılmış ED_RX HackRF cihazını denetleyin."
+            else "Önce yapılandırılmış alıcıyı denetleyin."
         )
         self._clear_results()
         self.stateChanged.emit()
 
     @Slot(str)
     def openSigmf(self, value: str) -> None:
-        if self._source_mode != "sigmf" or self._busy:
+        if self._busy:
             return
+        if self._source_mode != "sigmf":
+            self.setSourceMode("sigmf")
         url = QUrl(value)
         path = Path(url.toLocalFile() if url.isLocalFile() else value)
         if not path.name:
@@ -938,7 +967,7 @@ class OperatorViewModel(QObject):
         self.stop()
         self._generation += 1
         generation = self._generation
-        self._set_busy(True, "HackRF araçları ve ED_RX cihazı denetleniyor…")
+        self._set_busy(True, "Alıcı bağlantısı denetleniyor…")
 
         def operation() -> tuple[ToolInventory, DeviceStatus]:
             inventory = self._backend.discover_tools(inspect_help=True)
@@ -948,77 +977,24 @@ class OperatorViewModel(QObject):
 
         self._submit(generation, "probe", operation)
 
-    @Slot(float, float, int, int, int)
-    def startHackrfCapture(
-        self,
-        center_frequency_hz: float,
-        sample_rate_hz: float,
-        lna_gain_db: int,
-        vga_gain_db: int,
-        sample_count: int,
-    ) -> None:
-        if self._source_mode != "hackrf" or not self._hackrf_ready or self._busy:
-            return
-        try:
-            config = RXConfig(
-                center_frequency_hz=int(center_frequency_hz),
-                sample_rate_hz=int(sample_rate_hz),
-                sample_count=sample_count,
-                lna_gain_db=lna_gain_db,
-                vga_gain_db=vga_gain_db,
-                device_serial=self._device_config.serial,
-            )
-        except Exception as exc:
-            self._show_error(str(getattr(exc, "code", "invalid_rx_config")), str(exc))
-            return
-        self.stop()
-        self._generation += 1
-        generation = self._generation
-        self._set_busy(True, "Bounded HackRF RX alımı başlatılıyor…")
-        self._submit(generation, "capture", lambda: self._backend.capture(config))
-
-    @Slot()
-    def startScan(self) -> None:
-        if self._source is None or self._busy:
-            return
-        was_playing = self._playing
-        if self._measurement_requested:
-            self._measurement_requested = False
-            self._parameter_rows = []
-            self.detectionsChanged.emit()
-        self._playing = True
-        self._status_message = "Sinyal taraması çalışıyor."
-        self._timer.start()
-        self._request_frame()
-        if not was_playing:
-            self._add_log("İşleme", "Sinyal taraması başlatıldı")
-            self.pipelineChanged.emit()
-        self.stateChanged.emit()
-
-    @Slot()
-    def pause(self) -> None:
-        was_playing = self._playing
-        self._playing = False
-        self._timer.stop()
-        if self._source is not None:
-            self._status_message = "Tarama duraklatıldı."
-            if was_playing:
-                self._add_log("İşleme", "Sinyal taraması duraklatıldı")
-                self.pipelineChanged.emit()
-            self.stateChanged.emit()
-
-    @Slot()
-    def stop(self) -> None:
-        self._playing = False
-        self._timer.stop()
 
     @Slot(int)
     def selectDetection(self, event_id: int) -> None:
+        if self._pending_live_listening is not None or self._pending_live_measurement is not None or (
+            self._busy and self._active_task_kind in {"listening", "measurement"}
+        ):
+            return
         if not any(int(item["eventId"]) == event_id for item in self._detections):
             return
         if event_id != self._selected_detection_id:
             self._clear_listening("Seçili kanal değişti; dinlemeyi yeniden hazırlayın.")
         self._selected_detection_id = event_id
+        if self._source_mode == "hackrf":
+            self._selected_live_detection = dict(next(row for row in self._detections if row["eventId"] == event_id))
+            self._selected_live_measurement_window = ()
+            window = self._live_measurement_window()
+            if len(window) == 4:
+                self._selected_live_measurement_window = window
         self._measurement_requested = False
         self._parameter_rows = []
         self._analysis_span = None
@@ -1026,362 +1002,29 @@ class OperatorViewModel(QObject):
         self.detectionsChanged.emit()
         self.stateChanged.emit()
 
-    @Slot(float, float)
-    def setAnalysisSpanDraftNormalized(self, start: float, end: float) -> None:
-        if not self.selectedDetectionReady or self._last_result is None:
-            self._status_message = "Analiz aralığı için önce doğrulanmış bir tespit seçin."
-            self.stateChanged.emit()
+    @Slot(bool)
+    def setShowLiveCandidates(self, enabled: bool) -> None:
+        if self._source_mode != "hackrf":
             return
-        if not math.isfinite(start) or not math.isfinite(end):
+        self._show_live_candidates = bool(enabled)
+        self._refresh_live_detection_list(force=True)
+
+    @Slot()
+    def clearDetectionSelection(self) -> None:
+        if self._pending_live_listening is not None or self._pending_live_measurement is not None or (
+            self._busy and self._active_task_kind in {"listening", "measurement"}
+        ):
             return
-        lower = max(56, min(4039, int(round(min(start, end) * 4095.0))))
-        upper = max(56, min(4039, int(round(max(start, end) * 4095.0))))
-        event = next(
-            (
-                item for item in self._last_result.detection.active_events
-                if item.event_id == self._selected_detection_id and item.state == "confirmed"
-            ),
-            None,
-        )
-        if event is None or not lower <= event.region.peak_bin <= upper:
-            self._status_message = "Çizilen analiz aralığı seçili tespitin tepe frekansını içermelidir."
-            self.stateChanged.emit()
-            return
-        width = upper - lower + 1
-        if not 8 <= width <= 512:
-            self._status_message = "Çizilen analiz aralığı 8–512 FFT hücresi arasında olmalıdır."
-            self.stateChanged.emit()
-            return
+        self._selected_detection_id = -1
+        self._selected_live_detection = None
+        self._selected_live_measurement_window = ()
         self._analysis_span = None
-        self._analysis_span_draft = (lower, upper)
+        self._analysis_span_draft = None
         self._parameter_rows = []
-        self._status_message = "Analiz aralığı taslağı spektrum üzerinden güncellendi; onay bekleniyor."
+        self._clear_listening("Doğrulanmış bir tespit seçin.")
         self.detectionsChanged.emit()
         self.stateChanged.emit()
 
-    @Slot(float, float)
-    def confirmAnalysisSpan(self, lower_mhz: float, upper_mhz: float) -> None:
-        if not self.selectedDetectionReady or self._last_result is None:
-            return
-        if not math.isfinite(lower_mhz) or not math.isfinite(upper_mhz) or lower_mhz >= upper_mhz:
-            self._status_message = "Analiz aralığı geçerli iki frekansla tanımlanmalıdır."
-            self.stateChanged.emit()
-            return
-        spectrum = self._last_result.spectrum
-        spacing = float(spectrum.bin_spacing_hz)
-        center = float(spectrum.center_frequency_hz)
-        lower = int(round((lower_mhz * 1_000_000.0 - center) / spacing + 2048.0))
-        upper = int(round((upper_mhz * 1_000_000.0 - center) / spacing + 2048.0))
-        event = next(
-            (item for item in self._last_result.detection.active_events if item.event_id == self._selected_detection_id),
-            None,
-        )
-        if event is None or not (lower <= event.region.peak_bin <= upper):
-            self._status_message = "Analiz aralığı seçili tespitin tepe frekansını içermelidir."
-            self.stateChanged.emit()
-            return
-        try:
-            self._span_revision += 1
-            self._analysis_span = AnalysisSpan(lower, upper, "operator_adjusted", self._span_revision)
-        except ValueError:
-            self._analysis_span = None
-            self._status_message = "Analiz aralığı 8–512 FFT hücresi arasında ve kullanılabilir bant içinde olmalıdır."
-            self.stateChanged.emit()
-            return
-        if lower < 56 or upper > 4039:
-            self._analysis_span = None
-            self._status_message = "Analiz aralığının iki yanında gürültü referans hücreleri kalmalıdır."
-            self.stateChanged.emit()
-            return
-        self._analysis_span_draft = (lower, upper)
-        self._parameter_rows = []
-        self._status_message = "Analiz aralığı operatör tarafından onaylandı."
-        self.detectionsChanged.emit()
-        self.stateChanged.emit()
-
-    @Slot()
-    def requestMeasurement(self) -> None:
-        if self._parameter_capability is None or self._parameter_estimator is None:
-            self._status_message = "Doğrulanmış parametre ölçüm profili kullanılamıyor; ölçüm kapalı."
-            self.stateChanged.emit()
-            return
-        if not self.selectedDetectionReady or self._last_result is None or self._source is None or self._busy:
-            return
-        if self._analysis_span is None:
-            self._status_message = "Ölçümden önce analiz aralığını doğrulayın ve onaylayın."
-            self.stateChanged.emit()
-            return
-        event = next(
-            (
-                item for item in self._last_result.detection.active_events
-                if item.event_id == self._selected_detection_id and item.state == "confirmed"
-            ),
-            None,
-        )
-        if event is None:
-            return
-        if not self._has_four_observed_frames(event.event_id):
-            self._status_message = "Parametre ölçümü için seçili tespitin dört ardışık karede gözlenmesi gerekir."
-            self.stateChanged.emit()
-            return
-        self.pause()
-        self._measurement_requested = True
-        source = self._source
-        start_frame = self._frame_index - 3
-        spectrum_processor = self._pipeline.processor
-        candidates = tuple(
-            MeasurementCandidate(
-                int(item.event_id),
-                int(item.seen_count),
-                int(item.region.start_bin),
-                int(item.region.end_bin),
-                item.state == "confirmed",
-            )
-            for item in self._last_result.detection.active_events
-            if item.observed_this_frame
-        )
-        context = MeasurementContext(
-            self._generation,
-            self._generation,
-            self._generation,
-            int(event.event_id),
-            int(event.seen_count),
-            (True, True, True, True),
-            candidates,
-        )
-        intent = MeasurementIntent(
-            self._generation,
-            self._generation,
-            self._generation,
-            int(event.event_id),
-            int(event.seen_count),
-            start_frame,
-            self._analysis_span,
-            context,
-        )
-        estimator = self._parameter_estimator
-
-        def operation() -> F1ParameterResult:
-            samples = tuple(source.read_frame(start_frame + offset) for offset in range(4))  # type: ignore[attr-defined]
-            spectra = tuple(
-                spectrum_processor.process(
-                    frame,
-                    sample_rate_hz=float(source.sample_rate_hz),  # type: ignore[attr-defined]
-                    center_frequency_hz=float(source.center_frequency_hz),  # type: ignore[attr-defined]
-                )
-                for frame in samples
-            )
-            return estimator.measure(intent, samples, spectra)
-
-        self._set_busy(True, f"Tespit #{self._selected_detection_id} parametreleri ölçülüyor…")
-        self._submit(self._generation, "measurement", operation)
-        self._add_log("Parametre", f"Tespit #{self._selected_detection_id} ölçümü istendi")
-
-    @Slot(str, float, float, float)
-    def requestListening(self, mode: str, center_offset_khz: float, bandwidth_khz: float, volume: float) -> None:
-        if self._source is None or self._last_result is None or self._busy or not self.selectedDetectionReady:
-            self._listening_state = "Dinleme için doğrulanmış bir tespit ve hazır kaynak gerekir."
-            self.listeningChanged.emit()
-            return
-        event = next(
-            (
-                item for item in self._last_result.detection.active_events
-                if item.event_id == self._selected_detection_id and item.state == "confirmed"
-            ),
-            None,
-        )
-        if event is None:
-            self._listening_state = "Seçili tespit artık etkin değil; yeniden seçin."
-            self.listeningChanged.emit()
-            return
-        try:
-            config = AnalogMonitorConfig(
-                mode,  # type: ignore[arg-type]
-                self.sampleRateHz,
-                center_offset_khz * 1_000.0,
-                bandwidth_khz * 1_000.0,
-            )
-            if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
-                raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")
-        except Exception as exc:
-            code = str(getattr(exc, "code", "invalid_channel_bandwidth"))
-            self._listening_state = ERROR_TEXT.get(code, "Dinleme ayarları geçerli değil.")
-            self.listeningChanged.emit()
-            return
-
-        self.pause()
-        self._clear_listening("Seçili kanal hazırlanıyor…")
-        source = self._source
-        frame_length = int(getattr(source, "frame_length"))
-        frame_count = int(getattr(source, "frame_count"))
-        total_samples = frame_length * frame_count
-        sample_rate = float(getattr(source, "sample_rate_hz"))
-        current_sample = self._frame_index * frame_length
-        selected_id = self._selected_detection_id
-
-        def operation() -> tuple[AnalogMonitorResult, str, float, float, float]:
-            continuous_samples = int(math.ceil(5.0 * sample_rate))
-            if (
-                hasattr(source, "read_samples")
-                and total_samples >= continuous_samples
-                and continuous_samples <= 10_000_000
-            ):
-                start_sample = max(0, min(current_sample - continuous_samples // 2, total_samples - continuous_samples))
-                block_size = max(frame_length, int(sample_rate))
-                blocks = tuple(
-                    source.read_samples(  # type: ignore[attr-defined]
-                        start_sample + offset,
-                        min(block_size, continuous_samples - offset),
-                    )
-                    for offset in range(0, continuous_samples, block_size)
-                )
-                result = AnalogMonitor().process_continuous(blocks, config, volume=volume)
-                return result, "Kesintisiz kayıt", continuous_samples / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz
-            if frame_count < 4:
-                raise MonitoringError("insufficient_iq", "Dinleme için dört ardışık I/Q karesi gerekir.")
-            start_frame = max(0, min(self._frame_index - 3, frame_count - 4))
-            frames = tuple(source.read_frame(start_frame + offset) for offset in range(4))  # type: ignore[attr-defined]
-            result = AnalogMonitor().process(frames, config, volume=volume)
-            return result, "Kısa I/Q önizlemesi", 4 * frame_length / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz
-
-        self._set_busy(True, f"Tespit #{selected_id} için {mode.upper()} kanalı hazırlanıyor…")
-        self._submit(self._generation, "listening", operation)
-        self._add_log("Dinleme", f"Tespit #{selected_id} · {mode.upper()} hazırlama istendi")
-
-    @Slot()
-    def playListening(self) -> None:
-        if not self._audio_playback.play():
-            self._listening_playback_state = "Ses çıkış aygıtı kullanılamıyor"
-            self.playbackChanged.emit()
-            self.listeningChanged.emit()
-            return
-        self._listening_playback_state = "Oynatılıyor"
-        self._playback_timer.start()
-        self._refresh_listening_playback()
-
-    @Slot()
-    def pauseListening(self) -> None:
-        self._audio_playback.pause()
-        self._playback_timer.stop()
-        self._listening_playback_position_s = self._audio_playback.position_seconds
-        self._listening_playback_state = "Duraklatıldı"
-        self.playbackChanged.emit()
-
-    @Slot()
-    def stopListening(self) -> None:
-        self._playback_timer.stop()
-        self._audio_playback.stop()
-        self._listening_playback_position_s = 0.0
-        self._listening_playback_state = "Durduruldu"
-        self.playbackChanged.emit()
-
-    @Slot(str)
-    def exportListeningWav(self, value: str) -> None:
-        if self._listening_result is None or self._busy:
-            return
-        url = QUrl(value)
-        path = Path(url.toLocalFile() if url.isLocalFile() else value)
-        if not path.name:
-            return
-        if path.suffix.casefold() != ".wav":
-            path = path.with_suffix(".wav")
-        payload = bytes(self._listening_result.pcm16)
-
-        def operation() -> str:
-            try:
-                write_wav(path, payload)
-            except OSError as exc:
-                raise MonitoringError("wav_write_failed", "WAV dosyası yazılamadı.") from exc
-            return str(path)
-
-        self._set_busy(True, "WAV dosyası kaydediliyor…")
-        self._submit(self._generation, "wav_export", operation)
-
-    @Slot(float, str, float)
-    def addDirectionMeasurement(self, antenna_angle_deg: float, reference: str, reference_deg: float) -> None:
-        if self._last_result is None or self._source is None:
-            self._status_message = "Yön ölçümü için işlenmiş gerçek bir kaynak karesi gerekir."
-            self.stateChanged.emit()
-            return
-        if not math.isfinite(antenna_angle_deg) or not 0.0 <= antenna_angle_deg < 360.0:
-            self._status_message = "Anten açısı 0° ile 359° arasında olmalıdır."
-            self.stateChanged.emit()
-            return
-        if reference == "manual" and not math.isfinite(reference_deg):
-            self._status_message = "Anten 0° gerçek kerterizi geçerli olmalıdır."
-            self.stateChanged.emit()
-            return
-        relative_power_db = self._direction_frame_power_dbfs
-        if relative_power_db is None:
-            self._status_message = "Geçerli dBFS güç değeri bulunamadı; ölçüm kaydedilmedi."
-            self.stateChanged.emit()
-            return
-        ref = {
-            "north": AntennaReference.NORTH,
-            "manual": AntennaReference.MANUAL_GEOGRAPHIC,
-            "none": AntennaReference.UNAVAILABLE,
-        }.get(reference, AntennaReference.UNAVAILABLE)
-        if ref is AntennaReference.MANUAL_GEOGRAPHIC:
-            reference_key = ("manual", round(reference_deg % 360.0, 6))
-        else:
-            reference_mode = reference if reference in {"north", "none"} else "none"
-            reference_key = (reference_mode, None)
-        if self._df_reference_key is not None and self._df_reference_key != reference_key:
-            self._status_message = "Ölçüm oturumunun anten referansı değiştirilemez; önce ölçümleri temizleyin."
-            self.stateChanged.emit()
-            return
-        bearing = geographic_bearing_from_manual_reference(
-            ref,
-            antenna_angle_deg,
-            reference_deg if ref is AntennaReference.MANUAL_GEOGRAPHIC else None,
-        )
-        measurement = DFMeasurement.create(
-            angle_deg=antenna_angle_deg,
-            relative_power_db=relative_power_db,
-            frequency_hz=float(getattr(self._source, "center_frequency_hz")),
-            confidence=1.0,
-            source=self._source_name,
-            geographic_bearing_deg=bearing,
-        )
-        self._df_reference_key = reference_key
-        self._df.add(measurement)
-        self._df_points = [
-            {
-                "angle": f"{item.angle_deg:.1f}°",
-                "power": f"{item.relative_power_db:.2f} dBFS",
-                "bearing": "—" if item.geographic_bearing_deg is None else f"{item.geographic_bearing_deg:.1f}°",
-                "frequency": self._format_frequency(item.frequency_hz),
-                "source": item.source,
-            }
-            for item in self._df.measurements
-        ]
-        estimate = self._df.estimate()
-        self._df_status = estimate.status
-        if estimate.status == "LOB HAZIR":
-            self._df_relative = f"{estimate.estimated_angle_deg:.1f}°"
-            peak = next(
-                item for item in self._df.measurements
-                if item.angle_deg == estimate.raw_maximum_angle_deg
-            )
-            self._df_bearing = "—" if peak.geographic_bearing_deg is None else f"{peak.geographic_bearing_deg:.1f}°"
-        else:
-            self._df_relative = "—"
-            self._df_bearing = "—"
-        self._add_log("Yön Bulma", f"{antenna_angle_deg:.1f}° gerçek güç ölçümü kaydedildi")
-        self.directionChanged.emit()
-
-    @Slot()
-    def clearDirectionMeasurements(self) -> None:
-        self._reset_direction()
-
-    def _reset_direction(self) -> None:
-        self._df.clear()
-        self._df_points = []
-        self._df_status = "En az üç farklı anten açısında gerçek güç ölçümü gerekir."
-        self._df_relative = "—"
-        self._df_bearing = "—"
-        self._df_reference_key = None
-        self.directionChanged.emit()
 
     @Slot(bool)
     def setReducedMotion(self, enabled: bool) -> None:
@@ -1395,8 +1038,9 @@ class OperatorViewModel(QObject):
         if abs(bounded - self._viewport_points) < 32:
             return
         self._viewport_points = bounded
-        if self._last_result is not None:
-            self._update_spectrum(self._last_result)
+        if self._spectral_display.latest.size:
+            self._spectrum_values = _reduce_display_max(self._spectral_display.latest, bounded).tolist()
+            self.spectrumChanged.emit()
 
     @Slot()
     def shutdown(self) -> None:
@@ -1423,6 +1067,136 @@ class OperatorViewModel(QObject):
             self.stateChanged.emit()
         self._pool.start(task)
 
+    @Slot(int, object)
+    def _live_preview(self, generation: int, prepared: object) -> None:
+        if isinstance(prepared, _LiveMailbox):
+            prepared = prepared.take()
+        if generation != self._generation or self._live_session is None or prepared is None:
+            return
+        if len(prepared) == 3:
+            preview, spectrum, processing_ms = prepared
+        else:
+            # Compatibility with older/injected live-task fixtures.
+            preview, spectrum, _coarse, processing_ms = prepared
+        if not isinstance(preview, LiveEDPreview) or preview.sequence_number < self._frame_index:
+            return
+        self._operation_samples_ms.append(processing_ms)
+        self._operation_samples_ms = self._operation_samples_ms[-256:]
+        first_preview = not self._live_has_data
+        self._live_has_data = True
+        self._frame_index = preview.sequence_number
+        self._live_received_at = preview.received_monotonic
+        self._live_age_ms = (time.perf_counter() - self._live_received_at) * 1000
+        self._source_state = "Çalışıyor"
+        self._update_spectrum_result(spectrum)
+        if first_preview:
+            self.stateChanged.emit()
+
+    @Slot(int, object)
+    def _live_coarse(self, generation: int, prepared: object) -> None:
+        if isinstance(prepared, _LiveMailbox):
+            prepared = prepared.take()
+        if generation != self._generation or self._live_session is None or prepared is None:
+            return
+        sequence_number, coarse = prepared
+        if sequence_number < self._coarse_detection_sequence or not isinstance(coarse, CoarseDetectionFrame):
+            return
+        self._coarse_detection_sequence = sequence_number
+        self._coarse_detection_frame = coarse
+        self._coarse_detection_error = ""
+        self.detectionsChanged.emit()
+
+    @Slot(int, str)
+    def _live_coarse_failed(self, generation: int, error_type: str) -> None:
+        if generation != self._generation or self._live_session is None:
+            return
+        self._coarse_detection_frame = None
+        self._coarse_detection_error = error_type
+        self._add_log("Kaba RX tespiti", "Kaba tespit işçisi durdu; spektrum ve FPGA zinciri çalışmayı sürdürüyor.")
+        self.detectionsChanged.emit()
+
+    @Slot(int, object)
+    def _live_snapshot(self, generation: int, snapshot: object) -> None:
+        if isinstance(snapshot, _LiveMailbox):
+            snapshot = snapshot.take()
+        response_at = time.perf_counter()
+        if isinstance(snapshot, tuple):
+            snapshot, response_at = snapshot
+        if (
+            generation != self._generation
+            or self._live_session is None
+            or self._live_presentation_error is not None
+            or not isinstance(snapshot, LiveEDSnapshot)
+        ):
+            return
+        first_response = not self._live_response_at
+        self._live_response_at = response_at
+        self._update_live_detections(snapshot.response)
+        self._status_message = (
+            f"Canlı FPGA karesi {snapshot.sequence_number + 1}/{self._frame_count} doğrulandı."
+        )
+        if first_response:
+            self.pipelineChanged.emit()
+            self.stateChanged.emit()
+
+    @Slot(int, object, float)
+    def _live_completed(self, generation: int, result: object, elapsed: float) -> None:
+        del elapsed
+        if generation != self._generation or not isinstance(result, LiveEDSessionResult):
+            return
+        self._live_health_timer.stop()
+        if self._live_presentation_error is not None:
+            self._live_failed(generation, *self._live_presentation_error)
+            return
+        self._live_session = None
+        self._busy = False
+        self._playing = False
+        self._active_task_kind = ""
+        self._source_state = "Hazır"
+        self._live_frames_per_second = result.frames_per_second
+        self._status_message = (
+            f"Canlı FPGA oturumu tamamlandı · {result.completed_frames} kare · "
+            f"USB taşması {result.hackrf_statistics.overruns}."
+        )
+        if not result.fpga_enabled:
+            self._status_message = f"RX önizleme tamamlandı · {result.completed_frames} kare. FPGA tespiti yapılmadı."
+        self._add_log("Canlı ED", self._status_message)
+        self._refresh_live_detection_list(force=True)
+        self.pipelineChanged.emit()
+        self.stateChanged.emit()
+        self._start_pending_live_task()
+
+    @Slot(int, str, str)
+    def _live_failed(self, generation: int, code: str, detail: str) -> None:
+        if generation != self._generation:
+            return
+        self._live_health_timer.stop()
+        if self._live_presentation_error is not None:
+            code, detail = self._live_presentation_error
+        self._live_session = None
+        self._busy = False
+        self._playing = False
+        self._active_task_kind = ""
+        if code == "operation_cancelled":
+            self._source_state = "Hazır" if self._live_has_data else "Kullanılmıyor"
+            self._status_message = "Canlı ED oturumu operatör tarafından durduruldu."
+            self._add_log("Canlı ED", self._status_message)
+            self._refresh_live_detection_list(force=True)
+        else:
+            self._pending_live_measurement = None
+            self._pending_live_listening = None
+            self._measurement_requested = False
+            self._live_has_data = False
+            self._live_frames_per_second = 0.0
+            self._clear_results(keep_source=True)
+            self._source_state = "Hata"
+            self._show_error(code, detail)
+        self.detectionsChanged.emit()
+        self.pipelineChanged.emit()
+        self.stateChanged.emit()
+        if code == "operation_cancelled":
+            self._start_pending_live_task()
+
     @Slot(int, str, object, float)
     def _task_completed(self, generation: int, kind: str, result: object, elapsed: float) -> None:
         self._busy = False
@@ -1439,11 +1213,6 @@ class OperatorViewModel(QObject):
         elif kind == "probe":
             inventory, device = result  # type: ignore[misc]
             self._apply_probe(inventory, device)
-        elif kind == "capture":
-            if not isinstance(result, CaptureResult) or result.backend_kind != "real":
-                self._show_error("capture_not_real", "Ürün uygulaması yalnız gerçek HackRF alımını kabul eder.")
-                return
-            self._install_source(BoundedCI8FrameSource(result), "HackRF ED_RX · sınırlı alım")
         elif kind == "frame":
             if not isinstance(result, RuntimeFrameResult):
                 self._show_error("processing_failed", "İşleme sonucu sözleşmeyle eşleşmedi.")
@@ -1480,7 +1249,7 @@ class OperatorViewModel(QObject):
             self._listening_playback_position_s = 0.0
             self._listening_playback_duration_s = self._audio_playback.duration_seconds
             self._listening_playback_state = "Oynatmaya hazır"
-            self._listening_short_preview = scope != "Kesintisiz kayıt"
+            self._listening_short_preview = float(input_duration) < LIVE_AUDIO_WINDOW_SECONDS
             audio_duration = listening.audio.size / listening.sample_rate_hz
             channel_frequency = self.centerFrequencyHz + float(offset_hz)
             self._listening_rows = [
@@ -1519,6 +1288,8 @@ class OperatorViewModel(QObject):
         task_kind = self._active_task_kind
         self._active_task_kind = ""
         if generation == self._generation:
+            if task_kind == "measurement":
+                self._measurement_requested = False
             if task_kind in {"listening", "wav_export"}:
                 self._listening_state = ERROR_TEXT.get(code, f"Dinleme işlemi tamamlanamadı ({code}).")
                 self._add_log("Dinleme", self._listening_state)
@@ -1568,6 +1339,7 @@ class OperatorViewModel(QObject):
         self._source_state = "Hazır"
         self._frame_index = 0
         self._frame_count = int(getattr(source, "frame_count"))
+        self._error_title = ""
         self._error_message = ""
         self._status_message = "Kaynak doğrulandı; tarama başlatılabilir."
         self._pipeline.detection.reset()
@@ -1580,51 +1352,181 @@ class OperatorViewModel(QObject):
 
     def _apply_probe(self, inventory: ToolInventory, device: DeviceStatus) -> None:
         serial = self._device_config.serial
+        transfer = inventory.get("hackrf_transfer")
+        self._hackrf_transfer_executable = ""
         if not inventory.receive_available or device.state == "TOOLCHAIN_UNAVAILABLE":
             self._hackrf_ready = False
             self._source_state = "Hata"
-            self._status_message = "HackRF araçları kullanılamıyor. Kurulumu doğrulayın."
+            self._status_message = "Alıcı yazılımı kullanılamıyor. Kurulumu doğrulayın."
         elif device.state == "NO_DEVICE":
             self._hackrf_ready = False
             self._source_state = "Kullanılmıyor"
-            self._status_message = "HackRF bulunamadı. USB bağlantısını ve izinleri denetleyin."
+            self._status_message = "Alıcı bulunamadı. USB bağlantısını denetleyin."
         elif serial is None:
             self._hackrf_ready = False
             self._source_state = "Kullanılmıyor"
-            self._status_message = "ED_RX seri kimliği yapılandırılmamış."
+            self._status_message = "Alıcı seri kimliği yapılandırılmamış."
+        elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
+            item.serial.casefold() == serial.casefold() for item in device.devices
+        ) and transfer.executable_path and "-B" in transfer.supported_options:
+            self._hackrf_ready = True
+            self._hackrf_transfer_executable = transfer.executable_path
+            self._source_state = "Hazır"
+            self._source_name = f"Alıcı bağlı · …{serial[-8:]}"
+            self._status_message = "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
         elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
             item.serial.casefold() == serial.casefold() for item in device.devices
         ):
-            self._hackrf_ready = True
-            self._source_state = "Hazır"
-            self._source_name = f"HackRF ED_RX · …{serial[-8:]}"
-            self._status_message = "Yapılandırılmış HackRF hazır; RX ayarlarını doğrulayıp alımı başlatın."
+            self._hackrf_ready = False
+            self._source_state = "Hata"
+            self._status_message = "Alıcı veri bütünlüğü desteği doğrulanamadı."
         else:
             self._hackrf_ready = False
             self._source_state = "Hata"
-            self._status_message = "Yapılandırılmış ED_RX HackRF bulunamadı."
-        self._add_log("HackRF", self._status_message)
+            self._status_message = "Yapılandırılmış alıcı bulunamadı."
+        self._add_log("Alıcı", self._status_message)
         self.pipelineChanged.emit()
 
     def _update_spectrum(self, result: RuntimeFrameResult) -> None:
-        values = np.asarray(result.spectrum.display.bin_power_dbfs, dtype=np.float64)
-        power_fs2 = np.asarray(result.spectrum.display.bin_power_fs2, dtype=np.float64)
+        self._update_spectrum_result(result.spectrum)
+
+    def _update_spectrum_result(self, spectrum: object) -> None:
+        display = getattr(spectrum, "display")
+        values = np.asarray(display.bin_power_dbfs, dtype=np.float64)
+        power_fs2 = np.asarray(display.bin_power_fs2, dtype=np.float64)
         finite_power = power_fs2[np.isfinite(power_fs2) & (power_fs2 > 0.0)]
         self._direction_frame_power_dbfs = (
             None if finite_power.size == 0 else float(10.0 * np.log10(np.mean(finite_power)))
         )
         width = min(self._viewport_points, values.size)
         reduced = _reduce_display_max(values, width)
-        finite = reduced[np.isfinite(reduced)]
-        if finite.size:
-            upper = min(10.0, float(np.max(finite)) + 6.0)
-            lower = max(-200.0, min(-40.0, float(np.percentile(finite, 5.0)) - 8.0))
-            if upper - lower < 30.0:
-                lower = upper - 30.0
-            self._spectrum_min_db = lower
-            self._spectrum_max_db = upper
+        self._spectral_display.append(
+            values,
+            timestamp=self._frame_index * spectrum.frame_length / spectrum.sample_rate_hz,
+            binding=(self._generation, spectrum.center_frequency_hz, spectrum.sample_rate_hz),
+        )
+        self._spectrum_center_frequency_hz = float(spectrum.center_frequency_hz)
+        self._spectrum_sample_rate_hz = float(spectrum.sample_rate_hz)
         self._spectrum_values = [float(value) for value in reduced]
         self.spectrumChanged.emit()
+
+    def _update_live_detections(self, response: object) -> None:
+        active = tuple(getattr(response, "active", ()))
+        state_text = {"tentative": "İzleniyor", "confirmed": "Algılanıyor", "ended": "Sona ermiş"}
+        spacing = 2_000_000.0 / 4096.0
+        center = float(self._live_output_center_frequency_hz)
+        detections: list[dict[str, object]] = []
+        for item in active:
+            frequency = center + (item.peak_shifted_bin - 2048.0) * spacing
+            if abs(frequency - center) > LIVE_USABLE_HALF_BAND_HZ:
+                continue
+            contrast = item.peak_to_noise_db
+            detections.append(
+                {
+                    "eventId": int(item.event_id),
+                    "title": "Sinyal tespit edildi",
+                    "frequencyHz": float(frequency),
+                    "lowerFrequencyHz": center + (item.start_shifted_bin - 2048.0) * spacing,
+                    "upperFrequencyHz": center + (item.end_shifted_bin - 2048.0) * spacing,
+                    "frequency": self._format_precise_rf(frequency),
+                    "snr": f"{contrast:.1f} dB" if math.isfinite(contrast) else "—",
+                    "contrastDb": float(contrast) if math.isfinite(contrast) else float("-inf"),
+                    "state": state_text[item.state] if item.observed_this_frame else "Sinyal yok",
+                    "stateKey": item.state if item.observed_this_frame else "stale",
+                    "confirmed": item.state == "confirmed",
+                    "observed": item.observed_this_frame,
+                    "offsetKHz": (frequency - center) / 1_000.0,
+                    "startBin": int(item.start_shifted_bin),
+                    "endBin": int(item.end_shifted_bin),
+                    "peakBin": int(item.peak_shifted_bin),
+                    "eventRevision": int(item.seen_count),
+                    "startNormalized": self._normalized_live_bin(item.start_shifted_bin),
+                    "endNormalized": self._normalized_live_bin(item.end_shifted_bin),
+                    "peakNormalized": self._normalized_live_bin(item.peak_shifted_bin),
+                }
+            )
+        self._live_detection_rows = detections
+        self._update_live_detection_history(detections)
+        selected = next((row for row in detections if row["eventId"] == self._selected_detection_id and row["observed"]), None)
+        if selected is not None:
+            self._selected_live_detection = dict(selected)
+        elif self._selected_live_detection is not None:
+            self._selected_live_detection = self._last_observation(self._selected_live_detection)
+        self._refresh_live_detection_list()
+
+    @staticmethod
+    def _last_observation(row: dict[str, object]) -> dict[str, object]:
+        return dict(row, state="Sinyal yok", stateKey="stale", observed=False)
+
+    def _update_live_detection_history(self, detections: list[dict[str, object]]) -> None:
+        for retained in self._live_detection_history:
+            retained.update(observed=False, state="Son görüldü", stateKey="stale")
+        for row in detections:
+            if row["stateKey"] != "confirmed" or not row["observed"]:
+                continue
+            frequency_hz = float(row["frequencyHz"])
+            lower_hz = float(row["lowerFrequencyHz"])
+            upper_hz = float(row["upperFrequencyHz"])
+            matched = None
+            for retained in self._live_detection_history:
+                retained_lower = float(retained["lowerFrequencyHz"])
+                retained_upper = float(retained["upperFrequencyHz"])
+                tolerance = 2_000_000.0 / 4096.0
+                if not (upper_hz < retained_lower or lower_hz > retained_upper) or abs(
+                    frequency_hz - float(retained["frequencyHz"])
+                ) <= tolerance:
+                    matched = retained
+                    break
+            if matched is None:
+                matched = dict(row)
+                matched["rowKey"] = f"frequency-{len(self._live_detection_history) + 1}"
+                matched["firstSeenFrame"] = self._frame_index
+                matched["observationCount"] = 0
+                self._live_detection_history.append(matched)
+            row_key = matched["rowKey"]
+            first_seen = matched["firstSeenFrame"]
+            observations = int(matched["observationCount"]) + 1
+            matched.clear()
+            matched.update(
+                row,
+                rowKey=row_key,
+                firstSeenFrame=first_seen,
+                lastSeenFrame=self._frame_index,
+                observationCount=observations,
+                state="Algılanıyor",
+                stateKey="confirmed",
+                observed=True,
+            )
+
+    def _refresh_live_detection_list(self, *, force: bool = False) -> None:
+        if self._source_mode != "hackrf":
+            return
+        if self._live_session is None:
+            for retained in self._live_detection_history:
+                retained.update(observed=False, state="Son görüldü", stateKey="stale")
+        ordered = sorted(
+            self._live_detection_history,
+            key=lambda row: (not bool(row["observed"]), -int(row["lastSeenFrame"]), -float(row["contrastDb"])),
+        )
+        self._detections = ordered[:12]
+        self._live_list_frame = self._frame_index
+        visible_ids = {int(row["eventId"]) for row in self._detections}
+        session = self._live_session
+        if session is not None and hasattr(session, "measurement_window"):
+            for event_id in visible_ids:
+                window = tuple(session.measurement_window(event_id))
+                if len(window) == 4:
+                    self._visible_live_measurement_windows[event_id] = window
+                    if event_id == self._selected_detection_id and not self._selected_live_measurement_window:
+                        self._selected_live_measurement_window = window
+        retained_window_ids = visible_ids | ({self._selected_detection_id} if self._selected_detection_id >= 0 else set())
+        self._visible_live_measurement_windows = {
+            event_id: window
+            for event_id, window in self._visible_live_measurement_windows.items()
+            if event_id in retained_window_ids
+        }
+        self._detection_model.set_rows(self._detections)
+        self.detectionsChanged.emit()
 
     def _update_detections(self, result: RuntimeFrameResult) -> None:
         for event in result.detection.active_events:
@@ -1641,7 +1543,7 @@ class OperatorViewModel(QObject):
             result.detection.active_events,
             key=lambda item: (item.state != "confirmed", item.event_id),
         )[:12]
-        state_text = {"tentative": "İzleniyor", "confirmed": "Doğrulandı", "ended": "Sona ermiş"}
+        state_text = {"tentative": "İzleniyor", "confirmed": "Kararlı", "ended": "Sona ermiş"}
         self._detections = [
             {
                 "eventId": int(item.event_id),
@@ -1661,19 +1563,34 @@ class OperatorViewModel(QObject):
             if self._selected_detection_id >= 0:
                 self._clear_listening("Seçili tespit sona erdi; yeni bir tespit seçin.")
             self._selected_detection_id = -1
+            self._selected_live_measurement_window = ()
             self._measurement_requested = False
             self._parameter_rows = []
             self._analysis_span = None
             self._analysis_span_draft = None
+        self._detection_model.set_rows(self._detections)
         self.detectionsChanged.emit()
 
     def _clear_results(self, *, keep_source: bool = False) -> None:
         self._last_result = None
         self._direction_frame_power_dbfs = None
         self._spectrum_values = []
+        self._spectral_display.clear()
         self._detections = []
+        self._detection_model.set_rows([])
+        self._live_detection_rows = []
+        self._live_detection_history = []
+        self._coarse_detection_frame = None
+        self._coarse_detection_sequence = -1
+        self._coarse_detection_error = ""
+        self._selected_live_detection = None
+        self._visible_live_measurement_windows.clear()
+        self._selected_live_measurement_window = ()
+        self._live_list_frame = -1
         self._selected_detection_id = -1
         self._measurement_requested = False
+        self._pending_live_measurement = None
+        self._pending_live_listening = None
         self._parameter_rows = []
         self._analysis_span = None
         self._analysis_span_draft = None
@@ -1711,6 +1628,7 @@ class OperatorViewModel(QObject):
 
     def _set_busy(self, busy: bool, message: str) -> None:
         self._busy = busy
+        self._error_title = ""
         self._error_message = ""
         self._status_message = message
         self.pipelineChanged.emit()
@@ -1718,6 +1636,7 @@ class OperatorViewModel(QObject):
 
     def _show_error(self, code: str, detail: str) -> None:
         self._source_state = "Hata" if self._source is None else self._source_state
+        self._error_title = ERROR_TITLE.get(code, "İşlem tamamlanamadı")
         self._error_message = ERROR_TEXT.get(code, f"İşlem tamamlanamadı ({code}).")
         self._status_message = self._error_message
         self._add_log("Hata", f"{code} · {detail}")
@@ -1761,6 +1680,14 @@ class OperatorViewModel(QObject):
         return f"{value:.6g} Hz"
 
     @staticmethod
+    def _format_precise_rf(value: float) -> str:
+        if abs(value) >= 1_000_000:
+            return f"{value / 1_000_000:.4f} MHz"
+        if abs(value) >= 1_000:
+            return f"{value / 1_000:.3f} kHz"
+        return f"{value:.1f} Hz"
+
+    @staticmethod
     def _format_rate(value: float) -> str:
         if abs(value) >= 1_000_000:
             return f"{value / 1_000_000:.6g} MHz"
@@ -1785,6 +1712,41 @@ class OperatorViewModel(QObject):
         }.get(state, "Ölçülemedi")
 
     def _prepare_analysis_span_draft(self, event_id: int) -> None:
+        if self._source_mode == "hackrf":
+            selected = next(
+                (row for row in self._live_detection_rows if int(row["eventId"]) == event_id),
+                None,
+            )
+            if (
+                selected is None
+                and self._selected_live_detection is not None
+                and int(self._selected_live_detection["eventId"]) == event_id
+            ):
+                selected = self._selected_live_detection
+            if selected is None:
+                self._analysis_span_draft = None
+                return
+            start = int(selected["startBin"])
+            end = int(selected["endBin"])
+            peak = int(selected["peakBin"])
+            margin = max(8, min(64, math.ceil((end - start + 1) / 2.0)))
+            lower = max(56, start - margin)
+            upper = min(4039, end + margin)
+            for neighbor in self._live_detection_rows:
+                if int(neighbor["eventId"]) == event_id or neighbor["stateKey"] != "confirmed":
+                    continue
+                neighbor_start = int(neighbor["startBin"])
+                neighbor_end = int(neighbor["endBin"])
+                if neighbor_end < peak:
+                    lower = max(lower, neighbor_end + 5, math.ceil((neighbor_end + start) / 2.0))
+                elif neighbor_start > peak:
+                    upper = min(upper, neighbor_start - 5, math.floor((end + neighbor_start) / 2.0))
+            self._analysis_span_draft = (
+                (lower, upper)
+                if lower <= peak <= upper and 8 <= upper - lower + 1 <= 512
+                else None
+            )
+            return
         if self._last_result is None:
             self._analysis_span_draft = None
             return
@@ -1805,10 +1767,15 @@ class OperatorViewModel(QObject):
 
     def _analysis_frequency_text(self, index: int) -> str:
         bins = self._analysis_span_bins()
-        if bins is None or self._last_result is None:
+        if bins is None:
             return ""
-        spectrum = self._last_result.spectrum
-        frequency_hz = spectrum.center_frequency_hz + (bins[index] - 2048.0) * spectrum.bin_spacing_hz
+        if self._source_mode == "hackrf":
+            frequency_hz = self.centerFrequencyHz + (bins[index] - 2048.0) * self.sampleRateHz / 4096.0
+        elif self._last_result is not None:
+            spectrum = self._last_result.spectrum
+            frequency_hz = spectrum.center_frequency_hz + (bins[index] - 2048.0) * spectrum.bin_spacing_hz
+        else:
+            return ""
         return f"{frequency_hz / 1_000_000.0:.6f}"
 
     def _analysis_span_bins(self) -> tuple[int, int] | None:
@@ -1817,18 +1784,63 @@ class OperatorViewModel(QObject):
         return self._analysis_span_draft
 
     def _selected_detection_item(self) -> dict[str, object] | None:
+        if self._source_mode == "hackrf":
+            return self._selected_live_detection
         return next(
             (item for item in self._detections if int(item["eventId"]) == self._selected_detection_id),
             None,
         )
 
+    def _live_measurement_window(self) -> tuple[LiveEDSnapshot, ...]:
+        if self._selected_live_measurement_window:
+            return self._selected_live_measurement_window
+        cached = self._visible_live_measurement_windows.get(self._selected_detection_id, ())
+        if cached:
+            return cached
+        session = self._live_session
+        if session is None or not hasattr(session, "measurement_window"):
+            return ()
+        return tuple(session.measurement_window(self._selected_detection_id))
+
     def _selected_detection_coordinate(self, field: str) -> float:
         selected = self._selected_detection_item()
         return float(selected[field]) if selected is not None else -1.0
 
+    def _selected_detection_bin(self, field: str) -> int | None:
+        if self._source_mode == "hackrf":
+            selected = self._selected_detection_item()
+            value = selected.get(field) if selected is not None else None
+            return int(value) if isinstance(value, (int, float)) else None
+        if self._last_result is None:
+            return None
+        event = next(
+            (
+                item for item in self._last_result.detection.active_events
+                if item.event_id == self._selected_detection_id
+            ),
+            None,
+        )
+        if event is None:
+            return None
+        return {
+            "startBin": int(event.region.start_bin),
+            "endBin": int(event.region.end_bin),
+            "peakBin": int(event.region.peak_bin),
+        }.get(field)
+
     @staticmethod
     def _normalized_shifted_bin(value: int) -> float:
-        return max(0.0, min(1.0, float(value) / 4095.0))
+        return max(0.0, min(1.0, float(value) / 4096.0))
+
+    def _normalized_live_frequency(self, frequency_hz: float) -> float:
+        rate = self.spectrumSampleRateHz
+        if rate <= 0:
+            return -1.0
+        return max(0.0, min(1.0, .5 + (float(frequency_hz) - self.spectrumCenterFrequencyHz) / rate))
+
+    def _normalized_live_bin(self, value: int) -> float:
+        frequency = self._live_output_center_frequency_hz + (float(value) - 2048.0) * 2_000_000.0 / 4096.0
+        return self._normalized_live_frequency(frequency)
 
     def _has_four_observed_frames(self, event_id: int) -> bool:
         if self._frame_index < 3:

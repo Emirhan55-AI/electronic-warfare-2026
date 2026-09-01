@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "Recorded physical HackRF CI8 replay through Ethernet, ZedBoard PS/DMA and the newly loaded PL image; no RF transmission occurred during replay.",
+  "generated_at": "2026-09-01T05:12:58.504457+00:00",
+  "board": {
+    "host": "192.168.7.2",
+    "service_port": 47007,
+    "fpga_manager_state": "operating",
+    "fpga_manager_image_sha256": "46466f74cd1b045fa1844124274cf19dc7e654420418f4737a0f3137909a0db2"
+  },
+  "build": {
+    "evidence": "build/p0/fpga-p2/vivado-evidence.json",
+    "setup_wns_ns": 0.046,
+    "hold_whs_ns": 0.015,
+    "routing_errors": 0,
+    "drc_errors": 0
+  },
+  "replay_source": "build/acceptance/rx-survey/diagnostic-1587p5-20260901/fpga-fpga-p2-v2.json",
+  "capture_sha256": "cfad90674a4bdfd24ac0d321b2eca8ed6f92c311a1676c9703113ca7ac4ddc23",
+  "sessions": [
+    {
+      "label": "target-lo-low",
+      "frames": 120,
+      "target_peak_frequency_hz": 1586923828.125,
+      "target_peak_shifted_bin": 868,
+      "previous_bitstream_covering_confirmed_frames": 0,
+      "fpga_p2_covering_confirmed_frames": 119,
+      "frames_sent": 120,
+      "frames_received": 120,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "iq_sha256": "630c53a61f1176f57afacf254a6306b6a79044a64b6d55006cf5161884ef3322"
+    },
+    {
+      "label": "target-lo-high",
+      "frames": 120,
+      "target_peak_frequency_hz": 1586923828.125,
+      "target_peak_shifted_bin": 868,
+      "previous_bitstream_covering_confirmed_frames": 0,
+      "fpga_p2_covering_confirmed_frames": 118,
+      "frames_sent": 120,
+      "frames_received": 120,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "iq_sha256": "281fe7c555db28d526ac2c61d49bbb13e7a03361d9218e010c92e050bcd8a830"
+    },
+    {
+      "label": "comparison",
+      "frames": 120,
+      "target_peak_frequency_hz": 1577245117.1875,
+      "target_peak_shifted_bin": 1526,
+      "previous_bitstream_covering_confirmed_frames": 5,
+      "fpga_p2_covering_confirmed_frames": 5,
+      "frames_sent": 120,
+      "frames_received": 120,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "iq_sha256": "481e63cdd6944356b8b18162b11f1be13d396b611739a4635e620cd8cdf0f625"
+    }
+  ],
+  "acceptance": {
+    "target_lo_low_improved_from_0_to_at_least_118_of_120": true,
+    "target_lo_high_improved_from_0_to_at_least_118_of_120": true,
+    "all_transports_clean": true
+  },
+  "claim_boundary": "This proves the ADR-0037 wideband RTL change is present and recovers the retained 1586.923828125 MHz RF structure on the board. It does not identify an external transmitter, measure live probability of detection/false alarm, or replace a controlled TX-off/TX-on RF run."
+}

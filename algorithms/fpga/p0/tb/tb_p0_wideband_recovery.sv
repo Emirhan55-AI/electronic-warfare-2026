@@ -1,10 +1,10 @@
 `timescale 1ns/1ps
 
 module tb_p0_wideband_recovery;
-  localparam int FRAME_COUNT = 5;
+  localparam int FRAME_COUNT = 8;
   localparam int FRAME_LENGTH = 4096;
   localparam int TOTAL_INPUT_RECORDS = FRAME_COUNT * FRAME_LENGTH;
-  localparam int TOTAL_OUTPUT_RECORDS = 24;
+  localparam int TOTAL_OUTPUT_RECORDS = 27;
   localparam int MAX_PROCESSING_CYCLES = 50000;
 
   logic aclk = 1'b0;
@@ -196,7 +196,7 @@ module tb_p0_wideband_recovery;
         $fatal(1, "Wideband processing exceeded cycle budget: %0d", processing_cycles);
     end
 
-    if (output_count != TOTAL_OUTPUT_RECORDS || semantic_candidates != 22)
+    if (output_count != TOTAL_OUTPUT_RECORDS || semantic_candidates != 24)
       $fatal(1, "Wideband accounting mismatch outputs=%0d semantic=%0d", output_count, semantic_candidates);
     if (completed_frame_count != FRAME_COUNT || median_completed_frame_count != FRAME_COUNT)
       $fatal(

@@ -1,0 +1,84 @@
+{
+  "schema": "phase08-detection-ui-observation-v3",
+  "status": "capture_decoupling_observed",
+  "phase08_complete": false,
+  "archive": "detection-ui-decoupling.zip",
+  "archive_sha256": "0913c44df3712c3f7651b19f1296148c53900e20c215d1db7e27bc4700b7e87c",
+  "raw_sha256": {
+    "baseline/run-01.json": "87d53b782f44efa0b2ba1b25ce5cffa73935292b877072bcbb785c6a4121d79b",
+    "baseline/run-02.json": "70b0390c120b3377f4660f978e8cec715e23536451a0ca738dee76f59674246e",
+    "baseline/run-03.json": "18ad3dce02e838a805457ae3c746b86deab05871c35ea4416c611265aa90a144",
+    "baseline/run-04.json": "1010a393c679399aaaf81158415fb05134d06a3117f4c0df9a658f2493a416a8",
+    "baseline/run-05.json": "d5198bd03ad4b011d3aaa8e926e4d58cdf74ba4fee5c3e9beb315f83e739e505",
+    "baseline/run-06.json": "1e3c7571f510eadc03317a5df49fb489042168f91a25addc58b4f6a6c335181b",
+    "baseline/run-07.json": "ca3a1595a9fdbe50b4e4981e78f8f95383e4c37679e2c95d231249b09026954f",
+    "baseline/run-08.json": "32421dee8cf65dd7ea34914b52190dd3d9177589dc6077c9197a311355e6ece6",
+    "decoupled/run-01.json": "66b64d17f71a29b108b24951db22b0d7c5b93b20f02ccbd6299645eeba8e89a0",
+    "decoupled/run-02.json": "7ec55a24b0aa2739d70d72048733665e928de1f8a4e4318d32c0c3a7b4d5abf9",
+    "decoupled/run-03.json": "678fe2b598bde3793a6aee94fb675339686a97122254e80841f7e36d798701ab",
+    "decoupled/run-04.json": "73e387400320f290321782ad48eec6bd6f62a36097e13da79d9eba8c461a7fd7",
+    "decoupled/run-05.json": "16c8c72e574f471d353fbdac82707b0d296190a600785094eaffcb084f124f70",
+    "decoupled/run-06.json": "8ba20e90b5d2c27f214c18040ca0a279a8c735aa4a1aef8cf0a88ca63351d373",
+    "decoupled/run-07.json": "90f7172ae7791bcf38c566109d076dbbfed06e4faf835dc14a12ce85ffdebb11",
+    "decoupled/run-08.json": "92b11c5a2419085512adbac2321ab2d96b611713e829337e9b8f2a696c497870",
+    "decoupled/run-09.json": "329c88b88c84784b0b9e1520245e70233e4d6f36f8b0fc2177dc1c2970d02db3",
+    "headless-diagnostic.json": "38dd4b82702a1f4a7dce01d72cbed1fc424e963b45bc87895821ab3bd75cba3f",
+    "detection-selection-aligned.png": "9bf4b4303fafa2ef132437b2abc942011ffd45ba0f0edf9acea4141fe7d2373f"
+  },
+  "baseline": {
+    "runs": 8,
+    "display_16_usb_overrun_failures": 2,
+    "display_50_passed_runs": 5,
+    "display_50_usb_overrun_failures": 1
+  },
+  "decoupled_capture": {
+    "queue_capacity_frames": 512,
+    "passed_runs": 8,
+    "completed_frames": 32768,
+    "usb_overrun_failures": 0,
+    "cancelled_runs": 1,
+    "cancelled_last_sequence": 749,
+    "capture_queue_high_watermarks": [
+      41,
+      50,
+      38,
+      44,
+      31,
+      51,
+      111,
+      59
+    ],
+    "maximum_capture_queue_occupancy": 111,
+    "maximum_capture_queue_utilization": 0.216796875,
+    "session_frames_per_second": [
+      479.3280363936384,
+      483.02098113857977,
+      481.87159870481656,
+      483.0080458085205,
+      483.3445384125872,
+      482.54136252035755,
+      481.9496501132951,
+      481.21386196458894
+    ]
+  },
+  "concurrent_host_load_observation": {
+    "run_names": [
+      "run-08.json",
+      "run-09.json"
+    ],
+    "passed_runs": 2,
+    "usb_overrun_failures": 0,
+    "load_profile_calibrated": false
+  },
+  "headless_comparison": {
+    "completed_frames": 4096,
+    "usb_overruns": 0
+  },
+  "limits": [
+    "Sınırlı ham RX kuyruğu kısa süreli host gecikmesini emer; sürekli yetersiz işlem kapasitesini çözmez.",
+    "Sekiz sınırlı tam oturum uzun süreli ürün kararlılığı kabulü değildir.",
+    "Tam regresyonla eşzamanlı iki koşu genel amaçlı performans ölçütü değildir.",
+    "Oturum hızları açılış ve kuyruk boşaltma maliyetini içerir; azami FPGA kapasitesi değildir.",
+    "Ortam sinyalleri kontrollü RF doğruluk referansı değildir."
+  ]
+}

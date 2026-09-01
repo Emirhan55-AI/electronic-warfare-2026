@@ -1,0 +1,2017 @@
+{
+  "schema": "phase08-coarse-rx-detection-v1",
+  "status": "passed",
+  "scope": "host_only_8msps_coarse_proposal",
+  "transmit_enabled": false,
+  "fpga_confirmation": false,
+  "profile": {
+    "input_sample_rate_hz": 8000000.0,
+    "input_fft_bins": 16384,
+    "energy_rebin_bins": 4,
+    "detector_bins": 4096,
+    "usable_half_band_hz": 3000000,
+    "dc_guard_hz": 100000
+  },
+  "summaries": [
+    {
+      "family": "noise_flat",
+      "frames": 32,
+      "frames_with_false_candidate": 0,
+      "status": "passed"
+    },
+    {
+      "family": "noise_slope_12db",
+      "frames": 32,
+      "frames_with_false_candidate": 0,
+      "status": "passed"
+    },
+    {
+      "family": "noise_step_12db",
+      "frames": 32,
+      "frames_with_false_candidate": 0,
+      "status": "passed"
+    },
+    {
+      "family": "signal_100000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 32,
+      "status": "passed"
+    },
+    {
+      "family": "signal_500000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 32,
+      "status": "passed"
+    },
+    {
+      "family": "signal_1000000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 32,
+      "status": "passed"
+    },
+    {
+      "family": "signal_2000000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 32,
+      "status": "passed"
+    },
+    {
+      "family": "signal_4000000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 32,
+      "status": "passed"
+    },
+    {
+      "family": "signal_6000000",
+      "frames": 32,
+      "recovered_at_least_80_percent": 31,
+      "status": "characterized_not_guaranteed"
+    },
+    {
+      "family": "signal_8000000",
+      "frames": 32,
+      "frames_with_candidate": 0,
+      "status": "known_limit_passed"
+    }
+  ],
+  "timing_ms": {
+    "samples": 320,
+    "p50": 4.290350014343858,
+    "p95": 5.859665141906589,
+    "maximum": 26.625199941918254
+  },
+  "limits": [
+    "Bu sonuç sentetik CI8/Hann spektrumları ve bağımsız tohumlarla host referans kabulüdür; RF veya FPGA kabulü değildir.",
+    "Kaba RX adayı operatör arayüzünde FPGA tespitinden ayrı gösterilir.",
+    "Kabul zarfı bu deneyde 100 kHz-4 MHz'tir; 6 MHz ailesi karakterize edilir ancak garanti edilmez.",
+    "Tüm 8 MHz gözlemi dolduran gürültü-benzeri yayın bağımsız referans bulunmadığı için bilinçli açık sınırdır.",
+    "Ölçülen süre yalnız detector çağrısıdır; FFT, USB, Qt çizimi ve tarama ayar süresi dahil değildir."
+  ],
+  "source_sha256": {
+    "algorithms/p0/coarse_detection.py": "9b2361fac2396e6e160ec6bcfbd1e8e3f39a63ef3e08abb68550ec182f5b91ae",
+    "algorithms/p0/detection.py": "91466a482d248c1cb2af121cae5461ff2f2edcfb03a8474de2b584bd89673375",
+    "scripts/verify_phase08_coarse_detection.py": "5addcef40cf26425c642fdba30398ebd935759c29dfc11a033b484a592945ef6"
+  },
+  "records": [
+    {
+      "family": "noise_flat",
+      "seed": 2026090300,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090301,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090302,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090303,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090304,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090305,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090306,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090307,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090308,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090309,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090310,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090311,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090312,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090313,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090314,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090315,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090316,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090317,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090318,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090319,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090320,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090321,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090322,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090323,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090324,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090325,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090326,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090327,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090328,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090329,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090330,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_flat",
+      "seed": 2026090331,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091300,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091301,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091302,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091303,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091304,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091305,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091306,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091307,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091308,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091309,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091310,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091311,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091312,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091313,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091314,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091315,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091316,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091317,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091318,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091319,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091320,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091321,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091322,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091323,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091324,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091325,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091326,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091327,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091328,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091329,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091330,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_slope_12db",
+      "seed": 2026091331,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092300,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092301,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092302,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092303,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092304,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092305,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092306,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092307,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092308,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092309,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092310,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092311,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092312,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092313,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092314,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092315,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092316,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092317,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092318,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092319,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092320,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092321,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092322,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092323,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092324,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092325,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092326,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092327,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092328,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092329,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092330,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "noise_step_12db",
+      "seed": 2026092331,
+      "candidate_count": 0,
+      "best_coverage": null
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093300,
+      "candidate_count": 1,
+      "best_coverage": 0.8390243902439024
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093301,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093302,
+      "candidate_count": 1,
+      "best_coverage": 0.9170731707317074
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093303,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093304,
+      "candidate_count": 1,
+      "best_coverage": 0.8195121951219512
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093305,
+      "candidate_count": 1,
+      "best_coverage": 0.9170731707317074
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093306,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093307,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093308,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093309,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093310,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093311,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093312,
+      "candidate_count": 1,
+      "best_coverage": 0.926829268292683
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093313,
+      "candidate_count": 1,
+      "best_coverage": 0.8195121951219512
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093314,
+      "candidate_count": 1,
+      "best_coverage": 0.8585365853658536
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093315,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093316,
+      "candidate_count": 1,
+      "best_coverage": 0.9365853658536586
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093317,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093318,
+      "candidate_count": 1,
+      "best_coverage": 0.9170731707317074
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093319,
+      "candidate_count": 1,
+      "best_coverage": 0.8390243902439024
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093320,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093321,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093322,
+      "candidate_count": 1,
+      "best_coverage": 0.8195121951219512
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093323,
+      "candidate_count": 1,
+      "best_coverage": 0.9365853658536586
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093324,
+      "candidate_count": 1,
+      "best_coverage": 0.9170731707317074
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093325,
+      "candidate_count": 1,
+      "best_coverage": 0.8585365853658536
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093326,
+      "candidate_count": 1,
+      "best_coverage": 0.8390243902439024
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093327,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093328,
+      "candidate_count": 1,
+      "best_coverage": 0.8975609756097561
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093329,
+      "candidate_count": 1,
+      "best_coverage": 0.8585365853658536
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093330,
+      "candidate_count": 1,
+      "best_coverage": 0.8585365853658536
+    },
+    {
+      "family": "signal_100000",
+      "seed": 2026093331,
+      "candidate_count": 1,
+      "best_coverage": 0.8780487804878049
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094300,
+      "candidate_count": 1,
+      "best_coverage": 0.88671875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094301,
+      "candidate_count": 1,
+      "best_coverage": 0.8828125
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094302,
+      "candidate_count": 1,
+      "best_coverage": 0.89453125
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094303,
+      "candidate_count": 1,
+      "best_coverage": 0.8984375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094304,
+      "candidate_count": 1,
+      "best_coverage": 0.87109375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094305,
+      "candidate_count": 1,
+      "best_coverage": 0.91015625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094306,
+      "candidate_count": 1,
+      "best_coverage": 0.90625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094307,
+      "candidate_count": 1,
+      "best_coverage": 0.859375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094308,
+      "candidate_count": 1,
+      "best_coverage": 0.86328125
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094309,
+      "candidate_count": 1,
+      "best_coverage": 0.90234375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094310,
+      "candidate_count": 1,
+      "best_coverage": 0.875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094311,
+      "candidate_count": 1,
+      "best_coverage": 0.87890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094312,
+      "candidate_count": 1,
+      "best_coverage": 0.8515625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094313,
+      "candidate_count": 1,
+      "best_coverage": 0.875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094314,
+      "candidate_count": 1,
+      "best_coverage": 0.8984375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094315,
+      "candidate_count": 1,
+      "best_coverage": 0.87109375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094316,
+      "candidate_count": 1,
+      "best_coverage": 0.90234375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094317,
+      "candidate_count": 1,
+      "best_coverage": 0.87890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094318,
+      "candidate_count": 1,
+      "best_coverage": 0.875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094319,
+      "candidate_count": 1,
+      "best_coverage": 0.87890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094320,
+      "candidate_count": 1,
+      "best_coverage": 0.875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094321,
+      "candidate_count": 1,
+      "best_coverage": 0.890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094322,
+      "candidate_count": 1,
+      "best_coverage": 0.89453125
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094323,
+      "candidate_count": 1,
+      "best_coverage": 0.890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094324,
+      "candidate_count": 1,
+      "best_coverage": 0.859375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094325,
+      "candidate_count": 1,
+      "best_coverage": 0.87109375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094326,
+      "candidate_count": 1,
+      "best_coverage": 0.88671875
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094327,
+      "candidate_count": 1,
+      "best_coverage": 0.890625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094328,
+      "candidate_count": 1,
+      "best_coverage": 0.9140625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094329,
+      "candidate_count": 1,
+      "best_coverage": 0.91015625
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094330,
+      "candidate_count": 1,
+      "best_coverage": 0.83984375
+    },
+    {
+      "family": "signal_500000",
+      "seed": 2026094331,
+      "candidate_count": 1,
+      "best_coverage": 0.890625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095300,
+      "candidate_count": 1,
+      "best_coverage": 0.98828125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095301,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095302,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095303,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095304,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095305,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095306,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095307,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095308,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095309,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095310,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095311,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095312,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095313,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095314,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095315,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095316,
+      "candidate_count": 1,
+      "best_coverage": 0.98828125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095317,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095318,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095319,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095320,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095321,
+      "candidate_count": 1,
+      "best_coverage": 0.98828125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095322,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095323,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095324,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095325,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095326,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095327,
+      "candidate_count": 1,
+      "best_coverage": 0.98828125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095328,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095329,
+      "candidate_count": 1,
+      "best_coverage": 0.986328125
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095330,
+      "candidate_count": 1,
+      "best_coverage": 0.990234375
+    },
+    {
+      "family": "signal_1000000",
+      "seed": 2026095331,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096300,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096301,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096302,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096303,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096304,
+      "candidate_count": 1,
+      "best_coverage": 0.9931640625
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096305,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096306,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096307,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096308,
+      "candidate_count": 1,
+      "best_coverage": 0.9921875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096309,
+      "candidate_count": 1,
+      "best_coverage": 0.9931640625
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096310,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096311,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096312,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096313,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096314,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096315,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096316,
+      "candidate_count": 1,
+      "best_coverage": 0.9990234375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096317,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096318,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096319,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096320,
+      "candidate_count": 1,
+      "best_coverage": 0.9931640625
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096321,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096322,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096323,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096324,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096325,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096326,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096327,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096328,
+      "candidate_count": 1,
+      "best_coverage": 0.9912109375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096329,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096330,
+      "candidate_count": 1,
+      "best_coverage": 0.9951171875
+    },
+    {
+      "family": "signal_2000000",
+      "seed": 2026096331,
+      "candidate_count": 1,
+      "best_coverage": 0.994140625
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097300,
+      "candidate_count": 1,
+      "best_coverage": 0.99853515625
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097301,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097302,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097303,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097304,
+      "candidate_count": 1,
+      "best_coverage": 0.99755859375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097305,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097306,
+      "candidate_count": 1,
+      "best_coverage": 0.99853515625
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097307,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097308,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097309,
+      "candidate_count": 1,
+      "best_coverage": 0.99755859375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097310,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097311,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097312,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097313,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097314,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097315,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097316,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097317,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097318,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097319,
+      "candidate_count": 1,
+      "best_coverage": 0.99755859375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097320,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097321,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097322,
+      "candidate_count": 1,
+      "best_coverage": 0.99853515625
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097323,
+      "candidate_count": 1,
+      "best_coverage": 0.99853515625
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097324,
+      "candidate_count": 1,
+      "best_coverage": 0.99658203125
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097325,
+      "candidate_count": 1,
+      "best_coverage": 0.99755859375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097326,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097327,
+      "candidate_count": 1,
+      "best_coverage": 0.99609375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097328,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097329,
+      "candidate_count": 1,
+      "best_coverage": 0.99755859375
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097330,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_4000000",
+      "seed": 2026097331,
+      "candidate_count": 1,
+      "best_coverage": 0.99853515625
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098300,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098301,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098302,
+      "candidate_count": 1,
+      "best_coverage": 0.9977213541666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098303,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098304,
+      "candidate_count": 1,
+      "best_coverage": 0.9986979166666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098305,
+      "candidate_count": 1,
+      "best_coverage": 0.9986979166666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098306,
+      "candidate_count": 1,
+      "best_coverage": 0.9973958333333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098307,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098308,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098309,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098310,
+      "candidate_count": 1,
+      "best_coverage": 0.9986979166666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098311,
+      "candidate_count": 1,
+      "best_coverage": 0.9990234375
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098312,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098313,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098314,
+      "candidate_count": 1,
+      "best_coverage": 0.9990234375
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098315,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098316,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098317,
+      "candidate_count": 1,
+      "best_coverage": 0.9990234375
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098318,
+      "candidate_count": 1,
+      "best_coverage": 0.9977213541666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098319,
+      "candidate_count": 1,
+      "best_coverage": 0.9967447916666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098320,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098321,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098322,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098323,
+      "candidate_count": 1,
+      "best_coverage": 0.9986979166666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098324,
+      "candidate_count": 1,
+      "best_coverage": 0.9977213541666666
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098325,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098326,
+      "candidate_count": 1,
+      "best_coverage": 0.9970703125
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098327,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098328,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098329,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098330,
+      "candidate_count": 1,
+      "best_coverage": 0.998046875
+    },
+    {
+      "family": "signal_6000000",
+      "seed": 2026098331,
+      "candidate_count": 1,
+      "best_coverage": 0.9983723958333334
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099300,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099301,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099302,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099303,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099304,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099305,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099306,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099307,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099308,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099309,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099310,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099311,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099312,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099313,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099314,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099315,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099316,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099317,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099318,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099319,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099320,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099321,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099322,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099323,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099324,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099325,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099326,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099327,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099328,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099329,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099330,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    },
+    {
+      "family": "signal_8000000",
+      "seed": 2026099331,
+      "candidate_count": 0,
+      "best_coverage": 0.0
+    }
+  ]
+}

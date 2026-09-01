@@ -1,5 +1,12 @@
 # ADR-0028 — P0 Çok Ölçekli Tespit ve Geniş Bant Kurtarma
 
+> Güncellik notu — 31 Ağustos 2026: Aşağıdaki ARM sahipliği ilk uygulama
+> aşamasına aittir. ADR-0033 aday yolu sonrasında geniş bant kurtarma ve gruplama
+> PL'ye taşınmış, 29 Ağustos fiziksel aday-paket kabulü geçmiştir. 257 bin
+> üzerindeki iki taraflı ek yol [ADR-0037](ADR-0037-P0-FLANKED-BROADBAND-REFERENCE.md)
+> ile tanımlanır; güncel sahiplik ve sınırlar
+> [durum belgesindedir](../interfaces/SIGNAL_DETECTION_STATUS.md).
+
 - Durum: Kabul edildi
 - Kapsam: P0/ED kapanış düzeltmesi
 - Bağlı gereksinim: KTR-4.1

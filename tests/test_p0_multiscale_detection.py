@@ -16,6 +16,8 @@ def test_recovery_span_is_derived_from_the_full_os_window() -> None:
     assert P0_WIDEBAND_RECOVERY_PROFILE.integration_bins == 32
     assert P0_WIDEBAND_RECOVERY_PROFILE.noise_multiplier == 2.5
     assert P0_WIDEBAND_RECOVERY_PROFILE.minimum_span_bins == 41
+    assert P0_WIDEBAND_RECOVERY_PROFILE.broad_reference_region_rank == 4
+    assert P0_WIDEBAND_RECOVERY_PROFILE.broad_minimum_span_bins == 257
 
 
 def test_short_regional_proposal_does_not_replace_os_cfar() -> None:
@@ -51,6 +53,31 @@ def test_integration_support_is_eroded_before_span_qualification() -> None:
     result = MultiscaleDetector().process(power, frame_id=0)
 
     assert result.recovery_candidates == ()
+
+
+@pytest.mark.parametrize("width", (512, 1024, 2048))
+def test_flanked_region_order_reference_recovers_medium_and_broad_support(width: int) -> None:
+    power = np.ones(4096, dtype=np.float64)
+    start = (4096 - width) // 2
+    power[start : start + width] = 20.0
+
+    recoveries = MultiscaleDetector().recovery_candidates(power)
+
+    assert any(
+        max(0, min(start + width, item.end_bin + 1) - max(start, item.start_bin)) / width >= .9
+        for item in recoveries
+    )
+
+
+@pytest.mark.parametrize("family", ("slope", "step"))
+def test_flanked_region_order_reference_rejects_colored_noise_edges(family: str) -> None:
+    if family == "slope":
+        power = np.power(10.0, np.linspace(-6.0, 6.0, 4096) / 10.0)
+    else:
+        power = np.ones(4096, dtype=np.float64)
+        power[2048:] = 10 ** 1.2
+
+    assert MultiscaleDetector().recovery_candidates(power) == ()
 
 
 @pytest.mark.parametrize(

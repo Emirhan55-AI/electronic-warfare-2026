@@ -50,6 +50,8 @@ class OperatorProductBoundaryTests(unittest.TestCase):
                 "datasets/fixtures/phase04f1/domain-model.json",
                 "datasets/fixtures/phase04f2/domain-model-v3.json",
                 "datasets/fixtures/phase04f4/domain-model-v5.json",
+                "algorithms/p0/native/bin/p0_channelizer.dll",
+                "app/operator_console/assets/baz-logo-glow.png",
             },
             set(document["allowed_runtime_assets"]),
         )
@@ -68,6 +70,8 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "datasets/fixtures/phase04f1/domain-model.json",
             "datasets/fixtures/phase04f2/domain-model-v3.json",
             "datasets/fixtures/phase04f4/domain-model-v5.json",
+            "algorithms/p0/native/bin/p0_channelizer.dll",
+            "app/operator_console/assets/baz-logo-glow.png",
         ):
             self.assertIn(asset, spec)
 
@@ -106,7 +110,7 @@ print(json.dumps(payload, ensure_ascii=False))
         )
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         payload = json.loads(process.stdout.strip().splitlines()[-1])
-        self.assertEqual("sigmf", payload["source_mode"])
+        self.assertEqual("hackrf", payload["source_mode"])
         self.assertEqual(0, payload["workspace"])
         self.assertIn("QMLTYPE", payload["root_type"])
         self.assertTrue(payload["offline_et_loaded"])

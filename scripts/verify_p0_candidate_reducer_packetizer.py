@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-packetizer.json"
+EVIDENCE_PATH = ROOT / "results/evidence/p0/candidate-reducer-packetizer-v2.json"
 FIXTURE_ROOT = ROOT / "datasets/fixtures/p0_candidate_reducer_packetizer"
 
 SOURCES = (
@@ -116,7 +116,7 @@ def evaluate() -> dict[str, object]:
     if not _fixtures_are_current():
         raise RuntimeError("P0 reducer packetizer fixture'ları güncel değil")
     metrics = _simulate()
-    expected = {"frames": 5, "candidates": 61, "beats": 345, "stalls": 30, "stability": 30}
+    expected = {"frames": 8, "candidates": 63, "beats": 379, "stalls": 37, "stability": 37}
     passed = metrics == expected
     return {
         "schema_version": 1,
@@ -129,8 +129,8 @@ def evaluate() -> dict[str, object]:
             "reducer": "p0_candidate_reducer_top",
             "packetizer": "axis_candidate_packetizer",
             "axi_data_width_bits": 64,
-            "packet_frame_count": 5,
-            "semantic_candidates": 61,
+            "packet_frame_count": 8,
+            "semantic_candidates": 63,
             "candidate_loss": 0,
             "duplicate_records": 0,
             "backpressure_payload_stability": "passed",

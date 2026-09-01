@@ -3,8 +3,8 @@
 TURKISH_GLYPHS = "çÇğĞıİöÖşŞüÜ"
 
 TEXT = {
-    "window_title": "TEKNOFEST Elektronik Harp Operatör Konsolu",
-    "application_title": "EH Operatör Konsolu",
+    "window_title": "BÂZ",
+    "application_title": "BÂZ",
     "open_sigmf": "SigMF Aç",
     "source_type": "Kaynak Türü",
     "source_sigmf": "SigMF Kaydı",

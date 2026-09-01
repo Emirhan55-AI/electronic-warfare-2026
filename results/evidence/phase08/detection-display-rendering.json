@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "date": "2026-08-31",
+  "status": "rendering_characterized_rf_acceptance_open",
+  "requirement_ids": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0"
+  ],
+  "scope": "Recorded finite CI8 fixture repeated for local Qt rendering; no live RF or FPGA throughput claim.",
+  "measurement_command": "python -B scripts/measure_detection_display.py --output build/acceptance/detection-display/recheck --runs 5",
+  "baseline": {
+    "scope": "recorded_IQ_rendering_only",
+    "target_updates_per_second": 30.303030303030305,
+    "size": [
+      1440,
+      900
+    ],
+    "runs": [
+      {
+        "submitted": 82,
+        "rendered": 74,
+        "last_drawn": 82,
+        "elapsed_seconds": 3.0019318000413477,
+        "rendered_updates_per_second": 24.65079319889304,
+        "heartbeat_max_ms": 46.60100000910461,
+        "heartbeat_p95_ms": 43.922814924735576
+      },
+      {
+        "submitted": 88,
+        "rendered": 78,
+        "last_drawn": 87,
+        "elapsed_seconds": 2.9946093999315053,
+        "rendered_updates_per_second": 26.046802632017407,
+        "heartbeat_max_ms": 40.72459996677935,
+        "heartbeat_p95_ms": 39.63738991878927
+      },
+      {
+        "submitted": 90,
+        "rendered": 78,
+        "last_drawn": 89,
+        "elapsed_seconds": 3.0006357999518514,
+        "rendered_updates_per_second": 25.994490901312183,
+        "heartbeat_max_ms": 49.08999986946583,
+        "heartbeat_p95_ms": 39.68109996058046
+      },
+      {
+        "submitted": 84,
+        "rendered": 74,
+        "last_drawn": 84,
+        "elapsed_seconds": 3.0231391999404877,
+        "rendered_updates_per_second": 24.477867245231955,
+        "heartbeat_max_ms": 47.78370005078614,
+        "heartbeat_p95_ms": 42.76674007996917
+      },
+      {
+        "submitted": 87,
+        "rendered": 74,
+        "last_drawn": 87,
+        "elapsed_seconds": 3.0216748998500407,
+        "rendered_updates_per_second": 24.489729190811513,
+        "heartbeat_max_ms": 52.96739982441068,
+        "heartbeat_p95_ms": 42.7117949933745
+      }
+    ],
+    "source_sha256": {
+      "app/operator_console/qml/Main.qml": "6f764aff915eb7d1c607ba29ffc5cc993ccbae3d2da5bb7d3b2abc6519c1fa8e",
+      "app/operator_console/quick_view_model.py": "a391b795aa53dc744a8d53d098885083d075f47c4af59225c5e9939b130f69ff",
+      "app/operator_console/quick_application.py": "34bcafef9c10b2467cdd03b3d5b7b16c44030359a520be262d1f3837e78a34db",
+      "scripts/measure_detection_display.py": "2a04a62d3c17084bb7151e7b8221435134cdfa4d447d0b49415987c50ace61d6"
+    },
+    "fixture_sha256": "e47235fae6e9511bf2ecdd5077c9dc3e9e6de6fde59678d1e8c2c2f79a3da979"
+  },
+  "current": {
+    "scope": "recorded_IQ_rendering_only",
+    "target_updates_per_second": 30.303030303030305,
+    "size": [
+      1440,
+      844
+    ],
+    "requested_size": [
+      1440,
+      900
+    ],
+    "image_pixels": [
+      1800,
+      1055
+    ],
+    "environment": {
+      "python": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+      "qt": "6.10.2",
+      "numpy": "2.2.6",
+      "platform": "windows"
+    },
+    "runs": [
+      {
+        "submitted": 90,
+        "rendered": 90,
+        "last_drawn": 90,
+        "elapsed_seconds": 3.0006572001148015,
+        "rendered_updates_per_second": 29.993429438243297,
+        "heartbeat_max_ms": 19.036700017750263,
+        "heartbeat_p95_ms": 16.725509974639863
+      },
+      {
+        "submitted": 90,
+        "rendered": 90,
+        "last_drawn": 90,
+        "elapsed_seconds": 3.0003654998727143,
+        "rendered_updates_per_second": 29.996345446519136,
+        "heartbeat_max_ms": 17.99850002862513,
+        "heartbeat_p95_ms": 16.856255021411926
+      },
+      {
+        "submitted": 90,
+        "rendered": 90,
+        "last_drawn": 90,
+        "elapsed_seconds": 2.999541400000453,
+        "rendered_updates_per_second": 30.004586701149186,
+        "heartbeat_max_ms": 18.202800070866942,
+        "heartbeat_p95_ms": 16.249254951253533
+      },
+      {
+        "submitted": 90,
+        "rendered": 90,
+        "last_drawn": 90,
+        "elapsed_seconds": 3.000482700066641,
+        "rendered_updates_per_second": 29.99517377587316,
+        "heartbeat_max_ms": 21.32180007174611,
+        "heartbeat_p95_ms": 16.49648499442264
+      },
+      {
+        "submitted": 90,
+        "rendered": 90,
+        "last_drawn": 90,
+        "elapsed_seconds": 3.0004722999874502,
+        "rendered_updates_per_second": 29.99527774356605,
+        "heartbeat_max_ms": 17.765299882739782,
+        "heartbeat_p95_ms": 15.866869897581639
+      }
+    ],
+    "source_sha256": {
+      "app/operator_console/qml/Main.qml": "e65b26285cfe337148810f493c93c508f728e7bfbb08bf6a7d43c1aa52dc4ecf",
+      "app/operator_console/quick_view_model.py": "8a2df72b69c58d895238a6802465b6408c7c9bcd817a52829267a3c1571b5d80",
+      "app/operator_console/quick_application.py": "b3a4d58a8b26187c82be74f5ce676dead2daa0ce33481183d5c6fe9e85ead9eb",
+      "app/operator_console/spectral_display.py": "d1052c62d1caecf117d0163e8cc2fca329ca8a28453a6664e1fc1df908f27e3d",
+      "scripts/measure_detection_display.py": "debb03086e76e957400dfc5a9c0a30abb2c1d0e4206e31f9162a45c53c06437a"
+    },
+    "fixture_sha256": "e47235fae6e9511bf2ecdd5077c9dc3e9e6de6fde59678d1e8c2c2f79a3da979"
+  },
+  "summary": {
+    "baseline_median_rendered_updates_per_second": 24.65079319889304,
+    "current_median_rendered_updates_per_second": 29.99527774356605,
+    "median_change_percent": 21.68078122903163
+  },
+  "fixture_data_sha256": "d7c7062eb2fcd221a05db3b62b90ed896e179b242aebe3497b7152c44fb8371f",
+  "limitations": [
+    "Five three-second runs characterize this computer only. They do not establish live receiver FPS or detection accuracy.",
+    "Baseline size was recorded as requested 1440x900. The saved baseline image is 1800x1055 pixels; Windows constrained the surface. Current actual size is explicitly recorded.",
+    "The baseline source hashes identify the prior working tree, but all baseline sources were not separately archived. This is not a clean-checkout reproducible A/B acceptance.",
+    "The recorded frame is deliberately repeated; elapsed rendering wall time is not additional captured RF history.",
+    "UI coalescing affects presentation snapshots only. Current live USB/FPGA endurance still requires physical re-acceptance.",
+    "The wideband counterexamples in detection-scale-characterization.json remain unresolved. No RTL or detector thresholds changed."
+  ],
+  "software_verification": {
+    "selected_suite": {
+      "passed": 118,
+      "failed": 2,
+      "elapsed_seconds": 30.69
+    },
+    "failures": [
+      "tests/test_phase08_endurance.py::test_archived_endurance_run_reproduces_the_summary",
+      "tests/test_phase08_endurance.py::test_tampered_endurance_archive_is_rejected"
+    ],
+    "failure_reason": "Historical endurance source hashes differ in live_ed.py and continuous.py, which were already modified before this display maintenance. Source integrity checks were retained.",
+    "final_display_rx_recheck": {
+      "command": "python -B -m pytest -q tests/test_app_f_quick_product.py tests/test_live_ed_view_model.py tests/test_rx_survey.py tests/test_spectral_display.py tests/test_repository_contract.py",
+      "passed": 78,
+      "failed": 0,
+      "elapsed_seconds": 26.27,
+      "overlaps_prior_suite": true
+    },
+    "repository_contract_check": "python -B scripts/verify_phase00.py --check: passed",
+    "diff_check": "git diff --check: passed"
+  },
+  "physical_preflight": {
+    "hackrf": "one device discovered via hackrf_info",
+    "configured_service": "192.168.7.2:47007",
+    "tcp_connection": "timeout",
+    "live_rf_test_performed": false
+  },
+  "visual_checks": [
+    {
+      "path": "build/acceptance/detection-display/accepted-rendering/display.png",
+      "sha256": "676574ad5327bb77416a00c583ca87a53523b753c677ec96e730239d450214d2",
+      "source": "recorded IQ, not live RF"
+    },
+    {
+      "path": "build/acceptance/detection-display/recorded-1280.png",
+      "sha256": "b086dc6c7caa2ab045dfc3761ad4248e6a7e9affcc28d467dd1c7246a6b05f72",
+      "source": "recorded IQ, not live RF"
+    },
+    {
+      "path": "build/acceptance/detection-display/recorded-1920.png",
+      "sha256": "53b1c2eaea85dffa51cc97ad2dbb5efa39564cfb0f4dd0b1a962dfcb2d34e63d",
+      "source": "recorded IQ, not live RF"
+    },
+    {
+      "path": "build/acceptance/detection-display/recorded-150percent.png",
+      "sha256": "1cca29c1396654d188f9630ab574d0eec293f31cd20c63553b628afe986d3872",
+      "source": "recorded IQ, not live RF"
+    },
+    {
+      "path": "build/acceptance/detection-display/recorded-full-150percent.png",
+      "sha256": "d4bd826ffd314130a2635d4b34232f1a608f31d6f751f7b4e0acbb7ba1aaa887",
+      "source": "recorded SigMF IQ, not live RF",
+      "window": [
+        1280,
+        720
+      ],
+      "scale": 1.5,
+      "history_rows": 128,
+      "history_span_ms": 65.0,
+      "render_backend": "offscreen software; excluded from native rendering FPS measurements"
+    }
+  ]
+}

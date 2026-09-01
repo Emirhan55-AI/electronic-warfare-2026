@@ -1,0 +1,48 @@
+{
+  "schema": "phase08-detection-ui-observation-v1",
+  "status": "display_pacing_observed",
+  "phase08_complete": false,
+  "archive": "detection-ui-observation.zip",
+  "archive_sha256": "08a6d8382132e048678136dac5df61e587024ecdf0075b4a1feefbad9fab18de",
+  "raw_sha256": {
+    "run-01.json": "87d53b782f44efa0b2ba1b25ce5cffa73935292b877072bcbb785c6a4121d79b",
+    "run-02.json": "70b0390c120b3377f4660f978e8cec715e23536451a0ca738dee76f59674246e",
+    "run-03.json": "18ad3dce02e838a805457ae3c746b86deab05871c35ea4416c611265aa90a144",
+    "run-04.json": "1010a393c679399aaaf81158415fb05134d06a3117f4c0df9a658f2493a416a8",
+    "run-05.json": "d5198bd03ad4b011d3aaa8e926e4d58cdf74ba4fee5c3e9beb315f83e739e505",
+    "headless-diagnostic.json": "38dd4b82702a1f4a7dce01d72cbed1fc424e963b45bc87895821ab3bd75cba3f",
+    "detection-selection-aligned.png": "9bf4b4303fafa2ef132437b2abc942011ffd45ba0f0edf9acea4141fe7d2373f"
+  },
+  "fast_display": {
+    "interval_frames": 16,
+    "runs": 2,
+    "usb_overrun_failures": 2
+  },
+  "headless_comparison": {
+    "completed_frames": 4096,
+    "usb_overruns": 0
+  },
+  "bounded_display": {
+    "interval_frames": 50,
+    "approximate_updates_per_second": 9.765625,
+    "runs": 3,
+    "completed_frames": 12288,
+    "usb_overruns": 0,
+    "queue_high_watermarks": [
+      58,
+      35,
+      40
+    ],
+    "session_frames_per_second": [
+      478.8812436233191,
+      482.4853119894246,
+      481.21559195065515
+    ]
+  },
+  "limits": [
+    "Karşılaştırma görsel yükün katkısına işaret eder; tek başına kesin kök neden kanıtı değildir.",
+    "Oturum hızları açılış ve gözlemci maliyetini içerir; azami FPGA kapasitesi değildir.",
+    "Üç sınırlı oturum uzun süreli ürün kararlılığı kabulü değildir.",
+    "Ortam sinyalleri kontrollü RF doğruluk referansı değildir."
+  ]
+}

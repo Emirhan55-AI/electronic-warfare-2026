@@ -19,9 +19,9 @@ def test_wideband_recovery_vector_files_are_deterministic_and_current() -> None:
         assert (FIXTURE / name).read_bytes() == payload
     golden = json.loads(generated["golden-vectors.json"])
     assert golden["status"] == "passed"
-    assert golden["frame_count"] == 5
-    assert golden["semantic_candidates"] == 22
-    assert golden["output_records"] == 24
+    assert golden["frame_count"] == 8
+    assert golden["semantic_candidates"] == 24
+    assert golden["output_records"] == 27
 
 
 def test_wideband_recovery_rtl_is_bit_true_and_within_substage_budget() -> None:

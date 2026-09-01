@@ -1,22 +1,113 @@
 # KTR Gereksinim İzlenebilirliği
 
+## Güncel sinyal tespiti kapsamı
+
+31 Ağustos 2026 bakım kaydı: `KTR-4.1` görünümü için Qt görüntü tamponu,
+tepe koruyan frekans projeksiyonu, sabit renk ölçeği, gerçek kare zamanı,
+sınırlı GUI bildirimi ve tarama penceresine bağlı waterfall uygulanmıştır.
+`tests/test_spectral_display.py`, RX/görünüm testleri ve
+`scripts/measure_detection_display.py` yalnız yazılım/görünüm kanıtıdır.
+`results/evidence/phase08/detection-display-rendering.json` beşer yerel çizim
+koşusunu ve canlı RF kabulünden ayrılan ölçüm sınırlarını kaydeder.
+`results/evidence/phase08/detection-scale-characterization.json` yeni geniş
+bant körlük karşı örneklerini korur; `KTR-4.1` saha kabulü açık kalır.
+Güncel donanım sahipliği, kaynaklar ve kabul sırası
+[Sinyal tespiti durum belgesindedir](../interfaces/SIGNAL_DETECTION_STATUS.md).
+Kullanıcının sonraki planlama yönlendirmesi aynı belgede ST-01–ST-08 kapanış
+işlerine ayrılmıştır. Bunlar `KTR-4.1` / `KTR-4.1-OPS-B0` için önerilen alım,
+görünüm, geniş bant tespiti, tarama ve kabul işleridir; gereksinimler yalnız
+plan yazıldığı için tamamlanmış veya yeni donanım yeteneği kazanılmış sayılmaz.
+Kullanıcının uygulama yetkisiyle RX görüntüsü/FPGA tespiti ayrımı, GUI dışında
+görsel FFT, sınırlı görüntü kuyruğu, veri yaşı, erken tarama önizlemesi ve aday
+kapasitesi hatasının doygunluktan ayrılması uygulanmıştır. Gerçek RX/görüntü
+ölçüm aracı `scripts/measure_live_rx_display.py` bütün kaynaklarını arşivler;
+önceki kaynakta 15 dakika / 439.454-kare RX-only koşusu sıfır USB taşması,
+30,51 taze görüntü/s ve 21,82 ms p95 veri yaşıyla geçmiştir; kaynak bağlı tarihsel
+kanıt `results/evidence/phase08/live-rx-display-8msps-v1.zip` içindedir. ADR-0039
+ile kanal seçici C++17 AVX2/FMA3 çekirdeğine alınmış, 80 karede sıfır CI8 LSB
+farkı ve `0,524815 ms` p95 süreyle `native-channelizer-v3.json` kanıtını
+geçmiştir. Güncel görünüm 32,15 taze görüntü/s, 40,04 ms p95 çizim ve 20,72 ms
+p95 veri yaşı hedeflerini geçse de üç USB shortfall nedeniyle genel kabul
+başarısızdır; `live-rx-display-8msps-v2.json` açık kapıyı korur. Uygulamasız
+doğrudan aktarımda da shortfall görüldüğünden farklı fiziksel USB port/kablo
+A/B tekrarı gerekir. Bu araçlar kart cevabı veya RF tespit olasılığı kabulü
+üretmez. Güncel kart erişimi
+ve geniş bant karar kapsamı açık olduğundan KTR-4.1 tamamlandı sayılmaz.
+
+31 Ağustos 2026 geniş bant uygulama kaydı: ADR-0037, KTR-4.1'in mevcut
+rank-24/32 OS-CFAR ve 41–256 bin bölgesel yolunu değiştirmeden 257 bin ve üzeri
+desteklere dördüncü bölge sıra istatistiği ile iki taraflı tam-bölge kontrolü
+ekler. Yazılım/sabit nokta/SystemVerilog vektörlerinde 512 ve 2048 bin pozitif,
+12 dB basamak negatif dahil sekiz karede 24 geniş aday / 27 kayıt; birleşik
+azaltıcıda 63 aday / 65 kayıt ve paket sınırında 379 AXI64 beat sıfır metadata
+farkıyla geçmiştir. 1 Eylül'de güncel tam Vivado yapısı 50 MHz setup/hold,
+yönlendirme, DRC, bitstream ve XSA kapılarını geçmiştir. Kart yükleme ve
+kontrollü RF kabulü açık olduğundan bu kayıt KTR-4.1'i tamamlamaz ve eski
+fiziksel imajı kendiliğinden güncellemez.
+
+31 Ağustos 2026 tarama kenarı kaydı: sahiplik adımı 600 kHz'e indirilmiş ve
+örtüşen 2 MHz ayarlar merkezi kendi hücresinde olan 1 MHz desteği en az bir
+ayarın ±800 kHz kanal seçici geçiş bandında tutacak şekilde test edilmiştir.
+257 hücre ve üzeri adayın bağımsız yeniden ayar doğrulaması tepe hücresi yerine
+mutlak destek aralığı örtüşmesine bağlanmış; tepe konumu 800 kHz'den fazla
+değişen 1 MHz sentetik aday doğrulanmıştır. Bu yazılım/geometri kanıtıdır;
+güncel kart, kontrollü RF, bütün pencere işgali ve Pd/Pfa kabulü açık kalır.
+Kanıt `results/evidence/phase08/survey-overlap-v1.json` dosyasındadır.
+
+31 Ağustos 2026 geniş host kaba arama kaydı: ADR-0038, 8 MS/s görüntü FFT
+gücünü dörder hücre enerji toplamıyla kanonik 4.096 hücrelik tespit profiline
+bağlar. Kaba RX adayları arayüzde FPGA tespitinden ayrı gösterilir. Bağımsız
+sentetik kabulte 100 kHz–4 MHz aileleri 32/32; düz, 12 dB eğimli ve 12 dB
+basamaklı negatifler 0/32 geçmiştir. 6 MHz 31/32 ile yalnız karakterize edilmiş,
+8 MHz tam doluluk 0/32 ile açık sınırı korumuştur. Host sonucu RF/FPGA kabulü
+değildir ve KTR-4.1'i tamamlamaz. Kanıt
+`results/evidence/phase08/coarse-rx-detection-v1.json` dosyasındadır.
+
+Kullanıcının paylaştığı 2026 şartnamesindeki **5.1.1 Sinyal Tespiti**,
+bu depodaki tarihsel `KTR-4.1` ve `KTR-4.1-OPS-B0` satırlarıyla eşleştirilir;
+eski kimlikler ve ET maddeleri yeniden numaralandırılmaz. Frekansı bilinmeyen
+yayın için 1 MHz–6 GHz sıralı RX taraması, gerçek kart yanıtlı kapsama kaydı,
+geçmiş gözlemler ve sabit bant izlemeye geçiş PHASE-08 kapsamındadır.
+`tests/test_rx_survey.py` kapsam/iptal/hata ayrımını,
+`tests/test_windows_receive_pipe.py` ikili I/Q bütünlüğünü denetler.
+`scripts/check_rx_survey.py` fiziksel alıcı denemesi için ayrı kayıt üretir.
+Durum: uygulandı, sınırlı alıcı denemesi var; tam bant kör RF deneyi, anten
+kapsamı, kaçırma/yanlış alarm oranı ve şartname saha kabulü **açık**.
+
+Eski fiziksel özetler yalnız kaydettikleri kaynak sürümünün kanıtıdır. Yeni
+tarama/Windows taşıma kaynakları için bu arşivlerin hash kapıları geçilmiş
+sayılmaz; yeni alımlar `build/acceptance/rx-survey/` altında saklanır.
+
 Bu matris yarışma görevlerini ve genel algoritma sırasını gerçek referans donanıma eşler. KTR teknik parametrelerin veya sayısal performans hedeflerinin bağlayıcı kaynağı değildir. Hiçbir satır tamamlanmış bir DSP/RF yeteneği iddiası değildir.
 
 | Gereksinim kimliği | KTR bölümü | Beklenen işlev | Yeni donanımla uygulanma yöntemi | Planlanan faz | Doğrulama yöntemi | Durum |
 |---|---|---|---|---|---|---|
-| KTR-4.1 | 4.1 Sinyal Tespiti | Aday RF sinyallerini tespit etme | KTR yöntemi OS-CFAR/local adaptive; sayısal değerler ayrı `P0_OS_CFAR_EXPONENTIAL_PFA_1E4` profilidir: 16 reference/yan, 4 guard/yan, rank 24/32, Pfa `1e-4`, alpha `8.58014304069906`, strict `>`; ADR-0028 yalnız tam 41-bin OS penceresinden geniş desteklerde 16×256 median tabanlı, 32-bin bütünleşik enerji önerisi ekler; ADR-0030 ile PL Hann/FFT/güce OS-CFAR hücre kararı eklenir; ADR-0033 sürekli tespitte final OS+geniş bant aday kümesini seyrek PL→PS sınırına taşır, temporal PS'de kalır | P0 Mandatory Closure Block A / geniş bant ve throughput düzeltmesi | 1.038.336 CUT empirical FAR; Python↔portable C OS ve çok ölçekli aday eşdeğerliği; 256 geniş bant, 7.168 gürültü, 4.992 yerel sinyal ve 128 temporal dizi; fiziksel FPGA güç→ARM→ABI v1→2/3; ADR-0029 fiziksel hizmet kapısı; ADR-0030 45.056 kelime bit-doğru RTL ve Zynq-7020 post-route 50 MHz setup/hold; ADR-0031 paket/typed 33 kare/1.501 aday sıfır fark; ADR-0032 strict/trusted host çıktıları sıfır fark; ADR-0033 14 kare final aday/metadata/packet sıfır fark, median+geniş bant RTL'de 5 kare/22 aday/24 AXI kaydı ve final reducer RTL'de 5 kare/61 aday/62 AXI kaydı sıfır metadata farkı; final reducer → PHASE-06I AXI64 packetizer bağlantısı 5 kare/61 aday/345 beat ve 30 backpressure kararlılık kontrolüyle sıfır fark; CI8→Hann→AMD 4096 FFT→güç→final reducer→PHASE-06I paket tam kart tasarımında Vivado sentez/route/timing/bitstream/XSA kapıları | Hann katsayı bağı düzeltilen imaj PetaLinux 6.090/6.090 derleme ve fiziksel ZedBoard boot kapılarını geçti. Dondurulmuş CI8 bilinen-ton karesinde 2.224 bayt fiziksel paket, 54 nihai aday ve bütün metadata alanları bit-doğru referansla eşdeğerdir; DMA timeout/error sıfırdır. Üç pozitif ve iki sıfır karelik servis dizisi 54 olayda 2-of-3 confirmation ve iki-miss expiry davranışını geçti. Güncel ABI v3 PetaLinux paketi 5.679/5.679 ve tam imaj 6.090/6.090 görevle derlendi. SHA-256 değeri `da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18` olan imajın soğuk açılışında kurulu ikili hash eşitliği ve bit-doğru yaşam döngüsü yeniden doğrulandı. ADR-0034 dört derinlikli sınırlı yerel istek kuyruğuyla beş fiziksel koşuda toplam 20.480/20.480 kareyi sıfır hatayla işledi; en düşük/ortalama/en yüksek hız `508,759225230 / 509,458386609 / 509,884071480 kare/s`, gerekli alt sınır `488,28125 kare/s` ve en düşük marj `1,041938893` olduğundan kart içi 2 MS/s hizmet kapısı tekrarlanabilir biçimde kapanmıştır. HackRF host RX ve tespit 5/5 fiziksel koşuda geçti. ADR-0036 kayıtlı CI8 verisini doğrudan 1 Gbps Ethernet üzerinden ZedBoard hizmetine taşıyan beş koşuda 20.480/20.480 ölçüm karesini sıfır sıra hatası ve sıfır aday düşümüyle tamamlamış; en düşük hız `501,093701844 kare/s` olmuştur. Ağ köprüsünün kalıcı imajı ve kesintisiz canlı HackRF→FPGA bağı açıktır |
-| KTR-4.2 | 4.2 Parametre Çıkarımı | Tespit edilen sinyal parametrelerini çıkarma | F5 ürün profili; operatör onaylı izole aralıkta dört ardışık confirmed+observed kare, iki taraflı gürültü referansı, emisyon merkezi, ITU-R SM.443 yaklaşımıyla OBW99, kalibre edilmemiş kanal dBFS ve sınırlı SNR; alan bazlı fail-closed sonuç | P0 Mandatory Closure Block A / kontrollü ARM bağı | F5 binding 40/40 ve OOS 24/24; ARM C11 ↔ host F5 AM ve geniş bant sahnelerinde altı sayısal alan eşdeğerliği; yalnız gürültü negatif kontrolü; ABI v2 CRC/boyut/durum; ayrıcalıksız Linux hizmet kabulü; PetaLinux paket/rootfs derlemesi; fiziksel PL→DMA→ARM dört gözlem ve yakalanan PL gücüyle host C tekrar oynatımı | Host ürün profili tamamlandı. ARM çekirdeği iki host sinyal sahnesinde sıfır fark ve yalnız gürültüde 6/6 ret verdi; dört kare yaşam döngüsü, 56.064 bayt kalıcı yük ve PetaLinux 5679/5679 build geçti. Fiziksel AM dizisinde DMA 4/4 tamamlandı, altı alan geçerli oldu ve yakalanan gerçek PL güç kareleriyle ARM↔host C farkı sıfır çıktı. İdeal FFT farkı eşiksiz karakterizasyon olarak korundu. Taşıyıcı çizgisi/sinyal alanı ARM bağı, geniş bant fiziksel kapsama, dBm kalibrasyonu, throughput ve canlı RF açık |
-| KTR-4.2-F1 | 4.2 Parametre Çıkarımı | PHASE-04 ürün yeteneğini alan bazlı doğrulama | Emisyon merkez frekansı, ayrı gözlenen taşıyıcı frekansı, OBW99, kalibre edilmemiş kanal gücü/SNR ve sınırlı sinyal alanı; confirmed olay ve operatör onaylı izole span; alan bazlı abstention ve digest bağlı fail-closed profil | F1D/F2D/F3D/F4D tamamlandı ve başarısız; F5A-F5E tamamlandı | F1/F2/F3/F4 tek seferlik sonuçları; F5 protokol/yöntem/runner kilitleri, binding 40/40, OOS 24/24, `f5d-verification.json`, digest bağlı ürün profili ve `f5e-verification.json`; fiziksel ARM sayısal kabulü | Host ürün entegrasyonu tamamlandı — altı ölçüm alanı ve span dayanıklılığı iki popülasyonda geçti; QML ölçümü dört ardışık gözlem ve operatör onaylı span gerektiriyor; profil/kaynak değişiminde fail-closed. Altı sayısal alan ARM paketine taşındı ve deterministik AM dizisinde fiziksel kabul edildi; taşıyıcı çizgisi ve sinyal alanı hostta kaldı. Geniş bant fiziksel kapsama, canlı RF ve dBm kalibrasyonu açık |
-| KTR-4.1-OPS | 4.1 Yarışma İş Akışı | Bilinmeyen, hakem bandı ve hakem frekansı girişleriyle sinyal varlığını doğrulama | Hz domainli `SearchRequest`; ortak replay/gelecek HackRF acquisition backend; `UNKNOWN`, `JUDGE_BAND`, `JUDGE_FREQUENCY`; frekans verilse de OS-CFAR ve confirmation atlanmaz | P0 Mandatory Closure Block A | Üç pozitif replay demo; band dışı, yanlış frekans, NaN, ters band, zarf dışı ve aşırı-span negatifleri; Qt binding | Üç mod replay/host üzerinde doğrulandı; canlı HackRF scan/tune uygulanmadı |
-| KTR-4.1-OPS-B0 | 4.1 Yarışma İş Akışı | Üç arama modunu seri seçili HackRF-1 RX'e hazırlama | RX-only `hackrf_transfer`, seri bağlı ED_RX config'i, 8 MS/s, ±100 kHz DC dışlama ve 500 kHz offset tuning | P0 Block B0 + PHASE-08 fiziksel RX | Toolchain self-test; discovery/ci8/argv/plan/mapping/queue/UI unit testleri; beş tekrarlı fiziksel bounded RX ve host tespit kabulü | Fiziksel HackRF tek cihaz ve yapılandırılmış seriyle eşleşti. Beş canlı koşuda toplam 81.920 kompleks örnek eksiksiz, doyum sıfır ve her koşuda en az bir `LIVE_HACKRF` doğrulanmış aday elde edildi. Sürekli USB, ZedBoard/FPGA ve ürün UI canlı kabulü açık |
-| KTR-4.3 | 4.3 Sinyal İzleme ve Analog Dinleme | Seçilen analog yayını operatör denetiminde dinleme | PHASE-03 confirmed olay veya operatör ayarlı kanal; açık AM/NFM seçimi; bounded DDC, 129 tap kanal filtresi, 48 kHz resample, AM zarf/NFM faz-fark, 65 tap ses filtresi, mono PCM16/WAV | PHASE-05 ve devamı | Deterministik AM/NFM clean ve 20 dB kapıları; bağımsız periodogram/korelasyon oracle'ı; QML tespit/ofset/BW/süre/dalga biçimi/WAV binding'i; noise-only negatif kontrol | Kısmi — AM/NFM HOST/REPLAY bağımsız doğrulandı ve QML ürün akışına bağlandı; beş saniyeden kısa giriş açıkça kısa önizlemedir; canlı HackRF/audio saha kabulü yok |
+| KTR-4.1 | 4.1 Sinyal Tespiti | Aday RF sinyallerini tespit etme | KTR yöntemi OS-CFAR/local adaptive; sayısal değerler ayrı `P0_OS_CFAR_EXPONENTIAL_PFA_1E4` profilidir: 16 reference/yan, 4 guard/yan, rank 24/32, Pfa `1e-4`, alpha `8.58014304069906`, strict `>`; ADR-0028 yalnız tam 41-bin OS penceresinden geniş desteklerde 16×256 median tabanlı, 32-bin bütünleşik enerji önerisi ekler; ADR-0030 ile PL Hann/FFT/güce OS-CFAR hücre kararı eklenir; ADR-0033 sürekli tespitte final OS+geniş bant aday kümesini seyrek PL→PS sınırına taşır, temporal PS'de kalır | P0 Mandatory Closure Block A / geniş bant ve throughput düzeltmesi | 1.038.336 CUT empirical FAR; Python↔portable C OS ve çok ölçekli aday eşdeğerliği; 256 geniş bant, 7.168 gürültü, 4.992 yerel sinyal ve 128 temporal dizi; fiziksel FPGA güç→ARM→ABI v1→2/3; ADR-0029 fiziksel hizmet kapısı; ADR-0030 45.056 kelime bit-doğru RTL ve Zynq-7020 post-route 50 MHz setup/hold; ADR-0031 paket/typed 33 kare/1.501 aday sıfır fark; ADR-0032 strict/trusted host çıktıları sıfır fark; ADR-0033 14 kare final aday/metadata/packet sıfır fark, median+geniş bant RTL'de 8 kare/24 aday/27 AXI kaydı ve final reducer RTL'de 8 kare/63 aday/65 AXI kaydı sıfır metadata farkı; final reducer → PHASE-06I AXI64 packetizer bağlantısı 8 kare/63 aday/379 beat ve 37 backpressure kararlılık kontrolüyle sıfır fark; CI8→Hann→AMD 4096 FFT→güç→final reducer→PHASE-06I paket tam kart tasarımında Vivado sentez/route/timing/bitstream/XSA kapıları | Hann katsayı bağı düzeltilen imaj PetaLinux 6.090/6.090 derleme ve fiziksel ZedBoard boot kapılarını geçti. Dondurulmuş CI8 bilinen-ton karesinde 2.224 bayt fiziksel paket, 54 nihai aday ve bütün metadata alanları bit-doğru referansla eşdeğerdir; DMA timeout/error sıfırdır. Üç pozitif ve iki sıfır karelik servis dizisi 54 olayda 2-of-3 confirmation ve iki-miss expiry davranışını geçti. Güncel ABI v3 PetaLinux paketi 5.679/5.679 ve tam imaj 6.090/6.090 görevle derlendi. SHA-256 değeri `da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18` olan imajın soğuk açılışında kurulu ikili hash eşitliği ve bit-doğru yaşam döngüsü yeniden doğrulandı. ADR-0034 dört derinlikli sınırlı yerel istek kuyruğuyla beş fiziksel koşuda toplam 20.480/20.480 kareyi sıfır hatayla işledi; en düşük/ortalama/en yüksek hız `508,759225230 / 509,458386609 / 509,884071480 kare/s`, gerekli alt sınır `488,28125 kare/s` ve en düşük marj `1,041938893` olduğundan kart içi 2 MS/s hizmet kapısı tekrarlanabilir biçimde kapanmıştır. HackRF host RX ve tespit 5/5 fiziksel koşuda geçti. ADR-0036 kayıtlı CI8 verisini doğrudan 1 Gbps Ethernet üzerinden ZedBoard hizmetine taşıyan beş koşuda 20.480/20.480 ölçüm karesini sıfır sıra hatası ve sıfır aday düşümüyle tamamlamıştır. Kalıcı ağ köprüsüyle kesintisiz canlı HackRF→FPGA yolu ayrıca beş koşuda 20.480/20.480 ölçüm karesi ve sıfır USB overrun/sıra hatasıyla geçmiştir. Ürün QML bağı fiziksel olarak beş ardışık 4.096-kare oturumunda geçti: 20.480 kare, sıfır USB taşması/CRC/sıra hatası/kırpılma. Kanıt: `results/evidence/phase08/product-live-acceptance.json`. Sınırlı ham RX kuyruğuyla güncel ürün sekiz tam fiziksel koşuda 32.768 kareyi sıfır USB/taşıma hatasıyla işlemiş; 750. karede operatör iptali ve ardından tam yeniden başlatma geçmiştir. Kanıt: `results/evidence/phase08/detection-ui-decoupling.json`. Kesintisiz 15 dakikalık dayanıklılık kabulü 439.453/439.453 kareyi ve 14.399.995.904 ham baytı sıfır USB/CRC/sıra/kuyruk hatası ve sıfır kırpılmayla tamamlamıştır. Kanıt: `results/evidence/phase08/live-rx-endurance.json`. Canlı parametre ürün bağı dört ardışık gerçek FPGA karesiyle işlevsel olarak geçmiştir. ADR-0037 güncel geniş bant RTL'si için yazılım/sabit nokta/SystemVerilog eşdeğerliği ve tam Vivado 50 MHz sentez/route/timing/bitstream/XSA kapısı geçmiştir. Güncel imaj kayıtlı fiziksel HackRF I/Q ile Ethernet→PS/DMA→PL yolunda iki LO oturumunda hedef tepeyi 119/120 ve 118/120 karede geri kazanmış; eski imaj iki oturumda 0/120 üretmiştir. CRC/sıra/kuyruk hatası sıfırdır; kanıt `results/evidence/phase08/fpga-p2-wideband-physical-replay.json`. Kontrollü canlı RF doğruluğu, canlı ses ve saha kalibrasyonu açıktır |
+| KTR-4.2 | 4.2 Parametre Çıkarımı | Tespit edilen sinyal parametrelerini çıkarma | F5 ürün profili; operatör onaylı izole aralıkta dört ardışık confirmed+observed kare, iki taraflı gürültü referansı, emisyon merkezi, ITU-R SM.443 yaklaşımıyla OBW99, kalibre edilmemiş kanal dBFS ve sınırlı SNR; alan bazlı fail-closed sonuç | P0 Mandatory Closure Block A / kontrollü ARM bağı | F5 binding 40/40 ve OOS 24/24; ARM C11 ↔ host F5 AM ve geniş bant sahnelerinde altı sayısal alan eşdeğerliği; yalnız gürültü negatif kontrolü; ABI v2 CRC/boyut/durum; ayrıcalıksız Linux hizmet kabulü; PetaLinux paket/rootfs derlemesi; fiziksel PL→DMA→ARM dört gözlem ve yakalanan PL gücüyle host C tekrar oynatımı | Host ürün profili tamamlandı. ARM çekirdeği iki host sinyal sahnesinde sıfır fark ve yalnız gürültüde 6/6 ret verdi; dört kare yaşam döngüsü, 56.064 bayt kalıcı yük ve PetaLinux 5679/5679 build geçti. Fiziksel AM dizisinde DMA 4/4 tamamlandı, altı alan geçerli oldu ve yakalanan gerçek PL güç kareleriyle ARM↔host C farkı sıfır çıktı. Canlı HackRF ürün akışı dört ardışık gerçek FPGA karesini seçili olay ve onaylı aralığa bağlayıp dokuz alan üretmiştir; kanıt `results/evidence/phase08/live-parameter-functional.json` dosyasındadır. Bu işlevsel bağ doğruluk kanıtı değildir. İdeal FFT farkı eşiksiz karakterizasyon olarak korundu. Kontrollü RF doğruluğu, geniş bant fiziksel kapsama ve dBm kalibrasyonu açık |
+| KTR-4.2-F1 | 4.2 Parametre Çıkarımı | PHASE-04 ürün yeteneğini alan bazlı doğrulama | Emisyon merkez frekansı, ayrı gözlenen taşıyıcı frekansı, OBW99, kalibre edilmemiş kanal gücü/SNR ve sınırlı sinyal alanı; confirmed olay ve operatör onaylı izole span; alan bazlı abstention ve digest bağlı fail-closed profil | F1D/F2D/F3D/F4D tamamlandı ve başarısız; F5A-F5E tamamlandı | F1/F2/F3/F4 tek seferlik sonuçları; F5 protokol/yöntem/runner kilitleri, binding 40/40, OOS 24/24, `f5d-verification.json`, digest bağlı ürün profili ve `f5e-verification.json`; fiziksel ARM sayısal kabulü | Host ürün entegrasyonu tamamlandı — altı ölçüm alanı ve span dayanıklılığı iki popülasyonda geçti; QML ölçümü dört ardışık gözlem ve operatör onaylı span gerektiriyor; profil/kaynak değişiminde fail-closed. Altı sayısal alan ARM paketine taşındı ve deterministik AM dizisinde fiziksel kabul edildi; taşıyıcı çizgisi ve sinyal alanı hostta kaldı. Canlı ürün bağı dört ardışık gerçek FPGA karesiyle işlevsel olarak geçti. Kontrollü RF doğruluğu, geniş bant fiziksel kapsama ve dBm kalibrasyonu açık |
+| KTR-4.1-OPS | 4.1 Yarışma İş Akışı | Bilinmeyen, hakem bandı ve hakem frekansı girişleriyle sinyal varlığını doğrulama | Hz domainli `SearchRequest`; ortak replay/HackRF acquisition backend; `UNKNOWN`, `JUDGE_BAND`, `JUDGE_FREQUENCY`; frekans verilse de OS-CFAR ve confirmation atlanmaz; 600 kHz sorumluluk adımlı örtüşen ayar, ikinci fiziksel LO kontrolü ve kontrollü TX kapalı/açık fark sınıflandırması | P0 Mandatory Closure Block A + PHASE-08 | Üç pozitif replay demo; band dışı, yanlış frekans, NaN, ters band, zarf dışı ve aşırı-span negatifleri; Qt binding; tamamlanmış iki JSONL taramasında aynı ayar, mutlak RF eşleştirmesi ve en az 6 dB güç artışı oracle'ı | Replay/host modları ve canlı HackRF tarama/ikinci-LO ürün akışı uygulandı. Sabit bant 2/3 sonucu yalnız `FPGA adayı`; kontrollü A/B olmadan harici yayın sayılmaz. 1,3 GHz yakınında iki-LO fiziksel aday bir turda görüldü, sonraki turda yoktu. Kontrollü TX kapalı/açık fiziksel kabul, tam-pencere geniş yayın ve saha Pd/Pfa ölçümü açık |
+| KTR-4.1-OPS-B0 | 4.1 Yarışma İş Akışı | Üç arama modunu seri seçili HackRF-1 RX'e hazırlama | RX-only `hackrf_transfer`, seri bağlı ED_RX config'i, 8 MS/s, ±100 kHz DC dışlama ve 500 kHz offset tuning | P0 Block B0 + PHASE-08 fiziksel RX | Toolchain self-test; discovery/ci8/argv/plan/mapping/queue/UI unit testleri; beş tekrarlı fiziksel bounded RX ve host tespit kabulü | Fiziksel HackRF tek cihaz ve yapılandırılmış seriyle eşleşti. Beş canlı koşuda toplam 81.920 kompleks örnek eksiksiz, doyum sıfır ve her koşuda en az bir `LIVE_HACKRF` doğrulanmış aday elde edildi. Sürekli USB→kanal seçici→ZedBoard FPGA yolu ayrı 5/5 kabulde geçti. Ürün QML bağı, gerçek olay çözümü, yazılım iptal ve kart-yok fail-closed testleri geçti; beş fiziksel tam ürün oturumunda 20.480 kare hatasız tamamlandı. USB okuma, 512 karelik sınırlı ham-I/Q kuyruğuyla kanal seçimi ve FPGA taşımasından ayrılmıştır. Güncel ürün sekiz tam fiziksel oturumda 32.768 kareyi sıfır USB/taşıma hatasıyla işlemiş; 750. karede operatör iptali ve ardından yeniden başlatma geçmiştir. Hash-bağlı kanıt `results/evidence/phase08/detection-ui-decoupling.json` içindedir. Kesintisiz 15 dakikalık kabulde 439.453/439.453 kare ve 14.399.995.904 ham bayt sıfır USB/taşıma hatasıyla geçmiş; kuyruk tepe kullanımı 28/512 olmuştur. Hash-bağlı kanıt `results/evidence/phase08/live-rx-endurance.json` içindedir. Kontrollü RF doğruluğu kabulü açıktır |
+| KTR-4.3 | 4.3 Sinyal İzleme ve Analog Dinleme | Seçilen analog yayını operatör denetiminde dinleme | PHASE-03 confirmed olay veya operatör ayarlı kanal; açık AM/NFM seçimi; bounded DDC, 129 tap kanal filtresi, 48 kHz resample, AM zarf/NFM faz-fark, 65 tap ses filtresi, mono PCM16/WAV; canlı yolda karta gönderilmiş ve yanıtı doğrulanmış host I/Q için 5,001216 saniyelik sınırlı tampon | PHASE-05 ve PHASE-08 | Deterministik AM/NFM clean ve 20 dB kapıları; bağımsız periodogram/korelasyon oracle'ı; QML tespit/ofset/BW/süre/dalga biçimi/WAV binding'i; noise-only negatif kontrol; sıra boşluğunda tampon sıfırlama ve canlı oturumu durdurup immutable pencereyi işleme yaşam döngüsü | Kısmi — AM/NFM HOST/REPLAY bağımsız doğrulandı ve QML ürün akışına bağlandı; canlı host I/Q'su için kart yanıtı bağlı sınırlı ürün yolu birim/QML testinde geçti. Kontrollü AM/NFM RF doğruluğu, fiziksel ses çıkışı ve saha kabulü yok |
 | KTR-4.4 | 4.4 Yön Bulma | Sinyal geliş yönünü yaklaşık belirleme | HackRF-1 ve uygun yönlü antenle manuel açı; açı/göreli güç/frekans/zaman/güven kaydı; açık `KUZEY / 0°` veya manuel coğrafi baş referansı ile ham maksimum LOB; yalnız geçerli sensör konumu ve açık referansla gerçek basemap üzerinde geodezik LOB sunumu | P0 Mandatory EH Core | 7 köşe fixture'ı ve estimatorü çağırmayan 15° adımlı üç yönlü anten eğitim sahnesi; bağımsız argmax, dairesel hata, 0/360 wrap, manuel referans dönüşümü, kardinal geodezik endpoint; PC konum başarı/hata ve manuel fallback Qt regresyonu | P0 model/eğitim UI ve PC/manuel konum iş akışı doğrulandı; hedef konumu çıkarımı, fiziksel anten açısı kestirimi, canlı anten/HackRF saha ölçümü ve kalibre doğruluk iddiası yok |
 | KTR-4.5 | 4.5 Konum Belirleme | Yaklaşık verici konumu çıkarma | Bilinen iki ölçüm noktasından manuel LOB doğrularını birleştirme | Sonraki fazlar | Bilinen konumlu kontrollü hedeflerle hata analizi | Uygulanmadı |
 | KTR-5.1 | 5.1 Sürekli Karıştırma | Kontrollü sürekli ET deneyi | Bilgisayar-2 üzerinde tekli, çoklu, baraj ve süpürmeli deterministik kompleks taban bant; OFFLINE/LOOPBACK; HackRF-2 TX kilitli | P0 Mandatory EH Core + ET-A offline kabulü | Tekli/çoklu spektral yapı, seeded baraj bant içi güç ve flatness, doğrusal süpürme ilerlemesi, iki kuyruklu OBW99, finite/normalizasyon ve güvenlik kilidi | ET-A host offline kapısı geçti; gerçek TX backend'i, RF güç/etki veya kapalı düzen deneyi yok |
 | KTR-5.2 | 5.2 Arabakışlı Karıştırma | Kontrollü aralıklı ET deneyi | Deterministik yerel analiz girişi üzerinde birbirini dışlayan `DİNLE → GECİKME → GÖREV → KORUMA` pencereleri; enerji eşiği, ardışık onay, histerezis, sınır kontrollü offline görev tamponu ve örnek-seviyesi çıkış maskesi; TX kilitli | ET-B offline zamanlama kabulü; RF kabulü sonraki kontrollü faz | Hedef yok/sürekli/kesintili/eşik-köşe girişleri; dinleme/görev dışlama, gecikme ve koruma sırası, görev çevrimi, maske dışı sıfır, tepe sınırı, görev frekansı ve güvenlik kilidi | ET-B host offline zamanlama kapısı geçti; gerçek zamanlı deadline/latency ölçümü, HackRF-2, RF görev çevrimi, güç/etki ve kapalı düzen spektrum kabulü uygulanmadı |
 | KTR-5.3 | 5.3 Analog Telsiz Aldatma | Kontrollü analog aldatma deneyi | 1 kHz doğrulama sesi normalizasyonu, 3 kHz bant sınırlama, AM/FM/NFM kompleks taban bant ve çıkış normalizasyonu; TX kilitli | P0 Mandatory EH Core + ET-A offline kabulü | AM zarf ve FM/NFM quadrature yerel demodülasyon korelasyonu, bant dışı ses gücü, bounded görev ve güvenlik testi | ET-A test sesi taban bant/loopback kapısı geçti; gerçek ses kaydı, mikrofon, kablolu RF ve HackRF-2 TX uygulanmadı |
 | KTR-5.4 | 5.4 GNSS Aldatma | Kontrollü GNSS aldatma deneyi | Yalnız GPS L1 C/A offline metadata: konum, açık UTC, 1–63 PRN kodu ve kaynak sözleşmesi; dalga şekli yok, TX kilitli | ET-A offline kabulü; RF kabulü sonraki kontrollü faz | Geçerli metadata; UTC ofseti, aralık dışı PRN, boş metadata kaynağı ve geçersiz konum/zaman negatifleri; sıfır örnek ve TX yokluğu | Metadata sözleşmesi doğrulandı; GNSS RF dalga şekli, ephemeris/NAV işleme, alıcı testi ve her türlü OTA/kablolu GNSS TX uygulanmadı |
-| KTR-6 | 6 Simülasyon ve Test | Modelleri ve donanım uygulamasını doğrulama | Deterministik veri, PHASE-06A–J kanıtları, P0 OS-CFAR/parametre/DF/ET host modelleri ve gerçek PS↔DMA↔PL Vivado blok tasarımı | P0 Mandatory EH Core | Golden ölçümler, C eşdeğerliği, Qt binding/lifecycle, 16-bit DMA length Vivado BD/sentez/route/timing/bitstream/XSA, PetaLinux device-tree/modül/rootfs/boot derlemesi, fiziksel boot/FCLK/DMA, PHASE-07 kanal seçici/çift CRC/TCP→yerel hizmet loopback ve repository regresyonu | Güncel CI8→aday-paket imajı ZedBoard'da DONE/UART/Linux, FPGA `operating`, DMA ve 54-aday bit-doğru paket kapılarını geçti. Beş karelik fiziksel servis dizisi 2-of-3 confirmation ve expiry alanlarında host oracle ile eşdeğerdir. Beş bağımsız 4.096-kare kart içi koşuda toplam 20.480 kare sıfır işlevsel hatayla işlendi; en düşük hız `508,759225230 kare/s` ve marj `1,041938893` ile 2 MS/s yerel hizmet kapısı geçti. HackRF bounded host RX 5/5 geçti. PHASE-07 host alt kapısında 8→2 MS/s anti-alias kanal seçici, sürüm 2 çift CRC, portable C decoder ve dört derinlikli Linux ağ köprüsü loopback'i geçti. Köprünün PetaLinux kurulumu, fiziksel Ethernet, kesintisiz USB→PC→ZedBoard→FPGA akışı ve kalibrasyon açıktır |
+| KTR-6 | 6 Simülasyon ve Test | Modelleri ve donanım uygulamasını doğrulama | Deterministik veri, PHASE-06A–J kanıtları, P0 OS-CFAR/parametre/DF/ET host modelleri ve gerçek PS↔DMA↔PL Vivado blok tasarımı | P0 Mandatory EH Core | Golden ölçümler, C eşdeğerliği, Qt binding/lifecycle, 16-bit DMA length Vivado BD/sentez/route/timing/bitstream/XSA, PetaLinux device-tree/modül/rootfs/boot derlemesi, fiziksel boot/FCLK/DMA, PHASE-07 kanal seçici/çift CRC/TCP→yerel hizmet loopback ve repository regresyonu | ADR-0037 öncesi CI8→aday-paket imajı ZedBoard'da DONE/UART/Linux, FPGA `operating`, DMA ve 54-aday bit-doğru paket kapılarını geçti. Beş karelik fiziksel servis dizisi 2-of-3 confirmation ve expiry alanlarında host oracle ile eşdeğerdir. Beş bağımsız 4.096-kare kart içi koşuda toplam 20.480 kare sıfır işlevsel hatayla işlendi; en düşük hız `508,759225230 kare/s` ve marj `1,041938893` ile 2 MS/s yerel hizmet kapısı geçti. Güncel ADR-0037 RTL için yazılım/sabit nokta/SystemVerilog eşdeğerliği ile Vivado 50 MHz sentez/route/timing/bitstream/XSA kapısı geçmiştir; kart yeniden kabulü açıktır. HackRF bounded host RX 5/5 geçti. PHASE-07 host alt kapısında 8→2 MS/s anti-alias kanal seçici, sürüm 2 çift CRC, portable C decoder ve dört derinlikli Linux ağ köprüsü loopback'i geçti. Köprünün PetaLinux kurulumu ve fiziksel Ethernet önceki kaynak sürümünde geçti; güncel kart kabulü ve kalibrasyon açıktır |
+
+PHASE-08 FPGA-bağlı dayanıklılık yeniden kabulü, üstteki KTR-4.1 ve
+KTR-4.1-OPS-B0 satırlarındaki ilk koşunun yerine kendi kaynak sürümündeki v2
+kaydını geçirir. V2
+koşusu 439.453/439.453 kare ve 14.399.995.904 ham baytı sıfır USB/CRC/sıra/
+kuyruk hatası ve sıfır kırpılmayla tamamlamış; ham RX kuyruğu en fazla 170/512
+kullanılmıştır. Bu sürümün hash-bağlı kanıtı
+`results/evidence/phase08/live-rx-endurance-v2.json` dosyasındadır; v1 tarihsel
+kayıt olarak korunur. Güncel RX/görüntü kaynak sürümünün RX-only 15 dakikalık
+kabulü `results/evidence/phase08/live-rx-display-8msps-v1.json` dosyasındadır
+ve artık tarihsel kaynak sürümüne aittir. Güncel ADR-0039 sürümünün
+`live-rx-display-8msps-v2.json` koşusu USB shortfall nedeniyle başarısızdır;
+FPGA tespit veya taşıma kabulü sayılmaz.
 
 ## PHASE-07 kalıcı imaj güncellemesi
 
@@ -69,7 +160,7 @@ QML ürün alanına eklemiştir. Kısa önizleme, kesintisiz kayıt ve canlı Ha
 ayrı durumlar olarak gösterilir.
 Dördüncü bakım paketi ortak frekans imlecini, geri/ileri görünüm geçmişini ve
 FFT hücresine bağlı `Shift+sürükle` analiz taslağını eklemiştir. Tespit listesi
-sabit tutulurken ölçüm ve dinleme ayarları bağımsız kaydırılır; taslak ayrıca
+görev alanında sabit yükseklikte kalırken ölçüm ve dinleme ayarları bağımsız kaydırılır; taslak ayrıca
 operatör onayı almadan parametre ölçümünü etkinleştirmez.
 Beşinci bakım paketi Sistem çalışma alanını gerçek çalışma durumuna bağlı yedi
 aşamalı işlem zinciri, bileşen yürütme/donanım sınırı denetçisi ve yapılandırılmış
@@ -108,6 +199,73 @@ kuralları tek doğrulayıcıda 21 kabul kapısına bağlanmıştır. ET-C ile �
 güvenlik, operatör dili, boş kaynak durumu ve azaltılabilir hareket kapıları
 eklenerek güncel toplam 28 olmuştur. Bu bakım algoritma,
 donanım, RF doğruluğu veya yeni görev yeteneği iddiası eklemez.
+Onuncu bakım paketi canlı tespit listesindeki manuel dondurma denetimini
+kaldırmıştır. Görünür olayların ölçüme uygun son dört ardışık FPGA karesi sınırlı
+bir önbellekte otomatik korunur; seçili olay kaybolsa bile yakın frekanstaki yeni
+kimliğe aktarılmaz. Gerçek HackRF→ZedBoard ürün oturumunda seçili confirmed olay,
+operatör onaylı analiz aralığı, dört ardışık I/Q kare kimliği ve dokuz parametre
+alanı hash-bağlı kanıtla geçmiştir. Bu sonuç işlevsel ürün bağını kanıtlar;
+kontrollü RF doğruluğu, dBm kalibrasyonu veya sinyal türü doğruluğu iddiası eklemez.
+On birinci bakım paketi ED görev gezinmesini `Sinyal Tespiti` ve `Parametre
+Çıkarımı` için ayrı operatör girişlerine ayırmış, seçili olay ile ortak
+spektrum/spektrogram bağlamını korumuştur. Canlı analog dinleme için host kanal
+seçicisinin karta gönderilmiş ve yanıtı doğrulanmış ardışık I/Q karelerinden
+5,001216 saniyelik sınırlı tampon eklenmiştir; FPGA I/Q geri döndürmez. Sıra
+boşluğu tamponu temizler ve demodülasyon yalnız seçili olay pencerenin her
+karesinde confirmed+observed ise başlatılabilir. Bu bakım KTR-4.2 ve KTR-4.3 ürün bağını
+iyileştirir; fiziksel RF doğruluk veya ses aygıtı kabulü oluşturmaz.
+
+On ikinci bakım paketi, KTR-4.1 yarışma taramasında FPGA aday listesini
+tamamlayan yerel kanal-gücü sıralamasını eklemiştir. ±10 pencerelik yerel
+medyan, adayın ±2 komşusunu referans dışında bırakır; yalnız en az 6 dB yükselen
+ve en az iki bitişik 600 kHz sorumluluk penceresinde süren bölgeler öne çıkar.
+İki tam 1490–1600 MHz fiziksel turda aynı 1587,5 MHz tepe penceresi bulunmuş;
+ham I/Q iki bağımsız LO ayarında 1.586.923.828,125 Hz tepesini 0 Hz farkla
+yeniden üretmiştir. Host çok ölçekli yol tepeyi 120/120 ve 119/120 karede,
+karttaki önceki bitstream ise 0/120 ve 0/120 karede kapsamıştır. Yeni sunum
+yalnız 1585,3–1588,5 MHz bölgesini +9,04 dB yerel farkla öne çıkarır. Bu sonuç
+RX enerji tanısıdır; dış verici kimliği, kontrollü A/B, Pd/Pfa veya güncel
+bitstream fiziksel kabulü değildir. PHASE-08 açık kalır.
+
+Harici yayın yeniden ayarlandıktan sonraki üçüncü 1490–1600 MHz turu 184/184
+pencereyi 95,65 saniyede sıfır hatayla tamamlamıştır. Önceki 1586,9 MHz enerji
+bölgesinin aynı yerde kalması onun test vericisine atfedilmesini engellemiştir.
+1595,3 MHz çevresindeki iki-LO PSD deseni 0,916 korelasyon ve kart/host tarafında
+120/120 kare kapsamı üretmiş, ancak tam turlar arasındaki +4,10 dB fark kilitli
++6 dB A/B sınırını geçmemiştir. KTR-4.1 bakım sunumu bunu yalnız `kararlı RF
+adayı` olarak gösterebilir; `harici verici doğrulandı` iddiası kontrollü TX kapalı
+referans ve aynı ayarlı TX açık tur olmadan üretilemez.
+
+On üçüncü bakım paketi KTR-4.1 operatör akışını iki göreve indirmiştir: sabit
+frekansta tarama ve bant taraması. Alıcı açılışta otomatik denetlenir; frekans,
+LNA ve VGA kontrolleri korunurken SigMF seçimi, olay konsolu, görünür
+yakınlaştırma/geçmiş, taban/aralık ve tepe-tut kontrolleri yarışma yüzeyinden
+kaldırılmıştır. Kayıtlı I/Q arka ucu yalnız hash-bağlı tekrarlanabilir doğrulama
+için kalır. İlgili canlı görünüm, tarama ve ürün sınırı koşusu 98/98 geçmiştir.
+Bu bakım detector eşiklerini veya kontrollü RF kabul sınırını değiştirmez.
+
+On dördüncü bakım paketi KTR-4.1 sabit bant yüzeyinde tekil durum sunumunu
+zorunlu kılmıştır. Ürün logo ile `BÂZ` kimliğini kullanır; bağlantı veya
+alım hatası yalnız alıcı ayarlarında neden ve kurtarma eylemiyle gösterilir. Geçerli
+spektrum örneği yokken FPGA izleme penceresi, merkez çizgisi ve aday kılavuzu
+çizilmez. Ham 2/3 öncesi aday denetimi yarışma yüzeyinden kaldırılmış, yalnız
+kararlı aday listesi korunmuştur. Değişiklik eşik/RTL/ARM davranışını etkilemez;
+canlı görünüm ve ürün sınırı regresyonu 98/98 geçmiştir.
+
+Fiziksel hata ayrıştırmasında bağlı HackRF'in 8 MS/s örnek ürettiği ve FPGA
+hizmetinin erişilebilir olduğu doğrulanmıştır. Yüksek kazançtaki I/Q kırpılması
+genel kuyruk zaman aşımıyla maskelenmeyecek biçimde ilk hatada `iq_saturation`
+olarak taşınır; alım ve kanal seçici zaman aşımı kodları ayrılmıştır. 32/32 ile
+16/16 dB tanı koşulları kırpılmış, 8/8 ve 0/0 dB koşulları 64/64 FPGA yanıtını
+sıfır USB taşmasıyla tamamlamıştır. Bu tanı kontrollü RF doğruluk kapısını kapatmaz.
+
+On beşinci bakım paketi KTR-4.1 sunumunu düz tek yüzeye taşımış ve doğrulanmış
+frekans geçmişini eklemiştir. Ham FPGA adayları gösterilmez; 2/3 koşulunu geçen
+gözlemler frekans destek örtüşmesine göre tekilleştirilir ve oturum boyunca
+`Algılanıyor`/`Son görüldü` olarak korunur. Bu yalnız sunum belleğidir; FPGA/ARM
+olay yaşam döngüsünü, eşikleri veya dış yayın doğrulama sınırını değiştirmez.
+`İZLEME` kaldırılmış ve geçerli FPGA penceresi `TESPİT ALANI` olarak açıkça
+etiketlenmiştir. İlgili regresyon paketi 100/100 geçmiştir.
 
 ET-C bakım paketi, doğrulanmış KTR-5.1–5.4 host modellerini ana QML ürün
 yüzeyindeki ayrı ET alanına bağlamıştır. Sürekli ve analog sonuçlar sınırlı zaman

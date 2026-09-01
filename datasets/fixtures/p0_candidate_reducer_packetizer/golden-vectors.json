@@ -1,7 +1,7 @@
 {
-  "axis64_beats": 345,
-  "candidate_count": 61,
-  "frame_count": 5,
+  "axis64_beats": 379,
+  "candidate_count": 63,
+  "frame_count": 8,
   "schema_version": 1,
   "status": "passed",
   "vectors": [
@@ -44,6 +44,30 @@
       "packet_bytes": 144,
       "source": "deterministic separated wideband supports",
       "vector_id": "two_wideband"
+    },
+    {
+      "axis64_beats": 13,
+      "candidate_count": 1,
+      "frame_id": 5,
+      "packet_bytes": 104,
+      "source": "flanked 512-bin support that contaminates two regional medians",
+      "vector_id": "broad_512"
+    },
+    {
+      "axis64_beats": 13,
+      "candidate_count": 1,
+      "frame_id": 6,
+      "packet_bytes": 104,
+      "source": "flanked 2048-bin support that contaminates eight regional medians",
+      "vector_id": "broad_2048"
+    },
+    {
+      "axis64_beats": 8,
+      "candidate_count": 0,
+      "frame_id": 7,
+      "packet_bytes": 64,
+      "source": "12 dB spectral step without two independent low-noise flanks",
+      "vector_id": "colored_step_negative"
     }
   ]
 }

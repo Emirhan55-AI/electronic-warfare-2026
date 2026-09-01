@@ -23,9 +23,9 @@ def test_sparse_and_final_vector_files_are_deterministic_and_current() -> None:
     sparse = json.loads(build_sparse_files()["golden-vectors.json"])
     final = json.loads(build_final_files()["golden-vectors.json"])
     assert sparse["semantic_candidates"] == 151
-    assert sparse["output_records"] == 154
-    assert final["semantic_candidates"] == 61
-    assert final["output_records"] == 62
+    assert sparse["output_records"] == 157
+    assert final["semantic_candidates"] == 63
+    assert final["output_records"] == 65
 
 
 def test_final_candidate_reducer_is_bit_true_and_within_functional_budget() -> None:

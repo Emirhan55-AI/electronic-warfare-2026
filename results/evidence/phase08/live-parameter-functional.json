@@ -1,0 +1,49 @@
+{
+  "schema": "phase08-live-parameter-functional-v1",
+  "status": "functional_binding_passed",
+  "phase08_complete": false,
+  "accuracy_proven": false,
+  "archive": "live-parameter-functional.zip",
+  "archive_sha256": "db607e93e7174e0396ef8b928e02e018873705b04064a9de4781a0f986019abe",
+  "run_sha256": "375f1d5886d868ef660d99c7debda51a036c1c0dd76197ce5333ce41cb384e3c",
+  "ui_state_sha256": "cdd258a332da7ccf41fbfd9bb1f36f63d1720cdb09c8fba62aa091d190ad7771",
+  "captured_source_sha256": {
+    "app/operator_console/detection_model.py": "4739ec3e8d997ef2a2dc4f84ff0b9ce28c35568b7ac969e4fe48094f4b6827b6",
+    "app/operator_console/live_ed.py": "19ed884a6c321550d1ee1d1877ed591a38078f4f157977d0647fdb797ae9593d",
+    "app/operator_console/quick_view_model.py": "a348bd9d4c066429916aa23c97077c836cfb43f92bab49900f0049e240b8b6aa",
+    "app/operator_console/quick_application.py": "34bcafef9c10b2467cdd03b3d5b7b16c44030359a520be262d1f3837e78a34db",
+    "app/operator_console/qml/Main.qml": "d5db0036ecaeb194dfdb9be8f5ab6d337abc682b02044c8560402b5e3ab175c8",
+    "algorithms/p0/channelizer.py": "9dcd117cb302d7422f26192a80703211150cc1bdba91ed5e2b674b174afaa310",
+    "algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
+    "platforms/acquisition/continuous.py": "ffdef0a0a58231e7967a09a0d09aff3cff258edd26d9f960cb1ffa4f38bf801f",
+    "scripts/capture_phase08_product.py": "5a9fb6b05cf3e0a2e35beebada8d8622a6b2e5f67fe43133f491997993b1ae8f"
+  },
+  "selected_event_id": 6642,
+  "measurement_sequence_numbers": [
+    5049,
+    5050,
+    5051,
+    5052
+  ],
+  "measurement_frame_ids": [
+    5049,
+    5050,
+    5051,
+    5052
+  ],
+  "measurement_iq_sha256": [
+    "5bae8d3c9cd139ae3ee8998e26b5a0b1320e4a4de6db00be48a1ac74a808aebb",
+    "c1afb12724c34d25185090d082b97b2ba8e3ba8f32a45a4579d92525ec9bf38e",
+    "1775407ad8c6691ff9d7d08a2093bbf7c4a6742ff64c01b75d6fcf807c7e523c",
+    "3c1e52923cecdb831934d14349534e1c893b95eefdc6e0238475181c9f32284c"
+  ],
+  "parameter_field_count": 9,
+  "captured_display_snapshots": 408,
+  "transmit_enabled": false,
+  "limits": [
+    "Bu kanıt canlı HackRF→ZedBoard→ürün parametre bağının çalıştığını gösterir.",
+    "Ortam sinyali kontrollü referans değildir; frekans, bant genişliği, güç veya sınıf doğruluğu çıkarılamaz.",
+    "dBm kalibrasyonu ve canlı analog ses kabulü ayrı kapılardır.",
+    "Koşu RX-only'dir; RF yayın işlevi yoktur."
+  ]
+}

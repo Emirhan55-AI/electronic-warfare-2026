@@ -1,23 +1,23 @@
 {
   "files": {
     "candidate-expected.mem": {
-      "bytes": 3658,
-      "sha256": "c7aa7bd994c239d03358346ac6529b2cf80835155425897cb26219355d965013"
+      "bytes": 3835,
+      "sha256": "3287b4b0427189c9aca986f76e4072735587c1f79e320e3a62bea426e9e3aca4"
     },
     "expected-record-counts.mem": {
-      "bytes": 25,
-      "sha256": "c6c5095e7e3e00398a55585df47bc2b6443687e46613d51e7858034c2896543c"
+      "bytes": 40,
+      "sha256": "25518ac2e562867d42b88b526d057cf6d9e0e85caefdd23854b25266fc92df47"
     },
     "golden-vectors.json": {
-      "bytes": 16982,
-      "sha256": "f4bd900601257d91e01303a5e5813568a99c7907ca649e822f9aa82a339e3d0f"
+      "bytes": 18354,
+      "sha256": "13f43fd26ba1d25a86f9234a7ddc36e18a3a6c30e50b0916b524333c29993171"
     }
   },
   "schema_version": 1,
   "shared_axis_power_input": {
-    "bytes": 389120,
+    "bytes": 622592,
     "path": "datasets/fixtures/p0_wideband_recovery/axis-power-input.mem",
-    "sha256": "8fb3a2547cafd15f85f402b8f8d71cf9e5a255956c0296eb5cf6531b1302754d"
+    "sha256": "2b5bafff3139aaa7d464a8524e570d2fd010d30b9f84c81d524b910802694425"
   },
   "status": "passed"
 }

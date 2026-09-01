@@ -1,0 +1,1421 @@
+{
+  "schema": "detection-scale-characterization-v1",
+  "status": "characterized_not_accepted",
+  "scope": "host_only_scale_limit_diagnostics",
+  "transmit_enabled": false,
+  "limits": [
+    "İdeal düz güç girdisi fiziksel RF modeli değildir.",
+    "CI8 sahneleri sentetiktir; alıcı, FPGA ve saha kabulü değildir.",
+    "Yeni eşik seçilmedi; sonuçlardan ürün kabul eşiği türetilmedi.",
+    "Bütün pencereyi dolduran güç artışı yerel gürültü artışından tek başına ayrılamaz."
+  ],
+  "source_sha256": {
+    "algorithms/p0/detection.py": "0b537a4ca2e06b3afb11f7bc9c83f9147cf40b2bbbc3f36d591d90fe5fd99512",
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "scripts/characterize_detection_limits.py": "557a7588873b0471e0cf71abcd2f874041e4972fec6febef42d6b061c79dd4c3"
+  },
+  "records": [
+    {
+      "input": "ideal_power_plateau",
+      "width_bins": 100,
+      "nominal_width_hz_at_2msps": 48828.125,
+      "power_sha256": "684622b497ab3e7a7d909318d6be46f48642e0446c655673e789fdf33196d913",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1997,
+          2096
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 0,
+      "iq_sha256": "d99bc3d3f71f76d3e5783f3a09258291423b266480e41170aa5fa869cd79d244",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.95,
+      "candidates": [
+        [
+          2002,
+          2096
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 1,
+      "iq_sha256": "96a17defc5ff5f0d4c62c2161c703b96cf4163a0366ac93745fb9edada02a709",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.97,
+      "candidates": [
+        [
+          1811,
+          1811
+        ],
+        [
+          1997,
+          2094
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 2,
+      "iq_sha256": "89b20af93c5181e8f63f2279bc33ed0830b7936387efeb4ff4bcaca9c17b0398",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.97,
+      "candidates": [
+        [
+          1999,
+          2095
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 3,
+      "iq_sha256": "738ebb22a8a1e4f949989714747e52b17bc661a37cfba2b49721f5f0e5f95393",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.96,
+      "candidates": [
+        [
+          1999,
+          2094
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 4,
+      "iq_sha256": "4d419f04acc86cbf25d5be98aa8d363a5a72b779fe6fef325d4e89f58ea7aa9d",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1997,
+          2096
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 5,
+      "iq_sha256": "03652655c27805529ba3116b93d593e8eec123fd78d8c7fdbc9ef1dccd233ee4",
+      "os_candidates": 2,
+      "wideband_candidates": 1,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.96,
+      "candidates": [
+        [
+          1461,
+          1462
+        ],
+        [
+          2000,
+          2095
+        ],
+        [
+          3587,
+          3588
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 6,
+      "iq_sha256": "74f0eaef38a5b1baa1ff495c9e0cc78ee925edc195d089c3bd89b2a7cd8a5873",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.98,
+      "candidates": [
+        [
+          1998,
+          2095
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 7,
+      "iq_sha256": "297d20427784afc1da5627de6885e0885780524a10ea2170c35acf0a65547c65",
+      "os_candidates": 2,
+      "wideband_candidates": 1,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          624,
+          624
+        ],
+        [
+          1998,
+          2096
+        ],
+        [
+          2452,
+          2452
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 8,
+      "iq_sha256": "896e01062d811678417daf595136ae67933ee8247cc180570542c57c130e6f95",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.98,
+      "candidates": [
+        [
+          1997,
+          2095
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 9,
+      "iq_sha256": "4ead4365c6f3fbe8cd2cc0aaead40d3dfbb7c132e4ec800e69c440cda0658227",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 1.0,
+      "candidates": [
+        [
+          1998,
+          2097
+        ],
+        [
+          3923,
+          3923
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 10,
+      "iq_sha256": "059140a8f219008ad74489d42bf981dade9d349f76a9a69042c18e890f4bd756",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1997,
+          2096
+        ],
+        [
+          2990,
+          2990
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 11,
+      "iq_sha256": "337b3628e76de47e8ec89b9184d1c49a2974c6380df304367f95263766b1057b",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1997,
+          2096
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 12,
+      "iq_sha256": "ac53ebce80a899366f3e2b3957d46babb50605af80628548a4ccb40ca4273a0b",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.95,
+      "candidates": [
+        [
+          2001,
+          2095
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 13,
+      "iq_sha256": "3352e362e9c343a94deb0000fe3d729197cdb29950b2e0b5f641fa20fa0115bf",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.98,
+      "candidates": [
+        [
+          1997,
+          2095
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 14,
+      "iq_sha256": "e4f45d69f3ab8f78b971c9a02e1e9407a4176e277ede496fd7a0ccabf3f7ae2f",
+      "os_candidates": 3,
+      "wideband_candidates": 1,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1997,
+          2096
+        ],
+        [
+          2403,
+          2403
+        ],
+        [
+          3579,
+          3580
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 100,
+      "seed": 15,
+      "iq_sha256": "c1fd041854c5a8807772967108bf16fcbde336f6a68a815b78c720ed58b93aaf",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.99,
+      "candidates": [
+        [
+          1998,
+          2096
+        ],
+        [
+          4031,
+          4031
+        ]
+      ]
+    },
+    {
+      "input": "ideal_power_plateau",
+      "width_bins": 256,
+      "nominal_width_hz_at_2msps": 125000.0,
+      "power_sha256": "0a6aef54a1423ae6dd202d299a4285eb560986de826c49c817c3dce01d88b52f",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 0,
+      "iq_sha256": "6fb4fe66dc69b2870b97ad596fc0d2a84da6bafcf3bfb547127e18591d98dd53",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.984375,
+      "candidates": [
+        [
+          1921,
+          2172
+        ],
+        [
+          3661,
+          3661
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 1,
+      "iq_sha256": "3da8de1606c8f5c3a23005d684641b0e9159583e4257292c56f5299ab940ab6e",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.9609375,
+      "candidates": [
+        [
+          1231,
+          1231
+        ],
+        [
+          1925,
+          2170
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 2,
+      "iq_sha256": "e525954a90f9f1eb2a55d455dba53550a3d3cbac0a4a814759280756536b388c",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.98046875,
+      "candidates": [
+        [
+          1921,
+          2171
+        ],
+        [
+          3347,
+          3347
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 3,
+      "iq_sha256": "9b8ec8e5fa804ee63498f2a2c7e4d1f10d9241833e3c152ec2d6b7044f48c607",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.9609375,
+      "candidates": [
+        [
+          1923,
+          2168
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 4,
+      "iq_sha256": "0d8666b6c976a1a46d80d16a539e68534a6b4464a2534e45b9495bb9d66b0869",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.9375,
+      "candidates": [
+        [
+          1927,
+          2166
+        ],
+        [
+          2280,
+          2280
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 5,
+      "iq_sha256": "18b89e4d8ec315bc32da8a5134829570143de6ba7f7d6426d2b1fa3c1c40fea7",
+      "os_candidates": 2,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.98828125,
+      "candidates": [
+        [
+          1920,
+          2172
+        ],
+        [
+          2393,
+          2393
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 6,
+      "iq_sha256": "df2c16eee1a0e6d94272d4ef994a1d8ec94b0cdaa77495a7dc1678b56c8c29a3",
+      "os_candidates": 1,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.95703125,
+      "candidates": [
+        [
+          1928,
+          2172
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 7,
+      "iq_sha256": "47e3aa5b60a8c5073a2569091b178bbfdbe405a7ae97d7415d4c44298f93a16a",
+      "os_candidates": 2,
+      "wideband_candidates": 1,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.984375,
+      "candidates": [
+        [
+          1140,
+          1140
+        ],
+        [
+          1921,
+          2172
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 8,
+      "iq_sha256": "94dfe5a3ded166a4ba411d3afd59ec5370dbb05be41a5719aa55b482cda14622",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.98046875,
+      "candidates": [
+        [
+          1923,
+          2173
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 9,
+      "iq_sha256": "15ad8179939da43d84a5a6126ac943140f178bc89934eb9e41a9c25828007e65",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.9609375,
+      "candidates": [
+        [
+          1928,
+          2173
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 10,
+      "iq_sha256": "7ba448ae6c18ed436c4fe56965c43873f670a7b11d6461227cbbe9486fa8bb24",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.95703125,
+      "candidates": [
+        [
+          1929,
+          2173
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 11,
+      "iq_sha256": "20ffa133503144d645ea474c7b5bdb99286cd9df0a836be84a18b97ed0f900d1",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.9609375,
+      "candidates": [
+        [
+          1926,
+          2171
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 12,
+      "iq_sha256": "d8d4cb4c6aa7112fc0242862dfef3c6574c88f97235e9bfe600cbefebd75019a",
+      "os_candidates": 4,
+      "wideband_candidates": 1,
+      "final_candidates": 5,
+      "best_single_candidate_coverage": 0.98046875,
+      "candidates": [
+        [
+          986,
+          986
+        ],
+        [
+          1829,
+          1830
+        ],
+        [
+          1922,
+          2172
+        ],
+        [
+          2174,
+          2174
+        ],
+        [
+          3544,
+          3544
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 13,
+      "iq_sha256": "00bad9567767ac7e96a52bce7313211e95de9b7cd504ba6051aec569e8a2665d",
+      "os_candidates": 3,
+      "wideband_candidates": 1,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.98828125,
+      "candidates": [
+        [
+          1176,
+          1176
+        ],
+        [
+          1919,
+          2172
+        ],
+        [
+          3489,
+          3489
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 14,
+      "iq_sha256": "419a23950af53f363404d6889ebf336effa0b6dcec0be95e61b0d828f823528f",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.97265625,
+      "candidates": [
+        [
+          1924,
+          2172
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 256,
+      "seed": 15,
+      "iq_sha256": "5e92f9b47edd6c482fb18225719ee9bedfb4301066069ad7a0ec0a29ab464c76",
+      "os_candidates": 0,
+      "wideband_candidates": 1,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.9609375,
+      "candidates": [
+        [
+          1926,
+          2171
+        ]
+      ]
+    },
+    {
+      "input": "ideal_power_plateau",
+      "width_bins": 512,
+      "nominal_width_hz_at_2msps": 250000.0,
+      "power_sha256": "65123df974b1d3f0b9f579b30b68df3ec20b7215fb1b11784c636b923c4f2926",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 0,
+      "iq_sha256": "8bb486515236ca2b9e6f4d74182243d5e42fbabcd10669873ce9a21009b6d8bd",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          3547,
+          3547
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 1,
+      "iq_sha256": "6800aa369047f83fadc28052b67c60f68c9b9d02e3589271ed57b95d77188856",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00390625,
+      "candidates": [
+        [
+          1793,
+          1794
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 2,
+      "iq_sha256": "9f3e6e666eec1ab59b42afcbfad626579ffcd73bd71f23cd142aab6972488eac",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 3,
+      "iq_sha256": "c578ba697c8d9489385941d373147dbc98d38844d4a7a929e1e2bf281255a2bd",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 4,
+      "iq_sha256": "1177fb52d21758fd8d3fc2a88d50c4643926a99bfa8826b0b307ff89c983c9c2",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.001953125,
+      "candidates": [
+        [
+          2298,
+          2298
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 5,
+      "iq_sha256": "a4097710c3330738a110601f82fcb0fd9db24389e2ced45c159bf0a04cd73edb",
+      "os_candidates": 3,
+      "wideband_candidates": 0,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          517,
+          517
+        ],
+        [
+          1274,
+          1274
+        ],
+        [
+          3745,
+          3745
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 6,
+      "iq_sha256": "fecf3e529488f6fafe1d03b35ab11188a8ca80d1ad464862a6b75f8ba83a6115",
+      "os_candidates": 3,
+      "wideband_candidates": 0,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.001953125,
+      "candidates": [
+        [
+          1035,
+          1035
+        ],
+        [
+          1797,
+          1797
+        ],
+        [
+          3352,
+          3352
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 7,
+      "iq_sha256": "85b8202ad6272a88c684e9661602a41a8419d242eb51f62eabd46639e9af0ffd",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 8,
+      "iq_sha256": "35254f83474816c32b41e27179a9ebe92397296956837c1da78446d90ce01cbd",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 9,
+      "iq_sha256": "53a790f5d9761a4acea32563028070916bbefdd498e95ba5fd6bacca00ca11e8",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          370,
+          370
+        ],
+        [
+          3678,
+          3678
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 10,
+      "iq_sha256": "de74be58ecfd51d3e1e151c8f23f011c8a34abbde1f633fae4d48be2329df9ca",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          847,
+          847
+        ],
+        [
+          2982,
+          2983
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 11,
+      "iq_sha256": "ae9bfc0e3e325682394511c4f0925758e41b681b7b2949d40d0b3c7427f5463e",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.001953125,
+      "candidates": [
+        [
+          546,
+          546
+        ],
+        [
+          2139,
+          2139
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 12,
+      "iq_sha256": "8d910bc82bed2e55793e8a7e93f0aa1a39b8d7937dd1bc1b1ffdaf2180a49d8a",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.001953125,
+      "candidates": [
+        [
+          1797,
+          1797
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 13,
+      "iq_sha256": "f380844dde999d72bacae950c7783ce126a3854d7cdb0f748fb1dc28bbae2b26",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00390625,
+      "candidates": [
+        [
+          2302,
+          2303
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 14,
+      "iq_sha256": "765f85c0260862ce9b97331b0eaeb887cd669898d62e7c5eef1f334aa1c280db",
+      "os_candidates": 3,
+      "wideband_candidates": 0,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.001953125,
+      "candidates": [
+        [
+          2196,
+          2196
+        ],
+        [
+          2302,
+          2302
+        ],
+        [
+          2847,
+          2847
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 512,
+      "seed": 15,
+      "iq_sha256": "588e141df99764a4509728f06467575cfcb541f710c33a6ba038831972182366",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          938,
+          938
+        ]
+      ]
+    },
+    {
+      "input": "ideal_power_plateau",
+      "width_bins": 2048,
+      "nominal_width_hz_at_2msps": 1000000.0,
+      "power_sha256": "0c3bd9e309e2413e6f09011d10ed648ac898e20f45d9b34bc7b712bf434fd9a6",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 0,
+      "iq_sha256": "6a9750e5d51cdd6c4c510ff292e39dd8974200dec39b0b40a9758c152428e02e",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          2363,
+          2363
+        ],
+        [
+          2940,
+          2940
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 1,
+      "iq_sha256": "ff0351510030e3f4d133812fc89b86b01d4a68a51eb12791698b7da5b4ba87b2",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          1737,
+          1737
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 2,
+      "iq_sha256": "cd59de1e71e1e6578b6b72cf368d3839d0aceb2a949bd20d2dc12fc0eb9cc7a8",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          1284,
+          1284
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 3,
+      "iq_sha256": "d76f979e2f9350526212298dc04e44ee85f8d5e2a2e1e30cd90a0b3bd6fe90bf",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 4,
+      "iq_sha256": "1596c106504adbe06f011e584ac9441e5bc927929d92c0e325bc2651fc3081a2",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          1332,
+          1332
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 5,
+      "iq_sha256": "2abf16e9b8caa6e6c94a4db2656d2361bbb676de37f3c8abbb92ef5dd80e3859",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 6,
+      "iq_sha256": "cf7496c0ed691a717132d35ffea48fec74fd7340162d0ee4ad117d2d143f95e1",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          513,
+          513
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 7,
+      "iq_sha256": "5a28bb81813587c2ef17eef3ce4c510d7d360d7588eb081acf7a8cda3a57c90c",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 8,
+      "iq_sha256": "a5d8c7a596fa5f29c059fba0b90fbc80e11757e13fd8ede24405cdea2a266a0d",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 9,
+      "iq_sha256": "a75b7367f36de284d8264ee1819cab3124a8b21ac37d870b5c2ca2311a71f315",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          1026,
+          1026
+        ],
+        [
+          1679,
+          1679
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 10,
+      "iq_sha256": "6cecb86637e4f45bc3967696569767fdfae09c3f75d26cb91a23362763b17abb",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          3643,
+          3643
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 11,
+      "iq_sha256": "da8dcb42c0a954b171e1767b402cdefe983fda1071fd94abf71998bf1a0fd1b8",
+      "os_candidates": 3,
+      "wideband_candidates": 0,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          1946,
+          1946
+        ],
+        [
+          2640,
+          2640
+        ],
+        [
+          3067,
+          3067
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 12,
+      "iq_sha256": "759059a67db6729859e10ee62ecc9df76ea89fa7cde3408fffb13103f835da49",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0,
+      "candidates": [
+        [
+          4006,
+          4006
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 13,
+      "iq_sha256": "a6873fd1f81dae5f99b90c149b3479ce3cf308b213576813d503e579fdac13b2",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          3063,
+          3063
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 14,
+      "iq_sha256": "282731c146453b4876cde737119966625c6ba18d6c3bf22ea530074cf2ff6e64",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.0009765625,
+      "candidates": [
+        [
+          2515,
+          2516
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 2048,
+      "seed": 15,
+      "iq_sha256": "c3e3f0fe6e3d77ae57c684d6f7e754727783868ee1887732b199cfd8c2c1a741",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "ideal_power_plateau",
+      "width_bins": 4096,
+      "nominal_width_hz_at_2msps": 2000000.0,
+      "power_sha256": "f204e4d7d9c3a95eeace88971d9a909b1290e580fff093219cdb35bc4c48dcf5",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 0,
+      "iq_sha256": "e67f8f81609397d18667f6317c3dfd6ab29c53d6cbcd0d63000b7fb4e0a17d7a",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 1,
+      "iq_sha256": "b67cc7dd041f0b5d2d20e7eb02ee8be9c446987755884fa1b1ce6e6da3946655",
+      "os_candidates": 3,
+      "wideband_candidates": 0,
+      "final_candidates": 3,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          1312,
+          1312
+        ],
+        [
+          2391,
+          2391
+        ],
+        [
+          3868,
+          3868
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 2,
+      "iq_sha256": "7e220fff12680bc5f2d63ca89d99f3c3cd2db77036de5761ae4f5efdadc7a212",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 3,
+      "iq_sha256": "db4d3418bdd55a5a6b3f2c508a77ec56658ca466ef953aef4f4663384f60d481",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 4,
+      "iq_sha256": "c53ac89c1aa912a32c6bc4e2cd1c30770435645914fe1d0e4ee3675533969b16",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          1962,
+          1962
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 5,
+      "iq_sha256": "19849f16a29b135a9aa0873e887345b6caa5731b5cdcc93bb3d210a12f38f18c",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.00048828125,
+      "candidates": [
+        [
+          3660,
+          3661
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 6,
+      "iq_sha256": "ac6e939d8445e8ebe4e2a81175b2e469c40336a7107a421322c72a00eddbfd6c",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          2754,
+          2754
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 7,
+      "iq_sha256": "81ad919414d5f37867b945d4b78af2769a56b3d5478bf1b32fb8b979305c1933",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 8,
+      "iq_sha256": "2dfeafb517eb1f3a16f3cd5a7e968e536afbefc127f241f7b374c07aa4105254",
+      "os_candidates": 2,
+      "wideband_candidates": 0,
+      "final_candidates": 2,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          830,
+          830
+        ],
+        [
+          2169,
+          2169
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 9,
+      "iq_sha256": "38aadcfd8ef11148d05c550c8613a28f003fbe10101e30e92187bdf6bdf5ba1e",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 10,
+      "iq_sha256": "014cebf2ee029e8692c5cbf9e848d94d26a5a1d65a6ce278d0696bee152b8c2c",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          2434,
+          2434
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 11,
+      "iq_sha256": "9590a0da79e0019620abc8939e2f77c0e6dc1f2f0e9df72cb889584d52733cbd",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 12,
+      "iq_sha256": "4296433b15d89960e99de017d60c613a3a9ef65210d5543badaf82f036f94314",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 13,
+      "iq_sha256": "0e37a2c2d95c5add5817c18a7b92f8d790ca9d042a514e889eceaf40241d66f0",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 14,
+      "iq_sha256": "84d373e3385c90543c736a6b0d9b5035c746c0777c80ffe93a252eebdf4016a4",
+      "os_candidates": 1,
+      "wideband_candidates": 0,
+      "final_candidates": 1,
+      "best_single_candidate_coverage": 0.000244140625,
+      "candidates": [
+        [
+          415,
+          415
+        ]
+      ]
+    },
+    {
+      "input": "generated_CI8_Hann_FFT",
+      "width_bins": 4096,
+      "seed": 15,
+      "iq_sha256": "3ce21b409aa1f7ddc505e9046aab05aaae55307ff93b237a5457db889ba28ae3",
+      "os_candidates": 0,
+      "wideband_candidates": 0,
+      "final_candidates": 0,
+      "best_single_candidate_coverage": 0,
+      "candidates": []
+    }
+  ]
+}

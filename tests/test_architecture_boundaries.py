@@ -56,6 +56,32 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             for path in (ROOT / source_root).rglob("*.py"):
                 self.assertTrue(imported_roots(path).isdisjoint(legacy), path)
 
+    def test_operator_console_keeps_large_responsibilities_split(self) -> None:
+        required_modules = {
+            "app/operator_console/quick_runtime.py",
+            "app/operator_console/quick_scan_actions.py",
+            "app/operator_console/quick_measurement_actions.py",
+            "app/operator_console/quick_listening_actions.py",
+            "app/operator_console/quick_direction_actions.py",
+            "app/operator_console/quick_et_actions.py",
+            "app/operator_console/_mixin_controls.py",
+            "app/operator_console/_mixin_navigation.py",
+            "app/operator_console/qml/ETWorkspace.qml",
+            "app/operator_console/qml/HackRFControls.qml",
+            "app/operator_console/qml/Panel.qml",
+            "app/operator_console/qml/PrimaryButton.qml",
+        }
+        self.assertEqual([], sorted(path for path in required_modules if not (ROOT / path).is_file()))
+
+        line_limits = {
+            "app/operator_console/main_window.py": 400,
+            "app/operator_console/quick_view_model.py": 2_000,
+            "app/operator_console/qml/Main.qml": 2_200,
+        }
+        for relative, maximum in line_limits.items():
+            line_count = len((ROOT / relative).read_text(encoding="utf-8").splitlines())
+            self.assertLessEqual(line_count, maximum, f"{relative}: {line_count} satır")
+
 
 if __name__ == "__main__":
     unittest.main()

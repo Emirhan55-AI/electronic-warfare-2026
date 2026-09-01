@@ -1,5 +1,13 @@
 # P0 FPGA Runtime ve DMA Sınırı
 
+> Güncellik notu — 31 Ağustos 2026: Aşağıdaki yeni aday-paket imajı için
+> "henüz kart kabulü yok" cümleleri entegrasyon öncesi tarihseldir. Sonraki
+> fiziksel paket, soğuk açılış ve 2 MS/s hizmet kabulü geçmiştir; kanıt ve
+> kontrolü açık kalan RF kapsamı [güncel durum belgesindedir](SIGNAL_DETECTION_STATUS.md).
+> ADR-0037 ile eklenen 257-bin üzeri iki taraflı geniş bant yolu henüz yeni
+> bitstream ve kart kabulünden geçmemiştir; aşağıdaki fiziksel sonuçlar önceki
+> imaja aittir.
+
 ## PL veri yolu
 
 Kanonik top `p0_candidate_dsp_runtime_top` aşağıdaki doğrulanmış blokları yeniden

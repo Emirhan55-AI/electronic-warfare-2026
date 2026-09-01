@@ -2,6 +2,14 @@ set script_directory [file dirname [file normalize [info script]]]
 set repository_root [file normalize [file join $script_directory ..]]
 set build_root [file normalize [file join $repository_root build p0 vivado]]
 set allowed_root [file normalize [file join $repository_root build p0]]
+set isolated_build 0
+if {[info exists ::env(P0_BUILD_VARIANT)] && $::env(P0_BUILD_VARIANT) ne ""} {
+  if {![regexp {^[A-Za-z0-9_-]+$} $::env(P0_BUILD_VARIANT)]} {
+    error "P0_BUILD_VARIANT must be a directory name without path separators"
+  }
+  set isolated_build 1
+  set build_root [file join $allowed_root $::env(P0_BUILD_VARIANT) vivado]
+}
 set zedboard_part {avnet-tria:zedboard:part0:1.5}
 if {[info exists ::env(P0_BOARD_REPO)] && $::env(P0_BOARD_REPO) ne ""} {
   set board_repository [file normalize $::env(P0_BOARD_REPO)]
@@ -17,6 +25,9 @@ if {![string match "${allowed_root}/*" $build_root]} {
   error "refusing to use a build directory outside repository build/p0"
 }
 if {[file exists $build_root]} {
+  if {$isolated_build} {
+    error "isolated build already exists; choose a new P0_BUILD_VARIANT"
+  }
   file delete -force $build_root
 }
 file mkdir $build_root

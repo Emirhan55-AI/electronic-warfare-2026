@@ -39,15 +39,23 @@ module p0_wideband_recovery (
     ST_COLLECT,
     ST_RESYNC,
     ST_WAIT_MEDIAN,
+    ST_REFERENCE_INITIALIZE,
+    ST_REFERENCE_SCAN,
     ST_COEFFICIENT_INTEGRATED,
     ST_COEFFICIENT_NOISE,
     ST_COEFFICIENT_THRESHOLD,
+    ST_COEFFICIENT_BROAD,
     ST_WINDOW_INITIALIZE,
     ST_WINDOW_ACCUMULATE,
     ST_EVALUATE_CENTER,
     ST_UPDATE_CAPTURE_OUTGOING,
     ST_UPDATE_APPLY,
     ST_FINALIZE_GROUP,
+    ST_SUPPRESSION_INITIALIZE,
+    ST_SUPPRESSION_SCAN,
+    ST_APPEND_BROAD,
+    ST_SORT_INITIALIZE,
+    ST_SORT_SCAN,
     ST_PREPARE_RECOVERY,
     ST_PEAK_COMPARE,
     ST_PRESENT_OUTPUT
@@ -63,10 +71,13 @@ module p0_wideband_recovery (
 
   logic [MEDIAN_TWICE_WIDTH-1:0] frame_median_twice [0:REGION_COUNT-1];
   logic [112:0] integrated_threshold_product [0:REGION_COUNT-1];
+  logic [112:0] broad_integrated_threshold_product;
+  logic [58:0] frame_reference_twice;
   logic [57:0] frame_region_noise [0:REGION_COUNT-1];
   logic [61:0] frame_region_threshold [0:REGION_COUNT-1];
   logic [REGION_INDEX_WIDTH-1:0] coefficient_region;
   logic [53:0] selected_coefficient;
+  logic [58:0] coefficient_input;
   logic [112:0] coefficient_product;
   logic [112:0] rounded_coefficient_product;
 
@@ -74,20 +85,62 @@ module p0_wideband_recovery (
   logic [11:0] window_read_index;
   logic [11:0] current_center;
   logic integrated_detected;
+  logic regional_integrated_detected;
+  logic broad_integrated_detected;
   logic [112:0] scaled_window_sum;
+  logic scan_broad;
+
+  logic [15:0] reference_selected_mask;
+  logic [2:0] reference_selection_rank;
+  logic [4:0] reference_scan_region;
+  logic [3:0] reference_min_index;
+  logic [58:0] reference_min_value;
+  logic reference_current_better;
+  logic [3:0] reference_selected_index;
+  logic [58:0] reference_selected_value;
 
   logic group_active;
   logic [11:0] group_start;
   logic [11:0] group_end;
   logic group_qualified;
+  logic broad_group_qualified;
   logic [11:0] group_support_start;
   logic [11:0] group_support_end;
+  logic [58:0] broad_inside_median_twice;
+  logic [58:0] broad_flank_median_twice;
+  logic [3:0] broad_flank_region_index;
+  logic [61:0] broad_inside_times_two;
+  logic [61:0] broad_flank_times_five;
+  logic broad_group_active;
+  logic [11:0] broad_group_start;
+  logic [11:0] broad_group_end;
+  logic [11:0] broad_group_support_start;
+  logic [11:0] broad_group_support_end;
+  logic [58:0] broad_inside_max_tree [0:30];
+  logic [58:0] broad_inside_stage_two [0:3];
+  logic [58:0] broad_inside_stage_three_left;
+  logic [58:0] broad_inside_stage_three_right;
+  logic [58:0] broad_inside_maximum_next;
+  logic [11:0] broad_recovery_start [0:MAXIMUM_BROAD_RECOVERY_CANDIDATES-1];
+  logic [11:0] broad_recovery_end [0:MAXIMUM_BROAD_RECOVERY_CANDIDATES-1];
+  logic [3:0] broad_recovery_noise_region [0:MAXIMUM_BROAD_RECOVERY_CANDIDATES-1];
+  logic [4:0] broad_recovery_count;
+  logic [4:0] append_broad_index;
+  logic [6:0] sort_pass;
+  logic [6:0] sort_index;
+  logic sort_swapped;
 
   logic [11:0] recovery_start [0:MAXIMUM_RECOVERY_CANDIDATES-1];
   logic [11:0] recovery_end [0:MAXIMUM_RECOVERY_CANDIDATES-1];
+  logic recovery_is_broad [0:MAXIMUM_RECOVERY_CANDIDATES-1];
+  logic recovery_valid [0:MAXIMUM_RECOVERY_CANDIDATES-1];
+  logic [3:0] recovery_noise_region [0:MAXIMUM_RECOVERY_CANDIDATES-1];
   logic [6:0] recovery_count;
   logic [6:0] recovery_index;
+  logic [6:0] suppression_candidate_index;
+  logic [6:0] suppression_broad_index;
   logic frame_overflow;
+  logic later_recovery_valid;
 
   logic [11:0] peak_scan_index;
   logic [11:0] peak_index;
@@ -106,6 +159,9 @@ module p0_wideband_recovery (
   logic [61:0] output_threshold;
 
   integer region;
+  integer later_index;
+  integer recovery_slot;
+  integer broad_slot;
 
   assign s_axis_tready = state == ST_COLLECT || state == ST_RESYNC;
   assign m_axis_tvalid = state == ST_PRESENT_OUTPUT;
@@ -156,13 +212,10 @@ module p0_wideband_recovery (
             (current_center + INTEGRATION_RIGHT + 1'b1) ^ 12'h800;
       ST_PREPARE_RECOVERY:
         if (!frame_overflow && recovery_count != 0)
-          frame_memory_read_address = recovery_start[0] ^ 12'h800;
+          frame_memory_read_address = recovery_start[recovery_index] ^ 12'h800;
       ST_PEAK_COMPARE:
         if (peak_scan_index != recovery_end[recovery_index])
           frame_memory_read_address = (peak_scan_index + 1'b1) ^ 12'h800;
-      ST_PRESENT_OUTPUT:
-        if (!output_last)
-          frame_memory_read_address = recovery_start[recovery_index + 1'b1] ^ 12'h800;
       default: ;
     endcase
   end
@@ -173,20 +226,106 @@ module p0_wideband_recovery (
       ST_COEFFICIENT_THRESHOLD: selected_coefficient = {5'd0, REGIONAL_THRESHOLD_Q48};
       default: selected_coefficient = INTEGRATED_THRESHOLD_Q48;
     endcase
-    coefficient_product = frame_median_twice[coefficient_region] * selected_coefficient;
+    coefficient_input = state == ST_COEFFICIENT_BROAD
+        ? frame_reference_twice : frame_median_twice[coefficient_region];
+    coefficient_product = coefficient_input * selected_coefficient;
     rounded_coefficient_product = coefficient_product + (113'd1 << 47);
   end
 
   assign scaled_window_sum = {2'd0, window_sum, 48'd0};
-  assign integrated_detected =
+  assign regional_integrated_detected =
       scaled_window_sum > integrated_threshold_product[current_center[11:8]];
+  assign broad_integrated_detected =
+      scaled_window_sum > broad_integrated_threshold_product;
+  assign integrated_detected = regional_integrated_detected;
   assign group_qualified = group_active &&
       ({1'b0, group_end} >= ({1'b0, group_start} + 13'd71));
   assign group_support_start = group_start + INTEGRATION_LEFT;
   assign group_support_end = group_end - INTEGRATION_RIGHT;
+  // FLANK_MEDIAN_RATIO_Q48 is exactly 2.5.  Cancel the common Q48
+  // denominator and compare 2*inside against 5*flank.  This is bit-exact and
+  // avoids an unregistered 59-by-50-bit DSP cascade in the decision path.
+  assign broad_inside_times_two = {2'd0, broad_inside_median_twice, 1'b0};
+  assign broad_flank_times_five =
+      ({3'd0, broad_flank_median_twice} << 2) +
+      {3'd0, broad_flank_median_twice};
+  assign broad_group_support_start = broad_group_start + INTEGRATION_LEFT;
+  assign broad_group_support_end = broad_group_end - INTEGRATION_RIGHT;
+  assign broad_group_qualified = broad_group_active &&
+      ({1'b0, broad_group_end} >= ({1'b0, broad_group_start} + 13'd287)) &&
+      broad_group_support_start[11:8] != 4'd0 &&
+      broad_group_support_end[11:8] != REGION_COUNT - 1 &&
+      broad_inside_times_two > broad_flank_times_five;
+
+  // Balance the sixteen 59-bit comparisons over four levels.  The former
+  // procedural reduction formed a sixteen-deep priority chain and could not
+  // meet the 50 MHz clock constraint after synthesis.
+  genvar broad_leaf;
+  generate
+    for (broad_leaf = 0; broad_leaf < REGION_COUNT; broad_leaf = broad_leaf + 1) begin : g_broad_inside_leaf
+      localparam logic [3:0] BROAD_REGION_INDEX = broad_leaf;
+      assign broad_inside_max_tree[15 + broad_leaf] =
+          BROAD_REGION_INDEX >= broad_group_support_start[11:8] &&
+          BROAD_REGION_INDEX <= broad_group_support_end[11:8]
+              ? frame_median_twice[broad_leaf] : 59'd0;
+    end
+  endgenerate
+
+  genvar broad_node;
+  generate
+    for (broad_node = 3; broad_node < REGION_COUNT - 1; broad_node = broad_node + 1) begin : g_broad_inside_node
+      assign broad_inside_max_tree[broad_node] =
+          broad_inside_max_tree[(2 * broad_node) + 1] >=
+          broad_inside_max_tree[(2 * broad_node) + 2]
+              ? broad_inside_max_tree[(2 * broad_node) + 1]
+              : broad_inside_max_tree[(2 * broad_node) + 2];
+    end
+  endgenerate
+
+  assign broad_inside_stage_three_left =
+      broad_inside_stage_two[0] >= broad_inside_stage_two[1]
+          ? broad_inside_stage_two[0] : broad_inside_stage_two[1];
+  assign broad_inside_stage_three_right =
+      broad_inside_stage_two[2] >= broad_inside_stage_two[3]
+          ? broad_inside_stage_two[2] : broad_inside_stage_two[3];
+  assign broad_inside_maximum_next =
+      broad_inside_stage_three_left >= broad_inside_stage_three_right
+          ? broad_inside_stage_three_left : broad_inside_stage_three_right;
   assign current_peak_better = frame_memory_read_data > peak_power;
   assign final_peak_index = current_peak_better ? peak_scan_index : peak_index;
   assign final_peak_power = current_peak_better ? frame_memory_read_data : peak_power;
+
+  assign reference_current_better =
+      !reference_selected_mask[reference_scan_region[3:0]] &&
+      frame_median_twice[reference_scan_region[3:0]] < reference_min_value;
+  assign reference_selected_index = reference_current_better
+      ? reference_scan_region[3:0] : reference_min_index;
+  assign reference_selected_value = reference_current_better
+      ? frame_median_twice[reference_scan_region[3:0]] : reference_min_value;
+
+  always_comb begin
+    broad_flank_median_twice = 59'd0;
+    broad_flank_region_index = 4'd0;
+    if (broad_group_support_start[11:8] != 4'd0 &&
+        broad_group_support_end[11:8] != REGION_COUNT - 1) begin
+      if (frame_median_twice[broad_group_support_start[11:8] - 1'b1] >=
+          frame_median_twice[broad_group_support_end[11:8] + 1'b1]) begin
+        broad_flank_median_twice = frame_median_twice[broad_group_support_start[11:8] - 1'b1];
+        broad_flank_region_index = broad_group_support_start[11:8] - 1'b1;
+      end else begin
+        broad_flank_median_twice = frame_median_twice[broad_group_support_end[11:8] + 1'b1];
+        broad_flank_region_index = broad_group_support_end[11:8] + 1'b1;
+      end
+    end
+  end
+
+  always_comb begin
+    later_recovery_valid = 1'b0;
+    for (later_index = 0; later_index < MAXIMUM_RECOVERY_CANDIDATES; later_index = later_index + 1) begin
+      if (later_index > recovery_index && later_index < recovery_count && recovery_valid[later_index])
+        later_recovery_valid = 1'b1;
+    end
+  end
 
   always_ff @(posedge aclk) begin
     if (!aresetn) begin
@@ -195,14 +334,37 @@ module p0_wideband_recovery (
       outgoing_power <= 58'd0;
       frame_range_error <= 1'b0;
       coefficient_region <= 4'd0;
+      broad_integrated_threshold_product <= 113'd0;
+      frame_reference_twice <= 59'd0;
+      scan_broad <= 1'b0;
+      reference_selected_mask <= 16'd0;
+      reference_selection_rank <= 3'd0;
+      reference_scan_region <= 5'd0;
+      reference_min_index <= 4'd0;
+      reference_min_value <= {59{1'b1}};
       window_sum <= 63'd0;
       window_read_index <= 12'd0;
       current_center <= 12'd20;
       group_active <= 1'b0;
       group_start <= 12'd0;
       group_end <= 12'd0;
+      broad_group_active <= 1'b0;
+      broad_group_start <= 12'd0;
+      broad_group_end <= 12'd0;
+      broad_inside_stage_two[0] <= 59'd0;
+      broad_inside_stage_two[1] <= 59'd0;
+      broad_inside_stage_two[2] <= 59'd0;
+      broad_inside_stage_two[3] <= 59'd0;
+      broad_inside_median_twice <= 59'd0;
+      broad_recovery_count <= 5'd0;
+      append_broad_index <= 5'd0;
+      sort_pass <= 7'd0;
+      sort_index <= 7'd0;
+      sort_swapped <= 1'b0;
       recovery_count <= 7'd0;
       recovery_index <= 7'd0;
+      suppression_candidate_index <= 7'd0;
+      suppression_broad_index <= 7'd0;
       frame_overflow <= 1'b0;
       peak_scan_index <= 12'd0;
       peak_index <= 12'd0;
@@ -225,7 +387,26 @@ module p0_wideband_recovery (
         frame_region_noise[region] <= 58'd0;
         frame_region_threshold[region] <= 62'd0;
       end
+      for (recovery_slot = 0; recovery_slot < MAXIMUM_RECOVERY_CANDIDATES;
+           recovery_slot = recovery_slot + 1) begin
+        recovery_start[recovery_slot] <= 12'd0;
+        recovery_end[recovery_slot] <= 12'd0;
+        recovery_is_broad[recovery_slot] <= 1'b0;
+        recovery_valid[recovery_slot] <= 1'b0;
+        recovery_noise_region[recovery_slot] <= 4'd0;
+      end
+      for (broad_slot = 0; broad_slot < MAXIMUM_BROAD_RECOVERY_CANDIDATES;
+           broad_slot = broad_slot + 1) begin
+        broad_recovery_start[broad_slot] <= 12'd0;
+        broad_recovery_end[broad_slot] <= 12'd0;
+        broad_recovery_noise_region[broad_slot] <= 4'd0;
+      end
     end else begin
+      broad_inside_stage_two[0] <= broad_inside_max_tree[3];
+      broad_inside_stage_two[1] <= broad_inside_max_tree[4];
+      broad_inside_stage_two[2] <= broad_inside_max_tree[5];
+      broad_inside_stage_two[3] <= broad_inside_max_tree[6];
+      broad_inside_median_twice <= broad_inside_maximum_next;
       case (state)
         ST_COLLECT: begin
           if (s_axis_tvalid && s_axis_tready) begin
@@ -265,8 +446,11 @@ module p0_wideband_recovery (
               frame_median_twice[region] <= region_median_twice[region];
             recovery_count <= 7'd0;
             recovery_index <= 7'd0;
+            broad_recovery_count <= 5'd0;
             frame_overflow <= 1'b0;
             group_active <= 1'b0;
+            broad_group_active <= 1'b0;
+            scan_broad <= 1'b0;
             output_candidate_valid <= 1'b0;
             coefficient_region <= 4'd0;
             if (frame_range_error) begin
@@ -274,8 +458,39 @@ module p0_wideband_recovery (
               output_last <= 1'b1;
               state <= ST_PRESENT_OUTPUT;
             end else begin
-              state <= ST_COEFFICIENT_INTEGRATED;
+              state <= ST_REFERENCE_INITIALIZE;
             end
+          end
+        end
+
+        ST_REFERENCE_INITIALIZE: begin
+          reference_selected_mask <= 16'd0;
+          reference_selection_rank <= 3'd0;
+          reference_scan_region <= 5'd0;
+          reference_min_index <= 4'd0;
+          reference_min_value <= {59{1'b1}};
+          state <= ST_REFERENCE_SCAN;
+        end
+
+        ST_REFERENCE_SCAN: begin
+          if (reference_scan_region == REGION_COUNT - 1) begin
+            if (reference_selection_rank == BROAD_REFERENCE_REGION_RANK - 1) begin
+              frame_reference_twice <= reference_selected_value;
+              coefficient_region <= 4'd0;
+              state <= ST_COEFFICIENT_INTEGRATED;
+            end else begin
+              reference_selected_mask[reference_selected_index] <= 1'b1;
+              reference_selection_rank <= reference_selection_rank + 1'b1;
+              reference_scan_region <= 5'd0;
+              reference_min_index <= 4'd0;
+              reference_min_value <= {59{1'b1}};
+            end
+          end else begin
+            if (reference_current_better) begin
+              reference_min_index <= reference_scan_region[3:0];
+              reference_min_value <= frame_median_twice[reference_scan_region[3:0]];
+            end
+            reference_scan_region <= reference_scan_region + 1'b1;
           end
         end
 
@@ -292,14 +507,21 @@ module p0_wideband_recovery (
         ST_COEFFICIENT_THRESHOLD: begin
           frame_region_threshold[coefficient_region] <= rounded_coefficient_product[109:48];
           if (coefficient_region == REGION_COUNT - 1) begin
-            window_sum <= 63'd0;
-            window_read_index <= 12'd5;
-            current_center <= 12'd20;
-            state <= ST_WINDOW_INITIALIZE;
+            state <= ST_COEFFICIENT_BROAD;
           end else begin
             coefficient_region <= coefficient_region + 1'b1;
             state <= ST_COEFFICIENT_INTEGRATED;
           end
+        end
+
+        ST_COEFFICIENT_BROAD: begin
+          broad_integrated_threshold_product <= coefficient_product;
+          window_sum <= 63'd0;
+          window_read_index <= 12'd5;
+          current_center <= 12'd20;
+          group_active <= 1'b0;
+          scan_broad <= 1'b0;
+          state <= ST_WINDOW_INITIALIZE;
         end
 
         ST_WINDOW_INITIALIZE: begin
@@ -328,6 +550,9 @@ module p0_wideband_recovery (
                 if (recovery_count < MAXIMUM_RECOVERY_CANDIDATES) begin
                   recovery_start[recovery_count] <= group_support_start;
                   recovery_end[recovery_count] <= group_support_end;
+                  recovery_is_broad[recovery_count] <= 1'b0;
+                  recovery_valid[recovery_count] <= 1'b1;
+                  recovery_noise_region[recovery_count] <= broad_flank_region_index;
                   recovery_count <= recovery_count + 1'b1;
                 end else begin
                   frame_overflow <= 1'b1;
@@ -342,6 +567,9 @@ module p0_wideband_recovery (
               if (recovery_count < MAXIMUM_RECOVERY_CANDIDATES) begin
                 recovery_start[recovery_count] <= group_support_start;
                 recovery_end[recovery_count] <= group_support_end;
+                recovery_is_broad[recovery_count] <= 1'b0;
+                recovery_valid[recovery_count] <= 1'b1;
+                recovery_noise_region[recovery_count] <= broad_flank_region_index;
                 recovery_count <= recovery_count + 1'b1;
               end else begin
                 frame_overflow <= 1'b1;
@@ -349,6 +577,44 @@ module p0_wideband_recovery (
               end
             end
             group_active <= 1'b0;
+          end
+
+          if (broad_integrated_detected) begin
+            if (!broad_group_active) begin
+              broad_group_active <= 1'b1;
+              broad_group_start <= current_center;
+              broad_group_end <= current_center;
+            end else if ((current_center - broad_group_end) <= MAXIMUM_GAP_BINS + 1) begin
+              broad_group_end <= current_center;
+            end else begin
+              if (broad_group_qualified) begin
+                if (broad_recovery_count < MAXIMUM_BROAD_RECOVERY_CANDIDATES) begin
+                  broad_recovery_start[broad_recovery_count] <= broad_group_support_start;
+                  broad_recovery_end[broad_recovery_count] <= broad_group_support_end;
+                  broad_recovery_noise_region[broad_recovery_count] <= broad_flank_region_index;
+                  broad_recovery_count <= broad_recovery_count + 1'b1;
+                end else begin
+                  frame_overflow <= 1'b1;
+                  status_candidate_overflow_sticky <= 1'b1;
+                end
+              end
+              broad_group_start <= current_center;
+              broad_group_end <= current_center;
+            end
+          end else if (broad_group_active &&
+                       (current_center - broad_group_end) > MAXIMUM_GAP_BINS + 1) begin
+            if (broad_group_qualified) begin
+              if (broad_recovery_count < MAXIMUM_BROAD_RECOVERY_CANDIDATES) begin
+                broad_recovery_start[broad_recovery_count] <= broad_group_support_start;
+                broad_recovery_end[broad_recovery_count] <= broad_group_support_end;
+                broad_recovery_noise_region[broad_recovery_count] <= broad_flank_region_index;
+                broad_recovery_count <= broad_recovery_count + 1'b1;
+              end else begin
+                frame_overflow <= 1'b1;
+                status_candidate_overflow_sticky <= 1'b1;
+              end
+            end
+            broad_group_active <= 1'b0;
           end
 
           if (current_center == 12'd4075) begin
@@ -374,6 +640,9 @@ module p0_wideband_recovery (
             if (recovery_count < MAXIMUM_RECOVERY_CANDIDATES) begin
               recovery_start[recovery_count] <= group_support_start;
               recovery_end[recovery_count] <= group_support_end;
+              recovery_is_broad[recovery_count] <= 1'b0;
+              recovery_valid[recovery_count] <= 1'b1;
+              recovery_noise_region[recovery_count] <= broad_flank_region_index;
               recovery_count <= recovery_count + 1'b1;
             end else begin
               frame_overflow <= 1'b1;
@@ -381,18 +650,125 @@ module p0_wideband_recovery (
             end
           end
           group_active <= 1'b0;
-          state <= ST_PREPARE_RECOVERY;
+          if (broad_group_qualified) begin
+            if (broad_recovery_count < MAXIMUM_BROAD_RECOVERY_CANDIDATES) begin
+              broad_recovery_start[broad_recovery_count] <= broad_group_support_start;
+              broad_recovery_end[broad_recovery_count] <= broad_group_support_end;
+              broad_recovery_noise_region[broad_recovery_count] <= broad_flank_region_index;
+              broad_recovery_count <= broad_recovery_count + 1'b1;
+            end else begin
+              frame_overflow <= 1'b1;
+              status_candidate_overflow_sticky <= 1'b1;
+            end
+          end
+          broad_group_active <= 1'b0;
+          state <= ST_SUPPRESSION_INITIALIZE;
+        end
+
+        ST_SUPPRESSION_INITIALIZE: begin
+          suppression_candidate_index <= 7'd0;
+          suppression_broad_index <= 7'd0;
+          state <= ST_SUPPRESSION_SCAN;
+        end
+
+        ST_SUPPRESSION_SCAN: begin
+          if (suppression_candidate_index >= recovery_count) begin
+            append_broad_index <= 5'd0;
+            state <= ST_APPEND_BROAD;
+          end else if (!recovery_valid[suppression_candidate_index]) begin
+            suppression_candidate_index <= suppression_candidate_index + 1'b1;
+            suppression_broad_index <= 7'd0;
+          end else if (suppression_broad_index >= broad_recovery_count) begin
+            suppression_candidate_index <= suppression_candidate_index + 1'b1;
+            suppression_broad_index <= 7'd0;
+          end else if (
+                       recovery_start[suppression_candidate_index] <=
+                           broad_recovery_end[suppression_broad_index] &&
+                       broad_recovery_start[suppression_broad_index] <=
+                           recovery_end[suppression_candidate_index]) begin
+            recovery_valid[suppression_candidate_index] <= 1'b0;
+            suppression_candidate_index <= suppression_candidate_index + 1'b1;
+            suppression_broad_index <= 7'd0;
+          end else begin
+            suppression_broad_index <= suppression_broad_index + 1'b1;
+          end
+        end
+
+        ST_APPEND_BROAD: begin
+          if (frame_overflow || append_broad_index >= broad_recovery_count) begin
+            state <= ST_SORT_INITIALIZE;
+          end else if (recovery_count >= MAXIMUM_RECOVERY_CANDIDATES) begin
+            frame_overflow <= 1'b1;
+            status_candidate_overflow_sticky <= 1'b1;
+            recovery_index <= 7'd0;
+            state <= ST_PREPARE_RECOVERY;
+          end else begin
+            recovery_start[recovery_count] <= broad_recovery_start[append_broad_index];
+            recovery_end[recovery_count] <= broad_recovery_end[append_broad_index];
+            recovery_is_broad[recovery_count] <= 1'b1;
+            recovery_valid[recovery_count] <= 1'b1;
+            recovery_noise_region[recovery_count] <= broad_recovery_noise_region[append_broad_index];
+            recovery_count <= recovery_count + 1'b1;
+            append_broad_index <= append_broad_index + 1'b1;
+          end
+        end
+
+        ST_SORT_INITIALIZE: begin
+          sort_pass <= 7'd0;
+          sort_index <= 7'd0;
+          sort_swapped <= 1'b0;
+          state <= ST_SORT_SCAN;
+        end
+
+        ST_SORT_SCAN: begin
+          if (frame_overflow || recovery_count < 2) begin
+            recovery_index <= 7'd0;
+            state <= ST_PREPARE_RECOVERY;
+          end else if (sort_index + 1'b1 >= recovery_count - sort_pass) begin
+            if (!sort_swapped || sort_pass + 1'b1 >= recovery_count - 1'b1) begin
+              recovery_index <= 7'd0;
+              state <= ST_PREPARE_RECOVERY;
+            end else begin
+              sort_pass <= sort_pass + 1'b1;
+              sort_index <= 7'd0;
+              sort_swapped <= 1'b0;
+            end
+          end else begin
+            if (recovery_start[sort_index] > recovery_start[sort_index + 1'b1] ||
+                (recovery_start[sort_index] == recovery_start[sort_index + 1'b1] &&
+                 recovery_end[sort_index] > recovery_end[sort_index + 1'b1])) begin
+              recovery_start[sort_index] <= recovery_start[sort_index + 1'b1];
+              recovery_start[sort_index + 1'b1] <= recovery_start[sort_index];
+              recovery_end[sort_index] <= recovery_end[sort_index + 1'b1];
+              recovery_end[sort_index + 1'b1] <= recovery_end[sort_index];
+              recovery_is_broad[sort_index] <= recovery_is_broad[sort_index + 1'b1];
+              recovery_is_broad[sort_index + 1'b1] <= recovery_is_broad[sort_index];
+              recovery_valid[sort_index] <= recovery_valid[sort_index + 1'b1];
+              recovery_valid[sort_index + 1'b1] <= recovery_valid[sort_index];
+              recovery_noise_region[sort_index] <= recovery_noise_region[sort_index + 1'b1];
+              recovery_noise_region[sort_index + 1'b1] <= recovery_noise_region[sort_index];
+              sort_swapped <= 1'b1;
+            end
+            sort_index <= sort_index + 1'b1;
+          end
         end
 
         ST_PREPARE_RECOVERY: begin
-          if (frame_overflow || recovery_count == 0) begin
+          if (frame_overflow || recovery_count == 0 || recovery_index >= recovery_count) begin
             output_candidate_valid <= 1'b0;
             output_last <= 1'b1;
             state <= ST_PRESENT_OUTPUT;
+          end else if (!recovery_valid[recovery_index]) begin
+            if (recovery_index + 1'b1 >= recovery_count) begin
+              output_candidate_valid <= 1'b0;
+              output_last <= 1'b1;
+              state <= ST_PRESENT_OUTPUT;
+            end else begin
+              recovery_index <= recovery_index + 1'b1;
+            end
           end else begin
-            recovery_index <= 7'd0;
-            peak_scan_index <= recovery_start[0];
-            peak_index <= recovery_start[0];
+            peak_scan_index <= recovery_start[recovery_index];
+            peak_index <= recovery_start[recovery_index];
             peak_power <= 58'd0;
             state <= ST_PEAK_COMPARE;
           end
@@ -401,13 +777,17 @@ module p0_wideband_recovery (
         ST_PEAK_COMPARE: begin
           if (peak_scan_index == recovery_end[recovery_index]) begin
             output_candidate_valid <= 1'b1;
-            output_last <= recovery_index + 1'b1 == recovery_count;
+            output_last <= !later_recovery_valid;
             output_start <= recovery_start[recovery_index];
             output_end <= recovery_end[recovery_index];
             output_peak <= final_peak_index;
             output_peak_power <= final_peak_power;
-            output_noise <= frame_region_noise[final_peak_index[11:8]];
-            output_threshold <= frame_region_threshold[final_peak_index[11:8]];
+            output_noise <= recovery_is_broad[recovery_index]
+                ? frame_region_noise[recovery_noise_region[recovery_index]]
+                : frame_region_noise[final_peak_index[11:8]];
+            output_threshold <= recovery_is_broad[recovery_index]
+                ? frame_region_threshold[recovery_noise_region[recovery_index]]
+                : frame_region_threshold[final_peak_index[11:8]];
             state <= ST_PRESENT_OUTPUT;
           end else begin
             if (current_peak_better) begin
@@ -427,11 +807,8 @@ module p0_wideband_recovery (
               state <= ST_COLLECT;
             end else begin
               recovery_index <= recovery_index + 1'b1;
-              peak_scan_index <= recovery_start[recovery_index + 1'b1];
-              peak_index <= recovery_start[recovery_index + 1'b1];
-              peak_power <= 58'd0;
               output_candidate_valid <= 1'b0;
-              state <= ST_PEAK_COMPARE;
+              state <= ST_PREPARE_RECOVERY;
             end
           end
         end

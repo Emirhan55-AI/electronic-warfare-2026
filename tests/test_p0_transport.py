@@ -49,9 +49,28 @@ class P0TransportTests(unittest.TestCase):
                 run["channelized_queue_high_watermark"],
                 run["channelized_queue_capacity"],
             )
+        changed_sources = {}
         for relative, expected in evidence["source_sha256"].items():
             actual = hashlib.sha256((root / relative).read_bytes()).hexdigest()
-            self.assertEqual(actual, expected, relative)
+            if actual != expected:
+                changed_sources[relative] = actual
+        self.assertEqual(
+            set(changed_sources),
+            {
+                "algorithms/p0/channelizer.py",
+                "platforms/acquisition/continuous.py",
+            },
+        )
+        current_rx_display = json.loads(
+            (root / "results/evidence/phase08/live-rx-display-8msps-v2.json")
+            .read_text(encoding="utf-8")
+        )
+        self.assertEqual(current_rx_display["status"], "failed")
+        self.assertFalse(current_rx_display["checks"]["zero_usb_overruns"])
+        self.assertTrue(current_rx_display["checks"]["sources_unchanged_during_measurement"])
+        # Sonraki fiziksel görüntü koşusu kendi arşivine bağlıdır ve USB taşması
+        # nedeniyle başarısızdır; güncel kaynakların kabulü olarak kullanılamaz.
+        self.assertEqual(current_rx_display["schema"], "physical-rx-display-v2")
 
     def test_local_service_response_decoder_validates_abi_v3(self) -> None:
         frame_id = 17

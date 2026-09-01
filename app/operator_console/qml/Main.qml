@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import Teknofest.Display 1.0
 
 ApplicationWindow {
     id: root
@@ -10,13 +11,13 @@ ApplicationWindow {
     minimumWidth: 1180
     minimumHeight: 680
     visible: true
-    title: "Elektronik Harp Operatör Konsolu"
+    title: "BÂZ"
     color: "#050B11"
 
     property int workspace: 0
     property string operatingDomain: "ED"
-    property bool consoleOpen: false
     property bool sourcePanelOpen: true
+    property bool rfSearchMode: false
     property real spectrumViewStart: 0
     property real spectrumViewEnd: 1
     property var spectrumViewHistory: [{"start": 0, "end": 1}]
@@ -48,6 +49,7 @@ ApplicationWindow {
     property int uiBodyTextSize: width >= 1600 ? 11 : 10
     property int uiMetaTextSize: width >= 1600 ? 10 : 9
     property int uiDenseMetaTextSize: width >= 1600 ? 10 : 8
+    readonly property int liveSessionFrameLimit: 878906
 
     onWorkspaceChanged: {
         if (workspace === 0) {
@@ -55,23 +57,27 @@ ApplicationWindow {
             waterfall.requestPaint()
         }
         Qt.callLater(function() {
-            var target = workspaceNavigation.itemAt(root.operatingDomain === "ET" ? 0 : root.workspace)
+            var navigationIndex = root.operatingDomain === "ET"
+                                  ? 0
+                                  : root.workspace === 0 ? root.spectrumTaskTab : root.workspace + 1
+            var target = workspaceNavigation.itemAt(navigationIndex)
+            if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
+        })
+    }
+
+    onSpectrumTaskTabChanged: {
+        if (workspace !== 0 || operatingDomain !== "ED") return
+        spectrumCanvas.requestPaint()
+        waterfall.requestPaint()
+        Qt.callLater(function() {
+            var target = workspaceNavigation.itemAt(root.spectrumTaskTab)
             if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
         })
     }
 
     onOperatingDomainChanged: {
         workspace = operatingDomain === "ET" ? 4 : 0
-        consoleOpen = false
-    }
-
-    onConsoleOpenChanged: {
-        if (consoleOpen) {
-            Qt.callLater(function() {
-                eventConsoleList.positionViewAtBeginning()
-                eventConsoleList.forceActiveFocus()
-            })
-        }
+        if (operatingDomain === "ED") spectrumTaskTab = 0
     }
 
     function setSpectrumView(start, end) {
@@ -79,6 +85,36 @@ ApplicationWindow {
         var boundedStart = Math.max(0.0, Math.min(1.0 - span, start))
         spectrumViewStart = boundedStart
         spectrumViewEnd = boundedStart + span
+    }
+
+    function paintDetectionGuides(ctx, left, top, plotWidth, plotHeight, includeCandidates) {
+        var span = root.spectrumViewEnd - root.spectrumViewStart
+        var markers = includeCandidates === false ? [] : operatorViewModel.detectionMarkers
+        for (var i = 0; i < markers.length; i++) {
+            var point = markers[i].peakNormalized
+            if (point < root.spectrumViewStart || point > root.spectrumViewEnd) continue
+            var bandStart = Math.max(root.spectrumViewStart, markers[i].startNormalized)
+            var bandEnd = Math.min(root.spectrumViewEnd, markers[i].endNormalized)
+            var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
+            var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
+            var x = left + (point - root.spectrumViewStart) * plotWidth / span
+            ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? "rgba(245, 158, 11, 0.11)" : "rgba(52, 211, 153, 0.11)"
+            ctx.fillRect(bandX, top, bandWidth, plotHeight)
+            ctx.lineWidth = 1.5
+            ctx.strokeStyle = operatorViewModel.sourceMode === "hackrf" ? root.warning : root.success
+            ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, top + plotHeight); ctx.stroke()
+            ctx.beginPath(); ctx.moveTo(x - 5, top); ctx.lineTo(x + 5, top); ctx.lineTo(x, top + 7); ctx.closePath(); ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? root.warning : root.success; ctx.fill()
+        }
+        var selected = operatorViewModel.selectedRegionPeakNormalized
+        if (selected >= root.spectrumViewStart && selected <= root.spectrumViewEnd) {
+            var selectedX = left + (selected - root.spectrumViewStart) * plotWidth / span
+            ctx.strokeStyle = operatorViewModel.selectedDetectionCurrent ? root.warning : root.textSecondary
+            ctx.lineWidth = 1.5
+            ctx.setLineDash(operatorViewModel.selectedDetectionCurrent ? [] : [4, 4])
+            ctx.beginPath(); ctx.moveTo(selectedX, top); ctx.lineTo(selectedX, top + plotHeight); ctx.stroke()
+            ctx.setLineDash([])
+        }
+        ctx.lineWidth = 1
     }
 
     function commitSpectrumView() {
@@ -141,7 +177,7 @@ ApplicationWindow {
     }
 
     function frequencyAt(normalized) {
-        return operatorViewModel.centerFrequencyHz + (normalized - 0.5) * operatorViewModel.sampleRateHz
+        return operatorViewModel.spectrumCenterFrequencyHz + (normalized - 0.5) * operatorViewModel.spectrumSampleRateHz
     }
 
     function normalizedAtSpectrumX(x, width) {
@@ -175,8 +211,8 @@ ApplicationWindow {
     function systemLogMatches(item) {
         if (systemLogFilter === "Tümü") return true
         if (systemLogFilter === "Hata") return item.level === "HATA"
-        if (systemLogFilter === "Kaynak") return item.component === "Kaynak" || item.component === "HackRF"
-        return item.component !== "Kaynak" && item.component !== "HackRF" && item.level !== "HATA"
+        if (systemLogFilter === "Kaynak") return item.component === "Kaynak" || item.component === "Alıcı"
+        return item.component !== "Kaynak" && item.component !== "Alıcı" && item.level !== "HATA"
     }
 
     function systemLogMatchCount() {
@@ -216,271 +252,46 @@ ApplicationWindow {
         }
     }
 
-    component Panel: Rectangle {
-        color: root.surface
-        border.color: root.border
-        border.width: 1
-        radius: 6
-    }
-
-    component SectionTitle: Label {
-        color: root.textSecondary
-        font.pixelSize: root.uiSectionTextSize
-        font.weight: Font.Bold
-        font.letterSpacing: 1.35
-    }
-
-    component PrimaryButton: Button {
-        id: control
-        implicitHeight: 40
-        font.pixelSize: 13
-        font.weight: Font.DemiBold
-        Accessible.name: text
-        scale: control.down ? 0.985 : 1.0
-        Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
-        background: Rectangle {
-            radius: 4
-            color: control.enabled ? (control.down ? "#1B929E" : root.accent) : "#22313A"
-            border.color: control.activeFocus ? "#C9F7FA" : "transparent"
-            border.width: 2
-            Behavior on color { ColorAnimation { duration: root.transitionDuration } }
-        }
-        contentItem: Text {
-            text: control.text
-            color: control.enabled ? "#041014" : "#788A94"
-            font: control.font
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-    }
-
-    component QuietButton: Button {
-        id: control
-        implicitHeight: 38
-        font.pixelSize: 13
-        Accessible.name: text
-        scale: control.down ? 0.985 : 1.0
-        Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
-        background: Rectangle {
-            radius: 4
-            color: control.checked ? root.accentSoft : control.down ? "#172A35" : root.surfaceAlt
-            border.color: control.activeFocus || control.checked ? root.accent : root.border
-            border.width: control.activeFocus ? 2 : 1
-            Behavior on color { ColorAnimation { duration: root.transitionDuration } }
-            Behavior on border.color { ColorAnimation { duration: root.transitionDuration } }
-        }
-        contentItem: Text {
-            text: control.text
-            color: control.enabled ? root.textPrimary : "#60727C"
-            font: control.font
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-    }
-
-    component AppCombo: ComboBox {
-        id: control
-        implicitHeight: 36
-        leftPadding: 10
-        rightPadding: 28
-        Accessible.name: displayText
-        Accessible.role: Accessible.ComboBox
-        background: Rectangle {
-            radius: 4
-            color: "#09141C"
-            border.color: control.activeFocus ? root.accent : root.border
-        }
-        contentItem: Text {
-            text: control.displayText
-            color: root.textPrimary
-            font.pixelSize: 12
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
-        indicator: Canvas {
-            x: control.width - width - 12
-            anchors.verticalCenter: parent.verticalCenter
-            width: 10
-            height: 6
-            onPaint: {
-                var ctx = getContext("2d")
-                ctx.reset()
-                ctx.strokeStyle = root.textSecondary
-                ctx.lineWidth = 1.5
-                ctx.lineCap = "round"
-                ctx.beginPath()
-                ctx.moveTo(1, 1)
-                ctx.lineTo(width / 2, height - 1)
-                ctx.lineTo(width - 1, 1)
-                ctx.stroke()
-            }
-        }
-        popup: Popup {
-            y: control.height + 2
-            width: control.width
-            implicitHeight: contentItem.implicitHeight + 8
-            padding: 4
-            background: Rectangle { color: root.raised; border.color: root.border; radius: 4 }
-            contentItem: ListView {
-                clip: true
-                implicitHeight: contentHeight
-                model: control.popup.visible ? control.delegateModel : null
-                currentIndex: control.highlightedIndex
+    function paintCoarseDetectionGuides(ctx, left, top, plotWidth, plotHeight) {
+        var span = root.spectrumViewEnd - root.spectrumViewStart
+        var markers = operatorViewModel.coarseDetectionMarkers
+        for (var i = 0; i < markers.length; i++) {
+            var bandStart = Math.max(root.spectrumViewStart, markers[i].startNormalized)
+            var bandEnd = Math.min(root.spectrumViewEnd, markers[i].endNormalized)
+            if (bandEnd < bandStart) continue
+            var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
+            var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
+            var peakX = left + (markers[i].peakNormalized - root.spectrumViewStart) * plotWidth / span
+            ctx.fillStyle = "rgba(245, 158, 11, 0.08)"
+            ctx.fillRect(bandX, top, bandWidth, plotHeight)
+            ctx.strokeStyle = "rgba(245, 158, 11, 0.72)"
+            ctx.lineWidth = 1
+            ctx.setLineDash([3, 3])
+            ctx.strokeRect(bandX, top, bandWidth, plotHeight)
+            ctx.setLineDash([])
+            if (markers[i].peakNormalized >= root.spectrumViewStart && markers[i].peakNormalized <= root.spectrumViewEnd) {
+                ctx.beginPath(); ctx.moveTo(peakX, top); ctx.lineTo(peakX, top + 6); ctx.stroke()
             }
         }
     }
 
-    component AppField: TextField {
-        id: control
-        implicitHeight: 36
-        leftPadding: 10
-        rightPadding: 10
-        color: root.textPrimary
-        placeholderTextColor: root.textMuted
-        selectionColor: root.accent
-        selectedTextColor: "#041014"
-        font.pixelSize: 11
-        background: Rectangle {
-            radius: 4
-            color: "#09141C"
-            border.color: control.activeFocus ? root.accent : root.border
-            border.width: control.activeFocus ? 2 : 1
-        }
-    }
 
-    component StateBadge: Rectangle {
-        property string state: "Kullanılmıyor"
-        Accessible.name: "Durum: " + state
-        Accessible.role: Accessible.StaticText
-        implicitWidth: badgeText.implicitWidth + 18
-        implicitHeight: 24
-        radius: 12
-        color: state === "Hazır" ? "#153B31" : state === "Çalışıyor" ? "#123B42" : state === "Hata" ? "#48252B" : state === "Bekliyor" ? "#3B321F" : "#25313A"
-        border.color: state === "Hazır" ? root.success : state === "Çalışıyor" ? root.accent : state === "Hata" ? root.danger : state === "Bekliyor" ? root.warning : "#536570"
-        Behavior on color { ColorAnimation { duration: root.transitionDuration } }
-        Behavior on border.color { ColorAnimation { duration: root.transitionDuration } }
-        Text {
-            id: badgeText
-            anchors.centerIn: parent
-            text: parent.state
-            color: parent.border.color
-            font.pixelSize: 11
-            font.weight: Font.DemiBold
-        }
-    }
 
-    component EtChart: Rectangle {
-        id: chart
-        required property string title
-        required property var values
-        color: "#071018"
-        border.color: root.border
-        radius: 4
-        Accessible.name: title
-        onValuesChanged: plot.requestPaint()
-        Label {
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.margins: 10
-            text: chart.title
-            color: root.textSecondary
-            font.pixelSize: root.uiMetaTextSize + 1
-            font.weight: Font.DemiBold
-        }
-        Canvas {
-            id: plot
-            anchors.fill: parent
-            anchors.leftMargin: 8
-            anchors.rightMargin: 8
-            anchors.topMargin: 30
-            anchors.bottomMargin: 8
-            onWidthChanged: requestPaint()
-            onHeightChanged: requestPaint()
-            onPaint: {
-                var ctx = getContext("2d")
-                ctx.reset()
-                ctx.strokeStyle = root.border
-                ctx.lineWidth = 1
-                for (var grid = 1; grid < 4; ++grid) {
-                    var gy = grid * height / 4
-                    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(width, gy); ctx.stroke()
-                }
-                if (!chart.values || chart.values.length < 2) {
-                    ctx.fillStyle = root.textMuted
-                    ctx.font = "11px Segoe UI"
-                    ctx.textAlign = "center"
-                    ctx.fillText("Sonuç bekleniyor", width / 2, height / 2)
-                    return
-                }
-                var minimum = Number.POSITIVE_INFINITY
-                var maximum = Number.NEGATIVE_INFINITY
-                for (var index = 0; index < chart.values.length; ++index) {
-                    if (chart.values[index] === null || chart.values[index] === undefined) continue
-                    var value = Number(chart.values[index])
-                    if (!isFinite(value)) continue
-                    minimum = Math.min(minimum, value)
-                    maximum = Math.max(maximum, value)
-                }
-                if (!isFinite(minimum) || !isFinite(maximum)) return
-                var span = Math.max(0.0000001, maximum - minimum)
-                ctx.strokeStyle = root.accent
-                ctx.lineWidth = 1.5
-                ctx.beginPath()
-                var drawing = false
-                for (var point = 0; point < chart.values.length; ++point) {
-                    if (chart.values[point] === null || chart.values[point] === undefined || !isFinite(Number(chart.values[point]))) {
-                        drawing = false
-                        continue
-                    }
-                    var x = point * width / Math.max(1, chart.values.length - 1)
-                    var y = height - (Number(chart.values[point]) - minimum) / span * height
-                    if (!drawing) { ctx.moveTo(x, y); drawing = true } else ctx.lineTo(x, y)
-                }
-                ctx.stroke()
-            }
-        }
-    }
 
-    component NavIcon: Canvas {
-        required property string kind
-        property color strokeColor: root.textSecondary
-        width: 22
-        height: 22
-        onStrokeColorChanged: requestPaint()
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.reset()
-            ctx.strokeStyle = strokeColor
-            ctx.fillStyle = strokeColor
-            ctx.lineWidth = 1.7
-            ctx.lineCap = "round"
-            ctx.lineJoin = "round"
-            if (kind === "spectrum") {
-                ctx.beginPath()
-                ctx.moveTo(1, 14); ctx.lineTo(5, 14); ctx.lineTo(8, 5)
-                ctx.lineTo(11, 18); ctx.lineTo(14, 9); ctx.lineTo(17, 14); ctx.lineTo(21, 14)
-                ctx.stroke()
-            } else if (kind === "listening") {
-                ctx.beginPath(); ctx.arc(11, 12, 7, Math.PI, Math.PI * 2); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(4, 12); ctx.lineTo(4, 18); ctx.lineTo(7, 18); ctx.lineTo(7, 13); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(18, 12); ctx.lineTo(18, 18); ctx.lineTo(15, 18); ctx.lineTo(15, 13); ctx.stroke()
-            } else if (kind === "direction") {
-                ctx.beginPath(); ctx.arc(11, 11, 8, 0, Math.PI * 2); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(11, 3); ctx.lineTo(14, 12); ctx.lineTo(11, 10); ctx.lineTo(8, 12); ctx.closePath(); ctx.fill()
-            } else {
-                ctx.strokeRect(3, 4, 16, 14)
-                ctx.beginPath(); ctx.moveTo(6, 8); ctx.lineTo(16, 8); ctx.moveTo(6, 12); ctx.lineTo(13, 12); ctx.moveTo(6, 16); ctx.lineTo(10, 16); ctx.stroke()
-            }
-        }
-    }
 
-    FileDialog {
-        id: sigmfDialog
-        title: "SigMF kayıt dosyasını seç"
-        nameFilters: ["SigMF metadata (*.sigmf-meta)"]
-        fileMode: FileDialog.OpenFile
-        onAccepted: operatorViewModel.openSigmf(selectedFile.toString())
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     FileDialog {
         id: wavDialog
@@ -491,18 +302,13 @@ ApplicationWindow {
         onAccepted: operatorViewModel.exportListeningWav(selectedFile.toString())
     }
 
-    Shortcut { sequence: "Ctrl+O"; onActivated: if (operatorViewModel.sourceMode === "sigmf") sigmfDialog.open() }
-    Shortcut { sequence: "Space"; onActivated: if (root.workspace === 0 && operatorViewModel.sourceReady && !operatorViewModel.busy) operatorViewModel.playing ? operatorViewModel.pause() : operatorViewModel.startScan() }
-    Shortcut { sequence: "Ctrl+1"; onActivated: { root.operatingDomain = "ED"; root.workspace = 0 } }
-    Shortcut { sequence: "Ctrl+2"; onActivated: { root.operatingDomain = "ED"; root.workspace = 1 } }
-    Shortcut { sequence: "Ctrl+3"; onActivated: { root.operatingDomain = "ED"; root.workspace = 2 } }
-    Shortcut { sequence: "Ctrl+4"; onActivated: { root.operatingDomain = "ED"; root.workspace = 3 } }
-    Shortcut { sequence: "Ctrl+5"; onActivated: root.operatingDomain = "ET" }
-    Shortcut { sequence: "Ctrl+B"; onActivated: if (root.workspace === 0) root.sourcePanelOpen = !root.sourcePanelOpen }
-    Shortcut { sequence: "Alt+Left"; onActivated: if (root.workspace === 0) root.spectrumViewBack() }
-    Shortcut { sequence: "Alt+Right"; onActivated: if (root.workspace === 0) root.spectrumViewForward() }
-    Shortcut { sequence: "Ctrl+0"; onActivated: if (root.workspace === 0) root.resetSpectrumView() }
-    Shortcut { sequence: "Escape"; onActivated: if (root.consoleOpen) root.consoleOpen = false }
+    Shortcut { sequence: "Space"; onActivated: if (root.workspace === 0 && root.spectrumTaskTab === 0 && operatorViewModel.sourceReady && !operatorViewModel.busy) operatorViewModel.playing ? operatorViewModel.pause() : operatorViewModel.startScan() }
+    Shortcut { sequence: "Ctrl+1"; onActivated: { root.operatingDomain = "ED"; root.workspace = 0; root.spectrumTaskTab = 0 } }
+    Shortcut { sequence: "Ctrl+2"; onActivated: { root.operatingDomain = "ED"; root.workspace = 0; root.spectrumTaskTab = 1 } }
+    Shortcut { sequence: "Ctrl+3"; onActivated: { root.operatingDomain = "ED"; root.workspace = 1 } }
+    Shortcut { sequence: "Ctrl+4"; onActivated: { root.operatingDomain = "ED"; root.workspace = 2 } }
+    Shortcut { sequence: "Ctrl+5"; onActivated: { root.operatingDomain = "ED"; root.workspace = 3 } }
+    Shortcut { sequence: "Ctrl+6"; onActivated: root.operatingDomain = "ET" }
 
     header: Rectangle {
         height: 76
@@ -524,11 +330,31 @@ ApplicationWindow {
             anchors.rightMargin: 18
             spacing: 18
 
-            ColumnLayout {
+            RowLayout {
                 Layout.preferredWidth: 246
-                spacing: 1
-                Label { text: "ELEKTRONİK HARP"; color: root.accent; font.pixelSize: 9; font.weight: Font.Bold; font.letterSpacing: 2.2 }
-                Label { text: "Operatör Konsolu"; color: root.textPrimary; font.pixelSize: 19; font.weight: Font.DemiBold }
+                spacing: 8
+
+                Image {
+                    objectName: "brandLogo"
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 58
+                    source: "../assets/baz-logo-glow.png"
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    mipmap: true
+                    asynchronous: true
+                    Accessible.name: "BÂZ logosu"
+                }
+
+                Label {
+                    text: "BÂZ"
+                    color: root.accent
+                    font.pixelSize: 25
+                    font.weight: Font.Bold
+                    font.letterSpacing: 2.8
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.fillWidth: true
+                }
             }
 
             RowLayout {
@@ -544,7 +370,7 @@ ApplicationWindow {
                         Accessible.name: modelData === "ED" ? "Elektronik Destek" : "Elektronik Taarruz"
                         ToolTip.visible: hovered
                         ToolTip.delay: 450
-                        ToolTip.text: modelData === "ED" ? "Elektronik Destek (Ctrl+1)" : "Elektronik Taarruz (Ctrl+5)"
+                        ToolTip.text: modelData === "ED" ? "Elektronik Destek (Ctrl+1)" : "Elektronik Taarruz (Ctrl+6)"
                         onClicked: root.operatingDomain = modelData
                         background: Rectangle {
                             radius: 4
@@ -570,49 +396,32 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 3
-                Label { text: root.operatingDomain === "ET" ? "ET Görevleri" : operatorViewModel.sourceName; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                Label { text: root.operatingDomain === "ET" ? operatorViewModel.etResultTitle : operatorViewModel.statusMessage; color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : operatorViewModel.errorMessage ? root.danger : root.textSecondary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
+                Label { text: root.operatingDomain === "ET" ? "ET Görevleri" : "Alıcı ve FPGA"; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                Label {
+                    text: root.operatingDomain === "ET" ? operatorViewModel.etResultTitle
+                          : operatorViewModel.liveSessionActive ? "Sabit frekans taraması çalışıyor"
+                          : operatorViewModel.hackrfReady ? "Sabit frekans taramasına hazır"
+                          : "Alıcı bağlantısı bekleniyor"
+                    color: root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary
+                    font.pixelSize: 10
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
             }
 
             ColumnLayout {
+                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
                 spacing: 2
                 Label { text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: root.operatingDomain === "ET" ? root.etTaskName() : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: root.operatingDomain === "ET" ? "Segoe UI" : "Consolas" }
             }
             ColumnLayout {
+                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
                 spacing: 2
                 Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
-            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.errorMessage ? "Hata" : operatorViewModel.sourceReady ? operatorViewModel.sourceState : "Bekliyor" }
-        }
-    }
-
-    footer: Rectangle {
-        height: 28
-        color: "#071018"
-        border.color: root.border
-        border.width: 1
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 12
-            anchors.rightMargin: 12
-            spacing: 12
-            Rectangle { width: 7; height: 7; radius: 4; color: root.operatingDomain === "ET" ? root.warning : operatorViewModel.errorMessage ? root.danger : operatorViewModel.sourceReady ? root.success : root.textMuted }
-            Label { text: root.operatingDomain === "ET" ? "ET görev alanı" : operatorViewModel.sourceReady ? "Kaynak bağlı" : "Kaynak bekleniyor"; color: root.textSecondary; font.pixelSize: 9 }
-            Rectangle { visible: root.operatingDomain !== "ET"; width: 1; Layout.fillHeight: true; Layout.topMargin: 7; Layout.bottomMargin: 7; color: root.border }
-            Label { visible: root.operatingDomain !== "ET"; text: operatorViewModel.performanceText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas"; Layout.fillWidth: true }
-            Item { visible: root.operatingDomain === "ET"; Layout.fillWidth: true }
-            Button {
-                objectName: "eventConsoleButton"
-                flat: true
-                implicitHeight: 24
-                text: root.consoleOpen ? "Olay Konsolunu Kapat" : "Olay Konsolu"
-                Accessible.name: text
-                onClicked: root.consoleOpen = !root.consoleOpen
-                contentItem: Text { text: parent.text; color: root.consoleOpen ? root.accent : root.textSecondary; font.pixelSize: 9; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                background: Rectangle { color: root.consoleOpen ? root.accentSoft : "transparent"; radius: 3 }
-            }
+            StateBadge { state: root.operatingDomain === "ET" ? root.etBadgeState() : operatorViewModel.busy || operatorViewModel.liveSessionActive ? "Çalışıyor" : operatorViewModel.hackrfReady ? "Hazır" : "Bekliyor" }
         }
     }
 
@@ -638,12 +447,13 @@ ApplicationWindow {
                 Repeater {
                     id: workspaceNavigation
                     model: root.operatingDomain === "ET" ? [
-                        {"label": "ET Görevleri", "icon": "system"}
+                        {"label": "ET Görevleri", "title": "Elektronik Taarruz görevleri", "icon": "system", "workspace": 4, "task": -1, "shortcut": 6}
                     ] : [
-                        {"label": "Spektrum", "icon": "spectrum"},
-                        {"label": "Dinleme", "icon": "listening"},
-                        {"label": "Yön Bulma", "icon": "direction"},
-                        {"label": "Sistem", "icon": "system"}
+                        {"label": "Tespit", "title": "Sinyal Tespiti", "icon": "spectrum", "workspace": 0, "task": 0, "shortcut": 1},
+                        {"label": "Parametre", "title": "Parametre Çıkarımı", "icon": "measurement", "workspace": 0, "task": 1, "shortcut": 2},
+                        {"label": "Dinleme", "title": "Sinyal Dinleme", "icon": "listening", "workspace": 1, "task": -1, "shortcut": 3},
+                        {"label": "Yön Bulma", "title": "Yön Bulma", "icon": "direction", "workspace": 2, "task": -1, "shortcut": 4},
+                        {"label": "Sistem", "title": "Sistem", "icon": "system", "workspace": 3, "task": -1, "shortcut": 5}
                     ]
                     delegate: Button {
                         id: navControl
@@ -653,13 +463,17 @@ ApplicationWindow {
                         Layout.preferredHeight: 58
                         flat: true
                         objectName: "workspaceNavigation" + index
-                        Accessible.name: modelData.label
-                        property bool selected: root.operatingDomain === "ET" ? root.workspace === 4 : root.workspace === index
-                        Accessible.description: root.operatingDomain === "ET" ? "Elektronik Taarruz görev çalışma alanı, Ctrl+5" : "Çalışma alanı " + (index + 1) + ", Ctrl+" + (index + 1)
+                        Accessible.name: modelData.title
+                        property bool selected: root.workspace === modelData.workspace
+                                                && (modelData.task < 0 || root.spectrumTaskTab === modelData.task)
+                        Accessible.description: modelData.title + " çalışma alanı, Ctrl+" + modelData.shortcut
                         ToolTip.visible: hovered
                         ToolTip.delay: 500
-                        ToolTip.text: root.operatingDomain === "ET" ? "ET Görevleri · Ctrl+5" : modelData.label + " · Ctrl+" + (index + 1)
-                        onClicked: root.workspace = root.operatingDomain === "ET" ? 4 : index
+                        ToolTip.text: modelData.title + " · Ctrl+" + modelData.shortcut
+                        onClicked: {
+                            root.workspace = modelData.workspace
+                            if (modelData.task >= 0) root.spectrumTaskTab = modelData.task
+                        }
                         background: Rectangle {
                             color: navControl.selected ? root.accentSoft : "transparent"
                             radius: 4
@@ -682,20 +496,6 @@ ApplicationWindow {
                     }
                 }
                 Item { Layout.fillHeight: true }
-                Button {
-                    Layout.alignment: Qt.AlignHCenter
-                    flat: true
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 42
-                    text: operatorViewModel.reducedMotion ? "Animasyon\nAzaltılmış" : "Animasyon\nStandart"
-                    Accessible.name: "Hareketi azalt"
-                    ToolTip.visible: hovered
-                    ToolTip.delay: 500
-                    ToolTip.text: operatorViewModel.reducedMotion ? "Standart animasyona geç" : "Animasyonları azalt"
-                    onClicked: operatorViewModel.setReducedMotion(!operatorViewModel.reducedMotion)
-                    contentItem: Text { text: parent.text; color: operatorViewModel.reducedMotion ? root.warning : root.textMuted; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font.pixelSize: 8; wrapMode: Text.Wrap }
-                    background: Rectangle { color: "transparent"; border.color: operatorViewModel.reducedMotion ? "#67532F" : "transparent"; radius: 4 }
-                }
             }
         }
 
@@ -706,80 +506,68 @@ ApplicationWindow {
 
             // OPERASYON
             Item {
-                RowLayout {
+                RxSurveyView {
+                    objectName: "frequencySurveyView"
                     anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 10
+                    theme: root
+                    visible: operatorViewModel.sourceMode === "hackrf" && root.rfSearchMode && root.spectrumTaskTab === 0
+                    onFixedBandRequested: root.rfSearchMode = false
+                }
+                RowLayout {
+                    visible: operatorViewModel.sourceMode !== "hackrf" || !root.rfSearchMode || root.spectrumTaskTab !== 0
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 0
 
                     Panel {
                         id: sourcePanel
-                        property real animatedWidth: root.sourcePanelOpen ? 220 : 0
+                        objectName: "sourcePanel"
+                        property real animatedWidth: root.sourcePanelOpen && root.spectrumTaskTab === 0 ? 220 : 0
                         Layout.preferredWidth: animatedWidth
                         Layout.minimumWidth: animatedWidth
                         Layout.maximumWidth: animatedWidth
                         Layout.fillHeight: true
                         visible: animatedWidth > 0.5
-                        opacity: root.sourcePanelOpen ? 1 : 0
+                        opacity: root.sourcePanelOpen && root.spectrumTaskTab === 0 ? 1 : 0
                         clip: true
+                        color: "transparent"
+                        border.width: 0
+                        radius: 0
                         Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
                         Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
+                        Rectangle { anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 1; color: root.border }
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 14
                             spacing: 12
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "KAYNAK"; Layout.fillWidth: true }
+                                SectionTitle { text: "ALICI AYARLARI"; Layout.fillWidth: true }
                                 StateBadge {
-                                    visible: operatorViewModel.sourceReady || operatorViewModel.busy || !!operatorViewModel.errorMessage
-                                    state: operatorViewModel.playing ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.errorMessage ? "Hata" : operatorViewModel.sourceState
-                                }
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                QuietButton {
-                                    Layout.fillWidth: true
-                                    text: "SigMF Kaydı"
-                                    enabled: !operatorViewModel.busy
-                                    checked: operatorViewModel.sourceMode === "sigmf"
-                                    onClicked: operatorViewModel.setSourceMode("sigmf")
-                                }
-                                QuietButton {
-                                    Layout.fillWidth: true
-                                    text: "HackRF Canlı RX"
-                                    enabled: !operatorViewModel.busy
-                                    checked: operatorViewModel.sourceMode === "hackrf"
-                                    onClicked: operatorViewModel.setSourceMode("hackrf")
+                                    state: operatorViewModel.playing || operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.hackrfReady ? "Hazır" : "Bekliyor"
                                 }
                             }
 
                             Loader {
                                 Layout.fillWidth: true
-                                sourceComponent: operatorViewModel.sourceMode === "sigmf" ? sigmfControls : hackrfControls
+                                sourceComponent: hackrfControls
                             }
 
-                            Label {
+                            Rectangle {
                                 visible: !!operatorViewModel.errorMessage
                                 Layout.fillWidth: true
-                                text: operatorViewModel.errorMessage
-                                color: root.danger
-                                font.pixelSize: 10
-                                wrapMode: Text.Wrap
-                            }
-
-                            Rectangle { visible: operatorViewModel.sourceReady; Layout.fillWidth: true; height: 1; color: root.border }
-                            SectionTitle { visible: operatorViewModel.sourceReady; text: "ALIM" }
-                            GridLayout {
-                                visible: operatorViewModel.sourceReady
-                                columns: 2
-                                Layout.fillWidth: true
-                                columnSpacing: 10
-                                rowSpacing: 7
-                                Label { text: "Güç ölçeği"; color: root.textSecondary; font.pixelSize: 11 }
-                                Label { text: operatorViewModel.calibrationText; color: root.warning; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
-                                Label { text: "Kayıt ilerlemesi"; color: root.textSecondary; font.pixelSize: 11 }
-                                Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount; color: root.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight }
+                                implicitHeight: receiverErrorContent.implicitHeight + 18
+                                radius: 4
+                                color: "#251519"
+                                border.color: root.danger
+                                ColumnLayout {
+                                    id: receiverErrorContent
+                                    anchors.fill: parent
+                                    anchors.margins: 9
+                                    spacing: 3
+                                    Label { text: operatorViewModel.errorTitle; color: root.danger; font.pixelSize: 10; font.weight: Font.DemiBold; Layout.fillWidth: true }
+                                    Label { text: operatorViewModel.errorMessage; color: root.textSecondary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                }
                             }
 
                             Item { Layout.fillHeight: true }
@@ -789,71 +577,30 @@ ApplicationWindow {
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 12
+                        spacing: 0
 
                         Panel {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
+                            color: "transparent"
+                            border.width: 0
+                            radius: 0
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 14
-                                spacing: 8
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Button {
-                                        flat: true
-                                        implicitWidth: 28
-                                        implicitHeight: 24
-                                        text: root.sourcePanelOpen ? "‹" : "›"
-                                        Accessible.name: root.sourcePanelOpen ? "Kaynak panelini gizle" : "Kaynak panelini göster"
-                                        onClicked: root.sourcePanelOpen = !root.sourcePanelOpen
-                                        contentItem: Text { text: parent.text; color: root.textSecondary; font.pixelSize: 18; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                                        background: Rectangle { color: parent.hovered ? root.surfaceAlt : "transparent"; border.color: parent.activeFocus ? root.accent : "transparent"; radius: 3 }
-                                    }
-                                    SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
-                                    Label { text: "TARAMA"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
-                                    StateBadge { visible: operatorViewModel.sourceReady; state: operatorViewModel.playing ? "Çalışıyor" : "Hazır" }
-                                    PrimaryButton {
-                                        text: "Başlat"
-                                        implicitWidth: 64
-                                        implicitHeight: 28
-                                        enabled: operatorViewModel.sourceReady && !operatorViewModel.playing && !operatorViewModel.busy
-                                        Accessible.name: "Spektrum taramasını başlat"
-                                        onClicked: operatorViewModel.startScan()
-                                    }
-                                    QuietButton {
-                                        text: "Duraklat"
-                                        implicitWidth: 70
-                                        implicitHeight: 28
-                                        enabled: operatorViewModel.playing
-                                        Accessible.name: "Spektrum taramasını duraklat"
-                                        onClicked: operatorViewModel.pause()
-                                    }
-                                }
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 5
-                                    Label { text: "FREKANS GÖRÜNÜMÜ"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
-                                    QuietButton { text: "‹"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Önceki frekans görünümü"; enabled: root.spectrumViewHistoryIndex > 0; onClicked: root.spectrumViewBack() }
-                                    QuietButton { text: "›"; implicitWidth: 26; implicitHeight: 24; Accessible.name: "Sonraki frekans görünümü"; enabled: root.spectrumViewHistoryIndex + 1 < root.spectrumViewHistory.length; onClicked: root.spectrumViewForward() }
-                                    QuietButton { text: "−"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü uzaklaştır"; onClicked: root.zoomSpectrum(0.5, 1.4) }
-                                    Label { text: (1 / (root.spectrumViewEnd - root.spectrumViewStart)).toFixed(1) + "×"; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
-                                    QuietButton { text: "+"; implicitWidth: 28; implicitHeight: 24; Accessible.name: "Frekans görünümünü yakınlaştır"; onClicked: root.zoomSpectrum(0.5, 0.7) }
-                                    QuietButton { text: "1:1"; implicitWidth: 40; implicitHeight: 24; font.pixelSize: 9; Accessible.name: "Frekans görünümünü sıfırla"; enabled: root.spectrumViewStart > 0 || root.spectrumViewEnd < 1; onClicked: root.resetSpectrumView() }
-                                    Item { Layout.fillWidth: true }
-                                    Rectangle {
-                                        implicitWidth: liveTrace.implicitWidth + 16
-                                        implicitHeight: 22
-                                        radius: 3
-                                        color: root.accentSoft
-                                        Label { id: liveTrace; anchors.centerIn: parent; text: "ANLIK · dBFS"; color: root.accent; font.pixelSize: 9; font.weight: Font.Bold }
-                                    }
-                                    Label { visible: root.width >= 1500; text: operatorViewModel.performanceText; color: root.textSecondary; font.pixelSize: 10 }
-                                }
+                                anchors.margins: 12
+                                spacing: 6
+                                SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
                                 Canvas {
                                     id: spectrumCanvas
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
+                                    SpectrumTrace {
+                                        anchors.fill: parent
+                                        z: -1
+                                        source: operatorViewModel.spectralDisplay
+                                        viewStart: root.spectrumViewStart
+                                        viewEnd: root.spectrumViewEnd
+                                    }
                                     property real selectionOpacity: 1
                                     property int lastSelectionId: -1
                                     Accessible.name: "Anlık güç spektrumu"
@@ -870,9 +617,6 @@ ApplicationWindow {
                                     }
                                     Connections {
                                         target: operatorViewModel
-                                        function onSpectrumChanged() {
-                                            if (root.workspace === 0) spectrumCanvas.requestPaint()
-                                        }
                                         function onDetectionsChanged() {
                                             var selectedId = operatorViewModel.selectedDetectionId
                                             if (selectedId !== spectrumCanvas.lastSelectionId) {
@@ -887,8 +631,8 @@ ApplicationWindow {
                                         id: emptySpectrumMessage
                                         objectName: "emptySpectrumMessage"
                                         anchors.centerIn: parent
-                                        visible: !operatorViewModel.spectrumValues || operatorViewModel.spectrumValues.length < 2
-                                        text: "Kaynak seçildiğinde spektrum burada görüntülenir"
+                                        visible: operatorViewModel.spectrumPointCount < 2
+                                        text: "Taramayı başlatınca canlı spektrum burada görünür"
                                         color: root.textMuted
                                         font.pixelSize: 11
                                         Accessible.role: Accessible.StaticText
@@ -896,8 +640,7 @@ ApplicationWindow {
                                     onPaint: {
                                         var ctx = getContext("2d")
                                         ctx.reset()
-                                        ctx.fillStyle = "#040A0F"
-                                        ctx.fillRect(0, 0, width, height)
+                                        ctx.clearRect(0, 0, width, height)
                                         var plotLeft = 42
                                         var plotRight = width - 8
                                         var plotTop = 8
@@ -910,11 +653,12 @@ ApplicationWindow {
                                             var x = plotLeft + gx * plotWidth / 8
                                             ctx.beginPath(); ctx.moveTo(x, plotTop); ctx.lineTo(x, plotBottom); ctx.stroke()
                                         }
-                                        for (var gy = 0; gy <= 5; gy++) {
-                                            var y = plotTop + gy * plotHeight / 5
-                                            ctx.beginPath(); ctx.moveTo(plotLeft, y); ctx.lineTo(plotRight, y); ctx.stroke()
-                                        }
-                                        var selectionStart = operatorViewModel.selectedRegionStartNormalized
+                                         for (var gy = 0; gy <= 5; gy++) {
+                                             var y = plotTop + gy * plotHeight / 5
+                                             ctx.beginPath(); ctx.moveTo(plotLeft, y); ctx.lineTo(plotRight, y); ctx.stroke()
+                                         }
+                                         if (operatorViewModel.spectrumPointCount < 2) return
+                                         var selectionStart = operatorViewModel.selectedRegionStartNormalized
                                         var selectionEnd = operatorViewModel.selectedRegionEndNormalized
                                         var selectionPeak = operatorViewModel.selectedRegionPeakNormalized
                                         if (selectionStart >= 0 && selectionEnd >= selectionStart) {
@@ -929,9 +673,9 @@ ApplicationWindow {
                                             if (visibleSelectionEnd >= visibleSelectionStart && coarseX2 >= plotLeft && coarseX1 <= plotRight) {
                                                 coarseX1 = Math.max(plotLeft, coarseX1); coarseX2 = Math.min(plotRight, coarseX2)
                                                 ctx.globalAlpha = spectrumCanvas.selectionOpacity
-                                                ctx.fillStyle = "rgba(240,188,98,0.10)"
+                                                ctx.fillStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(240,188,98,0.10)" : "rgba(140,160,172,0.06)"
                                                 ctx.fillRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight)
-                                                ctx.strokeStyle = "rgba(240,188,98,0.82)"
+                                                ctx.strokeStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(240,188,98,0.82)" : "rgba(140,160,172,0.55)"
                                                 ctx.setLineDash([4, 3]); ctx.strokeRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight); ctx.setLineDash([])
                                                 ctx.globalAlpha = 1
                                             }
@@ -951,12 +695,24 @@ ApplicationWindow {
                                                 ctx.globalAlpha = 1
                                             }
                                         }
-                                        var values = operatorViewModel.spectrumValues
-                                        if (!values || values.length < 2) return
-                                        var firstIndex = Math.max(0, Math.floor(root.spectrumViewStart * (values.length - 1)))
-                                        var lastIndex = Math.min(values.length - 1, Math.ceil(root.spectrumViewEnd * (values.length - 1)))
-                                        var visibleDenominator = Math.max(1, lastIndex - firstIndex)
-                                        var low = operatorViewModel.spectrumMinDb
+                                        if (operatorViewModel.sourceMode === "hackrf" && operatorViewModel.liveDetectionEnabled) {
+                                            var fpgaStart = operatorViewModel.liveDetectionStartNormalized
+                                            var fpgaEnd = operatorViewModel.liveDetectionEndNormalized
+                                            var fpgaX1 = plotLeft + (fpgaStart - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            var fpgaX2 = plotLeft + (fpgaEnd - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            if (fpgaX2 >= plotLeft && fpgaX1 <= plotRight) {
+                                                fpgaX1 = Math.max(plotLeft, fpgaX1); fpgaX2 = Math.min(plotRight, fpgaX2)
+                                                ctx.fillStyle = "rgba(49,195,210,0.05)"
+                                                ctx.fillRect(fpgaX1, plotTop, fpgaX2 - fpgaX1, plotHeight)
+                                                ctx.strokeStyle = "rgba(49,195,210,0.45)"
+                                                ctx.setLineDash([4, 4]); ctx.strokeRect(fpgaX1, plotTop, fpgaX2 - fpgaX1, plotHeight); ctx.setLineDash([])
+                                                ctx.fillStyle = "rgba(49,195,210,0.82)"
+                                                ctx.font = "8px Segoe UI"
+                                                ctx.textAlign = "center"
+                                                ctx.fillText("TESPİT ALANI", (fpgaX1 + fpgaX2) / 2, plotTop + 10)
+                                            }
+                                        }
+                                         var low = operatorViewModel.spectrumMinDb
                                         var high = operatorViewModel.spectrumMaxDb
                                         ctx.fillStyle = "#647987"
                                         ctx.font = "9px Consolas"
@@ -967,26 +723,6 @@ ApplicationWindow {
                                             var labelValue = high - labelIndex * (high - low) / 5
                                             ctx.fillText(labelValue.toFixed(0), plotLeft - 6, labelY)
                                         }
-                                        var fill = ctx.createLinearGradient(0, plotTop, 0, plotBottom)
-                                        fill.addColorStop(0, "rgba(49,195,210,0.22)")
-                                        fill.addColorStop(1, "rgba(49,195,210,0.00)")
-                                        ctx.beginPath()
-                                        for (var fillIndex = firstIndex; fillIndex <= lastIndex; fillIndex++) {
-                                            var fillX = plotLeft + (fillIndex - firstIndex) * plotWidth / visibleDenominator
-                                            var fillY = plotBottom - Math.max(0, Math.min(1, (values[fillIndex] - low) / (high - low))) * plotHeight
-                                            if (fillIndex === firstIndex) ctx.moveTo(fillX, fillY); else ctx.lineTo(fillX, fillY)
-                                        }
-                                        ctx.lineTo(plotRight, plotBottom); ctx.lineTo(plotLeft, plotBottom); ctx.closePath()
-                                        ctx.fillStyle = fill; ctx.fill()
-                                        ctx.strokeStyle = root.accent
-                                        ctx.lineWidth = 1.6
-                                        ctx.beginPath()
-                                        for (var i = firstIndex; i <= lastIndex; i++) {
-                                            var px = plotLeft + (i - firstIndex) * plotWidth / visibleDenominator
-                                            var py = plotBottom - Math.max(0, Math.min(1, (values[i] - low) / (high - low))) * plotHeight
-                                            if (i === firstIndex) ctx.moveTo(px, py); else ctx.lineTo(px, py)
-                                        }
-                                        ctx.stroke()
                                         ctx.strokeStyle = "rgba(237,245,247,0.32)"
                                         ctx.setLineDash([3, 4])
                                         if (root.spectrumViewStart <= 0.5 && root.spectrumViewEnd >= 0.5) {
@@ -994,6 +730,8 @@ ApplicationWindow {
                                             ctx.beginPath(); ctx.moveTo(centerX, plotTop); ctx.lineTo(centerX, plotBottom); ctx.stroke()
                                         }
                                         ctx.setLineDash([])
+                                        root.paintDetectionGuides(ctx, plotLeft, plotTop, plotWidth, plotHeight)
+                                        root.paintCoarseDetectionGuides(ctx, plotLeft, plotTop, plotWidth, plotHeight)
                                         if (root.analysisDragStart >= 0 && root.analysisDragEnd >= 0) {
                                             var dragX1 = plotLeft + (Math.min(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
                                             var dragX2 = plotLeft + (Math.max(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
@@ -1087,6 +825,7 @@ ApplicationWindow {
                                     }
                                 }
                                 RowLayout {
+                                    visible: operatorViewModel.spectrumPointCount >= 2
                                     Layout.fillWidth: true
                                     Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewStart)); color: root.textSecondary; font.pixelSize: 10 }
                                     Item { Layout.fillWidth: true }
@@ -1094,82 +833,55 @@ ApplicationWindow {
                                     Item { Layout.fillWidth: true }
                                     Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewEnd)); color: root.textSecondary; font.pixelSize: 10 }
                                 }
-                                Label {
-                                    Layout.fillWidth: true
-                                    visible: operatorViewModel.sourceReady
-                                    text: "Kaydır: sürükle  ·  Analiz aralığı: Shift+sürükle  ·  Yakınlaştır: tekerlek  ·  Tam bant: çift tık"
-                                    color: root.textMuted
-                                    font.pixelSize: 9
-                                    elide: Text.ElideRight
-                                    horizontalAlignment: Text.AlignRight
-                                }
                             }
                         }
 
                         Panel {
+                            objectName: "waterfallPanel"
+                            visible: root.spectrumTaskTab === 0
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 168
+                            Layout.preferredHeight: Math.max(210, Math.min(310, root.height * 0.32))
+                            color: "transparent"
+                            border.width: 0
+                            radius: 0
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 14
-                                spacing: 8
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    SectionTitle { text: "SPEKTROGRAM"; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.sourceReady ? (root.spectrumViewStart > 0 || root.spectrumViewEnd < 1 ? "SPEKTRUMLA BAĞLI" : "TAM BANT") : "BEKLİYOR"; color: operatorViewModel.sourceReady ? root.accent : root.textMuted; font.pixelSize: 9; font.weight: Font.Bold }
-                                    Label { visible: operatorViewModel.sourceReady; text: "SON 48 KARE"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
-                                }
+                                anchors.margins: 12
+                                spacing: 6
+                                SectionTitle { text: "SPEKTROGRAM"; Layout.fillWidth: true }
                                 Canvas {
                                     id: waterfall
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    property var history: []
-                                    property var colorPalette: []
-                                    function buildColorPalette() {
-                                        var palette = []
-                                        for (var index = 0; index < 64; index++) {
-                                            var level = index / 63
-                                            var red = level < 0.65 ? Math.round(7 + 48 * level) : Math.round(55 + 190 * (level - 0.65) / 0.35)
-                                            var green = level < 0.45 ? Math.round(20 + 180 * level) : Math.round(101 + 118 * (level - 0.45) / 0.55)
-                                            var blue = level < 0.70 ? Math.round(42 + 190 * level) : Math.round(175 - 115 * (level - 0.70) / 0.30)
-                                            palette.push("rgb(" + red + "," + green + "," + blue + ")")
-                                        }
-                                        colorPalette = palette
+                                    property real plotLeft: 42
+                                    property real plotWidth: Math.max(1, width - 50)
+                                    WaterfallImage {
+                                        anchors.fill: parent
+                                        z: -1
+                                        source: operatorViewModel.spectralDisplay
+                                        viewStart: root.spectrumViewStart
+                                        viewEnd: root.spectrumViewEnd
                                     }
-                                    Component.onCompleted: buildColorPalette()
-                                    Connections {
+                                     Connections {
                                         target: operatorViewModel
-                                        function onSpectrumChanged() {
-                                            var values = operatorViewModel.spectrumValues
-                                            if (values && values.length) {
-                                                waterfall.history.push(values.slice(0))
-                                                if (waterfall.history.length > 48) waterfall.history.shift()
-                                            } else waterfall.history = []
-                                            if (root.workspace === 0) waterfall.requestPaint()
-                                        }
-                                    }
-                                    onPaint: {
-                                        var ctx = getContext("2d")
-                                        ctx.reset(); ctx.fillStyle = "#040A0F"; ctx.fillRect(0, 0, width, height)
-                                        var low = operatorViewModel.spectrumMinDb
-                                        var high = operatorViewModel.spectrumMaxDb
-                                        for (var row = 0; row < history.length; row++) {
-                                            var vals = history[row]
-                                            var firstIndex = Math.max(0, Math.floor(root.spectrumViewStart * (vals.length - 1)))
-                                            var lastIndex = Math.min(vals.length - 1, Math.ceil(root.spectrumViewEnd * (vals.length - 1)))
-                                            var visibleCount = Math.max(1, lastIndex - firstIndex + 1)
-                                            var step = Math.max(1, Math.floor(visibleCount / Math.max(1, width / 3)))
-                                            var y = height - (history.length - row) * height / 48
-                                            var rh = Math.ceil(height / 48)
-                                            for (var col = firstIndex; col <= lastIndex; col += step) {
-                                                var level = Math.max(0, Math.min(1, (vals[col] - low) / (high - low)))
-                                                ctx.fillStyle = colorPalette[Math.round(level * 63)]
-                                                ctx.fillRect((col - firstIndex) * width / visibleCount, y, Math.ceil(step * width / visibleCount), rh)
-                                            }
-                                        }
+                                        function onDetectionsChanged() { if (root.workspace === 0) waterfall.requestPaint() }
+                                     }
+                                     Label {
+                                         anchors.centerIn: parent
+                                         visible: operatorViewModel.spectrumPointCount < 2
+                                         text: "Taramayı başlatınca spektrogram burada görünür"
+                                         color: root.textMuted
+                                         font.pixelSize: 11
+                                     }
+                                     onPaint: {
+                                         var ctx = getContext("2d")
+                                         ctx.reset(); ctx.clearRect(0, 0, width, height)
+                                         if (operatorViewModel.spectrumPointCount < 2) return
+                                         root.paintDetectionGuides(ctx, plotLeft, 0, plotWidth, height, false)
+                                        root.paintCoarseDetectionGuides(ctx, plotLeft, 0, plotWidth, height)
                                         if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
                                                 && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
-                                            var cursorX = (root.spectrumCursorNormalized - root.spectrumViewStart) * width / (root.spectrumViewEnd - root.spectrumViewStart)
+                                            var cursorX = plotLeft + (root.spectrumCursorNormalized - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
                                             ctx.strokeStyle = "rgba(237,245,247,0.72)"
                                             ctx.lineWidth = 1
                                             ctx.beginPath(); ctx.moveTo(cursorX, 0); ctx.lineTo(cursorX, height); ctx.stroke()
@@ -1193,20 +905,20 @@ ApplicationWindow {
                                             pressStart = root.spectrumViewStart
                                             pressEnd = root.spectrumViewEnd
                                             root.spectrumCursorVisible = true
-                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, mouse.x / Math.max(1, width))) * (root.spectrumViewEnd - root.spectrumViewStart)
+                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, (mouse.x - waterfall.plotLeft) / waterfall.plotWidth)) * (root.spectrumViewEnd - root.spectrumViewStart)
                                         }
                                         onPositionChanged: function(mouse) {
                                             root.spectrumCursorVisible = true
-                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, mouse.x / Math.max(1, width))) * (root.spectrumViewEnd - root.spectrumViewStart)
+                                            root.spectrumCursorNormalized = root.spectrumViewStart + Math.max(0, Math.min(1, (mouse.x - waterfall.plotLeft) / waterfall.plotWidth)) * (root.spectrumViewEnd - root.spectrumViewStart)
                                             if (pressed) {
                                                 var span = pressEnd - pressStart
-                                                var delta = -(mouse.x - pressX) * span / Math.max(1, width)
+                                                var delta = -(mouse.x - pressX) * span / waterfall.plotWidth
                                                 root.setSpectrumView(pressStart + delta, pressEnd + delta)
                                             }
                                             spectrumCanvas.requestPaint(); waterfall.requestPaint()
                                         }
                                         onReleased: function(mouse) { if (Math.abs(mouse.x - pressX) >= 2) root.commitSpectrumView() }
-                                        onWheel: function(wheel) { root.zoomSpectrum(wheel.x / Math.max(1, width), wheel.angleDelta.y > 0 ? 0.75 : 1.333333) }
+                                        onWheel: function(wheel) { root.zoomSpectrum(Math.max(0, Math.min(1, (wheel.x - waterfall.plotLeft) / waterfall.plotWidth)), wheel.angleDelta.y > 0 ? 0.75 : 1.333333) }
                                         onDoubleClicked: root.resetSpectrumView()
                                     }
                                 }
@@ -1216,16 +928,22 @@ ApplicationWindow {
                     }
 
                     Panel {
-                        Layout.preferredWidth: 330
+                        objectName: "signalTaskPanel"
+                        Layout.preferredWidth: root.spectrumTaskTab === 0 ? 290 : Math.min(500, root.width * 0.42)
                         Layout.fillHeight: true
+                        color: "transparent"
+                        border.width: 0
+                        radius: 0
+                        Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 1; color: root.border }
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 14
                             spacing: 10
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "SİNYAL İNCELEME"; Layout.fillWidth: true }
+                                SectionTitle { text: root.spectrumTaskTab === 0 ? "SİNYAL TESPİTİ" : "PARAMETRE ÇIKARIMI"; Layout.fillWidth: true }
                                 Rectangle {
+                                    visible: root.spectrumTaskTab === 0 && operatorViewModel.detections.length > 0
                                     implicitWidth: detectionCount.implicitWidth + 14
                                     implicitHeight: 22
                                     radius: 11
@@ -1234,11 +952,12 @@ ApplicationWindow {
                                 }
                             }
                             Rectangle {
+                                visible: root.spectrumTaskTab !== 0 || operatorViewModel.detectionMarkers.length > 0
                                 Layout.fillWidth: true
-                                implicitHeight: 60
-                                radius: 4
-                                color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
-                                border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
+                                implicitHeight: 64
+                                radius: 3
+                                color: root.spectrumTaskTab === 0 ? "#102A24" : root.surfaceAlt
+                                border.color: root.spectrumTaskTab === 0 ? root.success : root.border
                                 RowLayout {
                                     anchors.fill: parent
                                     anchors.margins: 10
@@ -1247,48 +966,62 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         spacing: 2
                                         Label {
-                                            text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
-                                            color: root.textPrimary
-                                            font.pixelSize: 11
+                                            text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
+                                                  ? "SİNYAL TESPİT EDİLDİ"
+                                                  : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
+                                            color: root.spectrumTaskTab === 0 ? root.success : root.textPrimary
+                                            font.pixelSize: 12
                                             font.weight: Font.DemiBold
                                             Layout.fillWidth: true
                                             elide: Text.ElideRight
                                         }
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Label { text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true }
-                                            Label { visible: operatorViewModel.selectedDetectionReady; text: "P/N " + operatorViewModel.selectedDetectionContrastText; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + operatorViewModel.selectedDetectionContrastText }
+                                            Label {
+                                                text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
+                                                      ? (operatorViewModel.detectionMarkers.length > 0 ? operatorViewModel.detectionMarkers[0].frequency : "")
+                                                      : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""
+                                                color: root.textPrimary
+                                                font.pixelSize: 12
+                                                font.family: "Consolas"
+                                                Layout.fillWidth: true
+                                                elide: Text.ElideRight
+                                            }
+                                            Label {
+                                                readonly property var leadingDetection: operatorViewModel.detectionMarkers.length > 0 ? operatorViewModel.detectionMarkers[0] : null
+                                                visible: root.spectrumTaskTab === 0 && leadingDetection !== null
+                                                text: leadingDetection !== null ? "P/N " + leadingDetection.snr : ""
+                                                color: root.textSecondary
+                                                font.pixelSize: 8
+                                                Accessible.name: leadingDetection !== null ? "Tepe gürültü oranı " + leadingDetection.snr : ""
+                                            }
                                         }
                                     }
                                     QuietButton {
+                                        visible: root.spectrumTaskTab === 1 && operatorViewModel.sourceMode === "hackrf" && operatorViewModel.selectedDetectionId >= 0
+                                        text: "×"
+                                        implicitWidth: 28
+                                        Accessible.name: "Tespit seçimini temizle"
+                                        onClicked: operatorViewModel.clearDetectionSelection()
+                                    }
+                                    QuietButton {
+                                        objectName: "measurementOpenButton"
                                         text: "Ölçüm ›"
-                                        visible: root.spectrumTaskTab === 0
+                                        visible: false
                                         implicitWidth: 68
                                         implicitHeight: 30
-                                        enabled: operatorViewModel.selectedDetectionReady
+                                        enabled: operatorViewModel.measurementSelectionReady
                                         Accessible.name: "Seçili sinyalin ölçüm adımına geç"
                                         onClicked: root.spectrumTaskTab = 1
                                     }
-                                }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-                                QuietButton {
-                                    Layout.fillWidth: true
-                                    text: "Tespitler"
-                                    implicitHeight: 30
-                                    checked: root.spectrumTaskTab === 0
-                                    Accessible.name: "Tespit listesini göster"
-                                    onClicked: root.spectrumTaskTab = 0
-                                }
-                                QuietButton {
-                                    Layout.fillWidth: true
-                                    text: "Ölçüm"
-                                    implicitHeight: 30
-                                    checked: root.spectrumTaskTab === 1
-                                    Accessible.name: "Sinyal ölçümünü göster"
-                                    onClicked: root.spectrumTaskTab = 1
+                                    QuietButton {
+                                        objectName: "measurementChooseDetection"
+                                        text: operatorViewModel.selectedDetectionId >= 0 ? "Tespiti Değiştir" : "Tespit Seç"
+                                        visible: root.spectrumTaskTab === 1
+                                        implicitHeight: 30
+                                        Accessible.name: "Sinyal tespiti ekranına dön"
+                                        onClicked: root.spectrumTaskTab = 0
+                                    }
                                 }
                             }
                             ListView {
@@ -1298,30 +1031,44 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 clip: true
-                                spacing: 3
-                                model: operatorViewModel.detections
+                                spacing: 0
+                                model: operatorViewModel.detectionModel
                                 Label {
                                     id: emptyDetectionMessage
                                     objectName: "emptyDetectionMessage"
                                     anchors.centerIn: parent
+                                    width: Math.max(1, parent.width - 24)
+                                    horizontalAlignment: Text.AlignHCenter
+                                    wrapMode: Text.WordWrap
                                     visible: operatorViewModel.detections.length === 0
-                                    text: operatorViewModel.sourceReady ? "Doğrulanmış aday bekleniyor" : "Tespitler kaynak hazır olduğunda listelenir"
+                                    text: !operatorViewModel.hackrfReady ? "Önce alıcı bağlantısını denetleyin"
+                                          : !operatorViewModel.liveSessionActive ? "Taramayı başlatın"
+                                          : "Kararlı yayın aranıyor"
                                     color: root.textMuted
                                     font.pixelSize: 11
                                 }
                                 ScrollBar.vertical: ScrollBar {
                                     policy: ScrollBar.AlwaysOff
                                 }
-                                delegate: Button {
+                                delegate: AbstractButton {
+                                    id: detectionDelegate
+                                    hoverEnabled: true
+                                    leftPadding: 10
+                                    rightPadding: 12
+                                    topPadding: 6
+                                    bottomPadding: 6
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: 48
-                                    Accessible.name: modelData.title + ", " + modelData.state
+                                    height: 58
+                                    enabled: modelData.observed
+                                    Accessible.name: modelData.frequency + ", " + modelData.state + ", " + modelData.title
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: modelData.observed ? "Sinyal şu anda algılanıyor." : "Bu frekans bu tarama sırasında daha önce algılandı."
                                     onPressed: operatorViewModel.selectDetection(modelData.eventId)
                                     background: Rectangle {
-                                        radius: 4
-                                        color: operatorViewModel.selectedDetectionId === modelData.eventId ? root.accentSoft : root.surfaceAlt
-                                        border.color: operatorViewModel.selectedDetectionId === modelData.eventId ? root.accent : root.border
+                                        radius: 0
+                                        color: operatorViewModel.selectedDetectionId === modelData.eventId ? root.accentSoft : detectionDelegate.hovered ? root.raised : "transparent"
+                                        border.width: 0
                                         Behavior on color { ColorAnimation { duration: root.transitionDuration } }
                                         Behavior on border.color { ColorAnimation { duration: root.transitionDuration } }
                                         Rectangle {
@@ -1332,17 +1079,18 @@ ApplicationWindow {
                                             width: 2
                                             color: root.accent
                                         }
+                                        Rectangle { anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; height: 1; color: root.border }
                                     }
                                     contentItem: ColumnLayout {
                                         spacing: 3
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Label { text: modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                                            Label { text: modelData.state; color: modelData.stateKey === "confirmed" ? root.success : root.warning; font.pixelSize: 10 }
+                                            Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.frequency : modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
+                                            Label { text: modelData.state; color: modelData.observed ? root.success : root.textMuted; font.pixelSize: 10; font.weight: Font.DemiBold }
                                         }
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Label { text: modelData.frequency; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.observationCount + " doğrulanmış gözlem" : modelData.frequency; color: root.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
                                             Label { text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
                                         }
                                     }
@@ -1365,11 +1113,11 @@ ApplicationWindow {
                             RowLayout {
                                 visible: root.spectrumTaskTab === 1
                                 Layout.fillWidth: true
-                                SectionTitle { text: "SİNYAL ÖLÇÜMÜ"; Layout.fillWidth: true }
+                                SectionTitle { text: "ÖLÇÜM DURUMU"; Layout.fillWidth: true }
                                 Label {
                                     text: operatorViewModel.parameterRows.length > 0 ? "SONUÇ HAZIR"
                                           : operatorViewModel.analysisSpanConfirmed ? "ARALIK ONAYLI"
-                                          : operatorViewModel.selectedDetectionReady ? "ARALIK BEKLİYOR"
+                                          : operatorViewModel.measurementSelectionReady ? "ARALIK BEKLİYOR"
                                           : "TESPİT BEKLİYOR"
                                     color: operatorViewModel.parameterRows.length > 0 ? root.success : operatorViewModel.analysisSpanConfirmed ? root.accent : root.textMuted
                                     font.pixelSize: 8
@@ -1400,10 +1148,10 @@ ApplicationWindow {
                                                 Layout.fillWidth: true
                                                 implicitHeight: 24
                                                 radius: 3
-                                                color: (index === 0 && operatorViewModel.selectedDetectionReady)
+                                                color: (index === 0 && operatorViewModel.measurementSelectionReady)
                                                        || (index === 1 && operatorViewModel.analysisSpanConfirmed)
                                                        || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#091219"
-                                                border.color: (index === 0 && operatorViewModel.selectedDetectionReady)
+                                                border.color: (index === 0 && operatorViewModel.measurementSelectionReady)
                                                               || (index === 1 && operatorViewModel.analysisSpanConfirmed)
                                                               || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#28616B" : root.border
                                                 Label { anchors.centerIn: parent; text: modelData; color: parent.border.color === root.border ? root.textMuted : root.accent; font.pixelSize: 8; font.weight: Font.DemiBold }
@@ -1412,10 +1160,12 @@ ApplicationWindow {
                                     }
                                     Label {
                                         Layout.fillWidth: true
-                                        text: operatorViewModel.parameterCapabilityReady
+                                        text: operatorViewModel.liveSessionActive
+                                              ? "Aynı tespitin dört ardışık FPGA karesi sabitlenir; ölçüm komutu alımı güvenli biçimde durdurur."
+                                              : operatorViewModel.recordedIQReady && operatorViewModel.parameterCapabilityReady
                                               ? "Dört ardışık gözlem ve operatör onaylı analiz aralığı kullanılır."
-                                              : "Doğrulanmış parametre ölçüm profili kullanılamıyor."
-                                        color: operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
+                                              : "Canlı ölçüm için taramayı başlatın."
+                                        color: (operatorViewModel.liveSessionActive || operatorViewModel.recordedIQReady) && operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
                                         font.pixelSize: 10
                                         wrapMode: Text.Wrap
                                     }
@@ -1461,13 +1211,13 @@ ApplicationWindow {
                                     QuietButton {
                                         Layout.fillWidth: true
                                         text: operatorViewModel.analysisSpanConfirmed ? "Analiz Aralığı Onaylandı" : "Analiz Aralığını Onayla"
-                                        enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.parameterCapabilityReady && !operatorViewModel.busy
+                                        enabled: (operatorViewModel.recordedIQReady || operatorViewModel.liveSessionActive) && operatorViewModel.measurementSelectionReady && operatorViewModel.parameterCapabilityReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
                                         onClicked: operatorViewModel.confirmAnalysisSpan(Number(analysisLowerMHz.text), Number(analysisUpperMHz.text))
                                     }
                                     PrimaryButton {
                                         Layout.fillWidth: true
                                         text: "Ölçümü Başlat"
-                                        enabled: operatorViewModel.measurementReady && !operatorViewModel.busy
+                                        enabled: operatorViewModel.measurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
                                         onClicked: operatorViewModel.requestMeasurement()
                                     }
                                     Repeater {
@@ -1482,7 +1232,7 @@ ApplicationWindow {
                                     }
                                     Label {
                                         visible: operatorViewModel.parameterRows.length === 0
-                                        text: operatorViewModel.selectedDetectionReady
+                                        text: operatorViewModel.measurementSelectionReady
                                               ? (operatorViewModel.analysisSpanConfirmed
                                                  ? "Dört ardışık gözlem ve ölçüm komutu bekleniyor."
                                                  : "Önerilen analiz aralığını doğrulayıp onaylayın.")
@@ -1523,7 +1273,7 @@ ApplicationWindow {
                             RowLayout {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "KANAL AYARI"; Layout.fillWidth: true }
-                                StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
+                                StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.listeningSelectionReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
                             }
                             Rectangle {
                                 Layout.fillWidth: true
@@ -1541,7 +1291,13 @@ ApplicationWindow {
                                         Label { text: operatorViewModel.selectedDetectionStateText; color: operatorViewModel.selectedDetectionReady ? root.success : root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     }
                                     Label { text: operatorViewModel.listeningDetectionFrequencyText; color: operatorViewModel.selectedDetectionReady ? root.accent : root.textSecondary; font.pixelSize: 10; font.family: "Consolas" }
-                                    Label { text: "I/Q kayıt süresi  " + operatorViewModel.sourceDurationText; color: root.textMuted; font.pixelSize: 8 }
+                                    Label {
+                                        text: operatorViewModel.sourceMode === "hackrf"
+                                              ? operatorViewModel.liveListeningBufferText
+                                              : "I/Q kayıt süresi  " + operatorViewModel.sourceDurationText
+                                        color: operatorViewModel.listeningSelectionReady ? root.success : root.textMuted
+                                        font.pixelSize: 8
+                                    }
                                 }
                             }
                             Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
@@ -1637,13 +1393,23 @@ ApplicationWindow {
                             PrimaryButton {
                                 Layout.fillWidth: true
                                 text: operatorViewModel.listeningReady ? "Kanalı Yeniden Hazırla" : "Kanalı Hazırla"
-                                enabled: operatorViewModel.selectedDetectionReady && operatorViewModel.sourceReady && !operatorViewModel.busy
+                                enabled: operatorViewModel.listeningSelectionReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
                                 onClicked: operatorViewModel.requestListening(
                                     listeningMode.model[listeningMode.currentIndex].value,
                                     Number(listeningOffset.text),
                                     Number(listeningBandwidth.text),
                                     listeningVolume.value
                                 )
+                            }
+                            Label {
+                                visible: operatorViewModel.sourceMode === "hackrf"
+                                Layout.fillWidth: true
+                                text: operatorViewModel.listeningSelectionReady
+                                      ? "Beş saniyelik kesintisiz I/Q hazır. Kanal hazırlanırken canlı alım güvenli biçimde durdurulur."
+                                      : "Aynı doğrulanmış sinyalin beş saniyelik kesintisiz gözlemi bekleniyor."
+                                color: operatorViewModel.listeningSelectionReady ? root.success : root.textSecondary
+                                font.pixelSize: 9
+                                wrapMode: Text.Wrap
                             }
                         }
                     }
@@ -1679,7 +1445,7 @@ ApplicationWindow {
                                         for (var gy = 0; gy <= 4; gy++) { var y = gy * height / 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke() }
                                         var values = operatorViewModel.listeningWaveform
                                         if (!values || values.length < 2) {
-                                            ctx.fillStyle = root.textMuted; ctx.font = "11px Segoe UI"; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+                                            ctx.fillStyle = root.textMuted; ctx.font = "11px 'Segoe UI'"; ctx.textAlign = "center"; ctx.textBaseline = "middle"
                                             ctx.fillText("Hazırlanmış kanal sesi yok", width / 2, height / 2)
                                             return
                                         }
@@ -1973,7 +1739,7 @@ ApplicationWindow {
                                             var radius = Math.min(width, height) * 0.36
                                             ctx.strokeStyle = root.borderStrong; ctx.lineWidth = 1.2
                                             ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke()
-                                            ctx.font = "bold 9px Segoe UI"; ctx.fillStyle = root.textSecondary; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+                                            ctx.font = "bold 9px 'Segoe UI'"; ctx.fillStyle = root.textSecondary; ctx.textAlign = "center"; ctx.textBaseline = "middle"
                                             ctx.fillText(geographicReference ? "K" : "0°", cx, cy - radius - 11)
                                             ctx.fillText(geographicReference ? "D" : "90°", cx + radius + 13, cy)
                                             ctx.fillText(geographicReference ? "G" : "180°", cx, cy + radius + 11)
@@ -1991,7 +1757,7 @@ ApplicationWindow {
                                                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(bearingRad) * (radius - 8), cy + Math.sin(bearingRad) * (radius - 8)); ctx.stroke()
                                                 ctx.fillStyle = geographicReference ? root.success : root.accent; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill()
                                             } else {
-                                                ctx.fillStyle = root.textMuted; ctx.font = "10px Segoe UI"
+                                                ctx.fillStyle = root.textMuted; ctx.font = "10px 'Segoe UI'"
                                                 ctx.fillText(operatorViewModel.directionMeasurementCount > 0 ? "Sonuç üretilemedi" : "Ölçüm bekleniyor", cx, cy)
                                             }
                                         }
@@ -2199,7 +1965,7 @@ ApplicationWindow {
                                             onClicked: root.selectedSystemBlock = index
                                             onDoubleClicked: {
                                                 root.selectedSystemBlock = index
-                                                if (operatorViewModel.developerMode) operatorViewModel.openImplementationLocation(modelData.id, "host")
+                                                if (operatorViewModel.developerMode) operatorViewModel.openImplementationLocation(modelData.id, modelData.runtime === "FPGA" || modelData.runtime === "ZYNQ PS" ? "rtl" : "host")
                                             }
                                         }
                                     }
@@ -2255,7 +2021,7 @@ ApplicationWindow {
                                         Label { text: "Uygulama"; visible: operatorViewModel.developerMode; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
                                         Label { text: componentInspector.block.implementation || "—"; visible: operatorViewModel.developerMode; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
                                         Label { text: "Donanım durumu"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
-                                        Label { text: componentInspector.block.rtlPath ? "Kaynak karşılığı mevcut; kart kabulü yok" : "Host üzerinde çalışıyor"; color: componentInspector.block.rtlPath ? root.warning : root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
+                                        Label { text: componentInspector.block.hardwareStatus || "—"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true; wrapMode: Text.WordWrap }
                                     }
                                     RowLayout {
                                         visible: operatorViewModel.developerMode
@@ -2362,227 +2128,7 @@ ApplicationWindow {
             }
 
             // ET GÖREV ALANI
-            Item {
-                id: etWorkspace
-                objectName: "etWorkspace"
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 10
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 24
-                        SectionTitle { text: "GÖREV SEÇİMİ" }
-                        Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                    }
-
-                    RowLayout {
-                        id: etTaskRow
-                        property real cardHeight: root.height < 780 ? 66 : 72
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: cardHeight
-                        Layout.minimumHeight: cardHeight
-                        Layout.maximumHeight: cardHeight
-                        spacing: 8
-                        Repeater {
-                            model: operatorViewModel.etTaskCards
-                            delegate: Button {
-                                id: etTaskCard
-                                required property var modelData
-                                Layout.preferredWidth: Math.max(180, (root.width - 124) / 4)
-                                Layout.minimumWidth: Layout.preferredWidth
-                                Layout.maximumWidth: Layout.preferredWidth
-                                Layout.fillHeight: true
-                                property bool selected: operatorViewModel.etTask === modelData.id
-                                Accessible.name: modelData.name + ", " + modelData.maturity
-                                onClicked: operatorViewModel.selectETTask(modelData.id)
-                                scale: down ? 0.99 : 1.0
-                                Behavior on scale { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
-                                background: Rectangle {
-                                    radius: 5
-                                    color: etTaskCard.selected ? root.accentSoft : root.surfaceAlt
-                                    border.color: etTaskCard.selected ? root.accent : root.border
-                                    Behavior on color { ColorAnimation { duration: root.transitionDuration } }
-                                    Rectangle {
-                                        anchors.left: parent.left; anchors.bottom: parent.bottom
-                                        height: 3; radius: 2; color: root.accent
-                                        width: etTaskCard.selected ? parent.width : 0
-                                        Behavior on width { NumberAnimation { duration: root.transitionDuration + 40; easing.type: Easing.OutCubic } }
-                                    }
-                                }
-                                contentItem: ColumnLayout {
-                                    spacing: 3
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        Text { text: modelData.name; color: etTaskCard.selected ? root.textPrimary : root.textSecondary; font.pixelSize: root.uiBodyTextSize + 1; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                        Text { visible: root.width >= 1400; text: modelData.maturity; color: etTaskCard.selected ? root.accent : root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold }
-                                    }
-                                    Text { text: modelData.detail; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; elide: Text.ElideRight; Layout.fillWidth: true }
-                                }
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        spacing: 10
-
-                        Panel {
-                            id: etResultPanel
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 12
-                                spacing: 8
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 2
-                                        Label { text: operatorViewModel.etResultTitle; color: root.textPrimary; font.pixelSize: root.height < 780 ? 15 : 18; font.weight: Font.DemiBold; Layout.fillWidth: true; elide: Text.ElideRight }
-                                        Label { text: operatorViewModel.etResultDetail; color: operatorViewModel.etStatus === "HATA" ? root.danger : root.textSecondary; font.pixelSize: root.uiMetaTextSize + 1; Layout.fillWidth: true; wrapMode: Text.Wrap }
-                                    }
-                                }
-                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                RowLayout {
-                                    visible: operatorViewModel.etTask !== "gnss"
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    spacing: 8
-                                    EtChart { Layout.fillWidth: true; Layout.fillHeight: true; title: operatorViewModel.etPrimaryTitle; values: operatorViewModel.etPrimaryValues }
-                                    EtChart { Layout.fillWidth: true; Layout.fillHeight: true; title: operatorViewModel.etSecondaryTitle; values: operatorViewModel.etSecondaryValues }
-                                }
-                                Panel {
-                                    visible: operatorViewModel.etTask === "gnss"
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    color: "#071018"
-                                    ColumnLayout {
-                                        anchors.centerIn: parent
-                                        width: Math.min(parent.width - 40, 520)
-                                        spacing: 10
-                                        Label { text: "GPS L1 C/A"; color: root.textPrimary; font.pixelSize: 24; font.weight: Font.DemiBold; Layout.alignment: Qt.AlignHCenter }
-                                        Label { text: "Bu görev yalnız konum, kesin UTC ve PRN metadata sözleşmesini doğrular."; color: root.textSecondary; font.pixelSize: root.uiBodyTextSize; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; Layout.fillWidth: true }
-                                        Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                        Label { text: "EFEMERİS YOK  ·  NAV MESAJI YOK  ·  I/Q DALGA ŞEKLİ YOK"; color: root.warning; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
-                                    }
-                                }
-                                RowLayout {
-                                    visible: operatorViewModel.etTask === "interleaved" && operatorViewModel.etTimeline.length > 0
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 58
-                                    Layout.minimumHeight: 58
-                                    Layout.maximumHeight: 58
-                                    spacing: 4
-                                    Repeater {
-                                        model: operatorViewModel.etTimeline
-                                        delegate: Rectangle {
-                                            required property var modelData
-                                            Layout.fillWidth: true
-                                            Layout.fillHeight: true
-                                            radius: 3
-                                            color: modelData.state === "GÖREV" ? "#153B31" : modelData.state === "GECİKME" ? "#3B321F" : modelData.state === "KORUMA" ? "#35252A" : "#0D1822"
-                                            border.color: modelData.state === "GÖREV" ? root.success : modelData.state === "GECİKME" ? root.warning : modelData.state === "KORUMA" ? root.danger : root.border
-                                            ColumnLayout {
-                                                anchors.centerIn: parent
-                                                spacing: 1
-                                                Label { text: modelData.index; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; Layout.alignment: Qt.AlignHCenter }
-                                                Label { text: modelData.state; color: root.textPrimary; font.pixelSize: root.uiDenseMetaTextSize; font.weight: Font.Bold; Layout.alignment: Qt.AlignHCenter }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Rectangle {
-                                id: etResultFlash
-                                z: 5
-                                anchors.fill: parent
-                                radius: parent.radius
-                                color: "transparent"
-                                border.color: root.accent
-                                border.width: 1
-                                opacity: 0
-                            }
-                        }
-
-                        Panel {
-                            Layout.preferredWidth: root.width < 1400 ? 286 : 326
-                            Layout.fillHeight: true
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 12
-                                spacing: 9
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    SectionTitle { text: "GÖREV AYARLARI"; Layout.fillWidth: true }
-                                }
-                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                StackLayout {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: operatorViewModel.etTask === "gnss" ? 150 : 108
-                                    Layout.minimumHeight: Layout.preferredHeight
-                                    Layout.maximumHeight: Layout.preferredHeight
-                                    currentIndex: operatorViewModel.etTask === "continuous" ? 0 : operatorViewModel.etTask === "interleaved" ? 1 : operatorViewModel.etTask === "analog" ? 2 : 3
-                                    Item {
-                                        ColumnLayout { anchors.fill: parent; spacing: 7
-                                            Label { text: "Dalga biçimi ailesi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
-                                            AppCombo { id: etContinuousOption; objectName: "etContinuousOption"; Layout.fillWidth: true; model: ["Tekli", "Çoklu", "Baraj", "Doğrusal Süpürme"] }
-                                            PrimaryButton { objectName: "etContinuousRun"; Layout.fillWidth: true; text: "Görevi Çalıştır"; onClicked: operatorViewModel.runETTask("continuous", ["single", "multiple", "barrage", "sweep"][etContinuousOption.currentIndex]) }
-                                        }
-                                    }
-                                    Item {
-                                        ColumnLayout { anchors.fill: parent; spacing: 7
-                                            Label { text: "Deterministik analiz girdisi"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
-                                            AppCombo { id: etInterleavedOption; objectName: "etInterleavedOption"; Layout.fillWidth: true; model: ["Hedef Yok", "Sürekli Hedef", "Kesintili Hedef", "Eşik Kenarı"] }
-                                            PrimaryButton { objectName: "etInterleavedRun"; Layout.fillWidth: true; text: "Zamanlamayı Çalıştır"; onClicked: operatorViewModel.runETTask("interleaved", ["absent", "present", "intermittent", "edge"][etInterleavedOption.currentIndex]) }
-                                        }
-                                    }
-                                    Item {
-                                        ColumnLayout { anchors.fill: parent; spacing: 7
-                                            Label { text: "Yerel döngü modu"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize }
-                                            AppCombo { id: etAnalogOption; objectName: "etAnalogOption"; Layout.fillWidth: true; model: ["NFM", "FM", "AM"] }
-                                            PrimaryButton { objectName: "etAnalogRun"; Layout.fillWidth: true; text: "Yerel Döngüyü Çalıştır"; onClicked: operatorViewModel.runETTask("analog", etAnalogOption.currentText) }
-                                        }
-                                    }
-                                    Item {
-                                        ColumnLayout { anchors.fill: parent; spacing: 5
-                                            RowLayout { Layout.fillWidth: true
-                                                AppField { id: etLatitude; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "39.93340"; placeholderText: "Enlem"; Accessible.name: "Sanal enlem" }
-                                                AppField { id: etLongitude; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "32.85970"; placeholderText: "Boylam"; Accessible.name: "Sanal boylam" }
-                                            }
-                                            AppField { id: etUtc; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "2026-08-16T12:00:00Z"; placeholderText: "UTC zaman"; Accessible.name: "Senaryo UTC zamanı" }
-                                            AppField { id: etPrns; Layout.fillWidth: true; Layout.preferredHeight: 30; text: "3, 8, 63"; placeholderText: "PRN kodları"; Accessible.name: "GPS L1 C/A PRN kodları" }
-                                            PrimaryButton { objectName: "etGnssValidate"; Layout.fillWidth: true; Layout.preferredHeight: 36; text: "Senaryoyu Denetle"; onClicked: operatorViewModel.validateETGNSS(Number(etLatitude.text), Number(etLongitude.text), etUtc.text, etPrns.text) }
-                                        }
-                                    }
-                                }
-                                SectionTitle { text: "ÖLÇÜMLER"; visible: operatorViewModel.etMetricRows.length > 0 }
-                                ListView {
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    clip: true
-                                    spacing: 2
-                                    model: operatorViewModel.etMetricRows
-                                    delegate: Rectangle {
-                                        required property var modelData
-                                        width: ListView.view.width
-                                        height: 26
-                                        color: "#071018"
-                                        radius: 3
-                                        RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
-                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize + 1; Layout.fillWidth: true }
-                                            Label { text: modelData.value; color: modelData.value === "FAIL" ? root.danger : root.textPrimary; font.pixelSize: root.uiMetaTextSize + 1; font.family: "Consolas"; font.weight: Font.DemiBold }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            ETWorkspace { shell: root }
         }
     }
 
@@ -2591,9 +2137,6 @@ ApplicationWindow {
         function onEtChanged() {
             if (root.operatingDomain === "ET") etResultPulse.restart()
         }
-        function onLogChanged() {
-            if (root.consoleOpen) Qt.callLater(function() { eventConsoleList.positionViewAtBeginning() })
-        }
     }
 
     SequentialAnimation {
@@ -2601,110 +2144,9 @@ ApplicationWindow {
         NumberAnimation { target: etResultFlash; property: "opacity"; from: 0.55; to: 0; duration: root.transitionDuration + 180; easing.type: Easing.OutCubic }
     }
 
-    Rectangle {
-        id: eventConsole
-        z: 50
-        x: 76
-        y: root.contentItem.height - height
-        width: root.contentItem.width - x
-        height: root.consoleOpen ? Math.min(238, root.contentItem.height * 0.36) : 0
-        visible: root.consoleOpen || height > 0 || opacity > 0
-        opacity: root.consoleOpen ? 1 : 0
-        clip: true
-        color: "#03070B"
-        border.color: root.borderStrong
-        border.width: 1
-        Behavior on height { NumberAnimation { duration: root.transitionDuration + 40; easing.type: Easing.OutCubic } }
-        Behavior on opacity { NumberAnimation { duration: root.transitionDuration; easing.type: Easing.OutCubic } }
-
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 12
-            spacing: 8
-            RowLayout {
-                Layout.fillWidth: true
-                SectionTitle { text: "OLAY KONSOLU"; Layout.fillWidth: true }
-                Label { text: operatorViewModel.eventLog.length + " kayıt"; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
-                QuietButton { text: "Kapat"; implicitHeight: 28; onClicked: root.consoleOpen = false }
-            }
-            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 18
-                spacing: 12
-                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 68 }
-                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 100 }
-                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas"; font.weight: Font.Bold; Layout.fillWidth: true }
-            }
-            ListView {
-                id: eventConsoleList
-                objectName: "eventConsoleList"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                clip: true
-                focus: root.consoleOpen
-                model: operatorViewModel.eventLog
-                spacing: 0
-                delegate: Rectangle {
-                    required property var modelData
-                    required property int index
-                    width: ListView.view.width
-                    height: 27
-                    color: index % 2 ? "#050A0F" : "transparent"
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 6
-                        anchors.rightMargin: 6
-                        spacing: 12
-                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 68 }
-                        Label { text: modelData.component.toUpperCase(); color: modelData.component === "Hata" ? root.danger : root.accent; font.pixelSize: 9; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 100 }
-                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
-                    }
-                }
-            }
-        }
-    }
-
-    Component {
-        id: sigmfControls
-        ColumnLayout {
-            width: parent ? parent.width : 240
-            spacing: 8
-            PrimaryButton { Layout.fillWidth: true; text: "Kayıt Seç"; enabled: !operatorViewModel.busy; onClicked: sigmfDialog.open() }
-            Label { visible: !operatorViewModel.sourceReady; text: "SigMF metadata ve veri dosyasını birlikte seçin."; color: root.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
-        }
-    }
-
     Component {
         id: hackrfControls
-        ColumnLayout {
-            width: parent ? parent.width : 240
-            spacing: 7
-            QuietButton { Layout.fillWidth: true; text: "Cihazı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
-            Label { text: "Merkez frekansı (Hz)"; color: root.textSecondary; font.pixelSize: 10 }
-            TextField { id: centerInput; Layout.fillWidth: true; text: "100000000"; inputMethodHints: Qt.ImhDigitsOnly; Accessible.name: "HackRF merkez frekansı" }
-            Label { text: "Örnekleme hızı"; color: root.textSecondary; font.pixelSize: 10 }
-            AppCombo { id: rateInput; Layout.fillWidth: true; model: [8000000, 10000000, 20000000]; Accessible.name: "HackRF örnekleme hızı" }
-            RowLayout {
-                Layout.fillWidth: true
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label { text: "LNA (dB)"; color: root.textSecondary; font.pixelSize: 10 }
-                    AppCombo { id: lnaInput; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: 2 }
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label { text: "VGA (dB)"; color: root.textSecondary; font.pixelSize: 10 }
-                    AppCombo { id: vgaInput; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: 2 }
-                }
-            }
-            PrimaryButton {
-                Layout.fillWidth: true
-                text: "RX Alımını Başlat"
-                enabled: operatorViewModel.sourceState === "Hazır" && !operatorViewModel.sourceReady && !operatorViewModel.busy
-                onClicked: operatorViewModel.startHackrfCapture(Number(centerInput.text), Number(rateInput.currentText), Number(lnaInput.currentText), Number(vgaInput.currentText), 16384)
-            }
-        }
+        HackRFControls { shell: root }
     }
 
     onClosing: function(close) { operatorViewModel.shutdown() }

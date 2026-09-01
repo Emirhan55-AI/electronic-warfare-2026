@@ -1,6 +1,15 @@
 set script_directory [file dirname [file normalize [info script]]]
 set repository_root [file normalize [file join $script_directory ..]]
 set build_root [file normalize [file join $repository_root build p0 vivado]]
+set hardware_root [file join $repository_root build p0 hardware]
+if {[info exists ::env(P0_BUILD_VARIANT)] && $::env(P0_BUILD_VARIANT) ne ""} {
+  if {![regexp {^[A-Za-z0-9_-]+$} $::env(P0_BUILD_VARIANT)]} {
+    error "P0_BUILD_VARIANT must be a directory name without path separators"
+  }
+  set variant_root [file join $repository_root build p0 $::env(P0_BUILD_VARIANT)]
+  set build_root [file join $variant_root vivado]
+  set hardware_root [file join $variant_root hardware]
+}
 set project_file [file join $build_root p0_runtime.xpr]
 set report_root [file join $build_root reports]
 set zedboard_part {avnet-tria:zedboard:part0:1.5}
@@ -68,7 +77,6 @@ puts "P0:BITSTREAM_STATUS=$bit_status"
 if {![string match "*Complete*" $bit_status]} {
   error "P0 bitstream generation failed: $bit_status"
 }
-set hardware_root [file join $repository_root build p0 hardware]
 file mkdir $hardware_root
 set xsa_file [file join $hardware_root p0_system_50mhz.xsa]
 write_hw_platform -fixed -include_bit -force -file $xsa_file

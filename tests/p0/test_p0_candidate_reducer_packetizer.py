@@ -11,17 +11,17 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_packetizer_evidence_is_passed_and_bounded() -> None:
     evidence = json.loads(
-        (ROOT / "results/evidence/p0/candidate-reducer-packetizer.json").read_text(
+        (ROOT / "results/evidence/p0/candidate-reducer-packetizer-v2.json").read_text(
             encoding="utf-8"
         )
     )
     assert evidence["status"] == "passed"
     assert evidence["metrics"] == {
-        "frames": 5,
-        "candidates": 61,
-        "beats": 345,
-        "stalls": 30,
-        "stability": 30,
+        "frames": 8,
+        "candidates": 63,
+        "beats": 379,
+        "stalls": 37,
+        "stability": 37,
     }
     assert evidence["architecture"]["candidate_loss"] == 0
     assert evidence["architecture"]["duplicate_records"] == 0

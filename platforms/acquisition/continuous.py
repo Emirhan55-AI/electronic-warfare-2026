@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import os
 import re
 import subprocess
 import threading
@@ -13,8 +14,92 @@ from typing import Iterator
 from .contracts import AcquisitionError, RXConfig
 
 
-MAX_STREAM_FRAMES = 8_192
-STDERR_LIMIT_BYTES = 65_536
+# 878,906 input frames correspond to just under 30 minutes at 8 MS/s with
+# 16,384 complex samples per frame. The process remains bounded by frame count,
+# watchdog time and the fixed-size stdout/stderr consumers.
+MAX_STREAM_FRAMES = 878_906
+STDERR_LIMIT_BYTES = 262_144
+
+
+def _reserve_hackrf_process_cores(process: subprocess.Popen[bytes]) -> int | None:
+    """Keep the libusb child on dedicated physical cores on Windows."""
+    if os.name != "nt" or (logical_processors := (os.cpu_count() or 1)) < 4:
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class _LogicalProcessorInformation(ctypes.Structure):
+        _fields_ = (
+            ("processor_mask", ctypes.c_size_t),
+            ("relationship", ctypes.c_int),
+            ("reserved", ctypes.c_byte * 16),
+        )
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    get_topology = kernel32.GetLogicalProcessorInformation
+    get_topology.argtypes = (
+        ctypes.POINTER(_LogicalProcessorInformation), ctypes.POINTER(wintypes.DWORD),
+    )
+    get_topology.restype = wintypes.BOOL
+    byte_count = wintypes.DWORD()
+    get_topology(None, ctypes.byref(byte_count))
+    if not byte_count.value:
+        raise OSError(ctypes.get_last_error(), "Windows işlemci topolojisi okunamadı.")
+    topology_buffer = (ctypes.c_byte * byte_count.value)()
+    if not get_topology(
+        ctypes.cast(topology_buffer, ctypes.POINTER(_LogicalProcessorInformation)),
+        ctypes.byref(byte_count),
+    ):
+        raise OSError(ctypes.get_last_error(), "Windows işlemci topolojisi okunamadı.")
+    entry_size = ctypes.sizeof(_LogicalProcessorInformation)
+    core_masks = []
+    for offset in range(0, byte_count.value, entry_size):
+        entry = ctypes.cast(
+            ctypes.byref(topology_buffer, offset),
+            ctypes.POINTER(_LogicalProcessorInformation),
+        ).contents
+        if entry.relationship == 0:  # RelationProcessorCore
+            core_masks.append(int(entry.processor_mask))
+    if len(core_masks) < 2:
+        return None
+    reserved_mask = 0
+    # hackrf_transfer has separate USB/device and output work.  Three physical
+    # cores leave this six-core target enough room for those threads while the
+    # GUI, channelizer and Python capture threads remain on the other three.
+    # On smaller hosts always leave at least one physical core to the parent.
+    for core_mask in core_masks[-min(3, len(core_masks) - 1):]:
+        reserved_mask |= core_mask
+    set_affinity = ctypes.WinDLL("kernel32", use_last_error=True).SetProcessAffinityMask
+    set_affinity.argtypes = (wintypes.HANDLE, ctypes.c_size_t)
+    set_affinity.restype = wintypes.BOOL
+    if not set_affinity(wintypes.HANDLE(process._handle), reserved_mask):  # type: ignore[attr-defined]
+        raise OSError(ctypes.get_last_error(), "HackRF süreç çekirdek ayrımı uygulanamadı.")
+    get_affinity = ctypes.WinDLL("kernel32", use_last_error=True).GetProcessAffinityMask
+    get_affinity.argtypes = (
+        wintypes.HANDLE, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(ctypes.c_size_t),
+    )
+    get_affinity.restype = wintypes.BOOL
+    current_process = ctypes.WinDLL("kernel32", use_last_error=True).GetCurrentProcess()
+    previous = ctypes.c_size_t()
+    system = ctypes.c_size_t()
+    if not get_affinity(current_process, ctypes.byref(previous), ctypes.byref(system)):
+        raise OSError(ctypes.get_last_error(), "Uygulama süreç çekirdek maskesi okunamadı.")
+    application_mask = previous.value & ~reserved_mask
+    if not application_mask or not set_affinity(current_process, application_mask):
+        raise OSError(ctypes.get_last_error(), "Uygulama süreç çekirdek ayrımı uygulanamadı.")
+    return int(previous.value)
+
+
+def _restore_host_process_cores(previous_mask: int | None) -> None:
+    if os.name != "nt" or previous_mask is None:
+        return
+    import ctypes
+    from ctypes import wintypes
+    set_affinity = ctypes.WinDLL("kernel32", use_last_error=True).SetProcessAffinityMask
+    set_affinity.argtypes = (wintypes.HANDLE, ctypes.c_size_t)
+    set_affinity.restype = wintypes.BOOL
+    current_process = ctypes.WinDLL("kernel32", use_last_error=True).GetCurrentProcess()
+    set_affinity(current_process, previous_mask)
 
 
 def build_continuous_receive_argv(
@@ -105,6 +190,8 @@ class HackRFContinuousRX:
         cancellation: threading.Event | None = None,
     ) -> None:
         self.argv = build_continuous_receive_argv(executable, config, frame_count)
+        self._binary_pipe = None
+        self._output = None
         self.frame_count = frame_count
         self.frame_bytes = config.sample_count * 2
         self.cancellation = cancellation or threading.Event()
@@ -118,35 +205,61 @@ class HackRFContinuousRX:
         self._maximum_seconds = max(2.0, expected_seconds * 2.0 + 2.0)
         self._watchdog: threading.Timer | None = None
         self._timed_out = False
+        self._host_affinity_mask: int | None = None
         self.statistics: HackRFStreamStatistics | None = None
 
     def __enter__(self) -> HackRFContinuousRX:
         if self._process is not None:
             raise AcquisitionError("stream_already_started", "Canlı RX akışı zaten başlatıldı.")
         try:
+            if os.name == "nt":
+                from .windows_pipe import BinaryReceivePipe
+                self._binary_pipe = BinaryReceivePipe()
+                self.argv[self.argv.index("-r") + 1] = self._binary_pipe.path
             process = subprocess.Popen(
                 self.argv,
                 stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
+                stdout=subprocess.DEVNULL if self._binary_pipe is not None else subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=False,
                 bufsize=0,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                creationflags=(
+                    getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                    # The bounded RX child owns the time-sensitive libusb
+                    # callback. HIGH is still below Windows REALTIME and ends
+                    # with this receive-only process.
+                    | getattr(subprocess, "HIGH_PRIORITY_CLASS", 0)
+                ),
             )
-        except OSError as exc:
+            self._host_affinity_mask = _reserve_hackrf_process_cores(process)
+        except Exception as exc:
+            if "process" in locals() and process.poll() is None:
+                process.terminate()
+                process.wait(timeout=1.0)
+            if self._binary_pipe is not None:
+                self._binary_pipe.close()
+            _restore_host_process_cores(self._host_affinity_mask)
+            self._host_affinity_mask = None
             raise AcquisitionError("process_start_failed", "HackRF canlı RX başlatılamadı.") from exc
-        assert process.stdout is not None and process.stderr is not None
+        assert process.stderr is not None
         self._process = process
+        self._output = self._binary_pipe if self._binary_pipe is not None else process.stdout
         self._stderr = _BoundedCollector(process.stderr)
         self._stderr.start()
         self._started = time.perf_counter()
         self._watchdog = threading.Timer(self._maximum_seconds, self._expire)
         self._watchdog.daemon = True
         self._watchdog.start()
+        if self._binary_pipe is not None:
+            try:
+                self._binary_pipe.connect(process)
+            except OSError as exc:
+                self.close()
+                raise AcquisitionError("binary_pipe_failed", "HackRF ikili alım bağlantısı kurulamadı.") from exc
         return self
 
     def __iter__(self) -> Iterator[bytes]:
-        if self._process is None or self._process.stdout is None:
+        if self._process is None or self._output is None:
             raise AcquisitionError("stream_not_started", "Canlı RX akışı başlatılmadı.")
         if self._frames_received:
             raise AcquisitionError("stream_already_consumed", "Canlı RX akışı yalnız bir kez tüketilebilir.")
@@ -160,10 +273,10 @@ class HackRFContinuousRX:
         self._finish()
 
     def _read_exact(self, byte_count: int) -> bytes:
-        assert self._process is not None and self._process.stdout is not None
+        assert self._process is not None and self._output is not None
         payload = bytearray()
         while len(payload) < byte_count:
-            block = self._process.stdout.read(byte_count - len(payload))
+            block = self._output.read(byte_count - len(payload))
             if not block:
                 if self._timed_out:
                     raise AcquisitionError("stream_timeout", "HackRF canlı RX zaman aşımına uğradı.")
@@ -174,16 +287,18 @@ class HackRFContinuousRX:
     def _finish(self) -> None:
         if self._finished:
             return
-        assert self._process is not None and self._process.stdout is not None
-        self._cancel_watchdog()
+        assert self._process is not None and self._output is not None
+        # Inspect EOF while the watchdog is active; waiting before draining the
+        # pipe can deadlock a producer that emitted unexpected extra bytes.
+        extra = self._output.read(1)
+        if extra:
+            raise AcquisitionError("long_stream", "HackRF canlı RX beklenenden uzun veri üretti.")
         try:
             returncode = self._process.wait(timeout=5.0)
         except subprocess.TimeoutExpired as exc:
             self._terminate()
             raise AcquisitionError("stream_finish_timeout", "HackRF canlı RX süreci kapanmadı.") from exc
-        extra = self._process.stdout.read(1)
-        if extra:
-            raise AcquisitionError("long_stream", "HackRF canlı RX beklenenden uzun veri üretti.")
+        self._cancel_watchdog()
         assert self._stderr is not None
         self._stderr.join(timeout=1.0)
         if self._stderr.is_alive() or self._stderr.truncated:
@@ -225,6 +340,8 @@ class HackRFContinuousRX:
     def close(self) -> None:
         self._cancel_watchdog()
         self._terminate()
+        if self._binary_pipe is not None:
+            self._binary_pipe.close()
         if self._stderr is not None:
             self._stderr.join(timeout=1.0)
         if self._process is not None:
@@ -232,6 +349,8 @@ class HackRFContinuousRX:
                 self._process.stdout.close()
             if self._process.stderr is not None:
                 self._process.stderr.close()
+        _restore_host_process_cores(self._host_affinity_mask)
+        self._host_affinity_mask = None
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         del exc_type, exc_value, traceback

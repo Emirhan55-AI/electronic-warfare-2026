@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "scope": "P0 sparse OS-CFAR candidate and final multiscale candidate-reducer RTL simulation",
+  "simulator": "Icarus Verilog SystemVerilog 2012",
+  "sparse_os_candidates": {
+    "frames": 8,
+    "axis_records": 157,
+    "semantic_candidates": 151,
+    "candidate_metadata_mismatches": 0,
+    "maximum_last_input_to_last_output_cycles": 42873,
+    "stalled_payload_stability_checks": 33,
+    "fixture_manifest_sha256": "9449af5d6bfe8d4ab49c895b45666d5dd796307b3e3a0c17bf3d6f2e9c5ce117"
+  },
+  "final_candidates": {
+    "frames": 8,
+    "axis_records": 65,
+    "semantic_candidates": 63,
+    "candidate_metadata_mismatches": 0,
+    "wideband_overlap_suppression_checked": true,
+    "empty_frame_sentinel_checked": true,
+    "out_of_range_frame_failed_closed": true,
+    "malformed_frame_sticky_errors": true,
+    "maximum_last_input_to_last_output_cycles": 45557,
+    "stalled_payload_stability_checks": 14,
+    "fixture_manifest_sha256": "8c7c11ce947a9e16af262a31b3dc309d7ff7b23ace890c7b3bd2a3136ada8f56"
+  },
+  "capacity": {
+    "clock_hz_for_capacity_only": 50000000,
+    "input_cycles_at_one_sample_per_cycle": 4096,
+    "maximum_sequential_functional_cycles": 49653,
+    "cycle_budget": 102400,
+    "functional_frames_per_second": 1006.9885001913278,
+    "required_frames_per_second": 488.28125
+  },
+  "guards": {
+    "maximum_os_candidate_records": 1352,
+    "maximum_os_capacity_passed_without_overflow": true,
+    "fusion_overflow_failed_closed": true
+  },
+  "architecture": {
+    "os_detector": "rank-24/32 strict Q32 decision with sparse grouping",
+    "wideband_detector": "regional recovery plus flanked fourth-region-order broad recovery",
+    "fusion": "sorted merge; every OS candidate overlapping a recovery is suppressed",
+    "output": "shifted-order candidate AXI stream with explicit empty sentinel"
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "e4a1a16200db325c737913a7e58773ec9cc5a2c8f5c1ed1e88281107a8201256",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "028e95c4e8205eba078f5ce6bf8c92a132b06e1ccfc77f0ed89304aae5f20adc",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv": "01a46e1a951ac63f55916d3e2eb88aa4b92933e08caecdfb86600d763cd98da1",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv": "3f68c417dd4db0c96dbcfe5edacc61b3355f7d260d4f6ac8bbfa5f3b172e9ffb",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv": "897cfe5fdf64425b3fab7afe0dfa35b2569c6670351fc9c330ba50232d9136c1",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv": "55fa878ca2037443cce157ab44ea20733cc26de79a41f3effbf92761e6767666",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv": "2d6b50ad9816f59d1f9de2194714d47eaf80a5501ff74f22f2c2237b9d4aa64e",
+    "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "b14d2fdcda151e1c7881a1aa8d318b4b526e30ef83b6a5226879f3bca8720b0e",
+    "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv": "6937d417365a5ff6d1a37590d8801cac8eef909ffe95964c3ed86de0568d76cd",
+    "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9c36c7ed5fd8f531577646e3341c2974e847010b5b28ca928eae09889e77af09",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "8eeea9c78ae8237f84055d0e2c1c5b734ed09533c404f7ca5f583b8d95128232",
+    "algorithms/fpga/p0/tb/tb_p0_sparse_os_candidate.sv": "999341c3322735f3873aa1669b75120346c5e4448bcede9163e1dd63c8d73f89",
+    "algorithms/fpga/p0/tb/tb_p0_candidate_reducer.sv": "a0897f4d2b28bc929438cac57ba48aafb04747b98d85c31ce7e4079ac17262cc",
+    "algorithms/fpga/p0/tb/tb_p0_candidate_guards.sv": "ebcd08319f96272695cc4df469d5f9bb1377a1f0832bc8df4c8d959c271967ad"
+  },
+  "claim_boundary": "Bit-true RTL simulation and functional cycle capacity only; PHASE-06I packetizer integration, synthesis, place-and-route, timing closure, DMA/driver integration, board execution and physical real-time acceptance remain open."
+}

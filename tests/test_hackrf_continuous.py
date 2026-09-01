@@ -8,6 +8,7 @@ from platforms.acquisition import (
     build_continuous_receive_argv,
     parse_hackrf_buffer_statistics,
 )
+from platforms.acquisition.continuous import MAX_STREAM_FRAMES
 
 
 class HackRFContinuousTests(unittest.TestCase):
@@ -29,8 +30,17 @@ class HackRFContinuousTests(unittest.TestCase):
         config = RXConfig(device_serial="0123456789abcdef")
         with self.assertRaisesRegex(AcquisitionError, "hackrf_transfer"):
             build_continuous_receive_argv("other_tool.exe", config, 1)
+        endurance_argv = build_continuous_receive_argv(
+            "hackrf_transfer",
+            config,
+            MAX_STREAM_FRAMES,
+        )
+        self.assertEqual(
+            endurance_argv[endurance_argv.index("-n") + 1],
+            str(config.sample_count * MAX_STREAM_FRAMES),
+        )
         with self.assertRaisesRegex(AcquisitionError, "kare sayısı"):
-            build_continuous_receive_argv("hackrf_transfer", config, 8_193)
+            build_continuous_receive_argv("hackrf_transfer", config, MAX_STREAM_FRAMES + 1)
 
     def test_buffer_statistics_use_final_transfer_summary(self) -> None:
         stderr = "0 overruns, longest 0 bytes\nTransfer statistics:\n2 overruns, longest 262144 bytes\n"

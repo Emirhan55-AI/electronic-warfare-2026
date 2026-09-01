@@ -1,0 +1,62 @@
+{
+  "schema": "phase08-native-channelizer-evidence-v3",
+  "recorded_at": "2026-09-01T12:21:24.564100+00:00",
+  "status": "passed",
+  "checks": {
+    "runtime_supports_avx2_and_fma3": true,
+    "ci8_exact_against_numpy_reference": true,
+    "all_locked_offsets_covered": true,
+    "standalone_p95_below_2_048ms_input_period": true
+  },
+  "comparison": [
+    {
+      "offset_hz": 1250000,
+      "frames": 16,
+      "maximum_lsb_error": 0
+    },
+    {
+      "offset_hz": 1300000,
+      "frames": 16,
+      "maximum_lsb_error": 0
+    },
+    {
+      "offset_hz": 1500000,
+      "frames": 16,
+      "maximum_lsb_error": 0
+    },
+    {
+      "offset_hz": 2750000,
+      "frames": 16,
+      "maximum_lsb_error": 0
+    },
+    {
+      "offset_hz": -1500000,
+      "frames": 16,
+      "maximum_lsb_error": 0
+    }
+  ],
+  "latency_ms": {
+    "samples": 2000,
+    "p50": 0.3942999755963683,
+    "p95": 0.6468150299042463,
+    "maximum": 2.8858999721705914
+  },
+  "input_period_ms": 2.048,
+  "library": {
+    "path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\native\\p0_channelizer\\Release\\p0_channelizer.dll",
+    "sha256": "7b595c01287662c34c9d594a5047ebf2a5e2fe98b498296f549db2d76e9655e0"
+  },
+  "limits": [
+    "Tek başına mikro ölçüm bütün uygulamanın gerçek zamanlı olduğunu kanıtlamaz.",
+    "Fiziksel HackRF ve GUI kabulü ayrı uzun süreli koşuyla yapılır."
+  ],
+  "source_sha256": {
+    "algorithms/p0/channelizer.py": "c60e6cb46a108a6c29f4619f76bc21180e465b2139273651e4e31af380b0bf28",
+    "algorithms/p0/native_channelizer.py": "a28c52ebaafa869feda2384a44064dc38b3966868be2e42b44b1ca73313b3a86",
+    "algorithms/p0/native/CMakeLists.txt": "3d6adafefa832f57c19dd8382e677b32459aa057d7a59208b7cb0aff4d376c41",
+    "algorithms/p0/native/channelizer_native.cpp": "8a8a3b047593d3f5cce9992c3ef47a7bd026aed6645ef13732ba811814cc0421",
+    "app/operator_console/live_ed.py": "f757b4dced00b342b909e6dcc848fa0961f66aa23eb4dca22337c60319f9ec94",
+    "scripts/verify_phase08_native_channelizer.py": "4b0b6bfc27c00208941e4afda98d3e07dd9a06c0349919708e03d8b30ffdfca0",
+    "tests/test_p0_native_channelizer.py": "f17435e31c5adc8055e3bedd07eeefd82a6d978b9f27ad721accf25e33fa0f6f"
+  }
+}

@@ -76,6 +76,8 @@ class P0Channelizer:
     the source stream or either center frequency changes.
     """
 
+    backend_name = "numpy-reference"
+
     def __init__(self, profile: P0ChannelizerProfile | None = None) -> None:
         self.profile = profile or P0ChannelizerProfile()
         self._taps = _design_lowpass(self.profile)
@@ -97,6 +99,19 @@ class P0Channelizer:
         self._nco_phase_radians = 0.0
         self._nco_vector = None
         self._stream_binding = None
+
+    backend_name = "numpy-reference"
+
+    def process_ci8(self, payload: bytes, **arguments) -> tuple[ChannelizedFrame, int]:
+        """Reference CI8 adapter used when the native real-time core is unavailable."""
+        expected_bytes = self.profile.input_samples_per_frame * 2
+        if len(payload) != expected_bytes:
+            raise ValueError("Kanal seçici tam 16.384 kompleks CI8 giriş örneği gerektirir.")
+        raw = np.frombuffer(payload, dtype=np.int8)
+        input_saturated = int(np.count_nonzero((raw == -128) | (raw == 127)))
+        values = raw.astype(np.float64).reshape(-1, 2) / 128.0
+        samples = values[:, 0] + 1j * values[:, 1]
+        return self.process(samples, **arguments), input_saturated
 
     def process(
         self,

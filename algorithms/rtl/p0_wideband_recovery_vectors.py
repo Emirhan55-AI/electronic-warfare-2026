@@ -29,6 +29,12 @@ def _wideband_frame(
     return _natural_from_shifted(shifted)
 
 
+def _colored_step_frame() -> tuple[int, ...]:
+    shifted = [1 << 30] * FRAME_LENGTH
+    shifted[FRAME_LENGTH // 2 :] = [16 << 30] * (FRAME_LENGTH // 2)
+    return _natural_from_shifted(shifted)
+
+
 def selected_vectors() -> tuple[tuple[str, tuple[int, ...], str], ...]:
     by_id = {vector.vector_id: vector.natural_power for vector in p0_os_cfar_vectors()}
     return (
@@ -51,6 +57,21 @@ def selected_vectors() -> tuple[tuple[str, tuple[int, ...], str], ...]:
                 ((650, 13 << 30), (1250, 14 << 30)),
             ),
             "deterministic separated wideband supports",
+        ),
+        (
+            "broad_512",
+            _wideband_frame(((1792, 2304, 8 << 30),), ((2048, 13 << 30),)),
+            "flanked 512-bin support that contaminates two regional medians",
+        ),
+        (
+            "broad_2048",
+            _wideband_frame(((1024, 3072, 8 << 30),), ((2048, 13 << 30),)),
+            "flanked 2048-bin support that contaminates eight regional medians",
+        ),
+        (
+            "colored_step_negative",
+            _colored_step_frame(),
+            "12 dB spectral step without two independent low-noise flanks",
         ),
     )
 
@@ -87,6 +108,9 @@ def _pack_expected(natural: tuple[int, ...]) -> tuple[bytes, dict[str, object]]:
     return b"".join(lines), {
         "region_median_twice": list(result.region_median_twice),
         "integrated_detections": sum(result.integrated_detections),
+        "regional_integrated_detections": sum(result.regional_integrated_detections),
+        "broad_integrated_detections": sum(result.broad_integrated_detections),
+        "frame_reference_twice": result.frame_reference_twice,
         "semantic_candidates": len(result.recovery_candidates),
         "axis_records": len(axis),
         "candidates": [

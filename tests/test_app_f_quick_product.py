@@ -22,6 +22,54 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_live_status_guards_detection_fields_when_list_is_empty(self) -> None:
+        source = QML.read_text(encoding="utf-8")
+        self.assertIn("readonly property var leadingDetection:", source)
+        self.assertIn('leadingDetection !== null ? "P/N "', source)
+
+    def test_rx_only_status_hides_the_inapplicable_measurement_action(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("workspace", 0)
+root.setProperty("sourcePanelOpen", False)
+root.setProperty("spectrumTaskTab", 0)
+button = root.findChild(QObject, "measurementOpenButton")
+view_model.setSourceMode("hackrf")
+view_model._live_fpga_enabled = False
+view_model.stateChanged.emit(); app.processEvents()
+rx_only_visible = button.property("visible")
+payload = {"button_found": button is not None, "rx_only_visible": rx_only_visible}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertTrue(payload["button_found"])
+        self.assertFalse(payload["rx_only_visible"])
+
+    def test_native_spectrum_keeps_full_bins_and_resize_does_not_append_history(self) -> None:
+        payload = self.run_qml(
+            """
+view_model.openSigmf(str(fixture))
+deadline=time.perf_counter()+6
+while time.perf_counter()<deadline and (view_model.busy or not view_model.spectrumValues): app.processEvents(); time.sleep(.002)
+before = view_model.spectralDisplay.count
+view_model.setSpectrumViewportWidth(1200)
+root = engine.rootObjects()[0]
+root.setProperty("spectrumViewStart", .45)
+root.setProperty("spectrumViewEnd", .55)
+for _ in range(20): app.processEvents()
+payload = {"bins": view_model.spectralDisplay.latest.size, "before": before,
+           "after": view_model.spectralDisplay.count, "floor": view_model.spectrumMinDb,
+           "ceiling": view_model.spectrumMaxDb, "peak": float(view_model.spectralDisplay.latest.max())}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual(4096, payload["bins"])
+        self.assertEqual(payload["before"], payload["after"])
+        self.assertGreater(payload["ceiling"], payload["peak"])
+
     def test_spectrum_display_reduction_preserves_interval_maxima(self) -> None:
         values = np.asarray([-9.0, -4.0, -8.0, -3.0, -7.0, -5.0, -6.0, -2.0, -10.0, -1.0])
         reduced = _reduce_display_max(values, 3)
@@ -36,6 +84,7 @@ class QuickProductTests(unittest.TestCase):
                 "os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')",
                 "os.environ.setdefault('QT_QUICK_BACKEND', 'software')",
                 "from PySide6.QtCore import QObject",
+                "from PySide6.QtQuick import QQuickWindow",
                 "from app.operator_console.quick_application import build_quick_application",
                 f"fixture = Path({str(FIXTURE)!r})",
                 "app, engine, view_model = build_quick_application(['app-f-test'])",
@@ -58,6 +107,34 @@ class QuickProductTests(unittest.TestCase):
         )
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         return json.loads(process.stdout.strip().splitlines()[-1])
+
+    def test_fixed_band_fields_follow_actual_requested_settings_after_manual_edit(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+view_model.setSourceMode("hackrf")
+root.setProperty("rfSearchMode", False)
+app.processEvents()
+center = root.findChild(QObject, "liveCenterInput")
+lna = root.findChild(QObject, "liveLnaInput")
+vga = root.findChild(QObject, "liveVgaInput")
+center.setProperty("text", "104650000")
+view_model._live_receive_settings = {"center_hz": 6_000_000_000, "lna_db": 8, "vga_db": 24}
+view_model.liveReceiveSettingsChanged.emit()
+view_model._busy = True
+view_model.stateChanged.emit()
+app.processEvents()
+payload = {"center": center.property("text"), "lna": lna.property("currentText"), "vga": vga.property("currentText"),
+           "enabled": [center.property("enabled"), lna.property("enabled"), vga.property("enabled")]}
+view_model._busy = False
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual("6000000000", payload["center"])
+        self.assertEqual("8", payload["lna"])
+        self.assertEqual("24", payload["vga"])
+        self.assertEqual([False, False, False], payload["enabled"])
 
     def test_qml_product_loads_at_minimum_screen(self) -> None:
         payload = self.run_qml(
@@ -98,7 +175,7 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual([0.0, 1.0], payload["reset"])
         self.assertEqual([0, 1, 2, 3], payload["workspaces"])
         self.assertEqual(1, payload["task_tab"])
-        self.assertEqual("workspaceNavigation3", payload["workspace_focus"])
+        self.assertEqual("workspaceNavigation4", payload["workspace_focus"])
         self.assertEqual(10, payload["minimum_body_size"])
         self.assertEqual(11, payload["fullhd_body_size"])
         self.assertTrue(payload["measurement_scroll"])
@@ -106,6 +183,114 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertTrue(payload["listening_scroll"])
         self.assertTrue(payload["pipeline_list"])
         self.assertTrue(payload["system_log"])
+
+    def test_frequency_survey_screen_defaults_to_full_range_without_claiming_capture(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1180); root.setHeight(680)
+root.setProperty("rfSearchMode", True)
+for _ in range(5): app.processEvents()
+panel = root.findChild(QObject,"frequencySurveyView")
+payload = {"visible":panel.property("visible"),
+           "lower":root.findChild(QObject,"surveyLowerMHz").property("text"),
+           "upper":root.findChild(QObject,"surveyUpperMHz").property("text"),
+           "start":root.findChild(QObject,"surveyStart").property("enabled"),
+           "stop":root.findChild(QObject,"surveyStop").property("enabled"),
+           "monitor":root.findChild(QObject,"surveyMonitor").property("enabled"),
+           "source_panel":root.findChild(QObject,"sourcePanel").property("visible"),
+           "coverage":view_model.survey.coverageText,"count":view_model.survey.observationModel.rowCount()}
+view_model.shutdown(); root.close()
+print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertTrue(payload["visible"])
+        self.assertEqual(("1", "6000"), (payload["lower"], payload["upper"]))
+        self.assertFalse(payload["start"])
+        self.assertFalse(payload["stop"])
+        self.assertFalse(payload["monitor"])
+        self.assertFalse(payload["source_panel"])
+        self.assertEqual(0, payload["count"])
+        self.assertEqual("0 / 9999 pencere tarandı · 0 hata", payload["coverage"])
+
+    def test_parameter_navigation_preserves_selection_zoom_and_task_layout(self) -> None:
+        payload = self.run_qml(
+            """
+from PySide6.QtCore import QMetaObject
+root = engine.rootObjects()[0]
+root.setWidth(1180); root.setHeight(680)
+def settle():
+    deadline = time.perf_counter() + .4
+    while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+def click(name):
+    def find_item(item):
+        if item.objectName() == name: return item
+        for child in item.childItems():
+            found = find_item(child)
+            if found is not None: return found
+        return None
+    button = find_item(root.contentItem())
+    assert button is not None, name
+    assert QMetaObject.invokeMethod(button, "clicked"), name
+    settle()
+def layout():
+    return {
+        "source": root.findChild(QObject, "sourcePanel").property("visible"),
+        "waterfall": root.findChild(QObject, "waterfallPanel").property("visible"),
+        "detections": root.findChild(QObject, "detectionList").property("visible"),
+        "measurement": root.findChild(QObject, "measurementScroll").property("visible"),
+        "width": root.findChild(QObject, "signalTaskPanel").property("width"),
+    }
+settle()
+detection_layout = layout()
+click("workspaceNavigation1")
+empty_action = root.findChild(QObject, "measurementChooseDetection").property("text")
+click("measurementChooseDetection")
+returned_task = root.property("spectrumTaskTab")
+view_model.openSigmf(str(fixture))
+deadline = time.perf_counter() + 6
+while time.perf_counter() < deadline and (view_model.busy or not view_model.sourceReady): app.processEvents(); time.sleep(.002)
+view_model.startScan()
+while time.perf_counter() < deadline and (view_model.frameIndex < 4 or not any(x["stateKey"] == "confirmed" for x in view_model.detections)): app.processEvents(); time.sleep(.002)
+view_model.pause()
+while view_model.busy and time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+selected = next(x["eventId"] for x in view_model.detections if x["stateKey"] == "confirmed")
+view_model.selectDetection(int(selected))
+root.zoomSpectrum(.5, .5)
+click("workspaceNavigation1")
+parameter_layout = layout()
+parameter_focus = app.focusObject().objectName()
+selected_action = root.findChild(QObject, "measurementChooseDetection").property("text")
+click("workspaceNavigation2")
+listening_workspace = root.property("workspace")
+click("workspaceNavigation1")
+selection_after = view_model.selectedDetectionId
+zoom_after = [root.property("spectrumViewStart"), root.property("spectrumViewEnd")]
+click("measurementChooseDetection")
+payload = {"detection": detection_layout, "parameter": parameter_layout,
+           "restored": layout(), "empty_action": empty_action, "selected_action": selected_action,
+           "returned_task": returned_task, "parameter_focus": parameter_focus,
+           "listening_workspace": listening_workspace, "selected": selected,
+           "selection_after": selection_after, "zoom_after": zoom_after}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertEqual("Tespit Seç", payload["empty_action"])
+        self.assertEqual("Tespiti Değiştir", payload["selected_action"])
+        self.assertEqual(0, payload["returned_task"])
+        self.assertEqual(1, payload["listening_workspace"])
+        self.assertEqual("workspaceNavigation1", payload["parameter_focus"])
+        self.assertEqual(payload["selected"], payload["selection_after"])
+        self.assertEqual([.25, .75], payload["zoom_after"])
+        for key in ("source", "waterfall", "detections"):
+            self.assertTrue(payload["detection"][key], key)
+            self.assertFalse(payload["parameter"][key], key)
+            self.assertTrue(payload["restored"][key], key)
+        self.assertFalse(payload["detection"]["measurement"])
+        self.assertTrue(payload["parameter"]["measurement"])
+        self.assertFalse(payload["restored"]["measurement"])
+        self.assertGreater(payload["parameter"]["width"], payload["detection"]["width"])
 
     def test_et_domain_binds_only_verified_offline_models(self) -> None:
         payload = self.run_qml(
@@ -175,7 +360,7 @@ print(json.dumps(payload,ensure_ascii=False))
             for key in ("hostPath", "rtlPath"):
                 if item[key]:
                     self.assertTrue((ROOT / item[key]).is_file(), item[key])
-        self.assertEqual("Kullanılmıyor", payload["initial"][0]["state"])
+        self.assertEqual("Denetleniyor", payload["initial"][0]["state"])
         self.assertEqual("Hazır", payload["ready"][0]["state"])
         self.assertTrue(
             all(
@@ -247,7 +432,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertTrue(payload["selected_title"].startswith("Tespit #"))
         self.assertNotEqual("—", payload["selected_frequency"])
         self.assertTrue(payload["selected_contrast"].endswith("dB"))
-        self.assertEqual("Doğrulandı", payload["selected_state"])
+        self.assertEqual("Kararlı", payload["selected_state"])
         self.assertEqual("Emisyon merkez frekansı", payload["after"][0]["label"])
         labels = [row["label"] for row in payload["after"]]
         self.assertNotIn("Tepe bin gücü", labels)
@@ -332,28 +517,44 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("48 kHz · mono PCM16", rows["Ses çıkışı"])
 
     def test_qml_has_keyboard_accessibility_and_no_future_source_controls(self) -> None:
-        text = QML.read_text(encoding="utf-8")
+        text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(QML.parent.glob("*.qml"))
+        )
         for required in (
             "Accessible.name",
-            'sequence: "Ctrl+O"',
             'sequence: "Space"',
-            'root.workspace === 0 && operatorViewModel.sourceReady',
-            'sequence: "Escape"',
+            'root.workspace === 0 && root.spectrumTaskTab === 0 && operatorViewModel.sourceReady',
             'objectName: "workspaceNavigation" + index',
             'Accessible.role: Accessible.StaticText',
             'property int uiBodyTextSize: width >= 1600 ? 11 : 10',
             "Bu filtreyle eşleşen olay yok",
-            "Hareketi azalt",
-            "SigMF Kaydı",
-            "HackRF Canlı RX",
-            "SPEKTRUMLA BAĞLI",
+            "Alıcıyı Denetle",
+            "Taramayı Başlat",
+            "Taramayı Durdur",
+            'title: "BÂZ"',
+            'text: "BÂZ"',
+            'source: "../assets/baz-logo-glow.png"',
+            "ALICI AYARLARI",
+            "Taramayı başlatınca canlı spektrum burada görünür",
+            "Taramayı başlatınca spektrogram burada görünür",
+            "TESPİT ALANI",
+            "SİNYAL TESPİT EDİLDİ",
+            "doğrulanmış gözlem",
+            "operatorViewModel.errorTitle",
             "zoomSpectrum",
             "panSpectrum",
             "spectrumViewBack",
             "setAnalysisSpanDraftNormalized",
             "property int spectrumTaskTab: 0",
+            '"title": "Sinyal Tespiti"',
+            '"title": "Parametre Çıkarımı"',
+            "operatorViewModel.listeningSelectionReady",
+            "operatorViewModel.liveListeningBufferText",
             "onPressed: operatorViewModel.selectDetection",
             'objectName: "detectionList"',
+            "operatorViewModel.detectionModel",
+            "paintDetectionGuides",
             'objectName: "measurementScroll"',
             'objectName: "listeningSettingsScroll"',
             'objectName: "listeningTransport"',
@@ -368,17 +569,47 @@ print(json.dumps(payload,ensure_ascii=False))
             "SALT OKUNUR",
             "BİLEŞEN AYRINTISI",
             "Salt okunur · komut çalıştırmaz",
-            'sequence: "Alt+Left"',
             "Kanalı Hazırla",
-            'objectName: "eventConsoleList"',
             'objectName: "emptySpectrumMessage"',
             'objectName: "emptyDetectionMessage"',
-            "Animasyon\\nStandart",
             "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)
+        self.assertNotIn("Listeyi tut", text)
+        self.assertNotIn("detectionHoldButton", text)
+        for removed_operator_control in (
+            "SigMF Kaydı",
+            "HackRF Canlı RX",
+            "Olay Konsolu",
+            'objectName: "eventConsoleList"',
+            'sequence: "Ctrl+O"',
+            'sequence: "Alt+Left"',
+            "FREKANS GÖRÜNÜMÜ",
+            "Tepe Tut",
+            "Ölçeği Uydur",
+            "Animasyon\\nStandart",
+            'sequence: "Ctrl+B"',
+            "Kaynak panelini gizle",
+            "ELEKTRONİK HARP",
+            "Operatör Konsolu",
+            "Canlı alım kuyruğu",
+            "Alıcı bekleniyor",
+            "Henüz ölçüm yok",
+            "ANLIK · dBFS",
+            "Görüntü verisi",
+            "BAĞLANTI BEKLENİYOR",
+            "FPGA tespit penceresi",
+            "SPEKTRUMLA BAĞLI",
+            'objectName: "detectionCandidateButton"',
+            'fillText("İZLEME"',
+        ):
+            self.assertNotIn(removed_operator_control, text)
+        no_data_guard = text.index("if (operatorViewModel.spectrumPointCount < 2) return")
+        fpga_window_guide = text.index("operatorViewModel.liveDetectionStartNormalized")
+        self.assertLess(no_data_guard, fpga_window_guide)
         for forbidden in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "demo", "mock"):
             self.assertNotIn(forbidden, text)
+        self.assertNotIn("startHackrfCapture", text)
 
 
 if __name__ == "__main__":

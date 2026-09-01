@@ -1,5 +1,13 @@
 # P0 FPGA Akış Hızı Gerçekliği
 
+> 31 Ağustos 2026: İlk iki bölüm tarihsel alt blok kapasitesidir; güncel tam
+> tespit kapasitesi olarak kullanılamaz. OS-CFAR ve geniş bant kurtarma artık
+> PL'dedir. Güncel 2 MS/s hizmet ölçümü aşağıdaki fiziksel sürekli-hız bölümünde,
+> kapsam sınırı [durum belgesinde](../interfaces/SIGNAL_DETECTION_STATUS.md) bulunur.
+> ADR-0037 RTL simülasyonunda final azaltıcıyı 45.557 çevrimde tutmuştur;
+> güncel sentez ve fiziksel 2 MS/s hizmet ölçümü yeniden yapılmadan aşağıdaki
+> kart marjı yeni kaynaklara aktarılmaz.
+
 ## Hann → FFT → lineer güç
 
 P0 çalışma saati 50 MHz'dir. Üç blok da kararlı durumda bir karmaşık
@@ -100,8 +108,8 @@ Bütünleşik enerji/fusion RTL'si ve final fusion, Zynq-7020 üzerinde synthesi
 place/route ve 50 MHz setup/hold kapısını `WNS=+0,670 ns`, `WHS=+0,053 ns`,
 sıfır timing ihlali ve sıfır route hatasıyla geçmiştir. Bu sonuç
 synthesis-only wrapper'a aittir. Final reducer → PHASE-06I AXI64 packetizer
-bağlantısı beş kare/61 aday/345 beat ve 30 backpressure kararlılık kontrolüyle
+bağlantısı sekiz kare/63 aday/379 beat ve 37 backpressure kararlılık kontrolüyle
 bit-doğru geçmiştir. CI8 girişten FFT/güce ve aynı packetizer sınırına uzanan
 `p0_candidate_dsp_runtime_top` hiyerarşisi compile-only olarak doğrulanmıştır;
-vendor FFT işlevsel simülasyonu, pin atanmış board top'u, bitstream, DMA/driver
-ve fiziksel kapılar hâlâ açıktır.
+vendor FFT işlevsel simülasyonu, güncel ADR-0037 kaynaklarıyla Vivado
+sentez/route/bitstream, DMA/driver ve fiziksel kart kapıları hâlâ açıktır.
