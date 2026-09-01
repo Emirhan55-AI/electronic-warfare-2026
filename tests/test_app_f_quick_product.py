@@ -710,7 +710,7 @@ print(json.dumps(payload,ensure_ascii=False))
             "Taramayı Durdur",
             'title: "BÂZ"',
             'text: "BÂZ"',
-            'source: "../assets/baz-logo-glow.png"',
+            'source: "../assets/baz-logo-metal-red.png"',
             "ALICI AYARLARI",
             "Taramayı başlatınca canlı spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",

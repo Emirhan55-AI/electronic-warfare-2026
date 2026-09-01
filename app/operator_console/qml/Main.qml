@@ -366,7 +366,7 @@ ApplicationWindow {
                     }
                     contentItem: Image {
                         objectName: "brandLogo"
-                        source: "../assets/baz-logo-glow.png"
+                        source: "../assets/baz-logo-metal-red.png"
                         fillMode: Image.PreserveAspectFit
                         smooth: true
                         mipmap: true

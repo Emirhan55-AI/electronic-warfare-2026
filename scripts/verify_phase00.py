@@ -1106,7 +1106,7 @@ APPROVED_APP_HARDENING_FILES = (
     "app/operator_console/qml/SectionTitle.qml",
     "app/operator_console/qml/StateBadge.qml",
     "app/operator_console/qml/qmldir",
-    "app/operator_console/assets/baz-logo-glow.png",
+    "app/operator_console/assets/baz-logo-metal-red.png",
     "app/operator_console/assets/baz-logo.ico",
     "app/operator_console/quick_application.py",
     "app/operator_console/quick_direction_actions.py",
