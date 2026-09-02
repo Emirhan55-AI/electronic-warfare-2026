@@ -11,7 +11,7 @@ ComboBox {
     Accessible.role: Accessible.ComboBox
     background: Rectangle {
         radius: 4
-        color: "#09141C"
+        color: "#313131"
         border.color: control.activeFocus ? BazTheme.accent : BazTheme.border
     }
     contentItem: Text {

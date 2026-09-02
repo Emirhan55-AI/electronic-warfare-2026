@@ -100,7 +100,7 @@ Item {
                         visible: operatorViewModel.etTask === "gnss"
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "#071018"
+                        color: "#1F1F1F"
                         ColumnLayout {
                             anchors.centerIn: parent
                             width: Math.min(parent.width - 40, 520)
@@ -125,7 +125,7 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 radius: 3
-                                color: modelData.state === "GÖREV" ? "#153B31" : modelData.state === "GECİKME" ? "#3B321F" : modelData.state === "KORUMA" ? "#35252A" : "#0D1822"
+                                color: "#1F1F1F"
                                 border.color: modelData.state === "GÖREV" ? shell.success : modelData.state === "GECİKME" ? shell.warning : modelData.state === "KORUMA" ? shell.danger : shell.border
                                 ColumnLayout {
                                     anchors.centerIn: parent
@@ -211,7 +211,7 @@ Item {
                             required property var modelData
                             width: ListView.view.width
                             height: 26
-                            color: "#071018"
+                            color: "#1F1F1F"
                             radius: 3
                             RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
                                 Label { text: modelData.label; color: shell.textSecondary; font.pixelSize: shell.uiMetaTextSize + 1; Layout.fillWidth: true }

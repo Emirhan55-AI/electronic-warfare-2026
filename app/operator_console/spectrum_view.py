@@ -24,8 +24,8 @@ class SpectrumView(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        pg.setConfigOption("background", "#060A0F")
-        pg.setConfigOption("foreground", "#8BA2B8")
+        pg.setConfigOption("background", "#1F1F1F")
+        pg.setConfigOption("foreground", "#9D9D9D")
         pg.setConfigOption("antialias", True)
         pg.setConfigOption("useOpenGL", False)
         pg.setConfigOption("imageAxisOrder", "row-major")
@@ -45,21 +45,21 @@ class SpectrumView(QWidget):
 
         self.spectrum_plot = pg.PlotWidget()
         self.spectrum_plot.setObjectName("spectrumPlot")
-        self.spectrum_plot.setTitle(TEXT["spectrum"], color="#E2EEF8", size="10.5pt")
+        self.spectrum_plot.setTitle(TEXT["spectrum"], color="#CCCCCC", size="10.5pt")
         self.spectrum_plot.showGrid(x=True, y=True, alpha=0.08)
         self.spectrum_plot.setMenuEnabled(False)
         self.spectrum_plot.setMouseEnabled(x=True, y=True)
-        self.spectrum_curve = self.spectrum_plot.plot(pen=pg.mkPen("#38BDF8", width=1.2))
+        self.spectrum_curve = self.spectrum_plot.plot(pen=pg.mkPen("#569CD6", width=1.2))
         self.noise_curve = self.spectrum_plot.plot(
-            pen=pg.mkPen("#64748B", width=1.0, style=Qt.PenStyle.DashLine)
+            pen=pg.mkPen("#6E7681", width=1.0, style=Qt.PenStyle.DashLine)
         )
         self.threshold_curve = self.spectrum_plot.plot(
-            pen=pg.mkPen("#F59E0B", width=1.3)
+            pen=pg.mkPen("#E2C08D", width=1.3)
         )
         self.peak_markers = pg.ScatterPlotItem(
             size=7,
-            pen=pg.mkPen("#F59E0B", width=1.0),
-            brush=pg.mkBrush(245, 158, 11, 140),
+            pen=pg.mkPen("#E2C08D", width=1.0),
+            brush=pg.mkBrush(226, 192, 141, 140),
         )
         self.spectrum_plot.addItem(self.peak_markers)
         self.region_overlays: list[pg.LinearRegionItem] = []
@@ -67,8 +67,8 @@ class SpectrumView(QWidget):
             overlay = pg.LinearRegionItem(
                 values=(0.0, 0.0),
                 movable=False,
-                pen=pg.mkPen("#F59E0B", width=0.8),
-                brush=pg.mkBrush(245, 158, 11, 25),
+                pen=pg.mkPen("#E2C08D", width=0.8),
+                brush=pg.mkBrush(226, 192, 141, 25),
             )
             overlay.setZValue(-5)
             overlay.hide()
@@ -77,8 +77,8 @@ class SpectrumView(QWidget):
         self.parameter_overlay = pg.LinearRegionItem(
             values=(0.0, 0.0),
             movable=False,
-            pen=pg.mkPen("#10B981", width=1.2),
-            brush=pg.mkBrush(16, 185, 129, 25),
+            pen=pg.mkPen("#2EA043", width=1.2),
+            brush=pg.mkBrush(46, 160, 67, 25),
         )
         self.parameter_overlay.hide()
         self.spectrum_plot.addItem(self.parameter_overlay)
@@ -90,7 +90,7 @@ class SpectrumView(QWidget):
 
         self.waterfall_plot = pg.PlotWidget()
         self.waterfall_plot.setObjectName("waterfallPlot")
-        self.waterfall_plot.setTitle(TEXT["waterfall"], color="#E2EEF8", size="10.5pt")
+        self.waterfall_plot.setTitle(TEXT["waterfall"], color="#CCCCCC", size="10.5pt")
         self.waterfall_plot.showGrid(x=True, y=False, alpha=0.06)
         self.waterfall_plot.setMenuEnabled(False)
         self.waterfall_plot.setMouseEnabled(x=True, y=False)
@@ -365,27 +365,27 @@ class AnalysisSpectrumView(QWidget):
         super().__init__(parent)
         self.plot = pg.PlotWidget()
         self.plot.setObjectName("analysisSpectrumPlot")
-        self.plot.setTitle(TEXT["analysis_spectrum"], color="#E8EEF5", size="11pt")
+        self.plot.setTitle(TEXT["analysis_spectrum"], color="#CCCCCC", size="11pt")
         self.plot.setLabel("bottom", TEXT["frequency"], units="MHz")
         self.plot.setLabel("left", "Bin/ton gücü", units="dBFS/bin")
         self.plot.showGrid(x=True, y=True, alpha=0.16)
         self.plot.setMenuEnabled(False)
-        self.curve = self.plot.plot(pen=pg.mkPen("#3A9DFF", width=1.5))
+        self.curve = self.plot.plot(pen=pg.mkPen("#569CD6", width=1.5))
         self.band_region = pg.LinearRegionItem(
             values=(0.0, 0.0), movable=False,
-            pen=pg.mkPen("#35B8D1", width=0.8), brush=pg.mkBrush(53, 184, 209, 22),
+            pen=pg.mkPen("#4EC9B0", width=0.8), brush=pg.mkBrush(78, 201, 176, 22),
         )
         self.plot.addItem(self.band_region)
         self.band_region.hide()
-        self.lower_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#35B8D1", width=1.0))
-        self.carrier_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#F2C46D", width=1.4))
-        self.upper_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#35B8D1", width=1.0))
+        self.lower_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#4EC9B0", width=1.0))
+        self.carrier_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#C586C0", width=1.4))
+        self.upper_marker = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen("#4EC9B0", width=1.0))
         for marker in (self.lower_marker, self.carrier_marker, self.upper_marker):
             self.plot.addItem(marker)
             marker.hide()
         self.region = pg.LinearRegionItem(
             values=(0.0, 0.0), movable=True,
-            pen=pg.mkPen("#4DB6AC", width=1.5), brush=pg.mkBrush(77, 182, 172, 40),
+            pen=pg.mkPen("#4EC9B0", width=1.5), brush=pg.mkBrush(78, 201, 176, 40),
         )
         self.plot.addItem(self.region)
         self.region.hide()

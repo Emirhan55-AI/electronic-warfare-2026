@@ -6,7 +6,7 @@ Rectangle {
     id: chart
     required property string title
     required property var values
-    color: "#071018"
+    color: "#1F1F1F"
     border.color: BazTheme.border
     radius: 4
     Accessible.name: title

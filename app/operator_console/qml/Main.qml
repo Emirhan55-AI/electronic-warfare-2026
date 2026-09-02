@@ -12,7 +12,7 @@ ApplicationWindow {
     minimumHeight: 680
     visible: true
     title: "BÂZ"
-    color: "#050B11"
+    color: "#181818"
 
     property int workspace: 0
     property string operatingDomain: "ED"
@@ -31,20 +31,20 @@ ApplicationWindow {
     property int selectedSystemBlock: 0
     property string systemLogFilter: "Tümü"
     property int spectrumTaskTab: 0
-    property color appBackground: "#050B11"
-    property color surface: "#0A131C"
-    property color surfaceAlt: "#0D1822"
-    property color raised: "#111F2A"
-    property color border: "#20313D"
-    property color borderStrong: "#304858"
-    property color textPrimary: "#EDF5F7"
-    property color textSecondary: "#8CA0AC"
-    property color textMuted: "#607480"
-    property color accent: "#31C3D2"
-    property color accentSoft: "#12343D"
-    property color success: "#59D39A"
-    property color warning: "#F0BC62"
-    property color danger: "#F07178"
+    property color appBackground: "#181818"
+    property color surface: "#1F1F1F"
+    property color surfaceAlt: "#202020"
+    property color raised: "#2B2B2B"
+    property color border: "#2B2B2B"
+    property color borderStrong: "#3C3C3C"
+    property color textPrimary: "#CCCCCC"
+    property color textSecondary: "#9D9D9D"
+    property color textMuted: "#868686"
+    property color accent: "#0078D4"
+    property color accentSoft: "#2B2B2B"
+    property color success: "#2EA043"
+    property color warning: "#E2C08D"
+    property color danger: "#F85149"
     property int transitionDuration: operatorViewModel.reducedMotion ? 0 : 170
     property int uiSectionTextSize: width >= 1600 ? 11 : 10
     property int uiBodyTextSize: width >= 1600 ? 11 : 10
@@ -99,7 +99,7 @@ ApplicationWindow {
             var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
             var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
             var x = left + (point - root.spectrumViewStart) * plotWidth / span
-            ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? "rgba(245, 158, 11, 0.11)" : "rgba(52, 211, 153, 0.11)"
+            ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? "rgba(226, 192, 141, 0.11)" : "rgba(46, 160, 67, 0.11)"
             ctx.fillRect(bandX, top, bandWidth, plotHeight)
             ctx.lineWidth = 1.5
             ctx.strokeStyle = operatorViewModel.sourceMode === "hackrf" ? root.warning : root.success
@@ -291,9 +291,9 @@ ApplicationWindow {
             var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
             var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
             var peakX = left + (markers[i].peakNormalized - root.spectrumViewStart) * plotWidth / span
-            ctx.fillStyle = "rgba(245, 158, 11, 0.08)"
+            ctx.fillStyle = "rgba(226, 192, 141, 0.08)"
             ctx.fillRect(bandX, top, bandWidth, plotHeight)
-            ctx.strokeStyle = "rgba(245, 158, 11, 0.72)"
+            ctx.strokeStyle = "rgba(226, 192, 141, 0.72)"
             ctx.lineWidth = 1
             ctx.setLineDash([3, 3])
             ctx.strokeRect(bandX, top, bandWidth, plotHeight)
@@ -323,7 +323,7 @@ ApplicationWindow {
 
     header: Rectangle {
         height: 76
-        color: "#071018"
+        color: "#181818"
         border.color: root.border
         border.width: 1
 
@@ -475,7 +475,7 @@ ApplicationWindow {
             visible: animatedWidth > 0.5
             opacity: root.navigationOpen ? 1 : 0
             clip: true
-            color: "#071018"
+            color: "#181818"
             border.color: root.border
             border.width: 1
             Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
@@ -602,7 +602,7 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 implicitHeight: receiverErrorContent.implicitHeight + 18
                                 radius: 4
-                                color: "#251519"
+                                color: "#1F1F1F"
                                 border.color: root.danger
                                 ColumnLayout {
                                     id: receiverErrorContent
@@ -691,7 +691,7 @@ ApplicationWindow {
                                         var plotBottom = height - 18
                                         var plotWidth = plotRight - plotLeft
                                         var plotHeight = plotBottom - plotTop
-                                        ctx.strokeStyle = "#152630"
+                                        ctx.strokeStyle = "#2B2B2B"
                                         ctx.lineWidth = 1
                                         for (var gx = 0; gx <= 8; gx++) {
                                             var x = plotLeft + gx * plotWidth / 8
@@ -717,9 +717,9 @@ ApplicationWindow {
                                             if (visibleSelectionEnd >= visibleSelectionStart && coarseX2 >= plotLeft && coarseX1 <= plotRight) {
                                                 coarseX1 = Math.max(plotLeft, coarseX1); coarseX2 = Math.min(plotRight, coarseX2)
                                                 ctx.globalAlpha = spectrumCanvas.selectionOpacity
-                                                ctx.fillStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(240,188,98,0.10)" : "rgba(140,160,172,0.06)"
+                                                ctx.fillStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(226,192,141,0.10)" : "rgba(157,157,157,0.06)"
                                                 ctx.fillRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight)
-                                                ctx.strokeStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(240,188,98,0.82)" : "rgba(140,160,172,0.55)"
+                                                ctx.strokeStyle = operatorViewModel.selectedDetectionCurrent ? "rgba(226,192,141,0.82)" : "rgba(157,157,157,0.55)"
                                                 ctx.setLineDash([4, 3]); ctx.strokeRect(coarseX1, plotTop, coarseX2 - coarseX1, plotHeight); ctx.setLineDash([])
                                                 ctx.globalAlpha = 1
                                             }
@@ -732,9 +732,9 @@ ApplicationWindow {
                                             if (analysisX2 >= plotLeft && analysisX1 <= plotRight) {
                                                 analysisX1 = Math.max(plotLeft, analysisX1); analysisX2 = Math.min(plotRight, analysisX2)
                                                 ctx.globalAlpha = spectrumCanvas.selectionOpacity
-                                                ctx.fillStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(49,195,210,0.13)" : "rgba(49,195,210,0.07)"
+                                                ctx.fillStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(0,120,212,0.13)" : "rgba(0,120,212,0.07)"
                                                 ctx.fillRect(analysisX1, plotTop, Math.max(2, analysisX2 - analysisX1), plotHeight)
-                                                ctx.strokeStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(49,195,210,0.95)" : "rgba(49,195,210,0.55)"
+                                                ctx.strokeStyle = operatorViewModel.analysisSpanConfirmed ? "rgba(0,120,212,0.95)" : "rgba(0,120,212,0.55)"
                                                 ctx.strokeRect(analysisX1, plotTop, Math.max(2, analysisX2 - analysisX1), plotHeight)
                                                 ctx.globalAlpha = 1
                                             }
@@ -746,11 +746,11 @@ ApplicationWindow {
                                             var fpgaX2 = plotLeft + (fpgaEnd - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
                                             if (fpgaX2 >= plotLeft && fpgaX1 <= plotRight) {
                                                 fpgaX1 = Math.max(plotLeft, fpgaX1); fpgaX2 = Math.min(plotRight, fpgaX2)
-                                                ctx.fillStyle = "rgba(49,195,210,0.05)"
+                                                ctx.fillStyle = "rgba(0,120,212,0.05)"
                                                 ctx.fillRect(fpgaX1, plotTop, fpgaX2 - fpgaX1, plotHeight)
-                                                ctx.strokeStyle = "rgba(49,195,210,0.45)"
+                                                ctx.strokeStyle = "rgba(0,120,212,0.45)"
                                                 ctx.setLineDash([4, 4]); ctx.strokeRect(fpgaX1, plotTop, fpgaX2 - fpgaX1, plotHeight); ctx.setLineDash([])
-                                                ctx.fillStyle = "rgba(49,195,210,0.82)"
+                                                ctx.fillStyle = "rgba(0,120,212,0.82)"
                                                 ctx.font = "8px Segoe UI"
                                                 ctx.textAlign = "center"
                                                 ctx.fillText("TESPİT ALANI", (fpgaX1 + fpgaX2) / 2, plotTop + 10)
@@ -758,7 +758,7 @@ ApplicationWindow {
                                         }
                                          var low = operatorViewModel.spectrumMinDb
                                         var high = operatorViewModel.spectrumMaxDb
-                                        ctx.fillStyle = "#647987"
+                                        ctx.fillStyle = "#868686"
                                         ctx.font = "9px Consolas"
                                         ctx.textAlign = "right"
                                         ctx.textBaseline = "middle"
@@ -767,7 +767,7 @@ ApplicationWindow {
                                             var labelValue = high - labelIndex * (high - low) / 5
                                             ctx.fillText(labelValue.toFixed(0), plotLeft - 6, labelY)
                                         }
-                                        ctx.strokeStyle = "rgba(237,245,247,0.32)"
+                                        ctx.strokeStyle = "rgba(204,204,204,0.32)"
                                         ctx.setLineDash([3, 4])
                                         if (root.spectrumViewStart <= 0.5 && root.spectrumViewEnd >= 0.5) {
                                             var centerX = plotLeft + (0.5 - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
@@ -779,7 +779,7 @@ ApplicationWindow {
                                         if (root.analysisDragStart >= 0 && root.analysisDragEnd >= 0) {
                                             var dragX1 = plotLeft + (Math.min(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
                                             var dragX2 = plotLeft + (Math.max(root.analysisDragStart, root.analysisDragEnd) - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
-                                            ctx.fillStyle = "rgba(49,195,210,0.16)"
+                                            ctx.fillStyle = "rgba(0,120,212,0.16)"
                                             ctx.fillRect(Math.max(plotLeft, dragX1), plotTop, Math.max(2, Math.min(plotRight, dragX2) - Math.max(plotLeft, dragX1)), plotHeight)
                                             ctx.strokeStyle = root.accent
                                             ctx.strokeRect(Math.max(plotLeft, dragX1), plotTop, Math.max(2, Math.min(plotRight, dragX2) - Math.max(plotLeft, dragX1)), plotHeight)
@@ -787,14 +787,14 @@ ApplicationWindow {
                                         if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
                                                 && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
                                             var cursorX = plotLeft + (root.spectrumCursorNormalized - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
-                                            ctx.strokeStyle = "rgba(237,245,247,0.72)"
+                                            ctx.strokeStyle = "rgba(204,204,204,0.72)"
                                             ctx.lineWidth = 1
                                             ctx.beginPath(); ctx.moveTo(cursorX, plotTop); ctx.lineTo(cursorX, plotBottom); ctx.stroke()
                                             var cursorText = root.formatFrequency(root.frequencyAt(root.spectrumCursorNormalized))
                                             ctx.font = "10px Consolas"
                                             var cursorWidth = ctx.measureText(cursorText).width + 12
                                             var cursorLabelX = Math.max(plotLeft, Math.min(plotRight - cursorWidth, cursorX - cursorWidth / 2))
-                                            ctx.fillStyle = "rgba(13,24,34,0.94)"
+                                            ctx.fillStyle = "rgba(32,32,32,0.94)"
                                             ctx.fillRect(cursorLabelX, plotTop + 4, cursorWidth, 20)
                                             ctx.strokeStyle = root.borderStrong
                                             ctx.strokeRect(cursorLabelX, plotTop + 4, cursorWidth, 20)
@@ -926,7 +926,7 @@ ApplicationWindow {
                                         if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
                                                 && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
                                             var cursorX = plotLeft + (root.spectrumCursorNormalized - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
-                                            ctx.strokeStyle = "rgba(237,245,247,0.72)"
+                                            ctx.strokeStyle = "rgba(204,204,204,0.72)"
                                             ctx.lineWidth = 1
                                             ctx.beginPath(); ctx.moveTo(cursorX, 0); ctx.lineTo(cursorX, height); ctx.stroke()
                                         }
@@ -1000,7 +1000,7 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 implicitHeight: 64
                                 radius: 3
-                                color: root.spectrumTaskTab === 0 ? "#102A24" : root.surfaceAlt
+                                color: root.spectrumTaskTab === 0 ? "#202020" : root.surfaceAlt
                                 border.color: root.spectrumTaskTab === 0 ? root.success : root.border
                                 RowLayout {
                                     anchors.fill: parent
@@ -1194,10 +1194,10 @@ ApplicationWindow {
                                                 radius: 3
                                                 color: (index === 0 && operatorViewModel.measurementSelectionReady)
                                                        || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                                       || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#091219"
+                                                       || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#313131"
                                                 border.color: (index === 0 && operatorViewModel.measurementSelectionReady)
                                                               || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                                              || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#28616B" : root.border
+                                                              || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#0078D4" : root.border
                                                 Label { anchors.centerIn: parent; text: modelData; color: parent.border.color === root.border ? root.textMuted : root.accent; font.pixelSize: 8; font.weight: Font.DemiBold }
                                             }
                                         }
@@ -1234,7 +1234,7 @@ ApplicationWindow {
                                                 color: root.textPrimary
                                                 validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
                                                 Accessible.name: "Analiz alt frekansı megahertz"
-                                                background: Rectangle { color: "#09141C"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                                background: Rectangle { color: "#313131"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
                                             }
                                         }
                                         ColumnLayout {
@@ -1248,7 +1248,7 @@ ApplicationWindow {
                                                 color: root.textPrimary
                                                 validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
                                                 Accessible.name: "Analiz üst frekansı megahertz"
-                                                background: Rectangle { color: "#09141C"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
+                                                background: Rectangle { color: "#313131"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
                                             }
                                         }
                                     }
@@ -1324,7 +1324,7 @@ ApplicationWindow {
                                 implicitHeight: 66
                                 radius: 4
                                 color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
-                                border.color: operatorViewModel.selectedDetectionReady ? "#28616B" : root.border
+                                border.color: operatorViewModel.selectedDetectionReady ? "#0078D4" : root.border
                                 ColumnLayout {
                                     anchors.fill: parent
                                     anchors.margins: 10
@@ -1374,7 +1374,7 @@ ApplicationWindow {
                                             color: root.textPrimary
                                             validator: DoubleValidator { decimals: 3; notation: DoubleValidator.StandardNotation }
                                             Accessible.name: "Dinleme merkez frekans ofseti kilohertz"
-                                            background: Rectangle { color: "#09141C"; border.color: listeningOffset.activeFocus ? root.accent : root.border; radius: 4 }
+                                            background: Rectangle { color: "#313131"; border.color: listeningOffset.activeFocus ? root.accent : root.border; radius: 4 }
                                         }
                                         QuietButton {
                                             text: "Tespiti Kullan"
@@ -1392,7 +1392,7 @@ ApplicationWindow {
                                         color: root.textPrimary
                                         validator: DoubleValidator { bottom: 2; top: 200; decimals: 1; notation: DoubleValidator.StandardNotation }
                                         Accessible.name: "Dinleme kanal bant genişliği kilohertz"
-                                        background: Rectangle { color: "#09141C"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
+                                        background: Rectangle { color: "#313131"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
@@ -1413,7 +1413,7 @@ ApplicationWindow {
                                             width: listeningVolume.availableWidth
                                             height: 4
                                             radius: 2
-                                            color: "#172731"
+                                            color: "#2B2B2B"
                                             Rectangle {
                                                 width: listeningVolume.visualPosition * parent.width
                                                 height: parent.height
@@ -1427,7 +1427,7 @@ ApplicationWindow {
                                             width: 14
                                             height: 14
                                             radius: 7
-                                            color: listeningVolume.pressed ? "#D9FBFD" : root.textPrimary
+                                            color: listeningVolume.pressed ? "#FFFFFF" : root.textPrimary
                                             border.color: root.accent
                                             border.width: 2
                                         }
@@ -1483,8 +1483,8 @@ ApplicationWindow {
                                     Connections { target: operatorViewModel; function onListeningChanged() { listeningWaveformCanvas.requestPaint() } }
                                     onPaint: {
                                         var ctx = getContext("2d")
-                                        ctx.reset(); ctx.fillStyle = "#040A0F"; ctx.fillRect(0, 0, width, height)
-                                        ctx.strokeStyle = "#152630"; ctx.lineWidth = 1
+                                        ctx.reset(); ctx.fillStyle = "#1F1F1F"; ctx.fillRect(0, 0, width, height)
+                                        ctx.strokeStyle = "#2B2B2B"; ctx.lineWidth = 1
                                         for (var gx = 0; gx <= 8; gx++) { var x = gx * width / 8; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke() }
                                         for (var gy = 0; gy <= 4; gy++) { var y = gy * height / 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke() }
                                         var values = operatorViewModel.listeningWaveform
@@ -1542,7 +1542,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     implicitHeight: 76
                                     radius: 4
-                                    color: "#071018"
+                                    color: "#1F1F1F"
                                     border.color: root.border
                                     ColumnLayout {
                                         anchors.fill: parent
@@ -1557,7 +1557,7 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                             implicitHeight: 6
                                             radius: 3
-                                            color: "#172731"
+                                            color: "#2B2B2B"
                                             Accessible.name: "Oynatma konumu, salt okunur"
                                             Rectangle {
                                                 width: parent.width * operatorViewModel.listeningPlaybackProgress
@@ -1672,7 +1672,7 @@ ApplicationWindow {
                                         validator: IntValidator { bottom: 0; top: 359 }
                                         inputMethodHints: Qt.ImhDigitsOnly
                                         Accessible.name: "Anten dönüş açısı, derece"
-                                        background: Rectangle { color: "#09141C"; border.color: antennaAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                        background: Rectangle { color: "#313131"; border.color: antennaAngle.activeFocus ? root.accent : root.border; radius: 4 }
                                     }
                                     Label { text: "Anten 0° yönünün referansı"; color: root.textSecondary; font.pixelSize: 10 }
                                     AppCombo {
@@ -1700,7 +1700,7 @@ ApplicationWindow {
                                         enabled: operatorViewModel.directionMeasurementCount === 0
                                         opacity: enabled ? 1.0 : 0.65
                                         Accessible.name: "Anten sıfır derece gerçek kerterizi"
-                                        background: Rectangle { color: "#09141C"; border.color: referenceAngle.activeFocus ? root.accent : root.border; radius: 4 }
+                                        background: Rectangle { color: "#313131"; border.color: referenceAngle.activeFocus ? root.accent : root.border; radius: 4 }
                                     }
                                     Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
                                     RowLayout {
@@ -1712,7 +1712,7 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         implicitHeight: 6
                                         radius: 3
-                                        color: "#172731"
+                                        color: "#2B2B2B"
                                         Rectangle { width: parent.width * operatorViewModel.directionProgress; height: parent.height; radius: 3; color: root.accent; Behavior on width { NumberAnimation { duration: root.transitionDuration } } }
                                     }
                                     Label { text: "İlk kayıt anten referansını bu ölçüm oturumu için sabitler."; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
@@ -1886,7 +1886,7 @@ ApplicationWindow {
                                     delegate: Rectangle {
                                         required property var modelData
                                         required property int index
-                                        width: ListView.view.width; height: 38; color: index % 2 ? "#0A151D" : "transparent"
+                                        width: ListView.view.width; height: 38; color: index % 2 ? "#202020" : "transparent"
                                         RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
                                             Label { text: modelData.angle; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 78 }
                                             Label { text: modelData.power; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 92 }
@@ -1937,8 +1937,8 @@ ApplicationWindow {
                                     Layout.minimumWidth: 0
                                     Layout.fillHeight: true
                                     radius: 4
-                                    color: index === 0 && operatorViewModel.sourceReady ? "#0D211F" : root.surfaceAlt
-                                    border.color: index === 0 && operatorViewModel.sourceReady ? "#265E50" : root.border
+                                    color: index === 0 && operatorViewModel.sourceReady ? "#202020" : root.surfaceAlt
+                                    border.color: index === 0 && operatorViewModel.sourceReady ? "#2EA043" : root.border
                                     ColumnLayout {
                                         anchors.fill: parent
                                         anchors.margins: 10
@@ -2050,7 +2050,7 @@ ApplicationWindow {
                                             implicitHeight: 30
                                             radius: 4
                                             color: root.accentSoft
-                                            border.color: "#28616B"
+                                            border.color: "#0078D4"
                                             Label { id: runtimeText; anchors.centerIn: parent; text: componentInspector.block.runtime || "—"; color: root.accent; font.pixelSize: root.uiBodyTextSize; font.family: "Consolas"; font.weight: Font.Bold }
                                         }
                                     }
@@ -2104,7 +2104,7 @@ ApplicationWindow {
                                     Rectangle {
                                         Layout.fillWidth: true
                                         Layout.fillHeight: true
-                                        color: "#03070B"
+                                        color: "#1F1F1F"
                                         border.color: root.border
                                         radius: 4
                                         ColumnLayout {
@@ -2136,7 +2136,7 @@ ApplicationWindow {
                                                     width: ListView.view.width
                                                     height: matches ? 30 : 0
                                                     visible: matches
-                                                    color: matches && index % 2 ? "#050A0F" : "transparent"
+                                                    color: matches && index % 2 ? "#202020" : "transparent"
                                                     RowLayout {
                                                         anchors.fill: parent
                                                         spacing: 10

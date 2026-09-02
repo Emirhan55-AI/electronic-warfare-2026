@@ -284,7 +284,7 @@ class StateMixin:
             item.setToolTip(self._event_tooltip(event))
             item.setData(Qt.ItemDataRole.UserRole, event.event_id)
             item.setData(Qt.ItemDataRole.UserRole + 1, event.state)
-            item.setForeground(QColor("#10B981") if event.state == "confirmed" else QColor("#F59E0B"))
+            item.setForeground(QColor("#2EA043") if event.state == "confirmed" else QColor("#E2C08D"))
             if event.state != "confirmed" or not event.observed_this_frame:
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             elif selected_event_id == int(event.event_id):

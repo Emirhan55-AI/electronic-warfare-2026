@@ -9,8 +9,8 @@ Rectangle {
     implicitWidth: badgeText.implicitWidth + 18
     implicitHeight: 24
     radius: 12
-    color: state === "Hazır" ? "#153B31" : state === "Çalışıyor" ? "#123B42" : state === "Hata" ? "#48252B" : state === "Bekliyor" ? "#3B321F" : "#25313A"
-    border.color: state === "Hazır" ? BazTheme.success : state === "Çalışıyor" ? BazTheme.accent : state === "Hata" ? BazTheme.danger : state === "Bekliyor" ? BazTheme.warning : "#536570"
+    color: "#1F1F1F"
+    border.color: state === "Hazır" ? BazTheme.success : state === "Çalışıyor" ? BazTheme.accent : state === "Hata" ? BazTheme.danger : state === "Bekliyor" ? BazTheme.warning : "#6E7681"
     Behavior on color { ColorAnimation { duration: BazTheme.transitionDuration } }
     Behavior on border.color { ColorAnimation { duration: BazTheme.transitionDuration } }
     Text {

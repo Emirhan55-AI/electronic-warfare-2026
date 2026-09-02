@@ -42,14 +42,14 @@ Item {
         font.pixelSize: 13
         implicitHeight: 34
         padding: 8
-        background: Rectangle { radius: 4; color: "#071019"; border.color: field.activeFocus ? view.theme.accent : view.theme.border }
+        background: Rectangle { radius: 4; color: "#313131"; border.color: field.activeFocus ? view.theme.accent : view.theme.border }
     }
     component GainChoice: ComboBox {
         id: gain
         implicitHeight: 34
         contentItem: Text { text: gain.displayText; color: gain.enabled ? view.theme.textPrimary : view.theme.textMuted; leftPadding: 8; verticalAlignment: Text.AlignVCenter; font.pixelSize: 12 }
         indicator: Text { text: "⌄"; color: view.theme.textSecondary; x: gain.width - width - 8; y: 7 }
-        background: Rectangle { radius: 4; color: "#071019"; border.color: gain.activeFocus ? view.theme.accent : view.theme.border }
+        background: Rectangle { radius: 4; color: "#313131"; border.color: gain.activeFocus ? view.theme.accent : view.theme.border }
         delegate: ItemDelegate {
             required property var modelData
             width: gain.width

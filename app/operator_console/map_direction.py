@@ -51,7 +51,7 @@ class DirectionMapView(QFrame):
         self._fallback = QLabel(FALLBACK_TEXT)
         self._fallback.setObjectName("mapFallback")
         self._fallback.setWordWrap(True)
-        self._fallback.setStyleSheet("padding: 24px; color: #d8e7f4;")
+        self._fallback.setStyleSheet("padding: 24px; color: #CCCCCC;")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         factory = resolve_web_engine_view() if web_engine_factory is None else web_engine_factory
@@ -131,7 +131,7 @@ class DirectionMapView(QFrame):
                 "angle": int(angle_deg), "azimuth": azimuth, "power": float(power_dbfs),
                 "line": [[sensor.longitude_deg, sensor.latitude_deg], [end_longitude, end_latitude]],
                 "arrowhead": [[end_longitude, end_latitude], [left_longitude, left_latitude], [right_longitude, right_latitude], [end_longitude, end_latitude]],
-                "color": "#55d6be" if angle_deg == 0 else "#f2c46d",
+                "color": "#4EC9B0" if angle_deg == 0 else "#CE9178",
             })
         self.sensor = sensor
         self.presentation = None

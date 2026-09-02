@@ -206,7 +206,7 @@ class SpectrumTrace(SpectralItem):
     """Native polyline; the QML layer retains axes, markers and mouse controls."""
 
     def paint(self, painter):
-        painter.fillRect(self.boundingRect(), QColor("#040A0F"))
+        painter.fillRect(self.boundingRect(), QColor("#1F1F1F"))
         source = self._source
         if source is None or not source.latest.size or self._end <= self._start:
             return
@@ -214,7 +214,7 @@ class SpectrumTrace(SpectralItem):
         painter.setClipRect(area)
         # A cosmetic one-pixel pen uses Qt's fast raster path even at high DPI.
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
-        for values, color in ((source.peak, "#AC874E"), (source.latest, "#4BDFEC")):
+        for values, color in ((source.peak, "#CE9178"), (source.latest, "#569CD6")):
             if values is source.peak and not source.peakHold:
                 continue
             positions, levels = peak_projection(values, self._start, self._end, int(area.width()))
@@ -276,7 +276,7 @@ class WaterfallImage(SpectralItem):
         return np.rint(np.clip((values - source.floorDb) / source.spanDb, 0, 1) * 255).astype(np.uint8)
 
     def paint(self, painter):
-        painter.fillRect(self.boundingRect(), QColor("#040A0F"))
+        painter.fillRect(self.boundingRect(), QColor("#1F1F1F"))
         source = self._source
         if source is None or not source.count or self._end <= self._start:
             return
@@ -303,7 +303,7 @@ class WaterfallImage(SpectralItem):
             painter.drawImage(QRectF(area.left(), top + first_count * row_height, area.width(), rest * row_height),
                               self._image, QRectF(0, 0, self._image.width(), rest))
         # Actual sample-clock ages, not an invented FPS-derived time axis.
-        painter.setPen(QColor("#8CA0AC"))
+        painter.setPen(QColor("#9D9D9D"))
         font = QFont("Consolas")
         font.setPixelSize(9)
         painter.setFont(font)

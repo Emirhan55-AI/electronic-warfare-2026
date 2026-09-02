@@ -12,14 +12,14 @@ Button {
     Behavior on scale { NumberAnimation { duration: BazTheme.transitionDuration; easing.type: Easing.OutCubic } }
     background: Rectangle {
         radius: 4
-        color: control.enabled ? (control.down ? "#1B929E" : BazTheme.accent) : "#22313A"
-        border.color: control.activeFocus ? "#C9F7FA" : "transparent"
+        color: control.enabled ? (control.down ? "#026EC1" : BazTheme.accent) : "#313131"
+        border.color: control.activeFocus ? "#6CADDF" : "transparent"
         border.width: 2
         Behavior on color { ColorAnimation { duration: BazTheme.transitionDuration } }
     }
     contentItem: Text {
         text: control.text
-        color: control.enabled ? "#041014" : "#788A94"
+        color: control.enabled ? "#FFFFFF" : "#868686"
         font: control.font
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
