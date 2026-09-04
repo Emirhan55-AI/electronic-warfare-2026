@@ -35,6 +35,9 @@ source_content = root.findChild(QObject, "sourcePanelContent")
 source_divider = root.findChild(QObject, "sourcePanelDivider")
 signal = root.findChild(QObject, "signalTaskPanel")
 signal_divider = root.findChild(QObject, "signalPanelDivider")
+spectrum_title = root.findChild(QObject, "spectrumSectionTitle")
+spectrogram_title = root.findChild(QObject, "spectrogramSectionTitle")
+signal_title = root.findChild(QObject, "signalDetectionSectionTitle")
 payload = {
     "source_x": source.property("x"),
     "source_center": source_content.property("x") + source_content.property("width") / 2,
@@ -45,6 +48,11 @@ payload = {
     "signal_divider_y": signal_divider.property("y"),
     "signal_divider_height": signal_divider.property("height"),
     "signal_height": signal.property("height"),
+    "spectrum_title_size": spectrum_title.property("font").pixelSize(),
+    "spectrogram_title_size": spectrogram_title.property("font").pixelSize(),
+    "signal_title_size": signal_title.property("font").pixelSize(),
+    "signal_title_center": signal_title.property("x") + signal_title.property("width") / 2,
+    "signal_title_parent_center": signal_title.parentItem().property("width") / 2,
 }
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
@@ -61,6 +69,11 @@ print(json.dumps(payload))
         self.assertAlmostEqual(0.0, payload["signal_divider_y"], delta=0.5)
         self.assertAlmostEqual(
             payload["signal_height"], payload["signal_divider_height"], delta=0.5
+        )
+        self.assertEqual(payload["spectrum_title_size"], payload["spectrogram_title_size"])
+        self.assertEqual(payload["spectrum_title_size"], payload["signal_title_size"])
+        self.assertAlmostEqual(
+            payload["signal_title_parent_center"], payload["signal_title_center"], delta=0.5
         )
 
     def test_header_places_domain_switch_on_right_without_connection_messages(self) -> None:
@@ -850,12 +863,14 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertNotIn("property real plotLeft: 42", text)
         self.assertIn("var plotLeft = 0", text)
         self.assertIn("property real plotLeft: 0", text)
+        self.assertIn("Math.round(plotWidth * gridRows / plotHeight)", text)
 
         display_source = (ROOT / "app" / "operator_console" / "spectral_display.py").read_text(
             encoding="utf-8"
         )
         self.assertNotIn("QRectF(42", display_source)
-        self.assertIn("QRectF(0, 8", display_source)
+        self.assertNotIn("self.width() - 8", display_source)
+        self.assertNotIn("self.height() - 26", display_source)
         self.assertIn("QRectF(0, 0", display_source)
 
     def test_release_entry_point_does_not_probe_receiver_automatically(self) -> None:

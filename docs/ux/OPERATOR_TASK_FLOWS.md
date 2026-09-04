@@ -27,7 +27,9 @@ hale katmanıyla sunulur.
 Spektrum ve spektrogram başlıkları grafik alanında ortalanır; boş bağlantı uyarısı
 tespit listesini doldurmaz. Sabit bant çalışma alanında dış marj kullanılmaz; alıcı
 kontrolleri kendi sütununda ortalanır ve tespit ayırıcısı alanı tam yükseklikte
-böler. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
+böler. Spektrum ızgarası ile iz tuvali dört kenarı boşluksuz doldurur; ızgara
+sütunları görünür en-boy oranından üretilerek hücreler kareye yakın tutulur. `Sinyal
+Tespiti` başlığı spektrum başlıklarıyla aynı boyutta ve panel merkezindedir. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
 varken görünür. Ana tespit yüzeyi yalnız sabit frekans taraması ile bant
 taraması arasında geçiş verir. Olay konsolu ve geliştiriciye yönelik görünüm
 kontrolleri ana operatör yüzeyinde yer almaz.

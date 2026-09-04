@@ -313,7 +313,10 @@ gösterilir. Son görünüm bakımında marka işaretinin koyu zemindeki okunurl
 ön plan ile arkasındaki hale katmanlanarak artırılmış; ED/ET ayırıcısı ve görev için gereksiz
 açıklamalar kaldırılmış; spektrum başlıkları grafiklere ortalanmıştır. Bu sunum ve
 ardından sabit bant dış marjı kaldırılarak alıcı sütunu ortalanmış ve tespit
-ayırıcısı tam yüksekliğe bağlanmıştır. Bu sunum ve fail-closed yetki bağı algoritma, RTL veya fiziksel
+ayırıcısı tam yüksekliğe bağlanmıştır. Spektrum tuvali dört kenara genişletilmiş,
+ızgara hücreleri görünür en-boy oranına göre kareye yakın tutulmuş ve
+tespit başlığı diğer grafik başlıklarıyla aynı ölçüde ortalanmıştır. Bu sunum ve
+fail-closed yetki bağı algoritma, RTL veya fiziksel
 doğruluk kabulü değildir.
 
 On beşinci bakım paketi sabit bant iki-LO doğrulamasındaki merkez/DC hatasını

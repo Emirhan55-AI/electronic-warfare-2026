@@ -159,7 +159,7 @@ ApplicationWindow {
 
     function normalizedAtSpectrumX(x, width) {
         var plotLeft = 0
-        var plotWidth = Math.max(1, width - 8)
+        var plotWidth = Math.max(1, width - 1)
         var ratio = Math.max(0, Math.min(1, (x - plotLeft) / plotWidth))
         return spectrumViewStart + ratio * (spectrumViewEnd - spectrumViewStart)
     }
@@ -570,6 +570,7 @@ ApplicationWindow {
                                 anchors.bottomMargin: 0
                                 spacing: 6
                                 SectionTitle {
+                                    objectName: "spectrumSectionTitle"
                                     text: "SPEKTRUM"
                                     Layout.fillWidth: true
                                     horizontalAlignment: Text.AlignHCenter
@@ -627,19 +628,21 @@ ApplicationWindow {
                                         ctx.reset()
                                         ctx.clearRect(0, 0, width, height)
                                         var plotLeft = 0
-                                        var plotRight = width - 8
-                                        var plotTop = 8
-                                        var plotBottom = height - 18
+                                        var plotRight = width - 1
+                                        var plotTop = 0
+                                        var plotBottom = height - 1
                                         var plotWidth = plotRight - plotLeft
                                         var plotHeight = plotBottom - plotTop
+                                        var gridRows = 6
+                                        var gridColumns = Math.max(1, Math.round(plotWidth * gridRows / plotHeight))
                                         ctx.strokeStyle = "#2B2B2B"
                                         ctx.lineWidth = 1
-                                        for (var gx = 0; gx <= 8; gx++) {
-                                            var x = plotLeft + gx * plotWidth / 8
+                                        for (var gx = 0; gx <= gridColumns; gx++) {
+                                            var x = plotLeft + gx * plotWidth / gridColumns
                                             ctx.beginPath(); ctx.moveTo(x, plotTop); ctx.lineTo(x, plotBottom); ctx.stroke()
                                         }
-                                         for (var gy = 0; gy <= 5; gy++) {
-                                             var y = plotTop + gy * plotHeight / 5
+                                         for (var gy = 0; gy <= gridRows; gy++) {
+                                             var y = plotTop + gy * plotHeight / gridRows
                                              ctx.beginPath(); ctx.moveTo(plotLeft, y); ctx.lineTo(plotRight, y); ctx.stroke()
                                          }
                                          if (operatorViewModel.spectrumPointCount < 2) return
@@ -703,9 +706,10 @@ ApplicationWindow {
                                         ctx.font = "9px Consolas"
                                         ctx.textAlign = "left"
                                         ctx.textBaseline = "middle"
-                                        for (var labelIndex = 0; labelIndex <= 5; labelIndex++) {
-                                            var labelY = plotTop + labelIndex * plotHeight / 5
-                                            var labelValue = high - labelIndex * (high - low) / 5
+                                        for (var labelIndex = 0; labelIndex <= gridRows; labelIndex++) {
+                                            var labelY = Math.max(6, Math.min(plotBottom - 6,
+                                                                             plotTop + labelIndex * plotHeight / gridRows))
+                                            var labelValue = high - labelIndex * (high - low) / gridRows
                                             ctx.fillText(labelValue.toFixed(0), plotLeft + 5, labelY)
                                         }
                                         ctx.strokeStyle = "rgba(204,204,204,0.32)"
@@ -837,6 +841,7 @@ ApplicationWindow {
                                 anchors.bottomMargin: 0
                                 spacing: 6
                                 SectionTitle {
+                                    objectName: "spectrogramSectionTitle"
                                     text: "SPEKTROGRAM"
                                     Layout.fillWidth: true
                                     horizontalAlignment: Text.AlignHCenter
@@ -847,7 +852,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     property real plotLeft: 0
-                                    property real plotWidth: Math.max(1, width - 8)
+                                    property real plotWidth: Math.max(1, width - 1)
                                     WaterfallImage {
                                         anchors.fill: parent
                                         z: -1
@@ -936,15 +941,27 @@ ApplicationWindow {
                         }
                         ColumnLayout {
                             anchors.fill: parent
-                            anchors.margins: 14
+                            anchors.leftMargin: 14
+                            anchors.rightMargin: 14
+                            anchors.topMargin: 6
+                            anchors.bottomMargin: 14
                             spacing: 10
-                            RowLayout {
+                            Item {
                                 Layout.fillWidth: true
-                                SectionTitle { text: root.spectrumTaskTab === 0 ? "SİNYAL TESPİTİ" : "PARAMETRE ÇIKARIMI"; Layout.fillWidth: true }
+                                Layout.preferredHeight: 22
+                                SectionTitle {
+                                    objectName: "signalDetectionSectionTitle"
+                                    anchors.centerIn: parent
+                                    text: root.spectrumTaskTab === 0 ? "SİNYAL TESPİTİ" : "PARAMETRE ÇIKARIMI"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    font.pixelSize: root.uiSectionTextSize + 2
+                                }
                                 Rectangle {
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
                                     visible: root.spectrumTaskTab === 0 && operatorViewModel.stableDetectionCount > 0
-                                    implicitWidth: detectionCount.implicitWidth + 14
-                                    implicitHeight: 22
+                                    width: detectionCount.implicitWidth + 14
+                                    height: 22
                                     radius: 11
                                     color: root.accentSoft
                                     Label { id: detectionCount; anchors.centerIn: parent; text: operatorViewModel.stableDetectionCount; color: root.accent; font.pixelSize: 10; font.weight: Font.Bold }
