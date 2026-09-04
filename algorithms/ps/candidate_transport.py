@@ -21,6 +21,8 @@ MAX_FRAME_BYTES = HEADER_BYTES + MAX_CANDIDATES * RECORD_BYTES + TRAILER_BYTES
 HEADER_EMPTY = 1 << 0
 RECORD_VALID = 1 << 0
 RECORD_EVALUATE_CENTER = 1 << 1
+RECORD_WEAK_EVIDENCE = 1 << 2
+RECORD_SINGLE_FRAME_CONFIDENT = 1 << 3
 STATUS_INPUT_CONTRACT_ERROR = 1 << 0
 STATUS_CANDIDATE_OVERFLOW = 1 << 1
 STATUS_PACKETIZER_INTERNAL_ERROR = 1 << 2
@@ -55,7 +57,14 @@ def _encode_record(candidate: CandidateRecord) -> bytes:
         raise ValueError("candidate noise exceeds 58 bits")
     if not 0 <= candidate.threshold < (1 << 62):
         raise ValueError("candidate threshold exceeds 62 bits")
-    flags = RECORD_VALID | (RECORD_EVALUATE_CENTER if candidate.evaluate_center else 0)
+    if candidate.single_frame_confident and not candidate.weak_evidence:
+        raise ValueError("single-frame class requires weak evidence")
+    flags = (
+        RECORD_VALID
+        | (RECORD_EVALUATE_CENTER if candidate.evaluate_center else 0)
+        | (RECORD_WEAK_EVIDENCE if candidate.weak_evidence else 0)
+        | (RECORD_SINGLE_FRAME_CONFIDENT if candidate.single_frame_confident else 0)
+    )
     return _RECORD.pack(
         candidate.start_shifted_bin,
         candidate.end_shifted_bin,
@@ -124,8 +133,14 @@ def decode_packet(data: bytes) -> CandidatePacket:
     candidates: list[CandidateRecord] = []
     for offset in range(0, len(payload), RECORD_BYTES):
         start, end, peak, span, pfa, record_flags, rr0, rr1, power, noise, threshold = _RECORD.unpack_from(payload, offset)
-        if record_flags & ~(RECORD_VALID | RECORD_EVALUATE_CENTER) or not record_flags & RECORD_VALID:
+        allowed = (
+            RECORD_VALID | RECORD_EVALUATE_CENTER | RECORD_WEAK_EVIDENCE
+            | RECORD_SINGLE_FRAME_CONFIDENT
+        )
+        if record_flags & ~allowed or not record_flags & RECORD_VALID:
             raise ValueError("candidate record flags are invalid")
+        if record_flags & RECORD_SINGLE_FRAME_CONFIDENT and not record_flags & RECORD_WEAK_EVIDENCE:
+            raise ValueError("candidate record class is invalid")
         if rr0 != 0 or rr1 != 0:
             raise ValueError("candidate reserved fields are nonzero")
         candidate = CandidateRecord(
@@ -137,6 +152,8 @@ def decode_packet(data: bytes) -> CandidatePacket:
             threshold=threshold,
             pfa_select=pfa,
             evaluate_center=bool(record_flags & RECORD_EVALUATE_CENTER),
+            weak_evidence=bool(record_flags & RECORD_WEAK_EVIDENCE),
+            single_frame_confident=bool(record_flags & RECORD_SINGLE_FRAME_CONFIDENT),
         )
         if span != candidate.coarse_span_bins:
             raise ValueError("candidate record span mismatch")

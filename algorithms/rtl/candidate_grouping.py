@@ -30,6 +30,8 @@ class CandidateRecord:
     threshold: int
     pfa_select: int
     evaluate_center: bool
+    weak_evidence: bool = False
+    single_frame_confident: bool = False
 
     @property
     def coarse_span_bins(self) -> int:

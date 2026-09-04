@@ -4,7 +4,7 @@ module tb_p0_candidate_reducer_packetizer;
   localparam int FRAME_LENGTH = 4096;
   localparam int FRAME_COUNT = 8;
   localparam int INPUT_RECORDS = FRAME_LENGTH * FRAME_COUNT;
-  localparam int EXPECTED_BEATS = 379;
+  localparam int EXPECTED_BEATS = 629;
 
   logic aclk = 0;
   always #5 aclk = ~aclk;
@@ -115,7 +115,7 @@ module tb_p0_candidate_reducer_packetizer;
                status_transport_error_sticky, status_candidate_overflow_sticky, status_reducer_sticky);
       $fatal(1);
     end
-    $display("P0_PACKETIZER_PASS frames=%0d candidates=63 beats=%0d output_stalls=%0d stability_checks=%0d",
+    $display("P0_PACKETIZER_PASS frames=%0d candidates=113 beats=%0d output_stalls=%0d stability_checks=%0d",
              completed_packets, output_count, output_stalls, payload_stability_checks);
     $finish;
   end

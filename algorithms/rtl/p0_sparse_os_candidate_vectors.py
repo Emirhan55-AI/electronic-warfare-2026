@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 
 from .candidate_grouping import axis_candidate_records
-from .p0_candidate_reducer import reduce_candidates
+from .p0_candidate_reducer import strict_os_candidates
 from .p0_os_cfar_vectors import canonical_bytes
 from .p0_wideband_recovery_vectors import (
     FRAME_LENGTH,
@@ -15,7 +15,7 @@ from .p0_wideband_recovery_vectors import (
 
 
 def _pack_expected(natural: tuple[int, ...]) -> tuple[bytes, dict[str, object]]:
-    candidates = reduce_candidates(natural).os_candidates
+    candidates = strict_os_candidates(natural)
     axis = axis_candidate_records(candidates)
     lines = []
     for record in axis:

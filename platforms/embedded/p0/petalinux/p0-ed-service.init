@@ -9,8 +9,13 @@ case "$1" in
         start-stop-daemon --start --quiet --background --make-pidfile \
             --pidfile "$PIDFILE" --exec "$DAEMON"
         echo 'tamam'
+        /etc/init.d/p0-ed-network-bridge start || {
+            "$0" stop
+            exit 1
+        }
         ;;
     stop)
+        /etc/init.d/p0-ed-network-bridge stop >/dev/null 2>&1 || true
         printf '%s' 'P0 ED kart hizmeti durduruluyor: '
         start-stop-daemon --stop --quiet --retry TERM/5/KILL/1 \
             --pidfile "$PIDFILE" --exec "$DAEMON"

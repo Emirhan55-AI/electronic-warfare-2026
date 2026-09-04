@@ -125,6 +125,7 @@ def main() -> int:
     args.output.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     print(json.dumps({"status": report["status"], **report["geometry"]}, ensure_ascii=False))
     return 0

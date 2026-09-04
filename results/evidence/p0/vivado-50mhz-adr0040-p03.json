@@ -1,0 +1,168 @@
+{
+  "schema_version": 6,
+  "status": "passed",
+  "scope": "ZedBoard CI8-to-candidate-packet Vivado build",
+  "tool": "Vivado v2025.2 build 6299465",
+  "target": "xc7z020clg484-1",
+  "top": "p0_system_wrapper",
+  "board_definition": {
+    "board_part": "avnet-tria:zedboard:part0:1.5",
+    "repository": "https://github.com/Avnet/bdf",
+    "commit": "e9723b55a68b106fb4cdb645974d096cd3594a2a"
+  },
+  "clock_hz": 50000000,
+  "data_path": [
+    "AXI DMA MM2S CI8 input",
+    "UQ1.15 periodic Hann window",
+    "AMD 4096-point FFT",
+    "exact UQ28.30 linear power",
+    "sparse OS-CFAR and wideband candidate reducer",
+    "PHASE-06I AXI64 candidate packetizer",
+    "AXI DMA S2MM output"
+  ],
+  "dma": {
+    "scatter_gather": false,
+    "mm2s_enabled": true,
+    "s2mm_enabled": true,
+    "dre_enabled": false,
+    "length_width_bits": 16,
+    "maximum_length_bytes": 65535,
+    "input_frame_bytes": 8192,
+    "candidate_packet_bytes": {
+      "minimum": 64,
+      "maximum": 54144
+    },
+    "base_address": "0x40400000",
+    "mm2s_stream_bits": 16,
+    "s2mm_stream_bits": 64,
+    "software_contract": "new_hardware_platform_pending_petalinux_rebuild"
+  },
+  "block_design_validation": "PASS",
+  "synthesis": "PASS",
+  "hann_memory_initialization": {
+    "status": "PASS",
+    "failure_count": 0,
+    "log_sha256": "18c85d9ce78360f7f369b97a40aaeda9d3157756bab86fdc7200f77b80ce89de"
+  },
+  "implementation": "ROUTE_DESIGN_COMPLETE",
+  "route": {
+    "routable_nets": 61488,
+    "fully_routed_nets": 61488,
+    "routing_errors": 0
+  },
+  "timing": {
+    "setup_wns_ns": 0.199,
+    "setup_tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "hold_whs_ns": 0.01,
+    "hold_ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "check_timing_issue_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "post_route_resources": {
+    "slice_luts": {
+      "used": 48040,
+      "available": 53200,
+      "utilization_percent": 90.3
+    },
+    "slice_registers": {
+      "used": 30360,
+      "available": 106400,
+      "utilization_percent": 28.53
+    },
+    "block_ram_tiles": {
+      "used": 73,
+      "available": 140,
+      "utilization_percent": 52.14
+    },
+    "dsps": {
+      "used": 77,
+      "available": 220,
+      "utilization_percent": 35.0
+    }
+  },
+  "drc_errors": 0,
+  "drc_critical_warnings": 0,
+  "drc_warnings": {
+    "DPIP-1": 28,
+    "DPOP-1": 18,
+    "DPOP-2": 32,
+    "PDCN-1569": 3,
+    "REQP-1839": 8,
+    "RTSTAT-10": 1
+  },
+  "methodology_warnings": {
+    "LUTAR-1": 3
+  },
+  "bitstream": {
+    "status": "PASS",
+    "relative_path": "build/p0/p03/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
+    "bytes": 4045693,
+    "sha256": "8db8f2b10742e467fa61f4449b23d00e9cc70706ff0009d5b7fbd982aba6a00d"
+  },
+  "hardware_platform": {
+    "relative_path": "build/p0/p03/hardware/p0_system_50mhz.xsa",
+    "bytes": 1794404,
+    "xsa_sha256": "eb146d8b51e2b9409e6cdb0db6c49baf2d2275722bfd0d5d4e9c444952ccd738",
+    "hwh_sha256": "031ded2016ba2a6038b0389620e5559bd044f43e591a9e7eae3db12f3dd5168b"
+  },
+  "report_sha256": {
+    "implementation-timing-summary.rpt": "0eaab16e9e7aac643374285180be7b8bf29f57a2f09da10266e5110d4b1b3154",
+    "implementation-utilization-summary.rpt": "e81a274fedef923e6d089aca46963919380d71b40c0675fbf171f26a2c23a4b5",
+    "route-status.rpt": "f16164f5b279000af71fba2ea92abe904d993d4c98c9fe205e4638c40afe0ba6",
+    "implementation-drc.rpt": "ba41082ed941bf569d0ecb9573152128a0f650e8ddac03bf737a5967926cf04c",
+    "methodology.rpt": "abb4cea15684b36b95aed14be17f481e428f5992ef866bd818b0a10cd5ecdddc",
+    "check-timing.rpt": "429dc1056b2bf77bc92e2f387a2e76325f95c40afa9c309438e3f0ddab6a3918"
+  },
+  "source_sha256": {
+    "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv": "b96dde6d5a415fd3ed428a0b7e09d60441ac09c1708d2c6c44fb42a566de66d9",
+    "algorithms/fpga/phase06b/rtl/phase06b_pkg.sv": "a03b8af113cb502760a40afbe4a1cb02a16ccbd3f695aed831cc9788362482da",
+    "algorithms/fpga/phase06b/rtl/axis_hann_window.sv": "98b8edd684c26e309f05d80052bea528fbd77080ec5d621a40e211d72e09d2bd",
+    "datasets/fixtures/phase06b/hann-coefficients.mem": "d8c409a859dc5483e7cf4f63de885273fa0ea31d8ff423115feec12415ff7f3f",
+    "algorithms/fpga/phase06c/rtl/phase06c_pkg.sv": "f3150511107c4a7f2b568cdb3a83ef7a5100a295144e94d6975b221278c6b24e",
+    "algorithms/fpga/phase06c/rtl/axis_fft_wrapper.sv": "30e08fb10d2705daa1b64685087839dbe3b6c4343448080def5baae340600c5e",
+    "algorithms/fpga/phase06d/rtl/amd_xfft_adapter.sv": "20db16f85679aad817b771b7e2172143ec4ef3895e383b87362e6046399f6216",
+    "algorithms/fpga/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci": "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4",
+    "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv": "a8a62a27927d2471b9498dc1ad9ee8ade4baf1be1dc7865a0a0d9ff3447bc19e",
+    "algorithms/fpga/phase06i/rtl/phase06i_pkg.sv": "fcdac2667aecac51b5724ebace3b2c86f8c621ceabcf3ed9e0a4e43423ef0b34",
+    "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv": "ac1f15b629cb9b36abb8773b869b08947cfb04083ee21994d5cdc162326293f8",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "07cc50b3027bc1beb0d2383e2a79dddbf20ee2c2b135b498215cd8b7d66a3c1b",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv": "648f4e6f07026251806a3958183816537d48768c50561b8973aae47e9b67a711",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "028e95c4e8205eba078f5ce6bf8c92a132b06e1ccfc77f0ed89304aae5f20adc",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv": "ca46b918bf9d852b21cdd9eaa5e0804a60f3e58cf663caff857cbe836a0c3d4f",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv": "04df2d81c21ec63f54368313658776ee237fe165c00fae5da1e2e14eb383c8c1",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv": "897cfe5fdf64425b3fab7afe0dfa35b2569c6670351fc9c330ba50232d9136c1",
+    "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv": "55fa878ca2037443cce157ab44ea20733cc26de79a41f3effbf92761e6767666",
+    "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv": "5053c637d6f5f729695bd268bc30aa51bd9ef36bb2df4579cee0991c49b74e73",
+    "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv": "b6854f5fae86dd2e0caaaba634a0580c266071b64d3a43ed782bd69a8f13a877",
+    "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv": "1febc66e96056474b4335bd016b6ac1acb57ae985a1f7501de2b671f455e4927",
+    "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
+    "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "ad4e2b2b987fb658fb19dd0c658d96751904ecfe08c01b52c381123233c45431",
+    "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv": "4be1e816074d0a1afbd4243d0663bea676a2b2e7c185422a7b39ece5a6b6b808",
+    "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9fd723976362243186ff1e52000601b4a7f65e0192be85f28dc97392fc9b57ee",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "616b11577758cf141c8534ff7d15a8562f3881d342cd39e0a07b81696870c929",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_packetizer_top.sv": "ce0213dfc1241e417841a10bbf4cb75f29818d0c00a0e7ae66b6a611525fd346",
+    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv": "bef61361fa1e4843b87c412144491da5af384fc51c2f23926c60aad861531739",
+    "algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_bd.v": "6f9d6f4103591bca01e1571e983d32791d44bfa21efea71486bb0efcce0021a2",
+    "scripts/create_p0_vivado_project.tcl": "ae240ebf10cba0d0c12e140d9ab6ee6aadb0654ef78b800a7df53527d0b87f5c",
+    "scripts/run_p0_vivado.tcl": "ff14d2a356bc70f3bd53e9cfe83c1f1ee87c987739ac65116b2585fa8520d4e0"
+  },
+  "supersedes": null,
+  "claim_boundary": "This evidence proves local Vivado block-design validation, synthesis, routed 50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet PL hierarchy. The variable-length DMA contract is implemented and host-accepted; a PetaLinux rebuild with this exact XSA, board programming, positive-signal board acceptance, physical sustained throughput, calibrated RF accuracy and live HackRF processing remain open.",
+  "build_variant": "p03",
+  "verifier_sha256": "375ea82abc59c933e2677dac934dfd2b12aac25c16b0ffd3c862d95ddd541ba8"
+}

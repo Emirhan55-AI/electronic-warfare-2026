@@ -4,15 +4,15 @@
     "sha256": "de71cfef378302e69922d8471e878e7f39d504f20b7165c7f02a13e3a9b4f979"
   },
   "files": {
-    "algorithms/ps/temporal_confirmation.py": "c35c8c640c0f91ada6bec07b565eeb2d6407e2816e66369fbe3662d7db8f7383",
+    "algorithms/ps/temporal_confirmation.py": "1c225c503612c4be9c980627a111b132d285bc2d97ac8a8f89f15533e90ed56e",
     "algorithms/ps/temporal_vectors.py": "5ec689e804cc57a52bf0a32e45fb5236c55a6237ea1a13faca30ef026e035390",
     "datasets/fixtures/phase06j/fixture-manifest.json": "d5e411349ed395d901a3c7bde27edeef26690589243e35d1b894eb9d4f6373b8",
     "datasets/fixtures/phase06j/golden-sequences.json": "19741c293384b3e0734560626a85c41768a911f60ab4c2ec3ff51e6f08240f14",
     "datasets/fixtures/phase06j/packets.bin": "b83c706cb29b633bbf53431f93ade1e0f2b76347589d4c9dce142533691cfeda",
     "docs/decisions/ADR-0021-PHASE06J-PS-TEMPORAL-CONFIRMATION.md": "df8d23877a14de5c7bcff28953f800e55f1c0264f066352388b2ba380f492da4",
     "docs/interfaces/PS_TEMPORAL_CANDIDATE_CONTRACT.md": "e43e3d2479b9365529739cdd3580d968c3ad15c1849f440bfb683c3f18b5e5f2",
-    "platforms/embedded/phase06j/include/phase06j_temporal.h": "eb338efced5f6b4e56abce5988446649ebfc56926498eb22e993f917a827449a",
-    "platforms/embedded/phase06j/src/phase06j_temporal.c": "a276f9448331ecfe0ac941073de757f384b6d6e86fa12578dac699f92ae9849d",
+    "platforms/embedded/phase06j/include/phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
     "scripts/generate_phase06j_vectors.py": "00d28069836699f5ce6e3688db03fc21a2e22c5e1badb292c5904f455507d9a3",
     "scripts/verify_phase06j.py": "22b3617ee9a8e2288c5dd5d3b013fa8b225b44edb24a758f4cf9b09e97ddb897",
     "tests/test_phase06j_model.py": "a7665e1b6774448616ac0e8f4e2a14cf0c881fb42997ea48b106dc6dbf13db57",

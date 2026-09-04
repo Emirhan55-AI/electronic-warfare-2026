@@ -5,6 +5,7 @@ import threading
 import time
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
@@ -17,7 +18,7 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtTest import QSignalSpy
 
-from algorithms.p0 import IQFrame, TransportStats
+from algorithms.p0 import CoarseDetection, CoarseDetectionFrame, IQFrame, TransportStats
 from algorithms.p0.transport import TransportError
 from algorithms.monitoring import AnalogMonitorResult
 from app.operator_console.live_ed import (
@@ -498,10 +499,11 @@ def test_live_list_only_keeps_confirmed_frequency_observations(live_presentation
 def test_live_list_orders_new_confirmed_signals_by_contrast(live_presentation):
     view = live_presentation
     weak = replace(_event(1, peak=2205), peak_power=10.0, noise_power=1.0)
-    strong = replace(_event(2, peak=2305), peak_power=1000.0, noise_power=1.0)
+    strong = replace(_event(2, peak=2405), peak_power=1000.0, noise_power=1.0)
     _present(view, 0, weak, strong)
     assert [row["eventId"] for row in view.detections] == [2, 1]
-    assert view.detections[0]["state"] == "Algılanıyor"
+    assert view.detections[0]["state"] == "Kararlılık ölçülüyor"
+    assert view.detections[0]["title"] == "FPGA adayı"
 
 
 def test_live_presentation_excludes_channelizer_transition_band(live_presentation):
@@ -553,8 +555,7 @@ def test_presentation_pacing_and_same_event_selection_follow_observations(live_p
     expected_hz = view.centerFrequencyHz + (2210 - 2048) * view.sampleRateHz / 4096
     assert mapped_hz == pytest.approx(expected_hz)
     _present(view, 112, _event(2))
-    assert [row["eventId"] for row in view.detections] == [2, 1]
-    assert view.detections[1]["state"] == "Son görüldü"
+    assert [row["eventId"] for row in view.detections] == [2]
     assert view.selectedDetectionId == 1
     assert not view.selectedDetectionCurrent
     assert not view._event_observation_history
@@ -584,9 +585,148 @@ def test_same_frequency_is_retained_once_across_new_fpga_event_ids(live_presenta
     assert view.detections[0]["observationCount"] == 2
     _present(view, 32)
     assert len(view.detections) == 1
+    assert view.detections[0]["state"] == "Kısa süreli izleniyor"
+    assert view.detections[0]["held"]
+    _present(view, 176)
     assert view.detections[0]["state"] == "Son görüldü"
-    _present(view, 48, _event(103, peak=2305))
+    _present(view, 48, _event(103, peak=2505))
     assert len(view.detections) == 2
+
+
+def test_peak_wander_is_one_operator_visible_emission(live_presentation):
+    view = live_presentation
+    weak = replace(_event(201, peak=2205), peak_power=25.0, noise_power=1.0)
+    strong = replace(_event(202, peak=2250), peak_power=400.0, noise_power=1.0)
+    _present(view, 0, weak, strong)
+    assert view.activeDetectionCount == 1
+    assert len(view.detectionMarkers) == 1
+    assert len(view.detections) == 1
+    assert view.detections[0]["eventId"] == 202
+    assert view.detections[0]["componentCount"] == 2
+
+
+def test_stale_history_does_not_count_as_a_live_detection(live_presentation):
+    view = live_presentation
+    _present(view, 0, _event(301))
+    assert view.activeDetectionCount == 1
+    _present(view, 16)
+    assert view.activeDetectionCount == 0
+    assert not view.detectionMarkers
+    assert len(view.detections) == 1
+    assert view.detections[0]["state"] == "Kısa süreli izleniyor"
+    assert not view.detections[0]["historyBoundary"]
+    _present(view, 144)
+    assert view.activeDetectionCount == 0
+    assert len(view.detections) == 1
+    assert view.detections[0]["historyBoundary"]
+
+
+def test_confirmed_host_candidate_is_not_claimed_as_fpga_detection(live_presentation):
+    view = live_presentation
+    view._coarse_detection_frame = CoarseDetectionFrame(
+        7,
+        104_650_000.0,
+        8_000_000.0,
+        (CoarseDetection(9, "confirmed", True, 104_700_000.0, 104_730_000.0, 104_715_000.0, 18.0),),
+    )
+    assert not view.detectionMarkers
+    assert view.hasCoarseCandidateAwaitingFpga
+    assert view.coarseDetectionMarkers[0]["frequency"] == "104.715 MHz"
+
+
+def test_only_two_lo_record_promotes_fpga_candidate_to_stable(live_presentation):
+    view = live_presentation
+    event = _event(401)
+    frequency_hz = 104_650_000 + (event.peak_shifted_bin - 2048) * 2_000_000 / 4096
+    view._fixed_verification_records[1] = {
+        "frequency_hz": frequency_hz,
+        "state": "verified_two_lo",
+        "source": "fpga",
+        "result": None,
+    }
+    _present(view, 0, event)
+    assert view.stableDetectionCount == 1
+    assert view.detectionMarkers[0]["verificationKey"] == "verified_two_lo"
+    assert view.detections[0]["state"] == "2 ayarda kararlı"
+    assert view.detections[0]["title"] == "Kararlı RF adayı"
+
+
+def test_live_spur_guard_revokes_stale_verification_and_rearms_on_rf_shoulders(
+    live_presentation,
+):
+    view = live_presentation
+    spur_hz = 1_000_000_000
+    view._known_spurs_hz = (spur_hz,)
+    view._fixed_verification_records[1] = {
+        "frequency_hz": float(spur_hz),
+        "state": "verified_two_lo",
+        "source": "fpga",
+        "result": None,
+    }
+    frequencies = np.linspace(996_000_000.0, 1_004_000_000.0, 16_384, endpoint=False)
+    quiet_power = np.ones(frequencies.size, dtype=np.float64)
+
+    def spectrum(power):
+        return SimpleNamespace(
+            center_frequency_hz=1_000_000_000.0,
+            sample_rate_hz=8_000_000.0,
+            display=SimpleNamespace(
+                bin_power_fs2=power,
+                frequency_absolute_hz=frequencies,
+            ),
+        )
+
+    for _ in range(8):
+        view._update_live_spur_guard(spectrum(quiet_power))
+    assert view._fixed_verification_records[1]["state"] == "live_guard_failed"
+
+    shoulder_power = quiet_power.copy()
+    offsets = np.abs(frequencies - spur_hz)
+    shoulder_power[(offsets >= 2_000.0) & (offsets <= 25_000.0)] = 10.0
+    for _ in range(8):
+        view._update_live_spur_guard(spectrum(shoulder_power))
+    assert not view._fixed_verification_records
+
+
+def test_coarse_marker_exposes_when_candidate_is_outside_fpga_band(live_presentation):
+    view = live_presentation
+    view._coarse_detection_frame = CoarseDetectionFrame(
+        8,
+        104_650_000.0,
+        8_000_000.0,
+        (CoarseDetection(10, "confirmed", True, 106_040_000.0, 106_080_000.0, 106_060_000.0, 21.0),),
+    )
+    marker = view.coarseDetectionMarkers[0]
+    assert not marker["insideFpgaBand"]
+    assert marker["verificationKey"] == "unverified"
+
+
+def test_multiple_coarse_candidates_are_retained_for_serial_verification(live_presentation):
+    view = live_presentation
+    view._hackrf_ready = True
+    view._hackrf_transfer_executable = "hackrf_transfer"
+    frame = CoarseDetectionFrame(
+        9,
+        104_650_000.0,
+        8_000_000.0,
+        (
+            CoarseDetection(11, "confirmed", True, 104_690_000.0, 104_710_000.0, 104_700_000.0, 24.0),
+            CoarseDetection(12, "confirmed", True, 104_880_000.0, 104_900_000.0, 104_890_000.0, 21.0),
+        ),
+    )
+
+    view._maybe_verify_coarse_candidate(frame)
+
+    assert view._fixed_verification_candidate is not None
+    assert view._fixed_verification_candidate.frequency_hz == 104_700_000.0
+    assert [item.frequency_hz for item in view._fixed_verification_queue] == [104_890_000.0]
+
+    view._fixed_verification_candidate = None
+    view._fixed_verifier = None
+    view._start_next_fixed_verification()
+    assert view._fixed_verification_candidate is not None
+    assert view._fixed_verification_candidate.frequency_hz == 104_890_000.0
+    assert not view._fixed_verification_queue
 
 
 def test_clear_resets_retained_rows_and_selection(live_presentation):

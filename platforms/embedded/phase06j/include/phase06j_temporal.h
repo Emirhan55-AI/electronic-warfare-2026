@@ -71,6 +71,10 @@ PHASE06J_API int phase06j_state_init(void *memory, size_t bytes);
 PHASE06J_API int phase06j_state_reset(void *memory, size_t bytes);
 PHASE06J_API int phase06j_validate_packet(const void *packet, size_t packet_bytes,
                                           uint32_t *frame_id, uint16_t *candidate_count);
+PHASE06J_API int phase06j_decode_packet_records(
+    const void *packet, size_t packet_bytes, uint32_t *frame_id,
+    phase06i_candidate_v1 *records, uint16_t record_capacity,
+    uint16_t *candidate_count);
 PHASE06J_API int phase06j_process_packet(void *memory, size_t bytes,
                                         const void *packet, size_t packet_bytes,
                                         phase06j_frame_result_v1 *result);

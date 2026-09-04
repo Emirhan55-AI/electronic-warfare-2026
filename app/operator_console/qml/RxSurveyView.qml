@@ -95,12 +95,12 @@ Item {
                     ColumnLayout {
                         spacing: 3
                         Caption { text: "AZAMİ LNA · dB" }
-                        GainChoice { id: lna; Layout.preferredWidth: 75; model: [0,8,16,24,32,40]; currentIndex: 4; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami LNA kazancı" }
+                        GainChoice { id: lna; Layout.preferredWidth: 75; model: [0,8,16,24,32,40]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami LNA kazancı" }
                     }
                     ColumnLayout {
                         spacing: 3
                         Caption { text: "AZAMİ VGA · dB" }
-                        GainChoice { id: vga; Layout.preferredWidth: 75; model: [0,8,16,24,32,40,48,56]; currentIndex: 4; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
+                        GainChoice { id: vga; Layout.preferredWidth: 75; model: [0,8,16,24,32,40,48,56]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
                     }
                     Item { Layout.fillWidth: true }
                     Action { text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }

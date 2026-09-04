@@ -86,10 +86,9 @@ opened = {"open": root.property("navigationOpen"), "visible": navigation.propert
           "width": navigation.property("width"), "items": [item.property("visible") for item in items],
           "busy": view_model.busy, "playing": view_model.playing}
 assert QMetaObject.invokeMethod(button, "clicked")
-deadline = time.perf_counter() + .4
-while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+app.processEvents()
 closed = {"open": root.property("navigationOpen"), "visible": navigation.property("visible"),
-          "width": navigation.property("width")}
+          "layout_width": navigation.property("animatedWidth")}
 payload = {"initial": initial, "opened": opened, "closed": closed}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
@@ -104,7 +103,7 @@ print(json.dumps(payload))
         self.assertFalse(payload["opened"]["playing"])
         self.assertFalse(payload["closed"]["open"])
         self.assertFalse(payload["closed"]["visible"])
-        self.assertLess(payload["closed"]["width"], 1.0)
+        self.assertEqual(0.0, payload["closed"]["layout_width"])
 
     def test_detection_symbol_toggles_receiver_options_without_starting_an_operation(self) -> None:
         payload = self.run_qml(
@@ -198,7 +197,7 @@ print(json.dumps(payload))
     def test_live_status_guards_detection_fields_when_list_is_empty(self) -> None:
         source = QML.read_text(encoding="utf-8")
         self.assertIn("readonly property var leadingDetection:", source)
-        self.assertIn('leadingDetection !== null ? "P/N "', source)
+        self.assertIn('? "P/N " + (signalSummaryCard.leadingFpga !== null', source)
 
     def test_rx_only_status_hides_the_inapplicable_measurement_action(self) -> None:
         payload = self.run_qml(
@@ -536,7 +535,7 @@ print(json.dumps(payload,ensure_ascii=False))
             for key in ("hostPath", "rtlPath"):
                 if item[key]:
                     self.assertTrue((ROOT / item[key]).is_file(), item[key])
-        self.assertEqual("Denetleniyor", payload["initial"][0]["state"])
+        self.assertEqual("Kullanılmıyor", payload["initial"][0]["state"])
         self.assertEqual("Hazır", payload["ready"][0]["state"])
         self.assertTrue(
             all(
@@ -714,9 +713,13 @@ print(json.dumps(payload,ensure_ascii=False))
             "ALICI AYARLARI",
             "Taramayı başlatınca canlı spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",
-            "TESPİT ALANI",
-            "SİNYAL TESPİT EDİLDİ",
-            "doğrulanmış gözlem",
+            "KARARLI RF ADAYI",
+            "FPGA ADAYI",
+            "GÜÇLÜ RX ADAYI",
+            "iki alıcı ayarında denetleniyor",
+            "ŞU ANDA İKİ AYARDA KARARLI RF ADAYI YOK",
+            "BU TARAMADA DAHA ÖNCE GÖRÜLENLER",
+            "FPGA gözlemi",
             "operatorViewModel.errorTitle",
             "zoomSpectrum",
             "panSpectrum",

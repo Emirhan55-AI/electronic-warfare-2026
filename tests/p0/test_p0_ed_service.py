@@ -48,7 +48,11 @@ def test_linux_host_acceptance_evidence_matches_sources() -> None:
     assert evidence["status"] == "passed"
     assert evidence["scope"] == "host-only local service boundary"
     for name, expected in evidence["source_sha256"].items():
-        source = ROOT / "platforms/embedded/p0/src" / name
+        source = (
+            ROOT / name
+            if "/" in name
+            else ROOT / "platforms/embedded/p0/src" / name
+        )
         assert hashlib.sha256(source.read_bytes()).hexdigest() == expected
     for name, expected in evidence["acceptance_source_sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
@@ -64,6 +68,10 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     )
     paths = {
         "p0-dma_1.0.bb": ROOT / "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
+        "p0-ed-service.init": ROOT / "platforms/embedded/p0/petalinux/p0-ed-service.init",
+        "p0-ed-network-bridge.default": (
+            ROOT / "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default"
+        ),
         "p0_ed_service.c": ROOT / "platforms/embedded/p0/src/p0_ed_service.c",
         "p0_ed_service_protocol.c": ROOT / "platforms/embedded/p0/src/p0_ed_service_protocol.c",
         "p0_ed_service_protocol.h": ROOT / "platforms/embedded/p0/include/p0_ed_service_protocol.h",
@@ -82,21 +90,30 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "p0_pl_os_cfar.h": ROOT / "platforms/embedded/p0/include/p0_pl_os_cfar.h",
         "p0_ed_stage_profile_run.c": ROOT / "platforms/embedded/p0/src/p0_ed_stage_profile_run.c",
         "p0_candidate_packet.c": ROOT / "platforms/embedded/p0/src/p0_candidate_packet.c",
+        "p0_candidate_packet.h": ROOT / "platforms/embedded/p0/include/p0_candidate_packet.h",
+        "p0_persistent_weak.c": ROOT / "platforms/embedded/p0/src/p0_persistent_weak.c",
+        "p0_persistent_weak.h": ROOT / "platforms/embedded/p0/include/p0_persistent_weak.h",
+        "p0_persistent_weak_run.c": ROOT / "platforms/embedded/p0/src/p0_persistent_weak_run.c",
+        "phase06i_transport_abi.h": (
+            ROOT / "platforms/embedded/phase06i/include/phase06i_transport_abi.h"
+        ),
+        "phase06j_temporal.c": ROOT / "platforms/embedded/phase06j/src/phase06j_temporal.c",
+        "phase06j_temporal.h": ROOT / "platforms/embedded/phase06j/include/phase06j_temporal.h",
     }
 
     assert evidence["status"] == "passed"
     assert evidence["build"]["tasks_failed"] == 0
     assert evidence["current_source_status"] in {
         "current_sources_petalinux_build_passed",
+        "current_sources_petalinux_build_and_board_physical_passed",
         "baseline_build_superseded_pending_adr0032_rebuild",
         "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
         "baseline_build_superseded_pending_service_v3_rebuild",
         "superseded_by_phase07_network_image",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
-    vivado = json.loads(
-        (ROOT / "results/evidence/p0/vivado-50mhz.json").read_text(encoding="utf-8")
-    )
+    vivado_path = evidence["hardware_input"]["vivado_evidence"]
+    vivado = json.loads((ROOT / vivado_path).read_text(encoding="utf-8"))
     if evidence.get("hardware_input_current", True):
         assert evidence["hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
         assert evidence["hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
@@ -106,20 +123,44 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
         assert evidence["superseded_by_hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
         assert evidence["superseded_by_hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
-    if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
+    if evidence["current_source_status"] in {
+        "current_sources_petalinux_build_passed",
+        "current_sources_petalinux_build_and_board_physical_passed",
+    }:
         for name, source in paths.items():
             assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+        assert evidence["rootfs"]["persistent_weak_runner_binary"] == (
+            "/usr/bin/p0-persistent-weak-run"
+        )
+        assert len(evidence["rootfs"]["persistent_weak_runner_sha256"]) == 64
+        assert evidence["rootfs"]["network_bridge"]["enabled_at_boot"] is True
+        assert evidence["rootfs"]["network_bridge"]["allowed_peer_ipv4"] == "192.168.7.1"
+        assert evidence["rootfs"]["network_bridge"]["fail_closed_if_bridge_start_fails"] is True
+        assert evidence["adr0040_rtl_present_in_hardware_input"] is True
+        if evidence["current_source_status"] == "current_sources_petalinux_build_passed":
+            assert "boot of this image on ZedBoard" in evidence["not_verified"]
+        else:
+            assert "blind live HackRF detection probability across the full operating range" in (
+                evidence["not_verified"]
+            )
     else:
         assert evidence["current_source_status"].startswith(
             "baseline_build_superseded_pending_"
         ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
-    assert evidence["prior_physical_acceptance"] == (
-        "results/evidence/p0/multiscale-detector-physical-acceptance.json"
-    )
-    assert evidence["cold_boot_acceptance"] == (
-        "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json"
-    )
-    assert "cold-boot persistence of the ABI v3 service image" not in evidence["not_verified"]
+    if evidence["current_source_status"] == "current_sources_petalinux_build_and_board_physical_passed":
+        assert evidence["prior_physical_acceptance"] == (
+            "results/evidence/p0/adr0040-physical-acceptance.json"
+        )
+        assert evidence["cold_boot_acceptance"] == (
+            "results/evidence/p0/adr0040-physical-acceptance.json"
+        )
+    else:
+        assert evidence["prior_physical_acceptance"] == (
+            "results/evidence/p0/multiscale-detector-physical-acceptance.json"
+        )
+        assert evidence["cold_boot_acceptance"] == (
+            "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json"
+        )
 
 
 def test_vivado_build_evidence_is_preserved_and_current_rtl_delta_is_explicit() -> None:
@@ -151,8 +192,17 @@ def test_vivado_build_evidence_is_preserved_and_current_rtl_delta_is_explicit() 
         if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != expected
     }
     assert set(changed) == {
+        "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv",
+        "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv",
         "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv",
+        "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_pkg.sv",
+        "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv",
+        "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
         "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
+        "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv",
+        "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv",
+        "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv",
+        "algorithms/fpga/p0/rtl/p0_candidate_reducer_packetizer_top.sv",
         "scripts/create_p0_vivado_project.tcl",
         "scripts/run_p0_vivado.tcl",
     }
@@ -162,13 +212,32 @@ def test_vivado_build_evidence_is_preserved_and_current_rtl_delta_is_explicit() 
         )
     )
     assert current_simulation["status"] == "passed"
+    packet_simulation = json.loads(
+        (ROOT / "results/evidence/p0/candidate-reducer-packetizer-v2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    simulation_sources = {
+        **current_simulation["source_sha256"],
+        **packet_simulation["source_sha256"],
+    }
     for name, actual in changed.items():
         if name.endswith(".sv"):
-            assert current_simulation["source_sha256"][name] == actual
+            assert simulation_sources[name] == actual
         else:
             # Icarus kanıtı RTL davranışını kapsar; Vivado proje komutları
             # ancak yeni bir gerçek Vivado koşusuyla yeniden kabul edilebilir.
             assert name not in current_simulation["source_sha256"]
+    integration = json.loads(
+        (ROOT / "results/evidence/phase08/persistent-weak-integration-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert integration["deployment_gates"]["vivado_synthesis_and_route_passed"] is True
+    assert integration["deployment_gates"]["current_bitstream_generated"] is True
+    assert "results/evidence/p0/vivado-50mhz.json" in integration[
+        "historical_physical_evidence"
+    ]
 
 
 def test_parameter_host_evidence_matches_sources() -> None:
@@ -286,10 +355,22 @@ def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
     assert evidence["repeatability"]["minimum_real_time_margin"] >= 1.0
     assert all(run["real_time_margin"] >= 1.0 for run in evidence["runs"])
     assert evidence["functional_regression"]["event_field_equivalence"] is True
-    for name, source in paths.items():
-        if name == "p0-dma_1.0.bb":
-            continue
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    changed = {
+        name
+        for name, source in paths.items()
+        if hashlib.sha256(source.read_bytes()).hexdigest()
+        != evidence["source_sha256"][name]
+    }
+    assert changed == {"p0_ed_pipeline.c", "p0-dma_1.0.bb"}
+    integration = json.loads(
+        (ROOT / "results/evidence/phase08/persistent-weak-integration-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert integration["deployment_gates"]["current_sources_run_on_arm_board"] is True
+    assert "results/evidence/p0/ed-throughput-physical-acceptance.json" in integration[
+        "historical_physical_evidence"
+    ]
     assert "live HackRF throughput" in evidence["claim_boundary"]
 
 
@@ -319,8 +400,22 @@ def test_persistent_service_image_cold_boot_evidence_is_traceable() -> None:
     assert evidence["throughput_acceptance"]["request_pipeline_depth"] == 4
     assert evidence["throughput_acceptance"]["minimum_frames_per_second"] >= 2_000_000 / 4096
     assert evidence["throughput_acceptance"]["minimum_real_time_margin"] >= 1.0
-    for name, source in paths.items():
-        if name == "p0-dma_1.0.bb":
-            continue
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == evidence["source_sha256"][name]
+    changed = {
+        name
+        for name, source in paths.items()
+        if hashlib.sha256(source.read_bytes()).hexdigest()
+        != evidence["source_sha256"][name]
+    }
+    assert changed == {"p0_ed_pipeline.c", "p0-dma_1.0.bb"}
+    integration = json.loads(
+        (ROOT / "results/evidence/phase08/persistent-weak-integration-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert integration["deployment_gates"]["current_petalinux_image_built"] is True
+    assert integration["deployment_gates"]["current_bitstream_generated"] is True
+    assert integration["deployment_gates"]["current_sources_run_on_arm_board"] is True
+    assert "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json" in integration[
+        "historical_physical_evidence"
+    ]
     assert "live HackRF throughput" in evidence["claim_boundary"]

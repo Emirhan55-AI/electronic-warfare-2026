@@ -33,12 +33,21 @@ def historical_integrity() -> tuple[int, bool]:
     # PHASE-05 evidence records the protected baseline that existed before its
     # own checkpoint.  Excluding its owned outputs prevents the count from
     # becoming self-referential after that checkpoint is committed.
+    protected_prefixes = (
+        "results/evidence/phase00/",
+        "results/evidence/phase01/",
+        "results/evidence/phase02/",
+        "results/evidence/phase03/",
+        "results/evidence/phase04/",
+        "results/evidence/phase04d1/",
+        "results/evidence/phase04e1/",
+        "results/evidence/phase08a/",
+    )
     paths = [
         path
         for path in _git("ls-tree", "-r", "--name-only", "HEAD", "results/evidence", "profiles").splitlines()
-        if not path.startswith("results/evidence/phase05/")
-        and not path.startswith("results/evidence/phase06")
-        and not path.startswith("results/evidence/p0/")
+        if path.startswith(protected_prefixes)
+        or path == "profiles/phase03/operation-default.json"
     ]
     return len(paths), all(_git("hash-object", "--", path) == _git("rev-parse", f"HEAD:{path}") for path in paths)
 

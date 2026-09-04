@@ -1,0 +1,108 @@
+{
+  "schema": "p0-persistent-weak-integration-v1",
+  "generated_utc": "2026-09-04T05:14:26.026789+00:00",
+  "status": "digital_physical_passed_live_rf_open",
+  "profile": {
+    "weak_threshold_db": 6.0,
+    "window_frames": 32,
+    "required_frames": 24,
+    "peak_tolerance_bins": 2,
+    "maximum_weak_nominations_per_frame": 1352,
+    "maximum_tracked_weak_nominations_per_frame": 8
+  },
+  "reference_evidence": {
+    "current_vivado_build": {
+      "path": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
+      "source_hashes_current": true
+    },
+    "full_rtl_hierarchy": {
+      "path": "results/evidence/p0/candidate-dsp-runtime-v2.json",
+      "source_hashes_current": true
+    },
+    "functional_reducer": {
+      "path": "results/evidence/p0/candidate-reducer-final-rtl-v2.json",
+      "source_hashes_current": true
+    },
+    "packetizer": {
+      "path": "results/evidence/p0/candidate-reducer-packetizer-v2.json",
+      "source_hashes_current": true
+    },
+    "pl_runtime_host": {
+      "path": "results/evidence/p0/os-cfar-pl-runtime-integration.json",
+      "source_hashes_current": true
+    },
+    "local_service_host": {
+      "path": "results/evidence/p0/ed-local-service-host-acceptance.json",
+      "source_hashes_current": true
+    },
+    "petalinux_arm_image": {
+      "path": "results/evidence/p0/ed-local-service-petalinux-build.json",
+      "source_hashes_current": true
+    },
+    "physical_board": {
+      "path": "results/evidence/p0/adr0040-physical-acceptance.json",
+      "source_hashes_current": true
+    }
+  },
+  "model": {
+    "trials_per_noise_profile": 64,
+    "noise_profiles": 3,
+    "false_confirmed_windows": 0,
+    "frequency_positions": 5,
+    "confirmed_frequency_positions": 5
+  },
+  "pytest": {
+    "status": "passed",
+    "return_code": 0,
+    "summary": "37 passed in 18.58s",
+    "targets": [
+      "tests/p0/test_p0_candidate_packet_classes_rtl.py",
+      "tests/p0/test_p0_weak_nomination_rtl.py",
+      "tests/p0/test_p0_weak_nomination_top_rtl.py",
+      "tests/p0/test_p0_ed_pipeline_weak.py",
+      "tests/p0/test_p0_persistent_weak_c.py",
+      "tests/p0/test_p0_persistent_weak_cfar.py",
+      "tests/p0/test_p0_persistent_weak_evaluation.py",
+      "tests/test_live_ed_session.py"
+    ]
+  },
+  "source_sha256": {
+    "algorithms/ps/persistent_weak_cfar.py": "969e9aeb90c751d04f552971404a21fa6f262fb0fd90327b2713889bf6accb05",
+    "algorithms/rtl/p0_os_cfar.py": "307b6c50ac79e4ea6c4b7e5cb497428e2ca549b1919431f1c57ce3c05abe7364",
+    "algorithms/rtl/p0_candidate_reducer.py": "fc2158bfa1b5ea9004877a8faa291f4c8760cc768bb10847f995ded83a52c71c",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "07cc50b3027bc1beb0d2383e2a79dddbf20ee2c2b135b498215cd8b7d66a3c1b",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_decision_engine.sv": "04df2d81c21ec63f54368313658776ee237fe165c00fae5da1e2e14eb383c8c1",
+    "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv": "b6854f5fae86dd2e0caaaba634a0580c266071b64d3a43ed782bd69a8f13a877",
+    "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv": "1febc66e96056474b4335bd016b6ac1acb57ae985a1f7501de2b671f455e4927",
+    "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv": "9fd723976362243186ff1e52000601b4a7f65e0192be85f28dc97392fc9b57ee",
+    "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv": "616b11577758cf141c8534ff7d15a8562f3881d342cd39e0a07b81696870c929",
+    "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv": "ac1f15b629cb9b36abb8773b869b08947cfb04083ee21994d5cdc162326293f8",
+    "platforms/embedded/phase06i/include/phase06i_transport_abi.h": "f13ac19c02466d2f053053eda0404339f0ba8d0414910f82280ead10d575f8f3",
+    "platforms/embedded/p0/include/p0_persistent_weak.h": "33aa25650aeb529796f04d0cca463569bf50b2cda0602134dd2b823cdbcb0c9a",
+    "platforms/embedded/p0/src/p0_persistent_weak.c": "be44c77926d5d6e3f36eedcf26da1c9b05aa76fe0ec8fd4ca5820fc8d934ff53",
+    "platforms/embedded/p0/include/p0_ed_pipeline.h": "3994efe11bbfc9d128be147387fe90f5c3c2a3a8279d8617524ff7accfdd52d7",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "2c484aea427da9c9833382a0ab76ca1db51c37db1df4469f910978c00f732f6b",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "b7fd606d548b68222b1621e60cd81ac27d0edda74e3372c456d6320580207f50",
+    "app/operator_console/live_ed.py": "ae504c92a2da65258a04e49eae908b244679b3676e72738479b4b5b20ce82ef3",
+    "scripts/create_p0_vivado_project.tcl": "ae240ebf10cba0d0c12e140d9ab6ee6aadb0654ef78b800a7df53527d0b87f5c",
+    "scripts/evaluate_p0_persistent_weak.py": "b5dbe42e5b9e1e40ce95b405b716da3aa30e8148301745002ca36a2b36d82c54",
+    "scripts/verify_p0_persistent_weak_integration.py": "65de67bf65fb7dbc5800ee68fa747950321c5def23add09e4f2919dc7dfe2e39"
+  },
+  "deployment_gates": {
+    "vivado_available_on_this_host": false,
+    "vivado_synthesis_and_route_passed": true,
+    "current_bitstream_generated": true,
+    "petalinux_build_available_on_this_host": false,
+    "petalinux_build_available_in_vm": true,
+    "current_petalinux_image_built": true,
+    "current_sources_run_on_arm_board": true,
+    "current_sources_live_rf_acceptance": false
+  },
+  "current_physical_evidence": "results/evidence/p0/adr0040-physical-acceptance.json",
+  "historical_physical_evidence": [
+    "results/evidence/p0/vivado-50mhz.json",
+    "results/evidence/p0/ed-throughput-physical-acceptance.json",
+    "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json"
+  ],
+  "claim_boundary": "Current ADR-0040 sources pass the top-8 reference model, RTL, packet, host C, PetaLinux packaging and persistent-image ZedBoard digital function/throughput acceptance. Blind live-RF detection probability, field false-alarm rate and calibrated RF accuracy remain open."
+}

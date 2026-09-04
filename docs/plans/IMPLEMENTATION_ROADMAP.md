@@ -345,7 +345,7 @@ aday düşümüyle bitmiştir. En düşük/ortalama/en yüksek hız
 SHA-256 değeri `5d749d4c2a8a86f2bbcc3be9a700ea32efc8104196b237700740886003e2e61d`
 olan PetaLinux imajı soğuk açılıştan sonra FPGA `operating` durumuyla başlamış;
 kalıcı ağ köprüsü değişken ağ arayüzünü `auto` seçerek aynı kabulü geçmiştir.
-Köprü güvenli varsayılan olarak kapalıdır ve bu kontrollü kabul oturumunda açıkça
+Önceki kabul imajında köprü güvenli varsayılan olarak kapalıdır ve kontrollü kabul oturumunda açıkça
 etkinleştirilmiştir. Tek süreçli HackRF stdout RX, stateful kanal seçici ve ağ
 taşıması üç aşamalı sınırlı boru hattında birleştirilmiştir. Beş bağımsız canlı
 64+4.096-kare koşusunda 20.480/20.480 ölçüm karesi, sıfır USB overrun, sıfır sıra
@@ -353,6 +353,11 @@ hatası ve toplam 32.927 FPGA adayıyla tamamlanmıştır. En düşük canlı h�
 `488,746900919 kare/s`, gerekli sınır `488,28125 kare/s`; 64-kare kuyruğun tepe
 kullanımı 8 olmuştur. Kanıt
 `results/evidence/p0/phase07-live-hackrf-fpga-acceptance.json` dosyasındadır.
+ADR-0040 işletim imajında aynı tam bind/tek eş sınırı korunarak köprü kart
+hizmetiyle birlikte otomatik başlatılır ve başarısız başlangıç hizmeti kapatır.
+P09 imajının PetaLinux derlemesi ve kart soğuk açılış kabulü geçmiştir. Beş
+koşuda 20.480 ölçüm karesi, minimum 525,83 kare/s ve sıfır sıra/aday düşürme
+hatası `adr0040-physical-acceptance.json` içinde kayıtlıdır.
 **PHASE-07 tamamlandı. PHASE-08 henüz tamamlanmadı.** Ürün bağı ve fiziksel
 kapanış aşağıdaki ayrı kabul adımıyla yürütülür.
 
@@ -474,6 +479,16 @@ sıfır route ve DRC hatasıyla geçirmiş; bitstream, FPGA Manager ikilisi ve X
 üretmiştir. Güncel imajın kayıtlı fiziksel I/Q kart tekrarı
 `results/evidence/phase08/fpga-p2-wideband-physical-replay.json` ile geçmiştir;
 canlı kontrollü RF doğruluğu açık kalır.
+
+3 Eylül ADR-0040 donanım kapanışında 6 dB zayıf aday sınıfı, PHASE-06I paket
+bayrağı ve ARM 24/32 doğrulaması içeren tam Zynq-7020 tasarımı Vivado 2025.2 ile
+50 MHz'te route edilmiştir. Setup WNS `+0,199 ns`, hold WHS `+0,010 ns`, failing
+endpoint, route hatası ve DRC hatası sıfırdır; bitstream ve XSA üretilmiştir.
+Slice LUT kullanımı 48.040/53.200 (`%90,30`) olduğundan kaynak payı izlenir.
+Tam PetaLinux imajı aynı XSA ile 6090/6090 görevde derlenmiş, `image.ub` ve yeni
+bitstream'i içeren `BOOT.BIN` ayrı hazırlama dizinine alınmıştır. Yeni imajın kartta
+soğuk açılışı, fiziksel DMA/ARM 24/32 yürütümü ve frekansı açıklanmamış kontrollü
+canlı RF kabulü hâlâ açıktır; PHASE-08 tamamlanmış sayılmaz.
 
 Yarışma tespit yüzeyi sabit frekans ve bant taraması olarak sadeleştirilmiştir.
 Canlı alıcı için otomatik açılış denetimi sonraki bağlantı bakımında kaldırılmış;

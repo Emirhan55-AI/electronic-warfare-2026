@@ -17,6 +17,7 @@ module p0_os_cfar_decision_engine (
   output logic [11:0] m_axis_tuser_shifted_index,
   output logic [57:0] m_axis_tuser_order_statistic,
   output logic        m_axis_tuser_detected,
+  output logic        m_axis_tuser_weak_nominated,
 
   output logic [15:0] completed_frame_count,
   output logic        status_frame_error_sticky
@@ -88,6 +89,7 @@ module p0_os_cfar_decision_engine (
   logic rank_step_found;
   logic [57:0] rank_value;
   logic [93:0] rank_product_registered;
+  logic [93:0] weak_rank_product_registered;
   logic [89:0] cut_scaled;
 
   integer scan_index;
@@ -102,6 +104,8 @@ module p0_os_cfar_decision_engine (
   assign m_axis_tuser_shifted_index = cut_shifted_index;
   assign m_axis_tuser_order_statistic = rank_value;
   assign m_axis_tuser_detected = {4'd0, cut_scaled} > rank_product_registered;
+  assign m_axis_tuser_weak_nominated =
+      {4'd0, cut_scaled} > weak_rank_product_registered;
   assign cut_scaled = {window[20], {COEFFICIENT_FRACTION_BITS{1'b0}}};
 
   always_comb begin
@@ -241,6 +245,7 @@ module p0_os_cfar_decision_engine (
       rank_partition_i <= 5'd12;
       rank_value <= 58'd0;
       rank_product_registered <= 94'd0;
+      weak_rank_product_registered <= 94'd0;
       completed_frame_count <= 16'd0;
       status_frame_error_sticky <= 1'b0;
       for (sequential_index = 0; sequential_index < 41; sequential_index = sequential_index + 1)
@@ -347,6 +352,7 @@ module p0_os_cfar_decision_engine (
 
         ST_MULTIPLY: begin
           rank_product_registered <= rank_value * ALPHA_Q32;
+          weak_rank_product_registered <= rank_value * WEAK_ALPHA_Q32;
           state <= ST_DECIDE;
         end
 

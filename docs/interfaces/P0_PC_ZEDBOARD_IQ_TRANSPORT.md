@@ -80,7 +80,10 @@ en düşük hız `505,184524010 kare/s` ve en düşük gerçek zaman marjı
 Ağ köprüsü kalıcı PetaLinux imajından soğuk açılış sonrası çalıştırılmıştır.
 Değişken MAC tabanlı ad yerine tek fiziksel ağ arayüzü açılış betiğinde `auto`
 seçilir; sıfır veya birden fazla fiziksel arayüzde başlangıç kapalı kalır. Ürün
-varsayılanı güvenlik için kapalıdır ve kabul oturumunda açıkça etkinleştirilmiştir.
+önceki kabul imajında güvenlik için kapalı tutulmuştur. ADR-0040 yarışma işletim
+imajında doğrudan kablo, tam bind adresi ve tek eş allowlist'i korunarak kart
+hizmetiyle birlikte otomatik başlatılır; köprü kurulamazsa hizmet fail-closed
+durur.
 Canlı yol tek bir `hackrf_transfer` stdout RX sürecini kullanır. USB okuma,
 stateful 8→2 MS/s kanal seçimi ve dört-istekli ağ taşıması ayrı, sınırlı
 aşamalardır. Beş adet 64+4.096-kare fiziksel koşuda 20.480/20.480 ölçüm karesi,

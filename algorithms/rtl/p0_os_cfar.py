@@ -14,6 +14,7 @@ ORDER_STATISTIC_RANK = 24
 RADIUS = REFERENCE_PER_SIDE + GUARD_PER_SIDE
 COEFFICIENT_FRACTION_BITS = 32
 ALPHA_Q32 = 36_851_433_755
+WEAK_ALPHA_Q32 = 17_098_572_778
 OUTPUT_MARKER = 0xA
 
 
@@ -49,6 +50,15 @@ def fixed_decision(cut_power: int, order_statistic: int) -> bool:
     if not 0 <= order_statistic < (1 << POWER_WIDTH):
         raise ValueError("Sıra istatistiği unsigned 58-bit olmalıdır.")
     return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * ALPHA_Q32
+
+
+def fixed_weak_nomination(cut_power: int, order_statistic: int) -> bool:
+    """Return the exact PL weak-cell decision used only by 24/32 persistence."""
+    if not 0 <= cut_power < (1 << POWER_WIDTH):
+        raise ValueError("CUT unsigned 58-bit olmalıdır.")
+    if not 0 <= order_statistic < (1 << POWER_WIDTH):
+        raise ValueError("Sıra istatistiği unsigned 58-bit olmalıdır.")
+    return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * WEAK_ALPHA_Q32
 
 
 @dataclass(frozen=True)

@@ -23,6 +23,8 @@ SOURCE_PATHS = (
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",

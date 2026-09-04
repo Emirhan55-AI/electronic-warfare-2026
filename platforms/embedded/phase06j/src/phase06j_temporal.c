@@ -12,6 +12,7 @@ typedef struct {
   uint16_t span_bins;
   uint8_t pfa_select;
   uint8_t evaluate_center;
+  uint8_t record_flags;
   uint64_t peak_power;
   uint64_t noise_power;
   uint64_t threshold_power;
@@ -112,6 +113,7 @@ static void read_candidate(const packet_view_t *view, uint16_t index, candidate_
   out->span_bins = read_le16(p + 6);
   out->pfa_select = p[8];
   out->evaluate_center = (uint8_t)((p[9] & 2u) != 0u);
+  out->record_flags = p[9];
   out->peak_power = read_le64(p + 16);
   out->noise_power = read_le64(p + 24);
   out->threshold_power = read_le64(p + 32);
@@ -123,7 +125,11 @@ static int validate_candidate_records(const packet_view_t *view) {
     const uint8_t *p = view->payload + (size_t)i * sizeof(phase06i_candidate_v1);
     candidate_t candidate;
     read_candidate(view, i, &candidate);
-    if ((p[9] & ~3u) != 0u || (p[9] & 1u) == 0u || !all_zero(p + 10, 6u) ||
+    if ((p[9] & ~PHASE06I_RECORD_ALLOWED_FLAGS) != 0u ||
+        (p[9] & PHASE06I_RECORD_VALID) == 0u ||
+        ((p[9] & PHASE06I_RECORD_SINGLE_FRAME_CONFIDENT) != 0u &&
+         (p[9] & PHASE06I_RECORD_WEAK_EVIDENCE) == 0u) ||
+        !all_zero(p + 10, 6u) ||
         candidate.start_bin > candidate.peak_bin || candidate.peak_bin > candidate.end_bin ||
         candidate.end_bin >= PHASE06I_FFT_SIZE ||
         candidate.span_bins != (uint16_t)(candidate.end_bin - candidate.start_bin + 1u) ||
@@ -213,6 +219,11 @@ static int compare_snr(const candidate_t *a, const candidate_t *b) {
   return compare_u128(multiply_u64(an, bd), multiply_u64(bn, ad));
 }
 
+static int candidate_is_normal(const candidate_t *candidate) {
+  return (candidate->record_flags & PHASE06I_RECORD_WEAK_EVIDENCE) == 0u ||
+         (candidate->record_flags & PHASE06I_RECORD_SINGLE_FRAME_CONFIDENT) != 0u;
+}
+
 static int candidate_admission_better(const candidate_t *a, uint16_t ai,
                                       const candidate_t *b, uint16_t bi) {
   int snr = compare_snr(a, b);
@@ -257,6 +268,7 @@ static void refresh_match_choice(const track_t *track, const packet_view_t *view
     if (matched_regions[ri]) continue;
     memset(&candidate_choice, 0, sizeof(candidate_choice));
     read_candidate(view, ri, &candidate_choice.candidate);
+    if (!candidate_is_normal(&candidate_choice.candidate)) continue;
     candidate_choice.overlap = association_overlap(&track->candidate, &candidate_choice.candidate);
     if (candidate_choice.overlap <= 0) continue;
     candidate_choice.distance = peak_distance(&track->candidate, &candidate_choice.candidate);
@@ -306,7 +318,7 @@ static void write_candidate(phase06i_candidate_v1 *out, const candidate_t *candi
   out->peak_shifted_bin = candidate->peak_bin;
   out->coarse_span_bins = candidate->span_bins;
   out->pfa_select = candidate->pfa_select;
-  out->flags = (uint8_t)(1u | (candidate->evaluate_center ? 2u : 0u));
+  out->flags = candidate->record_flags;
   out->peak_power_uq28_30 = candidate->peak_power;
   out->regional_noise_uq28_30 = candidate->noise_power;
   out->threshold_uq32_30 = candidate->threshold_power;
@@ -342,6 +354,52 @@ static void reset_state(state_t *state) {
   state->next_event_id = 1u;
 }
 
+static int try_exact_geometry_matches(
+    state_t *state, const packet_view_t *view, uint16_t original_tracks,
+    uint8_t *matched_tracks, uint8_t *matched_regions)
+{
+  int16_t peak_to_region[PHASE06I_FFT_SIZE];
+  uint8_t claimed_regions[PHASE06J_MAX_ACTIVE_TRACKS] = {0};
+  uint16_t index;
+
+  if (original_tracks == 0u || original_tracks != view->candidate_count) return 0;
+  memset(peak_to_region, 0xff, sizeof(peak_to_region));
+  for (index = 0u; index < view->candidate_count; ++index) {
+    candidate_t candidate;
+    read_candidate(view, index, &candidate);
+    if (!candidate_is_normal(&candidate) ||
+        peak_to_region[candidate.peak_bin] >= 0) return 0;
+    peak_to_region[candidate.peak_bin] = (int16_t)index;
+  }
+  for (index = 0u; index < original_tracks; ++index) {
+    track_t *track = &state->tracks[index];
+    int16_t region_index = peak_to_region[track->candidate.peak_bin];
+    candidate_t candidate;
+    if (region_index < 0 || claimed_regions[(uint16_t)region_index] != 0u) return 0;
+    read_candidate(view, (uint16_t)region_index, &candidate);
+    if (candidate.start_bin != track->candidate.start_bin ||
+        candidate.end_bin != track->candidate.end_bin) return 0;
+    claimed_regions[(uint16_t)region_index] = 1u;
+  }
+  for (index = 0u; index < original_tracks; ++index) {
+    track_t *track = &state->tracks[index];
+    uint16_t region_index = (uint16_t)peak_to_region[track->candidate.peak_bin];
+    candidate_t candidate;
+    read_candidate(view, region_index, &candidate);
+    matched_tracks[index] = 1u;
+    matched_regions[region_index] = 1u;
+    track->candidate = candidate;
+    track->last_seen_frame_id = view->frame_id;
+    track->seen_count++;
+    track->consecutive_misses = 0u;
+    track->observed = 1u;
+    append_history(track, 1u);
+    if (history_sum(track) >= PHASE06J_CONFIRMATIONS_REQUIRED)
+      track->confirmed = 1u;
+  }
+  return 1;
+}
+
 size_t phase06j_state_bytes(void) { return sizeof(state_t); }
 
 int phase06j_state_init(void *memory, size_t bytes) {
@@ -374,6 +432,7 @@ static int process_view(void *memory, size_t bytes, const packet_view_t *input,
   uint16_t original_tracks;
   uint16_t match_count = 0;
   uint16_t i;
+  int exact_geometry_matched;
   if (state == NULL || input == NULL || result == NULL || bytes < sizeof(state_t) ||
       state->magic != PHASE06J_STATE_MAGIC) {
     return PHASE06J_ERR_STATE;
@@ -386,10 +445,16 @@ static int process_view(void *memory, size_t bytes, const packet_view_t *input,
     result->reset_applied = 1u;
   }
   original_tracks = state->track_count;
-  for (i = 0; i < original_tracks; ++i) {
-    refresh_match_choice(&state->tracks[i], &view, matched_regions, &track_choices[i]);
-  }
-  while (match_count < original_tracks && match_count < view.candidate_count) {
+  exact_geometry_matched = try_exact_geometry_matches(
+      state, &view, original_tracks, matched_tracks, matched_regions);
+  if (exact_geometry_matched)
+    match_count = original_tracks;
+  else
+    for (i = 0; i < original_tracks; ++i) {
+      refresh_match_choice(&state->tracks[i], &view, matched_regions, &track_choices[i]);
+    }
+  while (!exact_geometry_matched && match_count < original_tracks &&
+         match_count < view.candidate_count) {
     uint16_t best_track = 0;
     match_choice_t best_choice = {0};
     uint16_t ti;
@@ -444,7 +509,11 @@ static int process_view(void *memory, size_t bytes, const packet_view_t *input,
     uint16_t unmatched = 0;
     uint16_t capacity = (uint16_t)(PHASE06J_MAX_ACTIVE_TRACKS - state->track_count);
     uint16_t admitted = 0;
-    for (i = 0; i < view.candidate_count; ++i) unmatched += matched_regions[i] == 0u;
+    for (i = 0; i < view.candidate_count; ++i) {
+      candidate_t current;
+      read_candidate(&view, i, &current);
+      if (candidate_is_normal(&current) && !matched_regions[i]) ++unmatched;
+    }
     while (admitted < capacity && admitted < unmatched) {
       int have_best = 0;
       uint16_t best_index = 0;
@@ -453,6 +522,7 @@ static int process_view(void *memory, size_t bytes, const packet_view_t *input,
         candidate_t current;
         if (matched_regions[i]) continue;
         read_candidate(&view, i, &current);
+        if (!candidate_is_normal(&current)) continue;
         if (!have_best || candidate_admission_better(&current, i, &best, best_index)) {
           have_best = 1;
           best_index = i;
@@ -500,6 +570,25 @@ int phase06j_process_packet(void *memory, size_t bytes, const void *packet,
   code = decode_packet(packet, packet_bytes, &view);
   if (code != PHASE06J_OK) return code;
   return process_view(memory, bytes, &view, result);
+}
+
+int phase06j_decode_packet_records(
+    const void *packet, size_t packet_bytes, uint32_t *frame_id,
+    phase06i_candidate_v1 *records, uint16_t record_capacity,
+    uint16_t *candidate_count) {
+  packet_view_t view;
+  int code = decode_packet(packet, packet_bytes, &view);
+  if (code != PHASE06J_OK) return code;
+  if (candidate_count == NULL ||
+      (view.candidate_count != 0u && records == NULL) ||
+      record_capacity < view.candidate_count) return PHASE06J_ERR_PACKET_BOUNDS;
+  if (view.candidate_count != 0u) {
+    memcpy(records, view.payload,
+           (size_t)view.candidate_count * sizeof(phase06i_candidate_v1));
+  }
+  if (frame_id != NULL) *frame_id = view.frame_id;
+  *candidate_count = view.candidate_count;
+  return PHASE06J_OK;
 }
 
 int phase06j_process_candidates(void *memory, size_t bytes, uint32_t frame_id,

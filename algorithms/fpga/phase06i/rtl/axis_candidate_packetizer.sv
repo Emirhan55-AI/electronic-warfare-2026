@@ -13,6 +13,8 @@ module axis_candidate_packetizer (
   input  logic [61:0] s_axis_tuser_threshold,
   input  logic [1:0]  s_axis_tuser_pfa_select,
   input  logic        s_axis_tuser_evaluate_center,
+  input  logic        s_axis_tuser_weak_evidence,
+  input  logic        s_axis_tuser_single_frame_confident,
   input  logic        s_axis_tuser_candidate_valid,
   output logic        m_axis_tvalid,
   input  logic        m_axis_tready,
@@ -38,6 +40,8 @@ module axis_candidate_packetizer (
   logic [61:0] stored_threshold;
   logic [1:0] stored_pfa;
   logic stored_center;
+  logic stored_weak_evidence;
+  logic stored_single_frame_confident;
   logic [31:0] crc_state;
   logic input_shape_valid;
 
@@ -68,12 +72,14 @@ module axis_candidate_packetizer (
        (s_axis_tuser_peak_shifted_bin <= s_axis_tuser_end_shifted_bin) &&
        (s_axis_tuser_coarse_span_bins ==
         (s_axis_tuser_end_shifted_bin - s_axis_tuser_start_shifted_bin + 1'b1)) &&
-       (s_axis_tuser_pfa_select != 2'd3)) :
+       (s_axis_tuser_pfa_select != 2'd3) &&
+       (!s_axis_tuser_single_frame_confident || s_axis_tuser_weak_evidence)) :
       (s_axis_tlast && s_axis_tdata == 0 && s_axis_tuser_start_shifted_bin == 0 &&
        s_axis_tuser_end_shifted_bin == 0 && s_axis_tuser_peak_shifted_bin == 0 &&
        s_axis_tuser_coarse_span_bins == 0 && s_axis_tuser_noise == 0 &&
        s_axis_tuser_threshold == 0 && s_axis_tuser_pfa_select == 0 &&
-       !s_axis_tuser_evaluate_center);
+       !s_axis_tuser_evaluate_center && !s_axis_tuser_weak_evidence &&
+       !s_axis_tuser_single_frame_confident);
 
   assign s_axis_tready = (state == ST_INPUT) || (state == ST_DRAIN);
   assign m_axis_tvalid = (state == ST_HEADER) || (state == ST_RECORD) || (state == ST_TRAILER);
@@ -95,7 +101,10 @@ module axis_candidate_packetizer (
         case (beat_index)
           0: m_axis_tdata = {4'd0, stored_span, 4'd0, stored_peak,
                              4'd0, stored_end, 4'd0, stored_start};
-          1: m_axis_tdata = {48'd0, 6'd0, stored_center, 1'b1, 6'd0, stored_pfa};
+          1: m_axis_tdata = {48'd0, 4'd0,
+                             stored_weak_evidence && stored_single_frame_confident,
+                             stored_weak_evidence, stored_center, 1'b1,
+                             6'd0, stored_pfa};
           2: m_axis_tdata = {6'd0, stored_power};
           3: m_axis_tdata = {6'd0, stored_noise};
           default: m_axis_tdata = {2'd0, stored_threshold};
@@ -132,6 +141,8 @@ module axis_candidate_packetizer (
       stored_threshold <= 0;
       stored_pfa <= 0;
       stored_center <= 0;
+      stored_weak_evidence <= 0;
+      stored_single_frame_confident <= 0;
       crc_state <= 32'hFFFF_FFFF;
       completed_frame_count <= 0;
       status_transport_error_sticky <= 0;
@@ -171,6 +182,8 @@ module axis_candidate_packetizer (
             stored_threshold <= s_axis_tuser_threshold;
             stored_pfa <= s_axis_tuser_pfa_select;
             stored_center <= s_axis_tuser_evaluate_center;
+            stored_weak_evidence <= s_axis_tuser_weak_evidence;
+            stored_single_frame_confident <= s_axis_tuser_single_frame_confident;
             if (candidate_count == 0) state <= ST_HEADER;
             else state <= ST_RECORD;
             beat_index <= 0;

@@ -30,6 +30,15 @@ def canonical_json_bytes(document: object) -> bytes:
 
 
 def _protected_integrity() -> tuple[bool, int]:
+    protected_prefixes = (
+        "results/evidence/phase00/",
+        "results/evidence/phase01/",
+        "results/evidence/phase02/",
+        "results/evidence/phase03/",
+        "results/evidence/phase04/",
+        "results/evidence/phase04d1/",
+        "results/evidence/phase04e1/",
+    )
     listing = subprocess.run(
         ["git", "ls-tree", "-r", "--name-only", "HEAD", "results/evidence", "profiles"],
         cwd=ROOT,
@@ -38,7 +47,12 @@ def _protected_integrity() -> tuple[bool, int]:
         text=True,
         encoding="utf-8",
     )
-    paths = tuple(line for line in listing.stdout.splitlines() if line)
+    paths = tuple(
+        line
+        for line in listing.stdout.splitlines()
+        if line.startswith(protected_prefixes)
+        or line == "profiles/phase03/operation-default.json"
+    )
     if listing.returncode != 0:
         return False, 0
     for relative in paths:

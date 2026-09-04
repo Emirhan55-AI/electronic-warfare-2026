@@ -25,6 +25,8 @@ SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
@@ -116,7 +118,7 @@ def evaluate() -> dict[str, object]:
     if not _fixtures_are_current():
         raise RuntimeError("P0 reducer packetizer fixture'ları güncel değil")
     metrics = _simulate()
-    expected = {"frames": 8, "candidates": 63, "beats": 379, "stalls": 37, "stability": 37}
+    expected = {"frames": 8, "candidates": 113, "beats": 629, "stalls": 60, "stability": 60}
     passed = metrics == expected
     return {
         "schema_version": 1,
@@ -130,7 +132,7 @@ def evaluate() -> dict[str, object]:
             "packetizer": "axis_candidate_packetizer",
             "axi_data_width_bits": 64,
             "packet_frame_count": 8,
-            "semantic_candidates": 63,
+            "semantic_candidates": 113,
             "candidate_loss": 0,
             "duplicate_records": 0,
             "backpressure_payload_stability": "passed",

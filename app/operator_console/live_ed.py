@@ -51,6 +51,11 @@ LOCAL_RESPONSE_HEADER_BYTES = 48
 LOCAL_RESULT_HEADER_BYTES = 20
 LOCAL_EVENT_BYTES = 68
 LOCAL_MAX_EVENTS = 64
+LOCAL_EVENT_RECORD_VALID = 0x01
+LOCAL_EVENT_EVALUATE_CENTER = 0x02
+LOCAL_EVENT_WEAK_EVIDENCE = 0x04
+LOCAL_EVENT_SINGLE_FRAME_CONFIDENT = 0x08
+LOCAL_EVENT_ALLOWED_FLAGS = 0x0F
 LIVE_MEASUREMENT_WINDOW_FRAMES = 4
 LIVE_MEASUREMENT_WINDOW_CAPACITY = 64
 LIVE_AUDIO_WINDOW_SECONDS = 5.0
@@ -151,6 +156,14 @@ class LiveEDEvent:
             return float("nan")
         return 10.0 * math.log10(self.peak_power / self.noise_power)
 
+    @property
+    def weak_evidence(self) -> bool:
+        return bool(self.flags & LOCAL_EVENT_WEAK_EVIDENCE)
+
+    @property
+    def single_frame_confident(self) -> bool:
+        return bool(self.flags & LOCAL_EVENT_SINGLE_FRAME_CONFIDENT)
+
 
 @dataclass(frozen=True)
 class LiveEDResponse:
@@ -220,6 +233,12 @@ def _decode_event(payload: bytes, offset: int, *, ended: bool) -> LiveEDEvent:
         or state_code not in states
         or (ended and state_code != 3)
         or (not ended and state_code not in {1, 2})
+        or (flags & ~LOCAL_EVENT_ALLOWED_FLAGS) != 0
+        or (flags & LOCAL_EVENT_RECORD_VALID) == 0
+        or (
+            (flags & LOCAL_EVENT_SINGLE_FRAME_CONFIDENT) != 0
+            and (flags & LOCAL_EVENT_WEAK_EVIDENCE) == 0
+        )
         or not (0 <= start_bin <= peak_bin <= end_bin < LIVE_OUTPUT_SAMPLES_PER_FRAME)
         or coarse_span == 0
     ):

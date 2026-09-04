@@ -91,7 +91,7 @@ class OperatorHackRFTests(unittest.TestCase):
         self._drain(controller)
         self.assertEqual("Hazır", window.system_status_values["hackrf_tools"].text())
         self.assertEqual("Bağlı Değil", window.system_status_values["hackrf"].text())
-        self.assertEqual("0000000000000000a32868dc36877e47", window.system_status_values["serial"].text())
+        self.assertEqual("0000000000000000a32868dc35138247", window.system_status_values["serial"].text())
         self.assertEqual("Durduruldu", window.system_status_values["rx"].text())
         self.assertEqual("Bilgisayar Referansı", window.system_status_values["processing"].text())
         self.assertEqual("Kullanılmıyor", window.system_status_values["zedboard"].text())

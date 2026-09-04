@@ -11,6 +11,7 @@ from .p0_os_cfar import (
     POWER_WIDTH,
     RADIUS,
     detect_frame,
+    fixed_weak_nomination,
     shifted_to_natural,
 )
 
@@ -25,6 +26,7 @@ MAXIMUM_GAP_BINS = 1
 PFA_SELECT = 1
 FIXED_COEFFICIENT_BITS = 48
 OS_THRESHOLD_Q48 = 2_415_095_562_554_865
+WEAK_THRESHOLD_Q48 = 1_120_572_065_598_908
 NOISE_Q48 = 203_041_276_517_400
 REGIONAL_THRESHOLD_Q48 = 507_603_191_293_500
 INTEGRATED_THRESHOLD_Q48 = 16_243_302_121_391_996
@@ -72,6 +74,9 @@ def _candidate(
     power: tuple[int, ...],
     noise: int,
     threshold: int,
+    *,
+    weak_evidence: bool = False,
+    single_frame_confident: bool = False,
 ) -> CandidateRecord:
     return CandidateRecord(
         start_shifted_bin=start,
@@ -82,6 +87,8 @@ def _candidate(
         threshold=threshold,
         pfa_select=PFA_SELECT,
         evaluate_center=False,
+        weak_evidence=weak_evidence,
+        single_frame_confident=single_frame_confident,
     )
 
 
@@ -110,17 +117,61 @@ def _peak(power: tuple[int, ...], start: int, end: int) -> int:
     return peak
 
 
-def _os_candidates(
+def _strict_os_candidates(
     power: tuple[int, ...],
-    detected: tuple[bool, ...],
+    strict_detected: tuple[bool, ...],
     order_statistics: tuple[int, ...],
 ) -> tuple[CandidateRecord, ...]:
     candidates = []
-    for start, end in _groups(detected, RADIUS, FRAME_LENGTH - RADIUS):
+    for start, end in _groups(strict_detected, RADIUS, FRAME_LENGTH - RADIUS):
         peak = _peak(power, start, end)
         noise = order_statistics[peak]
         threshold = _round_fixed(noise, OS_THRESHOLD_Q48)
         candidates.append(_candidate(start, end, peak, power, noise, threshold))
+    return tuple(candidates)
+
+
+def strict_os_candidates(natural_power: Iterable[int]) -> tuple[CandidateRecord, ...]:
+    """Return the strict single-frame OS-CFAR candidates for one frame."""
+    natural = _validated_natural_power(natural_power)
+    shifted = tuple(natural[shifted_to_natural(index)] for index in range(FRAME_LENGTH))
+    os_frame = detect_frame(natural)
+    return _strict_os_candidates(
+        shifted, os_frame.detected_shifted, os_frame.order_statistic_shifted
+    )
+
+
+def _os_candidates(
+    power: tuple[int, ...],
+    strict_detected: tuple[bool, ...],
+    order_statistics: tuple[int, ...],
+) -> tuple[CandidateRecord, ...]:
+    candidates = []
+    weak_detected = tuple(
+        fixed_weak_nomination(power[index], order_statistics[index])
+        if RADIUS <= index < FRAME_LENGTH - RADIUS else False
+        for index in range(FRAME_LENGTH)
+    )
+    for start, end in _groups(weak_detected, RADIUS, FRAME_LENGTH - RADIUS):
+        peak = _peak(power, start, end)
+        noise = order_statistics[peak]
+        single_frame_confident = any(strict_detected[start : end + 1])
+        threshold = _round_fixed(
+            noise,
+            OS_THRESHOLD_Q48 if single_frame_confident else WEAK_THRESHOLD_Q48,
+        )
+        candidates.append(
+            _candidate(
+                start,
+                end,
+                peak,
+                power,
+                noise,
+                threshold,
+                weak_evidence=True,
+                single_frame_confident=single_frame_confident,
+            )
+        )
     return tuple(candidates)
 
 

@@ -63,7 +63,8 @@ case "$1" in
         start-stop-daemon --start --quiet --background --make-pidfile \
             --pidfile "$PIDFILE" --exec "$DAEMON" -- \
             "$P0_ED_NETWORK_BIND_IP" "$P0_ED_NETWORK_PEER_IP" \
-            "$P0_ED_NETWORK_PORT" "$P0_ED_LOCAL_SOCKET"
+            "$P0_ED_NETWORK_PORT" "$P0_ED_LOCAL_SOCKET" \
+            </dev/null >/dev/null 2>&1
         echo 'tamam'
         ;;
     stop)

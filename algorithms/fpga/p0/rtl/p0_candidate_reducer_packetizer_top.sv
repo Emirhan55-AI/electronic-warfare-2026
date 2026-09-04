@@ -33,6 +33,8 @@ module p0_candidate_reducer_packetizer_top (
   logic [61:0] reducer_threshold;
   logic [1:0]  reducer_pfa;
   logic        reducer_evaluate_center;
+  logic        reducer_weak_evidence;
+  logic        reducer_single_frame_confident;
   logic        reducer_candidate_valid;
   logic [15:0] reducer_completed_frame_count;
 
@@ -56,6 +58,8 @@ module p0_candidate_reducer_packetizer_top (
     .m_axis_tuser_threshold(reducer_threshold),
     .m_axis_tuser_pfa_select(reducer_pfa),
     .m_axis_tuser_evaluate_center(reducer_evaluate_center),
+    .m_axis_tuser_weak_evidence(reducer_weak_evidence),
+    .m_axis_tuser_single_frame_confident(reducer_single_frame_confident),
     .m_axis_tuser_candidate_valid(reducer_candidate_valid),
     .completed_frame_count(reducer_completed_frame_count),
     .status_sticky(status_reducer_sticky)
@@ -76,6 +80,8 @@ module p0_candidate_reducer_packetizer_top (
     .s_axis_tuser_threshold(reducer_threshold),
     .s_axis_tuser_pfa_select(reducer_pfa),
     .s_axis_tuser_evaluate_center(reducer_evaluate_center),
+    .s_axis_tuser_weak_evidence(reducer_weak_evidence),
+    .s_axis_tuser_single_frame_confident(reducer_single_frame_confident),
     .s_axis_tuser_candidate_valid(reducer_candidate_valid),
     .m_axis_tvalid,
     .m_axis_tready,

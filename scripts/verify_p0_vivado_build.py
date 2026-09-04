@@ -41,6 +41,8 @@ SOURCE_PATHS = (
     "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
     "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
     "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+    "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv",
+    "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv",
     "algorithms/fpga/p0/rtl/p0_region_bank.sv",
     "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv",
     "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv",
@@ -249,7 +251,7 @@ def evaluate() -> dict[str, object]:
             "base_address": "0x40400000",
             "mm2s_stream_bits": 16,
             "s2mm_stream_bits": 64,
-            "software_contract": "petalinux_rebuild_passed_pending_board_acceptance",
+            "software_contract": "new_hardware_platform_pending_petalinux_rebuild",
         },
         "block_design_validation": "PASS",
         "synthesis": "PASS",
@@ -305,8 +307,8 @@ def evaluate() -> dict[str, object]:
         "claim_boundary": (
             "This evidence proves local Vivado block-design validation, synthesis, routed "
             "50 MHz timing, bitstream and XSA generation for the complete CI8-to-candidate-packet "
-            "PL hierarchy. The variable-length DMA contract is implemented, host-accepted and "
-            "included in a successful PetaLinux rebuild; board programming, positive-signal "
+            "PL hierarchy. The variable-length DMA contract is implemented and host-accepted; "
+            "a PetaLinux rebuild with this exact XSA, board programming, positive-signal "
             "board acceptance, physical sustained throughput, calibrated RF accuracy and live "
             "HackRF processing remain open."
         ),

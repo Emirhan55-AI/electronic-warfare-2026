@@ -64,12 +64,15 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             "app/operator_console/quick_listening_actions.py",
             "app/operator_console/quick_direction_actions.py",
             "app/operator_console/quick_et_actions.py",
+            "app/operator_console/quick_detection_state.py",
             "app/operator_console/_mixin_controls.py",
             "app/operator_console/_mixin_navigation.py",
             "app/operator_console/qml/ETWorkspace.qml",
             "app/operator_console/qml/HackRFControls.qml",
             "app/operator_console/qml/Panel.qml",
             "app/operator_console/qml/PrimaryButton.qml",
+            "app/operator_console/qml/DetectionGuidePainter.js",
+            "app/operator_console/qml/MainNavigation.js",
         }
         self.assertEqual([], sorted(path for path in required_modules if not (ROOT / path).is_file()))
 

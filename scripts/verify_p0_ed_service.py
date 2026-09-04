@@ -94,6 +94,8 @@ def verify() -> dict[str, object]:
         "p0-parameter-run", "p0-parameter-client", "p0_ed_throughput_run.c",
         "p0_multiscale_detector.c", "p0_multiscale_detector.h",
         "p0_pl_os_cfar.c", "p0_pl_os_cfar.h",
+        "p0_persistent_weak.c", "p0_persistent_weak.h",
+        "p0_persistent_weak_run.c", "phase06j_temporal.c",
     ):
         if token not in recipe:
             raise AssertionError(f"PetaLinux recipe token missing: {token}")

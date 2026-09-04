@@ -3,6 +3,8 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import Teknofest.Display 1.0
+import "DetectionGuidePainter.js" as DetectionGuidePainter
+import "MainNavigation.js" as MainNavigation
 
 ApplicationWindow {
     id: root
@@ -89,33 +91,7 @@ ApplicationWindow {
     }
 
     function paintDetectionGuides(ctx, left, top, plotWidth, plotHeight, includeCandidates) {
-        var span = root.spectrumViewEnd - root.spectrumViewStart
-        var markers = includeCandidates === false ? [] : operatorViewModel.detectionMarkers
-        for (var i = 0; i < markers.length; i++) {
-            var point = markers[i].peakNormalized
-            if (point < root.spectrumViewStart || point > root.spectrumViewEnd) continue
-            var bandStart = Math.max(root.spectrumViewStart, markers[i].startNormalized)
-            var bandEnd = Math.min(root.spectrumViewEnd, markers[i].endNormalized)
-            var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
-            var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
-            var x = left + (point - root.spectrumViewStart) * plotWidth / span
-            ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? "rgba(226, 192, 141, 0.11)" : "rgba(46, 160, 67, 0.11)"
-            ctx.fillRect(bandX, top, bandWidth, plotHeight)
-            ctx.lineWidth = 1.5
-            ctx.strokeStyle = operatorViewModel.sourceMode === "hackrf" ? root.warning : root.success
-            ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, top + plotHeight); ctx.stroke()
-            ctx.beginPath(); ctx.moveTo(x - 5, top); ctx.lineTo(x + 5, top); ctx.lineTo(x, top + 7); ctx.closePath(); ctx.fillStyle = operatorViewModel.sourceMode === "hackrf" ? root.warning : root.success; ctx.fill()
-        }
-        var selected = operatorViewModel.selectedRegionPeakNormalized
-        if (selected >= root.spectrumViewStart && selected <= root.spectrumViewEnd) {
-            var selectedX = left + (selected - root.spectrumViewStart) * plotWidth / span
-            ctx.strokeStyle = operatorViewModel.selectedDetectionCurrent ? root.warning : root.textSecondary
-            ctx.lineWidth = 1.5
-            ctx.setLineDash(operatorViewModel.selectedDetectionCurrent ? [] : [4, 4])
-            ctx.beginPath(); ctx.moveTo(selectedX, top); ctx.lineTo(selectedX, top + plotHeight); ctx.stroke()
-            ctx.setLineDash([])
-        }
-        ctx.lineWidth = 1
+        DetectionGuidePainter.paintDetectionGuides(root, operatorViewModel, ctx, left, top, plotWidth, plotHeight, includeCandidates)
     }
 
     function commitSpectrumView() {
@@ -204,20 +180,7 @@ ApplicationWindow {
     }
 
     function activateWorkspaceNavigation(item) {
-        if (item.workspace === 0 && item.task === 0) {
-            var optionsAlreadyVisible = operatingDomain === "ED"
-                                        && workspace === 0
-                                        && spectrumTaskTab === 0
-                                        && !rfSearchMode
-                                        && sourcePanelOpen
-            workspace = 0
-            spectrumTaskTab = 0
-            rfSearchMode = false
-            sourcePanelOpen = !optionsAlreadyVisible
-            return
-        }
-        workspace = item.workspace
-        if (item.task >= 0) spectrumTaskTab = item.task
+        MainNavigation.activateWorkspace(root, item)
     }
 
     function togglePrimaryNavigation() {
@@ -225,16 +188,11 @@ ApplicationWindow {
     }
 
     function etBadgeState() {
-        if (operatorViewModel.etStatus === "ÇALIŞIYOR") return "Çalışıyor"
-        if (operatorViewModel.etStatus === "HATA") return "Hata"
-        return "Hazır"
+        return MainNavigation.etBadgeState(operatorViewModel)
     }
 
     function etTaskName() {
-        if (operatorViewModel.etTask === "continuous") return "Sürekli Karıştırma"
-        if (operatorViewModel.etTask === "interleaved") return "Arabakışlı Karıştırma"
-        if (operatorViewModel.etTask === "analog") return "Analog Telsiz Aldatma"
-        return "GPS L1 Senaryosu"
+        return MainNavigation.etTaskName(operatorViewModel)
     }
 
     function systemLogMatches(item) {
@@ -282,26 +240,7 @@ ApplicationWindow {
     }
 
     function paintCoarseDetectionGuides(ctx, left, top, plotWidth, plotHeight) {
-        var span = root.spectrumViewEnd - root.spectrumViewStart
-        var markers = operatorViewModel.coarseDetectionMarkers
-        for (var i = 0; i < markers.length; i++) {
-            var bandStart = Math.max(root.spectrumViewStart, markers[i].startNormalized)
-            var bandEnd = Math.min(root.spectrumViewEnd, markers[i].endNormalized)
-            if (bandEnd < bandStart) continue
-            var bandX = left + (bandStart - root.spectrumViewStart) * plotWidth / span
-            var bandWidth = Math.max(3, (bandEnd - bandStart) * plotWidth / span)
-            var peakX = left + (markers[i].peakNormalized - root.spectrumViewStart) * plotWidth / span
-            ctx.fillStyle = "rgba(226, 192, 141, 0.08)"
-            ctx.fillRect(bandX, top, bandWidth, plotHeight)
-            ctx.strokeStyle = "rgba(226, 192, 141, 0.72)"
-            ctx.lineWidth = 1
-            ctx.setLineDash([3, 3])
-            ctx.strokeRect(bandX, top, bandWidth, plotHeight)
-            ctx.setLineDash([])
-            if (markers[i].peakNormalized >= root.spectrumViewStart && markers[i].peakNormalized <= root.spectrumViewEnd) {
-                ctx.beginPath(); ctx.moveTo(peakX, top); ctx.lineTo(peakX, top + 6); ctx.stroke()
-            }
-        }
+        DetectionGuidePainter.paintCoarseDetectionGuides(root, operatorViewModel, ctx, left, top, plotWidth, plotHeight)
     }
 
     FileDialog {
@@ -478,7 +417,6 @@ ApplicationWindow {
             color: "#181818"
             border.color: root.border
             border.width: 1
-            Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
             Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
 
             ColumnLayout {
@@ -922,7 +860,6 @@ ApplicationWindow {
                                          ctx.reset(); ctx.clearRect(0, 0, width, height)
                                          if (operatorViewModel.spectrumPointCount < 2) return
                                          root.paintDetectionGuides(ctx, plotLeft, 0, plotWidth, height, false)
-                                        root.paintCoarseDetectionGuides(ctx, plotLeft, 0, plotWidth, height)
                                         if (root.spectrumCursorVisible && root.spectrumCursorNormalized >= root.spectrumViewStart
                                                 && root.spectrumCursorNormalized <= root.spectrumViewEnd) {
                                             var cursorX = plotLeft + (root.spectrumCursorNormalized - root.spectrumViewStart) * plotWidth / (root.spectrumViewEnd - root.spectrumViewStart)
@@ -987,21 +924,31 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 SectionTitle { text: root.spectrumTaskTab === 0 ? "SİNYAL TESPİTİ" : "PARAMETRE ÇIKARIMI"; Layout.fillWidth: true }
                                 Rectangle {
-                                    visible: root.spectrumTaskTab === 0 && operatorViewModel.detections.length > 0
+                                    visible: root.spectrumTaskTab === 0 && operatorViewModel.stableDetectionCount > 0
                                     implicitWidth: detectionCount.implicitWidth + 14
                                     implicitHeight: 22
                                     radius: 11
                                     color: root.accentSoft
-                                    Label { id: detectionCount; anchors.centerIn: parent; text: operatorViewModel.detections.length; color: root.accent; font.pixelSize: 10; font.weight: Font.Bold }
+                                    Label { id: detectionCount; anchors.centerIn: parent; text: operatorViewModel.stableDetectionCount; color: root.accent; font.pixelSize: 10; font.weight: Font.Bold }
                                 }
                             }
                             Rectangle {
+                                id: signalSummaryCard
+                                readonly property var leadingFpga: operatorViewModel.detectionMarkers.length > 0
+                                                                           ? operatorViewModel.detectionMarkers[0] : null
+                                readonly property var leadingCoarse: operatorViewModel.coarseDetectionMarkers.length > 0
+                                                                             ? operatorViewModel.coarseDetectionMarkers[0] : null
+                                readonly property var leadingMarker: leadingFpga !== null ? leadingFpga : leadingCoarse
+                                readonly property bool stableCandidate: leadingMarker !== null
+                                                                               && leadingMarker.verificationKey === "verified_two_lo"
                                 visible: root.spectrumTaskTab !== 0 || operatorViewModel.detectionMarkers.length > 0
+                                         || operatorViewModel.hasCoarseCandidateAwaitingFpga
                                 Layout.fillWidth: true
                                 implicitHeight: 64
                                 radius: 3
                                 color: root.spectrumTaskTab === 0 ? "#202020" : root.surfaceAlt
-                                border.color: root.spectrumTaskTab === 0 ? root.success : root.border
+                                border.color: root.spectrumTaskTab !== 0 ? root.border
+                                            : signalSummaryCard.stableCandidate ? root.success : root.warning
                                 RowLayout {
                                     anchors.fill: parent
                                     anchors.margins: 10
@@ -1011,9 +958,13 @@ ApplicationWindow {
                                         spacing: 2
                                         Label {
                                             text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
-                                                  ? "SİNYAL TESPİT EDİLDİ"
+                                                  ? (signalSummaryCard.stableCandidate ? "KARARLI RF ADAYI"
+                                                     : signalSummaryCard.leadingFpga !== null ? "FPGA ADAYI"
+                                                     : "GÜÇLÜ RX ADAYI")
                                                   : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
-                                            color: root.spectrumTaskTab === 0 ? root.success : root.textPrimary
+                                            color: root.spectrumTaskTab === 0
+                                                   ? (signalSummaryCard.stableCandidate ? root.success : root.warning)
+                                                   : root.textPrimary
                                             font.pixelSize: 12
                                             font.weight: Font.DemiBold
                                             Layout.fillWidth: true
@@ -1023,7 +974,15 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                             Label {
                                                 text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
-                                                      ? (operatorViewModel.detectionMarkers.length > 0 ? operatorViewModel.detectionMarkers[0].frequency : "")
+                                                      ? (signalSummaryCard.leadingMarker === null ? ""
+                                                         : signalSummaryCard.leadingMarker.frequency + " · "
+                                                           + (signalSummaryCard.stableCandidate ? "iki ayarda kararlı"
+                                                              : signalSummaryCard.leadingMarker.verificationKey === "pending"
+                                                                ? "iki alıcı ayarında denetleniyor"
+                                                                : signalSummaryCard.leadingFpga !== null ? "FPGA adayı"
+                                                                : signalSummaryCard.leadingMarker.insideFpgaBand
+                                                                  ? "FPGA alanında aday"
+                                                                  : "FPGA alanı dışında; otomatik denetlenecek"))
                                                       : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""
                                                 color: root.textPrimary
                                                 font.pixelSize: 12
@@ -1032,12 +991,18 @@ ApplicationWindow {
                                                 elide: Text.ElideRight
                                             }
                                             Label {
-                                                readonly property var leadingDetection: operatorViewModel.detectionMarkers.length > 0 ? operatorViewModel.detectionMarkers[0] : null
+                                                readonly property var leadingDetection: signalSummaryCard.leadingMarker
                                                 visible: root.spectrumTaskTab === 0 && leadingDetection !== null
-                                                text: leadingDetection !== null ? "P/N " + leadingDetection.snr : ""
+                                                text: leadingDetection !== null
+                                                      ? "P/N " + (signalSummaryCard.leadingFpga !== null
+                                                                  ? leadingDetection.snr : leadingDetection.contrast) : ""
                                                 color: root.textSecondary
                                                 font.pixelSize: 8
-                                                Accessible.name: leadingDetection !== null ? "Tepe gürültü oranı " + leadingDetection.snr : ""
+                                                Accessible.name: leadingDetection !== null
+                                                                 ? "Tepe gürültü oranı "
+                                                                   + (signalSummaryCard.leadingFpga !== null
+                                                                      ? leadingDetection.snr : leadingDetection.contrast)
+                                                                 : ""
                                             }
                                         }
                                     }
@@ -1094,6 +1059,17 @@ ApplicationWindow {
                                 ScrollBar.vertical: ScrollBar {
                                     policy: ScrollBar.AlwaysOff
                                 }
+                                header: Label {
+                                    visible: operatorViewModel.stableDetectionCount === 0
+                                             && operatorViewModel.detections.length > 0
+                                    width: detectionList.width
+                                    height: visible ? 30 : 0
+                                    text: "ŞU ANDA İKİ AYARDA KARARLI RF ADAYI YOK"
+                                    color: root.textMuted
+                                    font.pixelSize: 9
+                                    font.weight: Font.DemiBold
+                                    verticalAlignment: Text.AlignVCenter
+                                }
                                 delegate: AbstractButton {
                                     id: detectionDelegate
                                     hoverEnabled: true
@@ -1103,7 +1079,7 @@ ApplicationWindow {
                                     bottomPadding: 6
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: 58
+                                    height: modelData.historyBoundary ? 82 : 58
                                     enabled: modelData.observed
                                     Accessible.name: modelData.frequency + ", " + modelData.state + ", " + modelData.title
                                     ToolTip.visible: hovered
@@ -1127,14 +1103,36 @@ ApplicationWindow {
                                     }
                                     contentItem: ColumnLayout {
                                         spacing: 3
-                                        RowLayout {
+                                        Label {
+                                            visible: modelData.historyBoundary
+                                            text: "BU TARAMADA DAHA ÖNCE GÖRÜLENLER"
+                                            color: root.textMuted
+                                            font.pixelSize: 8
+                                            font.weight: Font.DemiBold
                                             Layout.fillWidth: true
-                                            Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.frequency : modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                                            Label { text: modelData.state; color: modelData.observed ? root.success : root.textMuted; font.pixelSize: 10; font.weight: Font.DemiBold }
                                         }
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.observationCount + " doğrulanmış gözlem" : modelData.frequency; color: root.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.frequency : modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
+                                            Label {
+                                                text: modelData.state
+                                                color: !modelData.observed ? root.textMuted
+                                                     : modelData.verificationKey === "verified_two_lo" ? root.success : root.warning
+                                                font.pixelSize: 10
+                                                font.weight: Font.DemiBold
+                                            }
+                                        }
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            Label {
+                                                text: operatorViewModel.sourceMode !== "hackrf" ? modelData.frequency
+                                                      : modelData.verificationMethod === "receiver"
+                                                        ? modelData.observationCount + " FPGA gözlemi · RX çift ayar"
+                                                        : modelData.observationCount + " FPGA gözlemi"
+                                                color: root.textMuted
+                                                font.pixelSize: 10
+                                                Layout.fillWidth: true
+                                            }
                                             Label { text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
                                         }
                                     }

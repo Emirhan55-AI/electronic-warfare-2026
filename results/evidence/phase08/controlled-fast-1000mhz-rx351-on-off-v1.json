@@ -1,0 +1,189 @@
+{
+  "schema": "baz.blind-sweep-comparison.v1",
+  "created_at": "2026-09-02T14:12:41.497298+03:00",
+  "scope_hz": [
+    800000000,
+    1100000000
+  ],
+  "decision_rule": "median TX-on minus TX-off >= 6 dB and >=75% paired repeats >= 6 dB",
+  "bin_count": 30060,
+  "nominal_bin_spacing_hz": 9980.0,
+  "candidate_clusters": [],
+  "top_deltas": [
+    {
+      "frequency_hz": 816976048,
+      "off_median_db": -72.72,
+      "on_median_db": -67.055,
+      "median_delta_db": 5.565,
+      "positive_repeats": 96,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817025948,
+      "off_median_db": -72.6,
+      "on_median_db": -67.095,
+      "median_delta_db": 5.485,
+      "positive_repeats": 93,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817205589,
+      "off_median_db": -71.31,
+      "on_median_db": -66.025,
+      "median_delta_db": 5.26,
+      "positive_repeats": 95,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817255489,
+      "off_median_db": -70.53,
+      "on_median_db": -66.975,
+      "median_delta_db": 5.255,
+      "positive_repeats": 92,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 816936128,
+      "off_median_db": -72.01,
+      "on_median_db": -67.335,
+      "median_delta_db": 5.095,
+      "positive_repeats": 91,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817954092,
+      "off_median_db": -70.645,
+      "on_median_db": -66.58,
+      "median_delta_db": 5.015,
+      "positive_repeats": 90,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817824351,
+      "off_median_db": -72.165,
+      "on_median_db": -66.67,
+      "median_delta_db": 4.935,
+      "positive_repeats": 92,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 815838323,
+      "off_median_db": -71.485,
+      "on_median_db": -67.055,
+      "median_delta_db": 4.895,
+      "positive_repeats": 86,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 815828343,
+      "off_median_db": -72.7,
+      "on_median_db": -67.48,
+      "median_delta_db": 4.89,
+      "positive_repeats": 87,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 816756487,
+      "off_median_db": -70.95,
+      "on_median_db": -67.365,
+      "median_delta_db": 4.89,
+      "positive_repeats": 89,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817864271,
+      "off_median_db": -71.48,
+      "on_median_db": -66.89,
+      "median_delta_db": 4.87,
+      "positive_repeats": 91,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817564870,
+      "off_median_db": -72.405,
+      "on_median_db": -66.89,
+      "median_delta_db": 4.865,
+      "positive_repeats": 87,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817814371,
+      "off_median_db": -71.005,
+      "on_median_db": -66.96,
+      "median_delta_db": 4.815,
+      "positive_repeats": 92,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 816966068,
+      "off_median_db": -71.235,
+      "on_median_db": -66.77,
+      "median_delta_db": 4.775,
+      "positive_repeats": 86,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 816856287,
+      "off_median_db": -70.68,
+      "on_median_db": -66.475,
+      "median_delta_db": 4.755,
+      "positive_repeats": 90,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817514970,
+      "off_median_db": -72.09,
+      "on_median_db": -66.7,
+      "median_delta_db": 4.7,
+      "positive_repeats": 87,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817654691,
+      "off_median_db": -71.465,
+      "on_median_db": -66.795,
+      "median_delta_db": 4.625,
+      "positive_repeats": 92,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 815848303,
+      "off_median_db": -71.685,
+      "on_median_db": -66.61,
+      "median_delta_db": 4.6,
+      "positive_repeats": 83,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 816866267,
+      "off_median_db": -70.435,
+      "on_median_db": -65.945,
+      "median_delta_db": 4.595,
+      "positive_repeats": 84,
+      "paired_repeats": 200
+    },
+    {
+      "frequency_hz": 817195609,
+      "off_median_db": -71.45,
+      "on_median_db": -66.075,
+      "median_delta_db": 4.595,
+      "positive_repeats": 87,
+      "paired_repeats": 200
+    }
+  ],
+  "inputs": {
+    "tx_off": {
+      "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\controlled-fast-off-rx351-gain16-10khz-v1.csv",
+      "sha256": "d55a68e5ebc963f947f004808cdae25e858fdab1b815b4a094706868cf4fb987"
+    },
+    "tx_on": {
+      "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\controlled-fast-on-rx351-gain16-10khz-v1.csv",
+      "sha256": "e8da5aea2912088af9c70f0cd08524a3c5d12b1724a6114a5091548eeac12022"
+    }
+  },
+  "limitations": [
+    "TX durumu operatör beyanıdır.",
+    "Sonuç kalibrasyonsuz göreli dB karşılaştırmasıdır; verici kimliği veya Pd/Pfa kabulü değildir.",
+    "Hızlı süpürme aday frekansı üretir; sabit bant iki-LO doğrulaması ayrıca gerekir."
+  ]
+}

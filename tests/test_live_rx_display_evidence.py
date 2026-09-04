@@ -45,6 +45,7 @@ def test_current_physical_rx_display_evidence_preserves_the_open_usb_gate() -> N
         "app/operator_console/live_ed.py",
         "app/operator_console/quick_view_model.py",
         "app/operator_console/quick_application.py",
+        "app/operator_console/spectral_display.py",
         "app/operator_console/qml/Main.qml",
         "app/operator_console/qml/RxSurveyView.qml",
         "app/operator_console/rx_survey.py",

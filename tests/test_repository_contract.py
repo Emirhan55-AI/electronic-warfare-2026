@@ -117,7 +117,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(52, len(VERIFY.APPROVED_PHASE04_F5_FILES))
         self.assertEqual(346, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
-        self.assertEqual(70, len(VERIFY.APPROVED_PHASE08_FILES))
+        self.assertEqual(100, len(VERIFY.APPROVED_PHASE08_FILES))
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
@@ -133,8 +133,8 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
-        self.assertEqual(74, len(VERIFY.APPROVED_APP_HARDENING_FILES))
-        self.assertEqual(214, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(78, len(VERIFY.APPROVED_APP_HARDENING_FILES))
+        self.assertEqual(237, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -206,6 +206,7 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/phase06i/rtl/phase06i_pkg.sv",
                 "algorithms/fpga/phase06i/rtl/axis_candidate_packetizer.sv",
                 "algorithms/fpga/phase06i/tb/tb_axis_candidate_packetizer.sv",
+                "algorithms/fpga/phase06i/tb/tb_axis_candidate_packetizer_classes.sv",
                 "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv",
                 "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv",
                 "algorithms/fpga/p0/rtl/p0_os_cfar_synthesis_top.sv",
@@ -221,6 +222,8 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
                 "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
                 "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+                "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv",
+                "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_record_ram.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_fusion.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_reducer_top.sv",
@@ -234,6 +237,8 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/tb/tb_p0_candidate_guards.sv",
                 "algorithms/fpga/p0/tb/tb_p0_candidate_reducer_packetizer.sv",
                 "algorithms/fpga/p0/tb/tb_p0_candidate_dsp_runtime.sv",
+                "algorithms/fpga/p0/tb/tb_p0_os_cfar_weak_nomination.sv",
+                "algorithms/fpga/p0/tb/tb_p0_weak_nomination_top.sv",
             },
             {path for path in VERIFY._repository_files() if path.endswith(".sv")},
         )

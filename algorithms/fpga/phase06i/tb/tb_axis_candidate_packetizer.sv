@@ -49,6 +49,8 @@ module tb_axis_candidate_packetizer;
     .s_axis_tuser_threshold(source_word[225:164]),
     .s_axis_tuser_pfa_select(source_word[227:226]),
     .s_axis_tuser_evaluate_center(source_word[228]),
+    .s_axis_tuser_weak_evidence(1'b0),
+    .s_axis_tuser_single_frame_confident(1'b0),
     .s_axis_tuser_candidate_valid(source_word[229]),
     .m_axis_tvalid, .m_axis_tready, .m_axis_tdata, .m_axis_tkeep, .m_axis_tlast,
     .completed_frame_count, .status_transport_error_sticky,

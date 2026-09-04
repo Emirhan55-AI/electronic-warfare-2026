@@ -95,10 +95,19 @@ hassas taşıyıcı ölçümü değildir. Kısa yayınlar tarama sırasında ka�
 2. `Taramayı Başlat` canlı alımı ve FPGA tespitini birlikte başlatır;
    `Taramayı Durdur` oturumu güvenli biçimde sonlandırır.
 3. Spektrum ve spektrogram merkez çalışma alanında güncellenir.
-4. Canlı listede yalnız 2/3 zamansal koşulunu geçmiş gözlemler gösterilir. Aynı
+4. Canlı FPGA/ARM sonucu veya geniş RX spektrumundaki kararlı kaba sonuç önce
+   sarı aday olarak gösterilir. En az 8 FPGA gözleminden sonra ya da kararlı
+   kaba aday oluştuğunda alıcı otomatik olarak iki farklı fiziksel LO ayarında
+   kısa tekrar yapar. Aynı mutlak RF bileşeni iki ayarda da görülürse sonuç
+   yeşil `KARARLI RF ADAYI` olur. Karttaki 2/3 olay zinciri iki ayarda da sonucu
+   üretmişse yöntem FPGA, aksi halde 8 MHz alıcı spektrumundaki iki-LO tekrar
+   sayımıdır ve satırda `RX çift ayar` yazılır. Bu, harici
+   vericinin kimliği değildir; kontrollü TX kapalı/açık karşılaştırması ayrı
+   kabul adımıdır. Aynı
    frekansta yeniden oluşan FPGA olayları frekans destekleri örtüşüyorsa tek satırda
-   birleştirilir. Satır oturum boyunca korunur; güncel gözlem `Algılanıyor`, kesilen
-   gözlem `Son görüldü` olur. Ham aday ve FPGA olay numarası operatör yüzeyine
+   birleştirilir. Canlı kılavuz gözlem kesildiğinde hemen kalkar; satır yaklaşık
+   262 ms `Kısa süreli izleniyor` durumunda kaldıktan sonra yeni gözlem yoksa
+   `Son görüldü` olur. Ham aday ve FPGA olay numarası operatör yüzeyine
    taşınmaz. Bu sunum sinyal türünü veya fiziksel yayıncı kimliğini doğrulamaz.
 5. Sağdaki `Sinyal Tespiti` alanı seçili tespitin kimliğini, frekansını,
    tepe/gürültü oranını ve durumunu sabit tutar. `Parametre Çıkarımı` ayrı görev
@@ -120,20 +129,30 @@ olay için arka planda otomatik korunur. Yeni gözlemi olmayan satır gri
 `Son görüldü` olur. Bu yalnız arayüzde tutulan oturum bilgisidir ve detector yaşam
 süresini uzatmaz.
 
+FPGA'nın ±700 kHz geçerli alanı dışında kalan 8 MHz kaba aday iki LO sınamasına
+alınır. Geçici sınama ayarlarından sonra görünüm operatörün girdiği sabit merkez
+frekansına döner. Aynı kaba karedeki en fazla dört güçlü aday P/N sırasıyla
+saklanır ve tek tek sınanır; aynı aday kuyrukta tekrar edilmez.
+
 Spektrum verisi gelmeden FPGA tespit alanı veya aday kılavuzu çizilmez; böylece boş
-görünüm gerçek RF enerjisi izlenimi vermez. Eski `İZLEME` merkez çizgisi kaldırılır;
-turkuaz sınır doğrudan `TESPİT ALANI` olarak adlandırılır. İki grafikte
-ortak seçili frekans kılavuzu, o olay son yanıtta gözleniyorsa
-turuncu; gözlenmiyorsa gri kesiklidir. Kılavuz waterfall geçmişinin o frekansta
-sürekli sinyal içerdiğini iddia etmez. Sarı kısa işaretler son yanıttaki
-zamansal FPGA adaylarını gösterir. FPGA/ARM tespit eşikleri ve
+görünüm gerçek RF enerjisi izlenimi vermez. Eski `İZLEME` merkez çizgisi ve
+grafik içindeki `TESPİT ALANI` yazısı kaldırılır; geçerli FPGA penceresi yalnız
+ince turkuaz sınırla belirtilir. Tek LO FPGA kılavuzu sarı, iki ayarda kararlı
+aday kılavuzu yeşil, host kaba RX adayı ise ince gri kesikli kılavuzdur. Eski
+seçim grafikte kılavuz üretmez; geçmiş yalnız sağ listede `Son görüldü` olarak
+kalır. Kılavuz waterfall
+geçmişinin o frekansta sürekli sinyal içerdiğini iddia etmez. Birbirine en fazla
+75 kHz uzaklıktaki güncel FPGA tepeleri yalnız sunumda tek satıra gruplanır;
+ham FPGA olayları ve FPGA/ARM tespit eşikleri ile
 2/3–iki-miss kuralları değişmez. Kayıtlı I/Q tekrar oynatma yalnız
 tekrarlanabilir doğrulama altyapısında tutulur; yarışma operatör yüzeyinde
 kaynak seçeneği değildir.
 
 Çıkış koşulu: seçimin kaynak kimliği, çerçeve ve tespit kimliği birbirine bağlıdır.
-Canlı HackRF görünümünde spektrum aynı gerçek I/Q karesinden, tespit listesi
-yalnız FPGA/ARM yanıtından gelir. Kart bağlantısı yoksa sonuç alanları boş kalır.
+Canlı HackRF görünümünde spektrum aynı gerçek I/Q karesinden gelir. FPGA/ARM
+olayları ayrı kalır; iki-LO RX doğrulaması yalnız aynı mutlak RF özelliğini iki
+fiziksel alıcı ayarında tekrar bulduğunu bildirir ve FPGA olayı gibi sunulmaz.
+Kart bağlantısı yoksa ürün oturumu başlamaz ve sonuç alanları boş kalır.
 
 ## Akış 3 — Parametre ölçümü
 

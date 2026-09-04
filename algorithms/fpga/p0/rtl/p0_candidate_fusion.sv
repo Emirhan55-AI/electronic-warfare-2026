@@ -15,6 +15,8 @@ module p0_candidate_fusion (
   input  logic [61:0] s_os_threshold,
   input  logic [1:0]  s_os_pfa_select,
   input  logic        s_os_evaluate_center,
+  input  logic        s_os_weak_evidence,
+  input  logic        s_os_single_frame_confident,
   input  logic        s_os_candidate_valid,
 
   input  logic        s_recovery_tvalid,
@@ -43,6 +45,8 @@ module p0_candidate_fusion (
   output logic [61:0] m_axis_tuser_threshold,
   output logic [1:0]  m_axis_tuser_pfa_select,
   output logic        m_axis_tuser_evaluate_center,
+  output logic        m_axis_tuser_weak_evidence,
+  output logic        m_axis_tuser_single_frame_confident,
   output logic        m_axis_tuser_candidate_valid,
 
   output logic [15:0] completed_frame_count,
@@ -78,26 +82,26 @@ module p0_candidate_fusion (
 
   logic os_write_enable;
   logic [10:0] os_write_address;
-  logic [213:0] os_write_data;
+  logic [215:0] os_write_data;
   logic [10:0] os_read_address;
-  logic [213:0] os_read_data;
+  logic [215:0] os_read_data;
   logic recovery_write_enable;
   logic [6:0] recovery_write_address;
-  logic [213:0] recovery_write_data;
+  logic [215:0] recovery_write_data;
   logic [6:0] recovery_read_address;
-  logic [213:0] recovery_read_data;
+  logic [215:0] recovery_read_data;
   logic fused_write_enable;
   logic [10:0] fused_write_address;
-  logic [213:0] fused_write_data;
+  logic [215:0] fused_write_data;
   logic [10:0] fused_read_address;
-  logic [213:0] fused_read_data;
+  logic [215:0] fused_read_data;
 
   logic [10:0] os_index;
   logic [6:0] recovery_index;
-  logic [213:0] current_os;
-  logic [213:0] current_recovery;
+  logic [215:0] current_os;
+  logic [215:0] current_recovery;
   logic [10:0] output_index;
-  logic [213:0] output_record;
+  logic [215:0] output_record;
   logic output_candidate_valid;
   logic output_last;
 
@@ -108,18 +112,23 @@ module p0_candidate_fusion (
   logic os_before_recovery;
   logic recovery_before_os;
 
-  function automatic logic [213:0] pack_candidate(
+  function automatic logic [215:0] pack_candidate(
     input logic [11:0] start_index,
     input logic [11:0] end_index,
     input logic [11:0] peak_index,
     input logic [57:0] peak_power,
     input logic [57:0] noise,
-    input logic [61:0] threshold
+    input logic [61:0] threshold,
+    input logic weak_evidence,
+    input logic single_frame_confident
   );
-    pack_candidate = {threshold, noise, peak_power, peak_index, end_index, start_index};
+    pack_candidate = {weak_evidence, single_frame_confident,
+                      threshold, noise, peak_power, peak_index, end_index, start_index};
   endfunction
 
-  p0_candidate_record_ram #(.DEPTH(MAXIMUM_OS_CANDIDATES), .ADDRESS_WIDTH(11)) os_ram_i (
+  p0_candidate_record_ram #(
+    .DEPTH(MAXIMUM_OS_CANDIDATES), .ADDRESS_WIDTH(11), .DATA_WIDTH(216)
+  ) os_ram_i (
     .aclk,
     .write_enable(os_write_enable),
     .write_address(os_write_address),
@@ -129,7 +138,8 @@ module p0_candidate_fusion (
   );
   p0_candidate_record_ram #(
     .DEPTH(MAXIMUM_RECOVERY_CANDIDATES),
-    .ADDRESS_WIDTH(7)
+    .ADDRESS_WIDTH(7),
+    .DATA_WIDTH(216)
   ) recovery_ram_i (
     .aclk,
     .write_enable(recovery_write_enable),
@@ -138,7 +148,9 @@ module p0_candidate_fusion (
     .read_address(recovery_read_address),
     .read_data(recovery_read_data)
   );
-  p0_candidate_record_ram #(.DEPTH(MAXIMUM_OS_CANDIDATES), .ADDRESS_WIDTH(11)) fused_ram_i (
+  p0_candidate_record_ram #(
+    .DEPTH(MAXIMUM_OS_CANDIDATES), .ADDRESS_WIDTH(11), .DATA_WIDTH(216)
+  ) fused_ram_i (
     .aclk,
     .write_enable(fused_write_enable),
     .write_address(fused_write_address),
@@ -183,6 +195,9 @@ module p0_candidate_fusion (
   assign m_axis_tuser_threshold = output_candidate_valid ? output_record[213:152] : 62'd0;
   assign m_axis_tuser_pfa_select = output_candidate_valid ? 2'd1 : 2'd0;
   assign m_axis_tuser_evaluate_center = 1'b0;
+  assign m_axis_tuser_weak_evidence = output_candidate_valid && output_record[215];
+  assign m_axis_tuser_single_frame_confident =
+      output_candidate_valid && output_record[214];
   assign m_axis_tuser_candidate_valid = output_candidate_valid;
 
   always_comb begin
@@ -190,7 +205,8 @@ module p0_candidate_fusion (
         !os_input_error && os_count < MAXIMUM_OS_CANDIDATES;
     os_write_address = os_count;
     os_write_data = pack_candidate(
-      s_os_start, s_os_end, s_os_peak, s_os_tdata, s_os_noise, s_os_threshold
+      s_os_start, s_os_end, s_os_peak, s_os_tdata, s_os_noise, s_os_threshold,
+      s_os_weak_evidence, s_os_single_frame_confident
     );
     recovery_write_enable =
         s_recovery_tvalid && s_recovery_tready && s_recovery_candidate_valid &&
@@ -202,13 +218,15 @@ module p0_candidate_fusion (
       s_recovery_peak,
       s_recovery_tdata,
       s_recovery_noise,
-      s_recovery_threshold
+      s_recovery_threshold,
+      1'b0,
+      1'b0
     );
     os_read_address = os_index;
     recovery_read_address = recovery_index;
     fused_write_enable = 1'b0;
     fused_write_address = fused_count;
-    fused_write_data = 214'd0;
+    fused_write_data = 216'd0;
     fused_read_address = output_index;
     if (state == ST_DECIDE_MERGE && !frame_invalid) begin
       if (os_exhausted && !recovery_exhausted) begin
@@ -247,7 +265,7 @@ module p0_candidate_fusion (
       current_os <= 214'd0;
       current_recovery <= 214'd0;
       output_index <= 11'd0;
-      output_record <= 214'd0;
+      output_record <= 216'd0;
       output_candidate_valid <= 1'b0;
       output_last <= 1'b0;
       completed_frame_count <= 16'd0;
@@ -362,7 +380,7 @@ module p0_candidate_fusion (
         ST_INITIALIZE_OUTPUT: begin
           output_index <= 11'd0;
           if (frame_invalid || fused_count == 0) begin
-            output_record <= 214'd0;
+            output_record <= 216'd0;
             output_candidate_valid <= 1'b0;
             output_last <= 1'b1;
             state <= ST_PRESENT_OUTPUT;

@@ -111,7 +111,11 @@ def main() -> int:
         "source_sha256": {name: hashlib.sha256(data).hexdigest() for name, data in source_bytes.items()},
     }
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    output.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     print(json.dumps({key: report[key] for key in ("status", "checks", "latency_ms")}, ensure_ascii=False))
     return 0 if report["status"] == "passed" else 1
 

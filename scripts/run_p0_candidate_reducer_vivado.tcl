@@ -25,6 +25,8 @@ set rtl_sources [list \
   [file join $repository_root algorithms fpga p0 rtl p0_os_candidate_ram.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_os_candidate_grouping.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_sparse_os_candidate_top.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_weak_candidate_grouping.sv] \
+  [file join $repository_root algorithms fpga p0 rtl p0_weak_nomination_top.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_region_bank.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_parallel_region_median.sv] \
   [file join $repository_root algorithms fpga p0 rtl p0_wideband_recovery.sv] \

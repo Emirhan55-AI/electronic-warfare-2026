@@ -5,7 +5,14 @@ import pytest
 
 from algorithms.p0.channelizer import P0ChannelizerProfile
 from algorithms.p0.transport import IQFrame
-from app.operator_console.live_ed import LiveEDConfiguration, LiveEDEvent, LiveEDResponse, LiveEDSnapshot
+from app.operator_console.live_ed import (
+    LiveEDConfiguration,
+    LiveEDEvent,
+    LiveEDPreview,
+    LiveEDResponse,
+    LiveEDSnapshot,
+)
+from app.operator_console.integrated_spectrum import IntegratedSpectrumCandidate
 from app.operator_console.rx_survey import (
     RXSurvey,
     SURVEY_CHANNELIZER_PASSBAND_HALF_HZ,
@@ -154,6 +161,104 @@ def test_survey_commits_only_complete_windows_and_ignores_guard_frames(tmp_path)
     assert _records(path)[-1]["state"] == "completed"
     with pytest.raises(FileExistsError):
         RXSurvey("hackrf_transfer", SERIAL, SurveyConfig(), path, session_factory=_Session).run()
+
+
+def test_known_spur_cannot_be_verified_by_fpga_line_without_receiver_shoulders(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.operator_console.rx_survey.load_known_spurs",
+        lambda serial: (1_300_000,),
+    )
+    path = tmp_path / "known-spur.jsonl"
+    result = RXSurvey(
+        "hackrf_transfer",
+        SERIAL,
+        SurveyConfig(1_000_000, 1_600_000),
+        path,
+        session_factory=_Session,
+    ).run()
+
+    assert result.state == "completed"
+    completed = next(row for row in _records(path) if row["type"] == "window_complete")
+    assert completed["observations"] == []
+    assert completed["screened_observations"]
+
+
+def test_blind_integrated_rx_candidate_survives_independent_retune(tmp_path, monkeypatch):
+    target_hz = 1_300_000.0
+    candidate = IntegratedSpectrumCandidate(
+        target_hz,
+        target_hz,
+        target_hz - 250.0,
+        target_hz + 250.0,
+        8.0,
+        96,
+        120,
+        6.3,
+        1.0,
+    )
+
+    monkeypatch.setattr(
+        "app.operator_console.rx_survey.integrated_spectrum_candidates",
+        lambda *_args, **_kwargs: (candidate,),
+    )
+    monkeypatch.setattr(
+        "app.operator_console.rx_survey.integrated_candidate_near",
+        lambda *_args, **_kwargs: replace(candidate, observed_frames=34, total_frames=40),
+    )
+
+    class IntegratedSession:
+        def __init__(self, executable, config):
+            self.config = config
+            self.preview_handler = None
+
+        def set_preview_handler(self, handler):
+            self.preview_handler = handler
+
+        def cancel(self):
+            pass
+
+        def run(self, callback):
+            for index in range(self.config.frame_count):
+                display = IQFrame(
+                    index,
+                    8_000_000,
+                    self.config.input_center_frequency_hz,
+                    bytes(32_768),
+                    frame_id=index,
+                )
+                output = IQFrame(
+                    index,
+                    2_000_000,
+                    self.config.output_center_frequency_hz,
+                    bytes(8192),
+                    frame_id=index,
+                )
+                self.preview_handler(LiveEDPreview(index, output, 0.0, display))
+                callback(LiveEDSnapshot(
+                    index,
+                    output,
+                    LiveEDResponse(index, 0, 7, 0, False, 0, (), (), 68),
+                ))
+            return _Result(self.config.frame_count)
+
+    updates = []
+    result = RXSurvey(
+        "hackrf_transfer",
+        SERIAL,
+        SurveyConfig(1_000_000, 1_600_000),
+        tmp_path / "integrated.jsonl",
+        session_factory=IntegratedSession,
+    ).run(updates.append)
+
+    assert result.state == "completed"
+    observation = next(item for item in updates if item.state == "complete").observations[0]
+    assert observation["source"] == "integrated_rx"
+    assert observation["peak_frequency_hz"] == target_hz
+    assert observation["observed_frames"] == 96
+    assert observation["verification"]["method"] == "integrated_rx"
+    assert observation["verification"]["observed_frames"] == 34
 
 
 def test_channel_power_uses_complex_iq_normalization_and_excludes_guard_frames(tmp_path):
@@ -357,7 +462,11 @@ def test_candidate_capacity_drop_fails_without_hiding_signals_by_lowering_gain(t
     assert not any(row["type"] in {"window_gain_retry", "window_complete"} for row in _records(path))
 
 
-def test_transient_usb_overrun_retries_same_window_without_creating_a_coverage_gap(tmp_path):
+@pytest.mark.parametrize("error_code", ["usb_overrun", "short_stream"])
+def test_transient_transport_fault_retries_same_window_without_creating_a_coverage_gap(
+    tmp_path,
+    error_code,
+):
     class TransientOverrun(_Session):
         attempts = {}
 
@@ -366,7 +475,7 @@ def test_transient_usb_overrun_retries_same_window_without_creating_a_coverage_g
                    self.config.input_center_frequency_hz_override)
             self.attempts[key] = self.attempts.get(key, 0) + 1
             if self.attempts[key] == 1:
-                raise AcquisitionError("usb_overrun", "test transient")
+                raise AcquisitionError(error_code, "test transient")
             return super().run(callback)
 
     path = tmp_path / "transport-retry.jsonl"
@@ -379,9 +488,9 @@ def test_transient_usb_overrun_retries_same_window_without_creating_a_coverage_g
     records = _records(path)
     retries = [row for row in records if row["type"] == "window_transport_retry"]
     assert len(retries) == 1
-    assert retries[0]["error_code"] == "usb_overrun"
+    assert retries[0]["error_code"] == error_code
     completed = next(row for row in records if row["type"] == "window_complete")
-    assert completed["observations"][0]["verification"]["retries"][0]["error_code"] == "usb_overrun"
+    assert completed["observations"][0]["verification"]["retries"][0]["error_code"] == error_code
 
 
 def test_transport_fault_stops_scan_without_pretending_remaining_band_is_empty(tmp_path):

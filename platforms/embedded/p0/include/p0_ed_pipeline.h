@@ -6,6 +6,7 @@
 
 #include "p0_os_cfar.h"
 #include "p0_parameter_runtime.h"
+#include "p0_persistent_weak.h"
 #include "phase06j_temporal.h"
 
 typedef struct {
@@ -18,6 +19,10 @@ typedef struct {
     phase06i_candidate_v1 *candidate_records;
     void *temporal_state;
     void *temporal_backup;
+    void *weak_state;
+    void *weak_backup;
+    p0_weak_nomination_v1 *weak_nominations;
+    p0_persistent_weak_result_v1 previous_weak_result;
     p0_os_cfar_config_t config;
     p0_parameter_runtime_t parameter_runtime;
 } p0_ed_pipeline_t;

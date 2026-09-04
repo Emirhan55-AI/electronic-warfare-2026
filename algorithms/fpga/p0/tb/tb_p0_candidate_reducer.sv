@@ -4,7 +4,7 @@ module tb_p0_candidate_reducer;
   localparam int FRAME_COUNT = 8;
   localparam int FRAME_LENGTH = 4096;
   localparam int TOTAL_INPUT_RECORDS = FRAME_COUNT * FRAME_LENGTH;
-  localparam int TOTAL_OUTPUT_RECORDS = 65;
+  localparam int TOTAL_OUTPUT_RECORDS = 115;
   localparam int MAX_PROCESSING_CYCLES = 50000;
 
   logic aclk = 1'b0;
@@ -166,7 +166,7 @@ module tb_p0_candidate_reducer;
         $fatal(1, "Final candidate processing exceeded cycle budget: %0d", processing_cycles);
     end
 
-    if (output_count != TOTAL_OUTPUT_RECORDS || semantic_candidates != 63)
+    if (output_count != TOTAL_OUTPUT_RECORDS || semantic_candidates != 113)
       $fatal(1, "Final candidate accounting mismatch outputs=%0d semantic=%0d", output_count, semantic_candidates);
     if (completed_frame_count != FRAME_COUNT || status_sticky != 9'd0)
       $fatal(1, "Final candidate completion/status mismatch count=%0d status=%b", completed_frame_count, status_sticky);
@@ -191,7 +191,7 @@ module tb_p0_candidate_reducer;
     corrupted[70] = 1'b1;
     drive_sample(corrupted);
     repeat (4) @(posedge aclk);
-    if (status_sticky != 9'b000111001)
+    if (status_sticky != 9'b000011101)
       $fatal(1, "Final candidate malformed status mismatch: %b", status_sticky);
 
     $display(

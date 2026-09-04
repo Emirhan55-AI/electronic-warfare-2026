@@ -1,0 +1,270 @@
+{
+  "schema": "baz.raw-two-lo-three-frequency-ab.v1",
+  "receiver_serial": "0000000000000000a32868dc35138247",
+  "sample_rate_hz": 8000000,
+  "gain_db": {
+    "lna": 16,
+    "vga": 16
+  },
+  "operator_states": {
+    "on": "operator reported",
+    "off": "operator reported"
+  },
+  "results": [
+    {
+      "target_hz": 817000000,
+      "observations": [
+        {
+          "tag": "minus",
+          "center_hz": 815600000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 816926171.875,
+          "maximum_bin_delta_db": 7.7175,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": 6.1,
+              "max_bin_delta_db": 6.718,
+              "bins_ge_6db": 6
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": 6.1842,
+              "max_bin_delta_db": 7.6402,
+              "bins_ge_6db": 61
+            },
+            "near_25_100k": {
+              "on_minus_off_db": 6.2551,
+              "max_bin_delta_db": 7.7175,
+              "bins_ge_6db": 220
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": 6.0019,
+              "max_bin_delta_db": 7.6641,
+              "bins_ge_6db": 851
+            },
+            "total_0_500k": {
+              "on_minus_off_db": 6.0483,
+              "max_bin_delta_db": 7.7175,
+              "bins_ge_6db": 1138
+            }
+          },
+          "sha256": {
+            "on": "329d4786bd0ca768ced6d4d9e3e4a281ff153a9b219a665e010ac9bd3794220d",
+            "off": "08b162b013af0f54d6fe1566ad05cf3843d98b18198d41d41abbbd0af7618dc0"
+          }
+        },
+        {
+          "tag": "plus",
+          "center_hz": 819500000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 817023925.781,
+          "maximum_bin_delta_db": 5.905,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": 3.7208,
+              "max_bin_delta_db": 4.0646,
+              "bins_ge_6db": 0
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": 4.4106,
+              "max_bin_delta_db": 5.905,
+              "bins_ge_6db": 0
+            },
+            "near_25_100k": {
+              "on_minus_off_db": 4.3537,
+              "max_bin_delta_db": 5.5664,
+              "bins_ge_6db": 0
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": 4.2839,
+              "max_bin_delta_db": 5.8839,
+              "bins_ge_6db": 0
+            },
+            "total_0_500k": {
+              "on_minus_off_db": 4.2981,
+              "max_bin_delta_db": 5.905,
+              "bins_ge_6db": 0
+            }
+          },
+          "sha256": {
+            "on": "a247a3c32cb4eb516d7cfe983ed615e63ee992bcf59e64c1131728930d0ef4b5",
+            "off": "92975a5e4fd85109a02c53694aa8322713d5120b92ccba06a56972b14a003775"
+          }
+        }
+      ],
+      "two_lo_peak_frequency_separation_hz": 97753.906,
+      "qualified_external_change": false
+    },
+    {
+      "target_hz": 840000000,
+      "observations": [
+        {
+          "tag": "minus",
+          "center_hz": 838600000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 839650292.969,
+          "maximum_bin_delta_db": 1.1118,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": -0.0606,
+              "max_bin_delta_db": 0.0881,
+              "bins_ge_6db": 0
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": -1.2456,
+              "max_bin_delta_db": 1.0097,
+              "bins_ge_6db": 0
+            },
+            "near_25_100k": {
+              "on_minus_off_db": -1.3679,
+              "max_bin_delta_db": 0.5005,
+              "bins_ge_6db": 0
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": -7.7066,
+              "max_bin_delta_db": 1.1118,
+              "bins_ge_6db": 0
+            },
+            "total_0_500k": {
+              "on_minus_off_db": -6.8433,
+              "max_bin_delta_db": 1.1118,
+              "bins_ge_6db": 0
+            }
+          },
+          "sha256": {
+            "on": "94ceefa09d3ab3b9acfc2d8d88b8af7df0d0346729d4d4c4cff5d74d792cca76",
+            "off": "d3d130025fd74a3e3d7ef364b42a6a6fc4df4aaa45fb1e9f8a886385a9d86fe2"
+          }
+        },
+        {
+          "tag": "plus",
+          "center_hz": 842500000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 839988769.531,
+          "maximum_bin_delta_db": 2.3159,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": 0.061,
+              "max_bin_delta_db": 0.2043,
+              "bins_ge_6db": 0
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": -0.0546,
+              "max_bin_delta_db": 2.3159,
+              "bins_ge_6db": 0
+            },
+            "near_25_100k": {
+              "on_minus_off_db": -0.2087,
+              "max_bin_delta_db": 0.8963,
+              "bins_ge_6db": 0
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": -0.1681,
+              "max_bin_delta_db": 1.5256,
+              "bins_ge_6db": 0
+            },
+            "total_0_500k": {
+              "on_minus_off_db": -0.1601,
+              "max_bin_delta_db": 2.3159,
+              "bins_ge_6db": 0
+            }
+          },
+          "sha256": {
+            "on": "f326f6d50890e3eef0023ea084ae7afc6f65699d464e7b7ef45fa5cba2c0b755",
+            "off": "205ae5c383716d3248e695d128ee580589ec1920bc1a2d7416470c5550537e9d"
+          }
+        }
+      ],
+      "two_lo_peak_frequency_separation_hz": 338476.562,
+      "qualified_external_change": false
+    },
+    {
+      "target_hz": 1000000000,
+      "observations": [
+        {
+          "tag": "minus",
+          "center_hz": 998600000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 999986718.75,
+          "maximum_bin_delta_db": 9.5472,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": 0.0602,
+              "max_bin_delta_db": 0.366,
+              "bins_ge_6db": 0
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": 0.8223,
+              "max_bin_delta_db": 9.5472,
+              "bins_ge_6db": 2
+            },
+            "near_25_100k": {
+              "on_minus_off_db": 0.0276,
+              "max_bin_delta_db": 0.9815,
+              "bins_ge_6db": 0
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": 0.055,
+              "max_bin_delta_db": 1.4568,
+              "bins_ge_6db": 0
+            },
+            "total_0_500k": {
+              "on_minus_off_db": 0.0819,
+              "max_bin_delta_db": 9.5472,
+              "bins_ge_6db": 2
+            }
+          },
+          "sha256": {
+            "on": "7a1c2c6ea7f285d8d6772cf2021a7ce81f10b87145bac2ebe7cffbc108ab7119",
+            "off": "8fad69280a2168f8cb5cc5df031667f77d9a452f45588f274f98d6c6ed29786e"
+          }
+        },
+        {
+          "tag": "plus",
+          "center_hz": 1002500000,
+          "frames_on": 248,
+          "frames_off": 248,
+          "maximum_delta_frequency_hz": 999986328.125,
+          "maximum_bin_delta_db": 8.815,
+          "bands": {
+            "core_0_2k": {
+              "on_minus_off_db": 0.0426,
+              "max_bin_delta_db": 0.0727,
+              "bins_ge_6db": 0
+            },
+            "shoulder_2_25k": {
+              "on_minus_off_db": 0.8363,
+              "max_bin_delta_db": 8.815,
+              "bins_ge_6db": 2
+            },
+            "near_25_100k": {
+              "on_minus_off_db": 0.0586,
+              "max_bin_delta_db": 1.501,
+              "bins_ge_6db": 0
+            },
+            "wide_100_500k": {
+              "on_minus_off_db": 0.0601,
+              "max_bin_delta_db": 1.4533,
+              "bins_ge_6db": 0
+            },
+            "total_0_500k": {
+              "on_minus_off_db": 0.0845,
+              "max_bin_delta_db": 8.815,
+              "bins_ge_6db": 2
+            }
+          },
+          "sha256": {
+            "on": "8569dceb478c55ae7e7f5c1e9f3588f92513d62cb819ace896a994e990700b88",
+            "off": "f4993545204df2964e6b78c8928aff4b7f378fe2f4bbae8781215bd18c938fec"
+          }
+        }
+      ],
+      "two_lo_peak_frequency_separation_hz": 390.625,
+      "qualified_external_change": false
+    }
+  ]
+}

@@ -28,9 +28,13 @@ def _known_frame(tmp_path: Path) -> Path:
 def test_known_tone_reference_has_final_reducer_counts() -> None:
     reduction = expected_reduction()
 
-    assert len(reduction.os_candidates) == 147
+    assert len(reduction.os_candidates) == 321
     assert len(reduction.recovery_candidates) == 19
-    assert len(reduction.candidates) == 54
+    assert len(reduction.candidates) == 104
+    assert sum(
+        candidate.weak_evidence and not candidate.single_frame_confident
+        for candidate in reduction.candidates
+    ) == 54
 
 
 def test_exact_physical_packet_is_accepted(tmp_path: Path) -> None:
@@ -43,7 +47,7 @@ def test_exact_physical_packet_is_accepted(tmp_path: Path) -> None:
     assert result["status"] == "passed"
     assert result["input"]["sha256"] == INPUT_SHA256
     assert result["packet"]["frame_id"] == 37
-    assert result["observed"]["final_candidates"] == 54
+    assert result["observed"]["final_candidates"] == 104
     assert result["observed"]["candidate_field_equivalence"] is True
 
 
@@ -76,8 +80,8 @@ def test_candidate_service_lifecycle_matches_temporal_oracle(tmp_path: Path) -> 
 
     assert result["status"] == "passed"
     assert result["event_field_equivalence"] is True
-    assert [frame["active_count"] for frame in result["frames"]] == [54, 54, 54, 54, 0]
-    assert [frame["ended_count"] for frame in result["frames"]] == [0, 0, 0, 0, 54]
+    assert [frame["active_count"] for frame in result["frames"]] == [50, 50, 50, 50, 0]
+    assert [frame["ended_count"] for frame in result["frames"]] == [0, 0, 0, 0, 50]
 
 
 def test_candidate_service_lifecycle_fails_on_event_mismatch(tmp_path: Path) -> None:

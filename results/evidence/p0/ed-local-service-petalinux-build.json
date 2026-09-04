@@ -1,69 +1,100 @@
 {
-  "schema_version": 5,
-  "recorded_at": "2026-08-29",
+  "schema_version": 8,
+  "recorded_at": "2026-09-04",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 candidate-packet ABI v3 bounded-pipeline ARM package and full image build",
-  "current_source_status": "superseded_by_phase07_network_image",
+  "scope": "PetaLinux 2025.2 ADR-0040 P09 current ARM package, routed P0 XSA, automatic Ethernet bridge and cold-boot physical acceptance",
+  "current_source_status": "current_sources_petalinux_build_and_board_physical_passed",
   "build": {
-    "target": "p0-dma",
+    "target": "p0-dma plus petalinux-image-minimal initramfs",
     "machine": "zynq_generic_7z020",
     "tasks_attempted": 5679,
     "tasks_failed": 0,
-    "full_image_tasks_attempted": 6090,
+    "full_image_tasks_attempted": 5679,
     "full_image_tasks_failed": 0,
+    "full_image_note": "Incremental PetaLinux build rebuilt p0-dma, rootfs, initramfs FIT and deployed image.ub; all 5679 tasks succeeded.",
     "active_recipe_path_verified": true,
-    "warning": "TFTP copy skipped because /tftpboot is not configured"
+    "warning": "TFTP copy skipped because /tftpboot is not configured",
+    "log": null,
+    "log_sha256": null
   },
   "rootfs": {
     "package": "p0-dma 1.0",
-    "service_account": "p0ed uid 996 gid 995",
+    "service_account": "p0ed",
     "service_binary": "/usr/sbin/p0-ed-service",
-    "service_sha256": "01706ed0e78212368fb17ab0c30edabf2e88fd0082bb47d9f25a8b7f2ff67c60",
+    "service_sha256": "533b0795240281008be717cf769a48fff4b6b0c18520872c45f0c22482d77742",
+    "persistent_weak_runner_binary": "/usr/bin/p0-persistent-weak-run",
+    "persistent_weak_runner_sha256": "0d0900c6b79ea95c31acb8dbe4661b39a45b66e77f472968ffeb054cf3083e48",
     "dma_runner_binary": "/usr/bin/p0-dma-run",
     "dma_runner_sha256": "d09e032f100202f959a3d9f493e5d1523f0044ef7d650d641e8844f7418c91cb",
     "os_cfar_runner_sha256": "2a52192d6d799c5915cf9ca77fc755de98937bb023d93918c60a1ec1dbea4638",
-    "runtime_runner_sha256": "cdd34bd5b6b6fd5fb6f501baa0e813190a02e05e617e39d7101d60fbe9f50f40",
-    "client_sha256": "4782391dff76952896d88b5c048afb9fada0a951418b74e9902ac49490caf819",
-    "throughput_runner_sha256": "5df499bc6c27d7c43f3098bf9d81466cc4e714f86fb3b2852b20d78e1552e058",
-    "stage_profile_sha256": "3e3e5a0838337eb7d9c34020d524c0d478e9a2e1338d891b73d6fb818251b7bb",
+    "runtime_runner_sha256": "f10629d0c735e9fb436f09acf63c90757876b2a2fe86a4cad0f7e842fdd7d71d",
+    "client_sha256": "66ffdb1319c15375f9ddda9eb0f07e03a1fcfe75aa239400c4c30b9db492357c",
+    "throughput_runner_sha256": "69390fe595cff9dcc545da02a1f72bec7469d291f0ad0a8fabb24a6649fb9119",
+    "stage_profile_sha256": "c28969897395f92e3471d3a69e446c2258bbe949c9bf772caec84c9e534f501a",
     "parameter_runner_sha256": "7486623d8a1aaacdb97b7a4fd3f72b8c51c302bd56dc5fbefc0c0fe612718d5b",
-    "parameter_client_sha256": "49130a7f5ef359cc26d110287a4e8008861fba2301885b264d1b76424e5b99ac",
+    "parameter_client_sha256": "2af6886dd50002516559feef4795810e51138adb1d2b5bed7ae4337a85e9da66",
     "architecture": "ELF 32-bit LSB ARM EABI5 hard-float",
     "init_script": "/etc/init.d/p0-ed-service",
-    "runlevels_started": [2, 3, 4, 5]
+    "init_script_sha256": "d8fe56ae93ef9aaeefaa4fb4d0a454cfe17e92498862f3d5e3f5338c28ea1a49",
+    "runlevels_started": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "network_bridge": {
+      "binary": "/usr/sbin/p0-ed-network-bridge",
+      "binary_sha256": "67979b33d235ea1bcc101ddcd1aef10a7d7fe676b4c7a93da375129535e89c94",
+      "defaults": "/etc/default/p0-ed-network-bridge",
+      "defaults_sha256": "e25287ff21b560a992ab7334b8b63f2299c8f8a5b5d0fb2d0129bb7e295eec3a",
+      "enabled_at_boot": true,
+      "interface_selection": "auto",
+      "bind_ipv4": "192.168.7.2",
+      "allowed_peer_ipv4": "192.168.7.1",
+      "tcp_port": 47007,
+      "startup_owner": "/etc/init.d/p0-ed-service",
+      "fail_closed_if_bridge_start_fails": true,
+      "init_script_sha256": "a3c04409d83b9433017b30d940e2cf0da8de6fbcfd25ff7b2fe52985a30d2608"
+    }
   },
   "kernel_module": {
     "path": "/lib/modules/6.12.40-xilinx-g31626ef92ff1/updates/p0_dma_client.ko",
     "sha256": "4e19ca3c3eccdbbab73b1ae92b2817df72da0b060fa5726355148c597fc8a630"
   },
   "hardware_input": {
-    "xsa_sha256": "6d4461a1245586db30463d14d467538bb09069a61cbc3292d3803cd3b17dd002",
-    "system_bit_sha256": "1f767abc0a81b0a2cae574d23beb41858f1533e3322ee4e544101bc3c01ac8e2"
+    "xsa_sha256": "eb146d8b51e2b9409e6cdb0db6c49baf2d2275722bfd0d5d4e9c444952ccd738",
+    "system_bit_sha256": "8db8f2b10742e467fa61f4449b23d00e9cc70706ff0009d5b7fbd982aba6a00d",
+    "vivado_evidence": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
+    "vivado_evidence_sha256": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745"
   },
   "hardware_input_current": true,
+  "adr0040_rtl_present_in_hardware_input": true,
   "device_tree": {
     "compatible": "teknofest,p0-axi-dma-1.0",
     "register_base": "0x40400000",
     "status": "okay",
-    "sha256": "cae121ef363c068810f0618f33ae592f53bf1687a6b8930975a7d7fa4007b54f"
+    "source_sha256": "f239fca08b99599991fea4615c2f2c31cb0b6bf50e6d931241aa44cd6fe2848d"
   },
   "image": {
     "name": "image.ub",
-    "bytes": 24037675,
-    "sha256": "da735531487a652cd98a30679f15d1d5706037e705d016ae81c886a9479dcd18"
+    "bytes": 24067055,
+    "sha256": "070d3dc0c6e3bf4b91513cb54597213b677e83ef1e640588a21fc0340eed2548",
+    "staged_copy": "C:/FPGA_Projects/zedboard_petalinux_base/SD_BOOT/adr0040-p09-final-20260904/image.ub"
   },
   "boot_image": {
-    "status": "retained_hardware_boot_artifact",
+    "status": "generated_with_current_adr0040_bitstream",
     "name": "BOOT.BIN",
     "bytes": 5228616,
-    "sha256": "b05bc6332c066c29761bfac78042b6430443d4b6b73dbfd235f005e5dc2e7a4a"
+    "sha256": "2e6642d71bbbc19cbaf65aefdb73ea18f7bcb3a0d4c8f4f76a5d383932ddcfb1",
+    "staged_copy": "C:/FPGA_Projects/zedboard_petalinux_base/SD_BOOT/adr0040-p03-auto-network-20260903/BOOT.BIN",
+    "contains_system_bit_sha256": "8db8f2b10742e467fa61f4449b23d00e9cc70706ff0009d5b7fbd982aba6a00d"
   },
   "rootfs_manifest": {
     "bytes": 23000,
     "sha256": "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3"
   },
   "source_sha256": {
-    "p0-dma_1.0.bb": "f3c52dd5f1e5371998fb7b474eec5c9f9574681c5bbe31f73a9ac0e66c9792f8",
+    "p0-dma_1.0.bb": "b7fd606d548b68222b1621e60cd81ac27d0edda74e3372c456d6320580207f50",
     "p0_dma_client.c": "132878442ca900343227c553570862a05fb8fcf0e47e6bc23337082659da645b",
     "p0_dma_uapi.h": "85dbd8ca540847f0680f0881f6237df6e506c1fed8a9d14af720a17c118cf807",
     "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
@@ -76,21 +107,35 @@
     "p0_parameter_client.c": "8fe227361e82e4aa7c44543a2ba5263df796687bd7c2ef4e5ad5596c2d461f47",
     "p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
     "p0_multiscale_detector.h": "65e5fe6090895dd4e6263915b2f32394bc750b1946f64887f5ba8e4d65fafae3",
-    "p0_ed_pipeline.c": "f6ed5887b8317e3dd25f62b805ed1fa11528c90ab42fbadcdd0629f454bbb951",
+    "p0_ed_pipeline.c": "2c484aea427da9c9833382a0ab76ca1db51c37db1df4469f910978c00f732f6b",
+    "p0_ed_pipeline.h": "3994efe11bbfc9d128be147387fe90f5c3c2a3a8279d8617524ff7accfdd52d7",
     "p0_ed_runtime_run.c": "a57929facad7649a89a2069c2e5b0102e8b3bdc3ef40a78580dad8e5a9d844ea",
     "p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
     "p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
     "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
     "p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
     "p0_ed_stage_profile_run.c": "2ee345cbe27756903bb4a02ee59a7c03584410de17e57060ecd9bb141b3a76e5",
-    "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2"
+    "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
+    "p0_candidate_packet.h": "4ce00e343c2b19a34d5afd0a6483508accf94ed500e223b90102e95c3efa6c13",
+    "p0_persistent_weak.c": "be44c77926d5d6e3f36eedcf26da1c9b05aa76fe0ec8fd4ca5820fc8d934ff53",
+    "p0_persistent_weak.h": "33aa25650aeb529796f04d0cca463569bf50b2cda0602134dd2b823cdbcb0c9a",
+    "p0_persistent_weak_run.c": "ebd18f9779cb154323337e90551474edf2e093999989020b30767e57d08cd900",
+    "phase06i_transport_abi.h": "f13ac19c02466d2f053053eda0404339f0ba8d0414910f82280ead10d575f8f3",
+    "phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+    "phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed",
+    "p0-ed-service.init": "d8fe56ae93ef9aaeefaa4fb4d0a454cfe17e92498862f3d5e3f5338c28ea1a49",
+    "p0-ed-network-bridge.default": "e25287ff21b560a992ab7334b8b63f2299c8f8a5b5d0fb2d0129bb7e295eec3a",
+    "p0-ed-network-bridge.init": "a3c04409d83b9433017b30d940e2cf0da8de6fbcfd25ff7b2fe52985a30d2608",
+    "p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "p0_iq_transport.c": "449ecbf65532367a1db4192a5085eb3ec2a30b8d4f317f4f3e89fc4cf15f3221",
+    "p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28"
   },
-  "prior_physical_acceptance": "results/evidence/p0/multiscale-detector-physical-acceptance.json",
-  "cold_boot_acceptance": "results/evidence/p0/ed-service-v3-cold-boot-acceptance.json",
+  "prior_physical_acceptance": "results/evidence/p0/adr0040-physical-acceptance.json",
+  "cold_boot_acceptance": "results/evidence/p0/adr0040-physical-acceptance.json",
   "not_verified": [
-    "live HackRF",
-    "calibrated RF accuracy",
-    "RF transmission"
+    "blind live HackRF detection probability across the full operating range",
+    "field false-alarm rate",
+    "calibrated RF power accuracy"
   ],
-  "claim_boundary": "This evidence proves that the current candidate-packet XSA, device tree, ABI v2 DMA module, ABI v3 ARM local service and full PetaLinux image build together. Separate physical evidence proves cold-boot execution, deterministic candidate and temporal equivalence, and the locked local 2 MS/s-equivalent throughput profile."
+  "claim_boundary": "This build record and results/evidence/p0/adr0040-physical-acceptance.json prove that the current ADR-0040 ARM sources are packaged in the persistent P09 image and that the cold-booted ZedBoard digital Ethernet, DMA, FPGA candidate and ARM temporal path passes function and sustained 2 MS/s throughput. Blind live-RF detection probability, field false-alarm rate and calibrated RF power accuracy remain open."
 }

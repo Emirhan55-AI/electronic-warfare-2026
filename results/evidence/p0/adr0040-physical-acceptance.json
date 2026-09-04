@@ -1,0 +1,182 @@
+{
+  "schema": "p0-adr0040-physical-acceptance-v1",
+  "generated_utc": "2026-09-04T05:13:47.660866+00:00",
+  "status": "passed",
+  "scope": "P09 soğuk açılış; Ethernet→ARM→DMA→FPGA→ARM aday ve zaman doğrulama zinciri",
+  "endpoint": {
+    "host": "192.168.7.2",
+    "port": 47007
+  },
+  "persistent_image": {
+    "image_ub_sha256": "070d3dc0c6e3bf4b91513cb54597213b677e83ef1e640588a21fc0340eed2548",
+    "service_sha256": "533b0795240281008be717cf769a48fff4b6b0c18520872c45f0c22482d77742",
+    "bridge_sha256": "67979b33d235ea1bcc101ddcd1aef10a7d7fe676b4c7a93da375129535e89c94",
+    "boot_id": "1fd1a2d8-7b35-4a17-ad21-c0ad5a3d4756",
+    "network_interface": "enx4265a9c9b4bc",
+    "link_speed_mbps": 1000,
+    "duplex": "full",
+    "automatic_service_start": true,
+    "automatic_bridge_start": true
+  },
+  "profile": {
+    "sample_rate_hz": 2000000,
+    "fft_size": 4096,
+    "required_frames_per_second": 488.28125,
+    "weak_threshold_db": 6.0,
+    "weak_window_frames": 32,
+    "weak_required_frames": 24,
+    "maximum_tracked_weak_nominations_per_frame": 8,
+    "known_frame_sha256": "59260fed535cd19e02682fa01e8170c3ea19c0585fec8e2d838d6172d8b1f209"
+  },
+  "functional_acceptance": [
+    {
+      "frame_id": 0,
+      "raw_candidate_count": 104,
+      "dma_status_flags": 7,
+      "active_count": 50,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3468
+    },
+    {
+      "frame_id": 1,
+      "raw_candidate_count": 104,
+      "dma_status_flags": 7,
+      "active_count": 50,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3468
+    },
+    {
+      "frame_id": 2,
+      "raw_candidate_count": 104,
+      "dma_status_flags": 7,
+      "active_count": 50,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3468
+    },
+    {
+      "frame_id": 3,
+      "raw_candidate_count": 0,
+      "dma_status_flags": 7,
+      "active_count": 50,
+      "ended_count": 0,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3468
+    },
+    {
+      "frame_id": 4,
+      "raw_candidate_count": 0,
+      "dma_status_flags": 7,
+      "active_count": 0,
+      "ended_count": 50,
+      "dropped_candidates": 0,
+      "reset_applied": 0,
+      "response_bytes": 3468
+    }
+  ],
+  "throughput_acceptance": {
+    "repeat_runs": 5,
+    "measured_frames_per_run": 4096,
+    "completed_measured_frames": 20480,
+    "minimum_frames_per_second": 525.8263339653056,
+    "mean_frames_per_second": 526.0406727850595,
+    "maximum_frames_per_second": 526.4589583950611,
+    "minimum_real_time_margin": 1.0768923319609458,
+    "client_sequence_errors": 0,
+    "runs": [
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 7.7873281999491155,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 525.9827112496381,
+        "real_time_margin": 1.0772125926392588,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 16252928,
+        "bidirectional_payload_megabytes_per_second": 6.421196938935583,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 7.78908980009146,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 525.8637536765726,
+        "real_time_margin": 1.0769689675296208,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 16252928,
+        "bidirectional_payload_megabytes_per_second": 6.419744704883599,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 7.786012300057337,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 526.0716066387201,
+        "real_time_margin": 1.077394650396099,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 16252928,
+        "bidirectional_payload_megabytes_per_second": 6.422282173845496,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 7.789644100004807,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 525.8263339653056,
+        "real_time_margin": 1.0768923319609458,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 16252928,
+        "bidirectional_payload_megabytes_per_second": 6.419287885048451,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      },
+      {
+        "warmup_frames": 64,
+        "measured_frames": 4096,
+        "request_pipeline_depth": 4,
+        "elapsed_seconds": 7.780283599859104,
+        "required_frames_per_second": 488.28125,
+        "measured_frames_per_second": 526.4589583950611,
+        "real_time_margin": 1.0781879467930853,
+        "input_wire_bytes": 33751040,
+        "output_wire_bytes": 16252928,
+        "bidirectional_payload_megabytes_per_second": 6.427010964086906,
+        "client_frames_sent": 4160,
+        "client_frames_received": 4160,
+        "client_sequence_errors": 0
+      }
+    ]
+  },
+  "source_sha256": {
+    "algorithms/ps/persistent_weak_cfar.py": "969e9aeb90c751d04f552971404a21fa6f262fb0fd90327b2713889bf6accb05",
+    "platforms/embedded/p0/include/p0_persistent_weak.h": "33aa25650aeb529796f04d0cca463569bf50b2cda0602134dd2b823cdbcb0c9a",
+    "platforms/embedded/p0/src/p0_persistent_weak.c": "be44c77926d5d6e3f36eedcf26da1c9b05aa76fe0ec8fd4ca5820fc8d934ff53",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "2c484aea427da9c9833382a0ab76ca1db51c37db1df4469f910978c00f732f6b",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
+    "scripts/verify_p0_phase07_physical.py": "8b2c85a5d678fe937e94028ef819e3826ba4ff546c3135a23a34837c551552d9",
+    "scripts/verify_p0_adr0040_physical.py": "7c3b67e06ab6f6d3fe8473d5fb089e918ffb909a45f79157e8f98fd7228537dd"
+  },
+  "claim_boundary": "Bu kanıt, kalıcı P09 imajındaki sayısal aday zincirinin ZedBoard üzerinde işlev ve sürekli 2 MS/s hız koşullarını karşıladığını gösterir. Canlı, kör RF tespit olasılığı, yanlış alarm oranı ve kalibre dBm doğruluğu ayrıca saha kabulü gerektirir."
+}

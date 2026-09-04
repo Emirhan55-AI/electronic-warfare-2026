@@ -12,14 +12,14 @@
     "out_of_range_frame_failed_closed": true,
     "malformed_frame_sticky_error": true,
     "candidate_overflow_sticky": false,
-    "stalled_payload_stability_checks": 8,
+    "stalled_payload_stability_checks": 2,
     "fixture_manifest_sha256": "70e332f5b3bb90a381113fb0988238af06753c0bc7a3432452ed5d2fbf09a080"
   },
   "latency": {
-    "maximum_last_input_to_last_output_cycles": 44886,
+    "maximum_last_input_to_last_output_cycles": 44979,
     "acceptance_limit_cycles": 50000,
     "clock_hz_for_capacity_only": 50000000,
-    "maximum_processing_milliseconds_at_50mhz": 0.89772
+    "maximum_processing_milliseconds_at_50mhz": 0.89958
   },
   "architecture": {
     "regional_median": "16 parallel exact radix rank-127/128 engines",
@@ -38,7 +38,7 @@
     "algorithms/fpga/p0/rtl/p0_wideband_recovery_pkg.sv": "028e95c4e8205eba078f5ce6bf8c92a132b06e1ccfc77f0ed89304aae5f20adc",
     "algorithms/fpga/p0/rtl/p0_region_bank.sv": "284db842f8cb9f572fa3866a10e68ecd16530dd5da134a064b340c968eedc5e4",
     "algorithms/fpga/p0/rtl/p0_parallel_region_median.sv": "c0ddcd1cf5bcb625289ce403fb7167c8e55c10e6aedf273ec7ac1af603ac02b3",
-    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "b14d2fdcda151e1c7881a1aa8d318b4b526e30ef83b6a5226879f3bca8720b0e",
+    "algorithms/fpga/p0/rtl/p0_wideband_recovery.sv": "ad4e2b2b987fb658fb19dd0c658d96751904ecfe08c01b52c381123233c45431",
     "algorithms/fpga/p0/tb/tb_p0_wideband_recovery.sv": "e51b6143e6eabaa7eb1b63641492ff43a704c77c971bfc33dad9b03d988966f7"
   },
   "claim_boundary": "Icarus bit-true simulation of the median plus wideband-recovery chain only; OS-candidate fusion, PHASE-06I integration, synthesis, timing closure, board execution and real-time acceptance remain open."

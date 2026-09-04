@@ -1,0 +1,14 @@
+{
+  "profiles": [
+    {
+      "serial": "0000000000000000a32868dc35138247",
+      "frequencies_hz": [1000000000],
+      "evidence": "results/evidence/phase08/receiver-spur-1ghz-characterization.json"
+    },
+    {
+      "serial": "0000000000000000a32868dc36877e47",
+      "frequencies_hz": [720000000, 760000000, 832000000, 840000000, 1000000000, 1040000000, 1080000000],
+      "evidence": "results/evidence/phase08/receiver-spur-harmonics-36877e47.json"
+    }
+  ]
+}

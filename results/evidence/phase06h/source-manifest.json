@@ -5,7 +5,7 @@
     "algorithms/fpga/phase06h/rtl/phase06h_candidate_synthesis_top.sv": "c3924a6c116e373df0eb561687952576dfff5faaf62ba2f8d943f709bb448f64",
     "algorithms/fpga/phase06h/rtl/phase06h_pkg.sv": "d536952c73e6a754d2671ab1970325aa4cc2b787380925cc409d2d8b7c299286",
     "algorithms/fpga/phase06h/tb/tb_axis_candidate_grouping.sv": "0df1295d73094c7f5a66f66d61daa6d46b81c2d0dd0f09aeb71a1d805dfd9179",
-    "algorithms/rtl/candidate_grouping.py": "791b22f7151a5db98fdf397a33b1d7802eabcdd254dfd211497f4605384ad8ec",
+    "algorithms/rtl/candidate_grouping.py": "43ff9cf784d9c632a43ca11e256ff54fa8a051396f7cd073a9e044e6cc3c283d",
     "algorithms/rtl/candidate_vectors.py": "a18f9f003ffeb9f2a28ad461964179ba13b41e1667db6ca584ed104fca07b715",
     "datasets/fixtures/phase06h/axis-detector-input.mem": "c4abed935b2f71fbc848b11938076f5b3b82598299947c621d2636b3013415b9",
     "datasets/fixtures/phase06h/candidate-expected.mem": "5fb85aefd352e716b1c1b7530762656786e6e25ed234eb658d2e95e8ce026fb2",

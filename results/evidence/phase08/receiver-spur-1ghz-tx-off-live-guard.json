@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "status": "passed_tx_off_negative_control",
+  "captured_at_utc": "2026-09-01T21:40:49.818008+00:00",
+  "condition": "Kullanıcı vericinin kapalı olduğunu bildirdi; alıcı anteni bağlı; 1 GHz sabit bant.",
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "sample_rate_hz": 8000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16
+  },
+  "result": {
+    "candidate": {
+      "frequency_hz": 1000000000.0,
+      "peak_frequency_hz": 1000000000.0,
+      "lower_frequency_hz": 999950000.0,
+      "upper_frequency_hz": 1000050000.0,
+      "peak_to_noise_db": 0.0,
+      "source": "coarse_rx"
+    },
+    "state": "not_reproduced",
+    "observations": [
+      {
+        "input_center_hz": 998200000,
+        "output_center_hz": 999700000,
+        "observed_frames": 79,
+        "frequency_hz": 1000000042.6473497,
+        "peak_frequency_hz": 999999847.9529272,
+        "lower_frequency_hz": 999999548.1853243,
+        "upper_frequency_hz": 1000000537.109375,
+        "peak_to_noise_db": 14.178015542440013,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999998828.125,
+        "receiver_peak_to_noise_db": 19.93890282323624,
+        "receiver_lower_frequency_hz": 999998828.125,
+        "receiver_upper_frequency_hz": 1000000781.25,
+        "spur_guard_required": true,
+        "spur_guard_passed": false,
+        "spur_shoulder_bins": 0,
+        "spur_shoulder_peak_to_noise_db": 2.5419126010170805
+      },
+      {
+        "input_center_hz": 1002800000,
+        "output_center_hz": 1000300000,
+        "observed_frames": 80,
+        "frequency_hz": 999999948.1201172,
+        "peak_frequency_hz": 1000000134.2773438,
+        "lower_frequency_hz": 999999462.890625,
+        "upper_frequency_hz": 1000000433.3496094,
+        "peak_to_noise_db": 14.52465242849112,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999999218.75,
+        "receiver_peak_to_noise_db": 20.000320154871392,
+        "receiver_lower_frequency_hz": 999999218.75,
+        "receiver_upper_frequency_hz": 1000001171.875,
+        "spur_guard_required": true,
+        "spur_guard_passed": false,
+        "spur_shoulder_bins": 0,
+        "spur_shoulder_peak_to_noise_db": 2.2971808523170063
+      },
+      {
+        "input_center_hz": 1000900000,
+        "output_center_hz": 999400000,
+        "observed_frames": 80,
+        "frequency_hz": 999999920.6542969,
+        "peak_frequency_hz": 1000000097.65625,
+        "lower_frequency_hz": 999999401.8554688,
+        "upper_frequency_hz": 1000000439.453125,
+        "peak_to_noise_db": 15.44276609208993,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999999609.375,
+        "receiver_peak_to_noise_db": 20.059347215483537,
+        "receiver_lower_frequency_hz": 999999609.375,
+        "receiver_upper_frequency_hz": 1000001562.5,
+        "spur_guard_required": true,
+        "spur_guard_passed": false,
+        "spur_shoulder_bins": 0,
+        "spur_shoulder_peak_to_noise_db": 2.440469818301355
+      },
+      {
+        "input_center_hz": 999100000,
+        "output_center_hz": 1000600000,
+        "observed_frames": 80,
+        "frequency_hz": 1000000094.6044922,
+        "peak_frequency_hz": 999999902.34375,
+        "lower_frequency_hz": 999999591.0644531,
+        "upper_frequency_hz": 1000000598.1445312,
+        "peak_to_noise_db": 15.387400376656874,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999998437.5,
+        "receiver_peak_to_noise_db": 18.9419703086727,
+        "receiver_lower_frequency_hz": 999998437.5,
+        "receiver_upper_frequency_hz": 1000002343.75,
+        "spur_guard_required": true,
+        "spur_guard_passed": false,
+        "spur_shoulder_bins": 0,
+        "spur_shoulder_peak_to_noise_db": 2.4108415349099794
+      }
+    ]
+  },
+  "ui_observation": {
+    "duration_seconds": 27,
+    "stable_rf_candidate_present": false,
+    "visible_text": "Kararlı yayın aranıyor"
+  },
+  "claim_limit": "Bu negatif kontrol yalnız bildirilen TX-kapalı 1 GHz koşulunu kapsar; pozitif tespit, Pd/Pfa veya genel saha kabulü değildir.",
+  "source_sha256": {
+    "app/operator_console/fixed_band_verification.py": "cccbb1c6f9d74165eec80ed2e8b671299cb7c281685582728ca5840a0c836730",
+    "app/operator_console/quick_view_model.py": "15549c09ac88d71a3da391aa3a8878e349ff92255e72181985869131819b18bb",
+    "app/operator_console/quick_scan_actions.py": "2d33bfebc4bbb5da2caad69475aad94a36c3b34d8a661ba9b2699f851488fee0",
+    "config/p0/hackrf_spurs.json": "7eee996a37de2d30be28b54012104112ac500115f1621d6722404df15ab868ea"
+  }
+}

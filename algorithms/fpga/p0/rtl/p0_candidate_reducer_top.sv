@@ -20,6 +20,8 @@ module p0_candidate_reducer_top (
   output logic [61:0] m_axis_tuser_threshold,
   output logic [1:0]  m_axis_tuser_pfa_select,
   output logic        m_axis_tuser_evaluate_center,
+  output logic        m_axis_tuser_weak_evidence,
+  output logic        m_axis_tuser_single_frame_confident,
   output logic        m_axis_tuser_candidate_valid,
   output logic [15:0] completed_frame_count,
   output logic [8:0]  status_sticky
@@ -41,9 +43,11 @@ module p0_candidate_reducer_top (
   logic [61:0] os_threshold;
   logic [1:0] os_pfa;
   logic os_evaluate_center;
+  logic os_weak_evidence;
+  logic os_single_frame_confident;
   logic os_candidate_valid;
   logic [15:0] os_completed_frame_count;
-  logic [2:0] os_status;
+  logic [1:0] os_status;
 
   logic median_valid;
   logic [58:0] region_median_twice [0:15];
@@ -73,7 +77,7 @@ module p0_candidate_reducer_top (
   assign s_axis_tready = os_input_ready && median_input_ready && recovery_input_ready;
   assign shared_valid = s_axis_tvalid && s_axis_tready;
 
-  p0_sparse_os_candidate_top sparse_os_i (
+  p0_weak_nomination_top sparse_os_i (
     .aclk,
     .aresetn,
     .s_axis_tvalid(shared_valid),
@@ -89,10 +93,12 @@ module p0_candidate_reducer_top (
     .m_axis_tuser_end_shifted_bin(os_end),
     .m_axis_tuser_peak_shifted_bin(os_peak),
     .m_axis_tuser_coarse_span_bins(os_span),
-    .m_axis_tuser_noise(os_noise),
+    .m_axis_tuser_order_statistic(os_noise),
     .m_axis_tuser_threshold(os_threshold),
     .m_axis_tuser_pfa_select(os_pfa),
     .m_axis_tuser_evaluate_center(os_evaluate_center),
+    .m_axis_tuser_weak_evidence(os_weak_evidence),
+    .m_axis_tuser_single_frame_confident(os_single_frame_confident),
     .m_axis_tuser_candidate_valid(os_candidate_valid),
     .completed_frame_count(os_completed_frame_count),
     .status_sticky(os_status)
@@ -155,6 +161,8 @@ module p0_candidate_reducer_top (
     .s_os_threshold(os_threshold),
     .s_os_pfa_select(os_pfa),
     .s_os_evaluate_center(os_evaluate_center),
+    .s_os_weak_evidence(os_weak_evidence),
+    .s_os_single_frame_confident(os_single_frame_confident),
     .s_os_candidate_valid(os_candidate_valid),
     .s_recovery_tvalid(recovery_valid),
     .s_recovery_tready(recovery_ready),
@@ -183,6 +191,8 @@ module p0_candidate_reducer_top (
     .m_axis_tuser_threshold,
     .m_axis_tuser_pfa_select,
     .m_axis_tuser_evaluate_center,
+    .m_axis_tuser_weak_evidence,
+    .m_axis_tuser_single_frame_confident,
     .m_axis_tuser_candidate_valid,
     .completed_frame_count,
     .status_input_error_sticky(fusion_input_error),
@@ -190,6 +200,7 @@ module p0_candidate_reducer_top (
   );
 
   assign status_sticky = {
+    1'b0,
     fusion_overflow,
     fusion_input_error,
     recovery_overflow,

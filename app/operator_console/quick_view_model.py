@@ -7,6 +7,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import time
+from collections import deque
 from typing import Callable, Literal
 
 import numpy as np
@@ -53,6 +54,18 @@ from platforms.acquisition import (
 
 from .audio_playback import AudioPlayback
 from .detection_model import DetectionListModel
+from .fixed_band_verification import (
+    FIXED_PRESENTATION_HOLD_FRAMES,
+    FIXED_PRIMARY_MIN_SEEN_FRAMES,
+    FIXED_SPUR_MATCH_HZ,
+    FIXED_VERIFY_MATCH_HZ,
+    FixedBandCandidate,
+    FixedBandVerification,
+    FixedBandVerifier,
+    fixed_candidate_reference_frequency,
+    known_spur_shoulder_evidence,
+)
+from .known_spurs import load_known_spurs
 from .spectral_display import SpectralDisplay
 from .live_ed import (
     LIVE_AUDIO_WINDOW_FRAMES,
@@ -69,7 +82,11 @@ from .live_ed import (
     LiveEDPreview,
 )
 
-
+from .quick_detection_state import (
+    LIVE_SPUR_GUARD_WINDOW,
+    SUPPRESSED_VERIFICATION_STATES,
+    QuickDetectionStateMixin,
+)
 from .quick_direction_actions import QuickDirectionActionsMixin
 from .quick_et_actions import QuickETActionsMixin
 from .quick_listening_actions import QuickListeningActionsMixin
@@ -111,8 +128,17 @@ READINESS_INVALIDATING_LIVE_ERRORS = frozenset(
     }
 )
 
+# FPGA event identifiers are deliberately short lived. A modulated carrier can
+# move by several FFT bins and be reborn with another event identifier even
+# though it is still one operator-visible emission. This tolerance is used only
+# for presentation/history grouping; raw FPGA events and measurement windows
+# retain their original identifiers.
+OPERATOR_DEFAULT_LNA_GAIN_DB = 16
+OPERATOR_DEFAULT_VGA_GAIN_DB = 16
+
 
 class OperatorViewModel(
+    QuickDetectionStateMixin,
     QuickDirectionActionsMixin,
     QuickETActionsMixin,
     QuickListeningActionsMixin,
@@ -142,6 +168,7 @@ class OperatorViewModel(
         live_session_factory: Callable[[str, LiveEDConfiguration], LiveEDSession] = LiveEDSession,
         fpga_transport_factory: Callable[[], TCPClientIQTransport] = TCPClientIQTransport,
         survey_factory=RXSurvey,
+        fixed_verifier_factory=FixedBandVerifier,
         developer_mode: bool | None = None,
     ) -> None:
         super().__init__(parent)
@@ -154,8 +181,13 @@ class OperatorViewModel(
         self._source_factory = source_factory
         self._live_session_factory = live_session_factory
         self._fpga_transport_factory = fpga_transport_factory
+        self._fixed_verifier_factory = fixed_verifier_factory
         self._backend = acquisition_backend or RealHackRFBackend()
         self._device_config = load_ed_rx_config()
+        self._known_spurs_hz = load_known_spurs(self._device_config.serial)
+        self._live_spur_guard_binding: tuple[float, float, int] | None = None
+        self._live_spur_guard_power: deque[np.ndarray] = deque(maxlen=LIVE_SPUR_GUARD_WINDOW)
+        self._live_spur_guard_passed: dict[int, bool] = {}
         self._pool = QThreadPool(self)
         self._pool.setMaxThreadCount(1)
         self._timer = QTimer(self)
@@ -198,6 +230,13 @@ class OperatorViewModel(
         self._coarse_detection_frame: CoarseDetectionFrame | None = None
         self._coarse_detection_sequence = -1
         self._coarse_detection_error = ""
+        self._fixed_verification_records: dict[int, object] = {}
+        self._fixed_verification_candidate: FixedBandCandidate | None = None
+        self._fixed_verification_queue: list[FixedBandCandidate] = []
+        self._fixed_verifier = None
+        self._fixed_verification_stop_requested = False
+        self._fixed_resume_settings: dict[str, int] | None = None
+        self._fixed_preserved_history: list[dict[str, object]] = []
         self._selected_live_detection: dict[str, object] | None = None
         self._visible_live_measurement_windows: dict[int, tuple[LiveEDSnapshot, ...]] = {}
         self._show_live_candidates = False
@@ -227,8 +266,8 @@ class OperatorViewModel(
         self._spectrum_sample_rate_hz = 0.0
         self._live_receive_settings = {
             "center_hz": 104_650_000,
-            "lna_db": LIVE_DEFAULT_LNA_GAIN_DB,
-            "vga_db": LIVE_DEFAULT_VGA_GAIN_DB,
+            "lna_db": OPERATOR_DEFAULT_LNA_GAIN_DB,
+            "vga_db": OPERATOR_DEFAULT_VGA_GAIN_DB,
         }
         self._live_sample_rate_hz = 0
         self._live_frames_per_second = 0.0
@@ -327,7 +366,9 @@ class OperatorViewModel(
 
     @Property(bool, notify=stateChanged)
     def liveSessionActive(self) -> bool:
-        return self._live_session is not None and self._playing
+        return (self._live_session is not None and self._playing) or (
+            self._fixed_verification_candidate is not None and self._fixed_verifier is not None
+        )
 
     @Property(QObject, constant=True)
     def survey(self):
@@ -472,6 +513,39 @@ class OperatorViewModel(
     def detections(self) -> list[dict[str, object]]:
         return self._detections
 
+    @Property(int, notify=detectionsChanged)
+    def activeDetectionCount(self) -> int:
+        rows = self._live_detection_rows if self._source_mode == "hackrf" else self._detections
+        if (
+            self._source_mode == "hackrf"
+            and self._live_session is None
+            and self._fixed_verification_candidate is None
+        ):
+            return 0
+        return sum(
+            row.get("stateKey") == "confirmed" and bool(row.get("observed", True))
+            and not bool(row.get("held", False))
+            and row.get("verificationKey") not in SUPPRESSED_VERIFICATION_STATES
+            for row in rows
+        )
+
+    @Property(int, notify=detectionsChanged)
+    def stableDetectionCount(self) -> int:
+        rows = self._live_detection_rows if self._source_mode == "hackrf" else self._detections
+        if (
+            self._source_mode == "hackrf"
+            and self._live_session is None
+            and self._fixed_verification_candidate is None
+        ):
+            return 0
+        return sum(
+            row.get("verificationKey") == "verified_two_lo"
+            and row.get("stateKey") == "confirmed"
+            and bool(row.get("observed", True))
+            and not bool(row.get("held", False))
+            for row in rows
+        )
+
     @Property(QObject, constant=True)
     def detectionModel(self):
         return self._detection_model
@@ -490,27 +564,70 @@ class OperatorViewModel(
     @Property("QVariantList", notify=detectionsChanged)
     def detectionMarkers(self) -> list[dict[str, object]]:
         rows = self._live_detection_rows if self._source_mode == "hackrf" else self._detections
-        if self._source_mode == "hackrf" and self._live_session is None:
+        if (
+            self._source_mode == "hackrf"
+            and self._live_session is None
+            and self._fixed_verification_candidate is None
+        ):
             return []
-        return [row for row in rows if row["stateKey"] == "confirmed" and row.get("observed", True)][:12]
+        return [
+            row for row in rows
+            if row["stateKey"] == "confirmed"
+            and row.get("observed", True)
+            and not row.get("held", False)
+            and row.get("verificationKey") not in SUPPRESSED_VERIFICATION_STATES
+        ][:12]
 
     @Property("QVariantList", notify=detectionsChanged)
     def coarseDetectionMarkers(self) -> list[dict[str, object]]:
         frame = self._coarse_detection_frame
         if frame is None or self._live_session is None:
             return []
+        candidates = sorted(
+            (
+                item for item in frame.candidates
+                if item.state == "confirmed" and item.observed_this_frame
+            ),
+            key=lambda item: (
+                -item.peak_to_noise_db if math.isfinite(item.peak_to_noise_db) else float("inf"),
+                item.peak_frequency_hz,
+            ),
+        )
         return [
             {
                 "eventId": int(item.track_id),
                 "startNormalized": self._normalized_live_frequency(item.lower_frequency_hz),
                 "endNormalized": self._normalized_live_frequency(item.upper_frequency_hz),
                 "peakNormalized": self._normalized_live_frequency(item.peak_frequency_hz),
-                "frequency": self._format_frequency(item.peak_frequency_hz),
+                "frequency": self._format_frequency(fixed_candidate_reference_frequency(
+                    item.lower_frequency_hz,
+                    item.upper_frequency_hz,
+                    item.peak_frequency_hz,
+                )),
                 "contrast": f"{item.peak_to_noise_db:.1f} dB" if math.isfinite(item.peak_to_noise_db) else "—",
+                "insideFpgaBand": abs(fixed_candidate_reference_frequency(
+                    item.lower_frequency_hz,
+                    item.upper_frequency_hz,
+                    item.peak_frequency_hz,
+                ) - self._live_output_center_frequency_hz)
+                <= LIVE_USABLE_HALF_BAND_HZ,
+                "verificationKey": self._fixed_verification_state(fixed_candidate_reference_frequency(
+                    item.lower_frequency_hz,
+                    item.upper_frequency_hz,
+                    item.peak_frequency_hz,
+                )),
             }
-            for item in frame.candidates
-            if item.state == "confirmed" and item.observed_this_frame
+            for item in candidates
+            if self._fixed_verification_state(fixed_candidate_reference_frequency(
+                item.lower_frequency_hz,
+                item.upper_frequency_hz,
+                item.peak_frequency_hz,
+            )) not in SUPPRESSED_VERIFICATION_STATES
         ][:12]
+
+    @Property(bool, notify=detectionsChanged)
+    def hasCoarseCandidateAwaitingFpga(self) -> bool:
+        return not self.detectionMarkers and bool(self.coarseDetectionMarkers)
 
     @Property(str, notify=detectionsChanged)
     def coarseDetectionStatusText(self) -> str:
@@ -520,6 +637,13 @@ class OperatorViewModel(
         if frame is None or self._live_session is None:
             return "8 MHz kaba RX tespiti bekleniyor"
         count = sum(item.state == "confirmed" and item.observed_this_frame for item in frame.candidates)
+        outside = sum(
+            item.state == "confirmed" and item.observed_this_frame
+            and abs(item.peak_frequency_hz - self._live_output_center_frequency_hz) > LIVE_USABLE_HALF_BAND_HZ
+            for item in frame.candidates
+        )
+        if outside:
+            return f"Kaba RX adayı: {count} · {outside} aday FPGA alanı dışında"
         return f"Kaba RX adayı: {count} · FPGA doğrulaması değildir"
 
     @Property(int, notify=detectionsChanged)
@@ -1141,6 +1265,8 @@ class OperatorViewModel(
         self._source_state = "Çalışıyor"
         self._update_spectrum_result(spectrum)
         if first_preview:
+            self._start_next_fixed_verification()
+        if first_preview:
             self.stateChanged.emit()
 
     @Slot(int, object)
@@ -1156,6 +1282,7 @@ class OperatorViewModel(
         self._coarse_detection_frame = coarse
         self._coarse_detection_error = ""
         self.detectionsChanged.emit()
+        self._maybe_verify_coarse_candidate(coarse)
 
     @Slot(int, str)
     def _live_coarse_failed(self, generation: int, error_type: str) -> None:
@@ -1229,6 +1356,16 @@ class OperatorViewModel(
         self._playing = False
         self._active_task_kind = ""
         if code == "operation_cancelled":
+            if self._fixed_verification_candidate is not None and self._fixed_verifier is not None:
+                candidate = self._fixed_verification_candidate
+                verifier = self._fixed_verifier
+                self._source_state = "Denetleniyor"
+                self._status_message = "Aday ikinci fiziksel alıcı ayarında sınanıyor."
+                self._submit(generation, "fixed_verify", lambda: verifier.run(candidate))
+                self.detectionsChanged.emit()
+                self.pipelineChanged.emit()
+                self.stateChanged.emit()
+                return
             self._source_state = "Hazır" if self._live_has_data else "Kullanılmıyor"
             self._status_message = "Canlı ED oturumu operatör tarafından durduruldu."
             self._add_log("Canlı ED", self._status_message)
@@ -1261,6 +1398,47 @@ class OperatorViewModel(
             if kind != "frame":
                 self.pipelineChanged.emit()
             self.stateChanged.emit()
+            return
+        if kind == "fixed_verify":
+            if not isinstance(result, FixedBandVerification):
+                self._show_error("fixed_verification_result", "Sabit bant doğrulama sonucu geçersiz.")
+                self.stateChanged.emit()
+                return
+            record = self._fixed_verification_record(result.candidate.frequency_hz)
+            if record is not None:
+                record.update(state=result.state, result=result)
+            resume = self._fixed_resume_settings
+            preserved = [self._apply_fixed_verification(row) for row in self._fixed_preserved_history]
+            self._fixed_verification_candidate = None
+            self._fixed_verifier = None
+            self._fixed_verification_stop_requested = False
+            self._fixed_resume_settings = None
+            self._fixed_preserved_history = []
+            if resume is None:
+                self._show_error("fixed_verification_resume", "Sabit bant görünümü yeniden başlatılamadı.")
+                self.stateChanged.emit()
+                return
+            center_hz = resume["center_hz"]
+            self._status_message = (
+                (
+                    "Aday FPGA tarafından iki alıcı ayarında yeniden görüldü; görünüm sürdürülüyor."
+                    if result.verification_method == "fpga"
+                    else "Aday alıcı spektrumunda iki fiziksel ayarda yeniden görüldü; FPGA görünümü sürdürülüyor."
+                )
+                if result.verified else
+                "Aday ikinci ayarlarda yeniden görülmedi; önceki görünüm sürdürülüyor."
+            )
+            self._add_log("Sabit bant doğrulama", self._status_message)
+            self.startLiveEDSession(
+                center_hz,
+                resume["lna_db"],
+                resume["vga_db"],
+                resume["frame_count"],
+                preserve_fixed_context=True,
+            )
+            if self._live_session is not None:
+                self._live_detection_history = preserved
+                self._refresh_live_detection_list(force=True)
             return
         if kind == "open":
             self._install_source(result, Path(getattr(result, "metadata_path")).name)
@@ -1342,6 +1520,39 @@ class OperatorViewModel(
         task_kind = self._active_task_kind
         self._active_task_kind = ""
         if generation == self._generation:
+            if task_kind == "fixed_verify":
+                candidate = self._fixed_verification_candidate
+                resume = self._fixed_resume_settings
+                if candidate is not None:
+                    record = self._fixed_verification_record(candidate.frequency_hz)
+                    if record is not None:
+                        record.update(state="verification_error", result=None)
+                stopped = self._fixed_verification_stop_requested or self._closed
+                self._fixed_verification_candidate = None
+                self._fixed_verifier = None
+                self._fixed_verification_stop_requested = False
+                self._fixed_resume_settings = None
+                self._fixed_preserved_history = []
+                if stopped and code == "operation_cancelled":
+                    self._source_state = "Hazır" if self._live_has_data else "Kullanılmıyor"
+                    self._status_message = "Sabit frekans taraması durduruldu."
+                elif resume is not None and not self._closed:
+                    self._add_log(
+                        "Sabit bant doğrulama",
+                        "İkinci alıcı ayarı tamamlanamadı; ana görünüm yeniden başlatılıyor.",
+                    )
+                    self.startLiveEDSession(
+                        resume["center_hz"],
+                        resume["lna_db"],
+                        resume["vga_db"],
+                        resume["frame_count"],
+                        preserve_fixed_context=True,
+                    )
+                else:
+                    self._show_error(code, detail)
+                self.pipelineChanged.emit()
+                self.stateChanged.emit()
+                return
             if task_kind == "measurement":
                 self._measurement_requested = False
             if task_kind in {"listening", "wav_export"}:
@@ -1478,223 +1689,6 @@ class OperatorViewModel(
         self._status_message = "Alıcı bağlantısı bekleniyor."
         self.pipelineChanged.emit()
         self.stateChanged.emit()
-
-    def _update_spectrum(self, result: RuntimeFrameResult) -> None:
-        self._update_spectrum_result(result.spectrum)
-
-    def _update_spectrum_result(self, spectrum: object) -> None:
-        display = getattr(spectrum, "display")
-        values = np.asarray(display.bin_power_dbfs, dtype=np.float64)
-        power_fs2 = np.asarray(display.bin_power_fs2, dtype=np.float64)
-        finite_power = power_fs2[np.isfinite(power_fs2) & (power_fs2 > 0.0)]
-        self._direction_frame_power_dbfs = (
-            None if finite_power.size == 0 else float(10.0 * np.log10(np.mean(finite_power)))
-        )
-        width = min(self._viewport_points, values.size)
-        reduced = _reduce_display_max(values, width)
-        self._spectral_display.append(
-            values,
-            timestamp=self._frame_index * spectrum.frame_length / spectrum.sample_rate_hz,
-            binding=(self._generation, spectrum.center_frequency_hz, spectrum.sample_rate_hz),
-        )
-        self._spectrum_center_frequency_hz = float(spectrum.center_frequency_hz)
-        self._spectrum_sample_rate_hz = float(spectrum.sample_rate_hz)
-        self._spectrum_values = [float(value) for value in reduced]
-        self.spectrumChanged.emit()
-
-    def _update_live_detections(self, response: object) -> None:
-        active = tuple(getattr(response, "active", ()))
-        state_text = {"tentative": "İzleniyor", "confirmed": "Algılanıyor", "ended": "Sona ermiş"}
-        spacing = 2_000_000.0 / 4096.0
-        center = float(self._live_output_center_frequency_hz)
-        detections: list[dict[str, object]] = []
-        for item in active:
-            frequency = center + (item.peak_shifted_bin - 2048.0) * spacing
-            if abs(frequency - center) > LIVE_USABLE_HALF_BAND_HZ:
-                continue
-            contrast = item.peak_to_noise_db
-            detections.append(
-                {
-                    "eventId": int(item.event_id),
-                    "title": "Sinyal tespit edildi",
-                    "frequencyHz": float(frequency),
-                    "lowerFrequencyHz": center + (item.start_shifted_bin - 2048.0) * spacing,
-                    "upperFrequencyHz": center + (item.end_shifted_bin - 2048.0) * spacing,
-                    "frequency": self._format_precise_rf(frequency),
-                    "snr": f"{contrast:.1f} dB" if math.isfinite(contrast) else "—",
-                    "contrastDb": float(contrast) if math.isfinite(contrast) else float("-inf"),
-                    "state": state_text[item.state] if item.observed_this_frame else "Sinyal yok",
-                    "stateKey": item.state if item.observed_this_frame else "stale",
-                    "confirmed": item.state == "confirmed",
-                    "observed": item.observed_this_frame,
-                    "offsetKHz": (frequency - center) / 1_000.0,
-                    "startBin": int(item.start_shifted_bin),
-                    "endBin": int(item.end_shifted_bin),
-                    "peakBin": int(item.peak_shifted_bin),
-                    "eventRevision": int(item.seen_count),
-                    "startNormalized": self._normalized_live_bin(item.start_shifted_bin),
-                    "endNormalized": self._normalized_live_bin(item.end_shifted_bin),
-                    "peakNormalized": self._normalized_live_bin(item.peak_shifted_bin),
-                }
-            )
-        self._live_detection_rows = detections
-        self._update_live_detection_history(detections)
-        selected = next((row for row in detections if row["eventId"] == self._selected_detection_id and row["observed"]), None)
-        if selected is not None:
-            self._selected_live_detection = dict(selected)
-        elif self._selected_live_detection is not None:
-            self._selected_live_detection = self._last_observation(self._selected_live_detection)
-        self._refresh_live_detection_list()
-
-    @staticmethod
-    def _last_observation(row: dict[str, object]) -> dict[str, object]:
-        return dict(row, state="Sinyal yok", stateKey="stale", observed=False)
-
-    def _update_live_detection_history(self, detections: list[dict[str, object]]) -> None:
-        for retained in self._live_detection_history:
-            retained.update(observed=False, state="Son görüldü", stateKey="stale")
-        for row in detections:
-            if row["stateKey"] != "confirmed" or not row["observed"]:
-                continue
-            frequency_hz = float(row["frequencyHz"])
-            lower_hz = float(row["lowerFrequencyHz"])
-            upper_hz = float(row["upperFrequencyHz"])
-            matched = None
-            for retained in self._live_detection_history:
-                retained_lower = float(retained["lowerFrequencyHz"])
-                retained_upper = float(retained["upperFrequencyHz"])
-                tolerance = 2_000_000.0 / 4096.0
-                if not (upper_hz < retained_lower or lower_hz > retained_upper) or abs(
-                    frequency_hz - float(retained["frequencyHz"])
-                ) <= tolerance:
-                    matched = retained
-                    break
-            if matched is None:
-                matched = dict(row)
-                matched["rowKey"] = f"frequency-{len(self._live_detection_history) + 1}"
-                matched["firstSeenFrame"] = self._frame_index
-                matched["observationCount"] = 0
-                self._live_detection_history.append(matched)
-            row_key = matched["rowKey"]
-            first_seen = matched["firstSeenFrame"]
-            observations = int(matched["observationCount"]) + 1
-            matched.clear()
-            matched.update(
-                row,
-                rowKey=row_key,
-                firstSeenFrame=first_seen,
-                lastSeenFrame=self._frame_index,
-                observationCount=observations,
-                state="Algılanıyor",
-                stateKey="confirmed",
-                observed=True,
-            )
-
-    def _refresh_live_detection_list(self, *, force: bool = False) -> None:
-        if self._source_mode != "hackrf":
-            return
-        if self._live_session is None:
-            for retained in self._live_detection_history:
-                retained.update(observed=False, state="Son görüldü", stateKey="stale")
-        ordered = sorted(
-            self._live_detection_history,
-            key=lambda row: (not bool(row["observed"]), -int(row["lastSeenFrame"]), -float(row["contrastDb"])),
-        )
-        self._detections = ordered[:12]
-        self._live_list_frame = self._frame_index
-        visible_ids = {int(row["eventId"]) for row in self._detections}
-        session = self._live_session
-        if session is not None and hasattr(session, "measurement_window"):
-            for event_id in visible_ids:
-                window = tuple(session.measurement_window(event_id))
-                if len(window) == 4:
-                    self._visible_live_measurement_windows[event_id] = window
-                    if event_id == self._selected_detection_id and not self._selected_live_measurement_window:
-                        self._selected_live_measurement_window = window
-        retained_window_ids = visible_ids | ({self._selected_detection_id} if self._selected_detection_id >= 0 else set())
-        self._visible_live_measurement_windows = {
-            event_id: window
-            for event_id, window in self._visible_live_measurement_windows.items()
-            if event_id in retained_window_ids
-        }
-        self._detection_model.set_rows(self._detections)
-        self.detectionsChanged.emit()
-
-    def _update_detections(self, result: RuntimeFrameResult) -> None:
-        for event in result.detection.active_events:
-            if not event.observed_this_frame:
-                continue
-            history = self._event_observation_history.setdefault(int(event.event_id), [])
-            record = (self._frame_index, True)
-            if history and history[-1][0] == self._frame_index:
-                history[-1] = record
-            else:
-                history.append(record)
-            del history[:-8]
-        visible = sorted(
-            result.detection.active_events,
-            key=lambda item: (item.state != "confirmed", item.event_id),
-        )[:12]
-        state_text = {"tentative": "İzleniyor", "confirmed": "Kararlı", "ended": "Sona ermiş"}
-        self._detections = [
-            {
-                "eventId": int(item.event_id),
-                "title": f"Tespit #{item.event_id}",
-                "frequency": self._format_frequency(item.region.peak_frequency_hz),
-                "snr": f"{item.region.peak_to_noise_db:.1f} dB",
-                "state": state_text[item.state],
-                "stateKey": item.state,
-                "offsetKHz": (item.region.peak_frequency_hz - result.spectrum.center_frequency_hz) / 1_000.0,
-                "startNormalized": self._normalized_shifted_bin(item.region.start_bin),
-                "endNormalized": self._normalized_shifted_bin(item.region.end_bin),
-                "peakNormalized": self._normalized_shifted_bin(item.region.peak_bin),
-            }
-            for item in visible
-        ]
-        if not any(int(item["eventId"]) == self._selected_detection_id for item in self._detections):
-            if self._selected_detection_id >= 0:
-                self._clear_listening("Seçili tespit sona erdi; yeni bir tespit seçin.")
-            self._selected_detection_id = -1
-            self._selected_live_measurement_window = ()
-            self._measurement_requested = False
-            self._parameter_rows = []
-            self._analysis_span = None
-            self._analysis_span_draft = None
-        self._detection_model.set_rows(self._detections)
-        self.detectionsChanged.emit()
-
-    def _clear_results(self, *, keep_source: bool = False) -> None:
-        self._last_result = None
-        self._direction_frame_power_dbfs = None
-        self._spectrum_values = []
-        self._spectral_display.clear()
-        self._detections = []
-        self._detection_model.set_rows([])
-        self._live_detection_rows = []
-        self._live_detection_history = []
-        self._coarse_detection_frame = None
-        self._coarse_detection_sequence = -1
-        self._coarse_detection_error = ""
-        self._selected_live_detection = None
-        self._visible_live_measurement_windows.clear()
-        self._selected_live_measurement_window = ()
-        self._live_list_frame = -1
-        self._selected_detection_id = -1
-        self._measurement_requested = False
-        self._pending_live_measurement = None
-        self._pending_live_listening = None
-        self._parameter_rows = []
-        self._analysis_span = None
-        self._analysis_span_draft = None
-        self._event_observation_history.clear()
-        self._frame_index = 0
-        self._reset_direction()
-        self._clear_listening("Doğrulanmış bir tespit seçin.")
-        if not keep_source:
-            self._frame_count = 0
-        self.spectrumChanged.emit()
-        self.detectionsChanged.emit()
-        self.pipelineChanged.emit()
 
     def _clear_listening(self, message: str) -> None:
         self._playback_timer.stop()

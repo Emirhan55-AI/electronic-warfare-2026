@@ -9,10 +9,13 @@ zorunlu kılıyor diye yorumlanmaz. Sonraki görev fazlarına geçiş yoktur.
 
 Kullanıcı planın ardından uygulama yetkisi vermiştir. Yalnız mevcut sinyal
 tespiti kapsamındaki alım, görüntü ve tarama düzeltmeleri uygulanmaktadır.
-İş paketlerinin tamamı bitmiş sayılmaz. RX/görüntü yazılımı ve geniş bant
-tespit RTL'i değiştirilmiştir. Güncel bitstream yerel yapı kapılarından geçmiş,
-karta çalışma zamanında yüklenmiş ve kayıtlı fiziksel I/Q ile FPGA üzerinde
-karşı örneği düzeltmiştir. Kontrollü canlı RF A/B kabulü yapılmamıştır.
+İş paketlerinin tamamı bitmiş sayılmaz. RX/görüntü yazılımı, geniş bant tespit
+RTL'i ve ADR-0040 zayıf-kararlı dar bant kaynak zinciri değiştirilmiştir.
+ADR-0040'ın güncel PL→paket→PS değişikliği Icarus, portable C, Linux-host,
+Vivado route/zamanlama/bitstream, PetaLinux P09 kalıcı soğuk açılış ve kart üstü
+dijital işlev/hız kapılarından geçmiştir. Bir kontrollü canlı RF aç/kapat tanı
+turu yapılmış, ancak tekrar sayılı kör saha Pd/Pfa ve kalibrasyon kabulü henüz
+tamamlanmamıştır.
 Aşağıdaki başlangıç bulguları düzeltme öncesini anlatır.
 Operatörün harici verici durumu alıcı yazılımından doğrudan okunamaz. Ortam
 kaydı bu nedenle otomatik olarak "yalnız gürültü" ya da gerçek değeri bilinen
@@ -31,6 +34,112 @@ Kaynak hashine bağlı önceki fiziksel UI/RX raporları bu modülerleştirme ö
 ait tarihsel kanıttır. Otomatik davranış regresyonları geçse bile yeni fiziksel
 koşu yapılmadan bu raporlar güncel kaynak kabulü sayılmaz; özellikle açık USB
 shortfall kapısı kapanmış değildir.
+
+1 Eylül 2026 sabit bant karar bakımında, tek LO'daki FPGA 2/3 sonucu artık
+kesin yayın olarak sunulmaz; sarı `FPGA ADAYI`dır. Aday en az 8 FPGA
+gözleminden sonra dört olası DC-güvenli fiziksel HackRF ayarından iki başarılı
+ayar bulunana kadar 96'şar kare yeniden sınanır. İlk 16 kare yerleşme
+korumasıdır ve kalan karelerin en az 24'ünde aynı mutlak RF tepesi (dar adayda
+±50 kHz, geniş adayda destek örtüşmesi) görülürse yeşil `KARARLI RF ADAYI`
+olur. FPGA alanının içinde veya dışında kalan doğrulanmış 8 MHz kaba RX adayı
+da aynı FPGA sınamasını yalnız aday olarak başlatabilir. Geçici doğrulama
+ayarlarından sonra ana görünüm daima operatörün seçtiği sabit merkeze döner. Bu işlem
+alıcı ayarına bağlı DC/LO ve benzeri iç ürünleri reddetmek içindir; harici
+vericinin kimliğini kanıtlamaz. Bunun için değişmeyen alıcı koşullarıyla TX
+kapalı/açık A/B hâlâ zorunludur.
+
+2 Eylül 2026 kontrollü 1 GHz tanısında iki ek yanlış-pozitif açığı
+kapatılmıştır. İki-LO doğrulaması artık yalnız fiziksel HackRF merkezini değil,
+FPGA çıkış merkezini de değiştirir; böylece çıkış/NCO koordinatına kilitli bir
+ürün iki ayar sayılmaz. Yapılandırılmış ED_RX cihazında fiziksel olarak ölçülen
+1 GHz dar spur için yalnız ±5 kHz adaylarda ek yan bant kapısı uygulanır:
+taşıyıcının 2–25 kHz omuzlarında, 50–250 kHz yerel medyana göre 3 dB'yi aşan
+en az sekiz 16.384-FFT hücresi gerekir. Bu cihaz profili bütün 1 GHz bandını
+silmez ve diğer frekanslardaki dar adaylara uygulanmaz. TX kapalı ve alıcı
+anteni sökülü koşulda dört ayarın tamamında yan bant hücre sayısı 0 olmuş ve
+sonuç `not_reproduced` kalmıştır. Daha sonra pozitif diye etiketlenen koşunun
+ardından kullanıcı vericinin aslında kapalı olduğunu bildirmiştir; bu nedenle
+`receiver-spur-1ghz-characterization.json` içindeki 18/16 hücreli koşu pozitif
+TX kabul kanıtı değildir ve kayıt `superseded_positive_state_uncontrolled`
+olarak işaretlenmiştir. Kararlı karar artık canlı 8 MHz alıcı spektrumundaki
+sekiz ölçümlük omuz kanıtıyla sürekli denetlenir; omuzlar kaybolduğunda eski
+iki-ayar kararı `live_guard_failed` olur ve operatöre tespit diye sunulmaz.
+TX kapalı, anten bağlı tekrarında dört ayar 0/0/0/0 hücreyle
+`not_reproduced` kalmış; arayüz 27 saniye boyunca “Kararlı yayın aranıyor”
+durumunda kalmıştır. Güncel negatif kanıt
+`results/evidence/phase08/receiver-spur-1ghz-tx-off-live-guard.json`
+dosyasındadır. Pozitif TX kabulü, saha Pd/Pfa kabulü ve 1 GHz dışındaki spur
+profilleri hâlâ açıktır.
+
+Aynı gün kullanılan `0000000000000000a32868dc36877e47` seri numaralı alıcıda
+TX kapalı referansında 720, 760 ve 840 MHz'de dar iç ürünler ölçülmüştür. Bu üç
+frekans dört farklı giriş/çıkış merkezinde yeniden görünmesine rağmen 2–25 kHz
+omuz kapısını geçmemiştir: 720 MHz için her ayarda yalnız bir hücre, 760 ve
+840 MHz için sıfır hücre bulunmuştur. Bu nedenle yalnız bu alıcı seri numarası
+ve frekanslarda bilinen-spur kapısı uygulanır; bantların tamamı bastırılmaz.
+Kanıt `results/evidence/phase08/receiver-spur-harmonics-36877e47.json`
+dosyasındadır. Ölçüm, bağlı harici vericinin RF ürettiğini veya hedef yayının
+frekansını kanıtlamaz.
+
+2 Eylül 2026 tarihli 955,7 MHz tanısında tek-kare OS-CFAR ile zayıf kararlı
+yayın arasındaki açıklık fiziksel olarak ölçülmüştür. Operatör frekansı
+açıkladıktan sonra yapılan iki bağımsız HackRF ayarında tepe tam
+955.700.000 Hz'de kalmış, ortalama P/N 8,04 ve 8,06 dB olmuştur. Aynı hücrenin
+TX açık/kapalı farkı 7,73 ve 7,66 dB; 6 dB üstü kare oranı açıkta %88,1/%86,7,
+kapalıda %6,3/%7,9 ölçülmüştür. Bu kayıt tanı ve kalibrasyon kanıtıdır; frekans
+önceden açıklandığı için kör arama kabulü değildir.
+
+Bu açıklık için FPGA'nın 9,33 dB tek-kare OS-CFAR profili değiştirilmemiştir.
+Ham 8 MHz RX önizlemesinde en az 32 kare kullanan ayrı bir koherent olmayan
+bütünleştirme yolu eklenmiştir. Bilinmeyen frekansta aday olabilmek için
+ortalama P/N en az 6 dB, aynı hücrenin kare doluluğu en az %75 ve bağımsız
+ikinci LO'da aynı mutlak RF frekansı şarttır. Sonuç `RX 2 AYARDA` olarak
+etiketlenir; FPGA doğrulaması sayılmaz. Fiziksel dosya tekrarında açık iki LO
+955.700.000 Hz'i %88,8/%86,9 dolulukla tek aday üretmiş, kapalı iki LO sıfır
+aday üretmiştir. Canlı TX-kapalı 955,4–956,0 MHz denemesi de sıfır adayla
+tamamlanmıştır. Frekansı açıklanmamış canlı geniş bant kabulü hâlâ açıktır.
+Tanı kayıtları `build/acceptance/rx-survey/blind-800-1100-20260902/` altındadır.
+
+Aynı kaba RX karesinde birden fazla doğrulanmış aday varsa en güçlü tek adayın
+diğerlerini düşürmemesi için en fazla dört aday P/N sırasıyla sınırlı kuyrukta
+tutulur ve iki-LO sınamasından sırayla geçirilir. Kuyruk operatör taramayı
+durdurduğunda temizlenir. Uygulama girişinde tek örnek kilidi vardır; ikinci
+BÂZ süreci alıcıyı paylaşmak üzere başlatılmaz.
+
+Aday grafikten kaybolduğunda canlı kılavuz hemen kaldırılır. Liste satırı
+yalnız 128 FPGA karesi, yaklaşık 262 ms, `Kısa süreli izleniyor` durumunda
+tutulur; yeni gözlem gelmezse `Son görüldü` geçmişine geçer. Bu sunum
+histerezisi FPGA olay ömrünü veya OS-CFAR kararını uzatmaz.
+
+1 Eylül 2026 canlı tespit sunumu bakımında, FPGA olay numaraları değişse bile
+birbirine en fazla 75 kHz uzaklıktaki doğrulanmış tepeler tek operatör satırında
+gruplanmıştır. Bu yalnız sunum/geçmiş birleştirmesidir; FPGA'nın OS-CFAR,
+geniş bant kurtarma veya 2/3 zamansal kararını değiştirmez ve iki yakın fiziksel
+vericinin kesinlikle tek verici olduğunu iddia etmez. Canlı sayaç artık geçmiş
+satırlarını içermez; geçmiş ayrı başlık altında tutulur ve eski seçime ait
+kılavuz grafikte çizilmez. En yüksek tepe/gürültü oranlı güncel FPGA olayı
+baskın sonuç olarak gösterilir. Tek LO FPGA sonucu ve 8 MHz host kaba adayı
+sarıdır. Yalnız iki bağımsız alıcı ayarında yeniden görülen mutlak RF adayı
+yeşildir. Host adayı tek başına FPGA doğrulaması veya kesin yayın sonucu
+sayılmaz.
+
+Yakın verici denemelerinde alıcı iç ürünlerini ve kırpılma riskini azaltmak için
+sabit bant ve bant taraması başlangıç kazançları LNA/VGA `16/16 dB` yapılmıştır.
+Operatör ölçülen seviyeye göre kazancı yükseltebilir. Bu değişiklik 10 MHz'teki
+gözlemin çevresel yayın mı, HackRF saat sızıntısı mı veya başka bir alıcı iç
+ürünü mü olduğunu tek başına belirlemez; anten/dummy-load, kazanç ve iki LO'lu
+kontrollü tekrar hâlâ gereklidir. Tek canlı TX kapalı/açık tanı turu saha
+Pd/Pfa kabulü yerine geçmediğinden KTR-4.1 tamamlanmış sayılmaz.
+
+1 Eylül 2026 kullanıcı kontrollü canlı tanı turunda 8 MS/s, LNA/VGA 32/32 dB
+ve 898,5/901,5 MHz fiziksel LO ayarlarıyla 900,191406 MHz bileşeninin P/N değeri
+TX açıkken 24,56/24,77 dB, TX kapalıyken 3,99/3,46 dB ölçülmüştür. Tepe gücü
+iki ayarda 21,30 ve 21,81 dB düşmüştür. Tam 900,000 MHz bileşeni TX kapalıyken
+iki LO'da da kalmıştır; bu nedenle operatörün açıp kapattığı bileşen değildir ve
+tek merkez DC çizgisi olarak da açıklanamaz. Kanıt
+`results/evidence/phase08/live-user-tx-on-off-900mhz.json` dosyasındadır.
+Verici durumu operatör beyanıdır, mutlak güç kalibrasyonu yapılmamıştır ve tek
+tur verici kimliği ya da saha tespit olasılığı kanıtı değildir.
 
 ### Yeniden kontrol edilen durum
 
@@ -150,12 +259,13 @@ ayar bağı ve fiziksel RF kabulü tamamlanmadan ST-04/05/07 kapanmaz.
 ### Uygulama ve ölçüm kaydı
 
 - UART COM6/115200 üzerinden kartın Linux giriş ekranı görülmüş, sonrasında ağ
-  köprüsü çalışma zamanında etkinleştirilmiştir. `192.168.7.2:47007` TCP hizmeti
-  şu anda açıktır ve 136-kare fiziksel FPGA duman testi sıfır taşıma hatasıyla
-  geçmiştir. Güvenli imaj varsayılanı hâlâ `P0_ED_NETWORK_ENABLED=0` olduğundan
-  bu durum yeniden açılış sonrası otomatik kabul edilmez. Karttaki bitstream
-  ADR-0037'nin son geniş bant RTL'sini içermediği için güncel geniş bant kart
-  kabulü yapılmış sayılmaz. Ethernet durumu USB shortfall nedeni değildir.
+  köprüsü etkinleştirilip SysV çalışma seviyelerine kaydedilmiştir.
+  `192.168.7.2:47007` TCP hizmeti erişilebilirdir ve 136-kare fiziksel FPGA
+  duman testi sıfır taşıma hatasıyla geçmiştir. Yeniden açılış sonrası hizmet
+  erişimi ayrıca denetlenmiştir. Karttaki P09 bitstream'i ADR-0040'ın geniş bant
+  ve zayıf-kararlı aday yolunu içerir; bilinen dijital çerçeveyle kart kabulü
+  geçmiştir. Kör canlı RF doğruluğu bu dijital kabulden ayrı ve açıktır.
+  Ethernet durumu USB shortfall nedeni değildir.
 - `LiveEDPreview`, kart yanıtı taşımayan ayrı bir I/Q görüntü kaydıdır. Kanal
   seçici bütün kareleri işler; önizleme callback'i yalnız son ham görüntü işini
   bırakır ve hemen döner. Ayrı
@@ -390,11 +500,36 @@ gerektirir; başka bir uygulamanın güzel görüntüsü otomatik tespit kabulü
 | Hann, FFT bağlantısı, güç | SystemVerilog + AMD FFT IP, ZedBoard PL | `algorithms/fpga/p0/rtl/p0_candidate_dsp_runtime_top.sv` |
 | OS-CFAR, bölgesel median, bütünleşik enerji, gruplama, birleştirme, paket | SystemVerilog, ZedBoard PL | `p0_candidate_reducer_packetizer_top.sv` ve alt blokları |
 | Paket/CRC denetimi, 2/3 doğrulama ve iki kaçırmada sonlandırma | C, ZedBoard PS/ARM | `platforms/embedded/p0/src/p0_ed_pipeline.c` |
+| Çok kareli zayıf dar bant aday | SystemVerilog PL zayıf kapı + C/ARM kare başına en güçlü sekiz aday kabulü ve 24/32 doğrulama | `p0_weak_nomination_top.sv`; `axis_candidate_packetizer.sv`; `p0_ed_pipeline.c`; RTL/C/P09 soğuk açılış ve dijital kart kabulü geçti. İki LO kontrolü alıcı iç ürünü ayırmak için bilgisayarda yürüyen ayrı bir RF kontrolüdür. |
 | Spektrum ve waterfall çizimi | Python/Qt Quick, bilgisayar | `app/operator_console/spectral_display.py`; kart yanıtı bağlı gerçek I/Q |
 
 FFT matematiğinin tamamı elle SystemVerilog olarak yazılmamıştır; AMD FFT IP,
 SystemVerilog bağdaştırıcıyla kullanılır. Python modelleri referans ve test içindir.
-Canlı tespit listesi karttan gelir; görsel FFT, kart yokken yedek tespit üretmez.
+FPGA/ARM olay listesi karttan gelir. Karta kalıcı olarak yüklenen P09 imajı
+ADR-0040 zayıf yolunu içerir. Python/NumPy modeli artık yalnız referans ve
+tekrarlanabilir doğrulama sahibidir. İki LO kontrolü FPGA olayı değildir; HackRF
+ayarına bağlı iç ürünleri gerçek RF yayınından ayırmaya yardım eden bilgisayar
+tarafı alıcı kontrolüdür.
+
+2 Eylül 2026 ADR-0040 hedef modeli, mevcut rank-24/32 PL gürültü kestirimine
+karşı 6 dB zayıf aday çıkışı ve ARM'da tepe ±2 hücre destekli 24/32 doğrulama
+olarak somutlaştırılmıştır. Python hedef modeli ile portable C çekirdeği aynı
+vektörde alan alan eşleşmiştir. Ayrı SystemVerilog karar-hücresi benzetiminde
+5× gürültü hücresi yalnız zayıf aday, 10× hücre hem zayıf hem normal aday
+olmuştur. 64'er adet beyaz, eğimli ve dalgalı 32-kare gürültü penceresinde
+doğrulanmış yanlış aday çıkmamış; beş farklı FFT konumundaki enjeksiyon aynı
+hücrede doğrulanmıştır. Zayıf bit güncel kaynakta sınıflı gruplama, paket ve ARM
+hizmetine bağlanmıştır. Tam RTL paket testi 8 kare/113 aday/629 beat ve 63
+backpressure kontrolünde, portable C boru testi 24/32/reset/sona-erme
+yaşam döngüsünde geçmiştir. Güncel kaynaklardan PetaLinux 2025.2 ARM imajı
+5679/5679 görevle üretilmiştir; Vivado route/zamanlama/bitstream ve P09 kalıcı
+soğuk açılış kapıları geçmiştir. Karttaki işlev dizisi 104 adaydan 50 etkin
+olaya, ardından iki boş karede 50 sona ermeye sıfır düşümle ulaşmıştır. Beş
+bağımsız koşudaki 20.480 ölçüm karesinde sıra hatası görülmemiş; en düşük hız
+525,8263 kare/s ile gereken 488,28125 kare/s sınırını geçmiştir. Bu, bilinen
+dijital çerçeveyle FPGA/ARM işlev ve hız kabulüdür; kör canlı RF Pd/Pfa,
+frekans/genlik kalibrasyonu ve saha başarımı henüz açık kapıdır. Güncel model kanıtı
+`results/evidence/phase08/persistent-weak-model-v1.json` dosyasındadır.
 Kayıtlı I/Q yolu yalnız tekrarlanabilir doğrulama altyapısında tutulur; yarışma
 operatör arayüzünde kaynak seçeneği değildir ve canlı P0 OS-CFAR yoluyla aynı
 başarı iddiasını üretmez.
@@ -567,7 +702,7 @@ ortalama PSD tepesini üretmiş; iki tepe arasındaki fark 0 Hz ve iki hedef
 pencerenin ortalama kanal gücü 1577,5 MHz karşılaştırma penceresinden 9,41 dB
 yüksek olmuştur. Yazılım çok ölçekli aday yolu bu tepeyi 120/120 ve 119/120
 karede kapsarken kartta yüklü önceki bitstream 0/120 ve 0/120 karede kapsamıştır.
-Bu sonuç gerçek RF enerjisinin ve güncel kart imajı eksiğinin tanısıdır; harici
+Bu sonuç gerçek RF enerjisinin ve o tarihte yüklü kart imajı eksiğinin tanısıdır; harici
 verici kimliği veya kontrollü TX açık/kapalı kabulü değildir. Ham kanıt
 `build/acceptance/rx-survey/diagnostic-1587p5-20260901/analysis.json` içindedir.
 
@@ -619,6 +754,21 @@ akışıdır. SigMF seçimi, olay konsolu, yakınlaştırma/geçmiş, seviye ve 
 düğmeleri görünür yüzeyden kaldırılmış; alıcı LNA/VGA ve frekans denetimi
 korunmuştur. İlgili canlı görünüm, tarama ve QML ürün sınırı koşusunda 98/98
 test geçmiştir.
+
+900 MHz sabit bant kontrollü tanısında kullanıcı tarafından bildirilen TX açık
+ve kapalı kayıtlar aynı 32/32 kazanç ve iki LO ayarında karşılaştırılmıştır.
+Yayınla birlikte değişen ortak bileşen 900,183–900,191 MHz'de bulunmuş; TX açık
+eksi kapalı farkı iki LO'da dar bantta 24,47 ve 25,14 dB olmuştur. 900,4385 ve
+900,6499 MHz çizgileri en fazla 1,17 dB değiştiğinden bu yayına bağlanmamıştır.
+İlk sabit bant doğrulayıcısı adayı çıkış spektrumunun DC merkezine taşıdığı ve
+yalnız karttaki 2/3 olayı saydığı için gerçek yayını reddediyordu. Güncel
+doğrulayıcı hedefi çıkış merkezinden 300 kHz uzakta tutar; aynı canlı FPGA
+oturumunun 8 MHz alıcı spektrumunda iki bağımsız LO tekrarını da sayar. Fiziksel
+tekrarda aday iki LO'da 79/79 kare, 900,184702 ve 900,185197 MHz ortalama tepe,
+22,48 ve 22,34 dB P/N ile geçmiştir. Kartın zamansal olay sayısı bu dalga
+biçiminde 0/0 kaldığından arayüz yöntem alanını `RX çift ayar` olarak gösterir;
+bu sonuç FPGA zamansal doğrulaması veya verici kimliği diye sunulmaz. Hash-bağlı
+kanıt `results/evidence/phase08/live-user-tx-on-off-900mhz.json` dosyasındadır.
 
 ## Kontrollü fiziksel kabul sırası
 

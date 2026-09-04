@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import struct
 import unittest
+from dataclasses import replace
 
 from algorithms.ps.candidate_transport import (
     ABI_VERSION,
@@ -55,6 +56,21 @@ class Phase06ITransportTests(unittest.TestCase):
         packet = encode_packet(0, ())
         self.assertNotIn(b"Hz", packet)
         self.assertNotIn(b"dBm", packet)
+
+    def test_weak_evidence_classes_round_trip_without_frequency_truth(self) -> None:
+        base = group_detector_cells(
+            next(v for v in self.vectors if v.vector_id == "one_bin").cells
+        )[0]
+        rows = (
+            replace(base, weak_evidence=True, single_frame_confident=False),
+            replace(base, weak_evidence=True, single_frame_confident=True),
+        )
+        self.assertEqual(rows, decode_packet(encode_packet(77, rows)).candidates)
+        with self.assertRaises(ValueError):
+            encode_packet(
+                78,
+                (replace(base, weak_evidence=False, single_frame_confident=True),),
+            )
 
 
 if __name__ == "__main__":

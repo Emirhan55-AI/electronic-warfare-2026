@@ -1,0 +1,503 @@
+{
+  "schema": "baz.receiver-spur-characterization.v1",
+  "created_at": "2026-09-02T01:28:41.311905+03:00",
+  "receiver_serial": "0000000000000000a32868dc36877e47",
+  "scope": "Receiver-specific narrow spur calibration for fixed-band verification",
+  "operator_states": {
+    "reference_capture": "TX off, operator reported",
+    "shoulder_recheck": "external TX on, operator reported; candidate-specific FM shoulders absent"
+  },
+  "decision_rule": "Frequency exists in TX-off reference and all live multi-LO checks fail the known-spur FM shoulder guard (minimum 8 bins above 3 dB in 2-25 kHz shoulders).",
+  "frequencies_hz": [
+    720000000,
+    760000000,
+    832000000,
+    840000000,
+    1000000000,
+    1040000000,
+    1080000000
+  ],
+  "results": [
+    {
+      "frequency_hz": 720000000,
+      "tx_off_reference_peak_to_local_noise_db": 13.96825278451297,
+      "verification": {
+        "candidate": {
+          "frequency_hz": 720000000.0,
+          "peak_frequency_hz": 720000000.0,
+          "lower_frequency_hz": 719965000.0,
+          "upper_frequency_hz": 720035000.0,
+          "peak_to_noise_db": 13.96825278451297,
+          "source": "coarse_rx"
+        },
+        "state": "not_reproduced",
+        "observations": [
+          {
+            "input_center_hz": 718200000,
+            "output_center_hz": 719700000,
+            "observed_frames": 80,
+            "frequency_hz": 720000039.6728516,
+            "peak_frequency_hz": 719999835.2050781,
+            "lower_frequency_hz": 719999548.3398438,
+            "upper_frequency_hz": 720000531.0058594,
+            "peak_to_noise_db": 15.0525888144845,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 719998828.125,
+            "receiver_peak_to_noise_db": 20.44870751506381,
+            "receiver_lower_frequency_hz": 719998828.125,
+            "receiver_upper_frequency_hz": 720000781.25,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 1,
+            "spur_shoulder_peak_to_noise_db": 4.179510241090893
+          },
+          {
+            "input_center_hz": 722800000,
+            "output_center_hz": 720300000,
+            "observed_frames": 80,
+            "frequency_hz": 719999957.2753906,
+            "peak_frequency_hz": 720000183.1054688,
+            "lower_frequency_hz": 719999462.890625,
+            "upper_frequency_hz": 720000451.6601562,
+            "peak_to_noise_db": 15.107030795166002,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 719999218.75,
+            "receiver_peak_to_noise_db": 19.85839720659911,
+            "receiver_lower_frequency_hz": 719999218.75,
+            "receiver_upper_frequency_hz": 720001171.875,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 1,
+            "spur_shoulder_peak_to_noise_db": 3.248923644749251
+          },
+          {
+            "input_center_hz": 720900000,
+            "output_center_hz": 719400000,
+            "observed_frames": 80,
+            "frequency_hz": 719999929.8095703,
+            "peak_frequency_hz": 720000097.65625,
+            "lower_frequency_hz": 719999414.0625,
+            "upper_frequency_hz": 720000445.5566406,
+            "peak_to_noise_db": 15.68620301718147,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 719999609.375,
+            "receiver_peak_to_noise_db": 20.639284168391338,
+            "receiver_lower_frequency_hz": 719999609.375,
+            "receiver_upper_frequency_hz": 720001562.5,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 1,
+            "spur_shoulder_peak_to_noise_db": 3.376655074381516
+          },
+          {
+            "input_center_hz": 719100000,
+            "output_center_hz": 720600000,
+            "observed_frames": 80,
+            "frequency_hz": 720000070.1904297,
+            "peak_frequency_hz": 719999902.34375,
+            "lower_frequency_hz": 719999536.1328125,
+            "upper_frequency_hz": 720000604.2480469,
+            "peak_to_noise_db": 16.04938535570841,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 719998437.5,
+            "receiver_peak_to_noise_db": 19.419830606386984,
+            "receiver_lower_frequency_hz": 719998437.5,
+            "receiver_upper_frequency_hz": 720002343.75,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 1,
+            "spur_shoulder_peak_to_noise_db": 3.827236871513822
+          }
+        ]
+      }
+    },
+    {
+      "frequency_hz": 760000000,
+      "tx_off_reference_peak_to_local_noise_db": 22.062763581563942,
+      "verification": {
+        "candidate": {
+          "frequency_hz": 760000000.0,
+          "peak_frequency_hz": 760000000.0,
+          "lower_frequency_hz": 759965000.0,
+          "upper_frequency_hz": 760035000.0,
+          "peak_to_noise_db": 22.062763581563942,
+          "source": "coarse_rx"
+        },
+        "state": "not_reproduced",
+        "observations": [
+          {
+            "input_center_hz": 758200000,
+            "output_center_hz": 759700000,
+            "observed_frames": 80,
+            "frequency_hz": 759999890.1367188,
+            "peak_frequency_hz": 759999804.6875,
+            "lower_frequency_hz": 759999200.4394531,
+            "upper_frequency_hz": 760000579.8339844,
+            "peak_to_noise_db": 23.190958836270784,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 759998828.125,
+            "receiver_peak_to_noise_db": 27.176715529078656,
+            "receiver_lower_frequency_hz": 759998828.125,
+            "receiver_upper_frequency_hz": 760000855.4193038,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 0.8188956660598017
+          },
+          {
+            "input_center_hz": 762800000,
+            "output_center_hz": 760300000,
+            "observed_frames": 80,
+            "frequency_hz": 760000155.6396484,
+            "peak_frequency_hz": 760000195.3125,
+            "lower_frequency_hz": 759999462.890625,
+            "upper_frequency_hz": 760000848.3886719,
+            "peak_to_noise_db": 22.865992601596222,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 759999218.75,
+            "receiver_peak_to_noise_db": 27.331094563395542,
+            "receiver_lower_frequency_hz": 759999218.75,
+            "receiver_upper_frequency_hz": 760001171.875,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 0.7126302585974899
+          },
+          {
+            "input_center_hz": 760900000,
+            "output_center_hz": 759400000,
+            "observed_frames": 80,
+            "frequency_hz": 760000097.65625,
+            "peak_frequency_hz": 760000097.65625,
+            "lower_frequency_hz": 759999365.234375,
+            "upper_frequency_hz": 760000830.078125,
+            "peak_to_noise_db": 23.748616955606394,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 759999609.375,
+            "receiver_peak_to_noise_db": 27.8541203700318,
+            "receiver_lower_frequency_hz": 759999609.375,
+            "receiver_upper_frequency_hz": 760001562.5,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 0.9109614638526492
+          },
+          {
+            "input_center_hz": 759100000,
+            "output_center_hz": 760600000,
+            "observed_frames": 80,
+            "frequency_hz": 759999902.34375,
+            "peak_frequency_hz": 759999902.34375,
+            "lower_frequency_hz": 759999169.921875,
+            "upper_frequency_hz": 760000634.765625,
+            "peak_to_noise_db": 23.703533447505276,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 759998437.5,
+            "receiver_peak_to_noise_db": 26.14720432041487,
+            "receiver_lower_frequency_hz": 759998437.5,
+            "receiver_upper_frequency_hz": 760002343.75,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 0.9300238771956899
+          }
+        ]
+      }
+    },
+    {
+      "frequency_hz": 832000000,
+      "classification": "receiver_spur",
+      "condition": "Harici verici kapalıyken iki bağımsız LO ayarında aynı mutlak RF frekansında kararlı gözlendi.",
+      "tx_off_two_lo_observations": [
+        {
+          "center_hz": 830600000,
+          "peak_frequency_hz": 831999902.344,
+          "peak_to_noise_db": 12.093,
+          "occupancy_percent": 100.0,
+          "frames": 56,
+          "sha256": "e7ae60fde9a20a69d03e4a885dca944e3bbaf531d188d92570aae0507aab6f5c"
+        },
+        {
+          "center_hz": 834500000,
+          "peak_frequency_hz": 832000000.0,
+          "peak_to_noise_db": 10.645,
+          "occupancy_percent": 98.214,
+          "frames": 56,
+          "sha256": "94dc1f534548009917f307a514dfa633b4b74366c22154337dafb977058b8209"
+        }
+      ],
+      "decision": "Bu alıcı seri numarası için yalın dar taşıyıcı dış yayın kanıtı sayılmaz; bağımsız yan bant desteği gerekir."
+    },
+    {
+      "frequency_hz": 840000000,
+      "tx_off_reference_peak_to_local_noise_db": 19.329818730711537,
+      "verification": {
+        "candidate": {
+          "frequency_hz": 840000000.0,
+          "peak_frequency_hz": 840000000.0,
+          "lower_frequency_hz": 839965000.0,
+          "upper_frequency_hz": 840035000.0,
+          "peak_to_noise_db": 19.329818730711537,
+          "source": "coarse_rx"
+        },
+        "state": "not_reproduced",
+        "observations": [
+          {
+            "input_center_hz": 838200000,
+            "output_center_hz": 839700000,
+            "observed_frames": 80,
+            "frequency_hz": 839999990.8447266,
+            "peak_frequency_hz": 839999804.6875,
+            "lower_frequency_hz": 839999444.5800781,
+            "upper_frequency_hz": 840000537.109375,
+            "peak_to_noise_db": 19.442436325048924,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 839998828.125,
+            "receiver_peak_to_noise_db": 24.69120507596348,
+            "receiver_lower_frequency_hz": 839998828.125,
+            "receiver_upper_frequency_hz": 840000781.25,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 1.8226174384067164
+          },
+          {
+            "input_center_hz": 842800000,
+            "output_center_hz": 840300000,
+            "observed_frames": 80,
+            "frequency_hz": 839999987.7929688,
+            "peak_frequency_hz": 840000195.3125,
+            "lower_frequency_hz": 839999444.5800781,
+            "upper_frequency_hz": 840000531.0058594,
+            "peak_to_noise_db": 18.96487975978117,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 839999218.75,
+            "receiver_peak_to_noise_db": 23.782532558755403,
+            "receiver_lower_frequency_hz": 839999218.75,
+            "receiver_upper_frequency_hz": 840001171.875,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 1.8807172715849454
+          },
+          {
+            "input_center_hz": 840900000,
+            "output_center_hz": 839400000,
+            "observed_frames": 80,
+            "frequency_hz": 840000045.7763672,
+            "peak_frequency_hz": 840000097.65625,
+            "lower_frequency_hz": 839999365.234375,
+            "upper_frequency_hz": 840000726.3183594,
+            "peak_to_noise_db": 19.892903631320912,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 839999609.375,
+            "receiver_peak_to_noise_db": 24.94922054094005,
+            "receiver_lower_frequency_hz": 839999609.375,
+            "receiver_upper_frequency_hz": 840001562.5,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 2.7940511663564385
+          },
+          {
+            "input_center_hz": 839100000,
+            "output_center_hz": 840600000,
+            "observed_frames": 80,
+            "frequency_hz": 839999920.6542969,
+            "peak_frequency_hz": 839999902.34375,
+            "lower_frequency_hz": 839999206.5429688,
+            "upper_frequency_hz": 840000634.765625,
+            "peak_to_noise_db": 20.041786071233034,
+            "receiver_observed_frames": 79,
+            "receiver_frequency_hz": 839998437.5,
+            "receiver_peak_to_noise_db": 23.654889002015622,
+            "receiver_lower_frequency_hz": 839998437.5,
+            "receiver_upper_frequency_hz": 840002343.75,
+            "spur_guard_required": true,
+            "spur_guard_passed": false,
+            "spur_shoulder_bins": 0,
+            "spur_shoulder_peak_to_noise_db": 2.3099430642566987
+          }
+        ]
+      }
+    },
+    {
+      "frequency_hz": 1000000000,
+      "classification": "receiver_spur",
+      "condition": "Harici verici kapalıyken iki LO ve üç örnekleme hızında sürekli gözlendi; bildirilen açık/kapalı çiftinde taşıyıcı gücü değişmedi.",
+      "controlled_on_off": {
+        "sample_rate_hz": 8000000,
+        "lna_gain_db": 16,
+        "vga_gain_db": 16,
+        "centers_hz": [
+          998600000,
+          1002500000
+        ],
+        "tx_on_peak_to_noise_db": [
+          24.1,
+          23.69
+        ],
+        "tx_off_peak_to_noise_db": [
+          24.15,
+          23.69
+        ],
+        "tx_on_minus_tx_off_db": [
+          -0.09,
+          0.06
+        ],
+        "occupancy_percent": [
+          100.0,
+          100.0
+        ],
+        "shoulder_result": "2-500 kHz aralığında iki LO için >=6 dB nitelikli bin yok."
+      },
+      "tx_off_sample_rate_recheck": [
+        {
+          "sample_rate_hz": 10000000,
+          "centers_hz": [
+            998600000,
+            1002500000
+          ],
+          "peak_frequency_hz": [
+            1000000146,
+            1000000000
+          ],
+          "peak_to_noise_db": [
+            26.4,
+            26.36
+          ],
+          "occupancy_percent": [
+            100.0,
+            100.0
+          ]
+        },
+        {
+          "sample_rate_hz": 12000000,
+          "centers_hz": [
+            998600000,
+            1002500000
+          ],
+          "peak_frequency_hz": [
+            999999658,
+            1000000244
+          ],
+          "peak_to_noise_db": [
+            21.93,
+            22.08
+          ],
+          "occupancy_percent": [
+            100.0,
+            100.0
+          ]
+        }
+      ],
+      "decision": "1 GHz dar taşıyıcısı bu alıcı seri numarası için dış yayın kanıtı sayılmaz. Yalnız taşıyıcı çevresinde bağımsız ve tekrarlı yan bant desteği oluşursa aday doğrulanabilir.",
+      "raw_artifacts_sha256": {
+        "blind-truth-1000-on-lo998p6-gain16.ci8": "91e622529fe418cc8ecc7082211383d040b3ba19ced0eeca313549fbb157ef4c",
+        "blind-truth-1000-on-lo1002p5-gain16.ci8": "4cd8be6ac2fb5de8ab8550f43adbd4f4f90b69f50dfc55ec8b1ca38b4f3dbe38",
+        "blind-truth-1000-off-lo998p6-gain16.ci8": "d3ede24b9c19908afa01b8d9d060983bfae79116a34c18c253a7f643750a12f1",
+        "blind-truth-1000-off-lo1002p5-gain16.ci8": "ebbfb99a89f6a8fdfcfe37a38a8a000536c613a5d3dd13ae72ed33cf0662d339",
+        "spur-1000-off-rate10000000-lo998600000.ci8": "a97a882671633b6292ed68c19ffc0456bb84a232bbefe29e021c05d10346bae1",
+        "spur-1000-off-rate10000000-lo1002500000.ci8": "1773556cff36675aa4cbc50e5a4d76003c631bf9ea9d7b88a5ed40db3cf30862",
+        "spur-1000-off-rate12000000-lo998600000.ci8": "127a88d1a39b853c2323f0725d6881b9d061b301dbff61a431a8ae3b62fcf697",
+        "spur-1000-off-rate12000000-lo1002500000.ci8": "08953657636a46c89b10c2c488ff4b468c1c390a867625bece0f71e47ef4cf2b"
+      }
+    },
+    {
+      "frequency_hz": 1040000000,
+      "classification": "receiver_spur",
+      "condition": "Harici verici kapalıyken iki bağımsız LO ayarında aynı mutlak RF frekansında kararlı gözlendi.",
+      "tx_off_two_lo_observations": [
+        {
+          "center_hz": 1038600000,
+          "peak_frequency_hz": 1039999902.344,
+          "peak_to_noise_db": 10.434,
+          "occupancy_percent": 100.0,
+          "frames": 56,
+          "sha256": "76bad722bd8d0fab98456920255fa55b0568e23af84c448c9eeebe4b35c87f0c"
+        },
+        {
+          "center_hz": 1042500000,
+          "peak_frequency_hz": 1040000000.0,
+          "peak_to_noise_db": 10.349,
+          "occupancy_percent": 98.214,
+          "frames": 56,
+          "sha256": "3c985538dccebfef528ba88caef208a40aef315caee9891bfde2170a4694d73f"
+        }
+      ],
+      "decision": "Bu alıcı seri numarası için yalın dar taşıyıcı dış yayın kanıtı sayılmaz; bağımsız yan bant desteği gerekir."
+    },
+    {
+      "frequency_hz": 1080000000,
+      "classification": "receiver_spur",
+      "condition": "Harici verici kapalıyken iki bağımsız LO ayarında aynı mutlak RF frekansında kararlı gözlendi.",
+      "tx_off_two_lo_observations": [
+        {
+          "center_hz": 1078600000,
+          "peak_frequency_hz": 1079999902.344,
+          "peak_to_noise_db": 7.979,
+          "occupancy_percent": 89.286,
+          "frames": 56,
+          "sha256": "d5559210b6fc271a6984c99d7cbbe762d5d73bdf263913c6f9df54441995f90d"
+        },
+        {
+          "center_hz": 1082500000,
+          "peak_frequency_hz": 1080000000.0,
+          "peak_to_noise_db": 8.586,
+          "occupancy_percent": 87.5,
+          "frames": 56,
+          "sha256": "5dfdb441fc17e50c4c70c8926c6536a79a2a18f6ce6f48c45bc2ff2be1d3c305"
+        }
+      ],
+      "decision": "Bu alıcı seri numarası için yalın dar taşıyıcı dış yayın kanıtı sayılmaz; bağımsız yan bant desteği gerekir."
+    }
+  ],
+  "inputs": {
+    "tx_off_npz": {
+      "path": "build/acceptance/rx-survey/blind-35-1800-20260902/psd-off-current.npz",
+      "sha256": "d2f743ca8302370c9865e68a7b6a36ad44ad8e67bde64efbd9402dc2dc140fe1"
+    }
+  },
+  "claim_boundary": "Calibrates only the listed receiver serial and frequencies. It does not classify transmitter identity or establish Pd/Pfa.",
+  "limitations": [
+    "1 GHz koruması yalnız seri numarası 0000000000000000a32868dc36877e47 için geçerlidir.",
+    "Bu sınıflandırma dış vericinin 1 GHz taşıyıcısını mevcut spur ile aynı frekansta maskeleyebileceği kör noktayı ortadan kaldırmaz; yan bant yoksa olumlu tespit iddia edilmez."
+  ],
+  "latest_tx_off_two_lo_calibration": {
+    "artifact": "build/acceptance/rx-survey/blind-800-1100-20260902/off-harmonic-check/report.json",
+    "sha256": "75ec01acb7fe8066b3522e4c959f95e5bd9231bd8f4b2a3c8b473f533090b75a",
+    "tested_frequencies_hz": [
+      808000000,
+      824000000,
+      832000000,
+      840000000,
+      848000000,
+      856000000,
+      860000000,
+      864000000,
+      880000000,
+      896000000,
+      920000000,
+      944000000,
+      992000000,
+      1000000000,
+      1008000000,
+      1024000000,
+      1040000000,
+      1080000000
+    ],
+    "qualified_frequencies_hz": [
+      832000000,
+      840000000,
+      1000000000,
+      1040000000,
+      1080000000
+    ],
+    "decision_threshold": {
+      "peak_to_noise_db": 6,
+      "occupancy_percent": 75,
+      "required_tunings": 2
+    },
+    "operator_condition": "TX off, operator reported"
+  }
+}

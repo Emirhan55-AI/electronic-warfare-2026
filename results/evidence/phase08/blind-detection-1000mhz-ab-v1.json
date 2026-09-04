@@ -1,0 +1,59 @@
+{
+  "schema": "baz.blind-detection-ab-acceptance-v1",
+  "search_scope_hz": [
+    800000000,
+    1100000000
+  ],
+  "truth_disclosed_after_blind_scan_hz": 1000000000,
+  "blind_audit": "build/acceptance/rx-survey/blind-800-1100-20260902/undisclosed-live-on-integrated-gain16-v2.jsonl",
+  "blind_candidate_present_before_truth": true,
+  "blind_candidate_initial_frames": 120,
+  "blind_candidate_verification_frames": 40,
+  "results": [
+    {
+      "input_center_hz": 998600000.0,
+      "on_peak_frequency_hz": 999999902.34375,
+      "on_peak_to_noise_db": 24.102307531641625,
+      "off_same_bin_to_noise_db": 24.1548568010371,
+      "on_minus_off_same_bin_db": -0.09354036851739937,
+      "on_fraction_above_6db": 1.0,
+      "off_fraction_above_6db": 1.0,
+      "on_frames": 480,
+      "off_frames": 480,
+      "inputs": {
+        "on": {
+          "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\blind-truth-1000-on-lo998p6-gain16.ci8",
+          "sha256": "91e622529fe418cc8ecc7082211383d040b3ba19ced0eeca313549fbb157ef4c"
+        },
+        "off": {
+          "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\blind-truth-1000-off-lo998p6-gain16.ci8",
+          "sha256": "d3ede24b9c19908afa01b8d9d060983bfae79116a34c18c253a7f643750a12f1"
+        }
+      }
+    },
+    {
+      "input_center_hz": 1002500000.0,
+      "on_peak_frequency_hz": 1000000000.0,
+      "on_peak_to_noise_db": 23.685075790231075,
+      "off_same_bin_to_noise_db": 23.687554869266023,
+      "on_minus_off_same_bin_db": 0.06442452131219323,
+      "on_fraction_above_6db": 1.0,
+      "off_fraction_above_6db": 1.0,
+      "on_frames": 480,
+      "off_frames": 480,
+      "inputs": {
+        "on": {
+          "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\blind-truth-1000-on-lo1002p5-gain16.ci8",
+          "sha256": "4cd8be6ac2fb5de8ab8550f43adbd4f4f90b69f50dfc55ec8b1ca38b4f3dbe38"
+        },
+        "off": {
+          "path": "build\\acceptance\\rx-survey\\blind-800-1100-20260902\\blind-truth-1000-off-lo1002p5-gain16.ci8",
+          "sha256": "ebbfb99a89f6a8fdfcfe37a38a8a000536c613a5d3dd13ae72ed33cf0662d339"
+        }
+      }
+    }
+  ],
+  "acceptance_rule": "candidate existed before truth; both LO on-off deltas >=6 dB; off occupancy above 6 dB <25%",
+  "passed": false,
+  "claim_boundary": "Controlled 800-1100 MHz lab test; not full 1 MHz-6 GHz Pd/Pfa acceptance."
+}

@@ -78,7 +78,7 @@ class AppEUXContractTests(unittest.TestCase):
     def test_scroll_panels_have_dark_viewport_contract(self) -> None:
         stylesheet = (ROOT / "app" / "operator_console" / "theme.qss").read_text(encoding="utf-8")
         self.assertIn("QScrollArea > QWidget > QWidget", stylesheet)
-        self.assertIn("background-color: #0B1118", stylesheet)
+        self.assertIn("background-color: #181818", stylesheet)
 
     def test_public_application_sources_have_no_development_tool_attribution(self) -> None:
         markers = ("co" + "dex", "chat" + "gpt", "open" + "ai", "cop" + "ilot", "cla" + "ude", "gem" + "ini")

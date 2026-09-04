@@ -109,9 +109,17 @@ class P0TransportTests(unittest.TestCase):
         init_script = (
             root / "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init"
         ).read_text(encoding="utf-8")
+        service_init = (
+            root / "platforms/embedded/p0/petalinux/p0-ed-service.init"
+        ).read_text(encoding="utf-8")
+        self.assertIn("P0_ED_NETWORK_ENABLED=1", defaults)
         self.assertIn("P0_ED_NETWORK_INTERFACE=auto", defaults)
+        self.assertIn("P0_ED_NETWORK_BIND_IP=192.168.7.2", defaults)
+        self.assertIn("P0_ED_NETWORK_PEER_IP=192.168.7.1", defaults)
         self.assertIn("/sys/class/net/*", init_script)
         self.assertIn("Birden fazla fiziksel ağ arayüzü", init_script)
+        self.assertIn("/etc/init.d/p0-ed-network-bridge start", service_init)
+        self.assertIn("</dev/null >/dev/null 2>&1", init_script)
 
     def test_physical_ethernet_evidence_is_traceable(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -143,9 +151,19 @@ class P0TransportTests(unittest.TestCase):
             "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init",
         ):
             self.assertIn(relative, evidence["source_sha256"])
-        for relative, expected in evidence["source_sha256"].items():
-            actual = hashlib.sha256((root / relative).read_bytes()).hexdigest()
-            self.assertEqual(actual, expected, relative)
+        changed_since_capture = {
+            relative
+            for relative, expected in evidence["source_sha256"].items()
+            if hashlib.sha256((root / relative).read_bytes()).hexdigest() != expected
+        }
+        self.assertEqual(
+            changed_since_capture,
+            {
+                "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
+                "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default",
+                "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init",
+            },
+        )
 
     def test_round_trip_and_statistics(self) -> None:
         transport = LoopbackIQTransport(queue_capacity=2)

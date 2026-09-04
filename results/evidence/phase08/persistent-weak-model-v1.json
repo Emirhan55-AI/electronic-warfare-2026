@@ -1,0 +1,82 @@
+{
+  "schema": "p0-persistent-weak-model-v1",
+  "generated_utc": "2026-09-04T05:13:01.660804+00:00",
+  "implementation_status": "top8_reference_model_passed",
+  "seed": 20260902,
+  "profile": {
+    "fft_bins": 4096,
+    "weak_threshold_db": 5.999999999922875,
+    "window_frames": 32,
+    "required_frames": 24,
+    "peak_tolerance_bins": 2,
+    "maximum_tracked_nominations_per_frame": 8
+  },
+  "ideal_exponential_analysis": {
+    "weak_nomination_probability_per_cell": 0.008575591827925156,
+    "expected_weak_cells_per_frame": 34.78260045406443,
+    "conservative_expanded_probability_per_bin": 0.042148830949492844,
+    "persistent_false_probability_per_bin_window": 7.470118087778282e-27,
+    "union_bound_per_fft_window": 3.029879896402871e-23,
+    "assumptions": "independent exponential cells and independent frames"
+  },
+  "noise_scenarios": [
+    {
+      "name": "white",
+      "window_trials": 64,
+      "false_confirmed_windows": 0,
+      "maximum_bin_occupancy": 5,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "name": "sloped",
+      "window_trials": 64,
+      "false_confirmed_windows": 0,
+      "maximum_bin_occupancy": 6,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "name": "rippled",
+      "window_trials": 64,
+      "false_confirmed_windows": 0,
+      "maximum_bin_occupancy": 5,
+      "mean_nominations_per_frame": 8.0
+    }
+  ],
+  "frequency_invariance": [
+    {
+      "injected_shifted_bin": 400,
+      "detected_shifted_bin": 400,
+      "observed_frames": 32,
+      "confirmed": true,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "injected_shifted_bin": 1200,
+      "detected_shifted_bin": 1200,
+      "observed_frames": 32,
+      "confirmed": true,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "injected_shifted_bin": 2048,
+      "detected_shifted_bin": 2048,
+      "observed_frames": 32,
+      "confirmed": true,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "injected_shifted_bin": 3000,
+      "detected_shifted_bin": 3000,
+      "observed_frames": 32,
+      "confirmed": true,
+      "mean_nominations_per_frame": 8.0
+    },
+    {
+      "injected_shifted_bin": 3800,
+      "detected_shifted_bin": 3800,
+      "observed_frames": 32,
+      "confirmed": true,
+      "mean_nominations_per_frame": 8.0
+    }
+  ]
+}

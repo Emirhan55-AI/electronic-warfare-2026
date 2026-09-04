@@ -141,8 +141,12 @@ class AuthoritativeTemporalOracle:
         if self._last_frame_id is not None and packet.frame_id != ((self._last_frame_id + 1) & 0xFFFF_FFFF):
             self.reset()
             reset_applied = True
-        regions = tuple(_region(item) for item in packet.candidates)
-        self._regions.update({id(region): candidate for region, candidate in zip(regions, packet.candidates, strict=True)})
+        normal_candidates = tuple(
+            item for item in packet.candidates
+            if not item.weak_evidence or item.single_frame_confident
+        )
+        regions = tuple(_region(item) for item in normal_candidates)
+        self._regions.update({id(region): candidate for region, candidate in zip(regions, normal_candidates, strict=True)})
         ended, dropped = self._pipeline._update_tracks(regions, packet.frame_id, 1.0, 4096)
         self._last_frame_id = packet.frame_id
         retained = {id(track.region) for track in self._pipeline._tracks.values()}

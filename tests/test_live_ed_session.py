@@ -8,7 +8,7 @@ import zlib
 
 import pytest
 
-from algorithms.p0 import IQFrame, IQResponse, P0Channelizer, TransportStats
+from algorithms.p0 import IQFrame, IQResponse, P0Channelizer, TransportError, TransportStats
 from app.operator_console.live_ed import (
     LIVE_AUDIO_WINDOW_FRAMES,
     LiveEDConfiguration,
@@ -21,10 +21,10 @@ from platforms.acquisition import AcquisitionError, HackRFContinuousRX, HackRFSt
 SERIAL = "0000000000000000a32868dc35138247"
 
 
-def _response(frame_id: int, *, event_state: int = 2) -> bytes:
+def _response(frame_id: int, *, event_state: int = 2, event_flags: int = 1) -> bytes:
     event = bytearray(68)
     struct.pack_into("<QIIQBB", event, 0, 17, max(0, frame_id - 2), frame_id, 3, event_state, 1)
-    struct.pack_into("<HHHHBB", event, 28, 2299, 2308, 2304, 10, 1, 0)
+    struct.pack_into("<HHHHBB", event, 28, 2299, 2308, 2304, 10, 1, event_flags)
     struct.pack_into("<QQQ", event, 40, 300 << 30, 3 << 30, 20 << 30)
     result = bytearray(20) + event
     struct.pack_into("<IHHHBBQ", result, 0, frame_id, 1, 0, 0, 0, 0, 9)
@@ -162,6 +162,24 @@ def test_live_response_decoder_exposes_fpga_event_fields() -> None:
     assert event.observed_this_frame
     assert event.peak_shifted_bin == 2304
     assert event.peak_to_noise_db == 20.0
+    assert not event.weak_evidence
+    assert not event.single_frame_confident
+
+
+def test_live_response_decoder_exposes_persistent_weak_class() -> None:
+    decoded = decode_live_ed_response(_response(42, event_flags=0x05), 42)
+
+    event = decoded.active[0]
+    assert event.weak_evidence
+    assert not event.single_frame_confident
+
+
+@pytest.mark.parametrize("event_flags", (0x00, 0x08, 0x11))
+def test_live_response_decoder_rejects_invalid_candidate_class_flags(event_flags: int) -> None:
+    with pytest.raises(TransportError) as failure:
+        decode_live_ed_response(_response(42, event_flags=event_flags), 42)
+
+    assert getattr(failure.value, "code", "") == "local_response_event"
 
 
 def test_live_configuration_rejects_non_integer_center_with_product_error() -> None:

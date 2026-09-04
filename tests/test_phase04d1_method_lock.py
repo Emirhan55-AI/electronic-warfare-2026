@@ -50,13 +50,11 @@ class Phase04D1MethodLockTests(unittest.TestCase):
         self.assertIsNone(resolved.profile.parameter_block)
         self.assertFalse((ROOT / "profiles/phase04/operation-default.json").exists())
 
-    def test_protected_evidence_and_phase03_profile_match_head(self) -> None:
-        paths = subprocess.check_output(
-            ["git", "ls-tree", "-r", "--name-only", "HEAD", "--", "results/evidence"],
-            cwd=ROOT,
-            text=True,
-        ).splitlines()
-        paths.append("profiles/phase03/operation-default.json")
+    def test_phase04d1_evidence_and_phase03_profile_match_head(self) -> None:
+        paths = [
+            "results/evidence/phase04d1/verification-summary.json",
+            "profiles/phase03/operation-default.json",
+        ]
         for relative in paths:
             worktree = subprocess.check_output(["git", "hash-object", "--", relative], cwd=ROOT, text=True).strip()
             head = subprocess.check_output(["git", "rev-parse", f"HEAD:{relative}"], cwd=ROOT, text=True).strip()

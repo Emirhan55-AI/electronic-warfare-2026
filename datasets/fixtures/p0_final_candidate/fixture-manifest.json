@@ -1,16 +1,16 @@
 {
   "files": {
     "candidate-expected.mem": {
-      "bytes": 3835,
-      "sha256": "3287b4b0427189c9aca986f76e4072735587c1f79e320e3a62bea426e9e3aca4"
+      "bytes": 6785,
+      "sha256": "97e7660f834b28efc631edc60d0d18ad46d98a657d0d2ac8fe6d4514f851465d"
     },
     "expected-record-counts.mem": {
       "bytes": 40,
-      "sha256": "25518ac2e562867d42b88b526d057cf6d9e0e85caefdd23854b25266fc92df47"
+      "sha256": "66d16fbb80cd04ec3cb1c5ead2d49929d073222d35dd9babcff9b8801a5ee647"
     },
     "golden-vectors.json": {
-      "bytes": 18354,
-      "sha256": "13f43fd26ba1d25a86f9234a7ddc36e18a3a6c30e50b0916b524333c29993171"
+      "bytes": 30955,
+      "sha256": "b631b758f69e9cddac9eeff58e6794ba5b03be399dc19ad486fd65def813a4a9"
     }
   },
   "schema_version": 1,

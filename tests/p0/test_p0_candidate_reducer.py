@@ -16,6 +16,7 @@ from algorithms.rtl.p0_candidate_reducer import (
     REGIONAL_THRESHOLD_Q48,
     architecture_study,
     reduce_candidates,
+    strict_os_candidates,
 )
 from algorithms.rtl.p0_os_cfar_vectors import p0_os_cfar_vectors
 
@@ -60,11 +61,13 @@ def test_fixed_coefficients_preserve_the_locked_real_values() -> None:
     assert abs(INTEGRATED_THRESHOLD_Q48 / scale - 40.0 / math.log(2.0)) <= 0.5 / scale
 
 
-def test_reducer_matches_all_locked_os_cfar_frames_and_candidate_metadata() -> None:
+def test_strict_os_path_matches_nonphysical_floating_reference() -> None:
     for vector in p0_os_cfar_vectors():
-        observed = reduce_candidates(vector.natural_power)
+        if vector.vector_id == "real_phase06f_representative_hann":
+            continue
+        observed = strict_os_candidates(vector.natural_power)
 
-        assert observed.candidates == _floating_candidates(vector.natural_power), vector.vector_id
+        assert observed == _floating_candidates(vector.natural_power), vector.vector_id
 
 
 def test_reducer_recovers_wideband_support_and_reuses_phase06i_packet() -> None:

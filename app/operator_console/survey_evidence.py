@@ -1,9 +1,9 @@
 """Reproducible evidence levels for receive-only survey observations.
 
-The FPGA temporal detector and the survey's second-LO check establish that a
-spectral feature is stable and is not tied to one zero-IF tuning.  They do not,
-by themselves, identify the external transmitter that caused the feature.  A
-controlled TX-off/TX-on comparison provides that additional evidence.
+The FPGA temporal detector or explicitly labelled integrated-RX path, followed
+by the survey's second-LO check, establishes that a spectral feature is stable
+and is not tied to one zero-IF tuning.  Neither path identifies the external
+transmitter.  A controlled TX-off/TX-on comparison provides that evidence.
 """
 
 from __future__ import annotations
@@ -44,7 +44,12 @@ def observation_interval_hz(item: Mapping[str, object]) -> tuple[float, float]:
 def observation_contrast_db(item: Mapping[str, object]) -> float | None:
     event = item.get("event")
     if not isinstance(event, Mapping):
-        return None
+        contrast = item.get("peak_to_noise_db")
+        return (
+            float(contrast)
+            if isinstance(contrast, (int, float)) and math.isfinite(float(contrast))
+            else None
+        )
     peak = _number(event, "peak_power")
     noise = _number(event, "noise_power")
     if peak <= 0.0 or noise <= 0.0:

@@ -1,0 +1,120 @@
+{
+  "schema": "baz.live-user-tx-on-off.v1",
+  "recorded_at": "2026-09-01T21:51:02.9929749+03:00",
+  "scope": "Sabit bant sinyal tespiti tanılama ölçümü",
+  "receiver": {
+    "device_serial": "0000000000000000a32868dc35138247",
+    "sample_rate_hz": 8000000,
+    "complex_samples_per_capture": 4000000,
+    "lna_gain_db": 32,
+    "vga_gain_db": 32,
+    "input_centers_hz": [
+      898500000,
+      901500000
+    ]
+  },
+  "state_provenance": {
+    "on": "Operatör yayının açık olduğunu bildirdi",
+    "off": "Operatör yayını kestiğini bildirdi",
+    "limitation": "Mutlak güç kalibrasyonu ve verici kimlik doğrulaması yapılmadı; sonuç aynı alıcı ayarındaki göreli A/B farkıdır."
+  },
+  "target": {
+    "nominal_operator_frequency_hz": 900000000,
+    "observed_component_hz": 900191406.25,
+    "on": [
+      {
+        "input_center_hz": 898500000,
+        "peak_db": -47.6135,
+        "local_floor_db": -72.1774,
+        "peak_to_noise_db": 24.5639
+      },
+      {
+        "input_center_hz": 901500000,
+        "peak_db": -47.5142,
+        "local_floor_db": -72.285,
+        "peak_to_noise_db": 24.7708
+      }
+    ],
+    "off": [
+      {
+        "input_center_hz": 898500000,
+        "peak_db": -68.9124,
+        "local_floor_db": -72.9035,
+        "peak_to_noise_db": 3.9912,
+        "on_to_off_drop_db": 21.2989
+      },
+      {
+        "input_center_hz": 901500000,
+        "peak_db": -69.3284,
+        "local_floor_db": -72.7908,
+        "peak_to_noise_db": 3.4624,
+        "on_to_off_drop_db": 21.8142
+      }
+    ],
+    "interpretation": "900.191 MHz bileşeni iki bağımsız LO ayarında TX kapatılınca gürültü tabanına indi."
+  },
+  "persistent_component": {
+    "frequency_hz": 900000000,
+    "tx_off_observed_at_both_lo": true,
+    "interpretation": "TX kapalıyken aynı mutlak RF frekansında kaldı; merkez/DC çizgisi değildir ve operatörün aç-kapat bileşeni değildir."
+  },
+  "capture_sha256": {
+    "rx_901500000.ci8": "ee35d4918ac42b80e3ed12ae242de345dcdc6f89cb5a4eecf2aa4d867895bc52",
+    "off_901500000.iq": "58c046490119172f826ec0d4ed139ff3a401a4a443e6b7c0e28215f7c84e4382",
+    "rx_898500000.ci8": "421d2b9102b93bd7c10503ac6710c56113f310b7492b0612f7c13620c1079105",
+    "off_898500000.iq": "be8d1d2333e82e07e8a5f7201304410786e53af1fb159202dd678037f084b1ef"
+  },
+  "automated_regression": "45 passed in 59.93s",
+  "ui_tx_off_observation": {
+    "center_hz": 900000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "observation_seconds": 25,
+    "current_stable_candidate_count": 0,
+    "observed_target_900191406": false,
+    "historical_single_frame_candidates_hz": [
+      900480500,
+      900300800,
+      899402800,
+      900000000
+    ],
+    "interpretation": "Hiçbiri iki-LO kararlı duruma yükselmedi; 900.191 MHz kullanıcı aç/kapat bileşeni yeniden görülmedi."
+  },
+  "second_tx_on_capture": {
+    "recorded_at": "2026-09-01T22:13:57+03:00",
+    "operator_declared_state": "TX açık",
+    "dominant_common_component_hz": 900183105.46875,
+    "on_minus_off_db": [
+      {
+        "input_center_hz": 898500000,
+        "five_bin_delta_db": 24.4692,
+        "ten_khz_integrated_delta_db": 20.0650
+      },
+      {
+        "input_center_hz": 901500000,
+        "five_bin_delta_db": 25.1362,
+        "ten_khz_integrated_delta_db": 21.1718
+      }
+    ],
+    "non_target_checks": {
+      "900438500_hz_max_100khz_delta_db": 1.1613,
+      "900649900_hz_max_100khz_delta_db": 0.8640
+    },
+    "capture_sha256": {
+      "on2_898500000.iq": "108f4a30182eea01cbcf875a3dbd01e7a155942850bedfd4fd4590afc978722d",
+      "on2_901500000.iq": "bb06c5a610a48461a0500d1c9b0899af83952184e7a3bd975de6938c98888101"
+    }
+  },
+  "fixed_band_two_lo_verification": {
+    "candidate_hz": 900183105.46875,
+    "state": "verified_two_lo",
+    "method": "receiver",
+    "fpga_temporal_observed_frames": [0, 0],
+    "receiver_observed_frames": [79, 79],
+    "receiver_average_frequency_hz": [900184702.1123, 900185196.5744],
+    "receiver_average_peak_to_noise_db": [22.4791, 22.3357],
+    "input_centers_hz": [898383105, 902383105],
+    "output_center_hz": 899883105,
+    "interpretation": "Aynı mutlak RF özelliği iki bağımsız LO ayarında alıcı spektrumundan kararlı biçimde yeniden bulundu. FPGA PL veri yolu çalıştı ancak karttaki 2/3 zamansal ilişkilendirme bu canlı yayın biçiminde doğrulanmış olay üretmedi; arayüz yöntemi RX çift ayar olarak açıkça gösterir."
+  }
+}

@@ -12,7 +12,15 @@ import threading
 from PySide6.QtCore import QObject, Property, QRunnable, QTimer, Signal, Slot
 
 from .detection_model import DetectionListModel
-from .rx_survey import ROOT, RXSurvey, SurveyConfig, SurveyResult, SurveyUpdate
+from .rx_survey import (
+    ROOT,
+    RXSurvey,
+    SURVEY_VERIFY_FRAMES,
+    SURVEY_VERIFY_GUARD_FRAMES,
+    SurveyConfig,
+    SurveyResult,
+    SurveyUpdate,
+)
 from .survey_evidence import (
     BROAD_MINIMUM_HZ,
     POWER_CHANGE_THRESHOLD_DB,
@@ -27,6 +35,25 @@ from platforms.acquisition.source import decode_ci8
 
 
 MAX_DISPLAY_OBSERVATIONS = 4096
+
+
+def _rank_observation_rows(rows):
+    """Keep the most repeatable/high-contrast observations at the top."""
+    evidence_tier = {
+        "ab_candidate": 4,
+        "dual_tune": 3,
+        "energy_candidate": 2,
+        "uncertain": 1,
+        "reference": 0,
+    }
+    return sorted(
+        rows,
+        key=lambda row: (
+            -evidence_tier.get(row.get("evidenceKey", ""), 1),
+            -float(row.get("qualityScore", 0.0)),
+            float(row.get("frequencyHz", 0.0)),
+        ),
+    )[:MAX_DISPLAY_OBSERVATIONS]
 
 
 class _SurveyMailbox:
@@ -364,12 +391,21 @@ class SurveyController(QObject):
                 self._current_observations.append(item)
                 event = item.get("event") or {}
                 peak, noise = float(event.get("peak_power", 0.0)), float(event.get("noise_power", 0.0))
-                ratio = 10.0 * math.log10(peak / noise) if peak > 0.0 and noise > 0.0 else float("nan")
+                ratio = (
+                    10.0 * math.log10(peak / noise)
+                    if peak > 0.0 and noise > 0.0
+                    else float(item.get("peak_to_noise_db", float("nan")))
+                )
                 verification = item.get("verification") or {}
                 details = [
                     f"P/N {ratio:.1f} dB" if math.isfinite(ratio) else "P/N ölçülemedi",
                     f"{item['observed_frames']} kare",
                 ]
+                component_count = int(item.get("component_count", 1))
+                if item.get("center_method") == "persistent_component_centroid" and component_count > 1:
+                    details.append(f"{component_count} bileşenli emisyon merkezi")
+                    peak_frequency_hz = float(item.get("peak_frequency_hz", item["frequency_hz"]))
+                    details.append(f"en güçlü çizgi {peak_frequency_hz / 1e6:.6f} MHz")
                 bandwidth_hz = float(item.get("bandwidth_hz", 0.0))
                 if bandwidth_hz >= 1_000_000:
                     details.append(f"kaba aralık {bandwidth_hz / 1e6:.2f} MHz")
@@ -390,9 +426,29 @@ class SurveyController(QObject):
                             f"RF farkı {delta_hz / 1e3:.1f} kHz" if delta_hz >= 1_000.0
                             else f"RF farkı {delta_hz:.0f} Hz"
                         )
+                primary_possible = max(1, self._config.frames_per_window - self._config.guard_frames)
+                primary_occupancy = min(1.0, float(item["observed_frames"]) / primary_possible)
+                verification_possible = max(
+                    1, SURVEY_VERIFY_FRAMES - SURVEY_VERIFY_GUARD_FRAMES
+                )
+                verification_occupancy = min(
+                    1.0,
+                    float(verification.get("observed_frames", 0)) / verification_possible,
+                )
+                quality_score = (
+                    100.0 * min(primary_occupancy, verification_occupancy)
+                    + (ratio if math.isfinite(ratio) else 0.0)
+                )
                 evidence_key = "dual_tune"
-                evidence_text = "2 AYARDA"
-                evidence_detail = "İki farklı LO ayarında aynı RF adayı"
+                if verification.get("method") == "integrated_rx":
+                    evidence_text = "ÇOK KARELİ RX · 2 AYAR"
+                    evidence_detail = (
+                        "Bilgisayardaki çok kareli RX enerji modeli iki farklı LO ayarında "
+                        "aynı mutlak frekansı gördü; FPGA olayı değildir"
+                    )
+                else:
+                    evidence_text = "FPGA 2 AYARDA"
+                    evidence_detail = "FPGA olayı iki farklı LO ayarında aynı mutlak frekansta"
                 if self._run_condition == "tx_off_reference":
                     evidence_key, evidence_text = "reference", "REFERANS"
                     evidence_detail = "TX kapalı koşulunda görüldü"
@@ -429,6 +485,7 @@ class SurveyController(QObject):
                     "detail": " · ".join(details),
                     "window": f"Pencere {self._current + 1}",
                     "latestWindow": True,
+                    "qualityScore": quality_score,
                     "evidenceKey": evidence_key,
                     "evidence": evidence_text,
                     "evidenceDetail": evidence_detail,
@@ -448,6 +505,7 @@ class SurveyController(QObject):
                         "detail": f"Pencere gücü referansa göre +{delta_db:.1f} dB",
                         "window": f"Pencere {self._current + 1}",
                         "latestWindow": True,
+                        "qualityScore": 50.0 + delta_db,
                         "evidenceKey": "ab_candidate",
                         "evidence": "A/B: KANAL GÜCÜ",
                         "evidenceDetail": (
@@ -460,9 +518,10 @@ class SurveyController(QObject):
             for row in self._rows:
                 row["latestWindow"] = False
             if newest:
-                # New detections must remain visible during a long survey instead of
-                # being buried below thousands of historical observations.
-                self._rows = (newest + self._rows)[:MAX_DISPLAY_OBSERVATIONS]
+                # The list is a bounded engineering ranking, not arrival order.
+                # A weak recent fluctuation must not bury a repeatable strong RF
+                # candidate found earlier in a long scan.
+                self._rows = _rank_observation_rows(newest + self._rows)
             self._model.set_rows(self._rows)
             self._detail = "Pencere ve ikinci LO kontrolü tamamlandı; sonuç geçmiş RF gözlemidir."
         elif update.state == "failed":
@@ -537,6 +596,7 @@ class SurveyController(QObject):
                             f"{region['last_window_index'] + 1}"
                         ),
                         "latestWindow": False,
+                        "qualityScore": 50.0 + float(region["peak_local_delta_db"]),
                         "evidenceKey": "energy_candidate",
                         "evidence": "ÖNE ÇIKAN ENERJİ",
                         "evidenceDetail": (
@@ -546,9 +606,9 @@ class SurveyController(QObject):
                 self._single_survey_energy_count = len(energy_rows)
                 if energy_rows:
                     existing_ids = {row["eventId"] for row in energy_rows}
-                    self._rows = energy_rows + [
+                    self._rows = _rank_observation_rows(energy_rows + [
                         row for row in self._rows if row["eventId"] not in existing_ids
-                    ]
+                    ])
                     self._model.set_rows(self._rows)
             self._detail = "Bu turdaki geçmiş gözlemler; şu anda yayın yapıldığını göstermez."
         self.changed.emit()

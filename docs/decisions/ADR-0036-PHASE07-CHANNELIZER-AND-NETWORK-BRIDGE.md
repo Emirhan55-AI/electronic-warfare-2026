@@ -77,3 +77,19 @@ toplam 32.927 FPGA adayı elde edilmiştir. En düşük hız `488,746900919 kare
 gereken sınır `488,28125 kare/s`; 64-kare kuyruğun tepe kullanımı 8'dir.
 PHASE-07 tamamlanmıştır. Bu kabul dBm kalibrasyonu, tespit olasılığı, saha yanlış
 alarm oranı, yön bulma doğruluğu veya RF yayın işlevi iddiası oluşturmaz.
+
+## ADR-0040 işletim imajı eki
+
+ADR-0040 imajında masaüstünün güç çevriminden sonra karta bağlanamaması
+incelenmiş ve köprü betiğinin pakette bulunmasına rağmen açılış yaşam döngüsüne
+bağlanmadığı görülmüştür. Yarışma işletim imajında köprü, `p0-ed-service`
+başladıktan ve yerel `SOCK_SEQPACKET` soketi hazır olduktan sonra otomatik
+başlatılır. Başlatma başarısızsa kart hizmeti de durdurulur; arayüz hazır
+olmayan veri yolunu çalışıyor gösteremez.
+
+Bu otomatik etkinleştirme genel ağ dinleyicisi açmaz. Bağ yalnız kartın tek
+fiziksel arayüzündeki `192.168.7.2:47007` adresine yapılır ve istemci allowlist'i
+yalnız doğrudan bağlı PC adresi `192.168.7.1` değerini kabul eder. DMA aygıtına
+erişim yine ayrıcalıksız yerel hizmette kalır. Güncel imajın PetaLinux derleme
+ve paket içeriği doğrulanmıştır; ZedBoard soğuk açılış ve fiziksel ağ kabulü
+henüz tamamlanmamıştır.

@@ -24,6 +24,8 @@ COMMON_SOURCES = (
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_ram.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_os_candidate_grouping.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_sparse_os_candidate_top.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_candidate_grouping.sv",
+    ROOT / "algorithms/fpga/p0/rtl/p0_weak_nomination_top.sv",
     ROOT / "algorithms/fpga/p0/rtl/p0_region_bank.sv",
 )
 FINAL_SOURCES = (
@@ -142,9 +144,9 @@ def evaluate() -> dict[str, object]:
         and sparse["stability"] > 0
         and final == {
             "frames": 8,
-            "records": 65,
-            "semantic": 63,
-            "cycles": 45557,
+            "records": 115,
+            "semantic": 113,
+            "cycles": 46339,
             "stability": final["stability"],
         }
         and final["stability"] > 0
@@ -194,7 +196,9 @@ def evaluate() -> dict[str, object]:
             "fusion_overflow_failed_closed": bool(guards["fusion_overflow"]),
         },
         "architecture": {
-            "os_detector": "rank-24/32 strict Q32 decision with sparse grouping",
+            "os_detector": (
+                "rank-24/32 strict and 6 dB weak Q32 decisions with classified sparse grouping"
+            ),
             "wideband_detector": "regional recovery plus flanked fourth-region-order broad recovery",
             "fusion": "sorted merge; every OS candidate overlapping a recovery is suppressed",
             "output": "shifted-order candidate AXI stream with explicit empty sentinel",

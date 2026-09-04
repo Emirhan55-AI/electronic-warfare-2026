@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "status": "superseded_positive_state_uncontrolled",
+  "date_local": "2026-09-02",
+  "scope": "1 GHz sabit bant spur ayrımı ve kontrollü TX açık/kapalı doğrulaması",
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "sample_rate_hz": 8000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16
+  },
+  "method": {
+    "input_centers_hz": [
+      998200000,
+      1002800000
+    ],
+    "output_centers_hz": [
+      999700000,
+      1000300000
+    ],
+    "frames_per_lo": 96,
+    "guard_frames": 16,
+    "known_spur_hz": 1000000000,
+    "shoulder_hz": [
+      2000,
+      25000
+    ],
+    "noise_reference_hz": [
+      50000,
+      250000
+    ],
+    "threshold_above_noise_db": 3.0,
+    "minimum_qualifying_bins": 8
+  },
+  "three_state_energy_comparison": [
+    {
+      "center_hz": 998200000,
+      "states": {
+        "on.npz": {
+          "carrier_2khz": -58.82951909407691,
+          "shoulder_2_25khz": -65.36946997724448
+        },
+        "off.npz": {
+          "carrier_2khz": -58.75386441204134,
+          "shoulder_2_25khz": -67.07764571702194
+        },
+        "transmitter-powered-off.npz": {
+          "carrier_2khz": -58.906094466438006,
+          "shoulder_2_25khz": -67.21167077341997
+        }
+      },
+      "tx_stopped_minus_powered_off_db": {
+        "carrier_2khz": 0.15223005439666792,
+        "shoulder_2_25khz": 0.13402505639803053
+      },
+      "tx_on_minus_powered_off_db": {
+        "carrier_2khz": 0.07657537236109846,
+        "shoulder_2_25khz": 1.84220079617549
+      }
+    },
+    {
+      "center_hz": 1002800000,
+      "states": {
+        "on.npz": {
+          "carrier_2khz": -59.3878240327945,
+          "shoulder_2_25khz": -65.51978461453723
+        },
+        "off.npz": {
+          "carrier_2khz": -59.2979794358248,
+          "shoulder_2_25khz": -67.23252158425201
+        },
+        "transmitter-powered-off.npz": {
+          "carrier_2khz": -59.49725274507358,
+          "shoulder_2_25khz": -67.0926275842457
+        }
+      },
+      "tx_stopped_minus_powered_off_db": {
+        "carrier_2khz": 0.19927330924878106,
+        "shoulder_2_25khz": -0.1398940000063078
+      },
+      "tx_on_minus_powered_off_db": {
+        "carrier_2khz": 0.10942871227908313,
+        "shoulder_2_25khz": 1.572842969708475
+      }
+    }
+  ],
+  "antenna_removed_comparison": [
+    {
+      "center_hz": 998200000,
+      "carrier_2khz": {
+        "antenna_dbfs": -58.906094466438006,
+        "antenna_removed_dbfs": -64.49866478398428,
+        "removed_minus_antenna_db": -5.592570317546274
+      },
+      "shoulder_2_25khz": {
+        "antenna_dbfs": -67.21167077341997,
+        "antenna_removed_dbfs": -67.50323811861868,
+        "removed_minus_antenna_db": -0.2915673451987171
+      },
+      "local_noise_25_250khz": {
+        "antenna_dbfs": -87.06304042222041,
+        "antenna_removed_dbfs": -87.33101251914317,
+        "removed_minus_antenna_db": -0.267972096922757
+      }
+    },
+    {
+      "center_hz": 1002800000,
+      "carrier_2khz": {
+        "antenna_dbfs": -59.49725274507358,
+        "antenna_removed_dbfs": -64.63344113232668,
+        "removed_minus_antenna_db": -5.136188387253106
+      },
+      "shoulder_2_25khz": {
+        "antenna_dbfs": -67.0926275842457,
+        "antenna_removed_dbfs": -67.43200440998524,
+        "removed_minus_antenna_db": -0.3393768257395292
+      },
+      "local_noise_25_250khz": {
+        "antenna_dbfs": -86.91539829548356,
+        "antenna_removed_dbfs": -87.19901277218841,
+        "removed_minus_antenna_db": -0.2836144767048685
+      }
+    }
+  ],
+  "negative_physical_validation": {
+    "state": "not_reproduced",
+    "condition": "transmitter powered off; receiver antenna removed",
+    "spur_guard_passed": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "qualifying_shoulder_bins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "shoulder_peak_to_noise_db": [
+      1.0005846344,
+      1.049834999,
+      1.2928626569,
+      0.7351030791
+    ]
+  },
+  "positive_physical_validation": {
+    "candidate": {
+      "frequency_hz": 1000000000,
+      "peak_frequency_hz": 1000000000,
+      "lower_frequency_hz": 999950000,
+      "upper_frequency_hz": 1000050000,
+      "peak_to_noise_db": 0.0,
+      "source": "coarse_rx"
+    },
+    "state": "verified_two_lo",
+    "observations": [
+      {
+        "input_center_hz": 998200000,
+        "output_center_hz": 999700000,
+        "observed_frames": 80,
+        "frequency_hz": 1000000045.7763672,
+        "peak_frequency_hz": 999999816.8945312,
+        "lower_frequency_hz": 999999554.4433594,
+        "upper_frequency_hz": 1000000537.109375,
+        "peak_to_noise_db": 14.088824330417655,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999998828.125,
+        "receiver_peak_to_noise_db": 19.878350841478746,
+        "receiver_lower_frequency_hz": 999998828.125,
+        "receiver_upper_frequency_hz": 1000000781.25,
+        "spur_guard_required": true,
+        "spur_guard_passed": true,
+        "spur_shoulder_bins": 18,
+        "spur_shoulder_peak_to_noise_db": 7.9996965944189755
+      },
+      {
+        "input_center_hz": 1002800000,
+        "output_center_hz": 1000300000,
+        "observed_frames": 80,
+        "frequency_hz": 999999957.2753906,
+        "peak_frequency_hz": 1000000146.484375,
+        "lower_frequency_hz": 999999462.890625,
+        "upper_frequency_hz": 1000000451.6601562,
+        "peak_to_noise_db": 14.61753993934425,
+        "receiver_observed_frames": 79,
+        "receiver_frequency_hz": 999999218.75,
+        "receiver_peak_to_noise_db": 19.74808689536113,
+        "receiver_lower_frequency_hz": 999999218.75,
+        "receiver_upper_frequency_hz": 1000001171.875,
+        "spur_guard_required": true,
+        "spur_guard_passed": true,
+        "spur_shoulder_bins": 16,
+        "spur_shoulder_peak_to_noise_db": 7.51369609499123
+      }
+    ],
+    "captured_at_utc": "2026-09-01T21:11:25.617795+00:00",
+    "test_state": "transmitter_on_receiver_antenna_connected",
+    "valid_for_positive_claim": false,
+    "operator_state_correction": "Verici kapalıydı."
+  },
+  "limitations": [
+    "Pozitif koşu etiketi kullanıcı düzeltmesi nedeniyle geçersizdir; yalnız sayısal karakterizasyon olarak korunur.",
+    "Bu tek frekanslı kontrollü tanı saha Pd/Pfa kabulü değildir.",
+    "1 GHz dışındaki cihaz spur frekansları ayrıca fiziksel kalibrasyon ister.",
+    "dBFS değerleri mutlak dBm kalibrasyonu değildir."
+  ],
+  "raw_artifacts_sha256": {
+    "on.npz": "b2f6ec4bad851652b7a232ee31d183a893614895c8027d78ec6da506ff3b2729",
+    "off.npz": "fdb98bdb730349642ce088e67ebcb564a011a3f1b72fa17c4a0c52cad2458c27",
+    "transmitter-powered-off.npz": "1efabbdf23eaf1c71583d57e5f17b5f21bfbee2fe654bcd92754d863c94b362a",
+    "rx-antenna-removed.npz": "77e49454bb064b236b9fdc0c68c86386f1483b6d1c99d2e83f1a19cd20d764fb"
+  },
+  "source_sha256": {
+    "app/operator_console/fixed_band_verification.py": "cccbb1c6f9d74165eec80ed2e8b671299cb7c281685582728ca5840a0c836730",
+    "app/operator_console/known_spurs.py": "51bb3a4e53ef4dfddbc9988f5261f9dda88bb2d7bedde89d2214f731ee90a63b",
+    "app/operator_console/quick_view_model.py": "79a1bcfa9089d498a246c5241db0689e08b0e5b3f7d879d24916f3d0a1899546",
+    "config/p0/hackrf_spurs.json": "7eee996a37de2d30be28b54012104112ac500115f1621d6722404df15ab868ea"
+  },
+  "superseded_reason": "Pozitif diye etiketlenen canlı koşudan sonra kullanıcı vericinin kapalı olduğunu bildirdi; bu nedenle kayıt pozitif TX kabul kanıtı değildir."
+}

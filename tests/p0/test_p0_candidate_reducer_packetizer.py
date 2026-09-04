@@ -18,10 +18,10 @@ def test_packetizer_evidence_is_passed_and_bounded() -> None:
     assert evidence["status"] == "passed"
     assert evidence["metrics"] == {
         "frames": 8,
-        "candidates": 63,
-        "beats": 379,
-        "stalls": 37,
-        "stability": 37,
+        "candidates": 113,
+        "beats": 629,
+        "stalls": 60,
+        "stability": 60,
     }
     assert evidence["architecture"]["candidate_loss"] == 0
     assert evidence["architecture"]["duplicate_records"] == 0

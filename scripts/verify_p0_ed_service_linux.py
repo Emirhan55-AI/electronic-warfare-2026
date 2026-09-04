@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
+import argparse
+from datetime import date
+import hashlib
 import json
 import math
 import os
 from pathlib import Path
+import platform
 import pwd
 import shutil
 import subprocess
@@ -18,6 +22,27 @@ ROOT = Path(__file__).resolve().parents[1]
 P0 = ROOT / "platforms" / "embedded" / "p0"
 P06I = ROOT / "platforms" / "embedded" / "phase06i"
 P06J = ROOT / "platforms" / "embedded" / "phase06j"
+EVIDENCE = ROOT / "results" / "evidence" / "p0" / "ed-local-service-host-acceptance.json"
+SOURCE_PATHS = {
+    "p0_ed_service.c": P0 / "src/p0_ed_service.c",
+    "p0_ed_service_protocol.c": P0 / "src/p0_ed_service_protocol.c",
+    "p0_ed_pipeline.c": P0 / "src/p0_ed_pipeline.c",
+    "p0_parameter_runtime.c": P0 / "src/p0_parameter_runtime.c",
+    "p0_ed_client.c": P0 / "src/p0_ed_client.c",
+    "p0_ed_throughput_run.c": P0 / "src/p0_ed_throughput_run.c",
+    "p0_multiscale_detector.c": P0 / "src/p0_multiscale_detector.c",
+    "p0_candidate_packet.c": P0 / "src/p0_candidate_packet.c",
+    "p0_os_cfar.c": P0 / "src/p0_os_cfar.c",
+    "p0_pl_os_cfar.c": P0 / "src/p0_pl_os_cfar.c",
+    "p0_persistent_weak.c": P0 / "src/p0_persistent_weak.c",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": (
+        P06J / "src/phase06j_temporal.c"
+    ),
+}
+ACCEPTANCE_SOURCE_PATHS = {
+    "scripts/verify_p0_ed_service_linux.py": Path(__file__).resolve(),
+    "tests/p0/p0_ed_fake_dma_runtime.c": ROOT / "tests/p0/p0_ed_fake_dma_runtime.c",
+}
 
 
 def _compile(cc: str, output: Path, sources: list[Path], extra: list[str] | None = None) -> None:
@@ -75,6 +100,7 @@ def verify() -> dict[str, object]:
                 P0 / "src/p0_pl_os_cfar.c",
                 P0 / "src/p0_multiscale_detector.c",
                 P0 / "src/p0_candidate_packet.c",
+                P0 / "src/p0_persistent_weak.c",
                 P06J / "src/phase06j_temporal.c",
             ],
             ['-DP0_ED_SERVICE_ACCOUNT="nobody"', '-DP0_ED_OPERATOR_GROUP="nogroup"', "-lm"],
@@ -245,8 +271,112 @@ def verify() -> dict[str, object]:
     }
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _compiler_version(cc: str) -> str:
+    result = subprocess.run(
+        [cc, "--version"], capture_output=True, text=True, check=False
+    )
+    first_line = result.stdout.splitlines()[0] if result.stdout else Path(cc).name
+    return first_line.strip()
+
+
+def evidence_document(result: dict[str, object]) -> dict[str, object]:
+    return {
+        "schema_version": 3,
+        "recorded_at": date.today().isoformat(),
+        "status": result["status"],
+        "scope": "host-only local service boundary",
+        "toolchain": {
+            "os": platform.platform(),
+            "compiler": _compiler_version(shutil.which("cc") or shutil.which("gcc") or "cc"),
+            "language": "C11",
+        },
+        "protocol": {
+            "transport": "AF_UNIX SOCK_SEQPACKET",
+            "abi_versions": [1, 2, 3],
+            "request_bytes": {"v1": 8224, "v2": 8272, "v3": 8224},
+            "maximum_response_bytes": {"v1": 8772, "v2": 8916, "v3": 8772},
+            "compact_response_bytes_for_two_events_v3": 204,
+            "v3_integrity_boundary": (
+                "AF_UNIX SOCK_SEQPACKET plus header CRC32; "
+                "payload CRC32 retained in v1/v2"
+            ),
+            "header_crc32_versions": [1, 2, 3],
+            "payload_crc32_versions": [1, 2],
+            "strict_length_version_reserved_validation": True,
+            "network_listener": False,
+        },
+        "privilege_boundary": {
+            "production_dma_mode": "root:root 0600 retained",
+            "production_service_account": "p0ed",
+            "production_operator_socket_group": "petalinux",
+            "host_acceptance_client": result["client_identity"],
+            "device_open_before_setgroups_setgid_setuid": True,
+        },
+        "acceptance": {
+            "frames": result["frames"],
+            "first_confirmation_frame": result["first_confirmation_frame"],
+            "expiry_frame": result["expiry_frame"],
+            "invalid_request_published_result": result["invalid_input_published"],
+            "pipeline_failure_preserved_temporal_state": result[
+                "pipeline_failure_preserved_state"
+            ],
+            "clean_shutdown_removed_socket": result["clean_shutdown_removed_socket"],
+            "parameter_observation_counts": result["parameter_observations"],
+            "parameter_numeric_fields_valid_after_fourth_observation": result[
+                "parameter_numeric_fields_valid"
+            ],
+            "throughput_client_frames": result["throughput_client_frames"],
+            "throughput_client_status": result["throughput_client_status"],
+            "throughput_client_boundary": (
+                "fake DMA host protocol acceptance; not physical performance"
+            ),
+            "pl_tagged_dma_frames": True,
+            "pl_decision_path_exercised": True,
+            "persistent_weak_source_linked": True,
+            "persistent_weak_sequence": (
+                "covered by tests/p0/test_p0_ed_pipeline_weak.py; "
+                "not stimulated by this service fixture"
+            ),
+        },
+        "source_sha256": {name: _sha256(path) for name, path in SOURCE_PATHS.items()},
+        "acceptance_source_sha256": {
+            name: _sha256(path) for name, path in ACCEPTANCE_SOURCE_PATHS.items()
+        },
+        "not_verified": [
+            "Ethernet transport",
+            "live HackRF",
+            "current-source PetaLinux image",
+            "current-source FPGA bitstream",
+            "cold-boot persistence of the ABI v3 service image",
+            "physical parameter accuracy",
+        ],
+    }
+
+
+def write_evidence(result: dict[str, object]) -> None:
+    EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
+    EVIDENCE.write_text(
+        json.dumps(evidence_document(result), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
-    print(json.dumps(verify(), ensure_ascii=False, indent=2))
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--write-evidence",
+        action="store_true",
+        help="Başarılı Linux host kabulünü kaynak hashleriyle kaydet.",
+    )
+    args = parser.parse_args()
+    result = verify()
+    if args.write_evidence:
+        write_evidence(result)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
 

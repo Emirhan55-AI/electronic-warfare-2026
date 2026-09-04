@@ -31,6 +31,7 @@ module p0_sparse_os_candidate_top (
   logic [11:0] decision_shifted_index;
   logic [57:0] decision_order_statistic;
   logic decision_detected;
+  logic decision_weak_nominated;
   logic [15:0] decision_completed_frame_count;
   logic decision_frame_error;
   logic grouping_frame_error;
@@ -51,6 +52,7 @@ module p0_sparse_os_candidate_top (
     .m_axis_tuser_shifted_index(decision_shifted_index),
     .m_axis_tuser_order_statistic(decision_order_statistic),
     .m_axis_tuser_detected(decision_detected),
+    .m_axis_tuser_weak_nominated(decision_weak_nominated),
     .completed_frame_count(decision_completed_frame_count),
     .status_frame_error_sticky(decision_frame_error)
   );
@@ -90,5 +92,5 @@ module p0_sparse_os_candidate_top (
   };
 
   logic unused_decision_count;
-  assign unused_decision_count = ^decision_completed_frame_count;
+  assign unused_decision_count = ^decision_completed_frame_count ^ decision_weak_nominated;
 endmodule

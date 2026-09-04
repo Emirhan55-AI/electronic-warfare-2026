@@ -45,6 +45,8 @@ module p0_wideband_recovery (
     ST_COEFFICIENT_NOISE,
     ST_COEFFICIENT_THRESHOLD,
     ST_COEFFICIENT_BROAD,
+    ST_COEFFICIENT_MULTIPLY,
+    ST_COEFFICIENT_COMMIT,
     ST_WINDOW_INITIALIZE,
     ST_WINDOW_ACCUMULATE,
     ST_EVALUATE_CENTER,
@@ -76,9 +78,15 @@ module p0_wideband_recovery (
   logic [57:0] frame_region_noise [0:REGION_COUNT-1];
   logic [61:0] frame_region_threshold [0:REGION_COUNT-1];
   logic [REGION_INDEX_WIDTH-1:0] coefficient_region;
-  logic [53:0] selected_coefficient;
-  logic [58:0] coefficient_input;
-  logic [112:0] coefficient_product;
+  localparam logic [1:0] COEFFICIENT_INTEGRATED = 2'd0;
+  localparam logic [1:0] COEFFICIENT_NOISE = 2'd1;
+  localparam logic [1:0] COEFFICIENT_THRESHOLD = 2'd2;
+  localparam logic [1:0] COEFFICIENT_BROAD = 2'd3;
+  logic [1:0] coefficient_kind;
+  logic [REGION_INDEX_WIDTH-1:0] coefficient_target_region;
+  logic [58:0] coefficient_input_register;
+  logic [53:0] coefficient_value_register;
+  logic [112:0] coefficient_product_register;
   logic [112:0] rounded_coefficient_product;
 
   logic [62:0] window_sum;
@@ -220,17 +228,8 @@ module p0_wideband_recovery (
     endcase
   end
 
-  always_comb begin
-    case (state)
-      ST_COEFFICIENT_NOISE: selected_coefficient = {6'd0, NOISE_Q48};
-      ST_COEFFICIENT_THRESHOLD: selected_coefficient = {5'd0, REGIONAL_THRESHOLD_Q48};
-      default: selected_coefficient = INTEGRATED_THRESHOLD_Q48;
-    endcase
-    coefficient_input = state == ST_COEFFICIENT_BROAD
-        ? frame_reference_twice : frame_median_twice[coefficient_region];
-    coefficient_product = coefficient_input * selected_coefficient;
-    rounded_coefficient_product = coefficient_product + (113'd1 << 47);
-  end
+  assign rounded_coefficient_product =
+      coefficient_product_register + (113'd1 << 47);
 
   assign scaled_window_sum = {2'd0, window_sum, 48'd0};
   assign regional_integrated_detected =
@@ -334,6 +333,11 @@ module p0_wideband_recovery (
       outgoing_power <= 58'd0;
       frame_range_error <= 1'b0;
       coefficient_region <= 4'd0;
+      coefficient_kind <= COEFFICIENT_INTEGRATED;
+      coefficient_target_region <= 4'd0;
+      coefficient_input_register <= 59'd0;
+      coefficient_value_register <= 54'd0;
+      coefficient_product_register <= 113'd0;
       broad_integrated_threshold_product <= 113'd0;
       frame_reference_twice <= 59'd0;
       scan_broad <= 1'b0;
@@ -495,33 +499,75 @@ module p0_wideband_recovery (
         end
 
         ST_COEFFICIENT_INTEGRATED: begin
-          integrated_threshold_product[coefficient_region] <= coefficient_product;
-          state <= ST_COEFFICIENT_NOISE;
+          coefficient_kind <= COEFFICIENT_INTEGRATED;
+          coefficient_target_region <= coefficient_region;
+          coefficient_input_register <= frame_median_twice[coefficient_region];
+          coefficient_value_register <= INTEGRATED_THRESHOLD_Q48;
+          state <= ST_COEFFICIENT_MULTIPLY;
         end
 
         ST_COEFFICIENT_NOISE: begin
-          frame_region_noise[coefficient_region] <= rounded_coefficient_product[105:48];
-          state <= ST_COEFFICIENT_THRESHOLD;
+          coefficient_kind <= COEFFICIENT_NOISE;
+          coefficient_target_region <= coefficient_region;
+          coefficient_input_register <= frame_median_twice[coefficient_region];
+          coefficient_value_register <= {6'd0, NOISE_Q48};
+          state <= ST_COEFFICIENT_MULTIPLY;
         end
 
         ST_COEFFICIENT_THRESHOLD: begin
-          frame_region_threshold[coefficient_region] <= rounded_coefficient_product[109:48];
-          if (coefficient_region == REGION_COUNT - 1) begin
-            state <= ST_COEFFICIENT_BROAD;
-          end else begin
-            coefficient_region <= coefficient_region + 1'b1;
-            state <= ST_COEFFICIENT_INTEGRATED;
-          end
+          coefficient_kind <= COEFFICIENT_THRESHOLD;
+          coefficient_target_region <= coefficient_region;
+          coefficient_input_register <= frame_median_twice[coefficient_region];
+          coefficient_value_register <= {5'd0, REGIONAL_THRESHOLD_Q48};
+          state <= ST_COEFFICIENT_MULTIPLY;
         end
 
         ST_COEFFICIENT_BROAD: begin
-          broad_integrated_threshold_product <= coefficient_product;
-          window_sum <= 63'd0;
-          window_read_index <= 12'd5;
-          current_center <= 12'd20;
-          group_active <= 1'b0;
-          scan_broad <= 1'b0;
-          state <= ST_WINDOW_INITIALIZE;
+          coefficient_kind <= COEFFICIENT_BROAD;
+          coefficient_target_region <= 4'd0;
+          coefficient_input_register <= frame_reference_twice;
+          coefficient_value_register <= INTEGRATED_THRESHOLD_Q48;
+          state <= ST_COEFFICIENT_MULTIPLY;
+        end
+
+        ST_COEFFICIENT_MULTIPLY: begin
+          coefficient_product_register <=
+              coefficient_input_register * coefficient_value_register;
+          state <= ST_COEFFICIENT_COMMIT;
+        end
+
+        ST_COEFFICIENT_COMMIT: begin
+          case (coefficient_kind)
+            COEFFICIENT_INTEGRATED: begin
+              integrated_threshold_product[coefficient_target_region] <=
+                  coefficient_product_register;
+              state <= ST_COEFFICIENT_NOISE;
+            end
+            COEFFICIENT_NOISE: begin
+              frame_region_noise[coefficient_target_region] <=
+                  rounded_coefficient_product[105:48];
+              state <= ST_COEFFICIENT_THRESHOLD;
+            end
+            COEFFICIENT_THRESHOLD: begin
+              frame_region_threshold[coefficient_target_region] <=
+                  rounded_coefficient_product[109:48];
+              if (coefficient_target_region == REGION_COUNT - 1) begin
+                state <= ST_COEFFICIENT_BROAD;
+              end else begin
+                coefficient_region <= coefficient_target_region + 1'b1;
+                state <= ST_COEFFICIENT_INTEGRATED;
+              end
+            end
+            default: begin
+              broad_integrated_threshold_product <= coefficient_product_register;
+              window_sum <= 63'd0;
+              window_read_index <= 12'd5;
+              current_center <= 12'd20;
+              group_active <= 1'b0;
+              scan_broad <= 1'b0;
+              state <= ST_WINDOW_INITIALIZE;
+            end
+          endcase
         end
 
         ST_WINDOW_INITIALIZE: begin

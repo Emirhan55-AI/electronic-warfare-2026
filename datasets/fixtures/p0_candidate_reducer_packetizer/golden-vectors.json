@@ -1,6 +1,6 @@
 {
-  "axis64_beats": 379,
-  "candidate_count": 63,
+  "axis64_beats": 629,
+  "candidate_count": 113,
   "frame_count": 8,
   "schema_version": 1,
   "status": "passed",
@@ -22,10 +22,10 @@
       "vector_id": "multiple_tones"
     },
     {
-      "axis64_beats": 278,
-      "candidate_count": 54,
+      "axis64_beats": 528,
+      "candidate_count": 104,
       "frame_id": 2,
-      "packet_bytes": 2224,
+      "packet_bytes": 4224,
       "source": "frozen PHASE-06F AMD FFT linear-power output",
       "vector_id": "real_phase06f_representative_hann"
     },

@@ -15,7 +15,12 @@ from typing import Callable
 import numpy as np
 
 from algorithms.p0.channelizer import P0ChannelizerProfile
+from algorithms.spectrum import SpectrumConfig, SpectrumProcessor
+from platforms.acquisition import decode_ci8
 from platforms.acquisition.contracts import AcquisitionError
+from .fixed_band_verification import FIXED_SPUR_MATCH_HZ, known_spur_shoulder_evidence
+from .integrated_spectrum import integrated_candidate_near, integrated_spectrum_candidates
+from .known_spurs import load_known_spurs
 from .live_ed import (
     LIVE_DEFAULT_LNA_GAIN_DB,
     LIVE_DEFAULT_VGA_GAIN_DB,
@@ -47,6 +52,7 @@ SURVEY_VERIFY_TUNING_OFFSET_HZ = 2_500_000
 SURVEY_MONITOR_CENTER_OFFSET_HZ = 100_000
 MAX_WINDOW_OBSERVATIONS = 128
 SURVEY_TRANSPORT_ATTEMPTS = 3
+SURVEY_RETRYABLE_TRANSPORT_ERRORS = frozenset({"usb_overrun", "short_stream"})
 ROOT = Path(__file__).resolve().parents[2]
 SURVEY_SOURCES = (
     "app/operator_console/rx_survey.py", "app/operator_console/live_ed.py",
@@ -57,6 +63,8 @@ SURVEY_SOURCES = (
     "app/operator_console/qml/Main.qml", "scripts/check_rx_survey.py",
     "app/operator_console/spectral_display.py", "app/operator_console/survey_evidence.py",
     "scripts/compare_rx_surveys.py",
+    "app/operator_console/integrated_spectrum.py", "app/operator_console/known_spurs.py",
+    "config/p0/hackrf_spurs.json",
     "algorithms/p0/native_channelizer.py", "algorithms/p0/native/channelizer_native.cpp",
 )
 
@@ -203,6 +211,7 @@ class RXSurvey:
         self.config = config
         self.audit_path = Path(audit_path)
         self._session_factory = session_factory
+        self._known_spurs_hz = load_known_spurs(serial)
         self._cancel = threading.Event()
         self._lock = threading.Lock()
         self._active = None
@@ -234,6 +243,9 @@ class RXSurvey:
                 observed_peak_powers = []
                 latest_event = None
                 latest_iq_sha256 = ""
+                receiver_power_rows = []
+                receiver_frequencies_hz = None
+                receiver_processor = SpectrumProcessor(SpectrumConfig(frame_length=16_384))
 
                 def accept(snapshot):
                     nonlocal snapshot_count, latest_event, latest_iq_sha256
@@ -264,6 +276,26 @@ class RXSurvey:
                     observed_peak_powers.append(float(latest_event.peak_power))
                     latest_iq_sha256 = hashlib.sha256(snapshot.output_frame.payload).hexdigest()
 
+                def accept_preview(preview):
+                    nonlocal receiver_frequencies_hz, latest_iq_sha256
+                    if preview.sequence_number < SURVEY_VERIFY_GUARD_FRAMES or preview.display_frame is None:
+                        return
+                    frame = preview.display_frame
+                    spectrum = receiver_processor.process(
+                        decode_ci8(frame.payload, expected_complex_samples=16_384),
+                        sample_rate_hz=frame.sample_rate_hz,
+                        center_frequency_hz=frame.center_frequency_hz,
+                    )
+                    receiver_power_rows.append(np.asarray(
+                        spectrum.display.bin_power_fs2,
+                        dtype=np.float64,
+                    ).copy())
+                    receiver_frequencies_hz = np.asarray(
+                        spectrum.display.frequency_absolute_hz,
+                        dtype=np.float64,
+                    )
+                    latest_iq_sha256 = hashlib.sha256(frame.payload).hexdigest()
+
                 config = LiveEDConfiguration(
                     target_hz,
                     self.serial,
@@ -274,6 +306,8 @@ class RXSurvey:
                     input_center_frequency_hz_override=input_center_hz,
                 )
                 session = self._session_factory(self.executable, config)
+                if hasattr(session, "set_preview_handler"):
+                    session.set_preview_handler(accept_preview)
                 with self._lock:
                     self._active = session
                 if self._cancel.is_set():
@@ -282,7 +316,10 @@ class RXSurvey:
                     result = session.run(accept)
                 except Exception as exc:
                     code = str(getattr(exc, "code", ""))
-                    if code == "usb_overrun" and transport_attempt < SURVEY_TRANSPORT_ATTEMPTS:
+                    if (
+                        code in SURVEY_RETRYABLE_TRANSPORT_ERRORS
+                        and transport_attempt < SURVEY_TRANSPORT_ATTEMPTS
+                    ):
                         retry_evidence.append({"error_code": code, "attempt": transport_attempt,
                                                "lna_gain_db": lna_gain_db, "vga_gain_db": vga_gain_db})
                         continue
@@ -297,22 +334,73 @@ class RXSurvey:
                     raise AcquisitionError("survey_incomplete_window", "Aday doğrulama penceresi eksik işlendi.")
                 if self._cancel.is_set():
                     raise AcquisitionError("operation_cancelled", "Tarama durduruldu.")
-                if len(observed_centers) < SURVEY_VERIFY_MIN_OBSERVED_FRAMES:
+                integrated = None
+                guarded_spur = next((
+                    spur_hz for spur_hz in self._known_spurs_hz
+                    if abs(float(observation["peak_frequency_hz"]) - spur_hz)
+                    <= FIXED_SPUR_MATCH_HZ
+                ), None)
+                spur_guard_passed = guarded_spur is None
+                spur_shoulder_bins = 0
+                spur_shoulder_peak_to_noise_db = None
+                if receiver_frequencies_hz is not None and receiver_power_rows:
+                    receiver_stack = np.stack(receiver_power_rows)
+                    integrated = integrated_candidate_near(
+                        receiver_frequencies_hz,
+                        receiver_stack,
+                        float(observation["peak_frequency_hz"]),
+                        tolerance_hz=SURVEY_CLUSTER_HZ,
+                    )
+                    if guarded_spur is not None:
+                        (
+                            spur_guard_passed,
+                            spur_shoulder_bins,
+                            spur_shoulder_peak_to_noise_db,
+                        ) = known_spur_shoulder_evidence(
+                            receiver_frequencies_hz,
+                            np.mean(receiver_stack, axis=0),
+                            guarded_spur,
+                            power_rows=receiver_stack,
+                        )
+                # A known receiver spur must never be rescued only because the
+                # FPGA also sees the same deterministic line.  Independent RF
+                # shoulder evidence is required for both verification paths.
+                if guarded_spur is not None and not spur_guard_passed:
+                    return None
+                if len(observed_centers) < SURVEY_VERIFY_MIN_OBSERVED_FRAMES and integrated is None:
                     return None
                 verified = dict(observation)
+                if len(observed_centers) >= SURVEY_VERIFY_MIN_OBSERVED_FRAMES:
+                    verification_observed_frames = len(observed_centers)
+                    verification_frequency_hz = sum(observed_centers) / len(observed_centers)
+                    verification_peak_hz = sum(observed_peaks) / len(observed_peaks)
+                    verification_peak_power = sum(observed_peak_powers) / len(observed_peak_powers)
+                    verification_lower_hz = sum(observed_lowers) / len(observed_lowers)
+                    verification_upper_hz = sum(observed_uppers) / len(observed_uppers)
+                    verification_method = "fpga"
+                else:
+                    verification_observed_frames = integrated.observed_frames
+                    verification_frequency_hz = integrated.frequency_hz
+                    verification_peak_hz = integrated.peak_frequency_hz
+                    verification_peak_power = integrated.mean_peak_power
+                    verification_lower_hz = integrated.lower_frequency_hz
+                    verification_upper_hz = integrated.upper_frequency_hz
+                    verification_method = "integrated_rx"
                 verified["verification"] = {
                     "input_center_hz": input_center_hz,
                     "output_center_hz": target_hz,
-                    "observed_frames": len(observed_centers),
-                    "frequency_hz": sum(observed_centers) / len(observed_centers),
-                    "peak_frequency_hz": sum(observed_peaks) / len(observed_peaks),
-                    "mean_peak_power": sum(observed_peak_powers) / len(observed_peak_powers),
-                    "lower_frequency_hz": sum(observed_lowers) / len(observed_lowers),
-                    "upper_frequency_hz": sum(observed_uppers) / len(observed_uppers),
-                    "bandwidth_hz": (
-                        sum(observed_uppers) / len(observed_uppers)
-                        - sum(observed_lowers) / len(observed_lowers)
-                    ),
+                    "observed_frames": verification_observed_frames,
+                    "frequency_hz": verification_frequency_hz,
+                    "peak_frequency_hz": verification_peak_hz,
+                    "mean_peak_power": verification_peak_power,
+                    "lower_frequency_hz": verification_lower_hz,
+                    "upper_frequency_hz": verification_upper_hz,
+                    "bandwidth_hz": verification_upper_hz - verification_lower_hz,
+                    "method": verification_method,
+                    "spur_guard_required": guarded_spur is not None,
+                    "spur_guard_passed": spur_guard_passed,
+                    "spur_shoulder_bins": spur_shoulder_bins,
+                    "spur_shoulder_peak_to_noise_db": spur_shoulder_peak_to_noise_db,
                     "lna_gain_db": lna_gain_db,
                     "vga_gain_db": vga_gain_db,
                     "retries": retry_evidence,
@@ -357,6 +445,10 @@ class RXSurvey:
                 snapshot_count = 0
                 channel_power_sum = 0
                 channel_power_components = 0
+                receiver_power_rows = []
+                receiver_frequencies_hz = None
+                receiver_processor = SpectrumProcessor(SpectrumConfig(frame_length=16_384))
+                latest_display_iq_sha256 = ""
                 window_started = time.monotonic()
                 record({"type": "window_start", "window": asdict(window)})
                 if callback:
@@ -453,6 +545,26 @@ class RXSurvey:
                         )
                         row["observed_frames"] = count + 1
 
+                def accept_preview(preview):
+                    nonlocal receiver_frequencies_hz, latest_display_iq_sha256
+                    if preview.sequence_number < self.config.guard_frames or preview.display_frame is None:
+                        return
+                    frame = preview.display_frame
+                    spectrum = receiver_processor.process(
+                        decode_ci8(frame.payload, expected_complex_samples=16_384),
+                        sample_rate_hz=frame.sample_rate_hz,
+                        center_frequency_hz=frame.center_frequency_hz,
+                    )
+                    receiver_power_rows.append(np.asarray(
+                        spectrum.display.bin_power_fs2,
+                        dtype=np.float64,
+                    ).copy())
+                    receiver_frequencies_hz = np.asarray(
+                        spectrum.display.frequency_absolute_hz,
+                        dtype=np.float64,
+                    )
+                    latest_display_iq_sha256 = hashlib.sha256(frame.payload).hexdigest()
+
                 try:
                     result = None
                     selected_lna = self.config.lna_gain_db
@@ -466,6 +578,9 @@ class RXSurvey:
                             snapshot_count = 0
                             channel_power_sum = 0
                             channel_power_components = 0
+                            receiver_power_rows.clear()
+                            receiver_frequencies_hz = None
+                            latest_display_iq_sha256 = ""
                             display_snapshots = []
                             if callback and (gain_attempt > 1 or transport_attempt > 1):
                                 callback(SurveyUpdate(window, "running", time.monotonic() - started))
@@ -473,6 +588,8 @@ class RXSurvey:
                                 lna_gain_db, vga_gain_db,
                                 frame_count=self.config.frames_per_window, display_interval_frames=1)
                             session = self._session_factory(self.executable, config)
+                            if hasattr(session, "set_preview_handler"):
+                                session.set_preview_handler(accept_preview)
                             with self._lock:
                                 self._active = session
                             if self._cancel.is_set():
@@ -481,7 +598,10 @@ class RXSurvey:
                                 result = session.run(accept)
                             except Exception as exc:
                                 code = str(getattr(exc, "code", "survey_failed"))
-                                if code == "usb_overrun" and transport_attempt < SURVEY_TRANSPORT_ATTEMPTS:
+                                if (
+                                    code in SURVEY_RETRYABLE_TRANSPORT_ERRORS
+                                    and transport_attempt < SURVEY_TRANSPORT_ATTEMPTS
+                                ):
                                     record({"type": "window_transport_retry", "window": asdict(window),
                                             "attempt": transport_attempt, "error_code": code,
                                             "lna_gain_db": lna_gain_db, "vga_gain_db": vga_gain_db})
@@ -501,6 +621,63 @@ class RXSurvey:
                         raise AcquisitionError("survey_incomplete_window", "Tarama penceresi eksik işlendi.")
                     if self._cancel.is_set():
                         raise AcquisitionError("operation_cancelled", "Tarama durduruldu.")
+                    if receiver_frequencies_hz is not None and receiver_power_rows:
+                        receiver_stack = np.stack(receiver_power_rows)
+                        integrated_candidates = integrated_spectrum_candidates(
+                            receiver_frequencies_hz,
+                            receiver_stack,
+                            lower_hz=window.lower_hz,
+                            upper_hz=window.upper_hz,
+                            maximum_candidates=16,
+                        )
+                        for integrated in integrated_candidates:
+                            guarded_spur = next((
+                                spur_hz for spur_hz in self._known_spurs_hz
+                                if abs(integrated.frequency_hz - spur_hz) <= FIXED_SPUR_MATCH_HZ
+                            ), None)
+                            if guarded_spur is not None and not known_spur_shoulder_evidence(
+                                receiver_frequencies_hz,
+                                np.mean(receiver_stack, axis=0),
+                                guarded_spur,
+                                power_rows=receiver_stack,
+                            )[0]:
+                                continue
+                            matching = [
+                                key for key, row in observations.items()
+                                if abs(float(row["peak_frequency_hz"]) - integrated.peak_frequency_hz)
+                                <= SURVEY_CLUSTER_HZ
+                            ]
+                            if matching:
+                                observations[min(matching)]["integrated_rx"] = asdict(integrated)
+                                continue
+                            if len(observations) >= MAX_WINDOW_OBSERVATIONS:
+                                raise AcquisitionError(
+                                    "survey_observation_limit",
+                                    "Pencere gözlem sınırı aşıldı.",
+                                )
+                            key = len(observations)
+                            observations[key] = {
+                                "key": f"{window.index}:{key}",
+                                "frequency_hz": integrated.frequency_hz,
+                                "peak_frequency_hz": integrated.peak_frequency_hz,
+                                "lower_frequency_hz": integrated.lower_frequency_hz,
+                                "upper_frequency_hz": integrated.upper_frequency_hz,
+                                "bandwidth_hz": (
+                                    integrated.upper_frequency_hz
+                                    - integrated.lower_frequency_hz
+                                ),
+                                "first_frame": self.config.guard_frames,
+                                "last_frame": self.config.frames_per_window - 1,
+                                "observed_frames": integrated.observed_frames,
+                                "mean_peak_power": integrated.mean_peak_power,
+                                "mean_noise_power": integrated.mean_noise_power,
+                                "peak_to_noise_db": integrated.peak_to_noise_db,
+                                "component_count": integrated.component_count,
+                                "center_method": integrated.center_method,
+                                "source": "integrated_rx",
+                                "event": None,
+                                "iq_sha256": latest_display_iq_sha256,
+                            }
                     screened = tuple(sorted(
                         (
                             {**item, "lna_gain_db": selected_lna, "vga_gain_db": selected_vga,

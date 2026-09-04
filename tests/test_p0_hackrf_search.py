@@ -185,9 +185,12 @@ class HackRFSearchPlanTests(unittest.TestCase):
             if evidence["source_sha256"][name]
             != hashlib.sha256(source.read_bytes()).hexdigest()
         }
-        # Kabul başka bir fiziksel alıcı kimliğiyle yapılmıştır. Güncel seri
-        # numarası için bu eski koşu kabul kanıtı olarak sunulamaz.
-        self.assertEqual({"hackrf_ed_rx.json"}, changed_since_acceptance)
+        # Yapılandırma fiziksel kabulü geçen ED_RX cihazına bağlıdır.
+        self.assertEqual(set(), changed_since_acceptance)
+        self.assertEqual(
+            evidence["device"]["serial"],
+            json.loads(sources["hackrf_ed_rx.json"].read_text(encoding="utf-8"))["serial"],
+        )
 
 
 if __name__ == "__main__":

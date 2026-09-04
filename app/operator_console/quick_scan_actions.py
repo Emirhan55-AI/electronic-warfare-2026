@@ -134,6 +134,7 @@ class QuickScanActionsMixin:
         frame_count: int,
         *,
         fpga_enabled: bool = True,
+        preserve_fixed_context: bool = False,
     ) -> None:
         if (
             self._source_mode != "hackrf"
@@ -160,10 +161,21 @@ class QuickScanActionsMixin:
             self._show_error(str(getattr(exc, "code", "invalid_rx_config")), str(exc))
             return
         self.stop()
+        if not preserve_fixed_context:
+            self._fixed_verification_records.clear()
+            self._fixed_verification_candidate = None
+            self._fixed_verification_queue.clear()
+            self._fixed_verifier = None
+            self._fixed_verification_stop_requested = False
+            self._fixed_resume_settings = None
+            self._fixed_preserved_history = []
         self._generation += 1
         generation = self._generation
         self._close_source()
         self._clear_results()
+        self._live_spur_guard_binding = None
+        self._live_spur_guard_power.clear()
+        self._live_spur_guard_passed.clear()
         self._live_has_data = False
         self._live_output_center_frequency_hz = configuration.output_center_frequency_hz
         self._spectrum_center_frequency_hz = float(configuration.input_center_frequency_hz)
@@ -210,10 +222,15 @@ class QuickScanActionsMixin:
 
     @Slot()
     def stopLiveEDSession(self) -> None:
-        if self._live_session is None:
+        if self._live_session is None and self._fixed_verifier is None:
             return
+        self._fixed_verification_queue.clear()
         self._status_message = "Canlı ED oturumu durduruluyor…"
-        self._live_session.cancel()
+        if self._live_session is not None:
+            self._live_session.cancel()
+        if self._fixed_verifier is not None:
+            self._fixed_verification_stop_requested = True
+            self._fixed_verifier.cancel()
         self.stateChanged.emit()
 
     @Slot()
@@ -242,6 +259,11 @@ class QuickScanActionsMixin:
         if self._live_session is not None:
             self.stopLiveEDSession()
             return
+        if self._fixed_verifier is not None:
+            self._fixed_verification_queue.clear()
+            self._fixed_verification_stop_requested = True
+            self._fixed_verifier.cancel()
+            return
         was_playing = self._playing
         self._playing = False
         self._timer.stop()
@@ -257,5 +279,8 @@ class QuickScanActionsMixin:
         self._survey_controller.cancel()
         if self._live_session is not None:
             self._live_session.cancel()
+        if self._fixed_verifier is not None:
+            self._fixed_verification_stop_requested = True
+            self._fixed_verifier.cancel()
         self._playing = False
         self._timer.stop()

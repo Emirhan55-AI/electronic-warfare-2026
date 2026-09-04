@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import sys
 
-from PySide6.QtCore import QLocale, QTimer, QUrl
+from PySide6.QtCore import QLocale, QLockFile, QStandardPaths, QTimer, QUrl
 from PySide6.QtGui import QFont, QFontDatabase, QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
 
@@ -89,6 +89,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Elektronik Harp operatör uygulaması")
     parser.add_argument("--smoke-test", action="store_true", help="pencereyi kısa süre açıp kapat")
     args = parser.parse_args(argv)
+    lock_path = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation)) / "baz-operator-console.lock"
+    instance_lock = QLockFile(str(lock_path))
+    instance_lock.setStaleLockTime(0)
+    if not instance_lock.tryLock(100):
+        logging.warning("BÂZ zaten açık; ikinci uygulama örneği başlatılmadı.")
+        return 0
     # Keep the QML engine and view model alive for the full event loop. Using
     # the same throwaway name for both drops the engine reference immediately,
     # which destroys the root window before it reaches the desktop.
@@ -96,5 +102,5 @@ def main(argv: list[str] | None = None) -> int:
     if args.smoke_test:
         QTimer.singleShot(350, app.quit)
     exit_code = app.exec()
-    _ = (engine, view_model)
+    _ = (engine, view_model, instance_lock)
     return exit_code
