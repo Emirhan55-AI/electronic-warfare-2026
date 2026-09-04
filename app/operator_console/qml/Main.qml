@@ -485,7 +485,6 @@ ApplicationWindow {
                 RowLayout {
                     visible: operatorViewModel.sourceMode !== "hackrf" || !root.rfSearchMode || root.spectrumTaskTab !== 0
                     anchors.fill: parent
-                    anchors.margins: 10
                     spacing: 0
 
                     Panel {
@@ -504,8 +503,16 @@ ApplicationWindow {
                         radius: 0
                         Behavior on animatedWidth { NumberAnimation { duration: root.transitionDuration + 60; easing.type: Easing.OutCubic } }
                         Behavior on opacity { NumberAnimation { duration: root.transitionDuration } }
-                        Rectangle { anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 1; color: root.border }
+                        Rectangle {
+                            objectName: "sourcePanelDivider"
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: 1
+                            color: root.border
+                        }
                         ColumnLayout {
+                            objectName: "sourcePanelContent"
                             anchors.fill: parent
                             anchors.margins: 14
                             spacing: 12
@@ -919,7 +926,14 @@ ApplicationWindow {
                         color: "transparent"
                         border.width: 0
                         radius: 0
-                        Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 1; color: root.border }
+                        Rectangle {
+                            objectName: "signalPanelDivider"
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: 1
+                            color: root.border
+                        }
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 14

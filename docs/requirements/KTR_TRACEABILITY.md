@@ -312,7 +312,8 @@ taşınmıştır. Bağlantı ve alım hataları yalnız `Alıcı Ayarları` işl
 gösterilir. Son görünüm bakımında marka işaretinin koyu zemindeki okunurluğu beyaz
 ön plan ile arkasındaki hale katmanlanarak artırılmış; ED/ET ayırıcısı ve görev için gereksiz
 açıklamalar kaldırılmış; spektrum başlıkları grafiklere ortalanmıştır. Bu sunum ve
-fail-closed yetki bağı algoritma, RTL veya fiziksel
+ardından sabit bant dış marjı kaldırılarak alıcı sütunu ortalanmış ve tespit
+ayırıcısı tam yüksekliğe bağlanmıştır. Bu sunum ve fail-closed yetki bağı algoritma, RTL veya fiziksel
 doğruluk kabulü değildir.
 
 On beşinci bakım paketi sabit bant iki-LO doğrulamasındaki merkez/DC hatasını

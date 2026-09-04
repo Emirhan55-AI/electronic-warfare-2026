@@ -25,7 +25,9 @@ geçiş çalışan alım veya taramaya başlatma/durdurma komutu göndermez. Üs
 ve ayırıcı çizgisiz yer alır. `BÂZ` işareti koyu zeminde beyaz ön plan ve arka
 hale katmanıyla sunulur.
 Spektrum ve spektrogram başlıkları grafik alanında ortalanır; boş bağlantı uyarısı
-tespit listesini doldurmaz. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
+tespit listesini doldurmaz. Sabit bant çalışma alanında dış marj kullanılmaz; alıcı
+kontrolleri kendi sütununda ortalanır ve tespit ayırıcısı alanı tam yükseklikte
+böler. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
 varken görünür. Ana tespit yüzeyi yalnız sabit frekans taraması ile bant
 taraması arasında geçiş verir. Olay konsolu ve geliştiriciye yönelik görünüm
 kontrolleri ana operatör yüzeyinde yer almaz.

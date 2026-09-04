@@ -22,6 +22,47 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_detection_workspace_columns_are_centered_and_dividers_are_full_height(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+root.setProperty("sourcePanelOpen", True)
+deadline = time.perf_counter() + .5
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
+source = root.findChild(QObject, "sourcePanel")
+source_content = root.findChild(QObject, "sourcePanelContent")
+source_divider = root.findChild(QObject, "sourcePanelDivider")
+signal = root.findChild(QObject, "signalTaskPanel")
+signal_divider = root.findChild(QObject, "signalPanelDivider")
+payload = {
+    "source_x": source.property("x"),
+    "source_center": source_content.property("x") + source_content.property("width") / 2,
+    "source_panel_center": source.property("width") / 2,
+    "source_divider_y": source_divider.property("y"),
+    "source_divider_height": source_divider.property("height"),
+    "source_height": source.property("height"),
+    "signal_divider_y": signal_divider.property("y"),
+    "signal_divider_height": signal_divider.property("height"),
+    "signal_height": signal.property("height"),
+}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertAlmostEqual(0.0, payload["source_x"], delta=0.5)
+        self.assertAlmostEqual(
+            payload["source_panel_center"], payload["source_center"], delta=0.5
+        )
+        self.assertAlmostEqual(0.0, payload["source_divider_y"], delta=0.5)
+        self.assertAlmostEqual(
+            payload["source_height"], payload["source_divider_height"], delta=0.5
+        )
+        self.assertAlmostEqual(0.0, payload["signal_divider_y"], delta=0.5)
+        self.assertAlmostEqual(
+            payload["signal_height"], payload["signal_divider_height"], delta=0.5
+        )
+
     def test_header_places_domain_switch_on_right_without_connection_messages(self) -> None:
         source = QML.read_text(encoding="utf-8")
         header_start = source.index("    header: Rectangle {")
