@@ -18,6 +18,7 @@ ApplicationWindow {
 
     property int workspace: 0
     property string operatingDomain: "ED"
+    property bool startupIntroVisible: startupIntroRequested
     property bool navigationOpen: false
     property bool sourcePanelOpen: false
     property bool rfSearchMode: false
@@ -2229,22 +2230,33 @@ ApplicationWindow {
         HackRFControls { shell: root }
     }
 
-    Loader {
-        id: startupIntroLoader
-        objectName: "startupIntroLoader"
-        anchors.fill: parent
-        z: 10000
-        active: startupIntroRequested
-        sourceComponent: StartupIntro {
-            onFinished: {
-                startupIntroLoader.active = false
-                Qt.callLater(function() {
-                    var navigationIndex = root.operatingDomain === "ET"
-                                          ? 0
-                                          : root.workspace === 0 ? root.spectrumTaskTab : root.workspace + 1
-                    var target = workspaceNavigation.itemAt(navigationIndex)
-                    if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
-                })
+    Window {
+        id: startupIntroWindow
+        objectName: "startupIntroWindow"
+        transientParent: root
+        screen: root.screen
+        modality: Qt.ApplicationModal
+        flags: Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        visibility: root.startupIntroVisible ? Window.FullScreen : Window.Hidden
+        color: "#05070B"
+
+        Loader {
+            id: startupIntroLoader
+            objectName: "startupIntroLoader"
+            anchors.fill: parent
+            active: root.startupIntroVisible
+            sourceComponent: StartupIntro {
+                onFinished: {
+                    root.startupIntroVisible = false
+                    Qt.callLater(function() {
+                        root.requestActivate()
+                        var navigationIndex = root.operatingDomain === "ET"
+                                              ? 0
+                                              : root.workspace === 0 ? root.spectrumTaskTab : root.workspace + 1
+                        var target = workspaceNavigation.itemAt(navigationIndex)
+                        if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
+                    })
+                }
             }
         }
     }

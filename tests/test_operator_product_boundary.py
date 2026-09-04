@@ -124,6 +124,9 @@ print(json.dumps(payload, ensure_ascii=False))
 
     def test_startup_intro_is_optional_and_isolated_from_runtime_control(self) -> None:
         intro = INTRO_QML.read_text(encoding="utf-8")
+        main_qml = (ROOT / "app" / "operator_console" / "qml" / "Main.qml").read_text(
+            encoding="utf-8"
+        )
         startup = QUICK_APPLICATION.read_text(encoding="utf-8")
         image = ROOT / "app" / "operator_console" / "assets" / "baz-logo-intro.png"
 
@@ -133,6 +136,9 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertIn("status === Image.Error", intro)
         self.assertIn("interval: 3000", intro)
         self.assertIn("function dismiss()", intro)
+        self.assertIn("flags: Qt.SplashScreen | Qt.FramelessWindowHint", main_qml)
+        self.assertIn("Window.FullScreen", main_qml)
+        self.assertIn("transientParent: root", main_qml)
         self.assertIn("show_startup_intro: bool = False", startup)
         self.assertIn('parser.add_argument("--no-intro"', startup)
         self.assertIn("auto_probe_hackrf=False", startup)
