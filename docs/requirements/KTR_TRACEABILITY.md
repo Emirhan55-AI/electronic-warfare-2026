@@ -117,6 +117,18 @@ geçmiş gözlemler ve sabit bant izlemeye geçiş PHASE-08 kapsamındadır.
 Durum: uygulandı, sınırlı alıcı denemesi var; tam bant kör RF deneyi, anten
 kapsamı, kaçırma/yanlış alarm oranı ve şartname saha kabulü **açık**.
 
+4 Eylül 2026 ST-04 başlangıç ölçümünde 20 MHz–6 GHz aralığının resmî
+`hackrf_sweep` ile 1 MHz hücreli tek RX-only turu 0,798792 saniye ve sıfır kapsam
+boşluğuyla tamamlanmıştır. Mevcut 600 kHz sorumluluklu 2 MHz FPGA/ARM taraması
+aynı aralıkta yalnız ham örnek için 9.967 pencere / 2.612,789248 saniye; mevcut
+DC-güvenli 8 MS/s kaba plan üç gözlemle 2.392 pencere / 14,696448 saniye alt
+sınırı üretir. Kaynak ve ham CSV hashleri
+`results/evidence/phase08/st04-search-profile-baseline-v1.json` içindedir. Bu
+karşılaştırma host kaba arama fizibilitesidir; FPGA tespiti, RF doğruluğu,
+Pd/Pfa, kısa yayın yakalama veya ST-04 kapanışı değildir. Doğrudan ZedBoard USB
+OTG bağlantısı anlık RF bandını genişleten bir özellik sayılmaz ve ayrı taşıma /
+PetaLinux / PS→PL kabulü olmadan seçilmiş mimari değildir.
+
 Eski fiziksel özetler yalnız kaydettikleri kaynak sürümünün kanıtıdır. Yeni
 tarama/Windows taşıma kaynakları için bu arşivlerin hash kapıları geçilmiş
 sayılmaz; yeni alımlar `build/acceptance/rx-survey/` altında saklanır.

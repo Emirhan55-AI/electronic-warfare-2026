@@ -636,6 +636,10 @@ APPROVED_PHASE08_FILES = (
     "tests/test_integrated_spectrum.py",
     "tests/test_known_spurs.py",
     "tests/test_survey_candidate_ranking.py",
+    "scripts/measure_st04_search_profiles.py",
+    "tests/test_st04_search_profile_measurement.py",
+    "results/evidence/phase08/st04-search-profile-baseline-v1.json",
+    "results/evidence/phase08/st04-search-profile-baseline-v1.csv",
 )
 
 APPROVED_PHASE05_FILES = (

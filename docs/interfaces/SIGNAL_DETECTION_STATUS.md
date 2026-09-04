@@ -265,6 +265,29 @@ ayırır; ikisi de tek başına harici verici kanıtı değildir.
 zarfında değildir; 8 MHz tam doluluk açık kalır. Otomatik kaba aday→FPGA yeniden
 ayar bağı ve fiziksel RF kabulü tamamlanmadan ST-04/05/07 kapanmaz.
 
+4 Eylül 2026'da ST-04 için eşikleri değiştirmeyen ilk kaynak bağlı arama profili
+ölçümü yapılmıştır. 20 MHz–6 GHz aralığında mevcut 600 kHz sorumluluklu,
+pencere başına 128 karelik 2 MHz FPGA/ARM taramasının yalnız ham örnek toplama
+alt sınırı 9.967 pencere ve 2.612,789248 saniyedir. Aynı aralık için mevcut
+DC-güvenli 8 MS/s kaba plan, pencere başına üç gözlem varsayımıyla 2.392 pencere
+ve 14,696448 saniye ham örnek alt sınırı üretmiştir. Bağlı HackRF ile RF amp ve
+anten portu gücü kapalı, LNA/VGA 16/16 dB iken resmî `hackrf_sweep`, 1 MHz güç
+hücreli tek pasif turda aralığı 1.196 satır ve 5.980 hücreyle boşluksuz
+kapsamış; süreç duvar süresi 0,798792 saniye ölçülmüştür. Kanıt
+`results/evidence/phase08/st04-search-profile-baseline-v1.json` ve aynı hashle
+bağlı `.csv` kaydıdır. Bu tek tur host kaba arama ölçümüdür; FPGA doğrulaması,
+kısa yayın yakalama olasılığı, tekrarlı tarama zamanı veya RF doğruluk/Pd/Pfa
+kabulü değildir. Aynı I/Q üzerinde tekrarlı profil karşılaştırması ve kontrollü
+yayın matrisi tamamlanmadığından ST-04 açık kalır.
+
+HackRF'ı ZedBoard USB OTG host portuna doğrudan bağlamak ST-04'te aday mimari
+olarak tutulur. Bu bağlantı PC→Ethernet kopyasını kaldırabilir fakat HackRF'ın
+anlık RF bant genişliğini artırmaz. 8 MS/s CI8 akış yaklaşık 16 MB/s, 20 MS/s
+yaklaşık 40 MB/s ham USB yüküdür. ZedBoard USB 2.0 host, PetaLinux `libusb` /
+`libhackrf`, kararlı 5 V besleme ve PS DDR→PL aktarım yolunun ayrı fiziksel
+kabulünü gerektirir. Doğrudan OTG, mevcut host ve geniş kaba arama profilleriyle
+ölçülmeden seçilmiş mimari sayılmaz.
+
 ### Uygulama ve ölçüm kaydı
 
 - UART COM6/115200 üzerinden kartın Linux giriş ekranı görülmüş, sonrasında ağ

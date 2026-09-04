@@ -400,6 +400,20 @@ mutlak destek örtüşmeli ikinci ayar host testinde geçmiştir. Güncel tam Vi
 sentez/route/zamanlama/bitstream kapısı 1 Eylül'de geçmiştir; kart yükleme,
 bütün pencereyi dolduran yayın ve kontrollü RF doğruluğu açık kalır.
 
+4 Eylül'de kullanıcı onayıyla ST-04 arama profili karşılaştırması başlatılmıştır.
+İlk RX-only fiziksel baseline'da 20 MHz–6 GHz aralığı, 1 MHz `hackrf_sweep`
+hücreleriyle tek turda 0,798792 saniyede ve boşluksuz ölçülmüştür. Aynı aralığın
+mevcut 2 MHz ayrıntılı ürün taraması yalnız ham örnek toplamada 2.612,789248
+saniye; üç gözlemli mevcut 8 MS/s kaba plan ise 14,696448 saniye alt sınırı
+üretir. Bu değerler farklı karar yetkilerine sahiptir: `hackrf_sweep` ve 8 MS/s
+yol yalnız kaba host adayı, 2 MHz yol FPGA/ARM ayrıntılı kararıdır. İlk tur
+Pd/Pfa, kısa yayın veya FPGA kabulü değildir. Kanıt
+`results/evidence/phase08/st04-search-profile-baseline-v1.json` dosyasındadır.
+ST-04 kapanmadan ST-05/06 algoritma değişikliği ve ST-07 ürün taraması
+başlatılmaz. ZedBoard USB OTG doğrudan alım olasılığı bant genişliği kazanımı
+olarak varsayılmaz; yalnız PC→Ethernet taşımasını kaldırabilecek alternatif
+topoloji olarak ayrıca ölçülecektir.
+
 Kullanıcının 2026-08-30 onayıyla doğrulanmış canlı alım yolu ürün uygulamasına
 bağlanmıştır. Operatörün seçtiği izleme merkez frekansı için HackRF 1,5 MHz
 DC-güvenli ofsetle 8 MS/s alır; stateful kanal seçici çıkışı tam 2 MS/s × 4.096

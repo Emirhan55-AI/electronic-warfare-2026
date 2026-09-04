@@ -1,0 +1,69 @@
+{
+  "schema": "phase08-st04-search-profile-baseline-v1",
+  "status": "baseline_measured",
+  "phase08_complete": false,
+  "st04_complete": false,
+  "transmit_enabled": false,
+  "requested_range_hz": [
+    20000000,
+    6000000000
+  ],
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "rf_amp_enabled": false,
+    "antenna_port_power_enabled": false,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16
+  },
+  "profile_estimates": {
+    "detailed_2msps_fpga_survey": {
+      "decision_owner": "FPGA_PL_and_ARM_PS",
+      "window_count": 9967,
+      "responsibility_width_hz": 600000,
+      "frames_per_window": 128,
+      "raw_sample_seconds_per_window": 0.262144,
+      "raw_sample_seconds_full_range": 2612.789248
+    },
+    "bounded_8msps_coarse_plan": {
+      "decision_owner": "host_candidate_only",
+      "window_count": 2392,
+      "analysis_bandwidth_hz": 6000000,
+      "maximum_dc_safe_interval_hz": 2500000,
+      "observations_per_window": 3,
+      "raw_sample_seconds_per_window": 0.006144,
+      "raw_sample_seconds_full_range": 14.696448
+    }
+  },
+  "physical_host_sweep": {
+    "tool": "hackrf_sweep",
+    "requested_bin_width_hz": 1000000,
+    "process_elapsed_seconds": 0.7987917000427842,
+    "csv_sha256": "74fd7ae5176f6f479bbc36c51a73f9718510f92a8fbc59eea71e3a217f66c352",
+    "rows": 1196,
+    "power_bins": 5980,
+    "covered_lower_hz": 20000000,
+    "covered_upper_hz": 6000000000,
+    "covered_hz": 5980000000,
+    "gap_count": 0,
+    "gap_hz": 0,
+    "bin_widths_hz": [
+      1000000.0
+    ],
+    "first_timestamp": "2026-09-04T15:01:03.491750",
+    "last_timestamp": "2026-09-04T15:01:04.219331"
+  },
+  "limits": [
+    "Bu tek, pasif ve operatör truth bilgisi olmayan ölçüm Pd/Pfa veya RF doğruluk kabulü değildir.",
+    "hackrf_sweep sonucu yalnız hızlı host kaba arama karşılaştırma tabanıdır; FPGA doğrulaması değildir.",
+    "Profil tahminleri yalnız ham örnek toplama alt sınırıdır; LO yerleşmesi, USB, filtre, Ethernet, FPGA/ARM ve arayüz süresi dahil değildir.",
+    "Tek sweep tekrarlanabilir tarama süresi veya kısa yayın yakalama olasılığı kanıtlamaz.",
+    "ST-04; tekrarlı zamanlama, kayıtlı aynı-IQ karşılaştırması ve kontrollü yayın matrisi tamamlanana kadar açık kalır."
+  ],
+  "source_sha256": {
+    "algorithms/p0/channelizer.py": "c60e6cb46a108a6c29f4619f76bc21180e465b2139273651e4e31af380b0bf28",
+    "algorithms/p0/coarse_detection.py": "9b2361fac2396e6e160ec6bcfbd1e8e3f39a63ef3e08abb68550ec182f5b91ae",
+    "algorithms/p0/hackrf_search.py": "4cd3d46b680824512c72f990a9c209db2472f1e0d249e2fc03ff98b7eaae723a",
+    "app/operator_console/rx_survey.py": "867188414b30b2226bb6992412e186014e5666bc3aba73e7e8f37e411ca43c2c",
+    "scripts/measure_st04_search_profiles.py": "0493820293306f9462474b9459fcbdd2fd0b29b2bcc03fb1ae16ce7f081eb25a"
+  }
+}
