@@ -106,6 +106,15 @@ tutulur ve iki-LO sınamasından sırayla geçirilir. Kuyruk operatör taramayı
 durdurduğunda temizlenir. Uygulama girişinde tek örnek kilidi vardır; ikinci
 BÂZ süreci alıcıyı paylaşmak üzere başlatılmaz.
 
+4 Eylül 2026 sürekli sabit-bant akış bakımında otomatik ikinci-LO yeniden ayarı
+ana alımı kesip görünümü baştan başlatıyor gibi gösterdiği için canlı akıştan
+çıkarılmıştır. Aynı fiziksel I/Q karesinin FPGA olay yolu ile 8 MHz RX spektrum
+yolunda zamansal ve frekansça uyuşması adayı sunmak için kullanılır; iki yol
+bağımsız RF ölçümü olmadığı için sonuç sarı `FPGA ADAYI · FPGA + RX spektrumu
+uyumlu` kalır. Yeşil `KARARLI RF ADAYI` ve kararlı sayaç yalnız iki farklı
+fiziksel alıcı ayarında aynı mutlak RF frekansını geçen kayıt içindir. Bu ayrım
+akışı sürekli tutar fakat harici verici doğrulaması iddia etmez.
+
 Aday grafikten kaybolduğunda canlı kılavuz hemen kaldırılır. Liste satırı
 yalnız 128 FPGA karesi, yaklaşık 262 ms, `Kısa süreli izleniyor` durumunda
 tutulur; yeni gözlem gelmezse `Son görüldü` geçmişine geçer. Bu sunum

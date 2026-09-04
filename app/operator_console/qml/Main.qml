@@ -1011,7 +1011,9 @@ ApplicationWindow {
                                                 text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
                                                       ? (signalSummaryCard.leadingMarker === null ? ""
                                                          : signalSummaryCard.leadingMarker.frequency + " · "
-                                                           + (signalSummaryCard.stableCandidate ? "iki ayarda kararlı"
+                                                           + (signalSummaryCard.leadingMarker.verificationKey === "rx_supported"
+                                                              ? "FPGA + RX spektrumu uyumlu"
+                                                              : signalSummaryCard.stableCandidate ? "iki ayarda kararlı"
                                                               : signalSummaryCard.leadingMarker.verificationKey === "pending"
                                                                 ? "iki alıcı ayarında denetleniyor"
                                                                 : signalSummaryCard.leadingFpga !== null ? "FPGA adayı"
@@ -1097,6 +1099,7 @@ ApplicationWindow {
                                 header: Label {
                                     visible: operatorViewModel.stableDetectionCount === 0
                                              && operatorViewModel.detections.length > 0
+                                             && !signalSummaryCard.stableCandidate
                                     width: detectionList.width
                                     height: visible ? 30 : 0
                                     text: "ŞU ANDA İKİ AYARDA KARARLI RF ADAYI YOK"

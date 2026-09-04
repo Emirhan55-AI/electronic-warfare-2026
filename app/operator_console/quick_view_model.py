@@ -83,6 +83,7 @@ from .live_ed import (
 )
 
 from .quick_detection_state import (
+    LIVE_PRESENTATION_CLUSTER_HZ,
     LIVE_SPUR_GUARD_WINDOW,
     SUPPRESSED_VERIFICATION_STATES,
     QuickDetectionStateMixin,
@@ -587,6 +588,26 @@ class OperatorViewModel(
             (
                 item for item in frame.candidates
                 if item.state == "confirmed" and item.observed_this_frame
+                and abs(fixed_candidate_reference_frequency(
+                    item.lower_frequency_hz,
+                    item.upper_frequency_hz,
+                    item.peak_frequency_hz,
+                ) - self._live_output_center_frequency_hz)
+                <= LIVE_USABLE_HALF_BAND_HZ
+                and any(
+                    row.get("stateKey") == "confirmed"
+                    and bool(row.get("observed", True))
+                    and (
+                        max(
+                            0.0,
+                            min(float(row["upperFrequencyHz"]), float(item.upper_frequency_hz))
+                            - max(float(row["lowerFrequencyHz"]), float(item.lower_frequency_hz)),
+                        ) > 0.0
+                        or abs(float(row["peakFrequencyHz"]) - float(item.peak_frequency_hz))
+                        <= LIVE_PRESENTATION_CLUSTER_HZ
+                    )
+                    for row in self._live_detection_rows
+                )
             ),
             key=lambda item: (
                 -item.peak_to_noise_db if math.isfinite(item.peak_to_noise_db) else float("inf"),
@@ -1282,7 +1303,6 @@ class OperatorViewModel(
         self._coarse_detection_frame = coarse
         self._coarse_detection_error = ""
         self.detectionsChanged.emit()
-        self._maybe_verify_coarse_candidate(coarse)
 
     @Slot(int, str)
     def _live_coarse_failed(self, generation: int, error_type: str) -> None:
@@ -1356,7 +1376,11 @@ class OperatorViewModel(
         self._playing = False
         self._active_task_kind = ""
         if code == "operation_cancelled":
-            if self._fixed_verification_candidate is not None and self._fixed_verifier is not None:
+            if (
+                not self._fixed_verification_stop_requested
+                and self._fixed_verification_candidate is not None
+                and self._fixed_verifier is not None
+            ):
                 candidate = self._fixed_verification_candidate
                 verifier = self._fixed_verifier
                 self._source_state = "Denetleniyor"
@@ -1366,6 +1390,12 @@ class OperatorViewModel(
                 self.pipelineChanged.emit()
                 self.stateChanged.emit()
                 return
+            if self._fixed_verification_stop_requested:
+                self._fixed_verification_candidate = None
+                self._fixed_verifier = None
+                self._fixed_resume_settings = None
+                self._fixed_preserved_history = []
+                self._fixed_verification_stop_requested = False
             self._source_state = "Hazır" if self._live_has_data else "Kullanılmıyor"
             self._status_message = "Canlı ED oturumu operatör tarafından durduruldu."
             self._add_log("Canlı ED", self._status_message)

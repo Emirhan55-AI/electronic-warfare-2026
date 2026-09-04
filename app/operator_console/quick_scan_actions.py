@@ -160,9 +160,22 @@ class QuickScanActionsMixin:
         except Exception as exc:
             self._show_error(str(getattr(exc, "code", "invalid_rx_config")), str(exc))
             return
+        same_fixed_settings = (
+            int(self._live_receive_settings.get("center_hz", -1))
+            == configuration.output_center_frequency_hz
+            and int(self._live_receive_settings.get("lna_db", -1))
+            == configuration.lna_gain_db
+            and int(self._live_receive_settings.get("vga_db", -1))
+            == configuration.vga_gain_db
+        )
+        retained_history = (
+            [dict(row) for row in self._live_detection_history]
+            if same_fixed_settings else []
+        )
         self.stop()
-        if not preserve_fixed_context:
+        if not preserve_fixed_context and not same_fixed_settings:
             self._fixed_verification_records.clear()
+        if not preserve_fixed_context:
             self._fixed_verification_candidate = None
             self._fixed_verification_queue.clear()
             self._fixed_verifier = None
@@ -172,7 +185,13 @@ class QuickScanActionsMixin:
         self._generation += 1
         generation = self._generation
         self._close_source()
-        self._clear_results()
+        self._clear_results(keep_spectrum=same_fixed_settings)
+        if retained_history:
+            self._live_detection_history = [
+                self._last_observation(self._apply_fixed_verification(row))
+                for row in retained_history
+            ]
+            self._refresh_live_detection_list(force=True)
         self._live_spur_guard_binding = None
         self._live_spur_guard_power.clear()
         self._live_spur_guard_passed.clear()
@@ -225,11 +244,11 @@ class QuickScanActionsMixin:
         if self._live_session is None and self._fixed_verifier is None:
             return
         self._fixed_verification_queue.clear()
+        self._fixed_verification_stop_requested = True
         self._status_message = "Canlı ED oturumu durduruluyor…"
         if self._live_session is not None:
             self._live_session.cancel()
         if self._fixed_verifier is not None:
-            self._fixed_verification_stop_requested = True
             self._fixed_verifier.cancel()
         self.stateChanged.emit()
 

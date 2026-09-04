@@ -19,12 +19,16 @@ from .fixed_band_verification import (
     known_spur_shoulder_evidence,
 )
 from .live_ed import LIVE_USABLE_HALF_BAND_HZ
-from .quick_runtime import _reduce_display_max
+from .quick_runtime import LIVE_COARSE_INTERVAL_DSP_FRAMES, _reduce_display_max
 
 LIVE_SPUR_GUARD_WINDOW = 8
 SUPPRESSED_VERIFICATION_STATES = {"not_reproduced", "live_guard_failed"}
 LIVE_PRESENTATION_CLUSTER_HZ = 75_000.0
 FIXED_VERIFICATION_QUEUE_CAPACITY = 4
+LIVE_STABLE_MIN_SPAN_FRAMES = 4
+LIVE_STABLE_MIN_OCCUPANCY = 0.75
+LIVE_RX_SUPPORTED_MIN_SEEN_FRAMES = 64
+LIVE_COARSE_MAX_AGE_FRAMES = 3 * LIVE_COARSE_INTERVAL_DSP_FRAMES
 
 
 class QuickDetectionStateMixin:
@@ -107,7 +111,15 @@ class QuickDetectionStateMixin:
         self._spectral_display.append(
             values,
             timestamp=self._frame_index * spectrum.frame_length / spectrum.sample_rate_hz,
-            binding=(self._generation, spectrum.center_frequency_hz, spectrum.sample_rate_hz),
+            binding=(
+                self._source_mode,
+                spectrum.center_frequency_hz,
+                spectrum.sample_rate_hz,
+                int(self._live_receive_settings["lna_db"])
+                if self._source_mode == "hackrf" else None,
+                int(self._live_receive_settings["vga_db"])
+                if self._source_mode == "hackrf" else None,
+            ),
         )
         self._spectrum_center_frequency_hz = float(spectrum.center_frequency_hz)
         self._spectrum_sample_rate_hz = float(spectrum.sample_rate_hz)
@@ -132,11 +144,19 @@ class QuickDetectionStateMixin:
         updated = dict(row)
         record = self._fixed_verification_record(float(row["frequencyHz"]))
         state = str(record["state"]) if record is not None else "unverified"
+        if (
+            record is None
+            and bool(row.get("rxSpectrumSupported", False))
+            and bool(row.get("stableOccupancy", False))
+            and int(row.get("eventRevision", 0)) >= LIVE_RX_SUPPORTED_MIN_SEEN_FRAMES
+        ):
+            state = "rx_supported"
         result = record.get("result") if record is not None else None
         method = result.verification_method if isinstance(result, FixedBandVerification) else "none"
         revision = int(row.get("eventRevision", 0))
         labels = {
             "verified_two_lo": ("Kararlı RF adayı", "2 ayarda kararlı"),
+            "rx_supported": ("FPGA adayı", "FPGA + RX spektrumu uyumlu"),
             "pending": ("FPGA adayı", "İkinci alıcı ayarı denetleniyor"),
             "not_reproduced": ("FPGA adayı", "İkinci ayarda görülmedi"),
             "live_guard_failed": ("Donanım çizgisi", "Canlı RF kanıtı yok"),
@@ -156,6 +176,34 @@ class QuickDetectionStateMixin:
             title=title,
         )
         return updated
+
+    def _coarse_supports_fpga_region(
+        self,
+        lower_frequency_hz: float,
+        upper_frequency_hz: float,
+        peak_frequency_hz: float,
+        response_frame: int,
+    ) -> bool:
+        frame = self._coarse_detection_frame
+        if frame is None or self._coarse_detection_sequence < 0:
+            return False
+        if response_frame - self._coarse_detection_sequence > LIVE_COARSE_MAX_AGE_FRAMES:
+            return False
+        for item in frame.candidates:
+            if item.state != "confirmed" or not item.observed_this_frame:
+                continue
+            overlap_hz = max(
+                0.0,
+                min(upper_frequency_hz, float(item.upper_frequency_hz))
+                - max(lower_frequency_hz, float(item.lower_frequency_hz)),
+            )
+            if (
+                overlap_hz > 0.0
+                or abs(float(item.peak_frequency_hz) - peak_frequency_hz)
+                <= LIVE_PRESENTATION_CLUSTER_HZ
+            ):
+                return True
+        return False
 
     def _queue_fixed_verification(self, candidate: FixedBandCandidate) -> None:
         if (
@@ -280,6 +328,12 @@ class QuickDetectionStateMixin:
             item for item in frame.candidates
             if item.state == "confirmed"
             and item.observed_this_frame
+            and abs(fixed_candidate_reference_frequency(
+                item.lower_frequency_hz,
+                item.upper_frequency_hz,
+                item.peak_frequency_hz,
+            ) - self._live_output_center_frequency_hz)
+            <= LIVE_USABLE_HALF_BAND_HZ
             and self._fixed_verification_state(fixed_candidate_reference_frequency(
                 item.lower_frequency_hz,
                 item.upper_frequency_hz,
@@ -323,6 +377,27 @@ class QuickDetectionStateMixin:
             )
             if abs(frequency - center) > LIVE_USABLE_HALF_BAND_HZ:
                 continue
+            event_span_frames = max(
+                1,
+                int(item.last_seen_frame_id) - int(item.first_frame_id) + 1,
+            )
+            occupancy = min(1.0, float(item.seen_count) / event_span_frames)
+            stable_occupancy = (
+                event_span_frames >= LIVE_STABLE_MIN_SPAN_FRAMES
+                and occupancy >= LIVE_STABLE_MIN_OCCUPANCY
+            )
+            rx_spectrum_supported = self._coarse_supports_fpga_region(
+                lower_frequency,
+                upper_frequency,
+                peak_frequency,
+                response_frame,
+            )
+            if (
+                item.state == "confirmed"
+                and item.observed_this_frame
+                and (not stable_occupancy or not rx_spectrum_supported)
+            ):
+                continue
             contrast = item.peak_to_noise_db
             detections.append(
                 {
@@ -344,6 +419,10 @@ class QuickDetectionStateMixin:
                     "endBin": int(item.end_shifted_bin),
                     "peakBin": int(item.peak_shifted_bin),
                     "eventRevision": int(item.seen_count),
+                    "eventSpanFrames": event_span_frames,
+                    "occupancyRatio": occupancy,
+                    "stableOccupancy": stable_occupancy,
+                    "rxSpectrumSupported": rx_spectrum_supported,
                     "lastObservedFrame": response_frame,
                     "held": False,
                     "startNormalized": self._normalized_live_bin(item.start_shifted_bin),
@@ -379,7 +458,6 @@ class QuickDetectionStateMixin:
         elif self._selected_live_detection is not None:
             self._selected_live_detection = self._last_observation(self._selected_live_detection)
         self._refresh_live_detection_list()
-        self._maybe_verify_fpga_candidate(detections)
 
     @staticmethod
     def _last_observation(row: dict[str, object]) -> dict[str, object]:
@@ -564,11 +642,17 @@ class QuickDetectionStateMixin:
         self._detection_model.set_rows(self._detections)
         self.detectionsChanged.emit()
 
-    def _clear_results(self, *, keep_source: bool = False) -> None:
+    def _clear_results(
+        self,
+        *,
+        keep_source: bool = False,
+        keep_spectrum: bool = False,
+    ) -> None:
         self._last_result = None
         self._direction_frame_power_dbfs = None
-        self._spectrum_values = []
-        self._spectral_display.clear()
+        if not keep_spectrum:
+            self._spectrum_values = []
+            self._spectral_display.clear()
         self._detections = []
         self._detection_model.set_rows([])
         self._live_detection_rows = []

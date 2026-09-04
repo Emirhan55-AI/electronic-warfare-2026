@@ -319,8 +319,9 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     _drain(app, lambda: view_model.busy)
     assert view_model.hackrfReady
 
-    view_model.startLiveEDSession(104_650_000, 16, 16, 4)
-    _drain(app, lambda: view_model.busy)
+    with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        _drain(app, lambda: view_model.busy)
 
     assert view_model.sourceReady
     assert not view_model.liveSessionActive
@@ -481,6 +482,28 @@ def live_presentation():
 
 
 def _present(view, frame_id, *events):
+    coarse_candidates = []
+    spacing = 2_000_000.0 / 4096.0
+    center = float(view._live_output_center_frequency_hz)
+    for event in events:
+        if event.state != "confirmed" or not event.observed_this_frame:
+            continue
+        coarse_candidates.append(CoarseDetection(
+            int(event.event_id),
+            "confirmed",
+            True,
+            center + (event.start_shifted_bin - 2048) * spacing,
+            center + (event.end_shifted_bin - 2048) * spacing,
+            center + (event.peak_shifted_bin - 2048) * spacing,
+            event.peak_to_noise_db,
+        ))
+    view._coarse_detection_frame = CoarseDetectionFrame(
+        frame_id,
+        center,
+        8_000_000.0,
+        tuple(coarse_candidates),
+    )
+    view._coarse_detection_sequence = frame_id
     view._frame_index = frame_id
     view._update_live_detections(LiveEDResponse(frame_id, len(events), 7, 0, False, 0, events, (), 0))
 
@@ -621,7 +644,7 @@ def test_stale_history_does_not_count_as_a_live_detection(live_presentation):
     assert view.detections[0]["historyBoundary"]
 
 
-def test_confirmed_host_candidate_is_not_claimed_as_fpga_detection(live_presentation):
+def test_confirmed_host_candidate_is_not_presented_without_fpga_agreement(live_presentation):
     view = live_presentation
     view._coarse_detection_frame = CoarseDetectionFrame(
         7,
@@ -630,8 +653,43 @@ def test_confirmed_host_candidate_is_not_claimed_as_fpga_detection(live_presenta
         (CoarseDetection(9, "confirmed", True, 104_700_000.0, 104_730_000.0, 104_715_000.0, 18.0),),
     )
     assert not view.detectionMarkers
-    assert view.hasCoarseCandidateAwaitingFpga
-    assert view.coarseDetectionMarkers[0]["frequency"] == "104.715 MHz"
+    assert not view.hasCoarseCandidateAwaitingFpga
+    assert not view.coarseDetectionMarkers
+
+
+def test_intermittent_fpga_event_is_not_presented_as_stable_broadcast(live_presentation):
+    view = live_presentation
+    intermittent = replace(
+        _event(390),
+        first_frame_id=0,
+        last_seen_frame_id=127,
+        seen_count=16,
+    )
+
+    _present(view, 127, intermittent)
+
+    assert not view.detections
+    assert not view.detectionMarkers
+    assert view._fixed_verification_candidate is None
+
+
+def test_persistent_same_iq_fpga_and_rx_agreement_stays_an_unverified_candidate(live_presentation):
+    view = live_presentation
+    persistent = replace(
+        _event(391),
+        first_frame_id=0,
+        last_seen_frame_id=127,
+        seen_count=120,
+    )
+
+    _present(view, 127, persistent)
+
+    assert view.stableDetectionCount == 0
+    assert view.detectionMarkers[0]["verificationKey"] == "rx_supported"
+    assert view.detections[0]["state"] == "FPGA + RX spektrumu uyumlu"
+    assert view.detections[0]["title"] == "FPGA adayı"
+    assert view._fixed_verification_candidate is None
+    assert view._live_session is not None
 
 
 def test_only_two_lo_record_promotes_fpga_candidate_to_stable(live_presentation):
@@ -688,17 +746,23 @@ def test_live_spur_guard_revokes_stale_verification_and_rearms_on_rf_shoulders(
     assert not view._fixed_verification_records
 
 
-def test_coarse_marker_exposes_when_candidate_is_outside_fpga_band(live_presentation):
+def test_coarse_candidate_outside_fixed_detection_band_is_not_presented_or_verified(
+    live_presentation,
+):
     view = live_presentation
-    view._coarse_detection_frame = CoarseDetectionFrame(
+    frame = CoarseDetectionFrame(
         8,
         104_650_000.0,
         8_000_000.0,
         (CoarseDetection(10, "confirmed", True, 106_040_000.0, 106_080_000.0, 106_060_000.0, 21.0),),
     )
-    marker = view.coarseDetectionMarkers[0]
-    assert not marker["insideFpgaBand"]
-    assert marker["verificationKey"] == "unverified"
+    view._coarse_detection_frame = frame
+
+    assert not view.coarseDetectionMarkers
+    assert not view.hasCoarseCandidateAwaitingFpga
+    view._maybe_verify_coarse_candidate(frame)
+    assert view._fixed_verification_candidate is None
+    assert not view._fixed_verification_queue
 
 
 def test_multiple_coarse_candidates_are_retained_for_serial_verification(live_presentation):
@@ -781,6 +845,75 @@ def test_operator_can_cancel_live_session_without_false_error_state() -> None:
     view_model.shutdown()
 
 
+def test_operator_stop_cancels_pending_fixed_verification_instead_of_retuning(
+    live_presentation,
+) -> None:
+    view = live_presentation
+    candidate = SimpleNamespace(frequency_hz=104_700_000.0)
+
+    class _Verifier:
+        def __init__(self) -> None:
+            self.cancelled = False
+
+        def cancel(self) -> None:
+            self.cancelled = True
+
+    verifier = _Verifier()
+    view._fixed_verification_candidate = candidate
+    view._fixed_verifier = verifier
+    generation = view._generation
+
+    view.stopLiveEDSession()
+    view._live_failed(generation, "operation_cancelled", "stopped")
+
+    assert verifier.cancelled
+    assert view._fixed_verification_candidate is None
+    assert view._fixed_verifier is None
+    assert view._active_task_kind != "fixed_verify"
+    assert view.statusMessage == "Canlı ED oturumu operatör tarafından durduruldu."
+
+
+def test_manual_restart_keeps_same_setting_verification_records_but_gain_change_clears_them() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["fixed-restart-context-test"])
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_BlockingSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        view._fixed_verification_records[1] = {
+            "frequency_hz": 104_700_000.0,
+            "state": "verified_two_lo",
+            "source": "fpga",
+            "result": None,
+        }
+        view._spectrum_values = [-82.0, -71.0]
+        view._spectral_display.append(
+            np.asarray([-82.0, -71.0]),
+            timestamp=0.0,
+            binding=("hackrf", 103_150_000.0, 8_000_000.0, 16, 16),
+        )
+
+        view.startLiveEDSession(104_650_000, 16, 16, 4)
+        assert view._fixed_verification_records
+        assert view.spectrumValues == [-82.0, -71.0]
+        assert view.spectralDisplay.count == 1
+        view.stopLiveEDSession()
+        _drain(app, lambda: view.busy)
+
+        view.startLiveEDSession(104_650_000, 24, 16, 4)
+        assert not view._fixed_verification_records
+        assert not view.spectrumValues
+        assert view.spectralDisplay.count == 0
+        view.stopLiveEDSession()
+        _drain(app, lambda: view.busy)
+    finally:
+        view.shutdown()
+
+
 def test_fpga_connection_failure_revokes_combined_receiver_readiness() -> None:
     app = QGuiApplication.instance() or QGuiApplication(["fpga-readiness-revocation-test"])
     view_model = OperatorViewModel(
@@ -816,8 +949,9 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
         view_model.setSourceMode("hackrf")
         view_model.probeHackrf()
         _drain(app, lambda: view_model.busy)
-        view_model.startLiveEDSession(104_650_000, 0, 0, 4_096)
-        _drain(app, lambda: not view_model.detections)
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            view_model.startLiveEDSession(104_650_000, 0, 0, 4_096)
+            _drain(app, lambda: not view_model.detections)
         assert view_model.liveSessionActive
         view_model.selectDetection(31)
         assert view_model.selectedDetectionReady
@@ -870,8 +1004,9 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
         view_model.setSourceMode("hackrf")
         view_model.probeHackrf()
         _drain(app, lambda: view_model.busy)
-        view_model.startLiveEDSession(104_650_000, 0, 0, 4_096)
-        _drain(app, lambda: not view_model.detections)
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            view_model.startLiveEDSession(104_650_000, 0, 0, 4_096)
+            _drain(app, lambda: not view_model.detections)
         view_model.selectDetection(31)
 
         assert view_model.liveSessionActive
