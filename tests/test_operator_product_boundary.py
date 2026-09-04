@@ -12,6 +12,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "config" / "app" / "product-package.json"
+INTRO_QML = ROOT / "app" / "operator_console" / "qml" / "StartupIntro.qml"
+QUICK_APPLICATION = ROOT / "app" / "operator_console" / "quick_application.py"
 
 
 class OperatorProductBoundaryTests(unittest.TestCase):
@@ -51,6 +53,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
                 "datasets/fixtures/phase04f2/domain-model-v3.json",
                 "datasets/fixtures/phase04f4/domain-model-v5.json",
                 "algorithms/p0/native/bin/p0_channelizer.dll",
+                "app/operator_console/assets/baz-logo-intro.png",
                 "app/operator_console/assets/baz-logo-glow.png",
                 "app/operator_console/assets/baz-logo-metal-red.png",
             },
@@ -72,6 +75,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "datasets/fixtures/phase04f2/domain-model-v3.json",
             "datasets/fixtures/phase04f4/domain-model-v5.json",
             "algorithms/p0/native/bin/p0_channelizer.dll",
+            "app/operator_console/assets/baz-logo-intro.png",
             "app/operator_console/assets/baz-logo-glow.png",
             "app/operator_console/assets/baz-logo-metal-red.png",
         ):
@@ -117,6 +121,21 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertIn("QMLTYPE", payload["root_type"])
         self.assertTrue(payload["offline_et_loaded"])
         self.assertEqual([], payload["forbidden_modules"])
+
+    def test_startup_intro_is_optional_and_isolated_from_runtime_control(self) -> None:
+        intro = INTRO_QML.read_text(encoding="utf-8")
+        startup = QUICK_APPLICATION.read_text(encoding="utf-8")
+        image = ROOT / "app" / "operator_console" / "assets" / "baz-logo-intro.png"
+
+        self.assertTrue(image.is_file())
+        self.assertGreater(image.stat().st_size, 0)
+        self.assertNotIn("operatorViewModel", intro)
+        self.assertIn("status === Image.Error", intro)
+        self.assertIn("interval: 3000", intro)
+        self.assertIn("function dismiss()", intro)
+        self.assertIn("show_startup_intro: bool = False", startup)
+        self.assertIn('parser.add_argument("--no-intro"', startup)
+        self.assertIn("auto_probe_hackrf=False", startup)
 
     def test_product_sources_have_no_hardcoded_demo_recording_path(self) -> None:
         for relative in (

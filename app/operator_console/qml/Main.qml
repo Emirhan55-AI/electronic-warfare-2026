@@ -2229,5 +2229,25 @@ ApplicationWindow {
         HackRFControls { shell: root }
     }
 
+    Loader {
+        id: startupIntroLoader
+        objectName: "startupIntroLoader"
+        anchors.fill: parent
+        z: 10000
+        active: startupIntroRequested
+        sourceComponent: StartupIntro {
+            onFinished: {
+                startupIntroLoader.active = false
+                Qt.callLater(function() {
+                    var navigationIndex = root.operatingDomain === "ET"
+                                          ? 0
+                                          : root.workspace === 0 ? root.spectrumTaskTab : root.workspace + 1
+                    var target = workspaceNavigation.itemAt(navigationIndex)
+                    if (target) target.forceActiveFocus(Qt.ShortcutFocusReason)
+                })
+            }
+        }
+    }
+
     onClosing: function(close) { operatorViewModel.shutdown() }
 }
