@@ -618,7 +618,7 @@ ApplicationWindow {
                                         objectName: "emptySpectrumMessage"
                                         anchors.centerIn: parent
                                         visible: operatorViewModel.spectrumPointCount < 2
-                                        text: "Taramayı başlatınca canlı spektrum burada görünür"
+                                        text: "Taramayı başlatınca spektrum burada görünür"
                                         color: root.textMuted
                                         font.pixelSize: 11
                                         Accessible.role: Accessible.StaticText

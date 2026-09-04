@@ -779,7 +779,7 @@ print(json.dumps(payload,ensure_ascii=False))
             'source: "../assets/baz-logo-glow.png"',
             'source: "../assets/baz-logo-metal-red.png"',
             "ALICI AYARLARI",
-            "Taramayı başlatınca canlı spektrum burada görünür",
+            "Taramayı başlatınca spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",
             "KARARLI RF ADAYI",
             "FPGA ADAYI",
