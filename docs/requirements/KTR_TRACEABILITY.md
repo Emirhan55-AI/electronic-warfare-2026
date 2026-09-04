@@ -6,8 +6,9 @@
 netleştirilmiştir. Uygulama otomatik cihaz denetimi yapmadan `Bekliyor` durumunda
 açılır. Operatörün açık denetimi HackRF keşfi ile ZedBoard FPGA hizmet uç noktası
 bağlantısını iki sınırlı işte paralel yürütür; `Hazır` yalnız ikisi de geçerse
-verilir. Tekil HackRF/FPGA ve birleşik hata nedenleri ayrı gösterilir; kaynak
-durumu ve iki görünür durum rozeti 10 saniye boyunca `Hata` olur. Süre sonunda
+verilir. Tekil HackRF/FPGA ve birleşik hata nedenleri `Alıcı Ayarları` alanında
+ayrı gösterilir; üst başlıkta bağlantı veya hata mesajı tekrarlanmaz. Hata 10
+saniye boyunca işlem alanında görünür. Süre sonunda
 bağlantı kurulmamışsa yüzey yeniden `Bekliyor` durumuna döner. TCP hizmet bağlantısı
 PL algoritmasının işlediğini veya doğru sonuç verdiğini tek başına kanıtlamaz; bu
 yalnız cihaz/hizmet erişimi ve dürüst operatör geri bildirimi sözleşmesidir. Donanım,
@@ -305,9 +306,11 @@ başlatma, durdurma veya donanım denetimi çağrısı yapmaz. Bu yalnız
 
 Aynı gün yapılan hazır-durum bakımında canlı oturumun FPGA hizmet/taşıma erişim
 hataları önceki birleşik `Hazır` yetkisini ve tarama başlatma iznini iptal eder;
-yeniden açık HackRF+FPGA denetimi gerekir. ED/Tespit yüzeyindeki tekrarlı üst sağ
-rozet gizlenmiş, aynı rozet diğer görevlerde korunmuştur. Bu sunum ve fail-closed
-yetki bağı algoritma, RTL veya fiziksel doğruluk kabulü değildir.
+yeniden açık HackRF+FPGA denetimi gerekir. Üst başlıktaki bağlantı başlığı, hata
+metni ve durum rozeti kaldırılmıştır. ED/ET görev seçimi başlığın sağ kenarına
+taşınmıştır. Bağlantı ve alım hataları yalnız `Alıcı Ayarları` işlem alanında
+gösterilir. Bu sunum ve fail-closed yetki bağı algoritma, RTL veya fiziksel
+doğruluk kabulü değildir.
 
 On beşinci bakım paketi sabit bant iki-LO doğrulamasındaki merkez/DC hatasını
 gidermiştir. Aday doğrulama çıkış merkezinden 300 kHz uzakta yürütülür. Aynı

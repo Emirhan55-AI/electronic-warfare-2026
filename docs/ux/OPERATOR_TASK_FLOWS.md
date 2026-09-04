@@ -21,7 +21,8 @@ görev şeridindeki `Tespit` dalga sembolü, ED/Tespit sabit-frekans yüzeyindek
 `Alıcı Ayarları` seçenek menüsünü açıp kapatır. Menü başlangıçta kapalıdır;
 sembol başka bir görevde kullanılırsa ED/Tespit yüzeyine dönerek açılır. Bu
 geçiş çalışan alım veya taramaya başlatma/durdurma komutu göndermez. Üst görev
-çubuğu alıcının hazır/çalışıyor durumunu da gösterir. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
+çubuğunda bağlantı veya hata mesajı gösterilmez; ED/ET görev seçimi sağ kenarda
+yer alır. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
 varken görünür. Ana tespit yüzeyi yalnız sabit frekans taraması ile bant
 taraması arasında geçiş verir. Olay konsolu ve geliştiriciye yönelik görünüm
 kontrolleri ana operatör yüzeyinde yer almaz.
@@ -43,9 +44,8 @@ tespit kimliği her adımda korunur.
    FPGA hizmet/taşıma erişim hatası birleşik `Hazır` yetkisini iptal eder ve
    taramadan önce yeniden `Alıcıyı Denetle` gerekir.
 
-ED/Tespit yüzeyinde alıcı ayarlarındaki durum rozeti yeterli olduğundan üst sağ
-durum rozeti gizlidir. Üst sağ rozet Parametre, Dinleme, Yön Bulma, Sistem ve ET
-görevlerinde görünür kalır.
+Bağlantı ve alım durumu, görevden bağımsız olarak yalnız operatörün işlem yaptığı
+`Alıcı Ayarları` alanında gösterilir; üst görev çubuğunda durum rozeti bulunmaz.
 
 Çıkış koşulu: kaynak gerçek ve erişilebilir durumdadır. Yerine başka veri
 konulmaz; son başarılı kaynağın değerleri yeni kaynakmış gibi korunmaz.

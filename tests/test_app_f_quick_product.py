@@ -22,7 +22,25 @@ QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 
 
 class QuickProductTests(unittest.TestCase):
-    def test_fpga_error_revokes_ready_controls_and_header_badge_is_hidden_only_on_detection(self) -> None:
+    def test_header_places_domain_switch_on_right_without_connection_messages(self) -> None:
+        source = QML.read_text(encoding="utf-8")
+        header_start = source.index("    header: Rectangle {")
+        content_start = source.index(
+            "\n    RowLayout {\n        anchors.fill: parent", header_start
+        )
+        header = source[header_start:content_start]
+
+        self.assertNotIn('objectName: "receiverHeaderBadge"', header)
+        self.assertNotIn('text: "Alıcı ve FPGA"', header)
+        self.assertNotIn("operatorViewModel.sourceMessage", header)
+        self.assertLess(
+            header.index(
+                'text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"'
+            ),
+            header.index('model: ["ED", "ET"]'),
+        )
+
+    def test_fpga_error_revokes_ready_controls_without_header_error_status(self) -> None:
         payload = self.run_qml(
             """
 root = engine.rootObjects()[0]
@@ -31,35 +49,30 @@ view_model._hackrf_ready = True
 view_model._hackrf_transfer_executable = "hackrf_transfer"
 view_model._source_state = "Hazır"
 view_model.stateChanged.emit(); app.processEvents()
-header = root.findChild(QObject, "receiverHeaderBadge")
 settings = root.findChild(QObject, "receiverSettingsBadge")
 start = root.findChild(QObject, "liveStartButton")
 before = {"ready": view_model.hackrfReady, "start": start.property("enabled"),
-          "header_visible": header.property("visible"), "settings": settings.property("state")}
+          "settings": settings.property("state")}
 view_model._live_failed(view_model._generation, "connection_failed", "FPGA hizmetine bağlanılamadı.")
 app.processEvents()
 failed = {"ready": view_model.hackrfReady, "start": start.property("enabled"),
-          "header_visible": header.property("visible"), "settings": settings.property("state"),
+          "settings": settings.property("state"),
           "error": view_model.errorTitle}
-root.setProperty("spectrumTaskTab", 1); app.processEvents()
-parameter = {"header_visible": header.property("visible"), "header_state": header.property("state")}
-root.setProperty("workspace", 1); app.processEvents()
-listening = {"header_visible": header.property("visible"), "header_state": header.property("state")}
-payload = {"before": before, "failed": failed, "parameter": parameter, "listening": listening}
+payload = {"before": before, "failed": failed,
+           "header_present": root.findChild(QObject, "receiverHeaderBadge") is not None}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
         self.assertEqual(
-            {"ready": True, "start": True, "header_visible": False, "settings": "Hazır"},
+            {"ready": True, "start": True, "settings": "Hazır"},
             payload["before"],
         )
         self.assertEqual(
-            {"ready": False, "start": False, "header_visible": False, "settings": "Hata", "error": "FPGA bağlantısı kurulamadı"},
+            {"ready": False, "start": False, "settings": "Hata", "error": "FPGA bağlantısı kurulamadı"},
             payload["failed"],
         )
-        self.assertEqual({"header_visible": True, "header_state": "Hata"}, payload["parameter"])
-        self.assertEqual({"header_visible": True, "header_state": "Hata"}, payload["listening"])
+        self.assertFalse(payload["header_present"])
 
     def test_brand_logo_toggles_primary_task_navigation(self) -> None:
         payload = self.run_qml(
@@ -159,22 +172,22 @@ print(json.dumps(payload))
 root = engine.rootObjects()[0]
 root.setProperty("sourcePanelOpen", True)
 app.processEvents()
-header_badge = root.findChild(QObject, "receiverHeaderBadge")
 settings_badge = root.findChild(QObject, "receiverSettingsBadge")
-payload = {"header": header_badge.property("state"), "settings": settings_badge.property("state"),
+payload = {"header_present": root.findChild(QObject, "receiverHeaderBadge") is not None,
+           "settings": settings_badge.property("state"),
            "source_state": view_model.sourceState, "error": view_model.errorMessage,
            "status": view_model.statusMessage}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
-        self.assertEqual("Bekliyor", payload["header"])
+        self.assertFalse(payload["header_present"])
         self.assertEqual("Bekliyor", payload["settings"])
         self.assertEqual("Kullanılmıyor", payload["source_state"])
         self.assertEqual("", payload["error"])
         self.assertEqual("Alıcı bağlantısı bekleniyor.", payload["status"])
 
-    def test_missing_receiver_state_is_rendered_as_error_in_both_badges(self) -> None:
+    def test_missing_receiver_state_is_rendered_only_in_receiver_settings(self) -> None:
         payload = self.run_qml(
             """
 root = engine.rootObjects()[0]
@@ -184,14 +197,14 @@ view_model._error_title = "Alıcı bağlı değil"
 view_model._error_message = "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin."
 view_model._status_message = view_model._error_message
 view_model.stateChanged.emit(); app.processEvents()
-header_badge = root.findChild(QObject, "receiverHeaderBadge")
 settings_badge = root.findChild(QObject, "receiverSettingsBadge")
-payload = {"header": header_badge.property("state"), "settings": settings_badge.property("state")}
+payload = {"header_present": root.findChild(QObject, "receiverHeaderBadge") is not None,
+           "settings": settings_badge.property("state")}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
-        self.assertEqual("Hata", payload["header"])
+        self.assertFalse(payload["header_present"])
         self.assertEqual("Hata", payload["settings"])
 
     def test_live_status_guards_detection_fields_when_list_is_empty(self) -> None:

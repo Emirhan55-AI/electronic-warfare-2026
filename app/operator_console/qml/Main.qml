@@ -324,6 +324,28 @@ ApplicationWindow {
                 }
             }
 
+            Item { Layout.fillWidth: true }
+
+            ColumnLayout {
+                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
+                spacing: 2
+                Label { text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? root.etTaskName() : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: root.operatingDomain === "ET" ? "Segoe UI" : "Consolas" }
+            }
+            ColumnLayout {
+                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
+                spacing: 2
+                Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+            }
+            Rectangle {
+                Layout.fillHeight: true
+                width: 1
+                color: root.border
+                Layout.topMargin: 17
+                Layout.bottomMargin: 17
+            }
+
             RowLayout {
                 spacing: 4
                 Repeater {
@@ -356,45 +378,6 @@ ApplicationWindow {
                         }
                     }
                 }
-            }
-
-            Rectangle { Layout.fillHeight: true; width: 1; color: root.border; Layout.topMargin: 17; Layout.bottomMargin: 17 }
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 3
-                Label { text: root.operatingDomain === "ET" ? "ET Görevleri" : "Alıcı ve FPGA"; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                Label {
-                    text: root.operatingDomain === "ET" ? operatorViewModel.etResultTitle
-                          : operatorViewModel.liveSessionActive ? "Sabit frekans taraması çalışıyor"
-                          : operatorViewModel.hackrfReady ? "Sabit frekans taramasına hazır"
-                          : operatorViewModel.sourceState === "Hata" ? "Alıcı veya FPGA bağlantısı kurulamadı"
-                          : "Alıcı bağlantısı bekleniyor"
-                    color: (root.operatingDomain === "ET" && operatorViewModel.etStatus === "HATA")
-                           || (root.operatingDomain !== "ET" && operatorViewModel.sourceState === "Hata")
-                           ? root.danger : root.textSecondary
-                    font.pixelSize: 10
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                }
-            }
-
-            ColumnLayout {
-                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
-                spacing: 2
-                Label { text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: root.operatingDomain === "ET" ? root.etTaskName() : operatorViewModel.centerFrequencyText; color: root.textPrimary; font.pixelSize: 13; font.family: root.operatingDomain === "ET" ? "Segoe UI" : "Consolas" }
-            }
-            ColumnLayout {
-                visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
-                spacing: 2
-                Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
-            }
-            StateBadge {
-                objectName: "receiverHeaderBadge"
-                visible: root.operatingDomain === "ET" || root.workspace !== 0 || root.spectrumTaskTab !== 0
-                state: root.operatingDomain === "ET" ? root.etBadgeState() : root.receiverBadgeState()
             }
         }
     }
