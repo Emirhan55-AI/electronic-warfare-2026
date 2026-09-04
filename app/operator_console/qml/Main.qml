@@ -158,8 +158,8 @@ ApplicationWindow {
     }
 
     function normalizedAtSpectrumX(x, width) {
-        var plotLeft = 42
-        var plotWidth = Math.max(1, width - plotLeft - 8)
+        var plotLeft = 0
+        var plotWidth = Math.max(1, width - 8)
         var ratio = Math.max(0, Math.min(1, (x - plotLeft) / plotWidth))
         return spectrumViewStart + ratio * (spectrumViewEnd - spectrumViewStart)
     }
@@ -303,13 +303,26 @@ ApplicationWindow {
                         border.color: primaryMenuButton.activeFocus || root.navigationOpen ? root.accent : "transparent"
                         Behavior on color { ColorAnimation { duration: root.transitionDuration } }
                     }
-                    contentItem: Image {
-                        objectName: "brandLogo"
-                        source: "../assets/baz-logo-glow.png"
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
-                        mipmap: true
-                        asynchronous: true
+                    contentItem: Item {
+                        Image {
+                            anchors.fill: parent
+                            source: "../assets/baz-logo-glow.png"
+                            fillMode: Image.PreserveAspectFit
+                            smooth: true
+                            mipmap: true
+                            asynchronous: true
+                            opacity: 0.95
+                        }
+                        Image {
+                            objectName: "brandLogo"
+                            anchors.fill: parent
+                            anchors.margins: 3
+                            source: "../assets/baz-logo-metal-red.png"
+                            fillMode: Image.PreserveAspectFit
+                            smooth: true
+                            mipmap: true
+                            asynchronous: true
+                        }
                     }
                 }
 
@@ -606,7 +619,7 @@ ApplicationWindow {
                                         var ctx = getContext("2d")
                                         ctx.reset()
                                         ctx.clearRect(0, 0, width, height)
-                                        var plotLeft = 42
+                                        var plotLeft = 0
                                         var plotRight = width - 8
                                         var plotTop = 8
                                         var plotBottom = height - 18
@@ -681,12 +694,12 @@ ApplicationWindow {
                                         var high = operatorViewModel.spectrumMaxDb
                                         ctx.fillStyle = "#868686"
                                         ctx.font = "9px Consolas"
-                                        ctx.textAlign = "right"
+                                        ctx.textAlign = "left"
                                         ctx.textBaseline = "middle"
                                         for (var labelIndex = 0; labelIndex <= 5; labelIndex++) {
                                             var labelY = plotTop + labelIndex * plotHeight / 5
                                             var labelValue = high - labelIndex * (high - low) / 5
-                                            ctx.fillText(labelValue.toFixed(0), plotLeft - 6, labelY)
+                                            ctx.fillText(labelValue.toFixed(0), plotLeft + 5, labelY)
                                         }
                                         ctx.strokeStyle = "rgba(204,204,204,0.32)"
                                         ctx.setLineDash([3, 4])
@@ -826,8 +839,8 @@ ApplicationWindow {
                                     id: waterfall
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    property real plotLeft: 42
-                                    property real plotWidth: Math.max(1, width - 50)
+                                    property real plotLeft: 0
+                                    property real plotWidth: Math.max(1, width - 8)
                                     WaterfallImage {
                                         anchors.fill: parent
                                         z: -1

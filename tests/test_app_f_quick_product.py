@@ -723,6 +723,7 @@ print(json.dumps(payload,ensure_ascii=False))
             'title: "BÂZ"',
             'text: "BÂZ"',
             'source: "../assets/baz-logo-glow.png"',
+            'source: "../assets/baz-logo-metal-red.png"',
             "ALICI AYARLARI",
             "Taramayı başlatınca canlı spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",
@@ -804,6 +805,17 @@ print(json.dumps(payload,ensure_ascii=False))
         for forbidden in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "demo", "mock"):
             self.assertNotIn(forbidden, text)
         self.assertNotIn("startHackrfCapture", text)
+        self.assertNotIn("var plotLeft = 42", text)
+        self.assertNotIn("property real plotLeft: 42", text)
+        self.assertIn("var plotLeft = 0", text)
+        self.assertIn("property real plotLeft: 0", text)
+
+        display_source = (ROOT / "app" / "operator_console" / "spectral_display.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("QRectF(42", display_source)
+        self.assertIn("QRectF(0, 8", display_source)
+        self.assertIn("QRectF(0, 0", display_source)
 
     def test_release_entry_point_does_not_probe_receiver_automatically(self) -> None:
         source = (ROOT / "app" / "operator_console" / "quick_application.py").read_text(encoding="utf-8")

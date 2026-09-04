@@ -52,6 +52,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
                 "datasets/fixtures/phase04f4/domain-model-v5.json",
                 "algorithms/p0/native/bin/p0_channelizer.dll",
                 "app/operator_console/assets/baz-logo-glow.png",
+                "app/operator_console/assets/baz-logo-metal-red.png",
             },
             set(document["allowed_runtime_assets"]),
         )
@@ -72,6 +73,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "datasets/fixtures/phase04f4/domain-model-v5.json",
             "algorithms/p0/native/bin/p0_channelizer.dll",
             "app/operator_console/assets/baz-logo-glow.png",
+            "app/operator_console/assets/baz-logo-metal-red.png",
         ):
             self.assertIn(asset, spec)
 

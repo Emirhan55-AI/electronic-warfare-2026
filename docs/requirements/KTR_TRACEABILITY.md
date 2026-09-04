@@ -310,7 +310,7 @@ yeniden açık HackRF+FPGA denetimi gerekir. Üst başlıktaki bağlantı başl�
 metni ve durum rozeti kaldırılmıştır. ED/ET görev seçimi başlığın sağ kenarına
 taşınmıştır. Bağlantı ve alım hataları yalnız `Alıcı Ayarları` işlem alanında
 gösterilir. Son görünüm bakımında marka işaretinin koyu zemindeki okunurluğu beyaz
-hale taşıyan paketli varlıkla artırılmış; ED/ET ayırıcısı ve görev için gereksiz
+ön plan ile arkasındaki hale katmanlanarak artırılmış; ED/ET ayırıcısı ve görev için gereksiz
 açıklamalar kaldırılmış; spektrum başlıkları grafiklere ortalanmıştır. Bu sunum ve
 fail-closed yetki bağı algoritma, RTL veya fiziksel
 doğruluk kabulü değildir.

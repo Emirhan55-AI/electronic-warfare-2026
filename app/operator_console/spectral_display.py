@@ -210,7 +210,7 @@ class SpectrumTrace(SpectralItem):
         source = self._source
         if source is None or not source.latest.size or self._end <= self._start:
             return
-        area = QRectF(42, 8, max(1, self.width() - 50), max(1, self.height() - 26))
+        area = QRectF(0, 8, max(1, self.width() - 8), max(1, self.height() - 26))
         painter.setClipRect(area)
         # A cosmetic one-pixel pen uses Qt's fast raster path even at high DPI.
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
@@ -280,7 +280,7 @@ class WaterfallImage(SpectralItem):
         source = self._source
         if source is None or not source.count or self._end <= self._start:
             return
-        area = QRectF(42, 0, max(1, self.width() - 50), self.height())
+        area = QRectF(0, 0, max(1, self.width() - 8), self.height())
         if self._dirty:
             _, values = peak_projection(source.rows[:, :source.latest.size], self._start,
                                         self._end, int(area.width()))
