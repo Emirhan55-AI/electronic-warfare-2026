@@ -22,7 +22,9 @@ görev şeridindeki `Tespit` dalga sembolü, ED/Tespit sabit-frekans yüzeyindek
 sembol başka bir görevde kullanılırsa ED/Tespit yüzeyine dönerek açılır. Bu
 geçiş çalışan alım veya taramaya başlatma/durdurma komutu göndermez. Üst görev
 çubuğunda bağlantı veya hata mesajı gösterilmez; ED/ET görev seçimi sağ kenarda
-yer alır. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
+ve ayırıcı çizgisiz yer alır. `BÂZ` işareti koyu zeminde beyaz hale ile sunulur.
+Spektrum ve spektrogram başlıkları grafik alanında ortalanır; boş bağlantı uyarısı
+tespit listesini doldurmaz. Merkez frekansı ile örnekleme hızı yalnız geçerli alım verisi
 varken görünür. Ana tespit yüzeyi yalnız sabit frekans taraması ile bant
 taraması arasında geçiş verir. Olay konsolu ve geliştiriciye yönelik görünüm
 kontrolleri ana operatör yüzeyinde yer almaz.

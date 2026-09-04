@@ -18,7 +18,6 @@ ColumnLayout {
             vgaInput.currentIndex = vgaInput.model.indexOf(operatorViewModel.liveReceiveSettings.vga_db)
         }
     }
-    Label { text: "Sabit frekansta canlı alım ve FPGA tespiti"; color: shell.textSecondary; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
     RowLayout {
         Layout.fillWidth: true
         ColumnLayout {

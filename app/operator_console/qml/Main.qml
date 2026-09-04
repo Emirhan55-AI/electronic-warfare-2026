@@ -287,8 +287,8 @@ ApplicationWindow {
                 Button {
                     id: primaryMenuButton
                     objectName: "primaryMenuButton"
-                    Layout.preferredWidth: 96
-                    Layout.preferredHeight: 58
+                    Layout.preferredWidth: 106
+                    Layout.preferredHeight: 62
                     flat: true
                     Accessible.name: "Ana görev menüsü"
                     Accessible.description: navigationOpen ? "Görev menüsü açık; kapat" : "Görev menüsünü aç"
@@ -305,7 +305,7 @@ ApplicationWindow {
                     }
                     contentItem: Image {
                         objectName: "brandLogo"
-                        source: "../assets/baz-logo-metal-red.png"
+                        source: "../assets/baz-logo-glow.png"
                         fillMode: Image.PreserveAspectFit
                         smooth: true
                         mipmap: true
@@ -338,14 +338,6 @@ ApplicationWindow {
                 Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
-            Rectangle {
-                Layout.fillHeight: true
-                width: 1
-                color: root.border
-                Layout.topMargin: 17
-                Layout.bottomMargin: 17
-            }
-
             RowLayout {
                 spacing: 4
                 Repeater {
@@ -552,9 +544,17 @@ ApplicationWindow {
                             radius: 0
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 12
+                                anchors.leftMargin: 0
+                                anchors.rightMargin: 0
+                                anchors.topMargin: 6
+                                anchors.bottomMargin: 0
                                 spacing: 6
-                                SectionTitle { text: "SPEKTRUM"; Layout.fillWidth: true }
+                                SectionTitle {
+                                    text: "SPEKTRUM"
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    font.pixelSize: root.uiSectionTextSize + 2
+                                }
                                 Canvas {
                                     id: spectrumCanvas
                                     Layout.fillWidth: true
@@ -811,9 +811,17 @@ ApplicationWindow {
                             radius: 0
                             ColumnLayout {
                                 anchors.fill: parent
-                                anchors.margins: 12
+                                anchors.leftMargin: 0
+                                anchors.rightMargin: 0
+                                anchors.topMargin: 6
+                                anchors.bottomMargin: 0
                                 spacing: 6
-                                SectionTitle { text: "SPEKTROGRAM"; Layout.fillWidth: true }
+                                SectionTitle {
+                                    text: "SPEKTROGRAM"
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    font.pixelSize: root.uiSectionTextSize + 2
+                                }
                                 Canvas {
                                     id: waterfall
                                     Layout.fillWidth: true
@@ -1033,8 +1041,8 @@ ApplicationWindow {
                                     horizontalAlignment: Text.AlignHCenter
                                     wrapMode: Text.WordWrap
                                     visible: operatorViewModel.detections.length === 0
-                                    text: !operatorViewModel.hackrfReady ? "Önce alıcı bağlantısını denetleyin"
-                                          : !operatorViewModel.liveSessionActive ? "Taramayı başlatın"
+                                             && operatorViewModel.hackrfReady
+                                    text: !operatorViewModel.liveSessionActive ? "Taramayı başlatın"
                                           : "Kararlı yayın aranıyor"
                                     color: root.textMuted
                                     font.pixelSize: 11
