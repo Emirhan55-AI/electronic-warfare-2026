@@ -1,6 +1,6 @@
 # Operatör Uygulaması
 
-## Güncel ST-06 sınırı — 5 Eylül 2026
+## Güncel ST-06 sınırı — 6 Eylül 2026
 
 Güncel durum ve sıradaki kabul adımları
 [sinyal tespiti durum kaydında](../docs/interfaces/SIGNAL_DETECTION_STATUS.md)
@@ -8,7 +8,18 @@ tutulur. PL hücre kararını, kartın ARM CPU0/CPU1 çekirdekleri güç çözme
 aday/olay işlemeyi yürütür; PC alım/taşıma/görselleştirme yolundadır.
 Paketlenmiş hizmet dijital hız kapısını geçti; sürekli gerçek RX, kör RF ve
 soğuk açılış kabulü henüz tamamlanmadı. Eski faz sonuçları yeni ürüne aktarılmaz.
-Güncel kaynak/ham veri denetimi: `python scripts/verify_st06_parallel_product.py`.
+Tek 15 dakikalık arayüzsüz RX koşusu taşmasız tamamlanmıştır; önizleme
+karesi 0 olduğundan bu koşu GUI veya RF tespit doğruluğunu sınamaz. Önceki
+kaynakla iki uzun koşu USB taşmasıyla başarısızdır. Son koşuda 488,2153
+kare/s ölçülmüş, nominal 488,28125 kare/s üzerinde hız payı gösterilmemiştir.
+Uzun oturumlarda kuyruk ve işlem süresi tanıları 16 karede bir örneklenir;
+kaydedilen kuyruk değerleri kesin tepe diye sunulmaz. Bu değişiklik kalıcı
+taşmasızlık veya performans artışı kabulü değildir.
+Kanıt denetimi: `python scripts/verify_phase08_evidence_recovery.py`.
+Özgün ST-06 kaynak/ham veri denetimi:
+`python scripts/verify_st06_parallel_product.py --historical`.
+Seçeneksiz güncel kaynak kontrolü, değişmiş PC kaynağı nedeniyle başarısız
+olmalıdır; tarihsel kanıtın hash'i güncel kaynakla değiştirilmez.
 
 `operator_console`, PySide6 ve Qt Quick/QML ile geliştirilen Türkçe masaüstü
 uygulamasıdır. ED çalışma zamanı yalnız operatörün seçtiği SigMF kaydını veya

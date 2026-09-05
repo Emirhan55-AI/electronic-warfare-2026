@@ -1,0 +1,59 @@
+{
+  "schema": "phase08-evidence-recovery-v1",
+  "reviewed_at": "2026-09-05T21:23:44.690583+00:00",
+  "scope": "historical_evidence_recovery_no_new_hardware_measurement",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0"
+  ],
+  "restored_from_commit": "559d49641659e5921629893826c421be26264dd8",
+  "frozen_evidence": {
+    "results/evidence/phase08/native-channelizer-v3.json": "3316681d6eed9a5d358f900ae47ed06b87834835da3efae6dc2e7a51c7db586d",
+    "results/evidence/phase08/st06-parallel-product-v1.json": "0bc494625e4382581f17ace80df37033a00b95b457798162cb0b51174201bd2a",
+    "results/evidence/phase08/st06-parallel-product-v1.zip": "62844c02221acbba9fb2424e041fc50394b5f407ad9734e590eaab8a0e79fb34"
+  },
+  "native_source_commit": "1acfdbefe1a12ff29de13449bceb5dd7bc9f5c99",
+  "runs": [
+    {
+      "id": "prior-1",
+      "path": "runs/prior-1/run.json",
+      "sha256": "3f267888f37f84b51209aa4bf1160d7bb946e4aaa7402cb82a3f8aac80f2b410",
+      "recorded_at": "2026-09-05T12:57:24.268463+00:00",
+      "status": "failed"
+    },
+    {
+      "id": "prior-2",
+      "path": "runs/prior-2/run.json",
+      "sha256": "1b4686d86a7456186da2940cb7a537916245166aad429661d8d537841611758f",
+      "recorded_at": "2026-09-05T13:32:55.707263+00:00",
+      "status": "failed"
+    },
+    {
+      "id": "headless-1",
+      "path": "runs/headless-1/run.json",
+      "sha256": "efb351d17490fcb6b4bb74878063f0b52e2bc1a9c1adc76888cdeeb175f20875",
+      "recorded_at": "2026-09-05T16:09:49.535185+00:00",
+      "status": "passed"
+    }
+  ],
+  "limits": [
+    "Bu kayıt yeni ölçüm veya yeniden donanım kabulü değildir.",
+    "İki başarısız koşu önceki kaynakla, tek taşmasız koşu değiştirilmiş kaynakla yapılmıştır; kontrollü performans karşılaştırması değildir.",
+    "RX-only işareti harici test vericisinin kapalı olduğunu doğrulamaz.",
+    "GUI sürekliliği, RF tespit doğruluğu, nominal hız marjı ve soğuk açılış kabulü açık kalır.",
+    "Kuyruk ve işlem süresi tanıları son koşuda 16 karede bir örneklenmiştir; 6/512 değeri kesin kuyruk tepesi değildir.",
+    "Kaynak kopyaları ham koşunun bildirdiği listeyle sınırlıdır; çalışan kart imajının kimliği bu koşu kaydında yoktur."
+  ],
+  "archive": {
+    "path": "results/evidence/phase08/rx-evidence-recovery-v1.zip",
+    "sha256": "c1e26ff5feba499dbdc42eeaf8d97819ae4992223272fdb60bfd7c047003e13b"
+  },
+  "acceptance": {
+    "single_headless_rx_integrity_observed": true,
+    "gui_acceptance": false,
+    "rf_detection_acceptance": false,
+    "nominal_throughput_margin_proven": false,
+    "cold_boot_acceptance": false,
+    "ST06_complete": false
+  }
+}

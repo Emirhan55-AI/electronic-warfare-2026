@@ -1,5 +1,57 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## Güncel kanıt sınırı ve düzeltme — 6 Eylül 2026
+
+Kapsam PHASE-08 / ST-06 ve KTR-4.1 / KTR-4.1-OPS-B0'dır; kabul açık kalır.
+Tarihsel `native-channelizer-v3.json`, `st06-parallel-product-v1.json` ve ZIP,
+`559d496` sürümündeki özgün baytlarına döndürülmüştür. Sonradan eklenen
+kaynak hash'leri ve yeniden doğrulama tarihleri yeni ölçüm kanıtı değildi.
+ST-06 arşivindeki fiziksel ölçümler değişmemişti; yalnız PC kaynak kopyasının
+değiştirilmesi eski ölçümleri yeni kaynağa geçersiz biçimde bağlıyordu.
+Özgün manifest ve arşiv özetleri doğrulayıcıda sabittir; yeni ölçümler yeni
+adlı kayıtlara yazılır. Bu düzeltmede donanım prosedürü tekrarlanmadı.
+
+5 Eylül RX kayıtlarının kapsamı:
+
+- Önceki PC kaynağıyla iki 439.453 karelik koşu `usb_overrun` ile başarısızdır.
+- Değiştirilmiş PC kaynağıyla tek 439.453 karelik arayüzsüz koşu tamamlandı:
+  USB taşması, CRC/sıra/kuyruk hatası ve I/Q kırpılması 0; taşıma
+  439.453/439.453 karedir. Kaynak hash'i `2f56a143…c105080` olarak kayıtlıdır.
+- Ölçülen toplam süre 900,1213107 saniye, hız 488,2153047 kare/s'dir.
+  Nominal 488,28125 kare/s karşısındaki yaklaşık %0,0135 fark hız payı
+  sağlamaz; toplam süre ölçümü tek başına sürekli işleme kapasitesini ayırmaz.
+- `preview_frames: 0`: Qt arayüzü, çizim sürekliliği ve görüntü gecikmesi
+  bu koşuda sınanmadı. Eski “arayüz RX kabulü” ve “sürekli RX kapısı geçti”
+  ifadeleri geri çekilmiştir. Kanıt, tek koşunun alım/taşıma bütünlüğüdür.
+- Kuyruk ve işlem süresi tanıları uzun koşuda 16 karede bir örneklenir.
+  6/512 ve 64/64 kaydedilen örneklenmiş kuyruk değerleridir; 6/512 kesin
+  tepe veya kuyruk güvenlik payı değildir. Daha az tanı maliyetinin taşmayı
+  kalıcı çözdüğü veya USB denetleyicisinin kök neden olduğu kanıtlanmadı.
+- `transmit_enabled: false` yalnız RX yazılım yolunu ifade eder; harici
+  vericinin kapalı veya ortamın RF sessiz olduğunu doğrulamaz. Kartın çalışan
+  imaj kimliği ham RX kaydında bulunmaz; başka ölçümden devralınmaz.
+
+`live-rx-endurance-v3.json` ve ZIP, kendi ham koşusuyla değiştirilmeden
+korunur. `endurance_passed` alanı o betiğin sınırlı bütünlük kontrolüdür;
+GUI, nominal hız marjı, RF Pd/Pfa, soğuk açılış veya ST-06 kabulü değildir.
+İki başarısız koşu, son koşu ve kayıtlı kaynakların doğrulanmış kopyaları
+`results/evidence/phase08/rx-evidence-recovery-v1.json` / ZIP içindedir.
+
+Denetim komutları:
+
+- `python scripts/verify_phase08_evidence_recovery.py`: özgün kanıtları,
+  üç koşunun ham kayıtlarını ve kabul kapsamını denetler; yeni ölçüm yapmaz.
+- `python scripts/verify_st06_parallel_product.py --historical`: özgün
+  ST-06 arşivindeki kaynakları, yanıtları ve süre hesaplarını denetler.
+- `python scripts/verify_st06_parallel_product.py`: güncel kaynak bağı
+  için sıkı kontroldür; değişmiş `live_ed.py` nedeniyle başarısız olması
+  beklenir. Bu başarısızlık hash değiştirerek giderilmez.
+
+Sonraki kabul gerçek arayüz açıkken tekrarlı RX bütünlüğü, görüntü/olay
+gecikmesi ve durdur/başlat; ardından kontrollü kör RF doğruluğu ve soğuk
+açılıştır. Saf ton fazla adayları ve 64 olay kapasitesi de açık kalır.
+Aşağıdaki tarihli kayıtlar kendi sürümlerinin sonuçlarıdır.
+
 ## Son ST-06 ürün güncellemesi — 5 Eylül 2026
 
 Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
@@ -29,7 +81,9 @@ saf ton fazla adayları ve 64 olay kapasitesi ayrıca değerlendirilir.
 
 Güncel yerel paket `build/p0/st06-parallel-product/` altındadır; klonlanan
 depoda bu yerel çıktının veya eski kart oturumunun varlığı varsayılmaz.
-Kaynak/ikili bağını `python scripts/verify_st06_parallel_product.py` denetler.
+Güncel kaynak bağını `python scripts/verify_st06_parallel_product.py` denetler;
+uyuşmazlık beklenir ve kabul sayılmaz. Özgün arşiv `--historical` ile
+denetlenir; bu seçenek yeni kaynak için fiziksel kabul oluşturmaz.
 SD değiştirilmediği için yeniden başlatma sonrası çalışan imaj/hizmet yeniden
 belirlenmelidir. En düşük ölçülen hız payı yaklaşık %2,89'dur; uzun süreli
 uçtan uca performans garantisi değildir.

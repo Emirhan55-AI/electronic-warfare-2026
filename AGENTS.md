@@ -30,7 +30,28 @@ imaj hash'leri eşleşen kanıt aranır; eski fiziksel sonuç yeni ikiliye aktar
 Durum değişikliğinde yukarıdaki belgeler ile etkilenen bileşen README'leri
 birlikte güncellenir. Geçmiş ölçümler ve dondurulmuş yöntem kayıtları korunur.
 
-## Güncel aktarım — 5 Eylül 2026
+## Güncel kanıt aktarımı — 6 Eylül 2026
+
+- PHASE-08 / ST-06 ve KTR-4.1 / KTR-4.1-OPS-B0 kabulü açıktır.
+- Tarihsel `native-channelizer-v3.json`, `st06-parallel-product-v1.json`
+  ve ZIP özgün `559d496` baytlarıyla korunur. Hash veya yeniden doğrulama
+  tarihi değiştirilerek eski ölçüm yeni kaynağa bağlanmaz.
+- `live-rx-endurance-v3` tek 439.453 karelik arayüzsüz alım/taşıma
+  gözlemidir: USB/CRC/sıra/kuyruk hatası 0, 488,2153 kare/s,
+  `preview_frames: 0`. GUI, RF doğruluğu veya nominal hız marjı kabulü değildir.
+  Önceki kaynakla iki uzun koşu `usb_overrun` ile başarısızdır.
+- Kuyruk/işlem tanıları son kaynakta 16 karede bir örneklenir; 6/512 kesin
+  kuyruk tepesi değildir. USB kök nedeni veya kalıcı çözüm kanıtlanmadı.
+- `python scripts/verify_phase08_evidence_recovery.py` üç koşuyu ve
+  özgün kanıt bütünlüğünü doğrular. ST-06 arşivi `--historical` ile denetlenir;
+  `verify_st06_parallel_product.py` seçeneksiz güncel kaynak kontrolü
+  değiştirilmiş `live_ed.py` nedeniyle başarısız olmalıdır. Bu açık kapıdır.
+- Sonraki kabul tekrarlı gerçek GUI+RX, kontrollü kör RF ve soğuk açılıştır.
+  RX-only bayrağından harici vericinin kapalı olduğu çıkarılmaz.
+- Aşağıdaki 5 Eylül aktarımı tarihsel kapsamındadır; güncel ayrıntı
+  `docs/interfaces/SIGNAL_DETECTION_STATUS.md` içindedir.
+
+## Tarihsel aktarım — 5 Eylül 2026
 
 - Kapsam PHASE-08 / ST-06 sinyal tespitidir; ST-06 tamamlanmadı.
   Parametre, yön bulma veya ET için yeni faz açılmaz.

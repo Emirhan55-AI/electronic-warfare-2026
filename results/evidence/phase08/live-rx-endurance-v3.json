@@ -1,0 +1,36 @@
+{
+  "schema": "phase08-live-rx-endurance-v1",
+  "status": "endurance_passed",
+  "phase08_complete": false,
+  "archive": "live-rx-endurance-v3.zip",
+  "archive_sha256": "2c79916bf2d7b5d50794112df4ca116d401be92a0d8a97402b7bed2487de4d5a",
+  "run_sha256": "efb351d17490fcb6b4bb74878063f0b52e2bc1a9c1adc76888cdeeb175f20875",
+  "captured_source_sha256": {
+    "app/operator_console/live_ed.py": "2f56a14353f4b180ef534bb871031575131305e308985c41953dd1214c105080",
+    "algorithms/p0/channelizer.py": "c60e6cb46a108a6c29f4619f76bc21180e465b2139273651e4e31af380b0bf28",
+    "algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
+    "platforms/acquisition/continuous.py": "ff8d05b1be32104b92948e8018ce6c0f87e98f0e02c5ebb47bbc445f460ff579",
+    "scripts/verify_phase08_endurance.py": "d390a19aa64dfa3e8aa26834150cf0ffe3b2cb6e9e3a69b523d4aff48e24829a"
+  },
+  "frame_count": 439453,
+  "input_complex_samples": 7199997952,
+  "nominal_capture_seconds": 899.999744,
+  "observed_elapsed_seconds": 900.1213106999639,
+  "frames_per_second": 488.21530473294416,
+  "capture_queue_high_watermark": 6,
+  "capture_queue_capacity": 512,
+  "raw_candidate_total": 476,
+  "maximum_active_events": 26,
+  "usb_overruns": 0,
+  "crc_errors": 0,
+  "sequence_errors": 0,
+  "queue_drops": 0,
+  "input_saturated_components": 0,
+  "output_saturated_components": 0,
+  "limits": [
+    "Bu kabul tek merkez frekansında ve 0/0 dB alıcı kazancında yapılmıştır.",
+    "Ortam RF sinyalleri kontrollü referans değildir; tespit doğruluğu bu koşudan çıkarılamaz.",
+    "Koşu RX-only'dir; RF yayın işlevi yoktur.",
+    "Canlı parametre ve ses ürün kabulü ayrı kapıdır."
+  ]
+}

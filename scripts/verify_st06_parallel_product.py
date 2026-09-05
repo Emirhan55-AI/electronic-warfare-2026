@@ -1,16 +1,20 @@
 """Kaynak bağlı ST-06 paralel ARM ürün kanıtı; RF/soğuk açılış kabulü değildir."""
 from pathlib import Path
-import hashlib,json,sys,zipfile
+import argparse,hashlib,json,sys,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from app.operator_console.live_ed import decode_live_ed_response
+from scripts.verify_phase08_evidence_recovery import verify_frozen_file
 EVIDENCE=ROOT/'results/evidence/phase08/st06-parallel-product-v1.json'
-def verify():
+def verify(*, historical=False):
+ for name in ('st06-parallel-product-v1.json','st06-parallel-product-v1.zip'):
+  verify_frozen_file('results/evidence/phase08/'+name,root=ROOT)
  r=json.loads(EVIDENCE.read_text(encoding='utf-8'))
  archive=ROOT/r['archive']['path']
  assert hashlib.sha256(archive.read_bytes()).hexdigest()==r['archive']['sha256']
- for name,digest in r['source_sha256'].items():
-  assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,name
+ if not historical:
+  for name,digest in r['source_sha256'].items():
+   assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest, 'Güncel kaynak kanıtla eşleşmiyor: '+name
  for artifact in r['artifacts'].values():
   assert hashlib.sha256((ROOT/artifact['path']).read_bytes()).hexdigest()==artifact['sha256']
  baseline=json.loads((ROOT/'results/evidence/phase08/st06-product-optimization-v1.json').read_text(encoding='utf-8'))['physical_runs'][0]['cases']
@@ -58,7 +62,13 @@ def verify():
   host=json.loads(z.read('validation/host.json'));assert host['status']=='passed'
   san=json.loads(z.read('validation/sanitizer.json'));assert san['status']=='passed'
   stream=json.loads(z.read('validation/stream.json'));assert stream['status']=='passed' and stream['stream_mismatches']==0
-  for name,digest in stream['source_sha256'].items():assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest
+  for name,digest in stream['source_sha256'].items():
+   if historical and 'current-sources/'+name in z.namelist():
+    assert hashlib.sha256(z.read('current-sources/'+name)).hexdigest()==digest,name
+   else:
+    # Bazı ek doğrulama kaynakları eski arşivde yoktur. Yalnız aynı
+    # baytlar mevcutsa doğrulanabilir; değişmiş kaynak kabul edilmez.
+    assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,name
  speeds=[run['cases']['repeated_tone_throughput']['measured_fps_after_64_warmup'] for run in r['physical_runs']]
  assert speeds==r['fps'] and len(speeds)==3
  assert min(speeds)>=2000000/4096 and soak['fps']>=2000000/4096
@@ -66,4 +76,8 @@ def verify():
  assert r['gates']['RF_acceptance'] is False and r['gates']['cold_boot'] is False and r['gates']['ST06_complete'] is False
  return r
 if __name__=='__main__':
- r=verify();print(json.dumps({'integrity':'passed','fps':r['fps'],'soak_fps':r['soak']['fps'],'ST06_complete':False}))
+ parser=argparse.ArgumentParser(description=__doc__)
+ parser.add_argument('--historical',action='store_true',help='Yalnız özgün arşivi denetle; güncel kaynak kabulü değildir.')
+ args=parser.parse_args()
+ r=verify(historical=args.historical)
+ print(json.dumps({'integrity':'passed','scope':'historical_record' if args.historical else 'current_source_bound_record','fps':r['fps'],'soak_fps':r['soak']['fps'],'ST06_complete':False}))

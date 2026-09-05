@@ -430,6 +430,11 @@ class LiveEDSession:
         raw_candidate_total = 0
         maximum_active = 0
         completed = 0
+        # Queue occupancy and stage timings are diagnostics; sampling them on
+        # every 2 ms frame adds avoidable lock/clock work to the real-time
+        # path. Keep exact per-frame diagnostics for short test sessions, and
+        # use a bounded stride for production-length captures.
+        diagnostic_stride = 1 if config.frame_count <= 128 else 16
         stream_statistics: HackRFStreamStatistics | None = None
         started = time.perf_counter()
 
@@ -437,16 +442,26 @@ class LiveEDSession:
             nonlocal capture_queue_high_watermark, stream_statistics
             try:
                 for index, payload in enumerate(stream):
-                    received = time.perf_counter()
+                    preview_needed = self._preview_handler is not None and (
+                        index == 0
+                        or index + 1 == config.frame_count
+                        or (index + 1) % config.display_interval_frames == 0
+                    )
+                    received = (
+                        time.perf_counter()
+                        if index % diagnostic_stride == 0 or preview_needed
+                        else 0.0
+                    )
                     if self._cancellation.is_set():
                         raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
                     while not self._cancellation.is_set():
                         try:
                             capture_queue.put((index, payload, received), timeout=0.1)
-                            capture_queue_high_watermark = max(
-                                capture_queue_high_watermark,
-                                capture_queue.qsize(),
-                            )
+                            if index % diagnostic_stride == 0:
+                                capture_queue_high_watermark = max(
+                                    capture_queue_high_watermark,
+                                    capture_queue.qsize(),
+                                )
                             break
                         except queue.Full:
                             continue
@@ -482,8 +497,10 @@ class LiveEDSession:
                         raise producer_error[0]
                     raise AcquisitionError("short_stream", "Canlı HackRF akışı erken bitti.")
                 index, payload, received = item
-                timing_samples["capture_queue_age_ms"].append((time.perf_counter() - received) * 1000)
-                processing_started = time.perf_counter()
+                sampled = index % diagnostic_stride == 0
+                if sampled:
+                    timing_samples["capture_queue_age_ms"].append((time.perf_counter() - received) * 1000)
+                processing_started = time.perf_counter() if sampled else 0.0
                 channelized, frame_input_saturated = channelizer.process_ci8(
                     payload,
                     sequence_number=index,
@@ -505,32 +522,37 @@ class LiveEDSession:
                         "Kanal seçici çıkışında kırpılan örnek oluştu; alıcı kazançlarını azaltın.",
                     )
                 frame = channelized.frame
-                timing_samples["channelizer_ms"].append((time.perf_counter() - processing_started) * 1000)
-                display_frame = IQFrame(
-                    sequence_number=index,
-                    sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
-                    center_frequency_hz=config.input_center_frequency_hz,
-                    payload=payload,
-                    frame_id=index,
-                )
-                yield frame, received, display_frame
+                if sampled:
+                    timing_samples["channelizer_ms"].append((time.perf_counter() - processing_started) * 1000)
+                yield frame, received, payload
 
         def channelize():
             nonlocal channel_queue_high_watermark, preview_frames
             try:
-                for frame, received, display_frame in channelized_frames():
+                for frame, received, payload in channelized_frames():
                     count = frame.sequence_number + 1
                     if self._preview_handler is not None and (
                         count == 1 or count == config.frame_count or count % config.display_interval_frames == 0
                     ):
                         callback_started = time.perf_counter()
+                        display_frame = IQFrame(
+                            sequence_number=frame.sequence_number,
+                            sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
+                            center_frequency_hz=config.input_center_frequency_hz,
+                            payload=payload,
+                            frame_id=frame.sequence_number,
+                        )
                         self._preview_handler(LiveEDPreview(frame.sequence_number, frame, received, display_frame))
                         timing_samples["preview_callback_ms"].append((time.perf_counter() - callback_started) * 1000)
                         preview_frames += 1
                     while not self._cancellation.is_set():
                         try:
                             channel_queue.put(frame, timeout=0.1)
-                            channel_queue_high_watermark = max(channel_queue_high_watermark, channel_queue.qsize())
+                            if frame.sequence_number % diagnostic_stride == 0:
+                                channel_queue_high_watermark = max(
+                                    channel_queue_high_watermark,
+                                    channel_queue.qsize(),
+                                )
                             break
                         except queue.Full:
                             continue

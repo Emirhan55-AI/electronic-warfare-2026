@@ -1,5 +1,22 @@
 # KTR Gereksinim İzlenebilirliği
 
+## Güncel kanıt sınırı — 6 Eylül 2026
+
+PHASE-08 / ST-06 ve KTR-4.1 / KTR-4.1-OPS-B0 kabulü açıktır.
+5 Eylül tarihli 439.453 karelik tek arayüzsüz RX koşusunda USB taşması ve
+CRC/sıra/kuyruk hatası görülmedi. Ölçülen 488,2153 kare/s, nominal
+488,28125 kare/s üzerinde bir hız payı kanıtlamaz. Önceki kaynakla yapılan
+iki uzun koşu USB taşmasıyla başarısızdı. GUI sürekliliği, RF tespit doğruluğu
+ve kalıcı sorunsuz çalışma bu koşuyla doğrulanmadı; soğuk açılış kabulü de açıktır.
+
+Tarihsel `native-channelizer-v3` ve `st06-parallel-product-v1` kanıtları
+özgün kaynak hash'leri ve arşivleriyle korunur. Yeni RX koşusu kendi kaydıdır;
+eski fiziksel sonuçlar değiştirilmiş PC kaynağına aktarılmaz.
+İnceleme: `results/evidence/phase08/rx-evidence-recovery-v1.json` ve ZIP.
+Doğrulama: `python scripts/verify_phase08_evidence_recovery.py`.
+Bu işlem yeni donanım ölçümü içermez. Güncel ayrıntılar sinyal tespiti durum
+belgesindedir; aşağıdaki tarihli kayıtlar kendi sürümlerinin sonuçlarıdır.
+
 ## Son ST-06 ürün güncellemesi — 5 Eylül 2026
 
 Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
