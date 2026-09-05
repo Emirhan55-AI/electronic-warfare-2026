@@ -1,0 +1,139 @@
+{
+  "schema": "st06-stream-fusion-v1",
+  "status": "no_speed_gain_not_promoted",
+  "scope": "isolated_ARM_stream_repeated_PL_power_not_product_acceptance",
+  "ktr": [
+    "KTR-4.1",
+    "KTR-4.1-OPS",
+    "KTR-6"
+  ],
+  "archive": {
+    "path": "results/evidence/phase08/st06-stream-fusion-v1.zip",
+    "sha256": "74c550cfc26eae76d3f2909f43df8ce5ad30ba26b5f5da32ead1457a5f340797"
+  },
+  "runs": [
+    {
+      "trial": 0,
+      "case": "tone_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2382499705,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 0,
+      "case": "tone_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2384365309,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 0,
+      "case": "wide_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2346193512,
+      "result_hash": 289369354251130469
+    },
+    {
+      "trial": 0,
+      "case": "wide_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2401264787,
+      "result_hash": 289369354251130469
+    },
+    {
+      "trial": 1,
+      "case": "tone_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2423873460,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 1,
+      "case": "tone_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2355993841,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 1,
+      "case": "wide_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2417455788,
+      "result_hash": 289369354251130469
+    },
+    {
+      "trial": 1,
+      "case": "wide_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2351564461,
+      "result_hash": 289369354251130469
+    },
+    {
+      "trial": 2,
+      "case": "tone_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2338754855,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 2,
+      "case": "tone_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2427186899,
+      "result_hash": 4862999304384061442
+    },
+    {
+      "trial": 2,
+      "case": "wide_independent_noise",
+      "variant": "baseline",
+      "frames": 2000,
+      "total_ns": 2331188003,
+      "result_hash": 289369354251130469
+    },
+    {
+      "trial": 2,
+      "case": "wide_independent_noise",
+      "variant": "fused",
+      "frames": 2000,
+      "total_ns": 2378446655,
+      "result_hash": 289369354251130469
+    }
+  ],
+  "measured_frames_per_run": 2000,
+  "warmup_frames": 64,
+  "production_changed": false,
+  "validation_retained": true,
+  "change": "mean calculation fused with rolling sum; median unchanged",
+  "limitations": [
+    "Two repeated power fixtures, not full reference corpus",
+    "No full product or RF acceptance",
+    "Existing packaged product throughput remains 460-465 fps"
+  ],
+  "files_sha256": {
+    "build.sh": "b1f2b2685df2a1b78d0bb5fb2d34434c0f702f17b756543d3f532b093a7c2d2b",
+    "compare-baseline": "f26656c3362c1f81fd5a9325a6ed9a148ffb3fd2426969707a2f25ae11c131db",
+    "compare-fused": "e40d4a9268378f47e4ff3c0b3ad9af162664cc48fb97ea18ed667d669b605d2e",
+    "compare.c": "c803d286c4a5f0fe0961b698937539b4dcb72959127fa9c6281ce54bf7b8e6b8",
+    "p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
+    "p0_pl_os_cfar.c": "fe25ff08181291bf1e7b16449c383a8bf999575977397963da2ca0fae09ea870",
+    "p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
+    "p0_st05_stream.c": "602eb2a5d77de6e268628a1dba2647f80c2a7b17b77bdc49adfb52d0eb4c1629",
+    "p0_st05_stream.h": "13586ae8dc13762275f680765276e2f088cfe3cea9d704a070588ae9fef4520f",
+    "p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "runs.json": "b4c2d88c16ec9f05b07b1aadf496e95f32b0c50e025f74901032ea7638fb7c34",
+    "src.tar": "e1c92b1b17d306060c6827dd5b0bda06413d00d7585f397c62a82b11095a9e44",
+    "stream-fused.c": "7cd45d95f46b8087f2d1619508c6dc9f84f6f2616c8a2ac06f9494de2eb04fc8"
+  }
+}

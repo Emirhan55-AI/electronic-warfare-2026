@@ -1,8 +1,46 @@
 # Sistem Temel Çizgisi
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
 ## Durum
 
-Bu belge PHASE-00 sistem hedefini tanımlar. PHASE-06A–J ile DSP/transport/PS temporal bileşenleri ayrı katmanlarda doğrulanmıştır; fakat gerçek DMA, PetaLinux/ARM execution, bitstream/kart ve canlı RF yolu tamamlanmadığı için çalışan uçtan uca DSP veya RF sistemi mevcut değildir.
+Bu belge PHASE-00 sistem hedefini ve donanım sınırlarını tanımlar. P0/PHASE-07
+çalışmalarında gerçek DMA, PetaLinux, ARM ve FPGA zinciri fiziksel olarak
+çalıştırılmıştır; eski kabul yalnız kayıttaki kaynak/imaj sürümünü kapsar.
+5 Eylül 2026 itibarıyla etkin çalışma PHASE-08 / ST-06 sinyal tespitidir.
+Güncel PL/ARM ürün imajı derlenmiştir; bu imajın soğuk açılışı, fiziksel ürün
+hizmeti ve kontrollü kör RF kabulü açıktır. Güncel kanıt ve aşama
+[sinyal tespiti durum belgesinde](../interfaces/SIGNAL_DETECTION_STATUS.md) tutulur.
+
+Aynı gün geçici fiziksel yüklemeyle dijital dar/geniş olay tanısı yapılmıştır.
+Ürün hızı 286–290 kare/s ile gereken 488,28125 kare/s altında kalmıştır;
+ARM tespit iş parçacığı darboğazdır. Bu nedenle fiziksel ürün kabulü kapanmaz.
 
 ## Fiziksel bileşenler ve görev ayrımı
 
@@ -19,7 +57,13 @@ Referans donanım; geniş bant omni antenleri, alt/orta bant teleskobik anteni, 
 
 ## Hedef veri ve geliştirme akışı
 
-Hedef giriş veri yolu `SigMF veya HackRF-1 → PC → Gigabit Ethernet → ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. Sparse sonuç dönüş yolu `ZedBoard PL → versioned candidate AXI packet → AXI DMA S2MM → PS DDR → ZedBoard PS temporal/control → PC display` olarak ayrılır; PC kritik algoritma motoru değildir. PHASE-06J temporal çekirdeği host'ta doğrulanmış portable C11 kaynağıdır ve hedef sahipliği PS'dedir; gerçek DMA/PetaLinux/ARM ve HackRF ancak ilgili acceptance fazlarında uygulanır.
+Giriş veri yolu `SigMF veya HackRF-1 → PC kanal seçici → Gigabit Ethernet →
+ZedBoard PS → DDR/AXI DMA → ZedBoard PL` biçimindedir. ST-06 ürününde PL,
+Hann/FFT/güç/OS-CFAR hücre kararını üretir; her karede 4096×64 bit işaretli
+güç kelimesi S2MM üzerinden ARM'a döner. ARM geniş bant, gruplama ve temporal
+sonuçlarını PC'ye gönderir. Önceki seyrek aday-paket mimarisi tarihsel P0
+tasarımıdır. Host alım, kanal seçimi ve görsel FFT de çalıştırır; ürün tespit
+kararı doğrulanmış kart yanıtına bağlıdır.
 
 ED işlevleri sinyal tespitinden başlayarak parametre çıkarımı, yön bulma, konum ve dinlemeye doğru sıralı geliştirilecektir. ET işlevleri ancak ED aşamaları doğrulandıktan ve güvenli, kontrollü, izinli RF test düzeni sağlandıktan sonra ele alınacaktır.
 

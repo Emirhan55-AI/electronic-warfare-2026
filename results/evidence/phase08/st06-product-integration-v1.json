@@ -1,0 +1,129 @@
+{
+  "schema": "phase08-st06-product-integration-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-05T06:53:31.930171+00:00",
+  "transmit_enabled": false,
+  "scope": "source-bound ST-06 FPGA plus PetaLinux product image build",
+  "build": {
+    "tool": "PetaLinux 2025.2",
+    "machine": "zynq_generic_7z020",
+    "package": {
+      "path": "results/evidence/phase08/st06-product-petalinux-package-build.txt",
+      "sha256": "91e7b82e5f35f26270ccdc4cfdf765e5527e3692cff0101dade506d1080e74bc",
+      "tasks_attempted": 5679,
+      "tasks_failed": 0,
+      "result": "all_succeeded"
+    },
+    "full_image": {
+      "path": "results/evidence/phase08/st06-product-petalinux-image-build.txt",
+      "sha256": "f76a736e8c6dee334bfcd40e477fe338ac238a1bf944387f26a133bf5afbe708",
+      "tasks_attempted": 6090,
+      "tasks_failed": 0,
+      "result": "all_succeeded"
+    },
+    "tftp_warning": "not_configured; build outputs are unaffected"
+  },
+  "hardware_input": {
+    "xsa": {
+      "bytes": 1016178,
+      "sha256": "e7262a832f91c576f3e38e868e448fa5440980df91b558f25e4a183a2d1e1d29"
+    },
+    "vivado_evidence": "results/evidence/phase08/st06-power-vivado-v1.json",
+    "vivado_evidence_sha256": "ef74630b07c983e0ca958daa76194934041258028eaef1f26544edf97315acc4",
+    "routed_timing_passed": true,
+    "slice_lut_utilization_percent": 36.82
+  },
+  "product_artifacts": {
+    "BOOT.BIN": {
+      "bytes": 5228616,
+      "sha256": "53827609d09f1fb03fbdbef8f4be3aeed6a6a2f51f3cd9fb9bfd355beb4db8b3"
+    },
+    "image.ub": {
+      "bytes": 24086751,
+      "sha256": "730ef7fbc97038bd3297bb5f13f826df8c78970080c417e42dd40abcf9431256"
+    },
+    "system.bit": {
+      "bytes": 4045693,
+      "sha256": "fdb664667cd96245fb2b280ace89ac1589b95f751078b200d1c7b9d110e9305e"
+    },
+    "rootfs.manifest": {
+      "bytes": 23000,
+      "sha256": "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3"
+    },
+    "p0-ed-service": {
+      "bytes": 66956,
+      "sha256": "c30ca00181a2bda9b497282b28f2e4a48b0335c9c2ff28664350e9abea05a77c"
+    },
+    "p0-ed-network-bridge": {
+      "bytes": 21908,
+      "sha256": "06e8857b566b52aca54ef260bd71a0beeab774336a487ca3e767aa0e78b940ed"
+    },
+    "p0-st06-dma-profile-run": {
+      "bytes": 17812,
+      "sha256": "fc62ba6810e3790d626a0bc4d6795b23547e886548b6519c0e2065aee9914022"
+    },
+    "p0-st06-power-benchmark": {
+      "bytes": 13716,
+      "sha256": "add9d1f2ad5e0f40bda69543c29ae77828c9ca220ecb0b2a8a1aaf260d580ce8"
+    }
+  },
+  "rootfs": {
+    "required_packages_present": [
+      "p0-dma zynq_generic_7z020 1.0",
+      "kernel-module-p0-dma-client-6.12.40-xilinx-g31626ef92ff1"
+    ],
+    "embedded_service_sha256": "c30ca00181a2bda9b497282b28f2e4a48b0335c9c2ff28664350e9abea05a77c",
+    "service_uses_bounded_dual_core_pipeline": true,
+    "wideband_detector_linked": true
+  },
+  "host_product_lifecycle": {
+    "evidence": "results/evidence/p0/ed-local-service-host-acceptance.json",
+    "evidence_sha256": "2745072e7b32166b572ec01a249f3787e0675e53f9e4671679847f3a6b1d1554",
+    "status": "passed",
+    "pl_tagged_power_path_exercised": true,
+    "invalid_power_fail_closed": true,
+    "temporal_confirmation_and_expiry": true
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_ed_pipeline.h": "790c4973ebc2d10392722463f943081a96cc19317400cc46d0ecbb37c91c39b5",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "e70fd128be4212cdeecd711864675d86bb71bda0b4380856fcb889a1e96a3726",
+    "platforms/embedded/p0/src/p0_ed_service.c": "3fb9b3753246b2e7cc51587e0fac6645149f3c1e8acdffaabd9002588fe45c2f",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "4b07e5ebd34ad5a893b9a6789bceed98e7704f62e53bbefdc8e5f5cfe203feac",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "f8be77169fd7149520152a3120df2cdc7849eedc3d4c9973c93f1a18fc0019bd",
+    "platforms/embedded/phase06i/include/phase06i_transport_abi.h": "0025203ad25df78a8829bd00ad5b599a4749b5b8374a10bb4029fcc5dde98a35",
+    "platforms/embedded/phase06j/include/phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+    "app/operator_console/live_ed.py": "bff9ef1c53e93e66991ed27763f2be2b43224adfbb6b599b9be29cca57e5ca31",
+    "tests/p0/p0_st06_product_pipeline_run.c": "a7fa9e8a1aa9f6cabaeea446fa981b3bfeebdaee697bde2cecd166f51be78639",
+    "tests/test_st06_product_pipeline.py": "6b24805ff48a03f2095ddc2b2b09ab49bf3b17b4f959f944327b5c511bf4cf13",
+    "scripts/verify_p0_ed_service_linux.py": "a5e8c25c747836aaed44c0b14adffa8cca6b43b0732b2d0ad17361a77e537d2c",
+    "tests/p0/p0_ed_fake_dma_runtime.c": "8d0ec0953dd60254692aed08457f9bd557e02f8e1204381fc901dc3aba16a04f",
+    "scripts/verify_st06_product_integration.py": "63bdb894a2ee8663bc264bff8fdfdbb92c29b28c17d5c7dd313626a1f7b38a61"
+  },
+  "gates": {
+    "current_routed_fpga_input": true,
+    "current_arm_sources_packaged": true,
+    "full_product_image_built": true,
+    "host_product_lifecycle": true,
+    "cold_boot_product_image_on_board": false,
+    "physical_product_service_lifecycle": false,
+    "controlled_blind_rf_accuracy": false
+  },
+  "not_verified": [
+    "cold boot of this ST-06 product image on ZedBoard",
+    "physical product-service lifecycle with this exact service binary",
+    "blind controlled-RF detection probability and false-alarm rate",
+    "field RF power calibration"
+  ],
+  "claim_boundary": [
+    "This record proves that the current routed ST-06 FPGA image and current ARM detector/service sources are packaged into one PetaLinux product image.",
+    "The embedded service binary hash was read from the generated rootfs and matches the staged ARM binary.",
+    "The host lifecycle acceptance uses fake DMA with PL-tagged power words; it does not replace a physical board run.",
+    "ST-06 remains open until the exact product image passes board lifecycle and controlled blind-RF acceptance."
+  ]
+}

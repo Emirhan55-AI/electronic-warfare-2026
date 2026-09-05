@@ -1,0 +1,578 @@
+{
+  "schema": "st06-parallel-product-v1",
+  "status": "digital_product_throughput_passed_other_acceptance_open",
+  "scope": "packaged_service_real_board_digital_IQ_not_RF_or_cold_boot",
+  "ktr": [
+    "KTR-4.1",
+    "KTR-4.1-OPS",
+    "KTR-6"
+  ],
+  "archive": {
+    "path": "results/evidence/phase08/st06-parallel-product-v1.zip",
+    "sha256": "62844c02221acbba9fb2424e041fc50394b5f407ad9734e590eaab8a0e79fb34"
+  },
+  "source_sha256": {
+    "app/operator_console/live_ed.py": "bff9ef1c53e93e66991ed27763f2be2b43224adfbb6b599b9be29cca57e5ca31",
+    "platforms/embedded/p0/include/p0_ed_pipeline.h": "ea002d212ae76ce354dd88df00f8878c656770fbbf8d7fd41db8173a822a6f2f",
+    "platforms/embedded/p0/include/p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "13586ae8dc13762275f680765276e2f088cfe3cea9d704a070588ae9fef4520f",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "f8be77169fd7149520152a3120df2cdc7849eedc3d4c9973c93f1a18fc0019bd",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "48574b158ee03c33cd6e1c6ff30d977523c06dae580e539c3d70d73c727d4fa9",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "4a94c7d0692401947383405521b1bfbe0a02638bfef3c9173b94fcc6ba0b94f7",
+    "platforms/embedded/p0/src/p0_ed_service.c": "d6dcc5e4578bfb4cf6fd8066fb6354ada417265e5c030c1f6b27f1b07ba81f5f",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "fe25ff08181291bf1e7b16449c383a8bf999575977397963da2ca0fae09ea870",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "9a1a74eed42a0815a3e53ab6b77345aa19e2b7260a5d2a7fd327159a098f4188",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/phase06i/include/phase06i_transport_abi.h": "0025203ad25df78a8829bd00ad5b599a4749b5b8374a10bb4029fcc5dde98a35",
+    "platforms/embedded/phase06j/include/phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed",
+    "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+    "scripts/diagnose_st06_product_board.py": "5f2e4d8e5880a324220096d3edde5ce52c802c8d692f0017cc7a037172b6070f",
+    "scripts/verify_p0_ed_service.py": "ccb44f16ab929f4a816b6a4acd366c6854f75234d6347897bb6cf2be3fd8656d",
+    "scripts/verify_p0_ed_service_linux.py": "a5e8c25c747836aaed44c0b14adffa8cca6b43b0732b2d0ad17361a77e537d2c",
+    "scripts/verify_st06_parallel_product.py": "045659731351712c50a34e9c5438e0482aadb7c1ff5b2e1876a07614a9d7dffb",
+    "scripts/verify_st06_product_integration.py": "63bdb894a2ee8663bc264bff8fdfdbb92c29b28c17d5c7dd313626a1f7b38a61",
+    "scripts/verify_st06_product_optimization.py": "790f1daf15f740113fe45c553d8299e7888d558d5e697335ebc97862bee8eac3",
+    "tests/p0/p0_ed_fake_dma_runtime.c": "8d0ec0953dd60254692aed08457f9bd557e02f8e1204381fc901dc3aba16a04f",
+    "tests/p0/p0_st06_product_pipeline_run.c": "fece74cda5c3720420c32f368950f22247eed33bb53d850a75eda89ba8301f78",
+    "tests/test_st06_parallel_product.py": "a55ba78a692afb5e3e8bdfd56f61a95f800e452a3d132e701d8d2cc1f2d15ba0",
+    "tests/test_st06_product_board_diagnostic.py": "ee326057568676d83e93ef13120fe8d0ba373816eee88e42ba2401f082e7f97d",
+    "tests/test_st06_product_optimization.py": "fd23f69f80f7965fb3aa48f5d26d56fa6afc0e6c34f2e0f44012d7f0393266b0",
+    "tests/test_st06_product_pipeline.py": "6b24805ff48a03f2095ddc2b2b09ab49bf3b17b4f959f944327b5c511bf4cf13"
+  },
+  "service_sha256": "4bc02505c81254219cceaaf8adf74c5a742cdf8114deb6a288b8d68d5dce1dbf",
+  "artifacts": {
+    "p0-ed-service": {
+      "path": "build/p0/st06-parallel-product/p0-ed-service",
+      "sha256": "4bc02505c81254219cceaaf8adf74c5a742cdf8114deb6a288b8d68d5dce1dbf"
+    },
+    "image.ub": {
+      "path": "build/p0/st06-parallel-product/image.ub",
+      "sha256": "d640cb1caab5b76c13aebdb645cb3399dd975fa1ccb9d032429c9dec2c8051b9"
+    }
+  },
+  "physical_runs": [
+    {
+      "schema_version": 1,
+      "seed": 6100602,
+      "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
+      "sample_rate_hz": 2000000,
+      "samples_per_frame": 4096,
+      "script_sha256": "5f2e4d8e5880a324220096d3edde5ce52c802c8d692f0017cc7a037172b6070f",
+      "cases": {
+        "zero": {
+          "input_sha256": "7b15c3f99be0c5f9ae0a0ecdc21d3a8c4dc8006aed712338a0ad06aa35382793",
+          "response_sha256": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5440114000812173,
+          "max_raw_candidates": 0,
+          "max_active_events": 0,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 0,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 25024,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "independent_noise": {
+          "input_sha256": "dde95d21993e17f6ec4c8d9b8000c9ea1449ae4161981c8a3df9bed32fe9d32c",
+          "response_sha256": "d06a3f3ca87f4cfc05f022b5bd8d83dfe472d04a8efda6a735838630d67f7ec0",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5179273001849651,
+          "max_raw_candidates": 5,
+          "max_active_events": 5,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 61744,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "tone_independent_noise": {
+          "input_sha256": "0f6fa2a44b762a7edcf361e78d218858c61250c00e1a787f48b65c7fc0eea346",
+          "response_sha256": "9f0bb410d01568f265b489f23d7b9b4c0602aee72c88d7ad7ed9418fb8970a70",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5749939999077469,
+          "max_raw_candidates": 5,
+          "max_active_events": 7,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 81532,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_target_frames": 255
+        },
+        "wide_independent_noise": {
+          "input_sha256": "0b480e77131dae2fc004e5272759fde73669a9ec859575dff0f3d8941e94b483",
+          "response_sha256": "d1e9dfd075c384303c38ec2fb3b15ccf813f3831e5b7828023778e0f4c7ffe4c",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5405451999977231,
+          "max_raw_candidates": 4,
+          "max_active_events": 6,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 3,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 80104,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_wide_target_frames": 249
+        },
+        "repeated_tone_throughput": {
+          "input_sha256": "0c68ac0ffb9d3b26ecbe4ed1019ededf5780552e90c0c7c3731d7ac62fd5c54e",
+          "response_sha256": "7319b691c535156cc7cdb836129574db581a6ffd4f1ecfaf54acb6537264cdc8",
+          "stimulus_frames": 4160,
+          "zero_tail_frames": 16,
+          "received_frames": 4176,
+          "elapsed_seconds": 8.206379699986428,
+          "max_raw_candidates": 1,
+          "max_active_events": 1,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 4176,
+            "frames_received": 4176,
+            "bytes_sent": 34410240,
+            "bytes_received": 667208,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "measured_fps_after_64_warmup": 508.56265046832414,
+          "required_fps": 488.28125
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "seed": 6100602,
+      "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
+      "sample_rate_hz": 2000000,
+      "samples_per_frame": 4096,
+      "script_sha256": "5f2e4d8e5880a324220096d3edde5ce52c802c8d692f0017cc7a037172b6070f",
+      "cases": {
+        "zero": {
+          "input_sha256": "7b15c3f99be0c5f9ae0a0ecdc21d3a8c4dc8006aed712338a0ad06aa35382793",
+          "response_sha256": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5122137998696417,
+          "max_raw_candidates": 0,
+          "max_active_events": 0,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 0,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 25024,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "independent_noise": {
+          "input_sha256": "dde95d21993e17f6ec4c8d9b8000c9ea1449ae4161981c8a3df9bed32fe9d32c",
+          "response_sha256": "d06a3f3ca87f4cfc05f022b5bd8d83dfe472d04a8efda6a735838630d67f7ec0",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.506156399846077,
+          "max_raw_candidates": 5,
+          "max_active_events": 5,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 61744,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "tone_independent_noise": {
+          "input_sha256": "0f6fa2a44b762a7edcf361e78d218858c61250c00e1a787f48b65c7fc0eea346",
+          "response_sha256": "9f0bb410d01568f265b489f23d7b9b4c0602aee72c88d7ad7ed9418fb8970a70",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5072696998249739,
+          "max_raw_candidates": 5,
+          "max_active_events": 7,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 81532,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_target_frames": 255
+        },
+        "wide_independent_noise": {
+          "input_sha256": "0b480e77131dae2fc004e5272759fde73669a9ec859575dff0f3d8941e94b483",
+          "response_sha256": "d1e9dfd075c384303c38ec2fb3b15ccf813f3831e5b7828023778e0f4c7ffe4c",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5242255998309702,
+          "max_raw_candidates": 4,
+          "max_active_events": 6,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 3,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 80104,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_wide_target_frames": 249
+        },
+        "repeated_tone_throughput": {
+          "input_sha256": "0c68ac0ffb9d3b26ecbe4ed1019ededf5780552e90c0c7c3731d7ac62fd5c54e",
+          "response_sha256": "7319b691c535156cc7cdb836129574db581a6ffd4f1ecfaf54acb6537264cdc8",
+          "stimulus_frames": 4160,
+          "zero_tail_frames": 16,
+          "received_frames": 4176,
+          "elapsed_seconds": 8.305827400181442,
+          "max_raw_candidates": 1,
+          "max_active_events": 1,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 4176,
+            "frames_received": 4176,
+            "bytes_sent": 34410240,
+            "bytes_received": 667208,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "measured_fps_after_64_warmup": 502.39532548167506,
+          "required_fps": 488.28125
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "seed": 6100602,
+      "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
+      "sample_rate_hz": 2000000,
+      "samples_per_frame": 4096,
+      "script_sha256": "5f2e4d8e5880a324220096d3edde5ce52c802c8d692f0017cc7a037172b6070f",
+      "cases": {
+        "zero": {
+          "input_sha256": "7b15c3f99be0c5f9ae0a0ecdc21d3a8c4dc8006aed712338a0ad06aa35382793",
+          "response_sha256": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5233081998303533,
+          "max_raw_candidates": 0,
+          "max_active_events": 0,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 0,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 25024,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "independent_noise": {
+          "input_sha256": "dde95d21993e17f6ec4c8d9b8000c9ea1449ae4161981c8a3df9bed32fe9d32c",
+          "response_sha256": "d06a3f3ca87f4cfc05f022b5bd8d83dfe472d04a8efda6a735838630d67f7ec0",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5212604000698775,
+          "max_raw_candidates": 5,
+          "max_active_events": 5,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 61744,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "tone_independent_noise": {
+          "input_sha256": "0f6fa2a44b762a7edcf361e78d218858c61250c00e1a787f48b65c7fc0eea346",
+          "response_sha256": "9f0bb410d01568f265b489f23d7b9b4c0602aee72c88d7ad7ed9418fb8970a70",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5107270001899451,
+          "max_raw_candidates": 5,
+          "max_active_events": 7,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 81532,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_target_frames": 255
+        },
+        "wide_independent_noise": {
+          "input_sha256": "0b480e77131dae2fc004e5272759fde73669a9ec859575dff0f3d8941e94b483",
+          "response_sha256": "d1e9dfd075c384303c38ec2fb3b15ccf813f3831e5b7828023778e0f4c7ffe4c",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.5375878000631928,
+          "max_raw_candidates": 4,
+          "max_active_events": 6,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 3,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 80104,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_wide_target_frames": 249
+        },
+        "repeated_tone_throughput": {
+          "input_sha256": "0c68ac0ffb9d3b26ecbe4ed1019ededf5780552e90c0c7c3731d7ac62fd5c54e",
+          "response_sha256": "7319b691c535156cc7cdb836129574db581a6ffd4f1ecfaf54acb6537264cdc8",
+          "stimulus_frames": 4160,
+          "zero_tail_frames": 16,
+          "received_frames": 4176,
+          "elapsed_seconds": 8.201945099979639,
+          "max_raw_candidates": 1,
+          "max_active_events": 1,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 4176,
+            "frames_received": 4176,
+            "bytes_sent": 34410240,
+            "bytes_received": 667208,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "measured_fps_after_64_warmup": 508.93242887765166,
+          "required_fps": 488.28125
+        }
+      }
+    }
+  ],
+  "fps": [
+    508.56265046832414,
+    502.39532548167506,
+    508.93242887765166
+  ],
+  "soak": {
+    "scope": "digital_mixed_replay_not_live_RF",
+    "measured_frames": 16000,
+    "fps": 529.3002244140228,
+    "required_fps": 488.28125,
+    "received": 16080,
+    "bad_dma": 0,
+    "dropped_candidates": 0,
+    "tail_active": 0,
+    "input_sha256": "c62c5bd8c86a7280b6b91e12188d7af6f760aef5ced9fc9b46d6fb815fdcd8bb",
+    "response_sha256": "84d84f545dfc87bdf27b14892b54f5cb7bda5fc5b51b4067185c9a60090904c9"
+  },
+  "required_fps": 488.28125,
+  "changes": [
+    "CPU0 performs validated UQ28.30 decode after DMA",
+    "CPU1 consumes decoded buffers by ownership exchange, retaining detection algorithm",
+    "Checkpoint reconstructs derived mean from saved sum only on rollback"
+  ],
+  "unchanged": [
+    "FPGA bitstream",
+    "OS-CFAR thresholds",
+    "wideband median and thresholds",
+    "8-frame window",
+    "temporal lifecycle"
+  ],
+  "additional_slot_memory_bytes": 278528,
+  "removed_checkpoint_copy_bytes_per_frame": 32768,
+  "gates": {
+    "digital_product_throughput": true,
+    "RF_acceptance": false,
+    "cold_boot": false,
+    "ST06_complete": false
+  },
+  "limits": [
+    "Small speed margin in repeated-tone runs; no hard-real-time WCET guarantee",
+    "Mixed soak is 16000 measured frames, not field Pd/Pfa or all-scene acceptance",
+    "Pure periodic tone excess candidates and dense-input 64 event capacity remain open",
+    "SD boot files unchanged; packaged service and existing FPGA loaded temporarily"
+  ]
+}

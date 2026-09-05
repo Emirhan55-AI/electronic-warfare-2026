@@ -1,5 +1,33 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
 Bu proje; RF I/Q verisinin alınması, spektral analizi, sinyal tespiti, operatör
 onaylı parametre ölçümü ve FPGA üzerinde gerçek zamanlı işlenmesi için geliştirilen
 bir mühendislik sistemidir. Referans platform HackRF One, ZedBoard Zynq-7000 ve
@@ -18,20 +46,54 @@ SigMF / HackRF RX
 Operatör bilgisayarı ── kontrol ve kayıt ──► ZedBoard PS / DDR
        │                                         │
        │                                         ▼
-       ◄──────────── sonuçlar ───── ZedBoard PS: paket doğrulama → 2/3 → parametre
+       ◄──────────── sonuçlar ───── ZedBoard PS: güç çözme → geniş bant → 2/3
                                                   ▲
                                                AXI DMA
                                                   ▲
                                      ZedBoard PL: Hann → 4096 FFT → Güç
-                                                  → OS-CFAR + geniş bant adayları
-                                                  → sürümlü aday paketi
+                                                  → OS-CFAR hücre kararı
+                                                  → 4096 işaretli güç kelimesi
 ```
 
-Hedef mimaride kritik FPGA sonuçları sürümlü ve sınırları belirli paketlerle PS
-tarafına taşınır. Host referans modelleri RTL davranışını doğrulamak için korunur;
-nihai gerçek zamanlı işleme sahibi FPGA/PS zinciridir.
+Bu çizim ST-06 ürün imajının görev paylaşımıdır. PL→PS sınırı her karede
+32 KiB işaretli güçtür; aday gruplama, sekiz karelik geniş bant kararı ve
+temporal olaylar ARM'da işlenir. PC alım, 8→2 MS/s kanal seçimi, görünüm ve
+kayıttan sorumludur. Host referansları sayısal eşdeğerliği denetler.
+
+## Güncel aşama — 5 Eylül 2026
+
+Çalışma PHASE-08 / ST-06 sinyal tespitindedir. ST-05 Python referansı seçilmiş,
+C eşdeğerliği ve güç nicemleme kontrolleri geçmiştir. ARM geniş bant çekirdeği
+kayan nokta kullanır. Güncel FPGA tasarımı 50 MHz zamanlamayı geçmiş; LUT
+kullanımı 19.587/53.200 (`%36,82`), BRAM `%16,79`, DSP `%21,36` olmuştur.
+Bu sonuç [Vivado kaydına](results/evidence/phase08/st06-power-vivado-v1.json) aittir.
+
+Bağımsız kart DMA/ARM profili beş adet 2.000-kare tekrarda 551,22–577,68
+kare/s ölçmüştür; 2 MS/s için gereken hız 488,28125 kare/s'dir. Ölçüm ürün
+ağ hizmetinin veya canlı RF'nin kabulü değildir;
+[profilin kapsamı](results/evidence/phase08/st06-pipelined-dma-profile-v1.json)
+korunur. Güncel bitstream ve ARM hizmeti PetaLinux ürün imajında paketlenmiştir;
+[ürün entegrasyon kanıtı](results/evidence/phase08/st06-product-integration-v1.json)
+paket 5.679/5.679 ve tam imaj 6.090/6.090 derleme görevini doğrular.
+
+5 Eylül kart tanısında FPGA/hizmet/ağ köprüsü geçici yüklenmiştir. Bağımsız
+256 gürültü karesinde doğrulanmış olay yoktur; dar ton 255/256, geniş bant
+249/256 karede doğrulanmış ve sıfır giriş kuyruğunda olaylar sonlanmıştır.
+Bu kısa dijital deney RF doğruluğu kabulü değildir. Ürün yolu 286–290 kare/s
+ile gerekli 488,28125 kare/s hızını **geçememiştir**; ARM tespit iş parçacığı
+darboğazdır. [Ham verili tanı kaydı](results/evidence/phase08/st06-product-board-diagnostic-v1.json)
+başarısız hız kapısını da korur. SD açılış dosyaları değişmemiştir.
+Soğuk açılış, ürün hızı ve kontrollü kör RF doğruluğu açık kalır.
+ST-06 ve PHASE-08 tamamlanmamıştır.
+Sonraki çalışma bu kabul kapılarıdır. Güncel durumun ayrıntıları
+[sinyal tespiti durum belgesinde](docs/interfaces/SIGNAL_DETECTION_STATUS.md),
+faz sırası [yol haritasında](docs/plans/IMPLEMENTATION_ROADMAP.md) tutulur.
 
 ## Mevcut yetenekler
+
+Bu bölümdeki tarihli ölçümler ilgili eski kaynak sürümlerine aittir. ST-06
+ürününün güncel kabul durumu yukarıdadır; aşağıdaki aday-paket PL mimarisi ve
+kaynak kullanım sayıları tarihsel tasarımları anlatır.
 
 31 Ağustos sinyal tespiti bakımında spektrum ve waterfall çizimi Qt görüntü
 tamponuna taşınmıştır: 128 satır, dar tepe koruma, sabit güç/renk ölçeği ve
@@ -200,7 +262,7 @@ Klavye kısayolları:
 Tam yazılım regresyonu:
 
 ```powershell
-python -B -m unittest discover -s tests
+python -m pytest tests
 ```
 
 Operatör arayüzü; ED için 1280×720, 1366×768, 1920×1080 ve %150 ölçek

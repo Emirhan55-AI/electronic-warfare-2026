@@ -117,7 +117,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(52, len(VERIFY.APPROVED_PHASE04_F5_FILES))
         self.assertEqual(346, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
-        self.assertEqual(104, len(VERIFY.APPROVED_PHASE08_FILES))
+        self.assertEqual(200, len(VERIFY.APPROVED_PHASE08_FILES))
         self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))

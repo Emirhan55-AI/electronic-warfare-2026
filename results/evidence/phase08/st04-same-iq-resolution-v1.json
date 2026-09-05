@@ -1,0 +1,760 @@
+{
+  "schema": "phase08-st04-same-iq-resolution-v1",
+  "status": "recorded_resolution_characterized",
+  "generated_at_utc": "2026-09-04T12:30:58.596170+00:00",
+  "phase08_complete": false,
+  "st04_complete": false,
+  "transmit_enabled": false,
+  "blind_acceptance": false,
+  "sample_rate_hz": 8000000.0,
+  "analyzed_complex_samples_per_recording": 4063232,
+  "analyzed_seconds_per_recording": 0.507904,
+  "analysis_scope_hz": [
+    955400000.0,
+    956000000.0
+  ],
+  "candidate_generation_uses_target_truth": false,
+  "evaluation_truth_hz": 955700000.0,
+  "inputs": {
+    "first_on": {
+      "path": "build/acceptance/rx-survey/blind-800-1100-20260902/known-955p7-on-lo954p2.ci8",
+      "center_frequency_hz": 954200000.0,
+      "full_file_bytes": 16000000,
+      "full_file_sha256": "7df2838a07f81ec014885cc10d659784f32e353160b3a4c84e544234e1386c65",
+      "analyzed_prefix_bytes": 8126464,
+      "analyzed_prefix_sha256": "b7a4c4cf2ef4dba62fee9a23728a912aea4ade823ec7c64b3bf72d74d035c39a"
+    },
+    "first_off": {
+      "path": "build/acceptance/rx-survey/blind-800-1100-20260902/known-955p7-off-lo954p2.ci8",
+      "center_frequency_hz": 954200000.0,
+      "full_file_bytes": 16000000,
+      "full_file_sha256": "1073340e79487eaabe8d100815525e92e6829bb7b7a4dc89cde3a75e817b41b8",
+      "analyzed_prefix_bytes": 8126464,
+      "analyzed_prefix_sha256": "ff677d36fa5b322851878ff2787d90e8c5231624da49af2b17bf985783fea902"
+    },
+    "second_on": {
+      "path": "build/acceptance/rx-survey/blind-800-1100-20260902/known-955p7-on-lo957p2.ci8",
+      "center_frequency_hz": 957200000.0,
+      "full_file_bytes": 16000000,
+      "full_file_sha256": "25bbb006110de0d9e015210b698221559bbdb12f5a909eaec84ae9f88a35ed98",
+      "analyzed_prefix_bytes": 8126464,
+      "analyzed_prefix_sha256": "fff7bb446b0a38745aa68912f6039c34eb63678639ca57c0fffeb1b343e4c597"
+    },
+    "second_off": {
+      "path": "build/acceptance/rx-survey/blind-800-1100-20260902/known-955p7-off-lo957p2.ci8",
+      "center_frequency_hz": 957200000.0,
+      "full_file_bytes": 16000000,
+      "full_file_sha256": "4e57d2c1a74e5e45bdc49154c3824947b3c72bcae44d0a5ad704ab0125f37f65",
+      "analyzed_prefix_bytes": 8126464,
+      "analyzed_prefix_sha256": "0a0a09650417f968ae4f042f6adeb1e133b1ee5e3deb98d2e703c209512f17b8"
+    }
+  },
+  "profiles": [
+    {
+      "fft_size": 4096,
+      "bin_spacing_hz": 1953.125,
+      "association_tolerance_hz": 4101.5625,
+      "recordings": {
+        "first_on": {
+          "frame_count": 992,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2456590998917818,
+          "processing_realtime_ratio": 0.48367230793965355,
+          "candidates": []
+        },
+        "first_off": {
+          "frame_count": 992,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.24364030011929572,
+          "processing_realtime_ratio": 0.4796975415025196,
+          "candidates": []
+        },
+        "second_on": {
+          "frame_count": 992,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2261185001116246,
+          "processing_realtime_ratio": 0.4451992898493113,
+          "candidates": []
+        },
+        "second_off": {
+          "frame_count": 992,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2267533999402076,
+          "processing_realtime_ratio": 0.4464493288893326,
+          "candidates": []
+        }
+      },
+      "two_lo_on_matches": [],
+      "two_lo_off_matches": [],
+      "evaluation_truth": {
+        "target_frequency_hz": 955700000.0,
+        "target_tolerance_hz": 5000.0,
+        "target_recovered_in_two_lo_on": false,
+        "target_frequency_error_hz": null,
+        "target_present_in_two_lo_off": false
+      },
+      "recording_pair_clean": false
+    },
+    {
+      "fft_size": 8192,
+      "bin_spacing_hz": 976.5625,
+      "association_tolerance_hz": 2050.78125,
+      "recordings": {
+        "first_on": {
+          "frame_count": 496,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.21013369993306696,
+          "processing_realtime_ratio": 0.41372720028404375,
+          "candidates": []
+        },
+        "first_off": {
+          "frame_count": 496,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2034658999182284,
+          "processing_realtime_ratio": 0.4005991288082558,
+          "candidates": []
+        },
+        "second_on": {
+          "frame_count": 496,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.19630259997211397,
+          "processing_realtime_ratio": 0.38649547940578133,
+          "candidates": []
+        },
+        "second_off": {
+          "frame_count": 496,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.19546739989891648,
+          "processing_realtime_ratio": 0.38485107401972907,
+          "candidates": []
+        }
+      },
+      "two_lo_on_matches": [],
+      "two_lo_off_matches": [],
+      "evaluation_truth": {
+        "target_frequency_hz": 955700000.0,
+        "target_tolerance_hz": 5000.0,
+        "target_recovered_in_two_lo_on": false,
+        "target_frequency_error_hz": null,
+        "target_present_in_two_lo_off": false
+      },
+      "recording_pair_clean": false
+    },
+    {
+      "fft_size": 16384,
+      "bin_spacing_hz": 488.28125,
+      "association_tolerance_hz": 2000.0,
+      "recordings": {
+        "first_on": {
+          "frame_count": 248,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.23394909990020096,
+          "processing_realtime_ratio": 0.46061676990179434,
+          "candidates": [
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699755.859375,
+              "upper_frequency_hz": 955700244.140625,
+              "peak_to_noise_db": 8.104044142502033,
+              "observed_frames": 222,
+              "total_frames": 248,
+              "mean_peak_power": 4.451452222370811e-09,
+              "mean_noise_power": 6.88806603808994e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8951612903225806
+            }
+          ]
+        },
+        "first_off": {
+          "frame_count": 248,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.20445719989947975,
+          "processing_realtime_ratio": 0.40255087555813646,
+          "candidates": []
+        },
+        "second_on": {
+          "frame_count": 248,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2070538999978453,
+          "processing_realtime_ratio": 0.40766345608194715,
+          "candidates": [
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699755.859375,
+              "upper_frequency_hz": 955700244.140625,
+              "peak_to_noise_db": 7.953511791729188,
+              "observed_frames": 219,
+              "total_frames": 248,
+              "mean_peak_power": 4.513387095527863e-09,
+              "mean_noise_power": 7.230218194350494e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8830645161290323
+            }
+          ]
+        },
+        "second_off": {
+          "frame_count": 248,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.18994960002601147,
+          "processing_realtime_ratio": 0.37398721023266496,
+          "candidates": []
+        }
+      },
+      "two_lo_on_matches": [
+        {
+          "frequency_hz": 955700000.0,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955700000.0,
+          "second_peak_frequency_hz": 955700000.0,
+          "minimum_peak_to_noise_db": 7.953511791729188,
+          "minimum_occupancy": 0.8830645161290323
+        }
+      ],
+      "two_lo_off_matches": [],
+      "evaluation_truth": {
+        "target_frequency_hz": 955700000.0,
+        "target_tolerance_hz": 5000.0,
+        "target_recovered_in_two_lo_on": true,
+        "target_frequency_error_hz": 0.0,
+        "target_present_in_two_lo_off": false
+      },
+      "recording_pair_clean": true
+    },
+    {
+      "fft_size": 32768,
+      "bin_spacing_hz": 244.140625,
+      "association_tolerance_hz": 2000.0,
+      "recordings": {
+        "first_on": {
+          "frame_count": 124,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.26872429996728897,
+          "processing_realtime_ratio": 0.5290848269895275,
+          "candidates": [
+            {
+              "frequency_hz": 955428451.7033834,
+              "peak_frequency_hz": 955428515.625,
+              "lower_frequency_hz": 955427661.1328125,
+              "upper_frequency_hz": 955428637.6953125,
+              "peak_to_noise_db": 8.971627564529395,
+              "observed_frames": 106,
+              "total_frames": 124,
+              "mean_peak_power": 2.709705191658854e-09,
+              "mean_noise_power": 3.433675794638446e-10,
+              "component_count": 2,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 0.8548387096774194
+            },
+            {
+              "frequency_hz": 955499072.265625,
+              "peak_frequency_hz": 955499072.265625,
+              "lower_frequency_hz": 955498950.1953125,
+              "upper_frequency_hz": 955499194.3359375,
+              "peak_to_noise_db": 7.683771742899356,
+              "observed_frames": 96,
+              "total_frames": 124,
+              "mean_peak_power": 2.020029490212696e-09,
+              "mean_noise_power": 3.4433449774511147e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.7741935483870968
+            },
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699877.9296875,
+              "upper_frequency_hz": 955700122.0703125,
+              "peak_to_noise_db": 10.629744988435395,
+              "observed_frames": 122,
+              "total_frames": 124,
+              "mean_peak_power": 3.963652285214106e-09,
+              "mean_noise_power": 3.4286333864746574e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.9838709677419355
+            }
+          ]
+        },
+        "first_off": {
+          "frame_count": 124,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.2631395000498742,
+          "processing_realtime_ratio": 0.5180890484222888,
+          "candidates": [
+            {
+              "frequency_hz": 955428271.484375,
+              "peak_frequency_hz": 955428271.484375,
+              "lower_frequency_hz": 955428149.4140625,
+              "upper_frequency_hz": 955428393.5546875,
+              "peak_to_noise_db": 9.348296544844512,
+              "observed_frames": 116,
+              "total_frames": 124,
+              "mean_peak_power": 3.141173587568661e-09,
+              "mean_noise_power": 3.649742985500073e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.9354838709677419
+            },
+            {
+              "frequency_hz": 955498828.125,
+              "peak_frequency_hz": 955498828.125,
+              "lower_frequency_hz": 955498706.0546875,
+              "upper_frequency_hz": 955498950.1953125,
+              "peak_to_noise_db": 8.799375237150585,
+              "observed_frames": 111,
+              "total_frames": 124,
+              "mean_peak_power": 2.771191556686273e-09,
+              "mean_noise_power": 3.653667511137776e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8951612903225806
+            }
+          ]
+        },
+        "second_on": {
+          "frame_count": 124,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.262289899867028,
+          "processing_realtime_ratio": 0.5164162910058357,
+          "candidates": [
+            {
+              "frequency_hz": 955428515.625,
+              "peak_frequency_hz": 955428515.625,
+              "lower_frequency_hz": 955428393.5546875,
+              "upper_frequency_hz": 955428637.6953125,
+              "peak_to_noise_db": 8.921641491646211,
+              "observed_frames": 110,
+              "total_frames": 124,
+              "mean_peak_power": 2.796019618000917e-09,
+              "mean_noise_power": 3.584066549442829e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8870967741935484
+            },
+            {
+              "frequency_hz": 955499072.265625,
+              "peak_frequency_hz": 955499072.265625,
+              "lower_frequency_hz": 955498950.1953125,
+              "upper_frequency_hz": 955499194.3359375,
+              "peak_to_noise_db": 8.16381264304589,
+              "observed_frames": 103,
+              "total_frames": 124,
+              "mean_peak_power": 2.3596102146551584e-09,
+              "mean_noise_power": 3.6012975307092374e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8306451612903226
+            },
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699877.9296875,
+              "upper_frequency_hz": 955700122.0703125,
+              "peak_to_noise_db": 10.601741511102427,
+              "observed_frames": 124,
+              "total_frames": 124,
+              "mean_peak_power": 4.115093529365896e-09,
+              "mean_noise_power": 3.5826597067758844e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 1.0
+            }
+          ]
+        },
+        "second_off": {
+          "frame_count": 124,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.25657099997624755,
+          "processing_realtime_ratio": 0.5051564862183553,
+          "candidates": [
+            {
+              "frequency_hz": 955428271.484375,
+              "peak_frequency_hz": 955428271.484375,
+              "lower_frequency_hz": 955428149.4140625,
+              "upper_frequency_hz": 955428393.5546875,
+              "peak_to_noise_db": 9.123006263475537,
+              "observed_frames": 113,
+              "total_frames": 124,
+              "mean_peak_power": 2.9585112965828432e-09,
+              "mean_noise_power": 3.620533794142649e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.9112903225806451
+            }
+          ]
+        }
+      },
+      "two_lo_on_matches": [
+        {
+          "frequency_hz": 955428515.625,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955428515.625,
+          "second_peak_frequency_hz": 955428515.625,
+          "minimum_peak_to_noise_db": 8.921641491646211,
+          "minimum_occupancy": 0.8548387096774194
+        },
+        {
+          "frequency_hz": 955499072.265625,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955499072.265625,
+          "second_peak_frequency_hz": 955499072.265625,
+          "minimum_peak_to_noise_db": 7.683771742899356,
+          "minimum_occupancy": 0.7741935483870968
+        },
+        {
+          "frequency_hz": 955700000.0,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955700000.0,
+          "second_peak_frequency_hz": 955700000.0,
+          "minimum_peak_to_noise_db": 10.601741511102427,
+          "minimum_occupancy": 0.9838709677419355
+        }
+      ],
+      "two_lo_off_matches": [
+        {
+          "frequency_hz": 955428271.484375,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955428271.484375,
+          "second_peak_frequency_hz": 955428271.484375,
+          "minimum_peak_to_noise_db": 9.123006263475537,
+          "minimum_occupancy": 0.9112903225806451
+        }
+      ],
+      "evaluation_truth": {
+        "target_frequency_hz": 955700000.0,
+        "target_tolerance_hz": 5000.0,
+        "target_recovered_in_two_lo_on": true,
+        "target_frequency_error_hz": 0.0,
+        "target_present_in_two_lo_off": false
+      },
+      "recording_pair_clean": false
+    },
+    {
+      "fft_size": 65536,
+      "bin_spacing_hz": 122.0703125,
+      "association_tolerance_hz": 2000.0,
+      "recordings": {
+        "first_on": {
+          "frame_count": 62,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.45798320020549,
+          "processing_realtime_ratio": 0.9017121349811972,
+          "candidates": [
+            {
+              "frequency_hz": 955428219.9257205,
+              "peak_frequency_hz": 955428515.625,
+              "lower_frequency_hz": 955425891.1132812,
+              "upper_frequency_hz": 955428576.6601562,
+              "peak_to_noise_db": 11.125983889720668,
+              "observed_frames": 59,
+              "total_frames": 62,
+              "mean_peak_power": 2.210369808602675e-09,
+              "mean_noise_power": 1.7055582283354603e-10,
+              "component_count": 7,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 0.9516129032258065
+            },
+            {
+              "frequency_hz": 955498950.1953125,
+              "peak_frequency_hz": 955498950.1953125,
+              "lower_frequency_hz": 955498889.1601562,
+              "upper_frequency_hz": 955499011.2304688,
+              "peak_to_noise_db": 11.356337775889909,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 2.3297177773352576e-09,
+              "mean_noise_power": 1.704784688320573e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 1.0
+            },
+            {
+              "frequency_hz": 955569506.8359375,
+              "peak_frequency_hz": 955569506.8359375,
+              "lower_frequency_hz": 955569445.8007812,
+              "upper_frequency_hz": 955569567.8710938,
+              "peak_to_noise_db": 8.877495135332566,
+              "observed_frames": 55,
+              "total_frames": 62,
+              "mean_peak_power": 1.3184490839776526e-09,
+              "mean_noise_power": 1.7073157600966082e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.8870967741935484
+            },
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699938.9648438,
+              "upper_frequency_hz": 955700061.0351562,
+              "peak_to_noise_db": 12.901603879492853,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 3.316564861996188e-09,
+              "mean_noise_power": 1.700309993041157e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 1.0
+            }
+          ]
+        },
+        "first_off": {
+          "frame_count": 62,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.43300279998220503,
+          "processing_realtime_ratio": 0.852528824309722,
+          "candidates": [
+            {
+              "frequency_hz": 955428219.9553144,
+              "peak_frequency_hz": 955428271.484375,
+              "lower_frequency_hz": 955427233.8867188,
+              "upper_frequency_hz": 955429309.0820312,
+              "peak_to_noise_db": 11.74740211604082,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 2.70309911102012e-09,
+              "mean_noise_power": 1.8076808534515113e-10,
+              "component_count": 4,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 1.0
+            },
+            {
+              "frequency_hz": 955498828.125,
+              "peak_frequency_hz": 955498828.125,
+              "lower_frequency_hz": 955498767.0898438,
+              "upper_frequency_hz": 955498889.1601562,
+              "peak_to_noise_db": 10.652701317560991,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 2.1041335979120027e-09,
+              "mean_noise_power": 1.8105193857485814e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 1.0
+            },
+            {
+              "frequency_hz": 955569051.9239954,
+              "peak_frequency_hz": 955569262.6953125,
+              "lower_frequency_hz": 955564807.1289062,
+              "upper_frequency_hz": 955569323.7304688,
+              "peak_to_noise_db": 9.70049657002558,
+              "observed_frames": 53,
+              "total_frames": 62,
+              "mean_peak_power": 1.6856063082797706e-09,
+              "mean_noise_power": 1.8059531968082123e-10,
+              "component_count": 2,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 0.8548387096774194
+            }
+          ]
+        },
+        "second_on": {
+          "frame_count": 62,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.4399131000973284,
+          "processing_realtime_ratio": 0.8661343484149139,
+          "candidates": [
+            {
+              "frequency_hz": 955428435.4455688,
+              "peak_frequency_hz": 955428515.625,
+              "lower_frequency_hz": 955427355.9570312,
+              "upper_frequency_hz": 955428576.6601562,
+              "peak_to_noise_db": 11.141099551521027,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 2.332313893667687e-09,
+              "mean_noise_power": 1.7933994995917833e-10,
+              "component_count": 3,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 1.0
+            },
+            {
+              "frequency_hz": 955498950.1953125,
+              "peak_frequency_hz": 955498950.1953125,
+              "lower_frequency_hz": 955498889.1601562,
+              "upper_frequency_hz": 955499011.2304688,
+              "peak_to_noise_db": 11.146535211808931,
+              "observed_frames": 60,
+              "total_frames": 62,
+              "mean_peak_power": 2.350811167277951e-09,
+              "mean_noise_power": 1.8053616962252743e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.967741935483871
+            },
+            {
+              "frequency_hz": 955569506.8359375,
+              "peak_frequency_hz": 955569506.8359375,
+              "lower_frequency_hz": 955569445.8007812,
+              "upper_frequency_hz": 955569567.8710938,
+              "peak_to_noise_db": 8.619964507001024,
+              "observed_frames": 49,
+              "total_frames": 62,
+              "mean_peak_power": 1.315465613406047e-09,
+              "mean_noise_power": 1.8075197415177713e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.7903225806451613
+            },
+            {
+              "frequency_hz": 955700000.0,
+              "peak_frequency_hz": 955700000.0,
+              "lower_frequency_hz": 955699938.9648438,
+              "upper_frequency_hz": 955700061.0351562,
+              "peak_to_noise_db": 12.839600977565755,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 3.458503028907312e-09,
+              "mean_noise_power": 1.798572971286243e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 1.0
+            }
+          ]
+        },
+        "second_off": {
+          "frame_count": 62,
+          "analyzed_seconds": 0.507904,
+          "processing_seconds": 0.4498191000893712,
+          "processing_realtime_ratio": 0.8856380341351342,
+          "candidates": [
+            {
+              "frequency_hz": 955428249.6397519,
+              "peak_frequency_hz": 955428271.484375,
+              "lower_frequency_hz": 955427600.0976562,
+              "upper_frequency_hz": 955429187.0117188,
+              "peak_to_noise_db": 11.42398754261074,
+              "observed_frames": 62,
+              "total_frames": 62,
+              "mean_peak_power": 2.540941957434652e-09,
+              "mean_noise_power": 1.8306106740318397e-10,
+              "component_count": 3,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 1.0
+            },
+            {
+              "frequency_hz": 955498828.125,
+              "peak_frequency_hz": 955498828.125,
+              "lower_frequency_hz": 955498767.0898438,
+              "upper_frequency_hz": 955498889.1601562,
+              "peak_to_noise_db": 9.772903584373664,
+              "observed_frames": 61,
+              "total_frames": 62,
+              "mean_peak_power": 1.7468770605723608e-09,
+              "mean_noise_power": 1.8406532560349937e-10,
+              "component_count": 1,
+              "center_method": "spectral_peak",
+              "occupancy": 0.9838709677419355
+            },
+            {
+              "frequency_hz": 955569463.6476742,
+              "peak_frequency_hz": 955569262.6953125,
+              "lower_frequency_hz": 955569201.6601562,
+              "upper_frequency_hz": 955572863.7695312,
+              "peak_to_noise_db": 9.422729975453997,
+              "observed_frames": 53,
+              "total_frames": 62,
+              "mean_peak_power": 1.6081663111437804e-09,
+              "mean_noise_power": 1.8367834705437362e-10,
+              "component_count": 2,
+              "center_method": "persistent_component_centroid",
+              "occupancy": 0.8548387096774194
+            }
+          ]
+        }
+      },
+      "two_lo_on_matches": [
+        {
+          "frequency_hz": 955428515.625,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955428515.625,
+          "second_peak_frequency_hz": 955428515.625,
+          "minimum_peak_to_noise_db": 11.125983889720668,
+          "minimum_occupancy": 0.9516129032258065
+        },
+        {
+          "frequency_hz": 955498950.1953125,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955498950.1953125,
+          "second_peak_frequency_hz": 955498950.1953125,
+          "minimum_peak_to_noise_db": 11.146535211808931,
+          "minimum_occupancy": 0.967741935483871
+        },
+        {
+          "frequency_hz": 955569506.8359375,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955569506.8359375,
+          "second_peak_frequency_hz": 955569506.8359375,
+          "minimum_peak_to_noise_db": 8.619964507001024,
+          "minimum_occupancy": 0.7903225806451613
+        },
+        {
+          "frequency_hz": 955700000.0,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955700000.0,
+          "second_peak_frequency_hz": 955700000.0,
+          "minimum_peak_to_noise_db": 12.839600977565755,
+          "minimum_occupancy": 1.0
+        }
+      ],
+      "two_lo_off_matches": [
+        {
+          "frequency_hz": 955428271.484375,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955428271.484375,
+          "second_peak_frequency_hz": 955428271.484375,
+          "minimum_peak_to_noise_db": 11.42398754261074,
+          "minimum_occupancy": 1.0
+        },
+        {
+          "frequency_hz": 955498828.125,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955498828.125,
+          "second_peak_frequency_hz": 955498828.125,
+          "minimum_peak_to_noise_db": 9.772903584373664,
+          "minimum_occupancy": 0.9838709677419355
+        },
+        {
+          "frequency_hz": 955569262.6953125,
+          "separation_hz": 0.0,
+          "first_peak_frequency_hz": 955569262.6953125,
+          "second_peak_frequency_hz": 955569262.6953125,
+          "minimum_peak_to_noise_db": 9.422729975453997,
+          "minimum_occupancy": 0.8548387096774194
+        }
+      ],
+      "evaluation_truth": {
+        "target_frequency_hz": 955700000.0,
+        "target_tolerance_hz": 5000.0,
+        "target_recovered_in_two_lo_on": true,
+        "target_frequency_error_hz": 0.0,
+        "target_present_in_two_lo_off": false
+      },
+      "recording_pair_clean": false
+    }
+  ],
+  "same_recording_result": {
+    "clean_fft_sizes_on_this_recording": [
+      16384
+    ],
+    "preferred_fft_size_on_this_recording": 16384,
+    "selected_for_product": false,
+    "reason": "Tek açıklanmış frekansın açık/kapalı kaydı ürün profili seçmek için yeterli değildir; farklı frekans, bant genişliği, seviye ve kör holdout gerekir."
+  },
+  "limits": [
+    "Aday üretimi hedef frekansı kullanmaz; target truth yalnız sonuç değerlendirmesinde kullanılır.",
+    "Kayıt 955,7 MHz frekansı açıklandıktan sonra alındığı için kör kabul değildir.",
+    "Aynı fiziksel CI8 öneki bütün FFT profillerinde kullanılır; profiller arası RF ortamı değişmez.",
+    "Karşılaştırma host Python referans süresidir; FPGA kaynak/hız kabulü değildir.",
+    "Tek frekans ve tek yayın ailesi tüm 20 MHz–6 GHz algılama doğruluğunu veya Pd/Pfa'yı kanıtlamaz."
+  ],
+  "source_sha256": {
+    "algorithms/spectrum/dsp.py": "5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d",
+    "app/operator_console/integrated_spectrum.py": "2aa2759a61684e750a2e07ab35c7915534daa33cfe6c7b818b39e5442f053aa5",
+    "scripts/evaluate_st04_same_iq_resolution.py": "f783d9ad5f09e36150000dd30aef3348257e0a01db8de3eb22efe1f74999a9b5"
+  }
+}

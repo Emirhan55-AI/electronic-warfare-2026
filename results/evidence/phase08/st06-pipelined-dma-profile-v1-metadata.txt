@@ -1,0 +1,5 @@
+fpga_state=operating
+firmware=p0-st06-full-power.bin
+kernel=6.12.40-xilinx-g31626ef92ff1
+machine=armv7l
+run_count=5

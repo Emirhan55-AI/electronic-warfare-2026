@@ -1,5 +1,42 @@
 # KTR Gereksinim İzlenebilirliği
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
+5 Eylül 2026 ST-06 kart tanısı, KTR-4.1 / KTR-4.1-OPS / KTR-6 için geçici
+FPGA ve ARM ürün hizmeti üzerinde dijital I/Q işlevini sınamıştır. 256
+bağımsız gürültü karesinde doğrulanmış olay yok; dar ton 255/256, geniş bant
+249/256 karede doğrulanmıştır. Olaylar sıfır girişte sonlanmıştır. Ürün hızı
+286–290 kare/s olduğundan 488,28125 kare/s kapısı başarısızdır. Bu sonuç
+RF Pd/Pfa, soğuk açılış veya saha kabulü değildir. Önceki kaynakların hız
+kanıtları güncel ürüne aktarılmaz. Ham veri ve açık sorunlar:
+`results/evidence/phase08/st06-product-board-diagnostic-v1.json`.
+
 ## Güncel sinyal tespiti kapsamı
 
 1 Eylül 2026 bağlantısız alıcı bakımında `KTR-4.1-OPS-B0` operatör sunumu
@@ -128,6 +165,61 @@ karşılaştırma host kaba arama fizibilitesidir; FPGA tespiti, RF doğruluğu,
 Pd/Pfa, kısa yayın yakalama veya ST-04 kapanışı değildir. Doğrudan ZedBoard USB
 OTG bağlantısı anlık RF bandını genişleten bir özellik sayılmaz ve ayrı taşıma /
 PetaLinux / PS→PL kabulü olmadan seçilmiş mimari değildir.
+
+ST-04 tekrarlı çözünürlük ölçümünde 1 MHz, 100 kHz ve 25 kHz istenen hücre
+genişliklerinin her biri üç bağımsız süreçte üçer turla denenmiştir. 27/27
+RX-only tur 20 MHz–6 GHz aralığını sıfır boşlukla kapatmış, USB shortfall
+sayacı ölçüm sonunda sıfır kalmıştır. Tur başına süreç medyanları 0,768583 /
+0,764985 / 0,794019 saniye; ham çıktı medyanları yaklaşık 129 kB / 568 kB /
+2,00 MB'dır. Araç gerçek hücre genişliklerini 1 MHz / 98,03922 kHz /
+24,87562 kHz üretmiştir. Süre medyanlarının %3,80 içinde olması çözünürlük
+seçimi için RF doğruluk kanıtı değildir; yaklaşık 15,57 kat çıktı yükü aynı-IQ
+ve kontrollü kör yayın ölçümüyle birlikte değerlendirilecektir. Kaynak ve ham
+arşiv hashleri `results/evidence/phase08/st04-sweep-resolution-v1.json`
+içindedir. KTR-4.1'in Pd/Pfa ve bilinmeyen yayın kabulü açık kalır.
+
+Aynı-I/Q çözünürlük karşılaştırması iki LO'daki 955,7 MHz açık/kapalı fiziksel
+kayıtların aynı 0,507904 saniyelik bölümünü kullanmıştır. Truth frekansı aday
+üretimine verilmeden 4.096 ve 8.192 FFT hedefi kaçırmış; 16.384 FFT hedefi iki
+LO'da geri kazanmış ve kapalı kayıtta ortak aday üretmemiştir. 32.768 ve 65.536
+FFT hedefi geri kazanırken kapalı kayıtta sırasıyla bir ve üç ortak aday
+üretmiştir. Bu sonuç yalnız açıklanmış tek frekans kaydını karakterize eder;
+16.384 değeri farklı bant, yayın ailesi, seviye ve kör holdout tamamlanmadan
+ürün profili olarak yeniden seçilmiş sayılmaz. Kanıt
+`results/evidence/phase08/st04-same-iq-resolution-v1.json` dosyasındadır.
+
+ADR-0041 kontrollü kör deney mimarisini 20 MS/s / 25 kHz host tam bant adayı,
+8 MS/s / 16.384 FFT iki-LO host RX kanıtı ve 2 MS/s / 4.096 FFT FPGA/ARM
+ayrıntılı karar olarak kilitler. Mevcut RTL 991,375 kare/s işlevsel kapasiteyle
+2 MS/s gereksinimini karşılar; aynı 4.096-hücre zincirin doğrudan 8 MS/s
+gereksiniminin yalnız %50,76'sına ulaşır. Route tasarımının %90,30 LUT
+kullanımı yeni geniş FPGA yolunun ölçülmeden kabul edilmesine izin vermez.
+Karar kaydı
+`results/evidence/phase08/st04-hierarchical-detection-architecture-v1.json`
+dosyasındadır. ST-04 mimari seçimi tamamlanmıştır; profil ürün kabulü ve
+KTR-4.1 saha kabulü değildir.
+
+4 Eylül 2026 ST-05 çalışmasında dar bant OS-CFAR değiştirilmeden çok ölçekli
+geniş bant Python referansı seçilmiştir. Önceden dondurulmuş 15 sahne ve sahne
+başına 64 holdout dizisinin tamamı beklenen kapıları geçmiştir. Gürültü, kenar,
+tam-pencere tanımlanabilirliği, yakın/uzak güçlü-zayıf yayın, birleştirme ve
+zamansal aileler ayrı ölçülmüştür. Sonuç
+`results/evidence/phase08/st05-wideband-holdout-v2.json` içindedir. V2'de her
+gerçek desteğin ayrı adaya eşlenmesi zorunludur; eşikler ve holdout değişmemiştir.
+Bu kayıt
+ST-05 algoritma seçimini tamamlar; FPGA/ARM uygulaması, fiziksel RF Pd/Pfa,
+ürün bağlantısı ve KTR-4.1 saha kabulü değildir.
+
+5 Eylül 2026 ST-06 ürün uygulamasında Hann/FFT/UQ28.30 güç/OS-CFAR PL'de,
+sekiz karelik geniş bant karar ve temporal olay yaşam döngüsü ARM'da tutulmuştur.
+Routed Zynq-7020 tasarımı `%36,82` LUT ile 50 MHz zamanlamayı; dört derinlikli
+CPU0 DMA/CPU1 detector profili ise beş fiziksel tekrarda en az `551,2206
+kare/s` ile 2 MS/s kapasite kapısını geçmiştir. Güncel kaynak, XSA, bitstream,
+ARM ikilisi ve PetaLinux ürün imajı
+`results/evidence/phase08/st06-product-integration-v1.json` ile hash-bağlıdır;
+5.679 paket ve 6.090 tam imaj görevinin tamamı geçmiştir. Bu, KTR-4.1 için
+uygulama/derleme kanıtıdır. Aynı imajın kartta soğuk açılışı, fiziksel ürün
+hizmeti ve frekansı saklı kontrollü RF Pd/Pfa kabulü açık kalır.
 
 Eski fiziksel özetler yalnız kaydettikleri kaynak sürümünün kanıtıdır. Yeni
 tarama/Windows taşıma kaynakları için bu arşivlerin hash kapıları geçilmiş

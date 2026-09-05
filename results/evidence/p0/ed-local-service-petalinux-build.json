@@ -2,8 +2,8 @@
   "schema_version": 8,
   "recorded_at": "2026-09-04",
   "status": "passed",
-  "scope": "PetaLinux 2025.2 ADR-0040 P09 current ARM package, routed P0 XSA, automatic Ethernet bridge and cold-boot physical acceptance",
-  "current_source_status": "current_sources_petalinux_build_and_board_physical_passed",
+  "scope": "Historical PetaLinux 2025.2 ADR-0040 P09 image and its source-bound physical acceptance",
+  "current_source_status": "superseded_by_st06_product_image",
   "build": {
     "target": "p0-dma plus petalinux-image-minimal initramfs",
     "machine": "zynq_generic_7z020",
@@ -67,7 +67,7 @@
     "vivado_evidence": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
     "vivado_evidence_sha256": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745"
   },
-  "hardware_input_current": true,
+  "hardware_input_current": false,
   "adr0040_rtl_present_in_hardware_input": true,
   "device_tree": {
     "compatible": "teknofest,p0-axi-dma-1.0",
@@ -133,9 +133,16 @@
   "prior_physical_acceptance": "results/evidence/p0/adr0040-physical-acceptance.json",
   "cold_boot_acceptance": "results/evidence/p0/adr0040-physical-acceptance.json",
   "not_verified": [
+    "current ST-06 product image cold boot and physical service lifecycle",
     "blind live HackRF detection probability across the full operating range",
     "field false-alarm rate",
     "calibrated RF power accuracy"
   ],
-  "claim_boundary": "This build record and results/evidence/p0/adr0040-physical-acceptance.json prove that the current ADR-0040 ARM sources are packaged in the persistent P09 image and that the cold-booted ZedBoard digital Ethernet, DMA, FPGA candidate and ARM temporal path passes function and sustained 2 MS/s throughput. Blind live-RF detection probability, field false-alarm rate and calibrated RF power accuracy remain open."
+  "claim_boundary": "This historical record remains evidence only for the ADR-0040 P09 source and image hashes recorded here. The current ST-06 FPGA and ARM product image supersedes it and has separate build evidence; no P09 physical result is attributed to the new image.",
+  "superseded_by_hardware_input": {
+    "vivado_evidence": "results/evidence/phase08/st06-power-vivado-v1.json",
+    "xsa_sha256": "e7262a832f91c576f3e38e868e448fa5440980df91b558f25e4a183a2d1e1d29",
+    "system_bit_sha256": "fdb664667cd96245fb2b280ace89ac1589b95f751078b200d1c7b9d110e9305e",
+    "product_integration_evidence": "results/evidence/phase08/st06-product-integration-v1.json"
+  }
 }

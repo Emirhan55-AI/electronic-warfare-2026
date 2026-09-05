@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "recorded_at": "2026-09-04",
+  "recorded_at": "2026-09-05",
   "status": "passed",
   "scope": "host-only local service boundary",
   "toolchain": {
@@ -69,22 +69,24 @@
     "persistent_weak_sequence": "covered by tests/p0/test_p0_ed_pipeline_weak.py; not stimulated by this service fixture"
   },
   "source_sha256": {
-    "p0_ed_service.c": "a74bc15af2b164d9ddfc0f0c7f125088078920b0048c63296fd3a9c4379b6b31",
+    "p0_ed_service.c": "d6dcc5e4578bfb4cf6fd8066fb6354ada417265e5c030c1f6b27f1b07ba81f5f",
     "p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
-    "p0_ed_pipeline.c": "2c484aea427da9c9833382a0ab76ca1db51c37db1df4469f910978c00f732f6b",
+    "p0_ed_pipeline.c": "4a94c7d0692401947383405521b1bfbe0a02638bfef3c9173b94fcc6ba0b94f7",
     "p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
     "p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
     "p0_ed_throughput_run.c": "3fdd135fd94792060756a87d3daf8e5964878fe85d0e2394f8d1db490bf399ab",
     "p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
     "p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
     "p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
-    "p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
+    "p0_pl_os_cfar.c": "fe25ff08181291bf1e7b16449c383a8bf999575977397963da2ca0fae09ea870",
     "p0_persistent_weak.c": "be44c77926d5d6e3f36eedcf26da1c9b05aa76fe0ec8fd4ca5820fc8d934ff53",
+    "p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "p0_st05_stream.c": "9a1a74eed42a0815a3e53ab6b77345aa19e2b7260a5d2a7fd327159a098f4188",
     "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509"
   },
   "acceptance_source_sha256": {
-    "scripts/verify_p0_ed_service_linux.py": "e08eb2718053b015e05ceee7116698c273ad77ad93ff520492a95b3ccbc04f91",
-    "tests/p0/p0_ed_fake_dma_runtime.c": "6d16d8966c2de25c9069dd58273e56024ac40d1dc7b1f95c9ca03204d92fb7c1"
+    "scripts/verify_p0_ed_service_linux.py": "a5e8c25c747836aaed44c0b14adffa8cca6b43b0732b2d0ad17361a77e537d2c",
+    "tests/p0/p0_ed_fake_dma_runtime.c": "8d0ec0953dd60254692aed08457f9bd557e02f8e1204381fc901dc3aba16a04f"
   },
   "not_verified": [
     "Ethernet transport",

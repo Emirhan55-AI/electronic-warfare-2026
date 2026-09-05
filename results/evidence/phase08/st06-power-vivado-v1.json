@@ -1,0 +1,186 @@
+{
+  "schema": "phase08-st06-power-vivado-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-04T17:27:21.069765+00:00",
+  "transmit_enabled": false,
+  "product_algorithm_changed": false,
+  "st06_complete": false,
+  "build_variant": "st06-power-v2",
+  "tool": "Vivado v2025.2 build 6299465",
+  "target": "xc7z020clg484-1",
+  "clock_hz": 50000000,
+  "data_path": [
+    "AXI DMA MM2S CI8 input",
+    "UQ1.15 periodic Hann window",
+    "AMD 4096-point FFT",
+    "exact UQ28.30 linear power",
+    "OS-CFAR decision metadata",
+    "4096 natural-order AXI64 power words to PS"
+  ],
+  "dma": {
+    "input_frame_bytes": 8192,
+    "output_frame_bytes": 32768,
+    "output_words": 4096,
+    "output_word_bits": 64,
+    "maximum_length_bytes": 65535,
+    "output_fits_length_field": true
+  },
+  "synthesis": "PASS",
+  "implementation": "ROUTE_DESIGN_COMPLETE",
+  "route": {
+    "routable_nets": 28018,
+    "fully_routed_nets": 28018,
+    "routing_errors": 0
+  },
+  "timing": {
+    "setup_wns_ns": 0.372,
+    "setup_tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "hold_whs_ns": 0.018,
+    "hold_ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "check_timing_issue_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "post_route_resources": {
+    "slice_luts": {
+      "used": 19587,
+      "available": 53200,
+      "utilization_percent": 36.82
+    },
+    "slice_registers": {
+      "used": 17183,
+      "available": 106400,
+      "utilization_percent": 16.15
+    },
+    "block_ram_tiles": {
+      "used": 23.5,
+      "available": 140,
+      "utilization_percent": 16.79
+    },
+    "dsps": {
+      "used": 47,
+      "available": 220,
+      "utilization_percent": 21.36
+    }
+  },
+  "p03_comparison": {
+    "baseline_path": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
+    "baseline_sha256": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745",
+    "baseline_resources": {
+      "slice_luts": {
+        "used": 48040,
+        "available": 53200,
+        "utilization_percent": 90.3
+      },
+      "slice_registers": {
+        "used": 30360,
+        "available": 106400,
+        "utilization_percent": 28.53
+      },
+      "block_ram_tiles": {
+        "used": 73,
+        "available": 140,
+        "utilization_percent": 52.14
+      },
+      "dsps": {
+        "used": 77,
+        "available": 220,
+        "utilization_percent": 35.0
+      }
+    },
+    "resource_delta": {
+      "slice_luts": {
+        "absolute": -28453.0,
+        "relative_percent": -59.227726894254786
+      },
+      "slice_registers": {
+        "absolute": -13177.0,
+        "relative_percent": -43.40250329380764
+      },
+      "block_ram_tiles": {
+        "absolute": -49.5,
+        "relative_percent": -67.8082191780822
+      },
+      "dsps": {
+        "absolute": -30.0,
+        "relative_percent": -38.961038961038966
+      }
+    },
+    "baseline_setup_wns_ns": 0.199,
+    "baseline_hold_whs_ns": 0.01
+  },
+  "hann_memory_initialization": {
+    "status": "PASS",
+    "failure_count": 0,
+    "log_sha256": "3e91dc16516c7993a5be9421b965dc5dae0868ca1900a66642df5a0ddb640b57"
+  },
+  "drc_errors": 0,
+  "drc_critical_warnings": 0,
+  "drc_warnings": {
+    "DPIP-1": 18,
+    "DPOP-1": 7,
+    "DPOP-2": 14,
+    "PDCN-1569": 3,
+    "REQP-1839": 8,
+    "RTSTAT-10": 1
+  },
+  "methodology_warnings": {
+    "LUTAR-1": 3
+  },
+  "bitstream": {
+    "relative_path": "build/p0/st06-power-v2/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
+    "bytes": 4045693,
+    "sha256": "fdb664667cd96245fb2b280ace89ac1589b95f751078b200d1c7b9d110e9305e"
+  },
+  "hardware_platform": {
+    "relative_path": "build/p0/st06-power-v2/hardware/p0_system_50mhz.xsa",
+    "bytes": 1016178,
+    "xsa_sha256": "e7262a832f91c576f3e38e868e448fa5440980df91b558f25e4a183a2d1e1d29",
+    "hwh_sha256": "7fecf1c182ca78782b987ef870865a2ddd9d1e1dcb003dde6ebb1fa53deed821"
+  },
+  "report_sha256": {
+    "implementation-timing-summary.rpt": "c990e1f0f3d71801adc15ef8a9a31fa48213395cf18be8ea2d93a98bed48f725",
+    "implementation-utilization-summary.rpt": "ea85362f4740d0c5c50ce94ccfe5a36c04d450f8d8698804fe776876485baa97",
+    "route-status.rpt": "44e440c194a6bdb4e7c7bfbeb717bf97a59275d33622e8d87c754aec57ae201b",
+    "implementation-drc.rpt": "161e279dcc8f81b9a1b0ba5589eea79a053867ce5049cad174cf459ae4fe02e9",
+    "methodology.rpt": "2dc1d9706cdaa53880cc2ca9b33646d9846a4f230df5aef73bc0da22f6aafbca",
+    "check-timing.rpt": "aca354097659396101c8df008cd5ce4775624e7b4ac9a2fc84c1a0237557f616"
+  },
+  "source_sha256": {
+    "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv": "b96dde6d5a415fd3ed428a0b7e09d60441ac09c1708d2c6c44fb42a566de66d9",
+    "algorithms/fpga/phase06b/rtl/phase06b_pkg.sv": "a03b8af113cb502760a40afbe4a1cb02a16ccbd3f695aed831cc9788362482da",
+    "algorithms/fpga/phase06b/rtl/axis_hann_window.sv": "98b8edd684c26e309f05d80052bea528fbd77080ec5d621a40e211d72e09d2bd",
+    "datasets/fixtures/phase06b/hann-coefficients.mem": "d8c409a859dc5483e7cf4f63de885273fa0ea31d8ff423115feec12415ff7f3f",
+    "algorithms/fpga/phase06c/rtl/phase06c_pkg.sv": "f3150511107c4a7f2b568cdb3a83ef7a5100a295144e94d6975b221278c6b24e",
+    "algorithms/fpga/phase06c/rtl/axis_fft_wrapper.sv": "30e08fb10d2705daa1b64685087839dbe3b6c4343448080def5baae340600c5e",
+    "algorithms/fpga/phase06d/rtl/amd_xfft_adapter.sv": "20db16f85679aad817b771b7e2172143ec4ef3895e383b87362e6046399f6216",
+    "algorithms/fpga/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci": "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4",
+    "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv": "a8a62a27927d2471b9498dc1ad9ee8ade4baf1be1dc7865a0a0d9ff3447bc19e",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "07cc50b3027bc1beb0d2383e2a79dddbf20ee2c2b135b498215cd8b7d66a3c1b",
+    "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "fc7b606912c157313c273352fa0d35b167db5f13d5c7992e993808a9215b6020",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_top.sv": "bfdae3c533fa085712addf259b2d1e5e8626785799cd3571dca427a241bef463",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_bd.v": "a60792dc7be7abf78983c759f009055118c34988d2c1c5eb9db079b04ea8b75e",
+    "scripts/create_st06_power_vivado_project.tcl": "d68b74ae7c26a7a1be844b33bff0840791acad4b7bba222106bab09afba09362",
+    "scripts/run_p0_vivado.tcl": "ff14d2a356bc70f3bd53e9cfe83c1f1ee87c987739ac65116b2585fa8520d4e0",
+    "scripts/verify_st06_power_vivado.py": "2c3b07d36f9e687baf54f85083e9e5d9f1c774064a75c939cf369383c72c3947",
+    "results/evidence/p0/vivado-50mhz-adr0040-p03.json": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745"
+  },
+  "claim_boundary": [
+    "This proves synthesis, routed 50 MHz timing, resource use, bitstream and XSA generation for the isolated full-power FPGA option.",
+    "The generated image has not been loaded onto the board and is not the product image.",
+    "ARM execution time, DMA lifecycle, sustained throughput, live RF, Pd/Pfa and field acceptance remain open."
+  ]
+}

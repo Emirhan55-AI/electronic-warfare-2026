@@ -174,7 +174,15 @@ def test_live_response_decoder_exposes_persistent_weak_class() -> None:
     assert not event.single_frame_confident
 
 
-@pytest.mark.parametrize("event_flags", (0x00, 0x08, 0x11))
+def test_live_response_decoder_exposes_wideband_class() -> None:
+    decoded = decode_live_ed_response(_response(42, event_flags=0x11), 42)
+
+    event = decoded.active[0]
+    assert event.wideband_evidence
+    assert not event.weak_evidence
+
+
+@pytest.mark.parametrize("event_flags", (0x00, 0x08, 0x21))
 def test_live_response_decoder_rejects_invalid_candidate_class_flags(event_flags: int) -> None:
     with pytest.raises(TransportError) as failure:
         decode_live_ed_response(_response(42, event_flags=event_flags), 42)

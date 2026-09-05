@@ -35,6 +35,8 @@ SOURCE_PATHS = {
     "p0_os_cfar.c": P0 / "src/p0_os_cfar.c",
     "p0_pl_os_cfar.c": P0 / "src/p0_pl_os_cfar.c",
     "p0_persistent_weak.c": P0 / "src/p0_persistent_weak.c",
+    "p0_st05_wideband.c": P0 / "src/p0_st05_wideband.c",
+    "p0_st05_stream.c": P0 / "src/p0_st05_stream.c",
     "platforms/embedded/phase06j/src/phase06j_temporal.c": (
         P06J / "src/phase06j_temporal.c"
     ),
@@ -101,9 +103,16 @@ def verify() -> dict[str, object]:
                 P0 / "src/p0_multiscale_detector.c",
                 P0 / "src/p0_candidate_packet.c",
                 P0 / "src/p0_persistent_weak.c",
+                P0 / "src/p0_st05_wideband.c",
+                P0 / "src/p0_st05_stream.c",
                 P06J / "src/phase06j_temporal.c",
             ],
-            ['-DP0_ED_SERVICE_ACCOUNT="nobody"', '-DP0_ED_OPERATOR_GROUP="nogroup"', "-lm"],
+            [
+                '-DP0_ED_SERVICE_ACCOUNT="nobody"',
+                '-DP0_ED_OPERATOR_GROUP="nogroup"',
+                "-lm",
+                "-pthread",
+            ],
         )
         _compile(
             cc, client,

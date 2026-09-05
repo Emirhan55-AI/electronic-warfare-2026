@@ -1,0 +1,995 @@
+{
+  "schema": "phase08-st06-wideband-stream-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-04T13:36:50.744444+00:00",
+  "transmit_enabled": false,
+  "product_algorithm_changed": false,
+  "st06_stream_lifecycle_complete": true,
+  "st06_complete": false,
+  "compiler": "MSVC C11 /O2 /W4 /WX",
+  "state_bytes": 262152,
+  "streams": 120,
+  "frames_per_stream": 16,
+  "evaluated_sliding_windows": 1080,
+  "warmup_validity_errors": 0,
+  "stream_mismatches": 0,
+  "mismatch_details": [],
+  "reset_checks": 120,
+  "invalid_update_transaction_checks": 1,
+  "records": [
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 0,
+      "seed": 202609050000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 1,
+      "seed": 202609050001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 2,
+      "seed": 202609050002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 3,
+      "seed": 202609050003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 4,
+      "seed": 202609050004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 5,
+      "seed": 202609050005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 6,
+      "seed": 202609050006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "family": "negative",
+      "stream": 7,
+      "seed": 202609050007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 0,
+      "seed": 202609060000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 1,
+      "seed": 202609060001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 2,
+      "seed": 202609060002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 3,
+      "seed": 202609060003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 4,
+      "seed": 202609060004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 5,
+      "seed": 202609060005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 6,
+      "seed": 202609060006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "family": "negative",
+      "stream": 7,
+      "seed": 202609060007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 0,
+      "seed": 202609070000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 1,
+      "seed": 202609070001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 2,
+      "seed": 202609070002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 3,
+      "seed": 202609070003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 4,
+      "seed": 202609070004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 5,
+      "seed": 202609070005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 6,
+      "seed": 202609070006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "family": "negative",
+      "stream": 7,
+      "seed": 202609070007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 0,
+      "seed": 202609080000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 1,
+      "seed": 202609080001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 2,
+      "seed": 202609080002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 3,
+      "seed": 202609080003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 4,
+      "seed": 202609080004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 5,
+      "seed": 202609080005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 6,
+      "seed": 202609080006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "family": "positive",
+      "stream": 7,
+      "seed": 202609080007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 0,
+      "seed": 202609090000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 1,
+      "seed": 202609090001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 2,
+      "seed": 202609090002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 3,
+      "seed": 202609090003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 4,
+      "seed": 202609090004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 5,
+      "seed": 202609090005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 6,
+      "seed": 202609090006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "family": "positive",
+      "stream": 7,
+      "seed": 202609090007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 0,
+      "seed": 202609100000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 1,
+      "seed": 202609100001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 2,
+      "seed": 202609100002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 3,
+      "seed": 202609100003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 4,
+      "seed": 202609100004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 5,
+      "seed": 202609100005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 6,
+      "seed": 202609100006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "family": "positive",
+      "stream": 7,
+      "seed": 202609100007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 0,
+      "seed": 202609110000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 1,
+      "seed": 202609110001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 2,
+      "seed": 202609110002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 3,
+      "seed": 202609110003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 4,
+      "seed": 202609110004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 5,
+      "seed": 202609110005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 6,
+      "seed": 202609110006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "family": "positive",
+      "stream": 7,
+      "seed": 202609110007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 0,
+      "seed": 202609120000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 1,
+      "seed": 202609120001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 2,
+      "seed": 202609120002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 3,
+      "seed": 202609120003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 4,
+      "seed": 202609120004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 5,
+      "seed": 202609120005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 6,
+      "seed": 202609120006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "family": "separation",
+      "stream": 7,
+      "seed": 202609120007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 0,
+      "seed": 202609130000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 1,
+      "seed": 202609130001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 2,
+      "seed": 202609130002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 3,
+      "seed": 202609130003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 4,
+      "seed": 202609130004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 5,
+      "seed": 202609130005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 6,
+      "seed": 202609130006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "family": "separation",
+      "stream": 7,
+      "seed": 202609130007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 0,
+      "seed": 202609140000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 1,
+      "seed": 202609140001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 2,
+      "seed": 202609140002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 3,
+      "seed": 202609140003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 4,
+      "seed": 202609140004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 5,
+      "seed": 202609140005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 6,
+      "seed": 202609140006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "family": "merge",
+      "stream": 7,
+      "seed": 202609140007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 0,
+      "seed": 202609150000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 1,
+      "seed": 202609150001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 2,
+      "seed": 202609150002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 3,
+      "seed": 202609150003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 4,
+      "seed": 202609150004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 5,
+      "seed": 202609150005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 6,
+      "seed": 202609150006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "family": "edge",
+      "stream": 7,
+      "seed": 202609150007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 0,
+      "seed": 202609160000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 1,
+      "seed": 202609160001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 2,
+      "seed": 202609160002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 3,
+      "seed": 202609160003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 4,
+      "seed": 202609160004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 5,
+      "seed": 202609160005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 6,
+      "seed": 202609160006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "family": "edge",
+      "stream": 7,
+      "seed": 202609160007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 0,
+      "seed": 202609170000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 1,
+      "seed": 202609170001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 2,
+      "seed": 202609170002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 3,
+      "seed": 202609170003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 4,
+      "seed": 202609170004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 5,
+      "seed": 202609170005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 6,
+      "seed": 202609170006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "family": "identifiability",
+      "stream": 7,
+      "seed": 202609170007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 0,
+      "seed": 202609180000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 1,
+      "seed": 202609180001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 2,
+      "seed": 202609180002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 3,
+      "seed": 202609180003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 4,
+      "seed": 202609180004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 5,
+      "seed": 202609180005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 6,
+      "seed": 202609180006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "family": "temporal_negative",
+      "stream": 7,
+      "seed": 202609180007,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 0,
+      "seed": 202609190000,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 1,
+      "seed": 202609190001,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 2,
+      "seed": 202609190002,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 3,
+      "seed": 202609190003,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 4,
+      "seed": 202609190004,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 5,
+      "seed": 202609190005,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 6,
+      "seed": 202609190006,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "family": "temporal_positive",
+      "stream": 7,
+      "seed": 202609190007,
+      "windows": 9,
+      "matched_windows": 9
+    }
+  ],
+  "source_sha256": {
+    "algorithms/p0/st05_wideband.py": "d2228f8149911d1ac9cb97537e5a0c633dd2721970ad64309ff95fd06f745eb8",
+    "config/st05_wideband_evaluation.json": "79e2992f46e2abc7fa337406fda78051ba82ae71c8c003db0c881279e16013cb",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "31f28e65a289a5173e3fd026320f2dfdb185d472209d515ef83c2887f503de3f",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "a04584a3ba4285dd11218423fc9673d9e45b01d81202f0e3f2b25104c0f5fcf7",
+    "scripts/verify_st06_wideband_stream.py": "fd50adf4ba3108f1b9eaac5ee9110f04095449a8acdb0a58e390d20b7b45f739"
+  },
+  "claim_boundary": [
+    "This verifies a bounded eight-frame sliding C state and reset/error lifecycle on synthetic host data.",
+    "Frame order inside the ring is irrelevant because the selected detector uses commutative frame means and occupancy counts.",
+    "ARM timing, DMA integration, RTL routing, live RF, Pd/Pfa, and product acceptance remain open."
+  ]
+}

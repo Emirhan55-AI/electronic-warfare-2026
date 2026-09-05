@@ -1,0 +1,111 @@
+{
+  "schema": "phase08-st06-arm-algorithm-timing-v1",
+  "status": "failed",
+  "generated_at_utc": "2026-09-04T17:46:48.337502+00:00",
+  "transmit_enabled": false,
+  "measurement_scope": "isolated_arm_detector_kernel",
+  "arm_algorithm_kernel_measured": true,
+  "dma_transfer_included": false,
+  "pl_full_power_image_loaded": false,
+  "product_algorithm_changed": false,
+  "st06_complete": false,
+  "board": {
+    "model": "Zynq Zed Development Board",
+    "architecture": "armv7l",
+    "cpu": "dual ARM Cortex-A9; ARMv7 part 0xc09",
+    "cpu_features_observed": "vfp edsp neon vfpv3 vfpd32",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "fpga_manager_state": "operating",
+    "cpu_frequency": "not exposed by this image",
+    "affinity": "scheduler default; taskset unavailable"
+  },
+  "build": {
+    "compiler": "arm-linux-gnueabihf-gcc 11.4.0",
+    "flags": [
+      "-std=c11",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-mcpu=cortex-a9",
+      "-mfpu=neon",
+      "-mfloat-abi=hard"
+    ],
+    "baseline_binary_sha256": "920b38c03627c8be557260fe2b6077c19c92ee02bc16846c2bd84eef7009f43b",
+    "optimized_binary_sha256": "d043ea18f2b6339ed37d02b5e0f1cd57e9beee95c7a7369c0d5b652aa8ce5f2b"
+  },
+  "deadline": {
+    "sample_rate_hz": 2000000,
+    "fft_size": 4096,
+    "required_frames_per_second": 488.28125,
+    "frame_interval_ms": 2.048
+  },
+  "baseline_context": {
+    "capture": "results/evidence/phase08/st06-arm-benchmark-v1-runs.jsonl",
+    "capture_sha256": "0eb8ef666ba1ba055f67cb04f72f402f25dc59062f803949fe9a15725868521b",
+    "wide_signal": {
+      "minimum_frames_per_second": 62.893892163,
+      "mean_frames_per_second": 63.57939094339999,
+      "maximum_frames_per_second": 64.201244515,
+      "mean_of_mean_latency_ms": 15.729321250199998,
+      "maximum_p95_latency_ms": 15.989256,
+      "maximum_p99_latency_ms": 16.319473,
+      "maximum_observed_latency_ms": 16.385286
+    }
+  },
+  "optimized_measurement": {
+    "capture": "results/evidence/phase08/st06-arm-benchmark-v3-runs.jsonl",
+    "capture_sha256": "a4daa29ff9d259c93d1b5b8e0c63544eb08b4dd7495bf931ae8134ff678cf784",
+    "run_count": 5,
+    "noise": {
+      "minimum_frames_per_second": 895.1011989,
+      "mean_frames_per_second": 905.4404954058,
+      "maximum_frames_per_second": 922.558361006,
+      "mean_of_mean_latency_ms": 1.1045468766,
+      "maximum_p95_latency_ms": 1.165674,
+      "maximum_p99_latency_ms": 1.221414,
+      "maximum_observed_latency_ms": 1.542822
+    },
+    "wide_signal": {
+      "minimum_frames_per_second": 772.118655407,
+      "mean_frames_per_second": 776.576501173,
+      "maximum_frames_per_second": 781.465406189,
+      "mean_of_mean_latency_ms": 1.2877232816,
+      "maximum_p95_latency_ms": 1.356348,
+      "maximum_p99_latency_ms": 1.396092,
+      "maximum_observed_latency_ms": 1.79325
+    },
+    "minimum_real_time_margin": 1.581299006273536,
+    "worst_case_remaining_budget_ms": 0.25475000000000003,
+    "wide_signal_mean_speedup_over_baseline": 12.214830216206288
+  },
+  "equivalence_evidence": {
+    "c": "results/evidence/phase08/st06-wideband-c-equivalence-v3.json",
+    "uq28_30": "results/evidence/phase08/st06-wideband-uq28-30-v4.json",
+    "stream": "results/evidence/phase08/st06-wideband-stream-v3.json",
+    "passed": false
+  },
+  "gates": {
+    "decision_equivalence": false,
+    "isolated_arm_kernel_real_time": true,
+    "full_power_dma_integration": false,
+    "sustained_end_to_end_real_time": false,
+    "product_lifecycle_integration": false
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "4b07e5ebd34ad5a893b9a6789bceed98e7704f62e53bbefdc8e5f5cfe203feac",
+    "platforms/embedded/p0/src/p0_st05_benchmark.c": "470feea3797e1ed38155a586c73b1f5e17f132ab1d56e288f907f2fe24217d6a",
+    "scripts/verify_st06_arm_benchmark.py": "543a2bbf05bc217fa36cb7f9ff5aa874f346f8de59dbd2c89dc58a2b2211deee"
+  },
+  "claim_boundary": [
+    "Ölçüm gerçek ZedBoard ARM çekirdeğinde yapılmıştır.",
+    "Ölçülen süre yalnızca sekiz karelik kayan ST-05 karar çekirdeğidir.",
+    "32 KiB FPGA güç çerçevesinin DMA aktarımı ve ürün servis döngüsü bu ölçüme dahil değildir.",
+    "Bu kayıt FPGA bit akışının karta yüklendiğini veya ST-06'nın tamamlandığını kanıtlamaz.",
+    "Baz sürüm yalnızca aynı kartta ölçülen tarihsel binary karşılaştırmasıdır; kabul kararı optimize kaynak ve eşdeğerlik kanıtlarına bağlıdır."
+  ]
+}

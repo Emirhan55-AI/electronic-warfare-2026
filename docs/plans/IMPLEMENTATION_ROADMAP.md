@@ -1,5 +1,40 @@
 # Uygulama Yol Haritası
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
+5 Eylül 2026 ST-06 fiziksel tanı güncellemesi: geçici FPGA/ARM hizmeti/ağ
+köprüsü yüklenmiş ve dijital dar/geniş olay yaşam döngüsü gözlenmiştir.
+Ürün hızı 286–290 kare/s ile gerekli 488,28125 kare/s kapısını geçememiştir.
+ARM ürün yolu alt adım profili ve eşdeğer optimizasyon sıradaki iştir.
+SD soğuk açılışı, sürekli RX ve kör RF kapıları açıktır; sonraki faza geçilmez.
+Kanıt: `results/evidence/phase08/st06-product-board-diagnostic-v1.json`.
+
 Fazlar sıralıdır; bir fazın çıkış kapısı doğrulanmadan ve kullanıcı onayı alınmadan sonraki faza geçilmez.
 
 31 Ağustos 2026 kullanıcı yönlendirmesiyle mevcut sinyal tespiti ve onun
@@ -409,10 +444,80 @@ saniye; üç gözlemli mevcut 8 MS/s kaba plan ise 14,696448 saniye alt sınır�
 yol yalnız kaba host adayı, 2 MHz yol FPGA/ARM ayrıntılı kararıdır. İlk tur
 Pd/Pfa, kısa yayın veya FPGA kabulü değildir. Kanıt
 `results/evidence/phase08/st04-search-profile-baseline-v1.json` dosyasındadır.
-ST-04 kapanmadan ST-05/06 algoritma değişikliği ve ST-07 ürün taraması
-başlatılmaz. ZedBoard USB OTG doğrudan alım olasılığı bant genişliği kazanımı
-olarak varsayılmaz; yalnız PC→Ethernet taşımasını kaldırabilecek alternatif
-topoloji olarak ayrıca ölçülecektir.
+Ardından 1 MHz, 100 kHz ve 25 kHz istenen güç hücresi genişliklerinin her biri
+üç bağımsız süreçte üçer tam bant turuyla ölçülmüştür. 27/27 tur 20 MHz–6 GHz
+aralığını boşluksuz kapatmış ve ölçüm sonundaki USB shortfall sayacı sıfır
+kalmıştır. Süreç medyanları tur başına sırasıyla 0,768583 / 0,764985 / 0,794019
+saniyedir ve üçü arasındaki yayılım %3,80'dir; ham CSV medyanı ise yaklaşık
+129 kB / 568 kB / 2,00 MB olmuştur. `hackrf_sweep` gerçek hücre genişliklerini
+sırasıyla 1 MHz / 98,03922 kHz / 24,87562 kHz olarak üretmiştir. Bu zaman
+yakınlığı bir RF tespit profili seçmez; ince çözünürlüğün yaklaşık 15,57 kat
+çıktı yükü aynı kayıt ve kontrollü kör yayın sonuçlarıyla birlikte
+değerlendirilecektir. Kaynak bağlı rapor ve ham arşiv
+`results/evidence/phase08/st04-sweep-resolution-v1.json` ile `.zip`
+dosyalarındadır.
+Kayıtlı aynı-I/Q karşılaştırması, 955,7 MHz açık/kapalı fiziksel kaydın aynı
+0,507904 saniyelik öneklerini iki LO'da 4.096, 8.192, 16.384, 32.768 ve 65.536
+FFT uzunluklarıyla işlemiştir. Aday üretimi truth frekansını kullanmamıştır;
+truth yalnız sonradan eşleştirme için kullanılmıştır. 4.096 ve 8.192 hedefi
+iki LO'da geri kazanamamış, 16.384 hedefi iki LO'da geri kazanıp kapalı kayıtta
+ortak aday üretmemiştir. 32.768 ve 65.536 hedefi geri kazanırken kapalı kayıtta
+sırasıyla bir ve üç iki-LO ortak aday üretmiştir. Bu tek açıklanmış frekans
+kaydında 16.384 temiz tek sonuçtur; farklı bant/yayın/seviye ve kör holdout
+olmadan ürün seçimi değildir. Kanıt
+`results/evidence/phase08/st04-same-iq-resolution-v1.json` dosyasındadır.
+ADR-0041 kontrollü kör deney için hiyerarşik mimariyi kilitler: 20 MS/s / 25
+kHz `hackrf_sweep` host tam bant adayı, 8 MS/s / 16.384 FFT iki-LO host RX
+kanıtı ve mevcut 2 MS/s / 4.096 FFT FPGA/ARM ayrıntılı kararı. Mevcut RTL'nin
+991,375 kare/s işlevsel kapasitesi 2 MS/s gereksiniminin 2,03 katıdır; aynı
+4.096-hücre zincirin doğrudan 8 MS/s kullanımı için gereken 1.953,125 kare/s
+değerinin yalnız %50,76'sını karşılar. Tam tasarım LUT kullanımının %90,30
+olması da kanıtsız geniş FPGA ekini riskli kılar. Mimari yalnız kontrollü kör
+deney için seçilmiştir; kaynak bağlı karar
+`results/evidence/phase08/st04-hierarchical-detection-architecture-v1.json`
+dosyasındadır. Python referansı, ölçülmüş çözünürlük/zaman, aynı-I/Q sonucu ve
+RTL kaynak/hız sınırı birlikte bulunduğundan **ST-04 mimari seçimi
+tamamlanmıştır**. Kontrollü kör RF doğruluğu ST-08'e kadar açık kalır.
+ST-04 tamamlandığından sıradaki teknik iş ST-05'tir; kullanıcı faz onayı olmadan
+başlatılmaz. ST-07 ürün taraması ST-05/06 doğrulaması tamamlanmadan başlatılmaz.
+ZedBoard USB OTG doğrudan alım olasılığı bant genişliği kazanımı olarak
+varsayılmaz; yalnız PC→Ethernet taşımasını kaldırabilecek alternatif topoloji
+olarak ayrıca ölçülecektir.
+
+Kullanıcının 4 Eylül 2026 onayıyla ST-05 başlatılmış ve önceden dondurulan 960
+dizilik sentetik holdout ilk çalıştırmada geçmiştir. Dar bant OS-CFAR korunmuş;
+geniş bant için sekiz kareli, 32/64/128/256 hücreli enerji, iki bağımsız flank,
+sınır ve `%75` zaman doluluğu bulunan Python referansı seçilmiştir. Kenarda
+referans yoksa yeniden ayar istenir; tek pencere tam doluyken mutlak `yayın yok`
+denmez. ADR-0042 ve `st05-wideband-holdout-v2.json` bu seçimi kaynaklara bağlar.
+V2 yalnız aday-gerçek eşlemesini bire bir yaparak doğrulayıcıyı sıkılaştırır;
+sahneler ve eşikler değiştirilmemiştir.
+**ST-05 tamamlanmıştır.** Ürün algoritması değiştirilmemiştir; C/PS, RTL/PL,
+sabit nokta, kaynak/zamanlama ve kart eşdeğerliği ST-06'dır ve ayrıca kullanıcı
+faz onayı gerektirir.
+
+Kullanıcının ST-06 onayıyla 5 Eylül 2026 ürün görev paylaşımı kaynak sınırına
+göre yeniden kurulmuştur. PL; periyodik Hann, 4.096 nokta FFT, exact UQ28.30
+güç ve temel OS-CFAR hücre kararını üretir. PS/ARM; 32 KiB işaretli güç
+karesini çözer, sekiz karelik çok ölçekli geniş bant kararını, dar/geniş
+örtüşme bastırmasını ve tek temporal olay yaşam döngüsünü yürütür. Bu ayrım
+ürün algoritmasının eşiklerini değiştirmemiştir. Zynq-7020 post-route
+kullanımında LUT 48.040'tan 19.587'ye (`%90,30` → `%36,82`), BRAM 73'ten
+23,5 tile'a ve DSP 77'den 47'ye düşmüş; 50 MHz setup WNS `+0,372 ns`, hold
+WHS `+0,018 ns` ve failing endpoint sayısı sıfır olmuştur.
+
+Fiziksel kartta sınırlı dört yuvalı CPU0 DMA/CPU1 detector profili beş adet
+2.000-kare koşuda `551,2206–577,6820 kare/s` ölçmüş; 2 MS/s için gereken
+`488,28125 kare/s` alt sınırına karşı en düşük marj `1,1289`, en yüksek toplam
+çift çekirdek kullanımı `%58,20` olmuştur. Güncel kaynaklar ve aynı routed XSA
+PetaLinux 2025.2 ile paket ve tam imaj düzeyinde sırasıyla 5.679/5.679 ve
+6.090/6.090 görevde tekrar geçmiştir. Oluşan `image.ub` içindeki gerçek
+`p0-ed-service` SHA-256 değeri hazırlanan ARM ikilisiyle eşleşir; güncel
+bitstream de Vivado kanıtıyla eşleşir. Kaynak bağlı bütünlük kaydı
+`results/evidence/phase08/st06-product-integration-v1.json` dosyasındadır.
+Bu kayıt derleme ve paketleme kapısını kapatır; aynı imajın kartta soğuk açılışı,
+fiziksel ürün hizmeti yaşam döngüsü ve frekansı saklı kontrollü RF Pd/Pfa
+kabulü henüz yapılmadığından ST-06 tamamlanmış sayılmaz.
 
 Kullanıcının 2026-08-30 onayıyla doğrulanmış canlı alım yolu ürün uygulamasına
 bağlanmıştır. Operatörün seçtiği izleme merkez frekansı için HackRF 1,5 MHz

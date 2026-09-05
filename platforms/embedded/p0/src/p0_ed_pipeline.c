@@ -1,6 +1,7 @@
 #include "p0_ed_pipeline.h"
 
 #include <errno.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -103,6 +104,127 @@ static void sort_weak_nominations_by_bin(p0_weak_nomination_v1 *selected,
     }
 }
 
+static int regions_overlap(const p0_candidate_region_t *narrow,
+                           const p0_st05_candidate_t *wide)
+{
+    return narrow->start_bin <= wide->end_bin &&
+           wide->start_bin <= narrow->end_bin;
+}
+
+static int narrow_overlaps_wideband(
+    const p0_candidate_region_t *narrow,
+    const p0_st05_result_t *wideband)
+{
+    uint32_t index;
+
+    for (index = 0U; index < wideband->candidate_count; ++index) {
+        if (regions_overlap(narrow, &wideband->candidates[index]))
+            return 1;
+    }
+    return 0;
+}
+
+static int append_wideband_candidates(
+    p0_ed_pipeline_t *pipeline,
+    const p0_st05_result_t *wideband,
+    size_t *candidate_count,
+    size_t *first_wideband,
+    uint16_t *dropped_narrow)
+{
+    size_t read_index;
+    size_t write_index = 0U;
+    uint32_t wide_index;
+
+    if (wideband->candidate_count > PHASE06I_MAX_CANDIDATES)
+        return -1;
+    for (read_index = 0U; read_index < *candidate_count; ++read_index) {
+        if (!narrow_overlaps_wideband(&pipeline->candidates[read_index], wideband))
+            pipeline->candidates[write_index++] = pipeline->candidates[read_index];
+    }
+    while (write_index + wideband->candidate_count > PHASE06I_MAX_CANDIDATES) {
+        size_t weakest = 0U;
+        double weakest_ratio;
+
+        if (write_index == 0U)
+            return -1;
+        weakest_ratio = pipeline->candidates[0].noise_power_per_bin > 0.0
+                            ? pipeline->candidates[0].peak_power /
+                                  pipeline->candidates[0].noise_power_per_bin
+                            : pipeline->candidates[0].peak_power;
+        for (read_index = 1U; read_index < write_index; ++read_index) {
+            double ratio = pipeline->candidates[read_index].noise_power_per_bin > 0.0
+                               ? pipeline->candidates[read_index].peak_power /
+                                     pipeline->candidates[read_index].noise_power_per_bin
+                               : pipeline->candidates[read_index].peak_power;
+            if (ratio < weakest_ratio) {
+                weakest = read_index;
+                weakest_ratio = ratio;
+            }
+        }
+        memmove(&pipeline->candidates[weakest],
+                &pipeline->candidates[weakest + 1U],
+                (write_index - weakest - 1U) * sizeof(*pipeline->candidates));
+        --write_index;
+        if (*dropped_narrow != UINT16_MAX)
+            ++*dropped_narrow;
+    }
+    *first_wideband = write_index;
+    for (wide_index = 0U; wide_index < wideband->candidate_count; ++wide_index) {
+        const p0_st05_candidate_t *source = &wideband->candidates[wide_index];
+        p0_candidate_region_t *target = &pipeline->candidates[write_index++];
+
+        target->start_bin = source->start_bin;
+        target->end_bin = source->end_bin;
+        target->peak_bin = source->peak_bin;
+        target->peak_power = source->peak_power;
+        target->noise_power_per_bin = source->reference_power_per_bin;
+        target->threshold_power = source->threshold_power_per_bin;
+    }
+    *candidate_count = write_index;
+    return 0;
+}
+
+static int rounded_uq30(double value, unsigned int width, uint64_t *encoded)
+{
+    double scaled = value * (double)(UINT64_C(1) << 30U);
+
+    if (encoded == NULL || !isfinite(scaled) || scaled < 0.0 || width > 63U ||
+        scaled >= (double)(UINT64_C(1) << width))
+        return -1;
+    *encoded = (uint64_t)floor(scaled + 0.5);
+    return 0;
+}
+
+static int mark_wideband_records(
+    p0_ed_pipeline_t *pipeline,
+    const p0_st05_result_t *wideband,
+    size_t first_wideband)
+{
+    uint32_t index;
+
+    for (index = 0U; index < wideband->candidate_count; ++index) {
+        phase06i_candidate_v1 *record =
+            &pipeline->candidate_records[first_wideband + index];
+        uint64_t peak_power;
+        uint64_t noise_power;
+        uint64_t threshold_power;
+
+        if (rounded_uq30(wideband->candidates[index].peak_power, 58U,
+                         &peak_power) != 0 ||
+            rounded_uq30(wideband->candidates[index].reference_power_per_bin,
+                         58U, &noise_power) != 0 ||
+            rounded_uq30(wideband->candidates[index].threshold_power_per_bin,
+                         62U, &threshold_power) != 0)
+            return -1;
+        record->pfa_select = 0U;
+        record->flags |= PHASE06I_RECORD_WIDEBAND_EVIDENCE;
+        record->peak_power_uq28_30 = peak_power;
+        record->regional_noise_uq28_30 = noise_power;
+        record->threshold_uq32_30 = threshold_power;
+    }
+    return 0;
+}
+
 int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
 {
     if (pipeline == NULL) {
@@ -124,16 +246,24 @@ int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
     pipeline->weak_backup = malloc(p0_persistent_weak_state_bytes());
     pipeline->weak_nominations = calloc(P0_WEAK_MAX_NOMINATIONS,
                                         sizeof(*pipeline->weak_nominations));
+    pipeline->wideband_stream_state_bytes = p0_st05_stream_state_bytes();
+    pipeline->wideband_stream_state =
+        calloc(1U, pipeline->wideband_stream_state_bytes);
+    pipeline->wideband_stream_backup =
+        malloc(pipeline->wideband_stream_state_bytes);
     if (pipeline->power == NULL || pipeline->raw_power == NULL || pipeline->noise == NULL ||
         pipeline->threshold == NULL || pipeline->detections == NULL ||
         pipeline->candidates == NULL || pipeline->candidate_records == NULL ||
         pipeline->temporal_state == NULL || pipeline->temporal_backup == NULL ||
         pipeline->weak_state == NULL || pipeline->weak_backup == NULL ||
-        pipeline->weak_nominations == NULL ||
+        pipeline->weak_nominations == NULL || pipeline->wideband_stream_state == NULL ||
+        pipeline->wideband_stream_backup == NULL ||
         p0_os_cfar_canonical_config(&pipeline->config) != P0_OS_CFAR_OK ||
         phase06j_state_init(pipeline->temporal_state, phase06j_state_bytes()) != PHASE06J_OK ||
         p0_persistent_weak_init(pipeline->weak_state,
                                 p0_persistent_weak_state_bytes()) != 0 ||
+        p0_st05_stream_init(pipeline->wideband_stream_state,
+                            pipeline->wideband_stream_state_bytes) != P0_ST05_OK ||
         p0_parameter_runtime_init(&pipeline->parameter_runtime) != 0) {
         p0_ed_pipeline_release(pipeline);
         errno = ENOMEM;
@@ -147,6 +277,8 @@ void p0_ed_pipeline_release(p0_ed_pipeline_t *pipeline)
     if (pipeline == NULL)
         return;
     p0_parameter_runtime_release(&pipeline->parameter_runtime);
+    free(pipeline->wideband_stream_backup);
+    free(pipeline->wideband_stream_state);
     free(pipeline->weak_nominations);
     free(pipeline->weak_backup);
     free(pipeline->weak_state);
@@ -164,16 +296,23 @@ void p0_ed_pipeline_release(p0_ed_pipeline_t *pipeline)
 
 int p0_ed_pipeline_reset(p0_ed_pipeline_t *pipeline)
 {
-    if (pipeline == NULL || pipeline->temporal_state == NULL) {
+    if (pipeline == NULL || pipeline->temporal_state == NULL ||
+        pipeline->wideband_stream_state == NULL) {
         errno = EINVAL;
         return -1;
     }
     p0_parameter_runtime_reset(&pipeline->parameter_runtime);
     memset(&pipeline->previous_weak_result, 0, sizeof(pipeline->previous_weak_result));
+    pipeline->wideband_last_frame_id = 0U;
+    pipeline->wideband_has_frame_id = 0;
     if (phase06j_state_reset(pipeline->temporal_state, phase06j_state_bytes()) != PHASE06J_OK)
         return -1;
-    return p0_persistent_weak_init(pipeline->weak_state,
-                                   p0_persistent_weak_state_bytes());
+    if (p0_persistent_weak_init(pipeline->weak_state,
+                                p0_persistent_weak_state_bytes()) != 0)
+        return -1;
+    return p0_st05_stream_reset(pipeline->wideband_stream_state,
+                                pipeline->wideband_stream_state_bytes) == P0_ST05_OK
+               ? 0 : -1;
 }
 
 static int weak_candidates_overlap(
@@ -290,71 +429,147 @@ static int append_persistent_weak(
     return 0;
 }
 
-int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
+static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
                            const uint8_t *natural_power, size_t power_bytes,
-                           phase06j_frame_result_v1 *result, size_t *raw_candidate_count)
+                           phase06j_frame_result_v1 *result, size_t *raw_candidate_count, int decoded)
 {
     size_t candidate_count = 0U;
-    size_t recovery_count = 0U;
+    size_t first_wideband = 0U;
+    uint16_t dropped_narrow = 0U;
+    p0_st05_result_t wideband;
+    int wideband_valid = 0;
     int pl_decisions_present = 0;
+    int context_reset;
+    uint32_t previous_frame_id;
+    int previous_has_frame_id;
     int code;
 
     if (pipeline == NULL || pipeline->temporal_state == NULL ||
-        pipeline->temporal_backup == NULL || natural_power == NULL || result == NULL ||
-        raw_candidate_count == NULL || power_bytes != P0_POWER_FRAME_BYTES) {
+        pipeline->temporal_backup == NULL || pipeline->wideband_stream_state == NULL ||
+        pipeline->wideband_stream_backup == NULL || natural_power == NULL ||
+        result == NULL || raw_candidate_count == NULL ||
+        power_bytes != P0_POWER_FRAME_BYTES) {
         errno = EINVAL;
         return -1;
     }
+    previous_frame_id = pipeline->wideband_last_frame_id;
+    previous_has_frame_id = pipeline->wideband_has_frame_id;
+    context_reset = reset_requested ||
+                    (pipeline->wideband_has_frame_id &&
+                     frame_id != pipeline->wideband_last_frame_id + UINT32_C(1));
     memcpy(pipeline->temporal_backup, pipeline->temporal_state, phase06j_state_bytes());
-    if (reset_requested && p0_ed_pipeline_reset(pipeline) != 0) {
-        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
+    if (context_reset) {
+        memcpy(pipeline->wideband_stream_backup, pipeline->wideband_stream_state,
+               pipeline->wideband_stream_state_bytes);
+    } else if (p0_st05_stream_checkpoint_save(
+                   pipeline->wideband_stream_state, pipeline->wideband_stream_state_bytes,
+                   pipeline->wideband_stream_backup,
+                   pipeline->wideband_stream_state_bytes) != P0_ST05_OK) {
+        errno = EPROTO;
         return -1;
     }
+    if (context_reset && p0_ed_pipeline_reset(pipeline) != 0)
+        goto rollback;
+    if (decoded < 0) {
     code = p0_pl_os_cfar_decode(natural_power, power_bytes, pipeline->raw_power,
                                 pipeline->power, pipeline->detections,
                                 &pl_decisions_present);
-    if (code != P0_PL_OS_CFAR_OK) {
-        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
-        errno = EPROTO;
-        return -1;
+    if (code != P0_PL_OS_CFAR_OK)
+        goto protocol_error;
+    } else {
+        pl_decisions_present = decoded;
     }
     if (pl_decisions_present) {
-        code = p0_multiscale_process_pl_trusted(
+        code = p0_os_cfar_group_detections_trusted(
             pipeline->power, P0_FRAME_BINS, &pipeline->config,
             pipeline->detections, pipeline->noise, pipeline->threshold,
             pipeline->candidates, PHASE06I_MAX_CANDIDATES,
-            &candidate_count, &recovery_count);
+            &candidate_count);
     } else {
-        code = p0_multiscale_process(
+        code = p0_os_cfar_process(
             pipeline->power, P0_FRAME_BINS, &pipeline->config,
             pipeline->detections, pipeline->noise, pipeline->threshold,
             pipeline->candidates, PHASE06I_MAX_CANDIDATES,
-            &candidate_count, &recovery_count);
+            &candidate_count);
     }
-    if (code != P0_MULTISCALE_OK) {
-        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
-        errno = EPROTO;
-        return -1;
+    if (code != P0_OS_CFAR_OK)
+        goto protocol_error;
+    code = p0_st05_stream_update(
+        pipeline->wideband_stream_state, pipeline->wideband_stream_state_bytes,
+        pipeline->power, P0_FRAME_BINS, &wideband, &wideband_valid);
+    if (code != P0_ST05_OK)
+        goto protocol_error;
+    if (wideband_valid && wideband.candidate_count != 0U) {
+        if (append_wideband_candidates(
+                pipeline, &wideband, &candidate_count, &first_wideband,
+                &dropped_narrow) != 0)
+            goto protocol_error;
+    } else {
+        first_wideband = candidate_count;
     }
     code = p0_candidate_records_encode(
         pipeline->raw_power, P0_FRAME_BINS, &pipeline->config,
         pipeline->candidates, candidate_count, pipeline->candidate_records,
         PHASE06I_MAX_CANDIDATES);
-    if (code != P0_CANDIDATE_PACKET_OK) {
-        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
-        errno = EPROTO;
-        return -1;
-    }
+    if (code != P0_CANDIDATE_PACKET_OK)
+        goto protocol_error;
+    if (wideband_valid && wideband.candidate_count != 0U &&
+        mark_wideband_records(pipeline, &wideband, first_wideband) != 0)
+        goto protocol_error;
     code = phase06j_process_candidates(
         pipeline->temporal_state, phase06j_state_bytes(), frame_id,
         pipeline->candidate_records, (uint16_t)candidate_count, result);
-    if (code != PHASE06J_OK) {
-        memcpy(pipeline->temporal_state, pipeline->temporal_backup, phase06j_state_bytes());
-        errno = EPROTO;
-        return -1;
-    }
+    if (code != PHASE06J_OK)
+        goto protocol_error;
+    if ((uint32_t)result->dropped_candidates + dropped_narrow > UINT16_MAX)
+        result->dropped_candidates = UINT16_MAX;
+    else
+        result->dropped_candidates =
+            (uint16_t)(result->dropped_candidates + dropped_narrow);
+    if (context_reset)
+        result->reset_applied = 1U;
+    pipeline->wideband_last_frame_id = frame_id;
+    pipeline->wideband_has_frame_id = 1;
     *raw_candidate_count = candidate_count;
     return 0;
+
+protocol_error:
+    errno = EPROTO;
+rollback:
+    memcpy(pipeline->temporal_state, pipeline->temporal_backup,
+           phase06j_state_bytes());
+    if (context_reset) {
+        memcpy(pipeline->wideband_stream_state, pipeline->wideband_stream_backup,
+               pipeline->wideband_stream_state_bytes);
+    } else {
+        (void)p0_st05_stream_checkpoint_restore(
+            pipeline->wideband_stream_state, pipeline->wideband_stream_state_bytes,
+            pipeline->wideband_stream_backup, pipeline->wideband_stream_state_bytes);
+    }
+    pipeline->wideband_last_frame_id = previous_frame_id;
+    pipeline->wideband_has_frame_id = previous_has_frame_id;
+    return -1;
+}
+
+int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
+                           const uint8_t *natural_power, size_t power_bytes,
+                           phase06j_frame_result_v1 *result, size_t *raw_candidate_count)
+{
+    return process_power(pipeline, frame_id, reset_requested, natural_power, power_bytes,
+                         result, raw_candidate_count, -1);
+}
+
+/* Internal trusted path: service has decoded and validated the slot already. */
+int p0_ed_pipeline_process_decoded_trusted(p0_ed_pipeline_t *pipeline, uint32_t frame_id,
+    int reset_requested, int pl_decisions_present, phase06j_frame_result_v1 *result,
+    size_t *raw_candidate_count)
+{
+    if (pipeline == NULL || (pl_decisions_present != 0 && pl_decisions_present != 1)) {
+        errno = EINVAL;
+        return -1;
+    }
+    return process_power(pipeline, frame_id, reset_requested, (const uint8_t *)pipeline->raw_power,
+                         P0_POWER_FRAME_BYTES, result, raw_candidate_count, pl_decisions_present);
 }
 
 int p0_ed_pipeline_process_packet(p0_ed_pipeline_t *pipeline, int reset_requested,

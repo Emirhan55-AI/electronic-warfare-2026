@@ -1,9 +1,21 @@
 #include "p0_dma_runtime.h"
 
-#include "p0_candidate_packet.h"
-
 #include <errno.h>
 #include <string.h>
+
+#define P0_FAKE_POWER_BYTES (4096U * 8U)
+#define P0_FAKE_POWER_MASK ((UINT64_C(1) << 58U) - UINT64_C(1))
+#define P0_FAKE_EVALUATED_MASK (UINT64_C(1) << 58U)
+#define P0_FAKE_DETECTED_MASK (UINT64_C(1) << 59U)
+#define P0_FAKE_FORMAT_MARKER (UINT64_C(0xA) << 60U)
+
+static void store_u64_le(uint8_t *target, uint64_t value)
+{
+    unsigned int index;
+
+    for (index = 0U; index < 8U; ++index)
+        target[index] = (uint8_t)(value >> (index * 8U));
+}
 
 int p0_dma_runtime_open(p0_dma_runtime_t *runtime, const char *device_path)
 {
@@ -25,10 +37,6 @@ int p0_dma_runtime_run(p0_dma_runtime_t *runtime, const uint8_t *input, size_t i
                        uint8_t *output, size_t output_capacity,
                        size_t *actual_output_bytes, struct p0_dma_status *status)
 {
-    static uint32_t next_frame_id;
-    p0_candidate_region_t candidate;
-    p0_os_cfar_config_t config;
-    uint64_t shifted_power[4096];
     size_t index;
     int empty = 1;
 
@@ -48,26 +56,22 @@ int p0_dma_runtime_run(p0_dma_runtime_t *runtime, const uint8_t *input, size_t i
     if (input[0] == 0x7EU) {
         *actual_output_bytes = P0_DMA_OUTPUT_MINIMUM_BYTES;
     } else {
-        memset(&config, 0, sizeof(config));
-        config.threshold_coefficient = 2.0;
-        memset(&candidate, 0, sizeof(candidate));
-        for (index = 0U; index < 4096U; ++index)
-            shifted_power[index] = UINT64_C(100) << 30;
-        candidate.start_bin = 2280U;
-        candidate.end_bin = 2328U;
-        candidate.peak_bin = 2304U;
-        candidate.peak_power = 1000000.0;
-        candidate.noise_power_per_bin = 100.0;
-        candidate.threshold_power = 200.0;
-        shifted_power[candidate.peak_bin] = UINT64_C(1000000) << 30;
-        if (p0_candidate_packet_encode(
-                next_frame_id, shifted_power, 4096U, &config,
-                empty ? NULL : &candidate, empty ? 0U : 1U, output,
-                output_capacity, actual_output_bytes) != P0_CANDIDATE_PACKET_OK) {
-            errno = EIO;
-            return -1;
+        for (index = 0U; index < 4096U; ++index) {
+            size_t shifted_bin = index ^ 2048U;
+            uint64_t power = UINT64_C(100) << 30U;
+            uint64_t word = P0_FAKE_FORMAT_MARKER;
+
+            if (shifted_bin >= 20U && shifted_bin < 4076U)
+                word |= P0_FAKE_EVALUATED_MASK;
+            if (!empty && shifted_bin >= 2280U && shifted_bin <= 2328U) {
+                power = (shifted_bin == 2304U ? UINT64_C(1000000)
+                                              : UINT64_C(10000)) << 30U;
+                word |= P0_FAKE_DETECTED_MASK;
+            }
+            word |= power & P0_FAKE_POWER_MASK;
+            store_u64_le(output + index * 8U, word);
         }
-        ++next_frame_id;
+        *actual_output_bytes = P0_FAKE_POWER_BYTES;
     }
     memset(status, 0, sizeof(*status));
     status->abi_version = P0_DMA_ABI_VERSION;

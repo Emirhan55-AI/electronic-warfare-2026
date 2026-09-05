@@ -1,0 +1,411 @@
+{
+  "schema": "phase08-st06-power-runtime-v3",
+  "status": "passed",
+  "generated_at_utc": "2026-09-04T17:56:46.542695+00:00",
+  "transmit_enabled": false,
+  "product_algorithm_changed": false,
+  "st06_power_runtime_complete": true,
+  "st06_complete": false,
+  "compiler": "MSVC C11 /O2 /W4 /WX",
+  "input_contract": {
+    "bins": 4096,
+    "bytes": 32768,
+    "natural_order": true,
+    "output_marker_required_on_every_word": true,
+    "fft_shift_applied_on_arm": true
+  },
+  "streams": 60,
+  "frames_per_stream": 16,
+  "evaluated_sliding_windows": 540,
+  "warmup_or_context_errors": 0,
+  "decision_or_shape_mismatches": 0,
+  "mismatch_details": [],
+  "lifecycle": {
+    "passed_checks": 18,
+    "expected_checks": 18,
+    "mixed_format_packet_rejected_without_consuming_frame": true,
+    "unmarked_packet_rejected_without_consuming_frame": true,
+    "frame_discontinuity_resets_eight_frame_context": true
+  },
+  "records": [
+    {
+      "scene": "noise-flat",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-flat",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-slope-12db",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "noise-step-12db",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-96",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-512",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-1024",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "bounded-2048",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-far",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "strong-weak-near",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "close-merge",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-left",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "edge-right",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "full-window",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "transient-two-of-eight",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "stream": 0,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "stream": 1,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "stream": 2,
+      "windows": 9,
+      "matched_windows": 9
+    },
+    {
+      "scene": "persistent-six-of-eight",
+      "stream": 3,
+      "windows": 9,
+      "matched_windows": 9
+    }
+  ],
+  "source_sha256": {
+    "algorithms/p0/st05_wideband.py": "d2228f8149911d1ac9cb97537e5a0c633dd2721970ad64309ff95fd06f745eb8",
+    "config/st05_wideband_evaluation.json": "79e2992f46e2abc7fa337406fda78051ba82ae71c8c003db0c881279e16013cb",
+    "platforms/embedded/p0/include/p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "7ae4e135ed06294b69103cd27870751936bc5133920ff95d04ceac7490fe7448",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "4b07e5ebd34ad5a893b9a6789bceed98e7704f62e53bbefdc8e5f5cfe203feac",
+    "platforms/embedded/p0/include/p0_st06_power_runtime.h": "5debf7c96546c393ffcf8c48b8867cf29a2f574b5dfce980591ccb2e0788566f",
+    "platforms/embedded/p0/src/p0_st06_power_runtime.c": "d2335131397a3af712c17d06e773ff390c1ef2f8acf0229ec1982443b61b3b43",
+    "scripts/verify_st06_power_runtime.py": "dc5ec0f30c31edcbaf96cdb3d81aa6ea6db1a179768e76508c0f42a4fcf01b24"
+  },
+  "supersedes": "results/evidence/phase08/st06-power-runtime-v2.json",
+  "claim_boundary": [
+    "This verifies marked 4096-word PL power-frame decoding, FFT shift, sliding decisions, and context lifecycle on synthetic host data.",
+    "It does not measure DMA, load a bitstream, alter the product service, or prove live-RF accuracy."
+  ]
+}

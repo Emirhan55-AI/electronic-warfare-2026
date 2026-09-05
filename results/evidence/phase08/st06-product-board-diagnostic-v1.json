@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "measurement_date": "2026-09-05",
+  "ktr": [
+    "KTR-4.1",
+    "KTR-4.1-OPS",
+    "KTR-6"
+  ],
+  "scope": "temporary_physical_board_digital_iq_diagnostic_not_rf_or_cold_boot_acceptance",
+  "deployment": "FPGA Manager firmware and service plus bridge in initramfs; SD boot files unchanged",
+  "board_metadata": "6.12.40-xilinx-g31626ef92ff1\n92889db9-8c2c-4461-8d35-7bbebd309d77\noperating\nc30ca00181a2bda9b497282b28f2e4a48b0335c9c2ff28664350e9abea05a77c  /usr/sbin/p0-ed-service\n06e8857b566b52aca54ef260bd71a0beeab774336a487ca3e767aa0e78b940ed  /usr/sbin/p0-ed-network-bridge\n/tmp/st06-product/p0-st06-full-power.bin: OK\n/tmp/st06-product/p0-ed-service: OK\nP0 ED kart hizmeti durduruluyor: tamam\nP0 ED kart hizmeti baÅŸlatÄ±lÄ±yor: tamam\nP0 ED aÄŸ kÃ¶prÃ¼sÃ¼ baÅŸlatÄ±lÄ±yor: tamam\ndeployment=temporary-until-reboot\nkernel=6.12.40-xilinx-g31626ef92ff1\nmachine=armv7l\nboot_id=92889db9-8c2c-4461-8d35-7bbebd309d77\nfpga_state=operating\nfirmware_sha256=61d42a482a47c9d46b3c165bc86d206a3cbb4f47db7517242f63b9f66f5f369a\nservice_sha256=c30ca00181a2bda9b497282b28f2e4a48b0335c9c2ff28664350e9abea05a77c\nservice_pid=812\n",
+  "archive": {
+    "path": "results/evidence/phase08/st06-product-board-diagnostic-v1.zip",
+    "sha256": "b4772b85584ab30f802aeee765f33e76adc912999d7a2b99fb00dcfcae3b82c6"
+  },
+  "integration_evidence_sha256": "6ca0736ea8ad0b85517efd6d4ad03068d90b6cfafe5127785ae9e729817f18c0",
+  "diagnostic_script_sha256": "45d6d87bb756cba894f18fa10e9b9092df57b1c4dcc621581d4cd8c7b6560383",
+  "runs": {
+    "physical-independent-v1": {
+      "schema_version": 1,
+      "seed": 6100602,
+      "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
+      "sample_rate_hz": 2000000,
+      "samples_per_frame": 4096,
+      "script_sha256": "45d6d87bb756cba894f18fa10e9b9092df57b1c4dcc621581d4cd8c7b6560383",
+      "cases": {
+        "zero": {
+          "input_sha256": "7b15c3f99be0c5f9ae0a0ecdc21d3a8c4dc8006aed712338a0ad06aa35382793",
+          "response_sha256": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.6544561998452991,
+          "max_raw_candidates": 0,
+          "max_active_events": 0,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 0,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 25024,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "independent_noise": {
+          "input_sha256": "dde95d21993e17f6ec4c8d9b8000c9ea1449ae4161981c8a3df9bed32fe9d32c",
+          "response_sha256": "d06a3f3ca87f4cfc05f022b5bd8d83dfe472d04a8efda6a735838630d67f7ec0",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.8904186999425292,
+          "max_raw_candidates": 5,
+          "max_active_events": 5,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 61744,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "tone_independent_noise": {
+          "input_sha256": "0f6fa2a44b762a7edcf361e78d218858c61250c00e1a787f48b65c7fc0eea346",
+          "response_sha256": "9f0bb410d01568f265b489f23d7b9b4c0602aee72c88d7ad7ed9418fb8970a70",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.8920416000764817,
+          "max_raw_candidates": 5,
+          "max_active_events": 7,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 81532,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_target_frames": 255
+        },
+        "wide_independent_noise": {
+          "input_sha256": "0b480e77131dae2fc004e5272759fde73669a9ec859575dff0f3d8941e94b483",
+          "response_sha256": "d1e9dfd075c384303c38ec2fb3b15ccf813f3831e5b7828023778e0f4c7ffe4c",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.9265097000170499,
+          "max_raw_candidates": 4,
+          "max_active_events": 6,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 3,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 80104,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_wide_target_frames": 249
+        },
+        "repeated_tone_throughput": {
+          "input_sha256": "0c68ac0ffb9d3b26ecbe4ed1019ededf5780552e90c0c7c3731d7ac62fd5c54e",
+          "response_sha256": "7319b691c535156cc7cdb836129574db581a6ffd4f1ecfaf54acb6537264cdc8",
+          "stimulus_frames": 4160,
+          "zero_tail_frames": 16,
+          "received_frames": 4176,
+          "elapsed_seconds": 14.520184900145978,
+          "max_raw_candidates": 1,
+          "max_active_events": 1,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 4176,
+            "frames_received": 4176,
+            "bytes_sent": 34410240,
+            "bytes_received": 667208,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "measured_fps_after_64_warmup": 287.2740962908345,
+          "required_fps": 488.28125
+        }
+      }
+    },
+    "physical-independent-v2": {
+      "schema_version": 1,
+      "seed": 6100602,
+      "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
+      "sample_rate_hz": 2000000,
+      "samples_per_frame": 4096,
+      "script_sha256": "45d6d87bb756cba894f18fa10e9b9092df57b1c4dcc621581d4cd8c7b6560383",
+      "cases": {
+        "zero": {
+          "input_sha256": "7b15c3f99be0c5f9ae0a0ecdc21d3a8c4dc8006aed712338a0ad06aa35382793",
+          "response_sha256": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.6555058998055756,
+          "max_raw_candidates": 0,
+          "max_active_events": 0,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 0,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 25024,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "independent_noise": {
+          "input_sha256": "dde95d21993e17f6ec4c8d9b8000c9ea1449ae4161981c8a3df9bed32fe9d32c",
+          "response_sha256": "d06a3f3ca87f4cfc05f022b5bd8d83dfe472d04a8efda6a735838630d67f7ec0",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.891968599986285,
+          "max_raw_candidates": 5,
+          "max_active_events": 5,
+          "distinct_confirmed_events": 0,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 61744,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          }
+        },
+        "tone_independent_noise": {
+          "input_sha256": "0f6fa2a44b762a7edcf361e78d218858c61250c00e1a787f48b65c7fc0eea346",
+          "response_sha256": "9f0bb410d01568f265b489f23d7b9b4c0602aee72c88d7ad7ed9418fb8970a70",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.9052875000052154,
+          "max_raw_candidates": 5,
+          "max_active_events": 7,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 81532,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_target_frames": 255
+        },
+        "wide_independent_noise": {
+          "input_sha256": "0b480e77131dae2fc004e5272759fde73669a9ec859575dff0f3d8941e94b483",
+          "response_sha256": "d1e9dfd075c384303c38ec2fb3b15ccf813f3831e5b7828023778e0f4c7ffe4c",
+          "stimulus_frames": 256,
+          "zero_tail_frames": 16,
+          "received_frames": 272,
+          "elapsed_seconds": 0.9391316999681294,
+          "max_raw_candidates": 4,
+          "max_active_events": 6,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 3,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 272,
+            "frames_received": 272,
+            "bytes_sent": 2241280,
+            "bytes_received": 80104,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "confirmed_wide_target_frames": 249
+        },
+        "repeated_tone_throughput": {
+          "input_sha256": "0c68ac0ffb9d3b26ecbe4ed1019ededf5780552e90c0c7c3731d7ac62fd5c54e",
+          "response_sha256": "7319b691c535156cc7cdb836129574db581a6ffd4f1ecfaf54acb6537264cdc8",
+          "stimulus_frames": 4160,
+          "zero_tail_frames": 16,
+          "received_frames": 4176,
+          "elapsed_seconds": 14.562434799969196,
+          "max_raw_candidates": 1,
+          "max_active_events": 1,
+          "distinct_confirmed_events": 1,
+          "dropped_candidates_total": 0,
+          "dma_bad_frames": 0,
+          "reset_frames": [
+            0
+          ],
+          "last_active_count": 0,
+          "first_empty_tail_offset": 1,
+          "transport": {
+            "state": "DISCONNECTED",
+            "frames_sent": 4176,
+            "frames_received": 4176,
+            "bytes_sent": 34410240,
+            "bytes_received": 667208,
+            "crc_errors": 0,
+            "sequence_errors": 0,
+            "queue_drops": 0,
+            "last_error": null
+          },
+          "measured_fps_after_64_warmup": 286.44761839303726,
+          "required_fps": 488.28125
+        }
+      }
+    }
+  },
+  "minimal_callback_profile": {
+    "fps": 289.7578775097364,
+    "received": 4160,
+    "dma_bad": 0,
+    "drops": 0,
+    "before": "812 (p0-ed-service) S 1 811 811 0 -1 4194560 459 0 0 0 51 425 0 0 20 0 2 0 478171 11599872 638 4294967295 1 1 0 0 0 0 0 4096 16386 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n897 (p0-ed-service) S 1 811 811 0 -1 4194368 0 0 0 0 0 0 0 0 20 0 2 0 547248 11599872 638 4294967295 1 1 0 0 0 0 0 4096 16386 0 0 0 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0\ncpu  5488 0 2471 1085042 4 0 366 0 0 0\ncpu0 711 0 1638 543697 0 0 366 0 0 0\ncpu1 4777 0 833 541344 4 0 0 0 0 0\nintr 480194 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 943 33136 0 0 0 0 0 366107 191 0 0 0 0 0 0 0 0 0 0 24661 33428 0 0 435 0 25 0 0 4 10632 10632\nctxt 529917\nbtime 1520598886\nprocesses 904\nprocs_running 1\nprocs_blocked 0\nsoftirq 117478 1 19230 0 60684 0 0 14 30009 0 7540\n",
+    "after": "812 (p0-ed-service) S 1 811 811 0 -1 4194560 470 0 0 0 75 579 0 0 20 0 2 0 478171 11599872 638 4294967295 1 1 0 0 0 0 0 4096 16386 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n897 (p0-ed-service) S 1 811 811 0 -1 4194368 12 0 0 0 1423 12 0 0 20 0 2 0 547248 11599872 638 4294967295 1 1 0 0 0 0 0 4096 16386 0 0 0 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0\ncpu  6996 0 2848 1085840 4 0 510 0 0 0\ncpu0 791 0 1998 544471 0 0 510 0 0 0\ncpu1 6205 0 850 541368 4 0 0 0 0 0\nintr 521450 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 952 37590 0 0 0 0 0 382059 191 0 0 0 0 0 0 0 0 0 0 24661 45949 0 0 435 0 25 0 0 4 14792 14792\nctxt 568537\nbtime 1520598886\nprocesses 910\nprocs_running 1\nprocs_blocked 0\nsoftirq 144544 1 19516 0 85625 0 0 14 31768 0 7620\n",
+    "response_sha256": "bcef66da8d1b1ff11b67f8043e5d4113a8eb3fc4a508739385475a5bbd0bf13f"
+  },
+  "findings": {
+    "zero_input_no_events": true,
+    "independent_noise_256_frames_no_confirmed_events": true,
+    "tone_confirmed_frames": 255,
+    "wide_confirmed_frames": 249,
+    "positive_frames_per_case": 256,
+    "all_five_cases_per_run_dma_crc_sequence_drop_errors_zero": true,
+    "all_five_cases_per_run_zero_tail_ended_events": true,
+    "same_input_response_bytes_equal_across_bridge_update": true,
+    "product_throughput_pass": false,
+    "required_fps": 488.28125,
+    "bottleneck_evidence": "minimal callback profile: ARM detector thread 1435 CPU ticks / CPU1 1469 total ticks; exact internal stage not measured",
+    "initial_pure_tone_extra_candidates_unresolved": true,
+    "initial_known_fixture_64_track_capacity_overflow_unresolved": true
+  },
+  "limitations": [
+    "Only deterministic digital IQ over Ethernet; HackRF/USB/antenna/RF absent.",
+    "256 noise frames represent 0.524288 seconds of IQ, not field false-alarm-rate acceptance.",
+    "Repeating one random block creates a periodic stimulus and cannot establish noise-only false alarms.",
+    "No Pd/Pfa, sensitivity, gain calibration, RF identity, cold boot or endurance acceptance.",
+    "First run used old bridge sha67979b33d235ea1bcc101ddcd1aef10a7d7fe676b4c7a93da375129535e89c94; second run uses current packaged bridge."
+  ],
+  "acceptance": {
+    "digital_smoke": true,
+    "product_throughput": false,
+    "cold_boot": false,
+    "controlled_blind_rf": false,
+    "st06_complete": false
+  }
+}

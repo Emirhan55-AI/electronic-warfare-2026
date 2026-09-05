@@ -1,5 +1,179 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+## Sıradaki kabul ve yeniden başlama
+
+CPU0 ve CPU1 kartın ARM çekirdekleridir; tespit bilgisayara taşınmadı.
+PC hâlâ HackRF USB alımı, taşıma, görüntüleme ve kayıt görevlerini üstlenir.
+Sonraki ölçüm gerçek HackRF → PC → kart → arayüz yolunda kesintisiz RX'tir:
+kare/sıra kaybı, kuyruk doluluğu, gecikme ve durdur/başlat sürekliliği kaydedilir.
+Test vericisi kapalı başlangıç, ortamın RF sessiz olduğunu kanıtlamaz.
+Bunun ardından kontrollü kör RF doğruluğu ve soğuk açılış kabulü tamamlanır;
+saf ton fazla adayları ve 64 olay kapasitesi ayrıca değerlendirilir.
+
+Güncel yerel paket `build/p0/st06-parallel-product/` altındadır; klonlanan
+depoda bu yerel çıktının veya eski kart oturumunun varlığı varsayılmaz.
+Kaynak/ikili bağını `python scripts/verify_st06_parallel_product.py` denetler.
+SD değiştirilmediği için yeniden başlatma sonrası çalışan imaj/hizmet yeniden
+belirlenmelidir. En düşük ölçülen hız payı yaklaşık %2,89'dur; uzun süreli
+uçtan uca performans garantisi değildir.
+
+## Tarihsel deney kayıtları
+
+Aşağıdaki “sonraki iş”, “güncel paket” ve “kapı açık” ifadeleri kayıtlarının
+yazıldığı sürüme aittir; bugünkü çalışma sırası yukarıdadır. Geçmiş sonuçlar
+ve ham kanıtlar karşılaştırılabilirlik için değiştirilmeden korunur.
+
+## 5 Eylül 2026 — ARM döngü birleştirme denemesi
+
+Giriş doğrulaması ve aritmetik sırası korunarak geniş bant kayan toplam ve
+ortalama döngüleri ayrı kopyada birleştirildi. Üç dönüşümlü ölçümde dar tekrar
+girdisi mevcut 1,169–1,191 ms / deneme 1,192–1,214 ms; geniş tekrar girdisi
+mevcut 1,166–1,176 ms / deneme 1,189–1,209 ms verdi. İki girdide sonuç
+özetleri aynıydı, fakat hız kazanılmadı. Deneme üretime alınmadı.
+Kanıt: `results/evidence/phase08/st06-stream-fusion-v1.json` ve ZIP.
+Parametre sıfırlamanın büyük tampon temizlemediği kodda doğrulandı.
+Üretim kaynakları, hizmet ve SD değişmedi. Bu alt adım denemesi tam ürün
+kabulü değildir. Sonraki ölçüm, yedekleme/kopyalama ve CPU0–CPU1 kuyruk
+beklemesini güncel -O3 hizmet üzerinde ayrı zamanlamalıdır; veri doğrulama
+ve geri alma garantileri performans uğruna kaldırılmaz.
+
+
+## 5 Eylül 2026 — birleşik medyan denemesi
+
+Sıralı dizileri doğrudan işleyen ve örnek değerlerin çeşitliliğine göre iki
+**tam** bölümleme yönteminden birini seçen prototip denendi. Örnekleme medyanı
+yaklaşıklamaz; hangi eşdeğer yöntemin kullanılacağını seçer. 960 referans
+dizisi ve 1080 kayan pencere uyuşmazlık vermedi. Her varyant üç dönüşümlü
+koşuda toplam 120.000 süre ölçümü verdi. Birleşik yöntemin 256 hücre sürekli
+rastgele p99 süresi 33,11 → 27,81 µs, sıralı artan süresi 10,56 → 3,56 µs;
+ancak tek tepeli girdi 7,21 → 8,78 µs oldu. Koşulsuz üstünlük yoktur.
+Üretim kaynakları/hizmeti/SD değiştirilmedi; tam ürün hız iddiası yoktur.
+Kanıt: `results/evidence/phase08/st06-median-hybrid-v1.json` ve ZIP.
+Medyan seçeneklerini yalnız ortalama hızla seçmek uygun değildir. Sonraki
+performans çalışması, tek bu mikro optimizasyona bağlanmadan ARM ürün yolunun
+kopyalama ve işleme geçişlerini karşılaştırmalıdır. Hız kabulü açık kalır.
+
+
+## 5 Eylül 2026 — medyan süre dağılımında gerileme
+
+İki medyan uygulaması ARM CPU1 üzerinde 64/256 hücreli on giriş örüntüsünde
+karşılaştırıldı. Her uygulamada 40.000 ölçüm ve 41.280 doğruluk kontrolü
+uyuşmazlık vermedi. Ancak prototip her koşulda hızlı değildir: 256 hücreli
+alternatif yüksek/düşük değerlerde p99, 6,61 µs'den 14,23 µs'ye çıktı;
+rastgele sürekli değerlerde 33,37 µs'den 27,74 µs'ye indi. İki seviyeli ve
+sabit dizilerdeki gerilemeler nedeniyle prototip üretime alınmadı.
+Kanıt: `results/evidence/phase08/st06-median-tail-v1.json` ve ZIP.
+Bunlar iki ardışık varyant koşusunun gözlenen süreleridir; işletim sistemi
+kesmeleri ve ölçüm maliyeti dahildir, matematiksel en kötü süre sınırı değildir.
+Üretim hizmeti/kaynakları/SD değişmedi. Kalan performans çalışmasında medyan
+uygulamasını koşulsuz değiştirmek yerine girişe bağlı gerilemeyi önlemek ve
+kalan maliyetleri ölçmek gerekir. Paket hizmeti için 488,28125 kare/s kapısı açıktır.
+
+
+## 5 Eylül 2026 — medyan prototipinin tam hizmet deneyi
+
+Medyan prototipi 960 referans dizisinde ve 120 akışın 1080 kayan penceresinde
+uyuşmazlık vermedi. Ayrı, elle derlenen ARM hizmeti kartta üç dijital koşuda
+470,81 / 471,51 / 476,20 kare/s verdi; 488,28125 kare/s sınırı yine geçilmedi.
+Beş girdinin ham yanıtları mevcut paket hizmetiyle byte-tam eşleşti; DMA,
+CRC, sıra hatası ve aday düşümü sıfırdı. Bu kayıt RF kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-median-experiment-v1.json` ve ZIP.
+Deney sonunda paketlenmiş hizmet geri yüklendi ve özeti doğrulandı.
+Üretim kaynakları ve SD değişmedi. Bu prototip paketlenmedi; patolojik
+medyan süreleri ve tüm sahnelerde sürekli ürün hızı açık kalır.
+Dolayısıyla güncel paket hizmeti için geçerli hız hâlâ 460–465 kare/s'dir.
+
+
+## 5 Eylül 2026 — sonraki ARM tanı denemesi
+
+Üretim kaynağı ve kart hizmeti değiştirilmeden geniş bant alt adımları
+ölçüldü. Yerel tekrar üretim dosyaları ve ölçümler:
+`build/p0/st06-wide-profile/diagnostic.json` (yerel çıktı; yeni ortamda
+mevcut olduğu varsayılmaz). Destek aralığına göre erken çıkış prototipi
+ölçülen girdilerde hız sağlamadığı için seçilmedi. İki yönlü medyan bölümleme
+prototipi 51.200 dizide sıralama referansıyla aynı sonucu verdi. Üç dönüşümlü
+koşuda izole ARM akış adımı dar girdide 1,1721–1,1821 ms'den
+1,1283–1,1338 ms'ye; geniş girdide 1,1642–1,1688 ms'den
+1,1200–1,1406 ms'ye indi. Bu iki tekrar girdisinde tüm sonuç özetleri eşleşti.
+Bu yaklaşık %3–4 alt adım kazancıdır; tam ürün FPS'si veya RF kabulü değildir.
+Medyan prototipi üretime alınmadı. Tam referans korpusu, uç durum süreleri,
+paketleme ve ürün yolu ölçümü geçmeden mevcut kaynak değiştirilmez.
+Geçerli ürün kanıtı hâlâ `st06-product-optimization-v1.json` kaydıdır.
+
+
+## Son optimizasyon — 5 Eylül 2026
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Alt adım tanısı güç çözme ve tam durum kopyalarının önemli maliyetini gösterdi.
+Hizasız güvenli sözcük yükleme, UQ28.30 için eşdeğer iki uint32 dönüşümü ve
+tek güncellemenin değiştirdiği durumun geri alınması uygulandı. Bağlam
+sıfırlanırken tam yedek korunur; hata halinde geri alma testleri geçti.
+Tanı klonlarının derleme ayarları ve süreleri ZIP içinde ayrı tutulur;
+-O2 alt adım süreleri paketlenmiş -O3 hizmetin süreleri diye sunulmaz.
+Güncel paket hizmet özeti: `3c175e1c644c653a04899feef67c57c21c72f5ba2479f319cf45192fa172900d`.
+Güncel yerel çıktı: `build/p0/st06-product-optimized/`; image.ub derlendi,
+ancak yeni BOOT.BIN paketi ve kalıcı soğuk açılış kabulü yoktur.
+Sıradaki iş geniş bant/ARM maliyetinin kalan kısmını incelemek ve tüm
+ürün yolunu tekrar ölçmektir. Saf tonun fazla adayları, yoğun girdide 64
+olay kapasitesi, sürekli RX ve kontrollü kör RF kapıları açık kalır.
+
+## Önceki sürümün fiziksel tanısı
+
+### Optimizasyon öncesi — 5 Eylül 2026
+
+ST-06 FPGA, ARM hizmeti ve ağ köprüsü mevcut Linux oturumuna geçici
+yüklenmiştir. SD üzerindeki açılış imajı değişmemiştir. Kart erişimi
+tamamlanmış ve SSH host anahtarı seri konsolundan bağımsız doğrulanmıştır.
+Kanıt: `results/evidence/phase08/st06-product-board-diagnostic-v1.json` ve
+aynı adlı ZIP içindeki I/Q girdileri, ham kart yanıtları ve metadata.
+
+- 256 sıfır ve 256 bağımsız gürültü karesinde doğrulanmış olay yoktur.
+  Gürültü koşulu yalnız 0,524288 saniyelik I/Q'dur; saha Pfa kabulü değildir.
+- Gürültü içindeki dar ton 255/256 karede, geniş bant 249/256 karede
+  doğrulanmıştır. Başlangıç birikimi bu sayılara dahildir. Sıfır girişe
+  geçişte dar olay ikinci, geniş olay dördüncü sıfır karede kalmamıştır.
+- Her koşulda DMA/CRC/sıra ve aday düşümü sıfırdır. Aynı girdilerin eski ve
+  yeni ağ köprüsündeki yanıtları byte-tam eşleşmiştir.
+- Ürün hız kapısı başarısızdır: 4096 ölçüm karesi için 287,27 ve 286,45
+  kare/s; PC sonuç çözümlemesi ölçüm dışına alındığında 289,76 kare/s.
+  Gereken hız 488,28125 kare/s'dir. ARM tespit iş parçacığı ölçüm aralığında
+  CPU1'in 1469 toplam sayacına karşılık 1435 CPU sayacı tüketmiştir.
+  Alt adım profili henüz yoktur; USB ve arayüz bu dijital deneyde yoktur.
+- İlk saf periyodik ton denemesinde fazla aday, eski yoğun fixture'da 64
+  olay kapasitesi taşması görülmüştür. Bunlar kapanmamıştır. Tek rastgele
+  bloğu tekrar etmek bağımsız gürültü negatif testi sayılmaz.
+
+Sıradaki iş ARM ürün yolunun alt adımlarını ölçmek, davranış eşdeğerliğini
+koruyarak maliyeti azaltmak ve gerçek ürün hızını tekrar sınamaktır. Bu tanı
+eşikleri değiştirmez; soğuk açılış, sürekli RX ve kontrollü kör RF kapılarını
+kapatmaz. ST-06 tamamlanmamıştır. Aşağıdaki tarihli kayıtlar kendi sürümlerinin
+kanıtıdır; bağımsız 551–578 kare/s DMA profili güncel ürün hızı değildir.
+
 1 Eylül 2026. Kapsam yalnız şartnamenin kullanıcı tarafından paylaşılan
 5.1.1 sinyal tespiti maddesi ve depodaki `KTR-4.1` / `KTR-4.1-OPS` izleridir.
 Bu numaralar farklı belgelerin izleridir; şartname OS-CFAR'ın sayısal profilini
@@ -263,7 +437,7 @@ korunur. Arayüz kesikli `kaba RX adayı` ile düz sarı zamansal `FPGA adayı`n
 ayırır; ikisi de tek başına harici verici kanıtı değildir.
 100 kHz–4 MHz sentetik aileleri 32/32 geçmiştir. 6 MHz 31/32 olduğu için kabul
 zarfında değildir; 8 MHz tam doluluk açık kalır. Otomatik kaba aday→FPGA yeniden
-ayar bağı ve fiziksel RF kabulü tamamlanmadan ST-04/05/07 kapanmaz.
+ayar bağı ve fiziksel RF kabulü tamamlanmadan ST-05, ST-07 ve PHASE-08 kapanmaz.
 
 4 Eylül 2026'da ST-04 için eşikleri değiştirmeyen ilk kaynak bağlı arama profili
 ölçümü yapılmıştır. 20 MHz–6 GHz aralığında mevcut 600 kHz sorumluluklu,
@@ -278,7 +452,80 @@ kapsamış; süreç duvar süresi 0,798792 saniye ölçülmüştür. Kanıt
 bağlı `.csv` kaydıdır. Bu tek tur host kaba arama ölçümüdür; FPGA doğrulaması,
 kısa yayın yakalama olasılığı, tekrarlı tarama zamanı veya RF doğruluk/Pd/Pfa
 kabulü değildir. Aynı I/Q üzerinde tekrarlı profil karşılaştırması ve kontrollü
-yayın matrisi tamamlanmadığından ST-04 açık kalır.
+yayın matrisi henüz bulunmadığı için bu ilk ölçüm tek başına ST-04'ü kapatmamıştır.
+
+Aynı gün tekrarlı çözünürlük/zaman ölçümü 1 MHz, 100 kHz ve 25 kHz istenen
+hücre genişliklerinde yapılmıştır. Her profil üç bağımsız `hackrf_sweep`
+sürecinde üçer tur, toplam 27 tam RX-only sweep içermektedir. Turların tamamı
+20 MHz–6 GHz aralığını boşluksuz kapatmış; başlangıç ve bitişte USB shortfall
+sayacı sıfır kalmıştır. Tur başına süreç medyanı 1 MHz'de 0,768583 saniye,
+100 kHz'de 0,764985 saniye ve 25 kHz'de 0,794019 saniyedir. Ölçülen %3,80
+zaman yayılımına karşılık tur başına ham CSV medyanı yaklaşık 129 kB'dan
+2,00 MB'a çıkar; en ince profilin çıktı yükü en kaba profilin 15,57 katıdır.
+Gerçek araç hücreleri 1 MHz, 98,03922 kHz ve 24,87562 kHz'dir. Bu ölçüm yalnız
+host tarama zamanı, kapsama ve çıktı maliyetini kanıtlar; küçük süre farkına
+göre profil seçilmemiştir. Kanıt
+`results/evidence/phase08/st04-sweep-resolution-v1.json` ve hash bağlı `.zip`
+arşividir. Aynı I/Q karşılaştırması ile kontrollü kör yayın Pd/Pfa kapısı
+bulunmadan bu çözünürlük ölçümü tek başına FPGA tespiti veya ST-04 kapanışı
+sayılmaz.
+
+ST-04 aynı-I/Q karşılaştırmasında iki LO'ya ait 955,7 MHz açık ve kapalı
+fiziksel CI8 kayıtlarının aynı 0,507904 saniyelik bölümü kullanılmıştır. Hedef
+frekans aday üretimine verilmemiş, yalnız sonuç değerlendirmesinde
+kullanılmıştır. 4.096 ve 8.192 FFT hedefi kaçırmıştır. Mevcut 16.384 FFT,
+955.700.000 Hz hedefi iki LO'da geri kazanmış ve kapalı iki LO arasında ortak
+aday üretmemiştir. 32.768 FFT hedefi geri kazanırken kapalı kayıtta bir; 65.536
+FFT ise üç ortak aday üretmiştir. En ince profil ayrıca Python referansında
+yaklaşık 0,85–0,90 gerçek zaman oranına çıkmıştır. Bu veri, mevcut 16.384
+değerinin tek bu kayıtta doğru denge olduğunu gösterir; profil ürün için
+seçilmiş veya tüm banda genellenmiş değildir. Kaynak ve fiziksel giriş hashleri
+`results/evidence/phase08/st04-same-iq-resolution-v1.json` içindedir.
+
+ADR-0041, bu ölçümlerden kontrollü kör RF deneyi için üç aşamalı aday
+mimarisi çıkarır: hostta 20 MS/s ve 25 kHz istenen hücreyle tam bant
+`hackrf_sweep`; aday çevresinde hostta 8 MS/s, 16.384 FFT ve iki LO; son
+kararda mevcut FPGA/ARM 2 MS/s, 4.096 FFT zinciri. Mevcut RTL'nin yaklaşık
+991,375 kare/s işlevsel kapasitesi, 2 MS/s için gereken 488,281 kare/s hızını
+karşılar. Aynı 4.096-hücre zinciri doğrudan 8 MS/s'de gereken 1.953,125
+kare/s hızın yalnız %50,76'sına ulaşır; tam route tasarımı 48.040/53.200 LUT
+(%90,30) kullanır. Bu hesap yalnız mevcut RTL'nin doğrudan 8 MS/s tekrar
+kullanımını eler. Mimari kontrollü kör deney için kilitlenmiş, ürün için
+seçilmemiştir. Kaynak bağlı kayıt
+`results/evidence/phase08/st04-hierarchical-detection-architecture-v1.json`
+dosyasındadır. Bu kanıt ST-04 mimari seçimini tamamlar; ST-05–ST-08 algoritma,
+uygulama ve kör RF kabul kapıları açık kalır.
+
+Kullanıcının 4 Eylül 2026 onayıyla ST-05 geniş bant Python referansı
+seçilmiştir. Dar bant OS-CFAR ve katsayısı korunur. Yeni referans sekiz karede
+32/64/128/256 hücreli enerji ölçeklerini, iki bağımsız 64 hücreli flank
+referansını, 3 dB flank uyumunu ve en az `%75` zaman doluluğunu birlikte ister.
+Pencere kenarında bağımsız referans yoksa `retune_required` olur. Tam pencereyi
+dolduran gürültü benzeri yayın tek ayardan alıcı gürültüsüne karşı tanımlanabilir
+olmadığı için sistem mutlak `yayın yok` iddiası üretmez.
+
+Önceden dondurulmuş sentetik holdout 960/960 dizide bütün kapıları geçmiştir:
+256 geniş yayın, 128 güçlü-zayıf ayrım, 64 yakın yayın birleştirme, 192 gürültü,
+128 kenar, 64 geçici, 64 kalıcı ve 64 tam-pencere tanımlanabilirlik dizisi.
+Bu, canlı RF veya ürün kabulü değil ST-06'ya girdi olan Python referansıdır.
+Karar `docs/decisions/ADR-0042-PHASE08-ST05-WIDEBAND-REFERENCE.md`, kaynak bağlı
+kanıt `results/evidence/phase08/st05-wideband-holdout-v2.json` içindedir. V2,
+aynı adayın iki gerçek desteğe sayılmasını engelleyen bire bir eşleme düzeltmesini
+içerir; sahne ve eşikler v1 ile aynıdır.
+**ST-05 tamamlanmıştır; ST-06–ST-08 açık kalır.**
+
+ST-06'nın güncel ürün bölümü PL/PS olarak ikiye ayrılmıştır. FPGA; Hann,
+4.096 nokta FFT, UQ28.30 güç ve OS-CFAR hücre kararını üretir. ARM; tam 32 KiB
+güç karesinden sekiz karelik geniş bant kararını, dar/geniş örtüşme bastırmasını
+ve temporal olay yaşam döngüsünü üretir. Bu görev paylaşımıyla routed LUT
+kullanımı `%90,30`dan `%36,82`ye düşmüş ve 50 MHz zamanlama geçmiştir. Dört
+yuvalı CPU0/CPU1 boru hattı kartta beş tekrarda 2 MS/s alt sınırını geçmiş;
+güncel ARM kaynakları aynı XSA ile PetaLinux ürün imajına alınmıştır. Paket
+5.679/5.679, tam imaj 6.090/6.090 görevde hatasızdır ve imaj içindeki hizmet
+ikilisinin hash'i hazırlanan ikiliyle aynıdır. Kanıt
+`results/evidence/phase08/st06-product-integration-v1.json` içindedir. Aynı
+ürün imajının kartta soğuk açılışı, fiziksel hizmet yaşam döngüsü ve kontrollü
+kör RF doğruluğu açık olduğundan ST-06 henüz tamamlanmamıştır.
 
 HackRF'ı ZedBoard USB OTG host portuna doğrudan bağlamak ST-04'te aday mimari
 olarak tutulur. Bu bağlantı PC→Ethernet kopyasını kaldırabilir fakat HackRF'ın

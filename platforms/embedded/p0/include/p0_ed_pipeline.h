@@ -7,6 +7,7 @@
 #include "p0_os_cfar.h"
 #include "p0_parameter_runtime.h"
 #include "p0_persistent_weak.h"
+#include "p0_st05_stream.h"
 #include "phase06j_temporal.h"
 
 typedef struct {
@@ -23,6 +24,11 @@ typedef struct {
     void *weak_backup;
     p0_weak_nomination_v1 *weak_nominations;
     p0_persistent_weak_result_v1 previous_weak_result;
+    void *wideband_stream_state;
+    void *wideband_stream_backup;
+    size_t wideband_stream_state_bytes;
+    uint32_t wideband_last_frame_id;
+    int wideband_has_frame_id;
     p0_os_cfar_config_t config;
     p0_parameter_runtime_t parameter_runtime;
 } p0_ed_pipeline_t;
@@ -52,4 +58,7 @@ int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
                            const phase06j_frame_result_v1 *temporal,
                            p0_parameter_result_t *result);
 
+/* Internal service path; arrays must come from successful p0_pl_os_cfar_decode. */
+int p0_ed_pipeline_process_decoded_trusted(p0_ed_pipeline_t *, uint32_t, int, int,
+    phase06j_frame_result_v1 *, size_t *);
 #endif

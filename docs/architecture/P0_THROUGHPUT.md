@@ -1,5 +1,51 @@
 # P0 FPGA Akış Hızı Gerçekliği
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
+## Güncel ST-06 ürün sonucu — 5 Eylül 2026
+
+2 MS/s / 4096 örnek için gereken hız 488,28125 kare/s'dir. Bağımsız
+DMA/güç çözme/geniş bant profili 551,22–577,68 kare/s ölçmüştür; tam ürün
+dar aday gruplama, olay yaşam döngüsü ve Ethernet yanıtlarını da içerir.
+Fiziksel ürün denemeleri 287,27 ve 286,45 kare/s; PC çözümlemesi ölçüm
+dışında 289,76 kare/s vermiştir. Hız kapısı başarısızdır. Kartın ARM tespit
+iş parçacığı bu son koşuda CPU1'in 1469 toplam sayacına karşılık 1435
+CPU sayacı tüketmiştir. Alt adım profili çıkarılmadan bu maliyet tek bir
+algoritmaya bağlanmaz; kuyruk büyüterek veya veri atarak kabul üretilemez.
+
+Bu ölçüm dijital I/Q'nun Ethernet→PS/DMA→PL→ARM→Ethernet yoludur;
+HackRF/USB ve UI içermez. Güncel ST-06'da geniş bant ARM'dedir.
+`results/evidence/phase08/st06-product-board-diagnostic-v1.json` ham girdiler
+ve yanıtları bağlar. Aşağıdaki ölçümler önceki sürümlerin tarihsel kapsamıdır.
+
+## Önceki ölçümler
+
 > 31 Ağustos 2026: İlk iki bölüm tarihsel alt blok kapasitesidir; güncel tam
 > tespit kapasitesi olarak kullanılamaz. OS-CFAR ve geniş bant kurtarma artık
 > PL'dedir. Güncel 2 MS/s hizmet ölçümü aşağıdaki fiziksel sürekli-hız bölümünde,

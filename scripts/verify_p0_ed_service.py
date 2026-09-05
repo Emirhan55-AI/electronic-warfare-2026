@@ -79,10 +79,11 @@ def verify() -> dict[str, object]:
     required_service_tokens = (
         "AF_UNIX", "SOCK_SEQPACKET", "MSG_TRUNC", "SO_RCVTIMEO", "setgroups(0U, NULL)",
         "setgid(gid)", "setuid(uid)", "P0_ED_IQ_FRAME_BYTES", "p0_dma_runtime_run(",
-        "p0_ed_pipeline_process_packet(", "P0_DMA_OUTPUT_CAPACITY_BYTES",
+        "p0_ed_pipeline_process_decoded_trusted(", "p0_pl_os_cfar_decode(",
+        "P0_DMA_OUTPUT_CAPACITY_BYTES",
         "chmod(socket_path, 0660)",
         "P0_ED_REQUEST_BYTES_V2", "P0_ED_REQUEST_FLAG_PARAMETER",
-        "p0_ed_pipeline_measure(",
+        "p0_ed_pipeline_measure(", "P0_ED_PIPELINE_DEPTH", "pthread_create(",
     )
     missing = [token for token in required_service_tokens if token not in service]
     if missing:
@@ -95,7 +96,8 @@ def verify() -> dict[str, object]:
         "p0_multiscale_detector.c", "p0_multiscale_detector.h",
         "p0_pl_os_cfar.c", "p0_pl_os_cfar.h",
         "p0_persistent_weak.c", "p0_persistent_weak.h",
-        "p0_persistent_weak_run.c", "phase06j_temporal.c",
+        "p0_persistent_weak_run.c", "p0_st05_wideband.c", "p0_st05_stream.c",
+        "phase06j_temporal.c", "-pthread",
     ):
         if token not in recipe:
             raise AssertionError(f"PetaLinux recipe token missing: {token}")

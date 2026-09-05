@@ -1,0 +1,678 @@
+{
+  "schema": "phase08-st04-sweep-resolution-v1",
+  "status": "timing_characterized",
+  "generated_at_utc": "2026-09-04T12:21:38.530362+00:00",
+  "phase08_complete": false,
+  "st04_complete": false,
+  "transmit_enabled": false,
+  "requested_range_hz": [
+    20000000,
+    6000000000
+  ],
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "rf_amp_enabled": false,
+    "antenna_port_power_enabled": false,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "hackrf_info_sha256": "25bd02a18fd97a48da1eba4927126f25cdf15be8fb8c0a8ab3a1f9a76f0c1b62"
+  },
+  "method": {
+    "tool": "hackrf_sweep",
+    "sample_rate_hz": 20000000,
+    "baseband_filter_bandwidth_hz": 15000000,
+    "planner": "measure",
+    "constant_timestamp_per_sweep": true,
+    "independent_process_trials": 3,
+    "sweeps_per_trial": 3,
+    "python": "3.13.7",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "usb_shortfall_counter": {
+    "before": 0,
+    "after": 0,
+    "after_is_zero": true
+  },
+  "profiles": [
+    {
+      "requested_bin_width_hz": 1000000,
+      "actual_bin_widths_hz": [
+        1000000.0
+      ],
+      "trial_count": 3,
+      "sweeps_per_trial": 3,
+      "validated_sweep_count": 9,
+      "all_sweeps_gap_free": true,
+      "power_bins_per_sweep": [
+        5980
+      ],
+      "process_seconds_per_sweep": {
+        "minimum": 0.7683164000045508,
+        "median": 0.7685833666473627,
+        "p95": 0.8091634666314349,
+        "maximum": 0.8136723666296651,
+        "mean": 0.7835240444271929
+      },
+      "hackrf_internal_seconds_per_sweep": {
+        "minimum": 0.7463500000000001,
+        "median": 0.7465666666666667,
+        "p95": 0.7483996666666667,
+        "maximum": 0.7486033333333334,
+        "mean": 0.7471733333333335
+      },
+      "csv_bytes_per_sweep": {
+        "minimum": 128746.33333333333,
+        "median": 128746.66666666667,
+        "p95": 128746.96666666666,
+        "maximum": 128747.0,
+        "mean": 128746.66666666667
+      },
+      "trials": [
+        {
+          "trial": 1,
+          "csv_entry": "bin-1000000-trial-01.csv",
+          "csv_sha256": "195e01a2841b5c7e8421207dc686d7c5872f63e6695ddae8224b6d034e49300e",
+          "csv_bytes": 386239,
+          "log_entry": "bin-1000000-trial-01.txt",
+          "process_elapsed_seconds": 2.4410170998889953,
+          "hackrf_internal_seconds": 2.24581,
+          "reported_sweeps_per_second": 0.97,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:12.603591",
+              "last_timestamp": "2026-09-04T15:21:12.603591"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:13.331439",
+              "last_timestamp": "2026-09-04T15:21:13.331439"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:14.058571",
+              "last_timestamp": "2026-09-04T15:21:14.058571"
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "csv_entry": "bin-1000000-trial-02.csv",
+          "csv_sha256": "4cfa20cd6ea33bbd44d408ee01f29f9903fba46b27c189e3b93618f07499c894",
+          "csv_bytes": 386240,
+          "log_entry": "bin-1000000-trial-02.txt",
+          "process_elapsed_seconds": 2.305750099942088,
+          "hackrf_internal_seconds": 2.23905,
+          "reported_sweeps_per_second": 0.95,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:15.044050",
+              "last_timestamp": "2026-09-04T15:21:15.044050"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:15.771622",
+              "last_timestamp": "2026-09-04T15:21:15.771622"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:16.499169",
+              "last_timestamp": "2026-09-04T15:21:16.499169"
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "csv_entry": "bin-1000000-trial-03.csv",
+          "csv_sha256": "c9a82ed555c8512edc4d8b31c8713e9b259fa85c8f2c3357d4e67586152a76ee",
+          "csv_bytes": 386241,
+          "log_entry": "bin-1000000-trial-03.txt",
+          "process_elapsed_seconds": 2.3049492000136524,
+          "hackrf_internal_seconds": 2.2397,
+          "reported_sweeps_per_second": 0.97,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:17.521259",
+              "last_timestamp": "2026-09-04T15:21:17.521259"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:18.248892",
+              "last_timestamp": "2026-09-04T15:21:18.248892"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 5980,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                1000000.0
+              ],
+              "first_timestamp": "2026-09-04T15:21:18.976611",
+              "last_timestamp": "2026-09-04T15:21:18.976611"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_bin_width_hz": 100000,
+      "actual_bin_widths_hz": [
+        98039.22
+      ],
+      "trial_count": 3,
+      "sweeps_per_trial": 3,
+      "validated_sweep_count": 9,
+      "all_sweeps_gap_free": true,
+      "power_bins_per_sweep": [
+        60996
+      ],
+      "process_seconds_per_sweep": {
+        "minimum": 0.7640609332981209,
+        "median": 0.7649845333459476,
+        "p95": 0.7931380633885662,
+        "maximum": 0.7962662333933016,
+        "mean": 0.7751039000124567
+      },
+      "hackrf_internal_seconds_per_sweep": {
+        "minimum": 0.7416233333333334,
+        "median": 0.7434533333333334,
+        "p95": 0.7457333333333334,
+        "maximum": 0.7459866666666667,
+        "mean": 0.7436877777777778
+      },
+      "csv_bytes_per_sweep": {
+        "minimum": 567752.6666666666,
+        "median": 567763.6666666666,
+        "p95": 567768.7666666667,
+        "maximum": 567769.3333333334,
+        "mean": 567761.8888888889
+      },
+      "trials": [
+        {
+          "trial": 1,
+          "csv_entry": "bin-0100000-trial-01.csv",
+          "csv_sha256": "4facf706b9602f3b665948915d7b9d046a7230daeec5e25d481bce98c87e9f4b",
+          "csv_bytes": 1703308,
+          "log_entry": "bin-0100000-trial-01.txt",
+          "process_elapsed_seconds": 2.3887987001799047,
+          "hackrf_internal_seconds": 2.23036,
+          "reported_sweeps_per_second": 0.95,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:20.008480",
+              "last_timestamp": "2026-09-04T15:21:20.008480"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:20.736691",
+              "last_timestamp": "2026-09-04T15:21:20.736691"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:21.464160",
+              "last_timestamp": "2026-09-04T15:21:21.464160"
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "csv_entry": "bin-0100000-trial-02.csv",
+          "csv_sha256": "79aa974a3053b3c3e127fe6d9a60ec45672f7cf1a25b6a32776560a4b1efe1f8",
+          "csv_bytes": 1703258,
+          "log_entry": "bin-0100000-trial-02.txt",
+          "process_elapsed_seconds": 2.294953600037843,
+          "hackrf_internal_seconds": 2.23796,
+          "reported_sweeps_per_second": 0.95,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:22.438304",
+              "last_timestamp": "2026-09-04T15:21:22.438304"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:23.166378",
+              "last_timestamp": "2026-09-04T15:21:23.166378"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:23.894358",
+              "last_timestamp": "2026-09-04T15:21:23.894358"
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "csv_entry": "bin-0100000-trial-03.csv",
+          "csv_sha256": "6119cb5faeb9d3d7d33c7c65c8189a73315f01fbd855b06bac8e83e3f72b9e5a",
+          "csv_bytes": 1703291,
+          "log_entry": "bin-0100000-trial-03.txt",
+          "process_elapsed_seconds": 2.2921827998943627,
+          "hackrf_internal_seconds": 2.22487,
+          "reported_sweeps_per_second": 0.95,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:24.921626",
+              "last_timestamp": "2026-09-04T15:21:24.921626"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:25.650103",
+              "last_timestamp": "2026-09-04T15:21:25.650103"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 60996,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                98039.22
+              ],
+              "first_timestamp": "2026-09-04T15:21:26.378320",
+              "last_timestamp": "2026-09-04T15:21:26.378320"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requested_bin_width_hz": 25000,
+      "actual_bin_widths_hz": [
+        24875.62
+      ],
+      "trial_count": 3,
+      "sweeps_per_trial": 3,
+      "validated_sweep_count": 9,
+      "all_sweeps_gap_free": true,
+      "power_bins_per_sweep": [
+        240396
+      ],
+      "process_seconds_per_sweep": {
+        "minimum": 0.7784662000679722,
+        "median": 0.7940189000219107,
+        "p95": 0.8046721100108698,
+        "maximum": 0.8058558000096431,
+        "mean": 0.7927803000331753
+      },
+      "hackrf_internal_seconds_per_sweep": {
+        "minimum": 0.74573,
+        "median": 0.7559333333333332,
+        "p95": 0.7573823333333334,
+        "maximum": 0.7575433333333333,
+        "mean": 0.7530688888888889
+      },
+      "csv_bytes_per_sweep": {
+        "minimum": 2004063.6666666667,
+        "median": 2004089.0,
+        "p95": 2004109.7,
+        "maximum": 2004112.0,
+        "mean": 2004088.2222222222
+      },
+      "trials": [
+        {
+          "trial": 1,
+          "csv_entry": "bin-0025000-trial-01.csv",
+          "csv_sha256": "689d5d7db77a241fbb68a1870ffcab203829dcf1a662a2cd2ac1d844779a805e",
+          "csv_bytes": 6012267,
+          "log_entry": "bin-0025000-trial-01.txt",
+          "process_elapsed_seconds": 2.3353986002039164,
+          "hackrf_internal_seconds": 2.23719,
+          "reported_sweeps_per_second": 0.95,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:27.422043",
+              "last_timestamp": "2026-09-04T15:21:27.422043"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:28.151192",
+              "last_timestamp": "2026-09-04T15:21:28.151192"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:28.881832",
+              "last_timestamp": "2026-09-04T15:21:28.881832"
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "csv_entry": "bin-0025000-trial-02.csv",
+          "csv_sha256": "d0542480113add35d2ec0b3f74d6cd3ef0c303678805a49c481ca5d59cd90a48",
+          "csv_bytes": 6012191,
+          "log_entry": "bin-0025000-trial-02.txt",
+          "process_elapsed_seconds": 2.417567400028929,
+          "hackrf_internal_seconds": 2.27263,
+          "reported_sweeps_per_second": 0.99,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:30.508782",
+              "last_timestamp": "2026-09-04T15:21:30.508782"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:31.241876",
+              "last_timestamp": "2026-09-04T15:21:31.241876"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:31.968497",
+              "last_timestamp": "2026-09-04T15:21:31.968497"
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "csv_entry": "bin-0025000-trial-03.csv",
+          "csv_sha256": "f5de8b44ad4b05d9fc492aa555abe767c36ded8b4ff07d6e575a1ff99f1c4679",
+          "csv_bytes": 6012336,
+          "log_entry": "bin-0025000-trial-03.txt",
+          "process_elapsed_seconds": 2.382056700065732,
+          "hackrf_internal_seconds": 2.2678,
+          "reported_sweeps_per_second": 0.99,
+          "sweeps": [
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:33.644670",
+              "last_timestamp": "2026-09-04T15:21:33.644670"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:34.374270",
+              "last_timestamp": "2026-09-04T15:21:34.374270"
+            },
+            {
+              "rows": 1196,
+              "power_bins": 240396,
+              "covered_lower_hz": 20000000,
+              "covered_upper_hz": 6000000000,
+              "covered_hz": 5980000000,
+              "gap_count": 0,
+              "gap_hz": 0,
+              "bin_widths_hz": [
+                24875.62
+              ],
+              "first_timestamp": "2026-09-04T15:21:35.104023",
+              "last_timestamp": "2026-09-04T15:21:35.104023"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "timing_only_result": {
+    "lowest_process_median_bin_width_hz": 100000,
+    "process_median_spread_ratio": 0.037954187843472154,
+    "all_process_medians_within_5_percent": true,
+    "largest_to_smallest_csv_size_ratio": 15.566142812758907,
+    "selected_for_rf_detection": false,
+    "reason": "Zaman ve kapsama ölçümü tek başına RF tespit profili seçmez; aynı kayıt ve kontrollü kör yayın matrisi gereklidir."
+  },
+  "raw_archive": {
+    "path": "results/evidence/phase08/st04-sweep-resolution-v1.zip",
+    "sha256": "4228f163aa7230eb415eae16da25c2cdc97fc2b6b9e0085dfce96b7367aa284d",
+    "entries": [
+      "bin-0025000-trial-01.csv",
+      "bin-0025000-trial-01.txt",
+      "bin-0025000-trial-02.csv",
+      "bin-0025000-trial-02.txt",
+      "bin-0025000-trial-03.csv",
+      "bin-0025000-trial-03.txt",
+      "bin-0100000-trial-01.csv",
+      "bin-0100000-trial-01.txt",
+      "bin-0100000-trial-02.csv",
+      "bin-0100000-trial-02.txt",
+      "bin-0100000-trial-03.csv",
+      "bin-0100000-trial-03.txt",
+      "bin-1000000-trial-01.csv",
+      "bin-1000000-trial-01.txt",
+      "bin-1000000-trial-02.csv",
+      "bin-1000000-trial-02.txt",
+      "bin-1000000-trial-03.csv",
+      "bin-1000000-trial-03.txt",
+      "hackrf-info.txt",
+      "shortfalls-after.txt",
+      "shortfalls-before.txt"
+    ]
+  },
+  "limits": [
+    "Ölçüm pasif alımdır; verici işlevi, RF yükselteci ve anten portu beslemesi kullanılmamıştır.",
+    "Zamanlama ve boşluksuz frekans kapsaması ölçülmüştür; yayın doğruluğu, Pd/Pfa ve hassasiyet ölçülmemiştir.",
+    "hackrf_sweep host kaba arama aracıdır; FPGA/ARM karar zincirinin yerine geçmez.",
+    "FFT güç hücresi genişliği tek başına dar veya geniş bant yayın yakalama başarısını kanıtlamaz.",
+    "ST-04 aynı kayıt karşılaştırması ve kontrollü kör yayın matrisi tamamlanana kadar açık kalır."
+  ],
+  "source_sha256": {
+    "scripts/measure_st04_search_profiles.py": "0493820293306f9462474b9459fcbdd2fd0b29b2bcc03fb1ae16ce7f081eb25a",
+    "scripts/measure_st04_sweep_resolution.py": "98050a68ca0ac2d90430152b202f5720b352e6d50b72638d8e375f24d2409b86"
+  }
+}

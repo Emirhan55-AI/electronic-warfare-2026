@@ -1,5 +1,41 @@
 # P0 FPGA Runtime ve DMA Sınırı
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+## Güncel ST-06 ayrımı — 5 Eylül 2026
+
+ST-06, `p0_dsp_runtime_top` güç yolunu kullanır. DMA çıkışı 4096 adet 64-bit
+natural-bin sözcük, toplam 32768 bayttır. Sözcüğün bit 57:0 alanı exact
+UQ28.30 güç, bit 58 değerlendirme, bit 59 OS-CFAR kararı ve bit 63:60
+`0xA` biçim işaretidir. `p0_pl_os_cfar_decode` bu biçimi ve değerlendirme
+sınırlarını denetleyip shifted-bin dizilerini ARM'ye verir. Dar gruplama,
+sekiz karelik geniş bant ve temporal olay üretimi ARM'dedir. Hizmetin ağdaki
+kompakt olay yanıtı ile bu DMA güç biçimi farklı sözleşmelerdir.
+
+Geçici kart tanısı yapılmıştır; ürün hızı 286–290 kare/s olduğundan gerekli
+488,28125 kare/s kabulü başarısızdır. SD imajı değiştirilmemiştir.
+Kanıt: `results/evidence/phase08/st06-product-board-diagnostic-v1.json`.
+Aşağıdaki aday-paket açıklamaları önceki sürümün sözleşmesidir; ST-06 DMA
+güç karesine uygulanmaz. Güncel durum için
+[sinyal tespiti belgesi](SIGNAL_DETECTION_STATUS.md) esas alınır.
+
+## Önceki aday-paket sürümü
+
 > Güncellik notu — 31 Ağustos 2026: Aşağıdaki yeni aday-paket imajı için
 > "henüz kart kabulü yok" cümleleri entegrasyon öncesi tarihseldir. Sonraki
 > fiziksel paket, soğuk açılış ve 2 MS/s hizmet kabulü geçmiştir; kanıt ve

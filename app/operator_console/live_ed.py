@@ -55,7 +55,8 @@ LOCAL_EVENT_RECORD_VALID = 0x01
 LOCAL_EVENT_EVALUATE_CENTER = 0x02
 LOCAL_EVENT_WEAK_EVIDENCE = 0x04
 LOCAL_EVENT_SINGLE_FRAME_CONFIDENT = 0x08
-LOCAL_EVENT_ALLOWED_FLAGS = 0x0F
+LOCAL_EVENT_WIDEBAND_EVIDENCE = 0x10
+LOCAL_EVENT_ALLOWED_FLAGS = 0x1F
 LIVE_MEASUREMENT_WINDOW_FRAMES = 4
 LIVE_MEASUREMENT_WINDOW_CAPACITY = 64
 LIVE_AUDIO_WINDOW_SECONDS = 5.0
@@ -163,6 +164,10 @@ class LiveEDEvent:
     @property
     def single_frame_confident(self) -> bool:
         return bool(self.flags & LOCAL_EVENT_SINGLE_FRAME_CONFIDENT)
+
+    @property
+    def wideband_evidence(self) -> bool:
+        return bool(self.flags & LOCAL_EVENT_WIDEBAND_EVIDENCE)
 
 
 @dataclass(frozen=True)

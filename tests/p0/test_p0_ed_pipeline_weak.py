@@ -67,6 +67,8 @@ def _compile(output: Path) -> bool:
         P0 / "src/p0_multiscale_detector.c",
         P0 / "src/p0_candidate_packet.c",
         P0 / "src/p0_persistent_weak.c",
+        P0 / "src/p0_st05_wideband.c",
+        P0 / "src/p0_st05_stream.c",
         P06J / "src/phase06j_temporal.c",
     ]
     command = [

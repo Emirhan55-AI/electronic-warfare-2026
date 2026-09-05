@@ -110,6 +110,7 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
         "baseline_build_superseded_pending_candidate_packet_runtime_rebuild",
         "baseline_build_superseded_pending_service_v3_rebuild",
         "superseded_by_phase07_network_image",
+        "superseded_by_st06_product_image",
     }
     assert evidence["build"]["full_image_tasks_failed"] == 0
     vivado_path = evidence["hardware_input"]["vivado_evidence"]
@@ -120,9 +121,18 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     else:
         assert evidence["current_source_status"].startswith(
             "baseline_build_superseded_pending_"
-        ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
-        assert evidence["superseded_by_hardware_input"]["xsa_sha256"] == vivado["hardware_platform"]["xsa_sha256"]
-        assert evidence["superseded_by_hardware_input"]["system_bit_sha256"] == vivado["bitstream"]["sha256"]
+        ) or evidence["current_source_status"] in {
+            "superseded_by_phase07_network_image",
+            "superseded_by_st06_product_image",
+        }
+        replacement = evidence["superseded_by_hardware_input"]
+        replacement_vivado = json.loads(
+            (ROOT / replacement.get("vivado_evidence", vivado_path)).read_text(
+                encoding="utf-8"
+            )
+        )
+        assert replacement["xsa_sha256"] == replacement_vivado["hardware_platform"]["xsa_sha256"]
+        assert replacement["system_bit_sha256"] == replacement_vivado["bitstream"]["sha256"]
     if evidence["current_source_status"] in {
         "current_sources_petalinux_build_passed",
         "current_sources_petalinux_build_and_board_physical_passed",
@@ -146,8 +156,14 @@ def test_petalinux_build_evidence_matches_packaging_sources() -> None:
     else:
         assert evidence["current_source_status"].startswith(
             "baseline_build_superseded_pending_"
-        ) or evidence["current_source_status"] == "superseded_by_phase07_network_image"
-    if evidence["current_source_status"] == "current_sources_petalinux_build_and_board_physical_passed":
+        ) or evidence["current_source_status"] in {
+            "superseded_by_phase07_network_image",
+            "superseded_by_st06_product_image",
+        }
+    if evidence["current_source_status"] in {
+        "current_sources_petalinux_build_and_board_physical_passed",
+        "superseded_by_st06_product_image",
+    }:
         assert evidence["prior_physical_acceptance"] == (
             "results/evidence/p0/adr0040-physical-acceptance.json"
         )
@@ -361,7 +377,7 @@ def test_physical_throughput_evidence_is_repeatable_and_traceable() -> None:
         if hashlib.sha256(source.read_bytes()).hexdigest()
         != evidence["source_sha256"][name]
     }
-    assert changed == {"p0_ed_pipeline.c", "p0-dma_1.0.bb"}
+    assert changed == {"p0_ed_pipeline.c", "p0_ed_service.c", "p0-dma_1.0.bb"}
     integration = json.loads(
         (ROOT / "results/evidence/phase08/persistent-weak-integration-v1.json").read_text(
             encoding="utf-8"
@@ -406,7 +422,7 @@ def test_persistent_service_image_cold_boot_evidence_is_traceable() -> None:
         if hashlib.sha256(source.read_bytes()).hexdigest()
         != evidence["source_sha256"][name]
     }
-    assert changed == {"p0_ed_pipeline.c", "p0-dma_1.0.bb"}
+    assert changed == {"p0_ed_pipeline.c", "p0_ed_service.c", "p0-dma_1.0.bb"}
     integration = json.loads(
         (ROOT / "results/evidence/phase08/persistent-weak-integration-v1.json").read_text(
             encoding="utf-8"

@@ -1,0 +1,85 @@
+{
+  "schema": "phase08-st06-pipelined-dma-profile-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-05T05:48:46.954147+00:00",
+  "transmit_enabled": false,
+  "measurement_scope": "physical_pl_dma_plus_dual_core_arm_pipeline",
+  "product_algorithm_changed": false,
+  "st06_complete": false,
+  "board": {
+    "model": "Zynq Zed Development Board",
+    "architecture": "armv7l",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "fpga_manager_state": "operating",
+    "loaded_firmware": "p0-st06-full-power.bin",
+    "producer_affinity": "CPU0",
+    "consumer_affinity": "CPU1",
+    "queue_depth": 4
+  },
+  "artifacts": {
+    "binary_sha256": "6af0d5e71bc96463afecbbf99929573568ca6504c55fba797ec3665d7a5643b4",
+    "firmware_sha256": "61d42a482a47c9d46b3c165bc86d206a3cbb4f47db7517242f63b9f66f5f369a",
+    "input_sha256": "2c40ece75dafd722b00d02a2f790bacf576664ae0e4bf789f281f7dc60206b11",
+    "capture": "results/evidence/phase08/st06-pipelined-dma-profile-v1-runs.jsonl",
+    "capture_sha256": "c6634cd3a4144b7304f79098b3daf3627f0cf96615999627f3cc24d5c1b34715",
+    "metadata": "results/evidence/phase08/st06-pipelined-dma-profile-v1-metadata.txt",
+    "metadata_sha256": "7820ac68f1ef39f153af98801516233023469a7812650d1dace187beb23403b9"
+  },
+  "deadline": {
+    "sample_rate_hz": 2000000,
+    "fft_size": 4096,
+    "required_frames_per_second": 488.28125,
+    "frame_interval_ms": 2.048
+  },
+  "measurement": {
+    "run_count": 5,
+    "measured_frames_per_run": 2000,
+    "minimum_frames_per_second": 551.220627768,
+    "mean_frames_per_second": 563.2185801562,
+    "maximum_frames_per_second": 577.682006048,
+    "minimum_real_time_margin": 1.128899846,
+    "minimum_cpu_core_equivalents": 1.138379435,
+    "mean_cpu_core_equivalents": 1.153528561,
+    "maximum_cpu_core_equivalents": 1.164065774,
+    "maximum_dual_core_cpu_percent": 58.2032887,
+    "dma_and_pl": {
+      "mean_of_mean_latency_ms": 1.5177235387999999,
+      "maximum_p95_latency_ms": 1.545294,
+      "maximum_p99_latency_ms": 1.731336,
+      "maximum_observed_latency_ms": 12.246648
+    },
+    "arm_decode_and_detector": {
+      "mean_of_mean_latency_ms": 1.7568548626000002,
+      "maximum_p95_latency_ms": 1.863966,
+      "maximum_p99_latency_ms": 1.997742,
+      "maximum_observed_latency_ms": 9.269172
+    }
+  },
+  "gates": {
+    "measurement_integrity": true,
+    "full_power_pl_loaded": true,
+    "bounded_dual_core_pipeline_exercised": true,
+    "sustained_end_to_end_real_time": true,
+    "product_lifecycle_integration": false,
+    "controlled_rf_accuracy": false
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_dma_runtime.h": "7ff5f9fad3134a565fd6a28a906e5608058b444d51da3b065dcfbe47fce37ee9",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/include/p0_st06_power_runtime.h": "5debf7c96546c393ffcf8c48b8867cf29a2f574b5dfce980591ccb2e0788566f",
+    "platforms/embedded/p0/src/p0_dma_runtime.c": "a37e4fee7ad8804db8f23248927307b35560240d18cd702afaf01e02c415323d",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "4b07e5ebd34ad5a893b9a6789bceed98e7704f62e53bbefdc8e5f5cfe203feac",
+    "platforms/embedded/p0/src/p0_st06_power_runtime.c": "d2335131397a3af712c17d06e773ff390c1ef2f8acf0229ec1982443b61b3b43",
+    "platforms/embedded/p0/src/p0_st06_dma_profile_run.c": "1614667c6bfd9dd5a8117678548f4c30dde75781fbac97f5660c2e4a30fd9d57",
+    "scripts/verify_st06_pipelined_dma_profile.py": "03e3e30a967e7e0d7d93caddb3b03417cacbbf973fde9f7f8c857abc201732dd"
+  },
+  "claim_boundary": [
+    "The physical profile includes FPGA execution, DMA/driver copies, marked-power decode and the ST-05 ARM detector.",
+    "It replays one recorded CI8 frame for throughput and does not prove live-RF detection accuracy or calibrated Pd/Pfa.",
+    "Passing the sustained-rate gate does not integrate this path into the product service or complete ST-06.",
+    "Any margin above 1.0 is reported as measured capacity, not reserved worst-case product headroom."
+  ]
+}

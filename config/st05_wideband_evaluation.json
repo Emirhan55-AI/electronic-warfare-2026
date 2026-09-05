@@ -1,0 +1,41 @@
+{
+  "schema": "phase08-st05-wideband-evaluation-contract-v1",
+  "status": "frozen_before_holdout",
+  "frame_bins": 4096,
+  "frames_per_sequence": 8,
+  "trials_per_scene": 64,
+  "holdout_seed_base": 202609050000,
+  "acceptance": {
+    "minimum_detection_rate": 0.95,
+    "minimum_boundary_rate": 0.90,
+    "minimum_separation_rate": 0.90,
+    "minimum_merge_rate": 0.90,
+    "minimum_temporal_rate": 0.95,
+    "required_false_bounded_events": 0,
+    "required_edge_retune_rate": 1.0,
+    "required_absolute_absence_claims": 0
+  },
+  "scenes": [
+    {"id": "noise-flat", "family": "negative", "shape": "flat", "expected": "no_candidate"},
+    {"id": "noise-slope-12db", "family": "negative", "shape": "slope_12db", "expected": "no_candidate"},
+    {"id": "noise-step-12db", "family": "negative", "shape": "step_12db", "expected": "no_candidate"},
+    {"id": "bounded-96", "family": "positive", "shape": "supports", "supports": [[2000, 2096, 8.0]], "expected": "detect_each"},
+    {"id": "bounded-512", "family": "positive", "shape": "supports", "supports": [[1792, 2304, 6.0]], "expected": "detect_each"},
+    {"id": "bounded-1024", "family": "positive", "shape": "supports", "supports": [[1536, 2560, 6.0]], "expected": "detect_each"},
+    {"id": "bounded-2048", "family": "positive", "shape": "supports", "supports": [[1024, 3072, 6.0]], "expected": "detect_each"},
+    {"id": "strong-weak-far", "family": "separation", "shape": "supports", "supports": [[800, 1000, 20.0], [2800, 3000, 7.0]], "expected": "detect_each"},
+    {"id": "strong-weak-near", "family": "separation", "shape": "supports", "supports": [[1400, 1600, 20.0], [1700, 1900, 7.0]], "expected": "detect_each"},
+    {"id": "close-merge", "family": "merge", "shape": "supports", "supports": [[1700, 1900, 12.0], [1903, 2103, 12.0]], "expected": "merge_hull"},
+    {"id": "edge-left", "family": "edge", "shape": "supports", "supports": [[0, 512, 12.0]], "expected": "retune_required"},
+    {"id": "edge-right", "family": "edge", "shape": "supports", "supports": [[3584, 4096, 12.0]], "expected": "retune_required"},
+    {"id": "full-window", "family": "identifiability", "shape": "supports", "supports": [[0, 4096, 15.0]], "expected": "no_absolute_absence"},
+    {"id": "transient-two-of-eight", "family": "temporal_negative", "shape": "supports", "supports": [[1792, 2304, 20.0]], "active_frames": 2, "expected": "no_candidate"},
+    {"id": "persistent-six-of-eight", "family": "temporal_positive", "shape": "supports", "supports": [[1792, 2304, 8.0]], "active_frames": 6, "expected": "detect_each"}
+  ],
+  "claim_boundary": [
+    "The holdout contains synthetic independent exponential power cells, not live RF or calibrated field data.",
+    "A full-window noise-like emission is not identifiable from one receiver window without an external or retuned reference.",
+    "Passing selects a Python reference for ST-06 implementation work; it does not prove FPGA, ARM, product, Pd/Pfa, or field acceptance.",
+    "The canonical narrowband OS-CFAR profile and its threshold are outside this comparison and remain unchanged."
+  ]
+}

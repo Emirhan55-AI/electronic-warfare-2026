@@ -1,0 +1,322 @@
+{
+  "schema": "st06-median-hybrid-v1",
+  "status": "equivalent_tested_corpus_input_dependent_timing_regressions",
+  "scope": "isolated_ARM_median_not_product_throughput",
+  "ktr": [
+    "KTR-4.1",
+    "KTR-4.1-OPS",
+    "KTR-6"
+  ],
+  "archive": {
+    "path": "results/evidence/phase08/st06-median-hybrid-v1.zip",
+    "sha256": "c93a9131296e3cbff7d59c6499b7a8369acc2a26b7b5069e53803a9e31796891"
+  },
+  "records": [
+    {
+      "bins": 64,
+      "pattern_index": 0,
+      "baseline": {
+        "p50_ns": 2634.0,
+        "p99_ns": 2886.1200000000026,
+        "observed_max_ns": 49614
+      },
+      "hybrid": {
+        "p50_ns": 1716.0,
+        "p99_ns": 1818.0,
+        "observed_max_ns": 2724
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 1,
+      "baseline": {
+        "p50_ns": 3540.0,
+        "p99_ns": 3852.0600000000013,
+        "observed_max_ns": 40050
+      },
+      "hybrid": {
+        "p50_ns": 1722.0,
+        "p99_ns": 1830.0,
+        "observed_max_ns": 78444
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 2,
+      "baseline": {
+        "p50_ns": 2862.0,
+        "p99_ns": 3090.180000000004,
+        "observed_max_ns": 5292
+      },
+      "hybrid": {
+        "p50_ns": 1716.0,
+        "p99_ns": 1842.0,
+        "observed_max_ns": 2634
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 3,
+      "baseline": {
+        "p50_ns": 6258.0,
+        "p99_ns": 7020.120000000003,
+        "observed_max_ns": 41562
+      },
+      "hybrid": {
+        "p50_ns": 4296.0,
+        "p99_ns": 4878.300000000007,
+        "observed_max_ns": 34596
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 4,
+      "baseline": {
+        "p50_ns": 2556.0,
+        "p99_ns": 2748.0600000000013,
+        "observed_max_ns": 23832
+      },
+      "hybrid": {
+        "p50_ns": 2910.0,
+        "p99_ns": 3162.0600000000013,
+        "observed_max_ns": 26934
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 5,
+      "baseline": {
+        "p50_ns": 7242.0,
+        "p99_ns": 8172.060000000001,
+        "observed_max_ns": 61350
+      },
+      "hybrid": {
+        "p50_ns": 7158.0,
+        "p99_ns": 7734.180000000004,
+        "observed_max_ns": 36408
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 6,
+      "baseline": {
+        "p50_ns": 2706.0,
+        "p99_ns": 2952.0,
+        "observed_max_ns": 32964
+      },
+      "hybrid": {
+        "p50_ns": 3090.0,
+        "p99_ns": 3426.180000000004,
+        "observed_max_ns": 38064
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 7,
+      "baseline": {
+        "p50_ns": 4056.0,
+        "p99_ns": 4956.0,
+        "observed_max_ns": 25248
+      },
+      "hybrid": {
+        "p50_ns": 4410.0,
+        "p99_ns": 5400.120000000003,
+        "observed_max_ns": 34080
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 8,
+      "baseline": {
+        "p50_ns": 6888.0,
+        "p99_ns": 9540.0,
+        "observed_max_ns": 33762
+      },
+      "hybrid": {
+        "p50_ns": 6840.0,
+        "p99_ns": 8958.0,
+        "observed_max_ns": 27600
+      }
+    },
+    {
+      "bins": 64,
+      "pattern_index": 9,
+      "baseline": {
+        "p50_ns": 7377.0,
+        "p99_ns": 10182.060000000001,
+        "observed_max_ns": 33312
+      },
+      "hybrid": {
+        "p50_ns": 6840.0,
+        "p99_ns": 9024.0,
+        "observed_max_ns": 31788
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 0,
+      "baseline": {
+        "p50_ns": 6402.0,
+        "p99_ns": 7056.240000000005,
+        "observed_max_ns": 37650
+      },
+      "hybrid": {
+        "p50_ns": 3180.0,
+        "p99_ns": 3576.180000000004,
+        "observed_max_ns": 31524
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 1,
+      "baseline": {
+        "p50_ns": 9558.0,
+        "p99_ns": 10560.120000000003,
+        "observed_max_ns": 46764
+      },
+      "hybrid": {
+        "p50_ns": 3174.0,
+        "p99_ns": 3564.0600000000013,
+        "observed_max_ns": 28974
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 2,
+      "baseline": {
+        "p50_ns": 7068.0,
+        "p99_ns": 7920.060000000001,
+        "observed_max_ns": 49386
+      },
+      "hybrid": {
+        "p50_ns": 3180.0,
+        "p99_ns": 3666.0,
+        "observed_max_ns": 4248
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 3,
+      "baseline": {
+        "p50_ns": 15372.0,
+        "p99_ns": 17484.180000000004,
+        "observed_max_ns": 41532
+      },
+      "hybrid": {
+        "p50_ns": 11466.0,
+        "p99_ns": 13224.120000000003,
+        "observed_max_ns": 45006
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 4,
+      "baseline": {
+        "p50_ns": 5970.0,
+        "p99_ns": 6738.0,
+        "observed_max_ns": 34824
+      },
+      "hybrid": {
+        "p50_ns": 6438.0,
+        "p99_ns": 7266.060000000001,
+        "observed_max_ns": 29268
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 5,
+      "baseline": {
+        "p50_ns": 28938.0,
+        "p99_ns": 31230.06,
+        "observed_max_ns": 473484
+      },
+      "hybrid": {
+        "p50_ns": 26388.0,
+        "p99_ns": 28644.180000000004,
+        "observed_max_ns": 59268
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 6,
+      "baseline": {
+        "p50_ns": 6540.0,
+        "p99_ns": 7206.180000000004,
+        "observed_max_ns": 34254
+      },
+      "hybrid": {
+        "p50_ns": 7698.0,
+        "p99_ns": 8784.060000000001,
+        "observed_max_ns": 37092
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 7,
+      "baseline": {
+        "p50_ns": 11658.0,
+        "p99_ns": 14046.060000000001,
+        "observed_max_ns": 51882
+      },
+      "hybrid": {
+        "p50_ns": 12216.0,
+        "p99_ns": 14664.0,
+        "observed_max_ns": 44034
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 8,
+      "baseline": {
+        "p50_ns": 21702.0,
+        "p99_ns": 30738.120000000003,
+        "observed_max_ns": 53652
+      },
+      "hybrid": {
+        "p50_ns": 20430.0,
+        "p99_ns": 27204.120000000003,
+        "observed_max_ns": 53010
+      }
+    },
+    {
+      "bins": 256,
+      "pattern_index": 9,
+      "baseline": {
+        "p50_ns": 23448.0,
+        "p99_ns": 33108.720000000016,
+        "observed_max_ns": 107220
+      },
+      "hybrid": {
+        "p50_ns": 20832.0,
+        "p99_ns": 27810.54000000001,
+        "observed_max_ns": 92598
+      }
+    }
+  ],
+  "measured_calls_per_variant": 120000,
+  "repetitions": 3,
+  "ordering": [
+    "baseline,hybrid",
+    "hybrid,baseline",
+    "baseline,hybrid"
+  ],
+  "corpus_sequences": 960,
+  "sliding_windows": 1080,
+  "correctness_mismatches": 0,
+  "production_changed": false,
+  "product_speed_claim": null,
+  "limits": [
+    "Finite patterns; observed quantiles are not WCET bounds",
+    "No full service test or package of hybrid variant",
+    "Current packaged service remains unchanged at 460-465 fps"
+  ],
+  "source_sha256": {
+    "build.sh": "ed7ffa7102d15c4f43c34bf57e48cb515195d17290dbc544c4e816cf600d6ac2",
+    "p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
+    "p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "tail.c": "8afcca1e2d02de76c7e1e01d12a5ce1f52dcf492efbdab420f15d8fc13a64c7a",
+    "wide-baseline.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "wide-hybrid.c": "da00fbac169297d48297fe6168bce7ce49b64ce6975b4587ef77924dd3ae452c"
+  }
+}

@@ -1,0 +1,385 @@
+{
+  "schema": "st06-median-tail-v1",
+  "scope": "isolated_ARM_median_diagnostic_not_product_acceptance",
+  "seed": 6100701,
+  "ktr": [
+    "KTR-4.1",
+    "KTR-4.1-OPS",
+    "KTR-6"
+  ],
+  "status": "prototype_has_input_dependent_regressions_not_promoted",
+  "cpu_affinity": 1,
+  "measured_calls_per_variant": 40000,
+  "warmup_per_pattern": 64,
+  "correctness_checks_per_variant": 41280,
+  "mismatches": 0,
+  "timing_unit": "ns",
+  "quantile_method": "numpy linear interpolation",
+  "records": [
+    {
+      "bins": 64,
+      "pattern": "constant",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 2616.0,
+        "p99_ns": 2706.06,
+        "observed_max_ns": 36108
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 3552.0,
+        "p99_ns": 3642.0,
+        "observed_max_ns": 4902
+      },
+      "p99_ratio": 1.3458681625684574
+    },
+    {
+      "bins": 64,
+      "pattern": "ascending",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 3504.0,
+        "p99_ns": 3624.24,
+        "observed_max_ns": 47286
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 2976.0,
+        "p99_ns": 3078.0,
+        "observed_max_ns": 4212
+      },
+      "p99_ratio": 0.8492815045361235
+    },
+    {
+      "bins": 64,
+      "pattern": "descending",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 2874.0,
+        "p99_ns": 3006.06,
+        "observed_max_ns": 28518
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 3408.0,
+        "p99_ns": 3534.0,
+        "observed_max_ns": 4632
+      },
+      "p99_ratio": 1.1756252370212172
+    },
+    {
+      "bins": 64,
+      "pattern": "sawtooth7",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 6138.0,
+        "p99_ns": 6858.18,
+        "observed_max_ns": 8988
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 4092.0,
+        "p99_ns": 4369.499999999998,
+        "observed_max_ns": 37638
+      },
+      "p99_ratio": 0.6371223852392323
+    },
+    {
+      "bins": 64,
+      "pattern": "alternating_extremes",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 2538.0,
+        "p99_ns": 2616.0,
+        "observed_max_ns": 3612
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 4380.0,
+        "p99_ns": 4788.0,
+        "observed_max_ns": 28494
+      },
+      "p99_ratio": 1.8302752293577982
+    },
+    {
+      "bins": 64,
+      "pattern": "organ_pipe",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 7314.0,
+        "p99_ns": 7902.839999999999,
+        "observed_max_ns": 29280
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 6900.0,
+        "p99_ns": 7278.299999999999,
+        "observed_max_ns": 27576
+      },
+      "p99_ratio": 0.920972713606754
+    },
+    {
+      "bins": 64,
+      "pattern": "single_spike",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 2754.0,
+        "p99_ns": 2916.3599999999997,
+        "observed_max_ns": 3972
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 3660.0,
+        "p99_ns": 3852.0,
+        "observed_max_ns": 5094
+      },
+      "p99_ratio": 1.320824589556845
+    },
+    {
+      "bins": 64,
+      "pattern": "random_binary",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 4122.0,
+        "p99_ns": 5052.0599999999995,
+        "observed_max_ns": 29592
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 6024.0,
+        "p99_ns": 7068.0599999999995,
+        "observed_max_ns": 28542
+      },
+      "p99_ratio": 1.3990451419816867
+    },
+    {
+      "bins": 64,
+      "pattern": "random_16_levels",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 6918.0,
+        "p99_ns": 9606.06,
+        "observed_max_ns": 38592
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 6660.0,
+        "p99_ns": 8748.06,
+        "observed_max_ns": 9654
+      },
+      "p99_ratio": 0.9106813823773743
+    },
+    {
+      "bins": 64,
+      "pattern": "random_continuous",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 7485.0,
+        "p99_ns": 10338.24,
+        "observed_max_ns": 31890
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 6696.0,
+        "p99_ns": 8850.36,
+        "observed_max_ns": 44988
+      },
+      "p99_ratio": 0.856079951713251
+    },
+    {
+      "bins": 256,
+      "pattern": "constant",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 6414.0,
+        "p99_ns": 6978.0,
+        "observed_max_ns": 29862
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 9204.0,
+        "p99_ns": 10266.06,
+        "observed_max_ns": 31998
+      },
+      "p99_ratio": 1.4712037833190026
+    },
+    {
+      "bins": 256,
+      "pattern": "ascending",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 9570.0,
+        "p99_ns": 10230.119999999999,
+        "observed_max_ns": 31632
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 7008.0,
+        "p99_ns": 7836.0599999999995,
+        "observed_max_ns": 8694
+      },
+      "p99_ratio": 0.7659792847004727
+    },
+    {
+      "bins": 256,
+      "pattern": "descending",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 7044.0,
+        "p99_ns": 7878.36,
+        "observed_max_ns": 29334
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 8430.0,
+        "p99_ns": 9774.42,
+        "observed_max_ns": 34428
+      },
+      "p99_ratio": 1.2406668392914262
+    },
+    {
+      "bins": 256,
+      "pattern": "sawtooth7",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 15252.0,
+        "p99_ns": 18109.5,
+        "observed_max_ns": 42618
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 11190.0,
+        "p99_ns": 12894.0,
+        "observed_max_ns": 36528
+      },
+      "p99_ratio": 0.7120019879068997
+    },
+    {
+      "bins": 256,
+      "pattern": "alternating_extremes",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 5946.0,
+        "p99_ns": 6612.24,
+        "observed_max_ns": 23238
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 12546.0,
+        "p99_ns": 14226.36,
+        "observed_max_ns": 39582
+      },
+      "p99_ratio": 2.151519001125186
+    },
+    {
+      "bins": 256,
+      "pattern": "organ_pipe",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 29040.0,
+        "p99_ns": 30582.54,
+        "observed_max_ns": 60378
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 25323.0,
+        "p99_ns": 27211.02,
+        "observed_max_ns": 52560
+      },
+      "p99_ratio": 0.8897567043155997
+    },
+    {
+      "bins": 256,
+      "pattern": "single_spike",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 6570.0,
+        "p99_ns": 7206.0,
+        "observed_max_ns": 33984
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 9342.0,
+        "p99_ns": 10578.18,
+        "observed_max_ns": 29580
+      },
+      "p99_ratio": 1.4679683597002497
+    },
+    {
+      "bins": 256,
+      "pattern": "random_binary",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 11658.0,
+        "p99_ns": 13908.0,
+        "observed_max_ns": 37470
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 17682.0,
+        "p99_ns": 19806.0,
+        "observed_max_ns": 37680
+      },
+      "p99_ratio": 1.4240724762726489
+    },
+    {
+      "bins": 256,
+      "pattern": "random_16_levels",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 21678.0,
+        "p99_ns": 30588.42,
+        "observed_max_ns": 44712
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 20211.0,
+        "p99_ns": 26604.84,
+        "observed_max_ns": 48732
+      },
+      "p99_ratio": 0.8697683633218062
+    },
+    {
+      "bins": 256,
+      "pattern": "random_continuous",
+      "baseline": {
+        "samples": 2000,
+        "p50_ns": 23559.0,
+        "p99_ns": 33372.18,
+        "observed_max_ns": 446874
+      },
+      "median": {
+        "samples": 2000,
+        "p50_ns": 20571.0,
+        "p99_ns": 27739.079999999998,
+        "observed_max_ns": 50382
+      },
+      "p99_ratio": 0.8312037151903171
+    }
+  ],
+  "archive": {
+    "path": "results/evidence/phase08/st06-median-tail-v1.zip",
+    "sha256": "33706f3a02a81d8b0bc43d14da5ba75a4ab89538c798face692efea67b7df5ce"
+  },
+  "files_sha256": {
+    "build.sh": "68ce4fbdc5d475cab25afb8acd9ffd2c11a7533556d124a8dd9d3c1d5332605c",
+    "p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
+    "p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "src.tar": "97da245777fb819bf8d81611b24e23973741f150fb5487dcfe293ad70a6a94d7",
+    "tail-baseline": "c4706825762498fd596be486f1cd1a44fe483e29e9ab6181cf39b4e4175352f3",
+    "tail-baseline.csv": "1b687aa426d65eac0bb3a9e56b142b2eb6a40a512728c9080226cf171c63a934",
+    "tail-median": "1b2e337841a36d2220434796f776dee25ef9281cd15a331f0483266abf184247",
+    "tail-median.csv": "37e974193a223d055c36a2a6a79fcfbbd2754fb8837170e37e4ea6c80a7a7333",
+    "tail.c": "8afcca1e2d02de76c7e1e01d12a5ce1f52dcf492efbdab420f15d8fc13a64c7a",
+    "wide-baseline.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "wide-median.c": "05ca8858529cb81990f92dee04406a30dbe25edc7d74d96550ad5127f4658a86"
+  },
+  "production_changed": false,
+  "limitations": [
+    "Two sequential variant runs, not alternating repetitions",
+    "Observed maxima include scheduling and timing overhead; not hard real-time WCET bounds",
+    "Pattern set is finite; these are not RF trials",
+    "Existing packaged throughput remains 460-465 fps and fails the required 488.28125 fps"
+  ]
+}

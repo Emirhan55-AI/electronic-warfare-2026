@@ -1,5 +1,15 @@
 # Operatör Uygulaması
 
+## Güncel ST-06 sınırı — 5 Eylül 2026
+
+Güncel durum ve sıradaki kabul adımları
+[sinyal tespiti durum kaydında](../docs/interfaces/SIGNAL_DETECTION_STATUS.md)
+tutulur. PL hücre kararını, kartın ARM CPU0/CPU1 çekirdekleri güç çözme ve
+aday/olay işlemeyi yürütür; PC alım/taşıma/görselleştirme yolundadır.
+Paketlenmiş hizmet dijital hız kapısını geçti; sürekli gerçek RX, kör RF ve
+soğuk açılış kabulü henüz tamamlanmadı. Eski faz sonuçları yeni ürüne aktarılmaz.
+Güncel kaynak/ham veri denetimi: `python scripts/verify_st06_parallel_product.py`.
+
 `operator_console`, PySide6 ve Qt Quick/QML ile geliştirilen Türkçe masaüstü
 uygulamasıdır. ED çalışma zamanı yalnız operatörün seçtiği SigMF kaydını veya
 gerçek HackRF RX kaynağını kabul eder. ET çalışma zamanı doğrulanmış çevrimdışı

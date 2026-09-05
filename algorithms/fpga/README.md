@@ -1,5 +1,40 @@
 # RTL
 
+## Son ST-06 ürün güncellemesi — 5 Eylül 2026
+
+Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
+aday ve olay işlerini yürütür. Kuyruk tamponlarının sahipliği değiştirilerek
+ek kopya önlenir; hata geri alımında ortalama kayıtlı toplamdan türetilir.
+Algoritma, medyan, eşikler ve RTL değişmedi. Üç zaman damgalı dijital ürün
+koşusu 508,56 / 502,40 / 508,93 kare/s; 16.000 karelik karma tekrar ölçümü
+529,30 kare/s verdi. Gerekli 488,28125 kare/s bu iş yüklerinde sağlandı.
+Beş kısa testin ham yanıtları önceki paketle birebir eşleşti. Aktarım hatası
+ve aday düşümü sıfırdı. Ek ARM kuyruk belleği 272 KiB'dir; FPGA artışı yoktur.
+Kanıt: `results/evidence/phase08/st06-parallel-product-v1.json` ve ZIP.
+Bu sonuç RF veya soğuk açılış kabulü değildir. SD değişmedi, hizmet geçici
+yüklüdür. Hız payı sınırlıdır; saf periyodik ton/yoğun olay kapasitesi,
+sürekli HackRF RX ve kör RF kapıları açıktır. ST-06 tamamlanmamıştır.
+Aşağıdaki eski hız kayıtları kendi kaynak sürümlerinin tarihsel sonuçlarıdır.
+
+
+5 Eylül 2026 son ST-06 optimizasyonu: ARM güç çözme ve durum yedekleme
+maliyeti azaltıldı; eşikler, sekiz karelik pencere ve RTL değişmedi. PetaLinux
+paketinden çıkan hizmetle üç fiziksel dijital koşu 464,87 / 460,37 / 463,74
+kare/s verdi. Önceki 286–290 kare/s kaydı tarihsel karşılaştırmadır;
+488,28125 kare/s kabul sınırı hâlâ geçilemedi. Beş test girdisinin kart
+yanıtları önceki sürümle byte-tam eşleşti. Bu, RF doğruluk kabulü değildir.
+Kanıt: `results/evidence/phase08/st06-product-optimization-v1.json` ve ZIP.
+SD açılış dosyaları değişmedi; güncel hizmet geçici yüklüdür. ST-06 sürer.
+
+Önceki kayıtlar ve mimari açıklamalar:
+
+Güncel ST-06 ürün zinciri Hann → 4096 FFT → UQ28.30 güç → OS-CFAR hücre
+kararıdır. Geniş bant ve olay yaşam döngüsü ARM'dedir. Routed tasarım 50 MHz'de
+19.587 LUT kullanır; geçici fiziksel dijital tanı yapılmıştır. Bu, ürün hızı
+veya RF kabulü anlamına gelmez; ürün yolu hız kapısı henüz başarısızdır.
+[Güncel durum ve kanıtlar](../../docs/interfaces/SIGNAL_DETECTION_STATUS.md)
+esas alınır. Aşağıdaki faz anlatımları ilgili tarihsel sürümlere aittir.
+
 `phase06a/`, vendor-bağımsız SystemVerilog ile `ci8` AXI4-Stream giriş buffer'ı, 4096 örnek frame sözleşmesi, kompleks güç ve frame istatistikleri temelini içerir. Aynı dizindeki self-checking testbench deterministik PHASE-01 vektörlerini ve protokol köşe durumlarını kullanır.
 
 Bu temel FFT, Hann, detector, DMA, Ethernet, canlı HackRF veya kart üstü ZedBoard sonucu değildir. Mevcut makinede SystemVerilog simülatörü bulunmadığında RTL yalnız hazırlanmış kabul edilir; sentezlenmiş, simüle edilmiş veya FPGA'da doğrulanmış sayılmaz.

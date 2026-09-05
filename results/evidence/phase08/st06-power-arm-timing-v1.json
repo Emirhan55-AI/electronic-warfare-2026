@@ -1,0 +1,96 @@
+{
+  "schema": "phase08-st06-power-arm-timing-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-04T17:59:00.053574+00:00",
+  "transmit_enabled": false,
+  "measurement_scope": "marked_power_decode_plus_arm_detector_kernel",
+  "dma_transfer_included": false,
+  "pl_full_power_image_loaded": false,
+  "product_algorithm_changed": false,
+  "st06_complete": false,
+  "board": {
+    "model": "Zynq Zed Development Board",
+    "architecture": "armv7l",
+    "cpu": "dual ARM Cortex-A9; ARMv7 part 0xc09",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "fpga_manager_state": "operating",
+    "affinity": "scheduler default; taskset unavailable"
+  },
+  "build": {
+    "compiler": "arm-linux-gnueabihf-gcc 11.4.0",
+    "flags": [
+      "-std=c11",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-mcpu=cortex-a9",
+      "-mfpu=neon",
+      "-mfloat-abi=hard"
+    ],
+    "binary_sha256": "a5265432b0f3fdef6a2dc23191a6235c78e2eb564c63af635642ddc705475894"
+  },
+  "input": {
+    "bytes_per_frame": 32768,
+    "format": "4096 natural-order marked UQ28.30 power words",
+    "capture": "results/evidence/phase08/st06-power-runtime-benchmark-v3-runs.jsonl",
+    "capture_sha256": "836c3f19d913fe7d03bff6000f7ed55fd5e6722ac105c907d434cf13a0c30d5d",
+    "run_count": 5,
+    "measured_frames_per_scenario_per_run": 256
+  },
+  "deadline": {
+    "sample_rate_hz": 2000000,
+    "fft_size": 4096,
+    "required_frames_per_second": 488.28125,
+    "frame_interval_ms": 2.048
+  },
+  "measurement": {
+    "noise": {
+      "minimum_frames_per_second": 633.205668352,
+      "mean_frames_per_second": 636.8698422502,
+      "maximum_frames_per_second": 639.824991869,
+      "mean_of_mean_latency_ms": 1.5701972139999998,
+      "maximum_p95_latency_ms": 1.675884,
+      "maximum_p99_latency_ms": 1.734468,
+      "maximum_observed_latency_ms": 2.084178
+    },
+    "wide_signal": {
+      "minimum_frames_per_second": 561.764650758,
+      "mean_frames_per_second": 567.1290678319999,
+      "maximum_frames_per_second": 570.330864017,
+      "mean_of_mean_latency_ms": 1.763313526,
+      "maximum_p95_latency_ms": 1.873464,
+      "maximum_p99_latency_ms": 1.920048,
+      "maximum_observed_latency_ms": 2.407698
+    },
+    "minimum_mean_capacity_margin": 1.150494004752384,
+    "worst_case_remaining_budget_ms": -0.35969799999999985
+  },
+  "gates": {
+    "measurement_integrity": true,
+    "isolated_mean_capacity": true,
+    "isolated_p99_deadline": true,
+    "every_observed_frame_deadline": false,
+    "full_power_dma_integration": false,
+    "pipelined_end_to_end_capacity": false,
+    "product_lifecycle_integration": false
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_pl_os_cfar.h": "7809b704926007c31d485e0592bb98ccba9e881cea9c36d1b12dd9090bb7efd0",
+    "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "2544de06516fa6dc8fa8a38f21779596da155a3c0a59fc4da0ae62f19d068173",
+    "platforms/embedded/p0/include/p0_st06_power_runtime.h": "5debf7c96546c393ffcf8c48b8867cf29a2f574b5dfce980591ccb2e0788566f",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+    "platforms/embedded/p0/src/p0_st05_wideband_internal.h": "ab282d8ed1cc55c4b94b6fb61fa78b295510566c84f5f0129211f84edc44d110",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "4b07e5ebd34ad5a893b9a6789bceed98e7704f62e53bbefdc8e5f5cfe203feac",
+    "platforms/embedded/p0/src/p0_st06_power_runtime.c": "d2335131397a3af712c17d06e773ff390c1ef2f8acf0229ec1982443b61b3b43",
+    "platforms/embedded/p0/src/p0_st06_power_benchmark.c": "0923ef750342e4d2436ab3464ed455bd964c082e67b9ac1e7832dddac56c2639",
+    "scripts/verify_st06_power_arm_benchmark.py": "156fc3744db108f2500f2c26b64b35c53a71e518c9964868464859dd61650d7c"
+  },
+  "claim_boundary": [
+    "This real-board measurement includes marked 32 KiB frame decoding and the ST-05 ARM kernel.",
+    "It excludes PL execution time, DMA transfer, driver copies, network transport, and product-service scheduling.",
+    "Mean and p99 isolated capacity pass, but observed scheduler outliers exceed one frame interval.",
+    "A bounded producer-consumer pipeline and sustained end-to-end card test are required before ST-06 acceptance."
+  ]
+}

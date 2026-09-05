@@ -1,0 +1,31 @@
+[INFO] Building p0-dma
+[WARNING] The PetaLinux toolset is scheduled for deprecation in the 2026.2 release. Users are advised to adopt AMD EDF and its Yocto Project based workflows.
+***** Gen Machine Conf v2025.2
+[INFO] Using HW file: /home/emirhan/projects/electronic-warfare-zedboard/project-spec/hw-description/system.xsa
+[INFO] Getting Platform info from HW file
+[INFO] Silentconfig project
+[INFO] Silentconfig rootfs
+[INFO] Generating configuration files
+[INFO] Generating workspace directory
+NOTE: Starting bitbake server...
+NOTE: Started PRServer with DBfile: /home/emirhan/projects/electronic-warfare-zedboard/build/cache/prserv.sqlite3, Address: 127.0.0.1:45779, PID: 87168
+INFO: Specified workspace already set up, leaving as-is
+[INFO] bitbake p0-dma
+NOTE: Started PRServer with DBfile: /home/emirhan/projects/electronic-warfare-zedboard/build/cache/prserv.sqlite3, Address: 127.0.0.1:45339, PID: 87229
+WARNING: XSCT has been deprecated.  All non Microblaze XSCT BSPs will be deprecated in version 2026.1, while Microblaze will be end-of-life in 2026.2.  Users are advised to start new projects with the SDT workflow, and transition Microblaze to Microblaze-V.
+Loading cache...done.
+Loaded 9208 entries from dependency cache.
+Parsing recipes...done.
+Parsing of 6515 .bb files complete (6510 cached, 5 parsed). 9212 targets, 1784 skipped, 28 masked, 0 errors.
+NOTE: Resolving any missing task queue dependencies
+Initialising tasks...Checking sstate mirror object availability...done.
+Sstate summary: Wanted 488 Local 22 Mirrors 466 Missed 0 Current 2086 (100% match, 100% complete)
+NOTE: Executing Tasks
+NOTE: Running setscene task 2470 of 2574 (/home/emirhan/projects/electronic-warfare-zedboard/project-spec/meta-user/recipes-kernel/p0-dma/p0-dma_1.0.bb:do_package_write_rpm_setscene)
+NOTE: recipe p0-dma-1.0-r0: task do_package_write_rpm_setscene: Started
+NOTE: recipe p0-dma-1.0-r0: task do_package_write_rpm_setscene: Succeeded
+NOTE: Tasks Summary: Attempted 5679 tasks of which 5679 didn't need to be rerun and all succeeded.
+
+Summary: There was 1 WARNING message.
+[INFO] Failed to copy built images to tftp dir: /tftpboot
+[INFO] Successfully built p0-dma

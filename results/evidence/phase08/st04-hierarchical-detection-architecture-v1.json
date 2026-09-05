@@ -1,0 +1,102 @@
+{
+  "schema": "phase08-st04-hierarchical-detection-architecture-v1",
+  "status": "architecture_selected",
+  "generated_at_utc": "2026-09-04T12:38:10.428031+00:00",
+  "phase08_complete": false,
+  "st04_complete": true,
+  "transmit_enabled": false,
+  "architecture": {
+    "stage_0_full_band_discovery": {
+      "owner": "host",
+      "implementation": "official_hackrf_sweep",
+      "range_hz": [
+        20000000,
+        6000000000
+      ],
+      "sample_rate_hz": 20000000,
+      "requested_bin_width_hz": 25000,
+      "actual_bin_widths_hz": [
+        24875.62
+      ],
+      "median_full_sweep_seconds": 0.7940189000219107,
+      "p95_full_sweep_seconds": 0.8046721100108698,
+      "validated_gap_free_sweeps": 9,
+      "authority": "candidate_only"
+    },
+    "stage_1_candidate_refinement": {
+      "owner": "host",
+      "implementation": "8msps_hann_integrated_spectrum_two_lo",
+      "sample_rate_hz": 8000000,
+      "fft_size": 16384,
+      "bin_spacing_hz": 488.28125,
+      "same_recording_target_recovered": true,
+      "same_recording_off_common_candidates": 0,
+      "authority": "rx_evidence_only"
+    },
+    "stage_2_detailed_confirmation": {
+      "owner": "fpga_pl_and_arm_ps",
+      "implementation": "2msps_hann_fft_os_cfar_multiscale_temporal",
+      "sample_rate_hz": 2000000,
+      "fft_size": 4096,
+      "bin_spacing_hz": 488.28125,
+      "functional_capacity_frames_per_second": 991.3750371765639,
+      "required_frames_per_second": 488.28125,
+      "functional_capacity_ratio": 2.0303360761376026,
+      "authority": "fpga_candidate_with_arm_temporal_state"
+    }
+  },
+  "fpga_scaling_boundary": {
+    "existing_4096_pipeline_direct_8msps_required_frames_per_second": 1953.125,
+    "existing_pipeline_functional_capacity_frames_per_second": 991.3750371765639,
+    "direct_8msps_capacity_ratio": 0.5075840190344006,
+    "direct_8msps_existing_pipeline_meets_capacity": false,
+    "post_route_slice_luts_used": 48040,
+    "post_route_slice_luts_available": 53200,
+    "post_route_slice_lut_utilization_percent": 90.3,
+    "post_route_slice_luts_free": 5160,
+    "setup_wns_ns": 0.199,
+    "hold_whs_ns": 0.01,
+    "decision": "do_not_reuse_existing_4096_pipeline_at_8msps",
+    "claim_boundary": "Bu hesap yalnız mevcut 4096-hücre RTL zincirinin doğrudan 8 MS/s tekrar kullanımını eler; başka bir FPGA mimarisinin yapılamayacağını kanıtlamaz."
+  },
+  "profile_decision": {
+    "selected_for_controlled_blind_test": true,
+    "selected_for_product": false,
+    "stage_0_requested_bin_width_hz": 25000,
+    "stage_1_fft_size": 16384,
+    "stage_2_fft_size": 4096,
+    "reason": "25 kHz tam bant sweep ölçümünde kaba profillerle aynı zaman sınıfında kalıp daha fazla frekans ayrıntısı verdi; 16.384 aynı fiziksel kayıtta hedefi iki LO'da geri kazanıp kapalı kayıtta ortak aday üretmeyen tek profildi; mevcut 2 MS/s FPGA zinciri kapasiteyi karşılarken doğrudan 8 MS/s tekrar kullanım karşılamadı."
+  },
+  "open_acceptance_gates": [
+    "Stage-0 sweep güçlerinden frekans-truth kullanmadan aday çıkarma ve adayları Stage-1'e otomatik aktarma.",
+    "Farklı frekans, yayın ailesi, seviye ve sürelerde kontrollü kör RF matrisi.",
+    "Sistem düzeyinde Pd, yanlış doğrulanmış olay/MHz-dakika ve p95 ilk tespit gecikmesi.",
+    "Stage-1 RX adayının Stage-2 FPGA yeniden ayarı ve iki-LO yaşam döngüsüyle uçtan uca kabulü."
+  ],
+  "input_evidence_sha256": {
+    "search_profile_baseline": {
+      "path": "results/evidence/phase08/st04-search-profile-baseline-v1.json",
+      "sha256": "9d9018ce5bfc925ccc6db071c408d3c29213207ec73eb74ba54e6229ec39704e"
+    },
+    "sweep_resolution": {
+      "path": "results/evidence/phase08/st04-sweep-resolution-v1.json",
+      "sha256": "4bc1615c76b415a5b652df7ab6b7858040b7fc589633d0a66d89fc7b4b797b6b"
+    },
+    "same_iq_resolution": {
+      "path": "results/evidence/phase08/st04-same-iq-resolution-v1.json",
+      "sha256": "972f56285ea2967fdd993d69e06aafacab6eded4d3d49fe3c4d9bf29a1992488"
+    },
+    "fpga_functional_capacity": {
+      "path": "results/evidence/p0/candidate-reducer-final-rtl-v2.json",
+      "sha256": "6224ef903d47e989c3c14ab0dfe52ca037e320b1884da02f775587187e9f20c1"
+    },
+    "fpga_post_route": {
+      "path": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
+      "sha256": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745"
+    }
+  },
+  "source_sha256": {
+    "scripts/evaluate_st04_architecture.py": "0363ea1958d4c59d74078eb3c7522452d289339e5c9441b91b15dd1cebd23ead",
+    "docs/decisions/ADR-0041-PHASE08-HIERARCHICAL-BLIND-DETECTION.md": "4641ec5fddfc98d568512be0ee93cee306d6ed544d395331e1a5d9e8443fcf8c"
+  }
+}
