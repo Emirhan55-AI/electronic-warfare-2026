@@ -43,6 +43,7 @@ def build_quick_application(
     acquisition_backend: object | None = None,
     source_factory: object | None = None,
     auto_probe_hackrf: bool = False,
+    show_startup_intro: bool = False,
 ) -> tuple[QGuiApplication, QQmlApplicationEngine, OperatorViewModel]:
     global _SPECTRAL_TYPES_REGISTERED
     if not _SPECTRAL_TYPES_REGISTERED:
@@ -63,6 +64,7 @@ def build_quick_application(
     view_model = OperatorViewModel(**view_model_kwargs)
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("operatorViewModel", view_model)
+    engine.rootContext().setContextProperty("startupIntroRequested", bool(show_startup_intro))
     engine.load(QUrl.fromLocalFile(str(QML_PATH)))
     if not engine.rootObjects():
         view_model.shutdown()
@@ -88,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser = argparse.ArgumentParser(description="Elektronik Harp operatör uygulaması")
     parser.add_argument("--smoke-test", action="store_true", help="pencereyi kısa süre açıp kapat")
+    parser.add_argument("--no-intro", action="store_true", help="açılış görselini gösterme")
     args = parser.parse_args(argv)
     lock_path = Path(QStandardPaths.writableLocation(QStandardPaths.TempLocation)) / "baz-operator-console.lock"
     instance_lock = QLockFile(str(lock_path))
@@ -98,7 +101,11 @@ def main(argv: list[str] | None = None) -> int:
     # Keep the QML engine and view model alive for the full event loop. Using
     # the same throwaway name for both drops the engine reference immediately,
     # which destroys the root window before it reaches the desktop.
-    app, engine, view_model = build_quick_application([sys.argv[0]], auto_probe_hackrf=False)
+    app, engine, view_model = build_quick_application(
+        [sys.argv[0]],
+        auto_probe_hackrf=False,
+        show_startup_intro=not args.no_intro,
+    )
     if args.smoke_test:
         QTimer.singleShot(350, app.quit)
     exit_code = app.exec()

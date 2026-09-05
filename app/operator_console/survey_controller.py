@@ -204,9 +204,9 @@ class SurveyController(QObject):
         elapsed = f"{int(self._elapsed) // 60:02d}:{int(self._elapsed) % 60:02d}"
         count = self._good + self._bad
         if not self.running or count < 3:
-            return f"Geçen {elapsed}"
+            return f"Geçen Süre {elapsed}"
         remaining = self._elapsed / count * (len(self._states) - count)
-        return f"Geçen {elapsed} · kalan yaklaşık {remaining / 60:.0f} dk"
+        return f"Geçen Süre {elapsed} · kalan yaklaşık {remaining / 60:.0f} dk"
 
     @Property(str, notify=changed)
     def auditPath(self):

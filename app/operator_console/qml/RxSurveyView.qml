@@ -75,8 +75,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     Label { text: "BANT TARAMASI"; color: view.theme.textPrimary; font.pixelSize: 14; font.weight: Font.DemiBold }
-                    Caption { text: "Canlı alım ve FPGA tespiti · " + survey.runConditionText; Layout.fillWidth: true }
-                    Caption { text: survey.state; color: survey.running ? view.theme.accent : view.theme.textSecondary }
+                    Caption { text: "Canlı alım ve FPGA tespiti"; Layout.fillWidth: true }
                     Action { text: "Sabit Frekans ›"; enabled: !operatorViewModel.busy; onClicked: view.fixedBandRequested() }
                 }
                 RowLayout {
@@ -159,8 +158,9 @@ Item {
                 spacing: 10
                 Card {
                     Layout.fillWidth: true
-                    implicitHeight: 150
+                    implicitHeight: coverageContent.implicitHeight + 28
                     ColumnLayout {
+                        id: coverageContent
                         anchors.fill: parent
                         anchors.margins: 14
                         spacing: 8
@@ -199,9 +199,13 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true
                             Caption { text: survey.coverageText; Layout.fillWidth: true }
-                            Caption { text: "Gri: bekliyor · Mavi: tarandı · Sarı: hata"; font.pixelSize: 9 }
+                            ColumnLayout {
+                                spacing: 2
+                                Caption { text: "Gri: bekliyor"; font.pixelSize: 9 }
+                                Caption { text: "Mavi: tarandı"; font.pixelSize: 9 }
+                                Caption { text: "Sarı: hata"; font.pixelSize: 9 }
+                            }
                         }
-                        Caption { text: survey.detail; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
                     }
                 }
                 Card {
@@ -238,7 +242,6 @@ Item {
                                     ctx.fillText((operatorViewModel.spectrumMaxDb-i*(operatorViewModel.spectrumMaxDb-operatorViewModel.spectrumMinDb)/4).toFixed(0),left-6,y+3)
                                 }
                             }
-                            Label { anchors.centerIn: parent; visible: operatorViewModel.spectrumPointCount < 2; text: "Kart yanıtı bekleniyor"; color: view.theme.textMuted }
                         }
                         WaterfallImage {
                             objectName: "surveyWaterfall"
@@ -248,11 +251,10 @@ Item {
                             source: operatorViewModel.spectralDisplay
                             Accessible.name: "Son tamamlanan tarama penceresinin spektrogramı; frekans değişince geçmiş temizlenir"
                         }
-                        Caption { text: operatorViewModel.spectralDisplay.historyText + " · Her pencere ayrı frekans geçmişidir"; font.pixelSize: 9; Layout.fillWidth: true; elide: Text.ElideRight }
                         RowLayout {
                             Layout.fillWidth: true
                             Caption { text: operatorViewModel.sourceReady ? ((operatorViewModel.centerFrequencyHz-1e6)/1e6).toFixed(3)+" MHz" : "—" }
-                            Caption { text: "dBFS · 2 MHz pencere"; horizontalAlignment: Text.AlignHCenter; Layout.fillWidth: true }
+                            Item { Layout.fillWidth: true }
                             Caption { text: operatorViewModel.sourceReady ? ((operatorViewModel.centerFrequencyHz+1e6)/1e6).toFixed(3)+" MHz" : "—" }
                         }
                     }
@@ -267,11 +269,6 @@ Item {
                     spacing: 8
                     Label { text: "BULUNAN RF ADAYLARI"; color: view.theme.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
                     Caption { text: survey.currentObservationText; color: view.theme.accent; Layout.fillWidth: true; wrapMode: Text.Wrap }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Caption { text: survey.observationText; Layout.fillWidth: true; wrapMode: Text.Wrap }
-                        Caption { text: "ÖNE ÇIKANLAR ÜSTTE"; color: view.theme.textSecondary; font.pixelSize: 9; font.weight: Font.Bold }
-                    }
                     ListView {
                         id: observationList
                         objectName: "surveyObservations"
@@ -309,9 +306,7 @@ Item {
                                 Caption { text: modelData.window + " · " + modelData.evidenceDetail; color: view.theme.textMuted; font.pixelSize: 9; elide: Text.ElideRight; width: parent.width }
                             }
                         }
-                        Caption { anchors.centerIn: parent; visible: observationList.count === 0; text: "Henüz RF adayı bulunmadı"; width: parent.width - 24; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
                     }
-                    Caption { text: survey.selectedFrequency > 0 ? (survey.selectedFrequency/1e6).toFixed(6)+" MHz seçildi" : "Sürekli izleme için bir frekans seçin"; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     Action {
                         objectName: "surveyMonitor"
                         Layout.fillWidth: true
@@ -321,15 +316,6 @@ Item {
                     }
                 }
             }
-        }
-        Caption {
-            HoverHandler { id: footerHover }
-            text: "Sonuçlar RF adaylarını gösterir. Seçtiğiniz adayı sabit frekansta yeniden tarayabilirsiniz."
-            Layout.fillWidth: true
-            font.pixelSize: 10
-            elide: Text.ElideRight
-            ToolTip.visible: footerHover.hovered
-            ToolTip.text: survey.auditPath ? "Alım kaydı: " + survey.auditPath : "Her tarama ayrı alım kaydına yazılır."
         }
     }
 }
