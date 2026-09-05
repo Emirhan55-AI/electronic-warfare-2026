@@ -34,6 +34,19 @@ SD değiştirilmediği için yeniden başlatma sonrası çalışan imaj/hizmet y
 belirlenmelidir. En düşük ölçülen hız payı yaklaşık %2,89'dur; uzun süreli
 uçtan uca performans garantisi değildir.
 
+## Dal birleştirme ve kayıt kontrolü — 5 Eylül 2026
+
+`master-yedek` üzerindeki `0cad6a0` ve `511e7f7` arayüz değişiklikleri
+ST-06 çalışmasıyla birleştirildi. Açılış görseli ve bant taraması yerleşimi
+korundu; yeni varlıklar depo dosya sözleşmesine eklendi. Bu birleştirme yeni
+RF kabulü veya FPGA algoritması değişikliği içermez.
+
+Birleşmiş kaynakta 120 hedefli regresyon geçti: depo sözleşmesi, ST-06
+paralel ürün ve tarihsel kanıt kontrolleri, ARM hizmet/ürün yolu, operatör
+ürün sınırı, Qt Quick, bant taraması ve canlı ED oturumu. PHASE-00 salt-okunur
+kontrolündeki 10 kapı geçti. Tüm depo testlerinin çalıştırıldığı iddia edilmez.
+Ham tarihsel kanıtların satır sonları hash bağını korumak için değiştirilmedi.
+
 ## Tarihsel deney kayıtları
 
 Aşağıdaki “sonraki iş”, “güncel paket” ve “kapı açık” ifadeleri kayıtlarının

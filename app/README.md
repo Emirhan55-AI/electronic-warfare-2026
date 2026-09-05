@@ -16,6 +16,10 @@ gerçek HackRF RX kaynağını kabul eder. ET çalışma zamanı doğrulanmış 
 modelleri doğrudan ürün arayüzüne bağlar. Test backend'leri, kayıtlı doğrulama
 verileri, eski laboratuvar arayüzleri ve RF yayın yolu ürün paketine dahil edilmez.
 
+Açılışta atlanabilir tam ekran logo gösterilir; `--no-intro` ile kapatılabilir.
+Bu görsel donanımı başlatmaz. Bant taraması görünümündeki düzenlemeler
+`master-yedek` dalından korunarak birleştirilmiştir.
+
 Uygulamanın mevcut çalışma alanları:
 
 - `Spektrum`: kaynak yönetimi, dBFS spektrum, spektrogram, zamansal tespitler ve
