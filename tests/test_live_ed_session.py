@@ -270,6 +270,21 @@ def test_live_session_rejects_clipped_iq_instead_of_presenting_it_as_valid() -> 
     assert session.last_diagnostics["hackrf_statistics"]["frames_received"] == 2
 
 
+def test_optional_receive_level_assessment_uses_consecutive_startup_window() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer",
+        LiveEDConfiguration(104_650_000, SERIAL, frame_count=64, assess_receive_level=True),
+        stream_factory=_FakeStream,
+        transport_factory=_FakeTransport,
+    )
+    with pytest.raises(AcquisitionError) as failure:
+        session.run()
+    assert failure.value.code == "rx_level_low"
+    # The rejected decision frame and remaining frames cannot be sent as
+    # if they belonged to a completed, correctly levelled capture.
+    assert session._transport.stats.frames_sent <= 47
+
+
 def test_saturation_is_reported_before_a_long_capture_can_mask_it_as_queue_timeout() -> None:
     session = LiveEDSession(
         "hackrf_transfer",

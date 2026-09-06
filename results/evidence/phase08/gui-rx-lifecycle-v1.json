@@ -1,0 +1,72 @@
+{
+  "schema": "phase08-gui-rx-lifecycle-v1",
+  "recorded_at": "2026-09-06T12:16:08.102622+00:00",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0"
+  ],
+  "ST06_complete": false,
+  "rf_accuracy_acceptance": false,
+  "transmit_enabled": false,
+  "external_transmitter_state": "operator_declared_off",
+  "long_rx": {
+    "run": "long-02-900mhz-visible.json",
+    "frames": 439453,
+    "usb_overruns": 0,
+    "transport_errors": 0,
+    "gui_visibility_gap_seconds": 3.5279437000863254,
+    "operator_confirmed_desktop_switch": true,
+    "continuous_gui_acceptance": false
+  },
+  "lifecycle": {
+    "run": "lifecycle-02.json",
+    "stop_latency_ms": 124.35870012268424,
+    "restart_frames": 43945,
+    "usb_overruns": 0,
+    "transport_errors": 0,
+    "new_generation": 3,
+    "initial_frame": 0,
+    "initial_rx_timestamp": 0,
+    "initial_fpga_timestamp": 0,
+    "presentation_rx_age_p95_ms": 153.46713997423652,
+    "presentation_gap_max_ms": 100.11629993095994,
+    "operator_reported_desktop_return": true,
+    "qt_hidden_transition_observed": false,
+    "desktop_return_latency_ms": null,
+    "active_events_in_restart": 0
+  },
+  "limits": [
+    "Pencereye dönüş gecikmesi bağımsız ölçülemedi.",
+    "Yeniden başlatılan oturumun p95 RX görüntü yaşı 153,47 ms ile 150 ms hedefini aşar.",
+    "Yeniden başlatmada etkin olay yoktu; eski olay kimliklerinin karışmaması bu fiziksel koşuda sınanmadı.",
+    "İptal edilen ilk oturumda son USB istatistiği yoktur; sıfır hata kabul edilmez.",
+    "Kuyruk tepeleri örneklenmiştir; yeniden başlatmada 118/512 ve 64/64 gözlendi.",
+    "Çalışan hizmet özeti doğrulandı; çalışan bitstream/imaj özeti okunamadı.",
+    "Tek uzun başarılı alım önceki USB taşmasını kalıcı çözüm saydırmaz."
+  ],
+  "artifacts": {
+    "board-before.json": "feab660049632ab1df5630a5e82db046dcf3e91f0afed774f724c442808eeaba",
+    "headless-01-900mhz.json": "dcc54f3bf73eae592817b01f7742fffce064a65d411b47cb40562257e7a3050d",
+    "headless-01-900mhz.zip": "8c75d202d7fd75acea43d1ff976819d76b85f6fb51c7fa9189f16e8551d93925",
+    "lifecycle-01.json": "3ca92004fc35c7f84770a25d469b796c6dbd0f58567a25f924a6492a5dc708e4",
+    "lifecycle-02.json": "68862fdbcb2569a02d0d8655fa6261d21104cbe374e596fe9795ffe187ff09e4",
+    "lifecycle-02.py": "f6d4b2b297376509d528937291a40ac91c3820a82e997a53a42eef15486a4e88",
+    "lifecycle.py": "b50ff19d370898f597d8b893a1ddcd48808c9afffd3c5ac034fbe723568bc042",
+    "long-01-interrupted.json": "5e9097551641598245b5d0389d5bd1b53a7509b45f89e0840c48844fbe5fa687",
+    "long-02-900mhz-visible.json": "638c043e961a84c275b3e7648a125f66c8df767a00c90810c77a309ae6753a3f",
+    "long-02-900mhz-visible.zip": "8db1a22c17d8f582fd7f0d71d2c5ae8a41cdd3b09e35eaf58ed312dee2ed8f9d",
+    "long-03-900mhz-visible.json": "125a9616e02d2dec133a956dc659a1e94bff5ec8051741f2b163d52616f34f3d",
+    "long-03-900mhz-visible.zip": "65cc522e0a6fafeb76281d5610ef5413b447f1bb50753166f0c3e12c041fe8f0",
+    "operator-observations.json": "5eb4379ea18e8828245f4e5eaf84021db85bc26fb7ca30117dd711e4e48f4c24",
+    "short-01.json": "b2439d3791e400e39d9dc9b6b21be4705ded05f3b6299a73945101f8fd8371a4",
+    "short-01.zip": "9965b0b9f82a379ab42beda0a17862f1c9ba980baff8b45f0e8ca41cca5829ec",
+    "short-02-900mhz.json": "57d6dffc0ac22a57432db73d2c4814ad0864d4b6b34b0ca9e69760e82b07ffbe",
+    "short-02-900mhz.zip": "0708b2a85d18881fa6123944073d68e4ee889149eb198adccd3d8c7bc4cdf989",
+    "short-03-900mhz.json": "4658900398e20d7d0d01ff32f5b099fdd8e732d21e9da96767ca0d1f425a4648",
+    "short-03-900mhz.zip": "9dc3e75fe74d069943bfba19bf6893425a4402d8cd75c9e5ed085afb20c037db",
+    "short-04-900mhz-visible.json": "713f03dc149f966d16f668dd46d7eb69009ac18215851408a6d36904a6e67999",
+    "short-04-900mhz-visible.zip": "a9eb314fba45a13fd6bfc91126f0e6e6572e9856edf98e79ae2e35cb7479da9f",
+    "short-05-900mhz-visible.json": "84cba8e302686c153481d7d31e22b0e3ec89cce119714e7348a1e0d4548d7661",
+    "short-05-900mhz-visible.zip": "8ed5920b98756dc768ecb65d28a334e878d35903e5f181fb6c95cfb676702882"
+  }
+}

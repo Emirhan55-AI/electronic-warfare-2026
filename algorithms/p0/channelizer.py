@@ -24,8 +24,13 @@ class P0ChannelizerProfile:
     kaiser_beta: float = 7.85726
     minimum_dc_safe_offset_hz: int = 1_250_000
     maximum_tuning_offset_hz: int = 2_750_000
+    # Explicit experimental pre-quantization gain. Production default stays 1;
+    # powers from other scales require scale**2 compensation by the consumer.
+    output_amplitude_scale: float = 1.0
 
     def __post_init__(self) -> None:
+        if not math.isfinite(self.output_amplitude_scale) or not 1 <= self.output_amplitude_scale <= 16:
+            raise ValueError("Çıkış genlik ölçeği 1–16 arasında olmalıdır.")
         if self.input_sample_rate_hz != 4 * self.output_sample_rate_hz:
             raise ValueError("P0 kanal seçici yalnız 4:1 örnek azaltma profilini kabul eder.")
         if self.input_samples_per_frame != 4 * self.output_samples_per_frame:
@@ -55,6 +60,7 @@ class ChannelizedFrame:
     input_center_frequency_hz: int
     tuning_offset_hz: int
     filter_group_delay_input_samples: int
+    output_amplitude_scale: float = 1.0
 
 
 def _design_lowpass(profile: P0ChannelizerProfile) -> npt.NDArray[np.float64]:
@@ -65,6 +71,7 @@ def _design_lowpass(profile: P0ChannelizerProfile) -> npt.NDArray[np.float64]:
     taps = 2.0 * normalized_cutoff * np.sinc(2.0 * normalized_cutoff * index)
     taps *= np.kaiser(profile.filter_taps, profile.kaiser_beta)
     taps /= np.sum(taps)
+    taps *= profile.output_amplitude_scale
     taps.setflags(write=False)
     return taps
 
@@ -197,4 +204,5 @@ class P0Channelizer:
             input_center_frequency_hz=input_center_frequency_hz,
             tuning_offset_hz=offset_hz,
             filter_group_delay_input_samples=profile.group_delay_input_samples,
+            output_amplitude_scale=profile.output_amplitude_scale,
         )

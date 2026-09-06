@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from algorithms.p0.channelizer import P0ChannelizerProfile
 
 from algorithms.p0 import (
     NativeP0Channelizer,
@@ -13,11 +14,13 @@ from algorithms.p0 import (
 
 
 @pytest.mark.skipif(find_native_channelizer_library() is None, reason="Yerel kanal seçici derlenmemiş.")
-def test_native_channelizer_is_ci8_exact_across_stream_boundaries_and_offsets() -> None:
+@pytest.mark.parametrize("scale", [1.0, 4.0, 8.0])
+def test_native_channelizer_is_ci8_exact_across_stream_boundaries_and_offsets(scale) -> None:
     rng = np.random.default_rng(20260831)
     for offset_hz in (1_250_000, 1_300_000, 1_500_000, 2_750_000, -1_500_000):
-        reference = P0Channelizer()
-        native = NativeP0Channelizer()
+        profile = P0ChannelizerProfile(output_amplitude_scale=scale)
+        reference = P0Channelizer(profile)
+        native = NativeP0Channelizer(profile)
         for sequence in range(8):
             payload = rng.integers(-64, 65, 32_768, dtype=np.int8).tobytes()
             arguments = dict(
@@ -32,6 +35,7 @@ def test_native_channelizer_is_ci8_exact_across_stream_boundaries_and_offsets() 
             assert observed.frame.payload == expected.frame.payload
             assert observed.saturated_components == expected.saturated_components
             assert observed_input_saturated == expected_input_saturated == 0
+            assert observed.output_amplitude_scale == expected.output_amplitude_scale == scale
 
 
 @pytest.mark.skipif(find_native_channelizer_library() is None, reason="Yerel kanal seçici derlenmemiş.")

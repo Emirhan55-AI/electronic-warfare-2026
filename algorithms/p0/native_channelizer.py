@@ -164,6 +164,7 @@ class NativeP0Channelizer:
             input_center_frequency_hz=input_center_frequency_hz,
             tuning_offset_hz=offset_hz,
             filter_group_delay_input_samples=profile.group_delay_input_samples,
+            output_amplitude_scale=profile.output_amplitude_scale,
         ), int(self._input_saturated.value)
 
     def __del__(self) -> None:

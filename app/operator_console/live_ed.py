@@ -77,8 +77,11 @@ class LiveEDConfiguration:
     display_interval_frames: int = 15
     input_center_frequency_hz_override: int | None = None
     fpga_enabled: bool = True
+    assess_receive_level: bool = False
 
     def __post_init__(self) -> None:
+        if not isinstance(self.assess_receive_level, bool):
+            raise AcquisitionError("invalid_rx_config", "Alım seviyesi denetim modu geçersizdir.")
         if not isinstance(self.fpga_enabled, bool):
             raise AcquisitionError("invalid_rx_config", "FPGA alım modu geçersizdir.")
         if isinstance(self.output_center_frequency_hz, bool) or not isinstance(
@@ -488,6 +491,7 @@ class LiveEDSession:
 
         def channelized_frames():
             nonlocal input_saturated, output_saturated
+            level_nonzero = 0
             for _ in range(config.frame_count):
                 if self._cancellation.is_set():
                     raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
@@ -521,6 +525,15 @@ class LiveEDSession:
                         "iq_saturation",
                         "Kanal seçici çıkışında kırpılan örnek oluştu; alıcı kazançlarını azaltın.",
                     )
+                # Ignore the first 16 startup frames, then assess 32 consecutive
+                # frames. This detects coarse CI8 quantization, not RF absence.
+                if config.assess_receive_level and 16 <= index < 48:
+                    level_nonzero += len(channelized.frame.payload) - channelized.frame.payload.count(0)
+                    if index == 47 and level_nonzero < 32 * 8192 * 0.05:
+                        raise AcquisitionError(
+                            "rx_level_low",
+                            "Kanal seçici çıkışının %95'inden fazlası sıfır; alım seviyesi ayarlanmalı.",
+                        )
                 frame = channelized.frame
                 if sampled:
                     timing_samples["channelizer_ms"].append((time.perf_counter() - processing_started) * 1000)

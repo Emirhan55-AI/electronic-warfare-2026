@@ -357,23 +357,67 @@ app.processEvents()
 center = root.findChild(QObject, "liveCenterInput")
 lna = root.findChild(QObject, "liveLnaInput")
 vga = root.findChild(QObject, "liveVgaInput")
-center.setProperty("text", "104650000")
+center.setProperty("text", "104,65")
+app.processEvents()
+converted = center.property("frequencyHz")
+valid = center.property("frequencyValid")
+cases = []
+for text in ["933", "104.65", "1200", "933.000001", "", "933000000", "abc", "0", "6001", "933.0000001"]:
+    center.setProperty("text", text)
+    app.processEvents()
+    cases.append([center.property("frequencyValid"), center.property("frequencyHz") if center.property("frequencyValid") else None])
 view_model._live_receive_settings = {"center_hz": 6_000_000_000, "lna_db": 8, "vga_db": 24}
 view_model.liveReceiveSettingsChanged.emit()
 view_model._busy = True
 view_model.stateChanged.emit()
 app.processEvents()
-payload = {"center": center.property("text"), "lna": lna.property("currentText"), "vga": vga.property("currentText"),
+payload = {"cases": cases, "converted": converted, "valid": valid, "center": center.property("text"), "lna": lna.property("currentText"), "vga": vga.property("currentText"),
            "enabled": [center.property("enabled"), lna.property("enabled"), vga.property("enabled")]}
 view_model._busy = False
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
-        self.assertEqual("6000000000", payload["center"])
+        self.assertEqual(104650000, payload["converted"])
+        self.assertTrue(payload["valid"])
+        self.assertEqual([[True, 933000000], [True, 104650000], [True, 1200000000], [True, 933000001]] + [[False, None]] * 6, payload["cases"])
+        self.assertEqual("6000", payload["center"])
         self.assertEqual("8", payload["lna"])
         self.assertEqual("24", payload["vga"])
         self.assertEqual([False, False, False], payload["enabled"])
+
+    def test_mhz_start_button_enables_managed_gain_and_focuses_detection_band(self) -> None:
+        payload = self.run_qml(
+            """
+import sys
+sys.path.insert(0, str(Path.cwd() / 'tests'))
+from test_live_ed_view_model import _Session
+seen = []
+class CaptureSettings(_Session):
+    def run(self, snapshot_handler):
+        seen.append([self.configuration.output_center_frequency_hz, self.configuration.assess_receive_level])
+        return super().run(snapshot_handler)
+root = engine.rootObjects()[0]
+root.setProperty('rfSearchMode', False)
+view_model.setSourceMode('hackrf')
+view_model._hackrf_ready = True
+view_model._hackrf_transfer_executable = 'hackrf_transfer'
+view_model._live_session_factory = CaptureSettings
+view_model.stateChanged.emit(); app.processEvents()
+root.findChild(QObject, 'liveCenterInput').setProperty('text', '933,125')
+app.processEvents()
+root.findChild(QObject, 'liveStartButton').clicked.emit()
+deadline = time.perf_counter() + 3
+while view_model.busy and time.perf_counter() < deadline:
+    app.processEvents(); time.sleep(.005)
+payload = {'seen': seen, 'start': root.property('spectrumViewStart'), 'end': root.property('spectrumViewEnd')}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual([[933125000, True]], payload['seen'])
+        self.assertAlmostEqual(.6, payload['start'])
+        self.assertAlmostEqual(.775, payload['end'])
 
     def test_qml_product_loads_at_minimum_screen(self) -> None:
         payload = self.run_qml(
@@ -781,12 +825,10 @@ print(json.dumps(payload,ensure_ascii=False))
             "ALICI AYARLARI",
             "Taramayı başlatınca spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",
-            "KARARLI RF ADAYI",
-            "FPGA ADAYI",
-            "GÜÇLÜ RX ADAYI",
-            "iki alıcı ayarında denetleniyor",
-            "ŞU ANDA İKİ AYARDA KARARLI RF ADAYI YOK",
-            "BU TARAMADA DAHA ÖNCE GÖRÜLENLER",
+            "SİNYAL TESPİT EDİLDİ",
+            "SİNYAL KONTROL EDİLİYOR",
+            "Artık alınmıyor",
+            "DAHA ÖNCE ALINAN SİNYALLER",
             "FPGA gözlemi",
             "operatorViewModel.errorTitle",
             "zoomSpectrum",
@@ -854,7 +896,7 @@ print(json.dumps(payload,ensure_ascii=False))
         ):
             self.assertNotIn(removed_operator_control, text)
         no_data_guard = text.index("if (operatorViewModel.spectrumPointCount < 2) return")
-        fpga_window_guide = text.index("operatorViewModel.liveDetectionStartNormalized")
+        fpga_window_guide = text.index("var fpgaStart = operatorViewModel.liveDetectionStartNormalized")
         self.assertLess(no_data_guard, fpga_window_guide)
         for forbidden in ("LIVE GNSS", "HOST/SYNTHETIC", "Simülasyon", "demo", "mock"):
             self.assertNotIn(forbidden, text)

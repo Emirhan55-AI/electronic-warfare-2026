@@ -265,6 +265,7 @@ class OperatorViewModel(
         self._live_output_center_frequency_hz = 0
         self._spectrum_center_frequency_hz = 0.0
         self._spectrum_sample_rate_hz = 0.0
+        self._managed_gain = None
         self._live_receive_settings = {
             "center_hz": 104_650_000,
             "lna_db": OPERATOR_DEFAULT_LNA_GAIN_DB,
@@ -1371,10 +1372,26 @@ class OperatorViewModel(
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
             code, detail = self._live_presentation_error
+        managed = self._managed_gain
         self._live_session = None
         self._busy = False
         self._playing = False
         self._active_task_kind = ""
+        if code in {"iq_saturation", "rx_level_low"} and managed is not None and self._live_presentation_error is None:
+            direction = -8 if code == "iq_saturation" else 8
+            settings = self._live_receive_settings
+            gains = (max(0, min(40, int(settings["lna_db"]) + direction)),
+                     max(0, min(56, int(settings["vga_db"]) + direction)))
+            self._add_log("Alıcı ayarı", f"{code}: {detail}")
+            if managed["attempts"] < 8 and gains not in managed["visited"]:
+                self.startLiveEDSession(settings["center_hz"], *gains, self._frame_count, managed_gain=True)
+                self._status_message = f"Alıcı kazancı ayarlandı: LNA {gains[0]} dB / VGA {gains[1]} dB."
+                self._add_log("Alıcı ayarı", self._status_message)
+                self.stateChanged.emit()
+                return
+            self._managed_gain = None
+            code = "rx_gain_unresolved"
+            detail = "Otomatik kazanç aralığında uygun seviye bulunamadı. Verici gücünü veya anten konumunu değiştirin; elle kazanç da seçebilirsiniz."
         if code == "operation_cancelled":
             if (
                 not self._fixed_verification_stop_requested

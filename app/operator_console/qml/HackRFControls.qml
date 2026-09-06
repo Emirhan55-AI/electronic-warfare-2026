@@ -8,14 +8,27 @@ ColumnLayout {
     spacing: 7
     QuietButton { Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
     QuietButton { Layout.fillWidth: true; text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
-    Label { text: "Merkez frekansı (Hz)"; color: shell.textSecondary; font.pixelSize: 10 }
-    AppField { id: centerInput; objectName: "liveCenterInput"; Layout.fillWidth: true; text: String(operatorViewModel.liveReceiveSettings.center_hz); enabled: !operatorViewModel.busy; inputMethodHints: Qt.ImhDigitsOnly; Accessible.name: "İzleme merkez frekansı" }
+    Label { text: "Merkez frekansı (MHz)"; color: shell.textSecondary; font.pixelSize: 10 }
+    AppField {
+        id: centerInput
+        objectName: "liveCenterInput"
+        Layout.fillWidth: true
+        text: String(operatorViewModel.liveReceiveSettings.center_hz / 1000000)
+        readonly property real frequencyHz: Math.round(Number(text.trim().replace(",", ".")) * 1000000)
+        readonly property bool frequencyValid: /^[0-9]+([.,][0-9]{1,6})?$/.test(text.trim()) && frequencyHz >= 1000000 && frequencyHz <= 6000000000
+        enabled: !operatorViewModel.busy
+        inputMethodHints: Qt.ImhFormattedNumbersOnly
+        placeholderText: "Örn. 933 veya 104,65"
+        Accessible.name: "İzleme merkez frekansı, MHz"
+    }
+    Label { visible: !centerInput.frequencyValid; text: "1–6000 MHz arasında bir değer girin."; color: shell.textSecondary; font.pixelSize: 10 }
     Connections {
         target: operatorViewModel
         function onLiveReceiveSettingsChanged() {
-            centerInput.text = String(operatorViewModel.liveReceiveSettings.center_hz)
+            centerInput.text = String(operatorViewModel.liveReceiveSettings.center_hz / 1000000)
             lnaInput.currentIndex = lnaInput.model.indexOf(operatorViewModel.liveReceiveSettings.lna_db)
             vgaInput.currentIndex = vgaInput.model.indexOf(operatorViewModel.liveReceiveSettings.vga_db)
+            shell.setSpectrumView(operatorViewModel.liveDetectionStartNormalized, operatorViewModel.liveDetectionEndNormalized)
         }
     }
     RowLayout {
@@ -31,22 +44,44 @@ ColumnLayout {
             AppCombo { id: vgaInput; objectName: "liveVgaInput"; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
         }
     }
+    CheckBox {
+        id: automaticGain
+        objectName: "liveAutomaticGain"
+        text: "Kazancı otomatik ayarla"
+        checked: true
+        enabled: !operatorViewModel.busy
+        Accessible.name: text
+        Layout.fillWidth: true
+        implicitHeight: 30
+        indicator: Rectangle {
+            x: 0; y: (parent.height - height) / 2
+            width: 16; height: 16; radius: 3
+            color: automaticGain.checked ? "#0078D4" : "#313131"
+            border.color: automaticGain.activeFocus ? "#FFFFFF" : "#868686"
+            Rectangle { anchors.centerIn: parent; width: 8; height: 8; radius: 1; visible: automaticGain.checked; color: "#FFFFFF" }
+        }
+        contentItem: Text {
+            text: automaticGain.text; leftPadding: 23
+            verticalAlignment: Text.AlignVCenter
+            color: shell.textSecondary; font.pixelSize: 11
+        }
+    }
     PrimaryButton {
         objectName: "liveStartButton"
         Layout.fillWidth: true
         text: "Taramayı Başlat"
         visible: !operatorViewModel.liveSessionActive
-        enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy
-        onClicked: operatorViewModel.startLiveEDSession(Number(centerInput.text), Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit)
+        enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && centerInput.frequencyValid
+        onClicked: operatorViewModel.startManagedLiveEDSession(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit, automaticGain.checked)
     }
     QuietButton {
         Layout.fillWidth: true
         text: "Yalnız RX Önizleme"
         visible: false
-        enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy
+        enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && centerInput.frequencyValid
         ToolTip.visible: hovered
         ToolTip.text: "Kart bağlantısı olmadan gerçek alımı gösterir; FPGA tespiti üretmez."
-        onClicked: operatorViewModel.startRXPreview(Number(centerInput.text), Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit)
+        onClicked: operatorViewModel.startRXPreview(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit)
     }
     QuietButton {
         Layout.fillWidth: true

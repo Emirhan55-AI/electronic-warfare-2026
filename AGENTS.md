@@ -30,7 +30,34 @@ imaj hash'leri eşleşen kanıt aranır; eski fiziksel sonuç yeni ikiliye aktar
 Durum değişikliğinde yukarıdaki belgeler ile etkilenen bileşen README'leri
 birlikte güncellenir. Geçmiş ölçümler ve dondurulmuş yöntem kayıtları korunur.
 
-## Güncel kanıt aktarımı — 6 Eylül 2026
+## Gün sonu devam kaydı — 6 Eylül 2026
+
+- Güncel ayrıntı `docs/interfaces/SIGNAL_DETECTION_STATUS.md` başındadır.
+  PHASE-08 / ST-06 kabulü açık; parametre fazına geçilmedi.
+- Önceki fiziksel kaynakta 853 MHz CW, RX 24/24 dB kısa açık koşusunun son
+  kart olay sayacı 4.883/4.883 gözlem bildirdi. Kapalı koşunun 327 örnek yanıtında
+  hedef çevresinde confirmed olay yoktu. Her iki koşuda USB/CRC/sıra/kuyruk ve
+  kırpılma sıfır; bu tüm ortamlarda Pd/Pfa kabulü değildir.
+- Son kaynakta MHz girişi, sade sinyal durumları, başlangıçta tespit aralığına
+  odaklanan görünüm ve sınırlı otomatik kazanç eklendi. Son kaynak donanımda
+  denenmedi. Otomatik kazanç ilk 16 kareden sonraki 32 kareyi değerlendirir;
+  %95'ten fazla sıfır bileşeninde artırır, kırpılmada azaltır. Tekrarlayan ayar
+  yok, en çok 8 girişim; bu sürekli AGC değildir.
+- Çıkış genlik ölçeği deneysel ve açık seçime bağlıdır; canlı varsayılan 1.
+  Aynı zayıf açık ham kayıtta ölçek 8, kayan noktalı merkez eşik aşımını
+  14/496'dan 474/496'ya taşıdı; kapalıda 0/496. Fiziksel FPGA tekrarı yapılmadı.
+  Güç telafisi ve ölçek izlenebilirliği olmadan canlı yola alınmaz.
+- RF kayıtları ve yerel analiz araçları `results/evidence/phase08/rf-diagnostics-20260906.zip`
+  içinde; JSON dosyası her girdinin hash'ini içerir. Eski kaynak özetleri korunur.
+  Yeni klonda yeniden üretim için özgün build yollarına güvenli çıkarım gerekir.
+- Sonraki oturum kart/servis/imaj kimliği kontrolüyle başlar. Ardından yeni
+  kaynakla kısa kapalı/açık/kapalı, otomatik kazanç ve iptal denemeleri yapılır.
+  Sırf önceki masaüstü geçişleri için uzun testler tekrarlanmaz. Kör RF ve soğuk
+  açılış dahil açık kapılar sonuçlara göre değerlendirilir.
+- Kullanıcı bu gün sonu işlemi için kaydetme ve master/master-yedek eşitlemesini
+  onayladı; bu yetki sonraki commit/push işlemleri için sürekli izin değildir.
+
+## Önceki kanıt aktarımı — 6 Eylül 2026
 
 - PHASE-08 / ST-06 ve KTR-4.1 / KTR-4.1-OPS-B0 kabulü açıktır.
 - Tarihsel `native-channelizer-v3.json`, `st06-parallel-product-v1.json`

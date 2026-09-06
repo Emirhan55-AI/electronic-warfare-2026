@@ -1039,6 +1039,46 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
         view_model.shutdown()
 
 
+@pytest.mark.parametrize("errors,expected", [
+    (["rx_level_low"], [(16, 16), (24, 24)]),
+    (["iq_saturation"], [(16, 16), (8, 8)]),
+    (["rx_level_low", "iq_saturation"], [(16, 16), (24, 24)]),
+    (["operation_cancelled"], [(16, 16)]),
+])
+def test_managed_gain_retries_are_bounded_and_do_not_cycle(errors, expected) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["managed-gain-test"])
+    configurations = []
+    remaining = list(errors)
+
+    class LevelSession(_Session):
+        def run(self, snapshot_handler):
+            configurations.append((self.configuration.lna_gain_db, self.configuration.vga_gain_db))
+            assert self.configuration.assess_receive_level
+            if remaining:
+                raise AcquisitionError(remaining.pop(0), "level test")
+            return super().run(snapshot_handler)
+
+    view = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=LevelSession,
+                             fpga_transport_factory=_FPGAReadyTransport)
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        view.startManagedLiveEDSession(933_000_000, 16, 16, 64, True)
+        _drain(app, lambda: view.busy)
+        assert configurations == expected
+        if len(errors) == 2:
+            assert view.errorTitle == "Alıcı seviyesi ayarlanamadı"
+            assert view.detections == []
+        elif errors == ["operation_cancelled"]:
+            assert not view.errorTitle
+        else:
+            assert not view.errorTitle
+            assert view.liveReceiveSettings["lna_db"] == expected[-1][0]
+    finally:
+        view.shutdown()
+
+
 @pytest.mark.parametrize("session_factory", [_FailedSession, _InvalidSnapshotSession])
 def test_failed_live_session_clears_results_and_can_retry(session_factory) -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-retry-test"])

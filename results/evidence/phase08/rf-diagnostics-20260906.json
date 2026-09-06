@@ -1,0 +1,318 @@
+{
+  "scope": "PHASE-08/ST-06 diagnostic preservation, not acceptance",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0"
+  ],
+  "archive_sha256": "d222627d1e8e1d21623575e63c899489cbe794f5a1c3fef432070a879017ba1c",
+  "archive_bytes": 43447272,
+  "entries": {
+    "build/acceptance/st06-gui-20260906/analyze_channelizer_scaling.py": {
+      "sha256": "23c26157efb2a79643407611306f9432c0927f667e3b4ba9d468f0d72ed6e14c",
+      "bytes": 2870
+    },
+    "build/acceptance/st06-gui-20260906/analyze_rf853_gain.py": {
+      "sha256": "16d64601bda3ce884deacdbbfb9c5498cf9079456d5fe7135f9bddab9da62e91",
+      "bytes": 2852
+    },
+    "build/acceptance/st06-gui-20260906/analyze_rf853_threshold.py": {
+      "sha256": "8138b74dec225cdc42d02c3d92bcb32ba3d56ee359587cd71fa915a57a8019d5",
+      "bytes": 4381
+    },
+    "build/acceptance/st06-gui-20260906/archive_rf_handoff.py": {
+      "sha256": "2e330c4892cc004d4bd036450582c8b1e6b9ad87530d157d7b4534ca03c20da9",
+      "bytes": 2164
+    },
+    "build/acceptance/st06-gui-20260906/channelizer-scaling-diagnosis-01.json": {
+      "sha256": "86fc39910367b63d44dbadd426f8b60322e723c45024ed8ec1de1da5fd4143df",
+      "bytes": 3454
+    },
+    "build/acceptance/st06-gui-20260906/rf853-16db-comparison-01.json": {
+      "sha256": "5797c7d6143ec351f7a58bb893527d9cf72d67f10e4292d14ec03b249fca3af5",
+      "bytes": 49855
+    },
+    "build/acceptance/st06-gui-20260906/rf853-24db-board-comparison-01.json": {
+      "sha256": "40e11bbb2830ffd5aa583ebdb2ef6e03c6f952e87ef178cf98a84c06840a3912",
+      "bytes": 1955
+    },
+    "build/acceptance/st06-gui-20260906/rf853-board-context.json": {
+      "sha256": "14ca0f8f5668677474b9498b408826dea5a87c1be5edbc84e0e62e2d22888174",
+      "bytes": 990
+    },
+    "build/acceptance/st06-gui-20260906/rf853-cw-ab-01.events.jsonl": {
+      "sha256": "ac090ff3c915e895dbbaea30a4fb4f41d729c1c6ab8335838fb902de8fa85127",
+      "bytes": 2114336
+    },
+    "build/acceptance/st06-gui-20260906/rf853-cw-ab-01.json": {
+      "sha256": "6a154416f89b1afee61700922d75db8fb25e3ff84b8b92df5dad05c3a86aadde",
+      "bytes": 949336
+    },
+    "build/acceptance/st06-gui-20260906/rf853-cw-ab-01.operator.jsonl": {
+      "sha256": "f175a2cc1f8cdf3599e9daeef47c6b9d85a68c02659ed044920f8038b0808acd",
+      "bytes": 293
+    },
+    "build/acceptance/st06-gui-20260906/rf853-cw-ab-01.sampled.ci8": {
+      "sha256": "65471535420bd4bc43974733f47b8d6b50fa82977ea72a35dc45b678cd9556b8",
+      "bytes": 48013312
+    },
+    "build/acceptance/st06-gui-20260906/rf853-cw-ab-01.zip": {
+      "sha256": "ffb127c9bbea83c3ed1184bd28f51344b63f707842fc59008ed8d5223c7bf7bb",
+      "bytes": 788725
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-comparison-01.json": {
+      "sha256": "6b65670058f85f914add440c9fee94824125979befe1c3d3c0adfa66d45e439b",
+      "bytes": 6865
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-16-16.channelized.ci8": {
+      "sha256": "1adb7bfe2f3899acb4c6322453ee948b64ef8172d9673c77ffc1c59b506d7c91",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-16-16.raw.ci8": {
+      "sha256": "9deb6b2590293736c28d6e7ff7820cc1cbd57fac8b438ae2d751dfb4c389d6e4",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-24-24.channelized.ci8": {
+      "sha256": "9c1d2f6e4ecbcde3fd58112969e395a732091278be01d830397941ba539889af",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-24-24.raw.ci8": {
+      "sha256": "67e877406205975534257763a77b7514630e9c833047a555e80ebd97dba0ddb5",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-32-32.channelized.ci8": {
+      "sha256": "794b59c973b3e540750f7ea7b3edfda663a9c6099b4c1e00b217e7c1669fb673",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/rx-32-32.raw.ci8": {
+      "sha256": "be6d65f3a85c950aab671a84ba6a86721a418632a96bc08f5c3c724783ef6543",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-off-01/summary.json": {
+      "sha256": "426763ca5fa4ae5801eaad7d766720c719092a7be12c1c13b505aedf9f0c844a",
+      "bytes": 6656
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-16-16.channelized.ci8": {
+      "sha256": "2388d1397700c5fa55c9fb36608f5bf98b1034ab2fef8d2b905356ad863a71bf",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-16-16.raw.ci8": {
+      "sha256": "574287dae7753938c4fe773fe58a2aadaa6ca0a9d7d5a106a9e561a005fb455b",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-24-24.channelized.ci8": {
+      "sha256": "7223746de50cbf5a9a05f1f5843128454f4cb3cca18c69cd74c4abdb404417f8",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-24-24.raw.ci8": {
+      "sha256": "983542e8937c1ee6a29da3b6e10f2e3712b25d9b092709a109d5ea1dd70258f3",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-32-32.channelized.ci8": {
+      "sha256": "6f55ccecc0095be7db32ba38260493f66d64a0ef0deffc6a884f7885cf39f913",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/rx-32-32.raw.ci8": {
+      "sha256": "6731bd3a8f6e6cb81a6a2f00a6d046bc70d7087a6cecd97853b5767f61d3d7cc",
+      "bytes": 16777216
+    },
+    "build/acceptance/st06-gui-20260906/rf853-gain-on-01/summary.json": {
+      "sha256": "21b193797f3d3a2da677f7082e14b3fc43ae1275043cdecbee1434374fcf203d",
+      "bytes": 6663
+    },
+    "build/acceptance/st06-gui-20260906/rf853-near-comparison-01.json": {
+      "sha256": "67970c5a1e1a445b4199b0487ec788a7d20545967187dca14789ab1443bd4d57",
+      "bytes": 4069
+    },
+    "build/acceptance/st06-gui-20260906/rf853-near-comparison-01.zip": {
+      "sha256": "ca36622815acf0acc285a577e8d4315602795c6d841b9bda57ff15a7681fbe2c",
+      "bytes": 1469656
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-01.json": {
+      "sha256": "303629395fa44bbdb2bea17d5d87ea18103fc0b2e717598e6458612dcace3ebe",
+      "bytes": 25888
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-01.zip": {
+      "sha256": "074a5169601a1520b0346510c579b54717711b3e312e0bbbd50ad1a4b63ab77b",
+      "bytes": 546244
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-02.events.jsonl": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-02.json": {
+      "sha256": "a7e3a09b2f4d733924ec9223203d9ba316a9b66fa20bea80a60bb1212be2074d",
+      "bytes": 28063
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-02.sampled.ci8": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-02.zip": {
+      "sha256": "1aa457ef9070ef8394cb654113c24f69f13682f254b1ff10705145a997acdeef",
+      "bytes": 546928
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-03.events.jsonl": {
+      "sha256": "ca2c162edb0087d8d3e1b82bc0673f5024335535ce4103ec9e8b81c92e61b749",
+      "bytes": 351573
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-03.json": {
+      "sha256": "59fe9b293c91544a9d0adef5e26eb0adc6ca4f035126163140fd35a59ca508d2",
+      "bytes": 249128
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-03.sampled.ci8": {
+      "sha256": "4a8044dfa02636254a3534d874f39517503945933c4003d4cb6c7ff9b3f1123c",
+      "bytes": 8011776
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-03.zip": {
+      "sha256": "300ebb377a81185ae703fcd92e611d4a380523b4b8be60c90fde71ff2b9e7703",
+      "bytes": 609145
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-16db-01.events.jsonl": {
+      "sha256": "06176860e6938ac615233dc86336433c76d24c6f9667fa680b6663c254b334e9",
+      "bytes": 1091649
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-16db-01.json": {
+      "sha256": "32e5758308ad98a10d5476e21c09615ca56d99f4c386da53df75188646d258fc",
+      "bytes": 250201
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-16db-01.sampled.ci8": {
+      "sha256": "9be554be40360b274374d91be87e21e3cfa33e853d0dbbfb2a6139a112973df8",
+      "bytes": 8011776
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-16db-01.zip": {
+      "sha256": "6e907d3370af6f8638f0a47d0e43ef700e9933763e3e6625b88ccd2c02bf6bb2",
+      "bytes": 609466
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-16db-summary.json": {
+      "sha256": "edcf93845cdb3755ccf099f51d1f9c65062c22afc1ac58a33066ee52c75faeb8",
+      "bytes": 1354
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-24db-01.events.jsonl": {
+      "sha256": "e1880dda0df98475263f17b580b924894655e8f9b963b6372a93575f8a5302a7",
+      "bytes": 363738
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-24db-01.json": {
+      "sha256": "d90c719741a1ec1d3c85afbeadd23b9055abe1a6ad2677d452ed57e80a7f05e7",
+      "bytes": 105117
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-24db-01.sampled.ci8": {
+      "sha256": "75e5291287eb561b768e1c98f39443a99576e808a868e5b70fce01cc3acefc80",
+      "bytes": 2678784
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-24db-01.zip": {
+      "sha256": "615f259176a5889a5d7430ec2804482c6bab42c13e66bf58c2325e19c4bc92ac",
+      "bytes": 569151
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-bundle.zip": {
+      "sha256": "d6d1ab1fe8dec597a536eb20bc5d13f10a1902fa73d80bf3e049176bce282fc0",
+      "bytes": 693926
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-near-16db-01.events.jsonl": {
+      "sha256": "44f6726a0cf2e95a2ef6a80e61ec62e2407be1fb2d2f1e3a2073c9cecedb9921",
+      "bytes": 372811
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-near-16db-01.json": {
+      "sha256": "cc30ca127aa5f88748f52f2d44ed61c0f2cbfb06bcdc5686c3368ef3357d5a9c",
+      "bytes": 104870
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-near-16db-01.sampled.ci8": {
+      "sha256": "b9a40ed991ecef0e9cf2dda225edb55029ca9f97a2e68fc2a8a33a6114583b85",
+      "bytes": 2678784
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-near-16db-01.zip": {
+      "sha256": "96069ed6091328417eceb09f8f1df00fd8e91b3df14f96df08f2ff20647caaab",
+      "bytes": 568977
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-raw-01.ci8": {
+      "sha256": "77f87d3cf241bd2b87de02f34452e987268d67e72b573cd21907a91bec90fb5e",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-raw-01.json": {
+      "sha256": "10ebf85a0d42a30a42ffa38d32e79bb8313657a9c3832a9491c003486d0afc17",
+      "bytes": 31630
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-raw-16db.ci8": {
+      "sha256": "64f9eb9cdf2888457f069dc02193a85eef7311f3e1038c01e763802d2d19ed27",
+      "bytes": 4194304
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-raw-16db.json": {
+      "sha256": "c103f366ea80b297433f91c005cee368e6e7876be276f01108983db99c477a05",
+      "bytes": 24418
+    },
+    "build/acceptance/st06-gui-20260906/rf853-off-summary.json": {
+      "sha256": "83798716d688eff349648646de9e76e447c8249e90c0c66146c7b4d72a2f0522",
+      "bytes": 1088
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-16db-01.events.jsonl": {
+      "sha256": "e9b7cfcb71fc900b7838f19f9bc4d22620c6b75c3c327ed3b8b5f932bd57059e",
+      "bytes": 1079010
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-16db-01.json": {
+      "sha256": "4a0742c90c1d5d83845284fc9c29e5203147408a8d2890fcff5e1c72fc12554e",
+      "bytes": 250127
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-16db-01.sampled.ci8": {
+      "sha256": "1625e42cbd0b487a70ce25c03adc4aa03f5072ed517bbc07a9c5969140abcdf1",
+      "bytes": 8011776
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-16db-01.zip": {
+      "sha256": "d74c7f2fc23608a2c0a222a17418c34f68a06b117ccda5fe8399d654e73aacb9",
+      "bytes": 609331
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-24db-01.events.jsonl": {
+      "sha256": "6f88ace5a6b067244d202ca8e49f945f0d92c2f61064bc2f6e40646bad29a127",
+      "bytes": 564501
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-24db-01.json": {
+      "sha256": "58a2643e6008cbd1232931112cf4b71402496ce870e5ac6df12d15a33f5d981f",
+      "bytes": 104411
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-24db-01.sampled.ci8": {
+      "sha256": "8f0895ca8e798736edd263c0444ddcb0440098e722b3f3cfced968d175d2ec01",
+      "bytes": 2678784
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-24db-01.zip": {
+      "sha256": "6afbf9f1539f7ae5bb8e68af3df73909c8b020b11a71668404e50a2078ebd15d",
+      "bytes": 568994
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-24db-target-01.json": {
+      "sha256": "20ca755fce47f83bfac322648e35df538e97ade4e8deb2071e4f1cd72e4e10be",
+      "bytes": 1374
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-near-16db-01.events.jsonl": {
+      "sha256": "67d0ba7e87b1c4988a0a723b369563f725625b7f4f18a8d32db5139461a928be",
+      "bytes": 383166
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-near-16db-01.json": {
+      "sha256": "4756e78ed98701836b93e50a9057b8f210c2851ab54ec8de987c9158d74d03ba",
+      "bytes": 104856
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-near-16db-01.sampled.ci8": {
+      "sha256": "475274b6f850dd22f5795d1a6c3fdcb9631359e199922085346d229c30972f17",
+      "bytes": 2678784
+    },
+    "build/acceptance/st06-gui-20260906/rf853-on-near-16db-01.zip": {
+      "sha256": "59f0a4ace58b7e3d7b9524e6810a893cd54c667051cef74d6f34586858982921",
+      "bytes": 569031
+    },
+    "build/acceptance/st06-gui-20260906/rf853-threshold-diagnosis-01.json": {
+      "sha256": "a2b9e850af219462732dbc9411906b472cae041227b49e5017049efe0f42bad6",
+      "bytes": 3813
+    },
+    "build/acceptance/st06-gui-20260906/rf853_capture.py": {
+      "sha256": "57c5631199d9e9cc2dda2132370497ffc0f8b7b103e1a6060792e482083f4893",
+      "bytes": 1139
+    },
+    "build/acceptance/st06-gui-20260906/rf853_gain_capture.py": {
+      "sha256": "9e237d9e9edae9bc1211d0313f478316ce4fca6c95af6318de423b51ed7bc079",
+      "bytes": 4026
+    }
+  },
+  "restore": "Extract into repository root to restore original build/acceptance paths. Do not overwrite existing files without comparing hashes.",
+  "limits": [
+    "Physical captures retain their original source hashes; they do not validate the latest code.",
+    "Includes failed attempts and operator-reported transmitter states.",
+    "Scaling analysis uses a floating FFT, not a bit-true board replay.",
+    "ST-06 remains open."
+  ]
+}

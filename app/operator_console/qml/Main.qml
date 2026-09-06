@@ -236,6 +236,8 @@ ApplicationWindow {
             if (root.spectrumHistorySource !== operatorViewModel.sourceName) {
                 root.spectrumHistorySource = operatorViewModel.sourceName
                 root.clearSpectrumViewHistory()
+                if (operatorViewModel.sourceMode === "hackrf" && operatorViewModel.liveSessionActive && operatorViewModel.liveDetectionEnabled)
+                    root.setSpectrumView(operatorViewModel.liveDetectionStartNormalized, operatorViewModel.liveDetectionEndNormalized)
             }
         }
     }
@@ -698,7 +700,8 @@ ApplicationWindow {
                                                 ctx.fillStyle = "rgba(0,120,212,0.82)"
                                                 ctx.font = "8px Segoe UI"
                                                 ctx.textAlign = "center"
-                                                ctx.fillText("TESPİT ALANI", (fpgaX1 + fpgaX2) / 2, plotTop + 10)
+                                                if (fpgaX2 - fpgaX1 < plotWidth * 0.98)
+                                                    ctx.fillText("TARANAN ARALIK", (fpgaX1 + fpgaX2) / 2, plotTop + 10)
                                             }
                                         }
                                          var low = operatorViewModel.spectrumMinDb
@@ -994,9 +997,8 @@ ApplicationWindow {
                                         spacing: 2
                                         Label {
                                             text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
-                                                  ? (signalSummaryCard.stableCandidate ? "KARARLI RF ADAYI"
-                                                     : signalSummaryCard.leadingFpga !== null ? "FPGA ADAYI"
-                                                     : "GÜÇLÜ RX ADAYI")
+                                                  ? (signalSummaryCard.leadingFpga !== null || signalSummaryCard.stableCandidate
+                                                     ? "SİNYAL TESPİT EDİLDİ" : "SİNYAL KONTROL EDİLİYOR")
                                                   : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
                                             color: root.spectrumTaskTab === 0
                                                    ? (signalSummaryCard.stableCandidate ? root.success : root.warning)
@@ -1011,16 +1013,7 @@ ApplicationWindow {
                                             Label {
                                                 text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
                                                       ? (signalSummaryCard.leadingMarker === null ? ""
-                                                         : signalSummaryCard.leadingMarker.frequency + " · "
-                                                           + (signalSummaryCard.leadingMarker.verificationKey === "rx_supported"
-                                                              ? "FPGA + RX spektrumu uyumlu"
-                                                              : signalSummaryCard.stableCandidate ? "iki ayarda kararlı"
-                                                              : signalSummaryCard.leadingMarker.verificationKey === "pending"
-                                                                ? "iki alıcı ayarında denetleniyor"
-                                                                : signalSummaryCard.leadingFpga !== null ? "FPGA adayı"
-                                                                : signalSummaryCard.leadingMarker.insideFpgaBand
-                                                                  ? "FPGA alanında aday"
-                                                                  : "FPGA alanı dışında; otomatik denetlenecek"))
+                                                         : signalSummaryCard.leadingMarker.frequency)
                                                       : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""
                                                 color: root.textPrimary
                                                 font.pixelSize: 12
@@ -1030,7 +1023,7 @@ ApplicationWindow {
                                             }
                                             Label {
                                                 readonly property var leadingDetection: signalSummaryCard.leadingMarker
-                                                visible: root.spectrumTaskTab === 0 && leadingDetection !== null
+                                                visible: false
                                                 text: leadingDetection !== null
                                                       ? "P/N " + (signalSummaryCard.leadingFpga !== null
                                                                   ? leadingDetection.snr : leadingDetection.contrast) : ""
@@ -1090,7 +1083,7 @@ ApplicationWindow {
                                     visible: operatorViewModel.detections.length === 0
                                              && operatorViewModel.hackrfReady
                                     text: !operatorViewModel.liveSessionActive ? "Taramayı başlatın"
-                                          : "Kararlı yayın aranıyor"
+                                          : "Sinyal aranıyor"
                                     color: root.textMuted
                                     font.pixelSize: 11
                                 }
@@ -1098,12 +1091,10 @@ ApplicationWindow {
                                     policy: ScrollBar.AlwaysOff
                                 }
                                 header: Label {
-                                    visible: operatorViewModel.stableDetectionCount === 0
-                                             && operatorViewModel.detections.length > 0
-                                             && !signalSummaryCard.stableCandidate
+                                    visible: false
                                     width: detectionList.width
                                     height: visible ? 30 : 0
-                                    text: "ŞU ANDA İKİ AYARDA KARARLI RF ADAYI YOK"
+                                    text: "Sinyal durumu"
                                     color: root.textMuted
                                     font.pixelSize: 9
                                     font.weight: Font.DemiBold
@@ -1122,7 +1113,7 @@ ApplicationWindow {
                                     enabled: modelData.observed
                                     Accessible.name: modelData.frequency + ", " + modelData.state + ", " + modelData.title
                                     ToolTip.visible: hovered
-                                    ToolTip.text: modelData.observed ? "Sinyal şu anda algılanıyor." : "Bu frekans bu tarama sırasında daha önce algılandı."
+                                    ToolTip.text: modelData.state + " · " + modelData.observationCount + " FPGA gözlemi · P/N " + modelData.snr
                                     onPressed: operatorViewModel.selectDetection(modelData.eventId)
                                     background: Rectangle {
                                         radius: 0
@@ -1144,7 +1135,7 @@ ApplicationWindow {
                                         spacing: 3
                                         Label {
                                             visible: modelData.historyBoundary
-                                            text: "BU TARAMADA DAHA ÖNCE GÖRÜLENLER"
+                                            text: "DAHA ÖNCE ALINAN SİNYALLER"
                                             color: root.textMuted
                                             font.pixelSize: 8
                                             font.weight: Font.DemiBold
@@ -1154,7 +1145,7 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                             Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.frequency : modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
                                             Label {
-                                                text: modelData.state
+                                                text: modelData.observed ? "Alınıyor" : "Artık alınmıyor"
                                                 color: !modelData.observed ? root.textMuted
                                                      : modelData.verificationKey === "verified_two_lo" ? root.success : root.warning
                                                 font.pixelSize: 10
@@ -1165,14 +1156,12 @@ ApplicationWindow {
                                             Layout.fillWidth: true
                                             Label {
                                                 text: operatorViewModel.sourceMode !== "hackrf" ? modelData.frequency
-                                                      : modelData.verificationMethod === "receiver"
-                                                        ? modelData.observationCount + " FPGA gözlemi · RX çift ayar"
-                                                        : modelData.observationCount + " FPGA gözlemi"
+                                                      : modelData.observed ? "Sinyal tespit edildi" : "Bu taramada daha önce tespit edildi"
                                                 color: root.textMuted
                                                 font.pixelSize: 10
                                                 Layout.fillWidth: true
                                             }
-                                            Label { text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
+                                            Label { visible: false; text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
                                         }
                                     }
                                 }

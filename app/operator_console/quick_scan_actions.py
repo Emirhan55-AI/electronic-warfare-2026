@@ -121,6 +121,13 @@ class QuickScanActionsMixin:
         self.startLiveEDSession(analysis_center_hz, config.lna_gain_db, config.vga_gain_db, 878_906)
         return self.liveSessionActive
 
+    @Slot(float, int, int, int, bool)
+    def startManagedLiveEDSession(self, center_hz, lna_gain_db, vga_gain_db, frame_count, automatic):
+        if self._busy or self._live_session is not None:
+            return
+        self._managed_gain = {"visited": set(), "attempts": 0} if automatic else None
+        self.startLiveEDSession(center_hz, lna_gain_db, vga_gain_db, frame_count, managed_gain=automatic)
+
     @Slot(float, int, int, int)
     def startRXPreview(self, center_hz, lna_gain_db, vga_gain_db, frame_count):
         self.startLiveEDSession(center_hz, lna_gain_db, vga_gain_db, frame_count, fpga_enabled=False)
@@ -135,6 +142,7 @@ class QuickScanActionsMixin:
         *,
         fpga_enabled: bool = True,
         preserve_fixed_context: bool = False,
+        managed_gain: bool = False,
     ) -> None:
         if (
             self._source_mode != "hackrf"
@@ -156,10 +164,16 @@ class QuickScanActionsMixin:
                 # The GUI mailbox bounds queued display work even during a stall.
                 display_interval_frames=15,
                 fpga_enabled=fpga_enabled,
+                assess_receive_level=managed_gain,
             )
         except Exception as exc:
             self._show_error(str(getattr(exc, "code", "invalid_rx_config")), str(exc))
             return
+        if not managed_gain:
+            self._managed_gain = None
+        elif self._managed_gain is not None:
+            self._managed_gain["visited"].add((configuration.lna_gain_db, configuration.vga_gain_db))
+            self._managed_gain["attempts"] += 1
         same_fixed_settings = (
             int(self._live_receive_settings.get("center_hz", -1))
             == configuration.output_center_frequency_hz
@@ -241,6 +255,7 @@ class QuickScanActionsMixin:
 
     @Slot()
     def stopLiveEDSession(self) -> None:
+        self._managed_gain = None
         if self._live_session is None and self._fixed_verifier is None:
             return
         self._fixed_verification_queue.clear()
