@@ -364,6 +364,17 @@ def test_survey_rejects_candidate_that_moves_after_independent_retune(tmp_path):
     assert completed.observations == ()
 
 
+def test_narrow_primary_is_not_verified_by_distant_peak_in_broad_support():
+    from app.operator_console.rx_survey import _verification_matches
+    observation = {"lower_frequency_hz": 825_999_000,
+                   "upper_frequency_hz": 826_001_000,
+                   "frequency_hz": 826_000_000, "peak_frequency_hz": 826_000_000}
+    assert not _verification_matches(
+        observation, 825_800_000, 826_400_000, 826_100_000, 826_300_000)
+    assert _verification_matches(
+        observation, 825_800_000, 826_400_000, 826_100_000, 826_000_400)
+
+
 def test_broad_observation_is_verified_by_absolute_support_when_peak_moves(tmp_path):
     signal_center_hz = 100_001_000
     support_bins = 2048

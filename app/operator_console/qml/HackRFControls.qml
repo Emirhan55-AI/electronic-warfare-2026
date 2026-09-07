@@ -7,21 +7,26 @@ ColumnLayout {
     width: parent ? parent.width : 240
     spacing: 7
     QuietButton { Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
-    QuietButton { Layout.fillWidth: true; text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
-    Label { text: "Merkez frekansı (MHz)"; color: shell.textSecondary; font.pixelSize: 10 }
+    QuietButton { visible: !operatorViewModel.hackrfReady; Layout.fillWidth: true; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+    Label { text: "Merkez frekansı (MHz)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
     AppField {
+        font.pixelSize: 13
+        font.family: "Consolas"
+        horizontalAlignment: TextInput.AlignHCenter
+        verticalAlignment: TextInput.AlignVCenter
         id: centerInput
         objectName: "liveCenterInput"
         Layout.fillWidth: true
         text: String(operatorViewModel.liveReceiveSettings.center_hz / 1000000)
         readonly property real frequencyHz: Math.round(Number(text.trim().replace(",", ".")) * 1000000)
         readonly property bool frequencyValid: /^[0-9]+([.,][0-9]{1,6})?$/.test(text.trim()) && frequencyHz >= 1000000 && frequencyHz <= 6000000000
+        readonly property bool numericCentered: horizontalAlignment === TextInput.AlignHCenter
         enabled: !operatorViewModel.busy
         inputMethodHints: Qt.ImhFormattedNumbersOnly
         placeholderText: "Örn. 933 veya 104,65"
         Accessible.name: "İzleme merkez frekansı, MHz"
     }
-    Label { visible: !centerInput.frequencyValid; text: "1–6000 MHz arasında bir değer girin."; color: shell.textSecondary; font.pixelSize: 10 }
+    Label { visible: !centerInput.frequencyValid; text: "1–6000 MHz arasında bir değer girin."; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
     Connections {
         target: operatorViewModel
         function onLiveReceiveSettingsChanged() {
@@ -35,12 +40,12 @@ ColumnLayout {
         Layout.fillWidth: true
         ColumnLayout {
             Layout.fillWidth: true
-            Label { text: "LNA (dB)"; color: shell.textSecondary; font.pixelSize: 10 }
+            Label { text: "LNA (dB)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
             AppCombo { id: lnaInput; objectName: "liveLnaInput"; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.lna_db); enabled: !operatorViewModel.busy }
         }
         ColumnLayout {
             Layout.fillWidth: true
-            Label { text: "VGA (dB)"; color: shell.textSecondary; font.pixelSize: 10 }
+            Label { text: "VGA (dB)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
             AppCombo { id: vgaInput; objectName: "liveVgaInput"; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
         }
     }

@@ -137,6 +137,20 @@ class SpectrumProcessor:
             display=display,
         )
 
+    def detection_power(self, samples: npt.ArrayLike) -> FloatArray:
+        """Return identical shifted bin power without unused display products."""
+        frame = np.asarray(samples, dtype=np.complex128)
+        if frame.ndim != 1 or frame.size != self.config.frame_length:
+            raise SpectrumError("frame_size_mismatch", "FFT power frame length mismatch")
+        if not np.all(np.isfinite(frame.real)) or not np.all(np.isfinite(frame.imag)):
+            raise SpectrumError("nonfinite_input", "frame contains a non-finite sample")
+        working = frame - np.mean(frame) if self.config.remove_dc else frame
+        fft = np.asarray(np.fft.fft(working * self.window), dtype=np.complex128)
+        power = np.square(fft.real) + np.square(fft.imag)
+        # Preserve the reference's exact operation order, including rounding.
+        amplitude = np.sqrt(power) / (self.config.frame_length * self.window_coherent_gain)
+        return _readonly(np.fft.fftshift(np.square(amplitude)))
+
     def display_from_power(
         self,
         result: SpectrumResult,

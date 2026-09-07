@@ -980,8 +980,8 @@ ApplicationWindow {
                                 readonly property var leadingMarker: leadingFpga !== null ? leadingFpga : leadingCoarse
                                 readonly property bool stableCandidate: leadingMarker !== null
                                                                                && leadingMarker.verificationKey === "verified_two_lo"
-                                visible: root.spectrumTaskTab !== 0 || operatorViewModel.detectionMarkers.length > 0
-                                         || operatorViewModel.hasCoarseCandidateAwaitingFpga
+                                visible: root.spectrumTaskTab !== 0
+                                         || (operatorViewModel.hasCoarseCandidateAwaitingFpga && operatorViewModel.detectionMarkers.length === 0)
                                 Layout.fillWidth: true
                                 implicitHeight: 64
                                 radius: 3
@@ -1109,7 +1109,7 @@ ApplicationWindow {
                                     bottomPadding: 6
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: modelData.historyBoundary ? 82 : 58
+                                    height: operatorViewModel.sourceMode === "hackrf" ? (modelData.historyBoundary ? 64 : 42) : (modelData.historyBoundary ? 82 : 58)
                                     enabled: modelData.observed
                                     Accessible.name: modelData.frequency + ", " + modelData.state + ", " + modelData.title
                                     ToolTip.visible: hovered
@@ -1155,6 +1155,7 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label {
+                                                visible: operatorViewModel.sourceMode !== "hackrf"
                                                 text: operatorViewModel.sourceMode !== "hackrf" ? modelData.frequency
                                                       : modelData.observed ? "Sinyal tespit edildi" : "Bu taramada daha önce tespit edildi"
                                                 color: root.textMuted

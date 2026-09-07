@@ -1,0 +1,35 @@
+{
+  "schema": "survey-single-presentation-v1",
+  "physical_source_commit": "6679a4911a48c4f46701db67c6857c3a1ff441a6",
+  "current_source_physical_test": false,
+  "presentation_replay_reference_used": false,
+  "ST06_complete": false,
+  "archive_sha256": "e43b46339a54865374adc6d0928cac48f9b498cb81e72616037415708c5e8ac0",
+  "files": {
+    "build/acceptance/rx-survey/40d822d10af2430d8f2f72b3fd38c434.jsonl": "0e34b8a9538d9268bd157659d481652b0c0b3f8cbd6fd3debdb4b9fbec726112",
+    "build/acceptance/rx-survey/d33459ec36be4c27891e52b8a771d5c4.jsonl": "b0e270f9c7bbfbad1899e0b41712f475b1efae479dbbeb63221939e351437f85",
+    "build/acceptance/rx-survey/d33459ec36be4c27891e52b8a771d5c4.ab.json": "3fa791c99f9d43dea0bfb3f4667f8c7cc697053da42be0a1fab67c96b42c2439",
+    "build/acceptance/st06-survey-20260907/run_gui.py": "25d023347142d170cd366e4820c7ce857e29a5990c03ba429c87e5a34c001145",
+    "build/acceptance/st06-survey-20260907/run_comparison_gui.py": "dba657bf30ceeadf226cb2fd3137afc80f809cf12c97ce62ed7d76e05a2cdc5a",
+    "build/acceptance/st06-survey-20260907/reference-summary.json": "a36f59d3b915cff09f2b6c910801273ed6189f2bf59daf0a71afad32e37a56c1",
+    "build/acceptance/st06-survey-20260907/comparison-summary.json": "e9a7c6429d0ba20e8426b5ac459dc779b86a6abb6c5085d403e13b056a666380",
+    "build/acceptance/st06-survey-20260907/replay_single.py": "e3b157738397c4e225a262f91c65d4664cfd57d23cfbd7e3846eb74529a6207f",
+    "build/acceptance/st06-survey-20260907/single-replay.json": "f948b26b1eab44e77161bbf1293c359c405fc203327e2103e64d325163b67768",
+    "build/acceptance/st06-survey-20260907/single-replay.png": "866c04817085e32de19480f53f4f892df5e92fc765ad2640d0cb6addb4cdfc14",
+    "source/current/app/operator_console/survey_presentation.py": "54f7ea77ac9db6dc6b30fac21a760980a31f598cd804667eb3e7241aca1569d1",
+    "source/current/app/operator_console/survey_controller.py": "48ca7ee574abf2592cacfdc42c09e2b7847b1759a4cbcc04721cf31facf82848",
+    "source/current/app/operator_console/qml/RxSurveyView.qml": "80efae928f6c88599709b687b1dc833582a53556ac1f521e9f567c99c0a13f27",
+    "source/current/app/operator_console/rx_survey.py": "4317a2d5e2c7b44f04f97789ba67a0ffd57d3956652e3dfe7de25f7d2849ddc6",
+    "source/current/tests/test_survey_presentation.py": "a49d2f7e2bdf6aa553baf4bf285aec6cc975728d4f4badd617bfb8a3bdb82b2c"
+  },
+  "timing_seconds": {
+    "total": 257.1563589000143,
+    "primary_sessions": 193.04888690588996,
+    "accepted_verifications": 25.922295003198087
+  },
+  "limits": [
+    "RF kayıtları eski kaynağa aittir; yeni kaynakta yalnız sunum tekrarı yapıldı.",
+    "130 ham gözlemden 122 sunum satırı; yayıncı sayısı veya yanlış alarm ölçümü değildir.",
+    "826 MHz operatör tarafından tur ve aday seçimi sonrasında bildirildi; A/B aday seçimi insan yorumu içerir."
+  ]
+}

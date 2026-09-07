@@ -497,6 +497,40 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual(0, payload["count"])
         self.assertEqual("0 / 9999 pencere tarandı · 0 hata", payload["coverage"])
 
+    def test_rf_controls_share_centered_numeric_alignment_and_single_action(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+view_model.setSourceMode("hackrf")
+root.setWidth(1440); root.setHeight(900)
+root.setProperty("sourcePanelOpen", True)
+root.setProperty("rfSearchMode", True)
+for _ in range(8): app.processEvents()
+lower = root.findChild(QObject, "surveyLowerMHz")
+upper = root.findChild(QObject, "surveyUpperMHz")
+lna = root.findChild(QObject, "surveyLnaInput")
+vga = root.findChild(QObject, "surveyVgaInput")
+start = root.findChild(QObject, "surveyStart")
+stop = root.findChild(QObject, "surveyStop")
+survey = {"widths":[lower.property("width"), upper.property("width"), lna.property("width"), vga.property("width")],
+          "heights":[lower.property("height"), upper.property("height"), lna.property("height"), vga.property("height")],
+          "centered":[lower.property("numericCentered"), upper.property("numericCentered")],
+          "actions":[start.property("visible"), stop.property("visible")]}
+root.setProperty("rfSearchMode", False)
+for _ in range(8): app.processEvents()
+center = root.findChild(QObject, "liveCenterInput")
+fixed = {"centered":center.property("numericCentered"),
+         "height":center.property("height")}
+view_model.shutdown(); root.close()
+print(json.dumps({"survey":survey,"fixed":fixed},ensure_ascii=False))
+"""
+        )
+        self.assertEqual(1, len(set(round(value) for value in payload["survey"]["widths"])))
+        self.assertEqual(1, len(set(round(value) for value in payload["survey"]["heights"])))
+        self.assertEqual([True, False], payload["survey"]["actions"])
+        self.assertEqual([True, True], payload["survey"]["centered"])
+        self.assertTrue(payload["fixed"]["centered"])
+
     def test_parameter_navigation_preserves_selection_zoom_and_task_layout(self) -> None:
         payload = self.run_qml(
             """

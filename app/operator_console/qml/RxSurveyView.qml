@@ -20,7 +20,7 @@ Item {
         contentItem: Text {
             text: action.text
             color: action.enabled ? view.theme.textPrimary : view.theme.textMuted
-            font.pixelSize: 11
+            font.pixelSize: 12
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
@@ -40,15 +40,31 @@ Item {
         color: view.theme.textPrimary
         font.family: "Consolas"
         font.pixelSize: 13
-        implicitHeight: 34
+        implicitHeight: 36
         padding: 8
+        horizontalAlignment: TextInput.AlignHCenter
+        verticalAlignment: TextInput.AlignVCenter
+        readonly property bool numericCentered: horizontalAlignment === TextInput.AlignHCenter
         background: Rectangle { radius: 4; color: "#313131"; border.color: field.activeFocus ? view.theme.accent : view.theme.border }
     }
     component GainChoice: ComboBox {
         id: gain
-        implicitHeight: 34
-        contentItem: Text { text: gain.displayText; color: gain.enabled ? view.theme.textPrimary : view.theme.textMuted; leftPadding: 8; verticalAlignment: Text.AlignVCenter; font.pixelSize: 12 }
-        indicator: Text { text: "⌄"; color: view.theme.textSecondary; x: gain.width - width - 8; y: 7 }
+        implicitHeight: 36
+        leftPadding: 20
+        rightPadding: 20
+        contentItem: Text { text: gain.displayText; color: gain.enabled ? view.theme.textPrimary : view.theme.textMuted; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; font.family: "Consolas"; font.pixelSize: 13 }
+        indicator: Canvas {
+            x: gain.width - width - 10
+            anchors.verticalCenter: parent.verticalCenter
+            width: 10; height: 6
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.reset(); ctx.strokeStyle = view.theme.textSecondary
+                ctx.lineWidth = 1.5; ctx.lineCap = "round"
+                ctx.beginPath(); ctx.moveTo(1,1); ctx.lineTo(width/2,height-1)
+                ctx.lineTo(width-1,1); ctx.stroke()
+            }
+        }
         background: Rectangle { radius: 4; color: "#313131"; border.color: gain.activeFocus ? view.theme.accent : view.theme.border }
         delegate: ItemDelegate {
             required property var modelData
@@ -75,7 +91,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     Label { text: "BANT TARAMASI"; color: view.theme.textPrimary; font.pixelSize: 14; font.weight: Font.DemiBold }
-                    Caption { text: "Canlı alım ve FPGA tespiti"; Layout.fillWidth: true }
+                    Item { Layout.fillWidth: true }
                     Action { text: "Sabit Frekans ›"; enabled: !operatorViewModel.busy; onClicked: view.fixedBandRequested() }
                 }
                 RowLayout {
@@ -83,33 +99,34 @@ Item {
                     spacing: 10
                     ColumnLayout {
                         spacing: 3
-                        Caption { text: "Alt sınır · MHz" }
-                        FrequencyField { id: lower; objectName: "surveyLowerMHz"; Layout.preferredWidth: 90; text: "1"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama alt sınırı megahertz" }
+                        Caption { text: "Alt sınır (MHz)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        FrequencyField { id: lower; objectName: "surveyLowerMHz"; Layout.preferredWidth: 120; Layout.fillWidth: true; text: "1"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama alt sınırı megahertz" }
                     }
                     ColumnLayout {
                         spacing: 3
-                        Caption { text: "Üst sınır · MHz" }
-                        FrequencyField { id: upper; objectName: "surveyUpperMHz"; Layout.preferredWidth: 90; text: "6000"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama üst sınırı megahertz" }
+                        Caption { text: "Üst sınır (MHz)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        FrequencyField { id: upper; objectName: "surveyUpperMHz"; Layout.preferredWidth: 120; Layout.fillWidth: true; text: "6000"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama üst sınırı megahertz" }
                     }
                     ColumnLayout {
                         spacing: 3
-                        Caption { text: "AZAMİ LNA · dB" }
-                        GainChoice { id: lna; Layout.preferredWidth: 75; model: [0,8,16,24,32,40]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami LNA kazancı" }
+                        Caption { text: "Azami LNA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        GainChoice { id: lna; objectName: "surveyLnaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami LNA kazancı" }
                     }
                     ColumnLayout {
                         spacing: 3
-                        Caption { text: "AZAMİ VGA · dB" }
-                        GainChoice { id: vga; Layout.preferredWidth: 75; model: [0,8,16,24,32,40,48,56]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
+                        Caption { text: "Azami VGA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        GainChoice { id: vga; objectName: "surveyVgaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
                     }
                     Item { Layout.fillWidth: true }
-                    Action { text: operatorViewModel.hackrfReady ? "Alıcı ve FPGA bağlı" : "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+                    Action { visible: !operatorViewModel.hackrfReady; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
                     Action {
                         objectName: "surveyStart"
+                        visible: !survey.running
                         text: "Taramayı Başlat"
                         enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && lower.acceptableInput && upper.acceptableInput && Number(lower.text) < Number(upper.text)
                         onClicked: operatorViewModel.startFrequencySurvey(Number(lower.text), Number(upper.text), Number(lna.currentText), Number(vga.currentText))
                     }
-                    Action { objectName: "surveyStop"; text: "Taramayı Durdur"; enabled: survey.running && survey.state !== "Durduruluyor"; onClicked: survey.cancel() }
+                    Action { objectName: "surveyStop"; visible: survey.running; text: "Taramayı Durdur"; enabled: survey.running && survey.state !== "Durduruluyor"; onClicked: survey.cancel() }
                 }
                 RowLayout {
                     visible: false
@@ -169,7 +186,7 @@ Item {
                             Caption { text: "TARAMA KAPSAMI"; font.weight: Font.Bold; Layout.fillWidth: true }
                             Caption { text: survey.timeText; font.family: "Consolas" }
                         }
-                        Label { text: survey.currentRange; color: view.theme.textPrimary; font.pixelSize: 20; font.family: "Consolas" }
+                        Label { visible: survey.running && !survey.rechecking; text: survey.currentRange; color: view.theme.textPrimary; font.pixelSize: 20; font.family: "Consolas" }
                         Canvas {
                             id: coverageCanvas
                             objectName: "surveyCoverage"
@@ -198,13 +215,8 @@ Item {
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Caption { text: survey.coverageText; Layout.fillWidth: true }
-                            ColumnLayout {
-                                spacing: 2
-                                Caption { text: "Gri: bekliyor"; font.pixelSize: 9 }
-                                Caption { text: "Mavi: tarandı"; font.pixelSize: 9 }
-                                Caption { text: "Sarı: hata"; font.pixelSize: 9 }
-                            }
+                            Caption { text: survey.state; Layout.fillWidth: true }
+                            Caption { text: Math.round(survey.progress * 100) + " %" }
                         }
                     }
                 }
@@ -217,7 +229,7 @@ Item {
                         spacing: 8
                         RowLayout {
                             Layout.fillWidth: true
-                            Caption { text: "SON DOĞRULANAN PENCERE"; font.weight: Font.Bold; Layout.fillWidth: true }
+                            Caption { text: "SPEKTRUM"; font.weight: Font.Bold; Layout.fillWidth: true }
                             Caption { text: operatorViewModel.centerFrequencyText; font.family: "Consolas" }
                         }
                         Canvas {
@@ -267,8 +279,8 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 8
-                    Label { text: "BULUNAN RF ADAYLARI"; color: view.theme.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
-                    Caption { text: survey.currentObservationText; color: view.theme.accent; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                    Label { text: "BULUNAN SİNYALLER"; color: view.theme.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
+                    Caption { visible: observationList.count === 0; text: survey.running ? "Sinyal aranıyor" : survey.progress > 0 ? "Sinyal bulunamadı" : "Taramayı başlatın"; color: view.theme.accent; Layout.fillWidth: true }
                     ListView {
                         id: observationList
                         objectName: "surveyObservations"
@@ -283,10 +295,10 @@ Item {
                         delegate: Button {
                             required property var modelData
                             width: observationList.width
-                            height: 92
-                            Accessible.name: modelData.frequency + ", " + modelData.detail
+                            height: (modelData.rangeText ? 70 : 50) + (modelData.recheckStatus ? 18 : 0)
+                            Accessible.name: modelData.frequency + ", " + (modelData.signalDetected ? "Sinyal tespit edildi" : "Doğrulama bekliyor")
                             ToolTip.visible: hovered
-                            ToolTip.text: modelData.detail + "\n" + modelData.evidenceDetail
+                            ToolTip.text: modelData.detail + "\n" + modelData.evidenceDetail + (modelData.checkedAt ? "\nSon kontrol: " + modelData.checkedAt : "")
                             onClicked: survey.selectObservation(modelData.eventId)
                             background: Rectangle {
                                 radius: 4
@@ -299,11 +311,10 @@ Item {
                                     width: parent.width
                                     spacing: 8
                                     Label { text: modelData.frequency; color: view.theme.textPrimary; font.family: "Consolas"; font.pixelSize: 14 }
-                                    Caption { visible: modelData.latestWindow; text: "YENİ"; color: view.theme.accent; font.pixelSize: 9; font.weight: Font.Bold; anchors.verticalCenter: parent.verticalCenter }
                                 }
-                                Caption { text: modelData.evidence; color: modelData.evidenceKey === "ab_candidate" || modelData.evidenceKey === "uncertain" || modelData.evidenceKey === "energy_candidate" ? view.theme.warning : modelData.evidenceKey === "reference" ? view.theme.textMuted : view.theme.accent; font.pixelSize: 10; font.weight: Font.Bold }
-                                Caption { text: modelData.detail; color: view.theme.textSecondary; font.pixelSize: 10; width: parent.width; elide: Text.ElideRight }
-                                Caption { text: modelData.window + " · " + modelData.evidenceDetail; color: view.theme.textMuted; font.pixelSize: 9; elide: Text.ElideRight; width: parent.width }
+                                Caption { visible: !modelData.signalDetected; text: "Doğrulama bekliyor"; color: view.theme.warning; font.pixelSize: 10 }
+                                Caption { visible: !!modelData.rangeText; text: modelData.rangeText || ""; color: view.theme.textSecondary; width: parent.width; elide: Text.ElideRight }
+                                Caption { visible: !!modelData.recheckStatus; text: modelData.recheckStatus || ""; color: view.theme.textSecondary; font.pixelSize: 10 }
                             }
                         }
                     }

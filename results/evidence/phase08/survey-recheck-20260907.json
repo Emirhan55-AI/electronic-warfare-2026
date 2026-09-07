@@ -1,0 +1,20 @@
+{
+  "schema": "survey-recheck-implementation-v1",
+  "targeted_tests_passed": 102,
+  "qml_tests_passed": 25,
+  "physical_recheck_completed": false,
+  "physical_attempt": "2 windows completed with no observations; no automatic recheck ran. Transmitter state clarification pending.",
+  "ST06_complete": false,
+  "archive_sha256": "43a0a791011a301dbca5e8f41354904662f735b2fecca9917e18fa24a33c71a0",
+  "files": {
+    "app/operator_console/survey_controller.py": "88708cbad94a098acf176dfd9b1fc7bce5cea958e994aef9f170568a2324f583",
+    "app/operator_console/survey_recheck.py": "426c057e69d4b6aafdee81e8ed6d41093f69d374146af6db12e4e88e85ef7e43",
+    "app/operator_console/rx_survey.py": "7c13c51607da33eb94cb740e77985c2a198485752756eb059b43205722c7fb62",
+    "app/operator_console/qml/RxSurveyView.qml": "4a7eaa7c7382bee9c9a00311ec57bf1cbf4be2506ba5a44096f7b3be07715efe",
+    "tests/test_survey_recheck.py": "950217436ceaf6891e2cbeb4ba4910f95e9722c066a288eeb3c7c21b891781a1",
+    "tests/test_live_ed_view_model.py": "5d7cfcce1d98ce228146133fc67db937128ac2d5e65730b29aeb1f9aa4541541",
+    "build/acceptance/rx-survey/9d2e878a4f7b48768e17fcc2f1cfa2b4.jsonl": "293a51d3fdc4d7ac2c81dfdfaacaa5d58413bbdf7facfe253c037467ac16bada",
+    "build/acceptance/st06-survey-20260907/run_target953_recheck.py": "c6a34e9c5636a625d72e77279d941cd1b45f59a989220b0399406e124853e3e8",
+    "build/acceptance/st06-survey-20260907/single-replay.png": "c38022cf0aa2a2972ddc6c90a5784fb17fa31ddc78f60604808906b1cf025ad3"
+  }
+}

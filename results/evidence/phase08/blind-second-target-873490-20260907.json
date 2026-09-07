@@ -1,0 +1,16 @@
+{
+  "schema": "blind-target-disclosure-v1",
+  "operator_target_hz": 873490000,
+  "disclosed_after_completed_survey": true,
+  "survey_evidence_sha256": "e523a7cd385780b8c1b739e847a7a61eacc58382ba9f777e3587d2bb29dce78a",
+  "initial_frequency_hz": 873490441.8945312,
+  "initial_peak_hz": 873490039.0625,
+  "initial_observed_frames": 120,
+  "independent_verification_hz": 873490094.0996094,
+  "independent_verification_frames": 40,
+  "automatic_recheck_hz": 873490191.7558594,
+  "automatic_recheck_frames": 40,
+  "automatic_recheck_state": "seen",
+  "method": "fpga",
+  "ST06_complete": false
+}

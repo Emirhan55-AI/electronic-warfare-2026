@@ -1,0 +1,51 @@
+{
+  "schema": "survey-power-optimization-v1",
+  "tests_passed": 128,
+  "physical_scan_speedup_measured": false,
+  "ST06_complete": false,
+  "archive_sha256": "3e410ad30992cc18ae086e9a37782412c57f6aa9c62e4edb916be11aac75e18f",
+  "files": {
+    "algorithms/spectrum/dsp.py": "8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475",
+    "app/operator_console/rx_survey.py": "900a55b9589e8a03a0388fc63f4ed9ca9db83cf988b351830eeeb5368d4d8c83",
+    "app/operator_console/qml/RxSurveyView.qml": "986b1f4591ad9210eac02ecf3fcd703ceca578c7fd5b29a449103d24878b6497",
+    "tests/test_detection_power.py": "8e43b880d7ec6e2ffa0a2a9e22ba57554a92139249dc516230c41ab68d26b9a1",
+    "build/acceptance/st06-survey-20260907/power-benchmark.json": "3456147e3ab8d7c70fa9fdfb741dd94e3cf2fe5866f582809fbcc723b9d96d22",
+    "build/acceptance/st06-survey-20260907/single-replay.png": "028886ec49e111628a78531aa3480d720fec0292aa2675500575363658b5ed3e"
+  },
+  "benchmark": {
+    "schema": "detection-power-benchmark-v1",
+    "iterations_per_batch": 300,
+    "batches": {
+      "full": [
+        1.388609999169906,
+        1.3137233334903915,
+        1.3182893333335717,
+        1.3107243335495393,
+        1.3269860002522667,
+        1.366425333544612,
+        1.3900110001365344,
+        1.3663873324791591,
+        1.3550263332823913,
+        1.5654323327665527
+      ],
+      "power": [
+        0.3370723345627387,
+        0.3238780004903674,
+        0.6362076662480831,
+        0.6262633328636488,
+        0.6631956668570638,
+        0.6578703333313266,
+        0.6486013329898318,
+        0.642447667196393,
+        0.6491713334495822,
+        0.6459609993423024
+      ]
+    },
+    "median_ms": {
+      "full": 1.3607068328807752,
+      "power": 0.6442043332693477
+    },
+    "exact_power_equal": true,
+    "physical_scan_speedup_measured": false
+  }
+}

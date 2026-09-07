@@ -12,6 +12,8 @@ import threading
 from PySide6.QtCore import QObject, Property, QRunnable, QTimer, Signal, Slot
 
 from .detection_model import DetectionListModel
+from .survey_presentation import signal_fields, merge_signal_rows
+from .survey_recheck import recheck_signals
 from .rx_survey import (
     ROOT,
     RXSurvey,
@@ -121,6 +123,23 @@ class _Task(QRunnable):
             self.signals.complete.emit(result)
 
 
+class _RecheckTask(QRunnable):
+    def __init__(self, survey, observations, source_audit):
+        super().__init__()
+        self.survey, self.observations, self.source_audit = survey, observations, source_audit
+        self.signals = _Signals()
+
+    def run(self):
+        try:
+            state = recheck_signals(self.survey, self.observations,
+                self.source_audit.with_suffix(".recheck.jsonl"), self.source_audit,
+                self.signals.update.emit)
+        except Exception as exc:
+            self.signals.failed.emit(str(getattr(exc, "code", type(exc).__name__)))
+        else:
+            self.signals.complete.emit(state)
+
+
 class SurveyController(QObject):
     changed = Signal()
     preview = Signal(object)
@@ -129,6 +148,9 @@ class SurveyController(QObject):
     def __init__(self, parent=None, *, factory=RXSurvey):
         super().__init__(parent)
         self._factory = factory
+        self._recheck_pool = None
+        self._recheck_active = False
+        self._executable = ""
         self._survey = None
         self._config = SurveyConfig()
         self._windows = self._config.windows()
@@ -163,6 +185,10 @@ class SurveyController(QObject):
         self._timer = QTimer(self)
         self._timer.setInterval(500)
         self._timer.timeout.connect(self._tick)
+
+    @Property(bool, notify=changed)
+    def rechecking(self):
+        return self._recheck_active
 
     @Property(bool, notify=changed)
     def running(self):
@@ -203,7 +229,7 @@ class SurveyController(QObject):
     def timeText(self):
         elapsed = f"{int(self._elapsed) // 60:02d}:{int(self._elapsed) % 60:02d}"
         count = self._good + self._bad
-        if not self.running or count < 3:
+        if not self.running or self._recheck_active or count < 3:
             return f"Geçen Süre {elapsed}"
         remaining = self._elapsed / count * (len(self._states) - count)
         return f"Geçen Süre {elapsed} · kalan yaklaşık {remaining / 60:.0f} dk"
@@ -236,6 +262,11 @@ class SurveyController(QObject):
             "tx_off_reference": "TX KAPALI REFERANS",
             "tx_on_comparison": "TX AÇIK KARŞILAŞTIRMA",
         }.get(self._run_condition, "TEK TARAMA")
+
+    @Property(str, notify=changed)
+    def signalSummary(self):
+        count = sum(bool(row.get("signalDetected")) for row in self._rows)
+        return f"{count} sinyal tespit edildi" if count else "Henüz doğrulanmış sinyal yok"
 
     @Property(str, notify=changed)
     def observationText(self):
@@ -314,6 +345,9 @@ class SurveyController(QObject):
         if config.operator_condition == "tx_off_reference":
             self.clearReference()
         self._serial = serial
+        self._executable = executable
+        self._recheck_pool = pool
+        self._recheck_active = False
         self._config = config
         self._windows = config.windows()
         self._states = [0] * len(self._windows)
@@ -480,6 +514,7 @@ class SurveyController(QObject):
                         evidence_detail = "TX kapalı turda da görüldü; test vericisine bağlanmadı"
                         self._background += 1
                 newest.append({
+                    **signal_fields(item, self._current),
                     "eventId": item["key"], "frequencyHz": item["frequency_hz"],
                     "frequency": f"{item['frequency_hz'] / 1e6:.6f} MHz",
                     "detail": " · ".join(details),
@@ -521,8 +556,8 @@ class SurveyController(QObject):
                 # The list is a bounded engineering ranking, not arrival order.
                 # A weak recent fluctuation must not bury a repeatable strong RF
                 # candidate found earlier in a long scan.
-                self._rows = _rank_observation_rows(newest + self._rows)
-            self._model.set_rows(self._rows)
+                self._rows = _rank_observation_rows(merge_signal_rows(newest, self._rows))
+            self._publish_rows()
             self._detail = "Pencere ve ikinci LO kontrolü tamamlandı; sonuç geçmiş RF gözlemidir."
         elif update.state == "failed":
             self.preview.emit(None)
@@ -609,10 +644,60 @@ class SurveyController(QObject):
                     self._rows = _rank_observation_rows(energy_rows + [
                         row for row in self._rows if row["eventId"] not in existing_ids
                     ])
-                    self._model.set_rows(self._rows)
+                    self._publish_rows()
             self._detail = "Bu turdaki geçmiş gözlemler; şu anda yayın yapıldığını göstermez."
         self.changed.emit()
+        if (result.state == "completed" and self._run_condition == "unspecified"
+                and self._recheck_pool is not None and self._current_observations):
+            self._start_recheck()
+            return
         self.finished.emit(result.state)
+
+    def _publish_rows(self):
+        if self._run_condition == "unspecified":
+            self._rows.sort(key=lambda row: (not bool(row.get("signalDetected")), row["frequencyHz"]))
+        self._model.set_rows(self._rows)
+
+    def _start_recheck(self):
+        by_key = {item["key"]: item for item in self._current_observations}
+        observations = [by_key[row["eventId"]] for row in self._rows
+                        if row.get("signalDetected") and row["eventId"] in by_key]
+        if not observations:
+            self.finished.emit("completed")
+            return
+        self._survey = self._factory(self._executable, self._serial, self._config, Path(self._audit))
+        self._recheck_active = True
+        self._state = "Sinyaller kontrol ediliyor"
+        self._timer.start()
+        task = _RecheckTask(self._survey, observations, Path(self._audit))
+        task.signals.update.connect(self._recheck_update)
+        task.signals.complete.connect(self._recheck_complete)
+        task.signals.failed.connect(self._failed)
+        self._recheck_task = task
+        self.changed.emit()
+        self._recheck_pool.start(task)
+
+    @Slot(object)
+    def _recheck_update(self, update):
+        labels = {"seen": "Tekrar görüldü", "not_seen": "Son kontrolde görülmedi",
+                  "error": "Kontrol edilemedi"}
+        for row in self._rows:
+            if row["eventId"] == update["key"]:
+                row["recheckStatus"] = labels[update["state"]]
+                row["checkedAt"] = update["checked_at"]
+                break
+        self._publish_rows()
+        self.changed.emit()
+
+    @Slot(object)
+    def _recheck_complete(self, state):
+        self._timer.stop()
+        self._elapsed = time.monotonic() - self._started
+        self._survey = None
+        self._recheck_active = False
+        self._state = "Tur tamamlandı" if state == "completed" else "Durduruldu"
+        self.changed.emit()
+        self.finished.emit(state)
 
     def _invalidate_comparison(self):
         if self._run_condition != "tx_on_comparison":
@@ -629,6 +714,7 @@ class SurveyController(QObject):
     def _failed(self, code):
         self._timer.stop()
         self._survey = None
+        self._recheck_active = False
         self._state = "Tarama hatası"
         self._invalidate_comparison()
         self._detail = f"Tarama tamamlanamadı: {code}"

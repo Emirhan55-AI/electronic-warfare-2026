@@ -1,0 +1,45 @@
+{
+  "schema": "survey-narrow-verification-review-v1",
+  "audit_sha256": "3837448470aa63a0dc390cddadfd03a852d3ce82f02f1cde10331baf0ba556ee",
+  "flagged_summaries": [
+    {
+      "frequency_hz": 929864738.6637887,
+      "verification_peak_hz": 929620900.6443453,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 946519600.2479689,
+      "verification_peak_hz": 946586769.9719552,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 947166323.3528006,
+      "verification_peak_hz": 946892722.7395834,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 947204868.8616071,
+      "verification_peak_hz": 946762412.9453125,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 958985658.7269111,
+      "verification_peak_hz": 958778871.890625,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 959645201.1091816,
+      "verification_peak_hz": 959840720.6496212,
+      "method": "fpga"
+    },
+    {
+      "frequency_hz": 959349809.0559605,
+      "verification_peak_hz": 959542011.9194078,
+      "method": "fpga"
+    }
+  ],
+  "scope": "Stored aggregate review only; individual verification frames unavailable, no RF replay or new detection result inferred.",
+  "tests_passed": 60,
+  "physical_validation_pending": true,
+  "archive_sha256": "537ebfd429d527e00fd890dce14e248a8300bb4bedca7ac0814f4ca96d9ee4b6"
+}

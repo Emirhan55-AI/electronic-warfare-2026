@@ -17,7 +17,9 @@ ComboBox {
     contentItem: Text {
         text: control.displayText
         color: BazTheme.textPrimary
-        font.pixelSize: 12
+        font.family: "Consolas"
+        font.pixelSize: 13
+        horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }

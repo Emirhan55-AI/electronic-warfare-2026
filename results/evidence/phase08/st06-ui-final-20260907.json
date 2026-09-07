@@ -1,0 +1,40 @@
+{
+  "schema": "st06-ui-final-v1",
+  "recorded_at": "2026-09-07T08:44:40.3618587Z",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0"
+  ],
+  "states": [
+    "fixed_idle",
+    "fixed_running",
+    "fixed_error",
+    "survey_idle",
+    "survey_running",
+    "survey_results",
+    "survey_error"
+  ],
+  "algorithm_changed_by_final_ui_pass": false,
+  "physical_rf_rerun_after_final_ui_pass": false,
+  "validation": {
+    "scope": "signal_detection_qml_and_repository_contract",
+    "passed": 130,
+    "failed": 0
+  },
+  "ST06_complete": false,
+  "archive_sha256": "ef77cf13503bdc47e67a3f00430bf1aba61e8e2bd0623ff497a4dc1618d5c237",
+  "files": {
+    "build/acceptance/st06-survey-20260907/ui-survey-running.png": "2f9060405998af00ef18685426079d1da07318df5fa862515205845915d16bbe",
+    "app/operator_console/qml/HackRFControls.qml": "7febcab3a2bd81b899d2ac02e41bf8566e4c7d29f06fb5598e22f81a619d4bab",
+    "app/operator_console/qml/AppCombo.qml": "d53a7ca319659bb726890c092b645ef9a457ea733bf3740f95a96a2d68f4c8c6",
+    "app/operator_console/qml/Main.qml": "33debc64aa914cc3b0e65eb1d4ee9b592b25e671f50243c27463ff14b433d9b2",
+    "build/acceptance/st06-survey-20260907/ui-fixed-running.png": "8f0e8ba80f04b4520e93155750a1fbd54bd2bacf068438f91dac16d059d972c5",
+    "build/acceptance/st06-survey-20260907/ui-survey-error.png": "f8f3a94fc60e3fbf50e66580c7d0c66acfc082b7f40d1359a19a1184e6ffcead",
+    "build/acceptance/st06-survey-20260907/ui-survey-results.png": "96f4f7cf9259d294cba74a13f8433216ff922b006c36bd7d96a2fecb99165c9a",
+    "tests/test_app_f_quick_product.py": "f2d0fbfb77eebcf3dfc635e60e7d73d12c9038414e2379d1b08bdf2accfa83d5",
+    "app/operator_console/qml/RxSurveyView.qml": "9a85eb4d432f44a9d095a143a3bf8f562dfdd382f0d5bee9ca8dd9e8804b372c",
+    "build/acceptance/st06-survey-20260907/ui-fixed-error.png": "74e5370665a6b51746fdd9e35883a54a38e7a866373abbac38839a546f20c882",
+    "build/acceptance/st06-survey-20260907/ui-fixed-idle.png": "6d5ff4897276893a5f69c58e359afa0a405a5f83cf1b5ca1d80375cc7dd2bfb3",
+    "build/acceptance/st06-survey-20260907/ui-survey-idle.png": "69753c9e5a04a52759604d46070daff476acd004cb06598b7c81252d3c873110"
+  }
+}

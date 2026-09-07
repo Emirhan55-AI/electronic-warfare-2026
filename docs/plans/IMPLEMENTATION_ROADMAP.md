@@ -1,5 +1,182 @@
 # Uygulama Yol Haritası
 
+## Son arayüz düzenlemesi — 7 Eylül 2026
+
+PHASE-08 / ST-06 arayüzünde sabit frekans ve bant taraması alanlarının sayı,
+etiket, düğme ve sonuç hizaları birleştirildi. Bağlı durum düğmesi ile yinelenen
+tespit metinleri kaldırıldı; bağlantı yokken denetleme, çalışma sırasında
+durdurma eylemi görünür. Algoritma, RTL ve eşikler değişmedi. Bu çalışma
+parametre çıkarımı fazını açmaz; kullanıcı talimatı beklenir.
+Yedi arayüz durumu ile kaynak hash'leri
+`results/evidence/phase08/st06-ui-final-20260907.json` ve ZIP içinde saklandı.
+İlgili sinyal tespiti, QML ve depo sözleşmesi paketi 130/130 geçti.
+
+## İkinci kör turun hedef bildirimi — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: operatör ikinci tamamlanan turun hedefini
+sonradan 873,4900 MHz olarak açıkladı. Sabitlenmiş normal tarama kaydı
+873,490442 MHz (tepe 873,490039 MHz), 120 gözlem; bağımsız alıcı ayarı
+873,490094 MHz, 40 gözlem ve otomatik ikinci kontrol 873,490192 MHz,
+40 gözlem ile hedefi içerir. İki doğrulama FPGA yöntemindedir; durum
+Tekrar görüldü. Kapalı referans veya önceden verilen hedef kullanılmadı.
+Bildirim kanıtı `results/evidence/phase08/blind-second-target-873490-20260907.json`;
+ham kaynak `blind-second-survey-20260907.json` ve ZIP. Frekans farkları
+kalibre mutlak doğruluk iddiası değildir. Bu tek koşul tüm ortamlarda
+Pd/Pfa veya otomatik yayıncı kimliği kabulü sayılmaz; ST-06 açık kalır.
+
+
+## Tam bant ve otomatik ikinci kontrol — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: 700–1000 MHz normal tarama 500/500 pencereyi
+239,06 s içinde tamamladı. İlk turda USB taşması, CRC, sıra ve kuyruk kaybı
+sıfır. Otomatik ikinci kontrol 124 kayıt için 27,38 s sürdü: 113 tekrar
+görüldü, 11 son kontrolde görülmedi, kontrol hatası bildirilmedi.
+953 MHz hedefi 952,999935 MHz olarak bulundu; ikinci kontrolde
+952,999914 MHz olarak tekrar görüldü. Toplam iki aşama yaklaşık 266,44 s.
+11 görülmedi sonucu yanlış alarm veya yayın kapanışı olarak etiketlenmez.
+Tekrarlı Pd/Pfa, kesintisiz takip veya ST-06 kabulü değildir.
+Kanıt `results/evidence/phase08/full-survey-recheck-20260907.json` ve ZIP;
+fiziksel kaynaklar arşivde korunur. Ölçüm sonrasında yalnız ikinci kontrol
+sırasında ilk taramanın kalan süre tahminini gizleyen sunum düzeltmesi yapıldı;
+4 kontrol testi geçti. Bu son metin düzeltmesinin RF tekrarı yapılmadı.
+Tam bant ikinci kontrol çalışma/süre kapısı bu koşulda gözlendi; genel
+ortam kabulü ve parametre fazına geçiş açık kalır.
+
+
+## Otomatik ikinci kontrolün fiziksel doğrulaması — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: operatör önceki boş kısa turda vericinin kapalı
+olduğunu düzeltti. 953 MHz açık bildirimi sonrası güncel kaynakla
+952,6–953,8 MHz normal tarama iki pencereyi 1,1637 s içinde tamamladı.
+952,999962 MHz bulundu; otomatik ikinci kontrol 0,2526 s içinde aynı
+sinyali yeniden gördü ve arayüz satırı Tekrar görüldü oldu. Ek kontrolde
+48/48 kart yanıtı, USB/CRC/sıra/kuyruk hatası ve kırpılma sıfırdır.
+Kaynak hash'leri, ilk tur ve yan kontrol kaydının SHA-256 bağı doğrulandı.
+Kanıt `results/evidence/phase08/survey-recheck-live-on-20260907.json` ve ZIP.
+
+Bu hedefi bilinen iki pencerelik testtir; tam bantta yeniden kontrol süresi,
+kesintisiz takip, yokluk kararının fiziksel açık/kapalı tekrarı ve genel
+Pd/Pfa kabulü değildir. Önceki fiziksel yeniden kontrol bekliyor notu yalnız
+bu dar kapsam için kapanır. ST-06 açık; parametre fazına geçilmedi.
+
+
+## Otomatik ikinci kontrol ve frekans sıralaması — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0, ST-06: normal tek tur sonuçları frekans sırasıyla
+sunulur. Kontrol edilmemiş enerji bölgeleri listenin sonunda kalır. Normal
+tur başarıyla tamamlanınca doğrulanmış ve birleştirilmiş sinyaller bir kez
+otomatik yeniden kontrol edilir. Laboratuvar kapalı/açık turları bu ek kontrolü
+başlatmaz. İkinci kontrol bitmeden görev tamamlandı bildirimi verilmez.
+Tekrar görüldü / son kontrolde görülmedi / kontrol edilemedi ayrı durumlardır;
+alım hatası veya iptal sinyal yokluğuna çevrilmez. Kontrol zamanı ipucundadır.
+`.recheck.jsonl` yan kaydı özgün taramanın SHA-256 özetini ve her sonucu
+saklar; ham tarama kanıtı değiştirilmez. Bu sınırlı bir ikinci turdur,
+kesintisiz izleme veya yeni yayınların sürekli keşfi değildir.
+
+102 hedefli test ve 25 arayüz testi geçti. İptal, hatanın yokluktan ayrılması,
+kayıt korunması ve görev tamamlanma sırası sınandı. 952,6–953,8 MHz fiziksel
+denemede 2/2 pencere tamamlandı fakat sinyal bulunmadı; otomatik ikinci kontrol
+çalışmadı. Vericinin güncel durumu soruldu; fiziksel yeniden kontrol kabulü
+bekliyor. Kanıt `results/evidence/phase08/survey-recheck-20260907.json` ve ZIP.
+Ek kontrol süresi genel tur süresine eklenir; tarama ve kontrol ayrı kaydedilir.
+ST-06 açık; parametre fazı başlamadı.
+
+
+## 953 MHz hedef eşleştirmesi ve kısa tekrar — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: operatör tamamlanan 700–1000 MHz turunun
+hedefini sonradan 953 MHz olarak açıkladı. Değiştirilmemiş kayıtta
+952,999989 MHz, ilk ölçümde 63 ve ikinci ayarda 23 gözlemle FPGA doğrulaması
+vardır; arayüzün saklanan sıralamasında 76. satırdadır. Kapalı referans
+kullanılmadan hedef listelenmiştir; otomatik hedef seçimi kanıtlanmamıştır.
+Yeni dar-sinyal eşleştirmesiyle 952,6–953,8 MHz kısa fiziksel tarama
+2/2 pencereyi 1,0834 s içinde tamamladı: 952,999964 MHz, ikinci ayarda
+952,999955 MHz, 91/26 gözlem. Tamamlanan pencerelerde USB taşması,
+CRC, sıra ve kuyruk kaybı sıfır. Bu hedefi bilinen dar aralık tekrarıdır;
+300 MHz kör tarama süresi veya genel Pd/Pfa kabulü değildir.
+Kanıt: `results/evidence/phase08/target953-confirmation-20260907.json`
+ve ZIP; iki fiziksel kaynağın hash'leri ayrı korunur. Önceki hedef frekansı
+bekleniyor notu bu bildirimle çözülmüştür. ST-06 açık kalır.
+
+
+## Dar sinyal doğrulama eşleştirmesi — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0, ST-06: dar ilk gözlem geniş ikinci-ayarlama
+olayının içine düştüğünde yalnız aralık örtüşmesiyle kabul edilebiliyordu.
+Dar ilk gözlem için ikinci olayın genişliğinden bağımsız olarak tepe
+frekansı mevcut 50 kHz toleransında eşleşmelidir. Geniş ilk gözlemin
+aralık tabanlı doğrulaması korunur. Yeni dar/geniş yanlış eşleşme testi ve
+mevcut geniş bant tepe değişimi testi dahil 60 hedefli test geçti.
+Bu değişiklik hedef frekansı öğrenilmeden yapıldı; frekansa özel kural yoktur.
+Kanıt `results/evidence/phase08/survey-narrow-verification-20260907.json`
+ve ZIP. Eski kayıttaki özetlerin incelemesi yeni RF sonucu değildir;
+tek tek doğrulama kareleri bu kayıtta bulunmadığından başarı sayısı
+sonradan değiştirilmedi. Güncel kaynak fiziksel doğrulaması bekleniyor.
+ST-06 ve parametre fazına geçiş kapısı açık kalır.
+
+
+## Güncel kaynakla tek tur fiziksel ölçüm — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: 700–1000 MHz, azami 24/24 dB, harici
+verici açık operatör beyanıyla normal tarama 249,10 s sürdü. Kapalı referans
+yüklenmedi. 500/500 pencere tamamlandı; tamamlanan pencerelerde USB taşması,
+CRC, sıra ve kuyruk kaybı sıfır. 10 kazanç tekrarı, 126 ham gözlem kaydedildi.
+Önceki açık turun 257,16 s süresinden yaklaşık %3,13 kısa; değişen RF yükü
+ve tekrar sayıları nedeniyle nedensel hız kazancı kanıtlanmadı.
+Önceki 826 MHz çevresinde ±50 kHz doğrulanmış gözlem yok; bu turun hedef
+frekansı henüz açıklanmadı. Hedef başarısı veya ST-06 kabulü çıkarılmaz.
+Arayüz sonuç satırları kaydedildi; pencere görüntüsü kaydedilemedi.
+Kaynak hash eşleşmeleri ve ham kayıtlar:
+`results/evidence/phase08/survey-optimized-live-20260907.json` ve ZIP.
+Önceki mikro ölçümün fiziksel toplam süre kapısı bu gözlemle güncellendi;
+tekrarlı hız kabulü ve RF hedef doğruluğu açık kalır.
+
+
+## Tarama hesaplama maliyeti ve sade görünüm — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0: tarama ve ikinci ayar doğrulamasında ilk kareden
+sonra yalnız doğrusal FFT gücü hesaplanır; kullanılmayan genlik, logaritmik
+PSD ve frekans ekseni dizileri tekrar üretilmez. Referans işlem sırası,
+Hann penceresi, kare sayısı, gözlem süresi ve eşikler korunur. Ayrı hız modu yoktur.
+`tests/test_detection_power.py` sıfır, DC, ton ve rastgele CI8 girdilerinde
+4096/16384 boyutları ve DC çıkarımı seçeneklerinde birebir güç eşitliğini sınar.
+Yerel mikro ölçüm medyanı tam yol 1,3607 ms, güç yolu 0,6442 ms;
+bu toplam tarama süresi veya fiziksel RF doğruluğu kabulü değildir.
+
+Görünümde tekrarlanan tespit yazıları, yeni etiketi, teknik pencere sayacı
+ve renk açıklamaları kaldırıldı. Frekans, varsa kaba aralık ve yalnız
+belirsiz bulguda doğrulama durumu gösterilir. Ayrıntılar ipucunda korunur.
+Tamamlanan turda son pencere aralığı ana başlık gibi gösterilmez.
+Yeni kaynakla fiziksel süre karşılaştırması açık; ST-06 tamamlanmadı.
+Kanıt: `results/evidence/phase08/survey-power-20260907.json` ve ZIP.
+
+
+## Tek tur tarama sunumu — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0, PHASE-08 / ST-06 kapsamında bant taraması
+kartlarında frekans, tespit durumu ve mevcutsa kaba frekans aralığı gösterilir.
+Teknik kanıtlar ipucunda korunur. Yalnız enerji bölgeleri doğrulama bekliyor
+olarak ayrılır; geçmiş tarama sonucu kesintisiz canlı yayın sayılmaz.
+Dar çizgiler yalnız komşu pencerelerde, aynı kanıt sınıfında ve iki ayardaki
+tepe frekansları ayrı ayrı iki FFT hücresi içinde uyuşursa birleştirilir.
+Sabit eşleştirme merkezi zincirleme frekans kaymasını önler; geniş emisyonlar
+ve aynı penceredeki ayrı çizgiler birleştirilmez. Ham kayıtlar değişmez.
+
+Kanıt: `results/evidence/phase08/survey-single-presentation-20260907.json`
+ve ZIP. Önceki 6679a49 kaynağıyla 700–1000 MHz kapalı/açık turları
+500/500 pencere tamamladı (282,56 / 257,16 s). Açık tur sonrasında operatör
+826 MHz bildirdi. Yeni sunumun yalnız açık kayıt tekrarı kapalı referans
+kullanmadan 130 gözlemi 122 satıra birleştirdi; 826 MHz tekrarı da birleşti.
+Bu RF algoritmasının yeni fiziksel tekrarı, yayıncı sayısı, otomatik hedef
+seçimi veya Pd/Pfa kabulü değildir. Kaynaklar kanıtta ayrı tutulur.
+
+Hedefli 99 yazılım ve 25 arayüz testi geçti. İlk alım oturumları 193,05 s, kabul edilen
+130 ek doğrulama 25,92 s tuttu; süreler toplam turun bütün aşamalarını
+ayrı ayrı açıklamaz. Alım hızlandırması, sürekli yeniden ziyaret ve ortamdan
+bağımsız hedef seçimi henüz uygulanmadı. Eşikler, RTL ve alım süreleri
+korundu. ST-06 açık; parametre fazına geçilmedi.
+
+
 ## Gün sonu aktarımı — 6 Eylül 2026
 
 KTR-4.1 / KTR-4.1-OPS-B0: bilinen 853 MHz CW ve 24/24 dB ile önceki fiziksel

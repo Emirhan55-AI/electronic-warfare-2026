@@ -1177,7 +1177,7 @@ def test_frequency_survey_excludes_other_sources_and_keeps_historical_selection(
         view.shutdown()
 
 
-def test_frequency_survey_presents_newest_verified_observations_first():
+def test_frequency_survey_sorts_by_frequency_without_losing_recency():
     from app.operator_console.detection_model import DetectionListModel
     from app.operator_console.rx_survey import SurveyConfig, SurveyUpdate
     from app.operator_console.survey_controller import SurveyController
@@ -1198,8 +1198,9 @@ def test_frequency_survey_presents_newest_verified_observations_first():
     },)))
 
     model = controller.observationModel
-    newest = model.data(model.index(0), DetectionListModel.RowRole)
-    older = model.data(model.index(1), DetectionListModel.RowRole)
+    older = model.data(model.index(0), DetectionListModel.RowRole)
+    newest = model.data(model.index(1), DetectionListModel.RowRole)
+    assert older["frequencyHz"] < newest["frequencyHz"]
     assert newest["eventId"] == "1:newest"
     assert newest["latestWindow"] is True
     assert newest["detail"] == "P/N 20.0 dB · 80 kare · 2. ayar 30 kare"

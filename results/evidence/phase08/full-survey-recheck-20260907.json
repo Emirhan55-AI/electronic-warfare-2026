@@ -1,0 +1,67 @@
+{
+  "schema": "full-survey-recheck-v1",
+  "summary": {
+    "initial": {
+      "type": "end",
+      "state": "completed",
+      "total_windows": 500,
+      "completed_windows": 500,
+      "failed_windows": 0,
+      "elapsed_seconds": 239.06012849975377,
+      "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\5b39bf0bb2094d92acc9118067c037a0.jsonl",
+      "error_code": ""
+    },
+    "recheck": {
+      "type": "end",
+      "state": "completed",
+      "elapsed_seconds": 27.380761600099504
+    },
+    "states": {
+      "seen": 113,
+      "not_seen": 11
+    },
+    "target": [
+      {
+        "hz": 952999934.8958333,
+        "state": "seen",
+        "verification_hz": 952999913.7703804
+      }
+    ],
+    "errors": {
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0
+    },
+    "usb": 0
+  },
+  "ST06_complete": false,
+  "archive_sha256": "bcffbd837a555368ae18faf7c79563751e3e92761ac0f2de65df3c68130493b7",
+  "files": {
+    "build/acceptance/rx-survey/5b39bf0bb2094d92acc9118067c037a0.jsonl": "90e68def114903a3c28fe165c9f1e2d3b7eb938e4efdee96ec04b5ff981258f0",
+    "build/acceptance/rx-survey/5b39bf0bb2094d92acc9118067c037a0.recheck.jsonl": "e78936df86ccf165cc52db79a9bf55b397c5db036c591a6bd3fc24e4fa369e1e",
+    "build/acceptance/st06-survey-20260907/full-recheck-summary.json": "ea3d725b8bbec75e44538c7415c4153a86084be2219016ade616d188e9d642eb",
+    "build/acceptance/st06-survey-20260907/run_full_recheck_on.py": "9655a35e24d9a7b90e145de7192120eb4b98771a9586af171bb062463d8a7668",
+    "source/app/operator_console/survey_recheck.py": "426c057e69d4b6aafdee81e8ed6d41093f69d374146af6db12e4e88e85ef7e43",
+    "source/algorithms/spectrum/dsp.py": "8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475",
+    "source/app/operator_console/survey_presentation.py": "54f7ea77ac9db6dc6b30fac21a760980a31f598cd804667eb3e7241aca1569d1",
+    "source/app/operator_console/rx_survey.py": "7c13c51607da33eb94cb740e77985c2a198485752756eb059b43205722c7fb62",
+    "source/app/operator_console/live_ed.py": "96df1938ffaa92b60fa9e92c26a61a78f565006b5d6bb6cdefcc8a0e25d803b9",
+    "source/algorithms/p0/channelizer.py": "aaa1b4328679b6706c25b1539d533c92d6960351e94816ecba38ebb76155212e",
+    "source/algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
+    "source/platforms/acquisition/continuous.py": "ff8d05b1be32104b92948e8018ce6c0f87e98f0e02c5ebb47bbc445f460ff579",
+    "source/platforms/acquisition/windows_pipe.py": "31c84e1ddcaa5f7e2a011c34983c6dbb4cc284a81f952d12d43d3d0e5af2a512",
+    "source/app/operator_console/survey_controller.py": "88708cbad94a098acf176dfd9b1fc7bce5cea958e994aef9f170568a2324f583",
+    "source/app/operator_console/quick_view_model.py": "c5df817cf14dc148cb1f59675effb93486b25b51b1aeedab78e6fad3a370b77f",
+    "source/app/operator_console/qml/RxSurveyView.qml": "4a7eaa7c7382bee9c9a00311ec57bf1cbf4be2506ba5a44096f7b3be07715efe",
+    "source/app/operator_console/qml/Main.qml": "d77abce30ab63024e86925ec2f52b64142ae2beecfd488f7cbeb801a02237ec8",
+    "source/scripts/check_rx_survey.py": "ea263a760bc087934ff62681bcc6d5f9f6465ba8469ae4f5da88a23aafebffb9",
+    "source/app/operator_console/spectral_display.py": "a5ade75cd443dabc2f555418f25995ea8ef419d63890ec7a9908f9dd4ab51cd3",
+    "source/app/operator_console/survey_evidence.py": "abfcc4c912b2f24919e0f6c51befd2356c539612de067552fd1cbeb30e2b7184",
+    "source/scripts/compare_rx_surveys.py": "5348e8a20a0739835c1013ba64edcaf9dc9ec77818ad3afcba5d02d57974750c",
+    "source/app/operator_console/integrated_spectrum.py": "2aa2759a61684e750a2e07ab35c7915534daa33cfe6c7b818b39e5442f053aa5",
+    "source/app/operator_console/known_spurs.py": "51bb3a4e53ef4dfddbc9988f5261f9dda88bb2d7bedde89d2214f731ee90a63b",
+    "source/config/p0/hackrf_spurs.json": "bb4ffa97837605f0f0bcf164ca0742541bc1d7f3d495d78a26bff74386e16473",
+    "source/algorithms/p0/native_channelizer.py": "7833039bcf5a264fe83526b6322577ecc2684be519ac40e630461f42582ee210",
+    "source/algorithms/p0/native/channelizer_native.cpp": "8a8a3b047593d3f5cce9992c3ef47a7bd026aed6645ef13732ba811814cc0421"
+  }
+}

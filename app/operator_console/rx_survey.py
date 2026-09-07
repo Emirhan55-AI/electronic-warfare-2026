@@ -55,6 +55,9 @@ SURVEY_TRANSPORT_ATTEMPTS = 3
 SURVEY_RETRYABLE_TRANSPORT_ERRORS = frozenset({"usb_overrun", "short_stream"})
 ROOT = Path(__file__).resolve().parents[2]
 SURVEY_SOURCES = (
+    "app/operator_console/survey_recheck.py",
+    "algorithms/spectrum/dsp.py",
+    "app/operator_console/survey_presentation.py",
     "app/operator_console/rx_survey.py", "app/operator_console/live_ed.py",
     "algorithms/p0/channelizer.py", "algorithms/p0/transport.py",
     "platforms/acquisition/continuous.py",
@@ -160,7 +163,9 @@ def _verification_matches(observation: dict, lower: float, upper: float,
         * LIVE_OUTPUT_SAMPLE_RATE_HZ
         / LIVE_OUTPUT_SAMPLES_PER_FRAME
     )
-    if max(observed_width, candidate_width) < broad_minimum_hz:
+    # A broad verifier must not turn a narrow primary line into a support-only
+    # match: it may contain a different, much stronger peak elsewhere.
+    if observed_width < broad_minimum_hz:
         return abs(peak - float(observation["peak_frequency_hz"])) <= SURVEY_CLUSTER_HZ
     overlap = max(0.0, min(observed_upper, upper) - max(observed_lower, lower))
     smaller_width = min(observed_width, candidate_width)
@@ -281,19 +286,16 @@ class RXSurvey:
                     if preview.sequence_number < SURVEY_VERIFY_GUARD_FRAMES or preview.display_frame is None:
                         return
                     frame = preview.display_frame
-                    spectrum = receiver_processor.process(
-                        decode_ci8(frame.payload, expected_complex_samples=16_384),
-                        sample_rate_hz=frame.sample_rate_hz,
-                        center_frequency_hz=frame.center_frequency_hz,
-                    )
-                    receiver_power_rows.append(np.asarray(
-                        spectrum.display.bin_power_fs2,
-                        dtype=np.float64,
-                    ).copy())
-                    receiver_frequencies_hz = np.asarray(
-                        spectrum.display.frequency_absolute_hz,
-                        dtype=np.float64,
-                    )
+                    samples = decode_ci8(frame.payload, expected_complex_samples=16_384)
+                    if receiver_frequencies_hz is None:
+                        spectrum = receiver_processor.process(
+                            samples, sample_rate_hz=frame.sample_rate_hz,
+                            center_frequency_hz=frame.center_frequency_hz,
+                        )
+                        receiver_frequencies_hz = spectrum.display.frequency_absolute_hz
+                        receiver_power_rows.append(spectrum.display.bin_power_fs2)
+                    else:
+                        receiver_power_rows.append(receiver_processor.detection_power(samples))
                     latest_iq_sha256 = hashlib.sha256(frame.payload).hexdigest()
 
                 config = LiveEDConfiguration(
@@ -550,19 +552,16 @@ class RXSurvey:
                     if preview.sequence_number < self.config.guard_frames or preview.display_frame is None:
                         return
                     frame = preview.display_frame
-                    spectrum = receiver_processor.process(
-                        decode_ci8(frame.payload, expected_complex_samples=16_384),
-                        sample_rate_hz=frame.sample_rate_hz,
-                        center_frequency_hz=frame.center_frequency_hz,
-                    )
-                    receiver_power_rows.append(np.asarray(
-                        spectrum.display.bin_power_fs2,
-                        dtype=np.float64,
-                    ).copy())
-                    receiver_frequencies_hz = np.asarray(
-                        spectrum.display.frequency_absolute_hz,
-                        dtype=np.float64,
-                    )
+                    samples = decode_ci8(frame.payload, expected_complex_samples=16_384)
+                    if receiver_frequencies_hz is None:
+                        spectrum = receiver_processor.process(
+                            samples, sample_rate_hz=frame.sample_rate_hz,
+                            center_frequency_hz=frame.center_frequency_hz,
+                        )
+                        receiver_frequencies_hz = spectrum.display.frequency_absolute_hz
+                        receiver_power_rows.append(spectrum.display.bin_power_fs2)
+                    else:
+                        receiver_power_rows.append(receiver_processor.detection_power(samples))
                     latest_display_iq_sha256 = hashlib.sha256(frame.payload).hexdigest()
 
                 try:

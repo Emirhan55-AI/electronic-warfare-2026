@@ -1,0 +1,48 @@
+{
+  "schema": "blind-second-survey-v1",
+  "target_disclosed": false,
+  "reference_used": false,
+  "initial_seconds": 247.32112859981135,
+  "recheck_seconds": 24.520771599840373,
+  "completed_windows": 500,
+  "recheck_states": {
+    "seen": 111,
+    "not_seen": 3
+  },
+  "recorded_results_errors": {
+    "crc_errors": 0,
+    "sequence_errors": 0,
+    "queue_drops": 0
+  },
+  "recorded_results_usb_overruns": 0,
+  "ST06_complete": false,
+  "archive_sha256": "1fd83069265780ed299d46cc704f98590da3bfc8e3feab263b2afc4675888a02",
+  "files": {
+    "build/acceptance/rx-survey/d007b26d62f14c4885d2b5a0c0289162.jsonl": "966a3bbbb74a7c5acf85cb30c0b448c52626c0d105f6e00c7a39dc87fc5d3412",
+    "build/acceptance/rx-survey/d007b26d62f14c4885d2b5a0c0289162.recheck.jsonl": "b9321b2bf2229f106d5d271c646cd778d5ea508e64e4019f18c0ea5e3bf24225",
+    "build/acceptance/st06-survey-20260907/blind-second-rows.json": "7490165485c9a5eedd14cb2c2998d5abcc61e50ecc9751a57852a44c1d32f497",
+    "build/acceptance/st06-survey-20260907/run_blind_second.py": "5a7e6ec0b9a8bf7dec7dcaf52529a551dd42617c0cce7a60f0fb411143a0aed7",
+    "source/app/operator_console/survey_recheck.py": "426c057e69d4b6aafdee81e8ed6d41093f69d374146af6db12e4e88e85ef7e43",
+    "source/algorithms/spectrum/dsp.py": "8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475",
+    "source/app/operator_console/survey_presentation.py": "54f7ea77ac9db6dc6b30fac21a760980a31f598cd804667eb3e7241aca1569d1",
+    "source/app/operator_console/rx_survey.py": "7c13c51607da33eb94cb740e77985c2a198485752756eb059b43205722c7fb62",
+    "source/app/operator_console/live_ed.py": "96df1938ffaa92b60fa9e92c26a61a78f565006b5d6bb6cdefcc8a0e25d803b9",
+    "source/algorithms/p0/channelizer.py": "aaa1b4328679b6706c25b1539d533c92d6960351e94816ecba38ebb76155212e",
+    "source/algorithms/p0/transport.py": "f9e4116648f0b37fbc7d16bca5337f1d6a917b640b3229ea974c22cd909590f7",
+    "source/platforms/acquisition/continuous.py": "ff8d05b1be32104b92948e8018ce6c0f87e98f0e02c5ebb47bbc445f460ff579",
+    "source/platforms/acquisition/windows_pipe.py": "31c84e1ddcaa5f7e2a011c34983c6dbb4cc284a81f952d12d43d3d0e5af2a512",
+    "source/app/operator_console/survey_controller.py": "29a0a12499def1e28b992621a02eeda41a7e32496ee7858b79a90395be65cbb1",
+    "source/app/operator_console/quick_view_model.py": "c5df817cf14dc148cb1f59675effb93486b25b51b1aeedab78e6fad3a370b77f",
+    "source/app/operator_console/qml/RxSurveyView.qml": "4a7eaa7c7382bee9c9a00311ec57bf1cbf4be2506ba5a44096f7b3be07715efe",
+    "source/app/operator_console/qml/Main.qml": "d77abce30ab63024e86925ec2f52b64142ae2beecfd488f7cbeb801a02237ec8",
+    "source/scripts/check_rx_survey.py": "ea263a760bc087934ff62681bcc6d5f9f6465ba8469ae4f5da88a23aafebffb9",
+    "source/app/operator_console/spectral_display.py": "a5ade75cd443dabc2f555418f25995ea8ef419d63890ec7a9908f9dd4ab51cd3",
+    "source/app/operator_console/survey_evidence.py": "abfcc4c912b2f24919e0f6c51befd2356c539612de067552fd1cbeb30e2b7184",
+    "source/scripts/compare_rx_surveys.py": "5348e8a20a0739835c1013ba64edcaf9dc9ec77818ad3afcba5d02d57974750c",
+    "source/app/operator_console/integrated_spectrum.py": "2aa2759a61684e750a2e07ab35c7915534daa33cfe6c7b818b39e5442f053aa5",
+    "source/app/operator_console/known_spurs.py": "51bb3a4e53ef4dfddbc9988f5261f9dda88bb2d7bedde89d2214f731ee90a63b",
+    "source/config/p0/hackrf_spurs.json": "bb4ffa97837605f0f0bcf164ca0742541bc1d7f3d495d78a26bff74386e16473",
+    "source/algorithms/p0/native_channelizer.py": "7833039bcf5a264fe83526b6322577ecc2684be519ac40e630461f42582ee210",
+    "source/algorithms/p0/native/channelizer_native.cpp": "8a8a3b047593d3f5cce9992c3ef47a7bd026aed6645ef13732ba811814cc0421"
+  }
+}
