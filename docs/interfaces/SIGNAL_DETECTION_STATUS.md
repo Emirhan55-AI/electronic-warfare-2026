@@ -1,5 +1,16 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## ET Faraday laboratuvar kararı — 8 Eylül 2026
+
+Kullanıcı, bundan sonraki fiziksel ET-TX çalışmalarının hazır korumaları bulunan
+Faraday kabini içinde yapılacağını bildirmiş ve `CABLED_LAB` politika kilidinin
+kaldırılmasını onaylamıştır. Genel/açık alan `HARDWARE_TX_LOCKED` yolu kapalı
+kalır. Güncel ET kaynaklarında gerçek HackRF TX arka ucu yoktur; Windows
+denetiminde bağlı HackRF USB kimliği ve gerekli host araçları görülmediğinden bu
+karar sırasında RF yayını yapılmamıştır. Ayrıntı ADR-0043 ve RF güvenlik
+sözleşmesindedir. Bu ET hazırlık kararı PHASE-08 / ST-06 durumunu değiştirmez;
+parametre/PHASE-09 veya fiziksel ET kabulüne geçilmiş sayılmaz.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 KTR-4.1 / KTR-4.1-OPS-B0 kapsamında sabit frekans ve bant taraması ekranları

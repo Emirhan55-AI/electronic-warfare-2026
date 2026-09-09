@@ -528,7 +528,7 @@ bulma başarısı veya saha kabulü değildir.
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
 | ZedBoard üzerinde DMA ve tespit zinciri | Değişken 64–54.144 bayt aday paketi, S2MM gerçek uzunluk sürücüsü ve yerel Linux hizmeti kalıcı PetaLinux imajında doğrulandı. Soğuk açılış, bit-doğru 54 aday yaşam döngüsü ve tekrarlı 2 MS/s hız kapıları geçti |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
-| ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
+| ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller ve C++17 I/Q üreteci mevcut. Faraday `CABLED_LAB` politika onaylıdır; doğrulanmış HackRF TX arka ucu ve fiziksel RF kabulü henüz yoktur |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
 Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
@@ -539,8 +539,10 @@ Uygulama ED ve ET görevlerini aynı ürün kabuğunda açıkça ayırır. ED al
 kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı sinyal ölçümü,
 AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu
 birleştirir. ET alanı yalnız doğrulanmış çevrimdışı sürekli, arabakışlı, analog
-loopback ve GPS L1 C/A metadata modellerini sunar. RF TX yolu yoktur ve bütün ET
-sonuçları fiziksel RF sonucu olmadığını açıkça belirtir. Yayın çalışma zamanı
+loopback ve GPS L1 C/A metadata modellerini sunar. Üst durumdaki `FARADAY LAB`
+ADR-0043 ortam onayını gösterir; mevcut görev düğmeleri RF göndermez. Doğrulanmış
+RF TX yolu yoktur ve bütün ET sonuçları fiziksel RF sonucu olmadığını açıkça
+belirtir. Yayın çalışma zamanı
 yalnız gerçek SigMF/HackRF RX kaynaklarını ve doğrulanmış çevrimdışı ET
 modellerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
 arayüzleri ürün paketine girmez.
@@ -683,7 +685,9 @@ altında tutulur.
 
 ## RF güvenliği
 
-Depoda genel kullanıma açık bir RF yayın arka ucu bulunmaz. ET çalışmaları yalnız
-çevrimdışı veya kapalı çevrim doğrulama kapsamındadır. Her fiziksel RF deneyi;
-yetkili, kontrollü, uygun zayıflatma ve ekranlama kullanılan bir test düzeninde
-yürütülmelidir.
+Depoda henüz doğrulanmış bir RF yayın yolu yoktur. Kullanıcının 8 Eylül
+2026 onayıyla ET için `CABLED_LAB` yalnız Faraday kabini içinde yetkilidir;
+genel/açık alan donanım TX kilitli kalır. Fiziksel TX; seri bağlı cihaz,
+sınırlı süre ve kazanç, otomatik/acil durdurma ve bağımsız ölçüm kayıtlarıyla
+fail-closed uygulanacaktır. Ayrıntı `docs/safety/RF_TEST_BOUNDARIES.md` ve
+ADR-0043'tedir.

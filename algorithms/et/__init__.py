@@ -1,9 +1,10 @@
-"""Transmit-disabled ET baseband, state-machine, and scenario contracts."""
+"""ET baseband, approved Faraday-lab state, and scenario contracts."""
 
 from .deception import AnalogDeceptionConfig, AnalogDeceptionEngine, AnalogDeceptionResult
 from .gnss import GNSSScenario, GNSSScenarioValidator, GNSSValidationResult
 from .interleaved import InterleavedConfig, InterleavedJammingEngine, InterleavedResult, InterleavedTaskController, InterleavedWindow
 from .mission import ETMissionController, MissionLogEntry, SafetyMode
+from .native_generator import NativeSignalConfig, NativeSignalGenerator, NativeSignalResult, NativeWaveform
 from .results import ETTaskResult, new_task_result
 from .waveforms import ContinuousJammingConfig, ContinuousJammingEngine, WaveformResult
 
@@ -24,6 +25,10 @@ __all__ = [
     "InterleavedTaskController",
     "InterleavedWindow",
     "MissionLogEntry",
+    "NativeSignalConfig",
+    "NativeSignalGenerator",
+    "NativeSignalResult",
+    "NativeWaveform",
     "SafetyMode",
     "WaveformResult",
     "new_task_result",

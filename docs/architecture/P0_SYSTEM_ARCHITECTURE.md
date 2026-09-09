@@ -439,8 +439,12 @@ değişmemiştir. Kanıt: `results/evidence/phase08/st06-product-board-diagnosti
 ## Bilgisayar-2 — ET
 
 Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur. P0 yazılım kabulü
-yalnız `OFFLINE` ve `LOOPBACK` modlarındadır. `CABLED_LAB` güvenlik/interlock
-kanıtı olmadan kilitlidir; gerçek TX backend'i uygulanmamıştır.
+`OFFLINE` ve `LOOPBACK` modlarında tamamlanmıştır. Kullanıcının 8 Eylül 2026
+Faraday kabini beyanı ve onayıyla `CABLED_LAB` politika kilidi kaldırılmıştır;
+genel/açık alan `HARDWARE_TX_LOCKED` yolu kapalıdır. Mevcut denetleyici laboratuvar
+görevini ve günlüğünü kabul eder ancak gerçek TX backend'i uygulanmamıştır.
+Fiziksel TX; tam cihaz serisi, doğrulanmış araçlar, sınırlı süre/kazanç, acil
+durdurma ve bağımsız ölçüm birlikte geçtikten sonra bu mimariye eklenebilir.
 
 İki bilgisayar Python belleği veya süreç durumu paylaşmaz. Gelecekte görev verisi
 aktarılması gerekirse sürümlü ağ veya dosya sözleşmesi kullanılır.

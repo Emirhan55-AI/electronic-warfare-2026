@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.20)
+project(et_signal_generator_native LANGUAGES CXX)
+
+add_library(et_signal_generator SHARED signal_generator.cpp)
+target_compile_features(et_signal_generator PRIVATE cxx_std_17)
+target_include_directories(et_signal_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(et_signal_generator PRIVATE ET_SIGNAL_GENERATOR_EXPORTS)
+
+if(MSVC)
+  target_compile_options(et_signal_generator PRIVATE /O2 /W4 /permissive-)
+else()
+  target_compile_options(et_signal_generator PRIVATE -O2 -Wall -Wextra -Wpedantic)
+  if(MINGW)
+    target_link_options(et_signal_generator PRIVATE -static)
+  endif()
+endif()

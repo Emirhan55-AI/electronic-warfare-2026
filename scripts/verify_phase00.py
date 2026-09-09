@@ -1230,6 +1230,19 @@ APPROVED_ET_OFFLINE_FILES = (
     "tests/test_p0_et_verifier.py",
 )
 
+# The native ET generator and Faraday-lab authorization are an approved
+# preparation extension. They add no device or RF transmit backend.
+APPROVED_ET_SIGNAL_GENERATOR_FILES = (
+    "algorithms/et/README.md",
+    "algorithms/et/native/CMakeLists.txt",
+    "algorithms/et/native/signal_generator.cpp",
+    "algorithms/et/native/signal_generator.hpp",
+    "algorithms/et/native_generator.py",
+    "docs/decisions/ADR-0043-ET-FARADAY-LAB-AUTHORIZATION.md",
+    "docs/interfaces/ET_SIGNAL_GENERATOR_CONTRACT.md",
+    "tests/test_et_native_signal_generator.py",
+)
+
 # APP sağlamlaştırma çalışması mevcut PHASE sırasını ilerletmez.  Bu dosyalar
 # yalnız repository/ürün sınırını ve sonraki onay kapılarını tanımlar.
 APPROVED_APP_HARDENING_FILES = (
@@ -1632,6 +1645,7 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06J_FILES)
         | set(APPROVED_P0_FILES)
         | set(APPROVED_ET_OFFLINE_FILES)
+        | set(APPROVED_ET_SIGNAL_GENERATOR_FILES)
         | set(APPROVED_APP_HARDENING_FILES)
         | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
     )
@@ -1771,7 +1785,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("algorithms", "app", "verification", "datasets", "platforms")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_ET_SIGNAL_GENERATOR_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | {
         "algorithms/fpga/README.md",
         "algorithms/README.md",
         "verification/README.md",

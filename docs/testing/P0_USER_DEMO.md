@@ -117,7 +117,10 @@ Ana ürün kabuğundaki `ET` alanı yalnız doğrulanmış çevrimdışı görev
 sunar. Sürekli ve arabakışlı görevler ile AM/FM/NFM loopback ve GPS L1 C/A
 metadata denetimleri Python host modellerinden gelir. QML gösterimlik sonuç
 üretmez; SystemVerilog ET çekirdeği veya RF TX arka ucu yoktur. Donanım ve yayın
-modları kilitlidir.
+işlevi henüz uygulanmamıştır. Üst durumdaki `FARADAY LAB`, kullanıcının
+ADR-0043'te kayıtlı kontrollü laboratuvar ortamı onayını gösterir; mevcut
+düğmelerin fiziksel RF yayın yaptığı anlamına gelmez. Genel/açık alan donanım TX
+kilitlidir.
 
 ## Vivado görsel inceleme
 

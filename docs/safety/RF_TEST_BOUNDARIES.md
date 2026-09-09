@@ -1,12 +1,37 @@
 # RF Test Sınırları
 
-Bu sınırlar bağlayıcıdır:
+## Güncel ET laboratuvar sınırı — 8 Eylül 2026
 
-- PHASE-00 kapsamında RF yayını yoktur.
-- Antene bağlı kontrolsüz TX testi yapılmaz.
-- GNSS aldatma ve karıştırma yalnız ileride yasal olarak izinli, RF bakımından kontrollü ve güvenli koşullarda ele alınır.
+Kullanıcı, fiziksel ET-TX çalışmalarının yalnız hazır korumaları bulunan Faraday
+kabini içinde yürütüleceğini bildirmiş ve `CABLED_LAB` geliştirmesini onaylamıştır.
+Bu ortam onayı sonraki oturumlar için kayıtlıdır; aynı beyan tekrar istenmez.
+
+Bağlayıcı sınırlar şunlardır:
+
+- `CABLED_LAB`, yalnız kapalı Faraday kabini içinde veya aynı kabin içindeki
+  uygun zayıflatmalı kablolu düzende kullanılabilir.
+- Faraday kabini dışında açık alan, saha veya denetimsiz antenli TX yapılmaz;
+  genel `HARDWARE_TX_LOCKED` yolu fail-closed kalır.
+- TX yalnız tam seri numarasıyla seçilmiş cihaz, sınırlandırılmış süre ve kazanç,
+  operatör başlatması, otomatik durma, acil durdurma ve ölçüm kaydıyla çalışır.
+- İlk fiziksel koşu en düşük TX kazancında kısa bir doğrulama tonu olur. Gürültü
+  veya diğer dalga biçimleri ancak bu koşu başarıyla kaydedildikten sonra denenir.
 - PA bulunmadığından yüksek güçlü yayın veya yüksek güçlü ET yeteneği iddia edilmez.
-- HackRF-2 bu aşamada kullanılmaz.
-- Uygun zayıflatma, yalıtım, ölçüm ve acil durdurma koşullarını içeren güvenli test düzeni oluşturulmadan TX kodu eklenmez.
+- GNSS RF dalga şekli bu onayın kapsamında değildir; ilgili ayrı faz ve kabul
+  tamamlanmadan GNSS TX eklenmez.
+- Ortamın hazır olduğuna ilişkin kullanıcı beyanı fiziksel izolasyon ölçümü veya
+  RF başarı kanıtı sayılmaz; ölçülen sonuçlar ayrı kanıt olarak saklanır.
 
-PHASE-00 yalnız repository ve mühendislik temelini kurar; donanım kurulumu, RF bağlantısı veya yayın testi içermez.
+Mevcut kaynakta doğrulanmış HackRF TX arka ucu yoktur. `CABLED_LAB` politika
+kilidinin açılması tek başına RF üretmez ve eksik interlockları atlamaz.
+Güncel karar ADR-0043'tedir; PHASE-00'a ilişkin önceki yayınsız sonuçlar tarihsel
+kayıt olarak geçerliliğini korur.
+
+## Tarihsel PHASE-00 sınırı
+
+PHASE-00 kapsamında RF yayını yoktur. Antene bağlı kontrolsüz TX testi yapılmaz.
+GNSS aldatma ve karıştırma bu başlangıç fazında yalnız gelecekteki kontrollü
+çalışma olarak kaydedilmiştir. HackRF-2 bu aşamada kullanılmaz ve uygun
+zayıflatma, yalıtım, ölçüm ve acil durdurma düzeni kurulmadan TX kodu eklenmez.
+Bu tarihsel ifadeler PHASE-00 sonucunu korur; güncel `CABLED_LAB` yetkisi üstteki
+8 Eylül kararı ve ADR-0043 ile değerlendirilir.

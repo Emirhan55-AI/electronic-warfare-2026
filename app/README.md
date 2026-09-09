@@ -418,8 +418,10 @@ Uygulamanın mevcut çalışma alanları:
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
   dosya sistemi denetimi sunmaz.
 - `ET Görevleri`: sürekli taban bant, arabakışlı zamanlama, AM/FM/NFM
-  yerel loopback ve GPS L1 C/A metadata doğrulaması. Bütün görevler TX kilitli
-  çalışır; GNSS görevi ephemeris, NAV verisi veya I/Q dalga şekli üretmez.
+  yerel loopback ve GPS L1 C/A metadata doğrulaması. Faraday `CABLED_LAB`
+  politika onaylıdır; genel/açık alan TX kilitli, gerçek HackRF TX arka ucu ise
+  henüz uygulanmamıştır. GNSS görevi ephemeris, NAV verisi veya I/Q dalga şekli
+  üretmez ve laboratuvar TX onayının kapsamında değildir.
 
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS

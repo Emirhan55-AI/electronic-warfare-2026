@@ -1,5 +1,29 @@
 # Uygulama Yol Haritası
 
+## ET Faraday laboratuvar yetkilendirmesi — 8 Eylül 2026
+
+Kullanıcı, bundan sonraki fiziksel ET-TX çalışmalarının hazır korumaları bulunan
+Faraday kabini içinde yapılacağını bildirmiş ve kontrollü `CABLED_LAB` kapsamını
+onaylamıştır. Bu modun politika kilidi kaldırılmıştır; genel/açık alan
+`HARDWARE_TX_LOCKED` yolu kapalı kalır. Seri bağlı cihaz, doğrulanmış HackRF
+araçları, sınırlı süre/kazanç, acil durdurma ve ölçüm kaydı gerçek TX için hâlâ
+zorunludur. Güncel kaynakta TX arka ucu yoktur ve bu kayıt sırasında RF yayını
+yapılmamıştır. Karar ADR-0043, bağlayıcı sınırlar
+`docs/safety/RF_TEST_BOUNDARIES.md` içindedir.
+
+Bu onay PHASE-10/11 güvenlik hazırlığıdır; PHASE-08'i kapatmaz, PHASE-09'u
+tamamlamaz veya yol haritası sırasını değiştirmez. Fiziksel uygulama ve kabul,
+cihaz görünür olduğunda ilgili fazda ayrıca yürütülür.
+
+## ET yerel sinyal üreteci bakımı — 8 Eylül 2026
+
+Kullanıcının ET sinyal üreteci entegrasyon talebiyle, PortaPack firmware
+çalışma zamanı alınmadan bağımsız C++17 `int8` I/Q üreteci ve Python bağı
+eklenmiştir. Kapsam yalnız deterministik `OFFLINE/LOOPBACK` tampon üretimidir;
+HackRF-2, aygıt erişimi, RF ayarı ve TX arka ucu eklenmemiştir. Bu bakım ET-C
+sözleşmesini genişletir; PHASE-10–12'yi başlatmaz. Kabul sınırı ve kullanım
+`docs/interfaces/ET_SIGNAL_GENERATOR_CONTRACT.md` içinde tutulur.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 PHASE-08 / ST-06 arayüzünde sabit frekans ve bant taraması alanlarının sayı,
@@ -455,7 +479,12 @@ tespit kabulü açık olduğundan sinyal tespiti aşaması kapatılmamıştır.
 
 ## ET güvenlik kapıları
 
-ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla başlar; ardından kablolu, zayıflatıcılı ve RF olarak kapalı test düzenine geçer. Güvenli test düzeneği kurulup doğrulanmadan RF TX etkinleştirilmez. Açık ortam RF testi yalnız yürürlükteki mevzuat, yarışma komitesi izni ve komitenin belirlediği zaman ile test düzeni altında yapılabilir.
+ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla başlar;
+ardından kullanıcı tarafından onaylanan `CABLED_LAB` kapsamında Faraday kabini
+içindeki kablolu/zayıflatıcılı veya tamamen kapalı düzene geçer. Ortam onayı
+kayıtlıdır; gerçek TX yine cihaz, süre/kazanç, acil durdurma ve ölçüm
+interlocklarının birlikte geçmesini gerektirir. Açık ortam RF testi bu proje
+kapsamında etkin değildir.
 
 KTR yarışma görevlerinin kaynağı olarak korunur; eski donanımın teknik performans hedefleri bağlayıcı değildir. Referans mimari 2× HackRF One, ZedBoard ve laptoptur.
 
