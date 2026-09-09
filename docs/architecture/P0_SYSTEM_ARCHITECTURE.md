@@ -542,10 +542,14 @@ değişmemiştir. Kanıt: `results/evidence/phase08/st06-product-board-diagnosti
 
 ## Bilgisayar-2 — ET
 
-Hedef mimaride Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur.
-Güncel ürün yalnız gönderim uygulanmadı durumunu sunar; ET modeli çalıştırmaz.
-P0 çevrimdışı/yerel döngü kabulü tarihsel referanstır. Modeller ürün dışında
-korunur; gerçek TX backend'i uygulanmamıştır.
+Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur. P0 yazılım kabulü
+`OFFLINE` ve `LOOPBACK` modlarında tamamlanmıştır; bağımsız C++17 üreteç bu
+referans kapsamındadır. Kullanıcının 8 Eylül 2026 Faraday kabini beyanı ve
+onayıyla `CABLED_LAB` ortamı onaylanmış, genel/açık alan yolu kapalı kalmıştır.
+Güncel ürün PHASE-10 Tekli Görev için sonlu, seri ve profil bağlı HackRF süreç
+sınırını içerir. Depo profili kapalıdır; cihaz serisi, izinli bant, ölçülmüş
+zayıflatma, sınırlı süre/kazanç, acil durdurma ve bağımsız ölçüm birlikte
+doğrulanmadan fiziksel TX başlatılmaz veya kabul edilmiş sayılmaz.
 
 İki bilgisayar Python belleği veya süreç durumu paylaşmaz. Gelecekte görev verisi
 aktarılması gerekirse sürümlü ağ veya dosya sözleşmesi kullanılır.

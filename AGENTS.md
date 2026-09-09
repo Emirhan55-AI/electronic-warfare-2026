@@ -30,6 +30,24 @@ imaj hash'leri eşleşen kanıt aranır; eski fiziksel sonuç yeni ikiliye aktar
 Durum değişikliğinde yukarıdaki belgeler ile etkilenen bileşen README'leri
 birlikte güncellenir. Geçmiş ölçümler ve dondurulmuş yöntem kayıtları korunur.
 
+## ET-TX kontrollü laboratuvar onayı — 8 Eylül 2026
+
+- Kullanıcı, bundan sonraki fiziksel ET-TX çalışmalarının yalnız hazır korumaları
+  bulunan Faraday kabini içinde yürütüleceğini açıkça bildirmiş ve bu kontrollü
+  laboratuvar kapsamını onaylamıştır. Aynı ortam beyanını her oturumda yeniden
+  istemek gerekmez.
+- `CABLED_LAB` politika kilidi bu kapsam için açıktır. Bu izin açık alan,
+  antenli saha yayını veya Faraday kabini dışına taşan RF için geçerli değildir;
+  genel `HARDWARE_TX_LOCKED` yolu fail-closed kalır.
+- Çalışma zamanı yine cihaz seri numarası, HackRF araçları, sınırlı süre ve
+  kazanç, operatör başlatması, acil durdurma ve ölçüm kaydı bulunmadan TX
+  başlatamaz. Eksik interlock, kullanıcı ortam onayını geçersiz kılmaz; yalnız
+  ilgili koşuyu güvenli biçimde durdurur.
+- Bu kayıt ortam ve geliştirme iznidir; fiziksel RF başarısı değildir. Yazılım
+  arka ucu fiziksel olarak doğrulanmış veya donanım kabulü tamamlanmış gibi ancak
+  tekrarlanabilir ölçüm kanıtından sonra gösterilir. Güncel karar `docs/decisions/ADR-0043-ET-FARADAY-LAB-AUTHORIZATION.md`
+  ve sınırlar `docs/safety/RF_TEST_BOUNDARIES.md` içindedir.
+
 ## Gün sonu devam kaydı — 6 Eylül 2026
 
 - Güncel ayrıntı `docs/interfaces/SIGNAL_DETECTION_STATUS.md` başındadır.

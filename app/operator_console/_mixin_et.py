@@ -241,7 +241,7 @@ class ETWorkspaceMixin:
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(6)
         layout.addWidget(self._build_et_pipeline("analog", ("Ses", "Normalize", "Modülasyon", "I/Q", "Demodülasyon")))
-        self.et_analog_mode_badge = QLabel("OFFLINE · TX KİLİTLİ · RF TX YOK")
+        self.et_analog_mode_badge = QLabel("OFFLINE · TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK")
         self.et_analog_mode_badge.setProperty("class", "propCaption")
         self.et_analog_mode_badge.setWordWrap(True)
         layout.addWidget(self.et_analog_mode_badge)
@@ -339,11 +339,11 @@ class ETWorkspaceMixin:
         self.et_mode_combo.addItem("SİMÜLASYON", SafetyMode.OFFLINE)
         self.et_mode_combo.addItem("YEREL DÖNGÜ", SafetyMode.LOOPBACK)
         self.et_mode_combo.addItem("KAYIT YENİDEN OYNAT", SafetyMode.REPLAY)
-        self.et_mode_combo.addItem("KABLOLU LAB · KİLİTLİ", SafetyMode.CABLED_LAB)
+        self.et_mode_combo.addItem("FARADAY LAB · ONAYLI", SafetyMode.CABLED_LAB)
         self.et_mode_combo.addItem("DONANIM TX · KİLİTLİ", SafetyMode.HARDWARE_TX_LOCKED)
         self.et_mode_combo.currentIndexChanged.connect(self._update_et_mode_badge)
         self.et_mode_combo.hide()
-        self.et_mode_summary = QLabel("OFFLINE · TX KİLİTLİ · RF TX YOK")
+        self.et_mode_summary = QLabel("OFFLINE · TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK")
         self.et_mode_summary.setProperty("class", "propValue")
         self.et_mode_summary.setWordWrap(True)
         safety_layout.addWidget(self.et_mode_summary, 0, 1)
@@ -530,15 +530,29 @@ class ETWorkspaceMixin:
         self.et_result_values["status"].setText("—")
         self.et_result_values["mode"].setText("—")
         self.et_result_values["metric"].setText("Görev seçildi")
-        self.et_result_values["detail"].setText("OFFLINE · TX KİLİTLİ")
+        self.et_result_values["detail"].setText("OFFLINE · TX KİLİTLİ · FARADAY LAB ONAYLI")
         self.et_state_label.setText("HAZIR")
         self._set_et_pipeline_progress(task_key, -1)
 
     def _update_et_mode_badge(self) -> None:
         if not hasattr(self, "et_header_values"):
             return
-        self.et_header_values["mode"].setText("OFFLINE")
-        self.et_mode_summary.setText("OFFLINE · TX KİLİTLİ · RF TX YOK")
+        mode = self._selected_et_mode()
+        if mode is SafetyMode.CABLED_LAB:
+            self.et_header_values["mode"].setText("CABLED_LAB")
+            self.et_header_values["tx_lock"].setText("TX KİLİTLİ")
+            self.et_header_values["rf_tx"].setText("TX ARKA UCU YOK")
+            self.et_mode_summary.setText("FARADAY LAB · ORTAM ONAYLI · FİZİKSEL KAPI KİLİTLİ")
+        elif mode is SafetyMode.HARDWARE_TX_LOCKED:
+            self.et_header_values["mode"].setText("DONANIM")
+            self.et_header_values["tx_lock"].setText("GENEL TX KİLİTLİ")
+            self.et_header_values["rf_tx"].setText("RF TX YOK")
+            self.et_mode_summary.setText("GENEL / AÇIK ALAN TX · KİLİTLİ")
+        else:
+            self.et_header_values["mode"].setText(mode.value)
+            self.et_header_values["tx_lock"].setText("TX KİLİTLİ")
+            self.et_header_values["rf_tx"].setText("RF TX YOK")
+            self.et_mode_summary.setText(f"{mode.value} · TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK")
 
     def _update_continuous_hint(self) -> None:
         family = str(self.et_family_combo.currentData())
@@ -959,7 +973,7 @@ class ETWorkspaceMixin:
                     f"Konum: {scenario.latitude_deg:.5f}, {scenario.longitude_deg:.5f}\n"
                     f"Zaman: {scenario.scenario_time_utc}\n"
                     "Doğrulama: PASS\n"
-                    "OFFLINE · TX KİLİTLİ · RF TX YOK"
+                    "OFFLINE · TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK"
                 )
                 self.et_gnss_visual_status.setText("Metadata doğrulandı.")
                 self.et_result_values["detail"].setText("GPS L1 C/A · Doğrulandı")

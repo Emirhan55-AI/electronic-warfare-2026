@@ -188,7 +188,7 @@ class NavigationMixin:
         self.status_state_label = QLabel("Durum: " + TEXT["empty"])
         self.status_state_label.setWordWrap(True)
 
-        self.status_tx_lock_label = QLabel("TX KİLİTLİ · RF TX YOK")
+        self.status_tx_lock_label = QLabel("TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK")
         self.status_tx_lock_label.setObjectName("statusTxLock")
         self.status_tx_lock_label.setWordWrap(True)
 

@@ -306,9 +306,10 @@
   ],
   "safety": {
     "locked_modes": {
-      "CABLED_LAB": true,
+      "CABLED_LAB": false,
       "HARDWARE_TX_LOCKED": true
     },
+    "cabled_lab_context_recorded": true,
     "emergency_stop_latched": true,
     "transmit_method_present": false,
     "real_tx_backend": "not_implemented",

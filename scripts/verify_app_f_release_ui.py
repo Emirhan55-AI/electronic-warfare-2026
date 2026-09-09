@@ -513,8 +513,8 @@ def _parent_run() -> int:
         "et_safety_surface": all(
             marker in qml_text
             for marker in (
-                'text: root.operatingDomain === "ET" ? "YAYIN"',
-                'text: root.operatingDomain === "ET" ? "DEVRE DIŞI"',
+                'text: root.operatingDomain === "ET" ? "ET ORTAMI"',
+                'text: root.operatingDomain === "ET" ? "FARADAY LAB"',
                 'objectName: "etSingleEmergencyStop"',
                 'objectName: "etTxGateState"',
             )

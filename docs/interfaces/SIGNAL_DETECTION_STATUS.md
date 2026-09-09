@@ -131,6 +131,17 @@ Başlangıç kontrolünde host C/Python sayısal karşılaştırması geçti; 33
 arşiv/QML testinin 32'si geçti, eski paket dosya-listesi kontrolü başarısızdır.
 Bu oturumda üretim kodu veya donanım değiştirilmedi; yeni RF kabulü yoktur.
 Aşağıdaki tarihli kayıtların sonuçları ve özgün kanıt sınırları korunur.
+## ET Faraday laboratuvar kararı — 8 Eylül 2026
+
+Kullanıcı, bundan sonraki fiziksel ET-TX çalışmalarının hazır korumaları bulunan
+Faraday kabini içinde yapılacağını bildirmiş ve `CABLED_LAB` politika kilidinin
+kaldırılmasını onaylamıştır. Genel/açık alan `HARDWARE_TX_LOCKED` yolu kapalı
+kalır. Karar sırasında HackRF TX arka ucu ve bağlı cihaz yoktu; RF yayını
+yapılmadı. Birleşik güncel kaynakta güvenlik kapılı Tekli Görev HackRF süreç
+arka ucu vardır; depo profili ve fiziksel kapı kapalı, bağlı cihaz yoktur.
+Çevrimdışı C++17 üreteç ürün dışında kalır. Ayrıntı ADR-0043 ve RF güvenlik
+sözleşmesindedir. Bu karar PHASE-08 / ST-06 durumunu değiştirmez ve fiziksel ET
+kabulü sayılmaz.
 
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 

@@ -1,4 +1,4 @@
-"""Fail-closed P0 ET mission state machine with no hardware TX implementation."""
+"""Fail-closed ET mission state machine with controlled Faraday-lab admission."""
 
 from __future__ import annotations
 
@@ -26,7 +26,12 @@ class MissionLogEntry:
 
 
 class ETMissionController:
-    """Only OFFLINE/LOOPBACK/REPLAY can run; there is no transmit method."""
+    """Admit offline work and the approved Faraday-lab mode.
+
+    Admission to ``CABLED_LAB`` records the approved test context but does not
+    itself transmit: this controller intentionally has no device/TX method.
+    General hardware or open-air transmission remains fail-closed.
+    """
 
     def __init__(self, mode: SafetyMode = SafetyMode.OFFLINE, *, maximum_duration_seconds: float = 30.0) -> None:
         self.mode = mode
@@ -48,12 +53,13 @@ class ETMissionController:
             raise RuntimeError("acil durdurma kilidi sıfırlanmadan görev başlatılamaz")
         if not 0 < duration_seconds <= self.maximum_duration_seconds:
             raise ValueError("görev süresi bounded sınırı aşıyor")
-        if self.mode not in {SafetyMode.OFFLINE, SafetyMode.LOOPBACK, SafetyMode.REPLAY}:
+        if self.mode is SafetyMode.HARDWARE_TX_LOCKED:
             self.state = "GÜVENLİK KİLİDİ"
-            self._record("RED", duration_seconds, "Donanım TX P0 kabulünde kilitlidir")
-            raise PermissionError("yalnız OFFLINE, LOOPBACK veya REPLAY göreve izin verilir")
+            self._record("RED", duration_seconds, "Genel veya açık alan donanım TX kilitlidir")
+            raise PermissionError("yalnız OFFLINE, LOOPBACK, REPLAY veya onaylı FARADAY LAB göreve izin verilir")
         self.state = "ÇALIŞIYOR"
-        self._record("BAŞLAT", duration_seconds, detail)
+        recorded_detail = f"FARADAY LAB · {detail}" if self.mode is SafetyMode.CABLED_LAB else detail
+        self._record("BAŞLAT", duration_seconds, recorded_detail)
 
     def stop(self) -> None:
         self.state = "DURDURULDU"

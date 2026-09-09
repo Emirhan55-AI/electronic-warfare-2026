@@ -540,8 +540,11 @@ Uygulamanın mevcut çalışma alanları:
   seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
   dosya sistemi denetimi sunmaz.
-- `ET Görevleri`: dört görev için uygulanmamış gönderim durumu. Çalıştırma
-  denetimi, hazır senaryo, örnek ölçüm ve sonuç grafiği bulunmaz.
+- `ET Görevleri`: ürün yalnız Tekli Görev için seçilen frekans aralığı, süre,
+  iletimsiz spektrum doğrulaması ve güvenlik kapılı HackRF TX sürecini sunar.
+  Faraday `CABLED_LAB` ortamı onaylıdır; fiziksel profil kapalı, cihaz bağlı
+  değil ve RF kabulü açıktır. Çoklu/arabakışlı/analog/GNSS ile C++17 I/Q
+  üreteci çevrimdışı referans olarak korunur ve ürün akışına girmez.
 
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS

@@ -351,8 +351,8 @@ ApplicationWindow {
             ColumnLayout {
                 visible: root.operatingDomain === "ET" || operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
                 spacing: 2
-                Label { text: root.operatingDomain === "ET" ? "YAYIN" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
-                Label { text: root.operatingDomain === "ET" ? "DEVRE DIŞI" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
+                Label { text: root.operatingDomain === "ET" ? "ET ORTAMI" : "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: root.operatingDomain === "ET" ? "FARADAY LAB" : operatorViewModel.sampleRateText; color: root.operatingDomain === "ET" ? root.warning : root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
             RowLayout {
                 spacing: 4

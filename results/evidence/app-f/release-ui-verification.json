@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "work_package": "APP-F",
-  "recorded_at": "2026-09-09T07:02:36Z",
+  "recorded_at": "2026-09-09T07:30:29Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.171228754430578,
-      "processing_median_ms": 3.389500081539154,
-      "processing_p95_ms": 4.136400297284126,
-      "maximum_heartbeat_gap_ms": 29.232299886643887,
+      "observed_update_hz": 9.199017176803295,
+      "processing_median_ms": 2.4582003243267536,
+      "processing_p95_ms": 2.632200252264738,
+      "maximum_heartbeat_gap_ms": 24.859400000423193,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -151,7 +151,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "1fe3bf3ede223ee4bf56558df91a97d1d862cdfde6c057c0b67c47c936decfb4"
+      "screenshot_sha256": "0ce3060aabeaf6698422fe7c8438af56d4afe47c8ebfc6c01405564e5a43b14a"
     },
     {
       "name": "measurement-1280x720",
@@ -183,10 +183,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.172331843903548,
-      "processing_median_ms": 3.477599937468767,
-      "processing_p95_ms": 4.109600093215704,
-      "maximum_heartbeat_gap_ms": 30.054000206291676,
+      "observed_update_hz": 9.198011389786322,
+      "processing_median_ms": 2.4399999529123306,
+      "processing_p95_ms": 2.7119996957480907,
+      "maximum_heartbeat_gap_ms": 23.475599940866232,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -318,10 +318,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.196889244477877,
-      "processing_median_ms": 3.51679977029562,
-      "processing_p95_ms": 4.552899859845638,
-      "maximum_heartbeat_gap_ms": 21.02669980376959,
+      "observed_update_hz": 9.197114681910273,
+      "processing_median_ms": 2.4026003666222095,
+      "processing_p95_ms": 2.601499669253826,
+      "maximum_heartbeat_gap_ms": 23.247600067406893,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -453,10 +453,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19840683494174,
-      "processing_median_ms": 3.360200207680464,
-      "processing_p95_ms": 4.6443999744951725,
-      "maximum_heartbeat_gap_ms": 24.132300168275833,
+      "observed_update_hz": 9.196385085260543,
+      "processing_median_ms": 2.436799928545952,
+      "processing_p95_ms": 2.6817000471055508,
+      "maximum_heartbeat_gap_ms": 21.512699779123068,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -556,7 +556,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "1cd3b6237c5686ea1eac7d5e35224958d88ad1cf233713522cdfff634436a1f8"
+      "screenshot_sha256": "98da9af28afad5c3c532a43b682d6838f0b8b686d94c63d59c41d6a94b3c8167"
     },
     {
       "name": "scale-150-percent",
@@ -588,10 +588,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.176661546915394,
-      "processing_median_ms": 3.3551999367773533,
-      "processing_p95_ms": 4.543100018054247,
-      "maximum_heartbeat_gap_ms": 25.734900031238794,
+      "observed_update_hz": 9.19580524037193,
+      "processing_median_ms": 2.4163001216948032,
+      "processing_p95_ms": 2.7103996835649014,
+      "maximum_heartbeat_gap_ms": 23.971399758011103,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -730,7 +730,7 @@
       "synthetic_api_present": false,
       "offline_et_loaded": false,
       "screenshot": "results/evidence/app-f/et-single-1280x720.png",
-      "screenshot_sha256": "129ef7b5c0f5dd59843ef8562fcf1ef9b4ef14042128cba88c98ba0b2b2dcef9"
+      "screenshot_sha256": "391a3bedd9914e81b337374bd99934c95aade5ae18e38392be484dbb6e4e6121"
     },
     {
       "name": "et-single-1440x900",
@@ -755,7 +755,7 @@
       "synthetic_api_present": false,
       "offline_et_loaded": false,
       "screenshot": "results/evidence/app-f/et-single-1440x900.png",
-      "screenshot_sha256": "54d80e6ef6c82102f6657759c245a16427fcc42f5f745897e1763b6c8ea1f511"
+      "screenshot_sha256": "72ad402be49716a047ecbd8ed77ab2c130de420355fc87b618744f44e7029a21"
     },
     {
       "name": "et-single-1180x680",
@@ -780,7 +780,7 @@
       "synthetic_api_present": false,
       "offline_et_loaded": false,
       "screenshot": "results/evidence/app-f/et-single-1180x680.png",
-      "screenshot_sha256": "27c23ff1948dcd26f324a33e021c33c9a9c971250069b0bded44a1199a54ee91"
+      "screenshot_sha256": "5ceed8181de0193f2d73289d50a33519eb5beed1d9735384f455bd4eb2a735d6"
     }
   ],
   "hackrf_probe": {

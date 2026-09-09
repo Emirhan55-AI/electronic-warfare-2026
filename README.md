@@ -631,7 +631,7 @@ bulma başarısı veya saha kabulü değildir.
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
 | ZedBoard üzerinde DMA ve tespit zinciri | Değişken 64–54.144 bayt aday paketi, S2MM gerçek uzunluk sürücüsü ve yerel Linux hizmeti kalıcı PetaLinux imajında doğrulandı. Soğuk açılış, bit-doğru 54 aday yaşam döngüsü ve tekrarlı 2 MS/s hız kapıları geçti |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
-| ET işlevleri | Üründe gönderim uygulanmadı durumu; referans modelleri ürün dışında, RF yayın yolu yok |
+| ET işlevleri | Ürün yalnız PHASE-10 Tekli Görev'i sunar: bant sınırlı CI8 ve seri/izin/zayıflatma/süre/kazanç kilitli HackRF TX süreç sınırı uygulanmıştır. Ayrı C++17 I/Q üreteci çevrimdışı/loopback referansıdır. Faraday `CABLED_LAB` ortamı onaylıdır; profil kapalı, cihaz bağlı değil ve fiziksel RF kabulü henüz yoktur |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
 Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
@@ -641,10 +641,14 @@ Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 Uygulama ED ve ET görevlerini aynı ürün kabuğunda açıkça ayırır. ED alanı; veri
 kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı sinyal ölçümü,
 AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu
-birleştirir. ET alanı görevlerin uygulanmamış gönderim durumunu gösterir.
-Hazır senaryolar, örnek sonuçlar ve çevrimdışı model çalıştırma ürün dışındadır. Yayın çalışma zamanı
-yalnız gerçek SigMF/HackRF RX kaynaklarını ve gerçek kaynaklara bağlı işleme
-bileşenlerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
+birleştirir. ET alanı yalnız Tekli Görev için frekans aralığı, süre, iletimsiz
+spektrum doğrulaması ve güvenlik kapılı HackRF sürecini sunar. Üst durumdaki
+`FARADAY LAB` ADR-0043 ortam onayını gösterir; gönderim ancak seri bağlı cihaz,
+izinli bant, ölçülmüş kapalı düzen ve tarihli fiziksel kapı profili birlikte
+sağlandığında açılır. Güncel profil kapalıdır ve bağlı cihaz gözlenmemiştir.
+Çevrimdışı çoklu/arabakışlı/analog/GNSS referansları ürün dışındadır. Yayın
+çalışma zamanı gerçek SigMF/HackRF RX kaynaklarını ve Tekli Görev bileşenlerini
+içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
 arayüzleri ürün paketine girmez.
 
 `HackRF Canlı RX` görünümü izleme merkezini, LNA/VGA kazançlarını ve sınırlı
@@ -785,7 +789,9 @@ altında tutulur.
 
 ## RF güvenliği
 
-Depoda genel kullanıma açık bir RF yayın arka ucu bulunmaz. ET çalışmaları yalnız
-çevrimdışı veya kapalı çevrim doğrulama kapsamındadır. Her fiziksel RF deneyi;
-yetkili, kontrollü, uygun zayıflatma ve ekranlama kullanılan bir test düzeninde
-yürütülmelidir.
+Depoda henüz doğrulanmış bir RF yayın yolu yoktur. Kullanıcının 8 Eylül
+2026 onayıyla ET için `CABLED_LAB` yalnız Faraday kabini içinde yetkilidir;
+genel/açık alan donanım TX kilitli kalır. Fiziksel TX; seri bağlı cihaz,
+sınırlı süre ve kazanç, otomatik/acil durdurma ve bağımsız ölçüm kayıtlarıyla
+fail-closed uygulanacaktır. Ayrıntı `docs/safety/RF_TEST_BOUNDARIES.md` ve
+ADR-0043'tedir.

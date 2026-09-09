@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 import numpy as np
 
@@ -48,6 +49,19 @@ class P0ETTests(unittest.TestCase):
         controller.emergency_stop()
         with self.assertRaises(RuntimeError):
             controller.start(duration_seconds=1.0, detail="yeniden")
+
+    def test_faraday_lab_mode_is_admitted_but_has_no_transmit_api(self) -> None:
+        controller = ETMissionController(SafetyMode.CABLED_LAB)
+        controller.start(duration_seconds=1.0, detail="kısa kontrollü görev")
+        self.assertEqual("ÇALIŞIYOR", controller.state)
+        self.assertIn("FARADAY LAB", controller.log[-1].detail)
+        self.assertFalse(hasattr(controller, "transmit"))
+
+    def test_product_header_reports_environment_without_claiming_transmit(self) -> None:
+        source = (Path(__file__).resolve().parents[1] / "app/operator_console/qml/Main.qml").read_text(encoding="utf-8")
+        self.assertIn('root.operatingDomain === "ET" ? "ET ORTAMI"', source)
+        self.assertIn('root.operatingDomain === "ET" ? "FARADAY LAB"', source)
+        self.assertNotIn('root.operatingDomain === "ET" ? "DEVRE DIŞI"', source)
 
 
 if __name__ == "__main__":

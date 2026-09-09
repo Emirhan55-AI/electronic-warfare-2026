@@ -314,6 +314,7 @@ def _gnss_acceptance() -> list[dict[str, object]]:
 
 def _safety_acceptance() -> dict[str, object]:
     locked_modes: dict[str, bool] = {}
+    cabled_lab_context_recorded = False
     for mode in (SafetyMode.CABLED_LAB, SafetyMode.HARDWARE_TX_LOCKED):
         controller = ETMissionController(mode)
         try:
@@ -322,6 +323,10 @@ def _safety_acceptance() -> dict[str, object]:
             locked_modes[mode.value] = True
         else:
             locked_modes[mode.value] = False
+            if mode is SafetyMode.CABLED_LAB:
+                cabled_lab_context_recorded = bool(
+                    controller.log and "FARADAY LAB" in controller.log[-1].detail
+                )
     controller = ETMissionController(SafetyMode.LOOPBACK)
     controller.start(duration_seconds=1.0, detail="acceptance")
     controller.emergency_stop()
@@ -331,9 +336,16 @@ def _safety_acceptance() -> dict[str, object]:
         emergency_latched = True
     else:
         emergency_latched = False
-    passed = all(locked_modes.values()) and emergency_latched and not hasattr(controller, "transmit")
+    passed = (
+        not locked_modes[SafetyMode.CABLED_LAB.value]
+        and locked_modes[SafetyMode.HARDWARE_TX_LOCKED.value]
+        and cabled_lab_context_recorded
+        and emergency_latched
+        and not hasattr(controller, "transmit")
+    )
     return {
         "locked_modes": locked_modes,
+        "cabled_lab_context_recorded": cabled_lab_context_recorded,
         "emergency_stop_latched": emergency_latched,
         "transmit_method_present": hasattr(controller, "transmit"),
         "real_tx_backend": "not_implemented",
