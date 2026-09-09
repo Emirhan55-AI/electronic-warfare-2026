@@ -1,5 +1,32 @@
 # Zynq PS
 
+## PÇ-01 sınırı — 7 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 arayüz ve güncel gözlem bağı uygulanmıştır.
+Kestirimci, RTL ve kart hizmeti değişmedi; F5 ölçümü bilgisayarda kalır.
+Yazılım kanıtı `results/evidence/phase08/parameter-workflow-v1.json` ve ZIP;
+RF doğruluğu, dBm kalibrasyonu ve ARM taşıması bu kabulün dışındadır.
+
+## PÇ-00 kart kimliği ve ölçüm sınırı — 7 Eylül 2026
+
+Bilgisayardaki F5 ölçüm kaydı dört kart yanıtının sıra/kare/DMA bağını
+denetler; çalışan hizmet/imaj özeti gözlenmediyse kart kimliğini bilinmiyor
+tutar. Yerel kaynak veya eski fiziksel kanıt çalışan kart kimliği sayılmaz.
+Bu adım ARM'a yeni parametre taşımadı ve kart yüklemesi yapmadı; ölçüm hâlâ
+PC'dedir. KTR-4.2 PÇ-00 kanıtı `results/evidence/phase08/parameter-record-v1.json`
+ve ZIP içindedir. ARM sayısal çekirdeğinin önceki kabul sınırı korunur.
+
+## Parametre ARM entegrasyonu planı — 7 Eylül 2026
+
+Mevcut `p0_parameter_runtime` emisyon merkezi, OBW99 kenarları/genişliği,
+kanal dBFS ve SNR hesaplar. Taşıyıcı ve Analog/Sayısal alanı taşınmamıştır.
+Kart hizmeti ölçüm isteğini destekler; QML canlı ölçümü bugün PC/F5 yolunu
+kullanır. [Kontrollü devam planı](../../docs/plans/IMPLEMENTATION_ROADMAP.md)
+önce dört alanın doğrulanmasını, sonra aynı yöntemlerin ARM'da birleşmesini
+tanımlar. CPU0/CPU1 tespit yüküne ek bellek/gecikme ölçülmeden sürekli ölçüm
+kabulü verilmez. Bu oturum MSVC C11 karşılaştırması geçti; yeni kart yükleme
+veya fiziksel ARM testi yapılmadı. ST-06 kabulü açık kalır.
+
 ## Son ST-06 ürün güncellemesi — 5 Eylül 2026
 
 Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş

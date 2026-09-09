@@ -612,37 +612,38 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertFalse(payload["restored"]["measurement"])
         self.assertGreater(payload["parameter"]["width"], payload["detection"]["width"])
 
-    def test_et_domain_binds_only_verified_offline_models(self) -> None:
+    def test_et_domain_exposes_only_single_task_and_keeps_hardware_gate_closed(self) -> None:
         payload = self.run_qml(
             """
+import sys
 root = engine.rootObjects()[0]
 root.setWidth(1180); root.setHeight(680); root.setProperty("operatingDomain", "ET"); app.processEvents()
-surface={"domain":root.property("operatingDomain"),"workspace":root.property("workspace"),"workspace_item":root.findChild(QObject,"etWorkspace") is not None,"runs":[root.findChild(QObject,name) is not None for name in ("etContinuousRun","etInterleavedRun","etAnalogRun","etGnssValidate")]}
-view_model.runETTask("continuous","barrage")
-continuous={"status":view_model.etStatus,"title":view_model.etResultTitle,"primary":len(view_model.etPrimaryValues),"secondary":len(view_model.etSecondaryValues),"metrics":list(view_model.etMetricRows)}
-view_model.runETTask("interleaved","present")
-interleaved={"status":view_model.etStatus,"timeline":list(view_model.etTimeline),"metrics":list(view_model.etMetricRows),"has_gap":any(value is None for value in view_model.etPrimaryValues)}
-view_model.runETTask("analog","NFM")
-analog={"status":view_model.etStatus,"metrics":list(view_model.etMetricRows)}
-view_model.validateETGNSS(39.9334,32.8597,"2026-08-16T12:00:00Z","3,8,63")
-gnss={"status":view_model.etStatus,"detail":view_model.etResultDetail,"metrics":list(view_model.etMetricRows)}
-payload={"surface":surface,"continuous":continuous,"interleaved":interleaved,"analog":analog,"gnss":gnss,"transmit":hasattr(view_model,"transmit")}
+start=root.findChild(QObject,"etSingleStart")
+stop=root.findChild(QObject,"etSingleEmergencyStop")
+gate=root.findChild(QObject,"etTxGateState")
+view_model.previewETSingle("853.500", "854.500", "0.1"); app.processEvents()
+preview={"status":view_model.etStatus,"primary":len(view_model.etPrimaryValues),"secondary":len(view_model.etSecondaryValues),"metrics":len(view_model.etMetricRows),"timeline":len(view_model.etTimeline),"transmitting":view_model.etTransmitting}
+view_model.startETSingle("853.500", "854.500", "0.1"); app.processEvents()
+payload={"domain":root.property("operatingDomain"),"workspace":root.property("workspace"),"workspace_item":root.findChild(QObject,"etWorkspace") is not None,"task_cards":list(view_model.etTaskCards),"preview_control":root.findChild(QObject,"etSinglePreview") is not None,"start_enabled":start.property("enabled"),"stop_enabled":stop.property("enabled"),"gate":gate.property("text"),"synthetic_api":any(hasattr(view_model,name) for name in ("runETTask","validateETGNSS")),"tx_api":hasattr(view_model,"startETSingle"),"generic_transmit":hasattr(view_model,"transmit"),"models_loaded":any(name == "algorithms.et" or name.startswith("algorithms.et.") for name in sys.modules),"preview":preview,"blocked_status":view_model.etStatus,"blocked_detail":view_model.etResultDetail}
 view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
-        self.assertEqual({"domain": "ET", "workspace": 4, "workspace_item": True, "runs": [True] * 4}, payload["surface"])
-        self.assertEqual("TAMAMLANDI", payload["continuous"]["status"])
-        self.assertEqual(768, payload["continuous"]["primary"])
-        self.assertEqual(768, payload["continuous"]["secondary"])
-        self.assertEqual(["DİNLE", "DİNLE", "GECİKME", "GÖREV", "KORUMA", "DİNLE", "DİNLE", "DİNLE"], [item["state"] for item in payload["interleaved"]["timeline"]])
-        self.assertTrue(payload["interleaved"]["has_gap"])
-        self.assertIn({"label": "Görev çevrimi", "value": "%12.5"}, payload["interleaved"]["metrics"])
-        self.assertIn({"label": "Loopback uyumu", "value": "1.000000"}, payload["analog"]["metrics"])
-        self.assertEqual("TAMAMLANDI", payload["gnss"]["status"])
-        self.assertIn("Dalga şekli üretilmedi", payload["gnss"]["detail"])
-        self.assertIn({"label": "Dalga şekli", "value": "YOK"}, payload["gnss"]["metrics"])
-        self.assertFalse(payload["transmit"])
+        self.assertEqual("ET", payload["domain"])
+        self.assertEqual(4, payload["workspace"])
+        self.assertTrue(payload["workspace_item"])
+        self.assertEqual(["continuous"], [card["id"] for card in payload["task_cards"]])
+        self.assertTrue(payload["preview_control"])
+        self.assertTrue(payload["tx_api"])
+        for key in ("start_enabled", "stop_enabled", "synthetic_api", "generic_transmit", "models_loaded"):
+            self.assertFalse(payload[key], key)
+        self.assertEqual("Fiziksel güvenlik kapısı kapalı", payload["gate"])
+        self.assertEqual("İLETİMSİZ DOĞRULANDI", payload["preview"]["status"])
+        self.assertEqual(512, payload["preview"]["secondary"])
+        self.assertEqual(7, payload["preview"]["metrics"])
+        self.assertFalse(payload["preview"]["transmitting"])
+        self.assertEqual("TX KİLİTLİ", payload["blocked_status"])
+        self.assertIn("güvenlik kapısı", payload["blocked_detail"])
 
     def test_system_diagnostics_use_real_runtime_state_and_safe_release_boundary(self) -> None:
         payload = self.run_qml(
@@ -731,14 +732,40 @@ draft=[view_model.analysisSpanStartNormalized,view_model.analysisSpanEndNormaliz
 view_model.setAnalysisSpanDraftNormalized(selection[1]-.004,selection[1]+.004)
 drawn_draft=[view_model.analysisSpanStartNormalized,view_model.analysisSpanEndNormalized]
 drawn_status=view_model.statusMessage
-view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
+from PySide6.QtCore import QMetaObject, Qt
+root = engine.rootObjects()[0]
+root.setProperty("spectrumTaskTab", 1)
+panel = root.findChild(QObject, "measurementScroll")
+root.findChild(QObject, "parameterLowerMHz").setProperty("text", view_model.analysisLowerMHzText.replace(".", ","))
+root.findChild(QObject, "parameterUpperMHz").setProperty("text", view_model.analysisUpperMHzText.replace(".", ","))
+QMetaObject.invokeMethod(root.findChild(QObject, "parameterConfirmRange"), "clicked", Qt.DirectConnection)
 view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
 payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_model.analysisSpanConfirmed,"selection":selection,"draft":draft,"drawn_draft":drawn_draft,"drawn_status":drawn_status,"selected_title":view_model.selectedDetectionTitle,"selected_frequency":view_model.selectedDetectionFrequencyText,"selected_contrast":view_model.selectedDetectionContrastText,"selected_state":view_model.selectedDetectionStateText}
-view_model.shutdown(); engine.rootObjects()[0].close()
+app.processEvents()
+payload["primary_rows"] = panel.property("primaryRows").toVariant()
+payload["detail_rows"] = panel.property("detailRows").toVariant()
+payload["details_initially_hidden"] = not root.findChild(QObject, "parameterDetails").property("visible")
+QMetaObject.invokeMethod(root.findChild(QObject, "parameterDetailsToggle"), "clicked", Qt.DirectConnection)
+payload["details_visible_after_click"] = root.findChild(QObject, "parameterDetails").property("visible")
+payload["measurement_info"] = view_model.measurementInfo
+view_model.startScan()
+app.processEvents()
+payload["cleared_rows"] = panel.property("primaryRows").toVariant()
+payload["cleared_record"] = view_model.measurementRecordPath
+view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
+        self.assertEqual(4, len(payload["primary_rows"]))
+        self.assertEqual(5, len(payload["detail_rows"]))
+        self.assertEqual("Taşıyıcı frekansı", payload["primary_rows"][0]["label"])
+        self.assertTrue(payload["details_initially_hidden"])
+        self.assertTrue(payload["details_visible_after_click"])
+        self.assertGreater(payload["measurement_info"]["durationMs"], 0)
+        self.assertTrue(payload["measurement_info"]["completedUtc"])
+        self.assertTrue(all(row["value"] == "—" for row in payload["cleared_rows"]))
+        self.assertEqual("", payload["cleared_record"])
         self.assertEqual([], payload["before"])
         self.assertTrue(payload["span_confirmed"])
         self.assertTrue(payload["after"])

@@ -1,5 +1,76 @@
 # Referans Modeller
 
+## PHASE-10 Tekli Görev taban bandı — 8 Eylül 2026
+
+`algorithms/transmission/single_band_noise.py`, seçilen tek RF aralığı için
+8 MS/s deterministik, bant sınırlı kompleks gürültü döşemesi ve tam süreli CI8
+görev dosyası üretir. Modül SDR açmaz veya RF gönderimi başlatmaz. Fiziksel süreç
+sınırı `platforms/transmission` altındadır ve varsayılan güvenlik profili kapalıdır.
+
+## Parametre kabul durumu ve PÇ-02 devamı — 8 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 tamamlanmadı. Güncel kaynakla aynı 30 sentetik
+örnek tekrarlandı ve 30/30 kayıt yeniden hesaplandı; bu doğruluk kabulü
+değildir. CW taşıyıcısı 1/6, AM taşıyıcısı 2/6 geçerli; 24 modülasyonlu
+örneğin tamamı model uzaklığı kapısında Belirsiz kaldı. Sayısal dBFS
+hatası bu kümede en çok 0,189 dB; mutlak dBm kalibrasyonu açık.
+Yeni karar kapısı tanısı ve ölçüm/profil kontrolleri 22/22 geçti.
+Kanıt: `results/evidence/phase08/parameter-diagnostic-20260908-v1.json`
+ve ZIP. Ayrıntı: `docs/plans/PARAMETER_VALIDATION_BENCH.md`.
+Kullanıcı cihazların bağlı olmadığını bildirdi; fiziksel kabul yapılmadı.
+PÇ-02 sürüyor; PÇ-03–05 ve ST-06 kapanmadı. Ürün yöntemi, eşikleri,
+PC/PL/PS görev paylaşımı ve önceki kanıtlar korundu. Aşağıdaki tarihli
+kayıtlar kendi sürümlerinin durumunu belirtir.
+
+
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
+## PÇ-01 sınırı — 7 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 arayüz ve güncel gözlem bağı uygulanmıştır.
+Kestirimci, RTL ve kart hizmeti değişmedi; F5 ölçümü bilgisayarda kalır.
+Yazılım kanıtı `results/evidence/phase08/parameter-workflow-v1.json` ve ZIP;
+RF doğruluğu, dBm kalibrasyonu ve ARM taşıması bu kabulün dışındadır.
+
+## PÇ-00 yeniden üretilebilir ölçüm bağı — 7 Eylül 2026
+
+KTR-4.2 için uygulama katmanı F5'e verilen dört normalize I/Q karesini,
+profil/model/kaynak özetlerini ve ham alan durumlarını saklar. Aynı kaynakla
+`scripts/verify_parameter_record.py` alanları yeniden hesaplar; uyumsuz
+kaynak, değişmiş I/Q veya sonuç reddedilir. F5/RTL/ARM algoritması, eşikleri
+ve kilitli profilleri değiştirilmedi. Bu kayıt eşdeğerliğidir, bağımsız RF
+doğruluğu değildir. Yeni kanıt `results/evidence/phase08/parameter-record-v1.json`
+ve ZIP içindedir; PÇ-02 fiziksel doğruluk ve kalibrasyon kapıları açıktır.
+
+## Zorunlu parametrelerin mevcut yöntemi — 7 Eylül 2026
+
+Kullanıcı dört zorunlu alanın geliştirme planlamasını açtı. QML ürün yolu
+`parameters/F5ParameterEstimator` kullanır; ayrı `p0/parameters.py` referansı
+ile karıştırılmaz. F5 taşıyıcı çizgisi, OBW99, göreli kanal gücü ve sınırlı
+Analog/Sayısal/Belirsiz alanlarını içerir. ARM C sayısal karşılaştırması bu
+oturumda AM/geniş bantta sıfır farkla geçti; bu host testi yeni RF kanıtı
+değildir. OBW99 yöntem sınırı, kalibrasyon, sınıflandırma ve ARM taşıma sırası
+[yol haritasındadır](../docs/plans/IMPLEMENTATION_ROADMAP.md). Yöntem, eşik ve
+kilitli profiller değiştirilmedi; ST-06 ve parametre RF kabulü açıktır.
+
 ## Son ST-06 ürün güncellemesi — 5 Eylül 2026
 
 Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş

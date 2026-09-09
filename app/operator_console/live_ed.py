@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, is_dataclass
 from collections import OrderedDict, deque
+import hashlib
 import math
 import queue
 import struct
@@ -338,6 +339,7 @@ class LiveEDSession:
         self._audio_observations: dict[int, int] = {}
         self._preview_handler: Callable[[LiveEDPreview], None] | None = None
         self.last_diagnostics: dict = {}
+        self.measurement_channelizer: dict | None = None
 
     def set_preview_handler(self, handler: Callable[[LiveEDPreview], None] | None) -> None:
         """Install before run; the callback runs outside the GUI and TCP loops."""
@@ -355,6 +357,12 @@ class LiveEDSession:
         """Return the latest immutable four-frame window for one confirmed event."""
         with self._measurement_lock:
             return self._measurement_windows.get(int(event_id), ())
+
+    def current_measurement_window(self, event_id: int) -> tuple[LiveEDSnapshot, ...]:
+        """Snapshot four observations ending at the most recently processed response."""
+        with self._measurement_lock:
+            history = self._measurement_histories.get(int(event_id), ())
+            return tuple(history) if len(history) == LIVE_MEASUREMENT_WINDOW_FRAMES else ()
 
     def audio_window_frame_count(self, event_id: int | None = None) -> int:
         with self._audio_lock:
@@ -413,6 +421,15 @@ class LiveEDSession:
         config = self.configuration
         channelizer = self._channelizer_factory()
         channelizer_backend = str(getattr(channelizer, "backend_name", "unknown"))
+        profile = getattr(channelizer, "profile", None)
+        self.measurement_channelizer = {
+            "backend": channelizer_backend,
+            "profile": asdict(profile) if is_dataclass(profile) else {},
+            "library_sha256": (
+                hashlib.sha256(channelizer.library_path.read_bytes()).hexdigest()
+                if getattr(channelizer, "library_path", None) is not None else None
+            ),
+        }
         if self._stream_factory is HackRFContinuousRX and channelizer_backend != "native-cpp":
             raise AcquisitionError(
                 "native_channelizer_required",

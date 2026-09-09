@@ -16,15 +16,8 @@ from PySide6.QtGui import QDesktopServices
 
 from .rx_survey import RXSurvey
 from .survey_controller import SurveyController
+from .measurement_record import RecordedMeasurement
 
-from algorithms.et import (
-    AnalogDeceptionEngine,
-    ContinuousJammingEngine,
-    ETMissionController,
-    GNSSScenarioValidator,
-    InterleavedTaskController,
-    SafetyMode,
-)
 from algorithms.monitoring import (
     AnalogMonitorResult,
 )
@@ -51,6 +44,7 @@ from platforms.acquisition import (
     ToolInventory,
     load_ed_rx_config,
 )
+from platforms.transmission import HackRFTxRunner, TxRunResult, load_tx_safety_profile
 
 from .audio_playback import AudioPlayback
 from .detection_model import DetectionListModel
@@ -157,7 +151,6 @@ class OperatorViewModel(
     listeningChanged = Signal()
     playbackChanged = Signal()
     pipelineChanged = Signal()
-    etChanged = Signal()
     liveReceiveSettingsChanged = Signal()
 
     def __init__(
@@ -171,6 +164,7 @@ class OperatorViewModel(
         survey_factory=RXSurvey,
         fixed_verifier_factory=FixedBandVerifier,
         developer_mode: bool | None = None,
+        measurement_record_directory: Path | None = None,
     ) -> None:
         super().__init__(parent)
         resolved = resolve_default_operation_profile()
@@ -179,6 +173,7 @@ class OperatorViewModel(
         self._profile_warning = resolved.fallback_code
         self._parameter_capability = load_phase04f5_capability()
         self._parameter_estimator = F5ParameterEstimator() if self._parameter_capability is not None else None
+        self._initialize_measurement_recording(measurement_record_directory)
         self._source_factory = source_factory
         self._live_session_factory = live_session_factory
         self._fpga_transport_factory = fpga_transport_factory
@@ -276,7 +271,7 @@ class OperatorViewModel(
         self._survey_controller = SurveyController(self, factory=survey_factory)
         self._survey_controller.preview.connect(self._survey_preview)
         self._survey_controller.finished.connect(self._survey_finished)
-        self._pending_live_measurement: Callable[[], F1ParameterResult] | None = None
+        self._pending_live_measurement: Callable[[], RecordedMeasurement] | None = None
         self._pending_live_listening: Callable[
             [], tuple[AnalogMonitorResult, str, float, float, float]
         ] | None = None
@@ -310,20 +305,26 @@ class OperatorViewModel(
         self._direction_frame_power_dbfs: float | None = None
 
         self._et_task = "continuous"
-        self._et_status = "HAZIR"
-        self._et_result_title = "Görev seçildi"
-        self._et_result_detail = "Görev türünü seçin ve çalışma parametrelerini belirleyin."
+        self._et_status = "TX KİLİTLİ"
+        self._et_result_title = "Tekli Görev"
+        self._et_result_detail = "Önce seçilen bandı iletimsiz doğrulayın."
         self._et_metric_rows: list[dict[str, str]] = []
         self._et_primary_values: list[float | None] = []
         self._et_secondary_values: list[float] = []
         self._et_timeline: list[dict[str, str]] = []
         self._et_primary_title = "Zaman Alanı"
         self._et_secondary_title = "Spektrum"
-        self._et_mission = ETMissionController(SafetyMode.OFFLINE)
-        self._et_continuous = ContinuousJammingEngine()
-        self._et_interleaved = InterleavedTaskController()
-        self._et_analog = AnalogDeceptionEngine()
-        self._et_gnss = GNSSScenarioValidator()
+        self._et_tx_profile_path = Path(__file__).resolve().parents[2] / "config" / "p0" / "hackrf_et_tx.json"
+        self._et_tx_runner = HackRFTxRunner(
+            audit_path=Path(__file__).resolve().parents[2] / "build" / "operations" / "et-single.jsonl"
+        )
+        self._et_transmitting = False
+        try:
+            self._et_tx_profile = load_tx_safety_profile(self._et_tx_profile_path)
+            self._et_tx_profile_error = ""
+        except Exception as exc:
+            self._et_tx_profile = None
+            self._et_tx_profile_error = str(exc)
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
@@ -691,11 +692,12 @@ class OperatorViewModel(
         if (
             session is None
             or selected is None
+            or not self.selectedDetectionCurrent
             or not bool(selected.get("confirmed", selected["stateKey"] == "confirmed"))
-            or not hasattr(session, "measurement_window")
+            or not hasattr(session, "current_measurement_window")
         ):
             return False
-        return len(self._live_measurement_window()) == 4
+        return len(session.current_measurement_window(self._selected_detection_id)) == 4
 
     @Property(str, notify=detectionsChanged)
     def selectedDetectionTitle(self) -> str:
@@ -749,6 +751,18 @@ class OperatorViewModel(
     def parameterRows(self) -> list[dict[str, str]]:
         return self._parameter_rows
 
+    @Property("QVariantMap", notify=stateChanged)
+    def measurementInfo(self):
+        return self._measurement_info if self._parameter_rows else {}
+
+    @Property(bool, notify=stateChanged)
+    def parameterMeasurementActive(self):
+        return self._measurement_requested and (self._pending_live_measurement is not None or self._active_task_kind == "measurement")
+
+    @Property(str, notify=stateChanged)
+    def measurementRecordPath(self) -> str:
+        return self._measurement_record_path if self._parameter_rows else ""
+
     @Property(bool, constant=True)
     def parameterCapabilityReady(self) -> bool:
         return self._parameter_capability is not None
@@ -788,55 +802,6 @@ class OperatorViewModel(
     @Property(bool, constant=True)
     def developerMode(self) -> bool:
         return self._developer_mode
-
-    @Property(str, notify=etChanged)
-    def etTask(self) -> str:
-        return self._et_task
-
-    @Property(str, notify=etChanged)
-    def etStatus(self) -> str:
-        return self._et_status
-
-    @Property(str, notify=etChanged)
-    def etResultTitle(self) -> str:
-        return self._et_result_title
-
-    @Property(str, notify=etChanged)
-    def etResultDetail(self) -> str:
-        return self._et_result_detail
-
-    @Property("QVariantList", notify=etChanged)
-    def etMetricRows(self) -> list[dict[str, str]]:
-        return self._et_metric_rows
-
-    @Property("QVariantList", notify=etChanged)
-    def etPrimaryValues(self) -> list[float | None]:
-        return self._et_primary_values
-
-    @Property("QVariantList", notify=etChanged)
-    def etSecondaryValues(self) -> list[float]:
-        return self._et_secondary_values
-
-    @Property("QVariantList", notify=etChanged)
-    def etTimeline(self) -> list[dict[str, str]]:
-        return self._et_timeline
-
-    @Property(str, notify=etChanged)
-    def etPrimaryTitle(self) -> str:
-        return self._et_primary_title
-
-    @Property(str, notify=etChanged)
-    def etSecondaryTitle(self) -> str:
-        return self._et_secondary_title
-
-    @Property("QVariantList", constant=True)
-    def etTaskCards(self) -> list[dict[str, str]]:
-        return [
-            {"id": "continuous", "name": "Sürekli Karıştırma", "detail": "Tekli · Çoklu · Baraj · Süpürme", "maturity": "TABAN BANT"},
-            {"id": "interleaved", "name": "Arabakışlı Karıştırma", "detail": "Dinle · Gecikme · Görev · Koruma", "maturity": "ZAMANLAMA"},
-            {"id": "analog", "name": "Analog Telsiz Aldatma", "detail": "AM · FM · NFM", "maturity": "YEREL DÖNGÜ"},
-            {"id": "gnss", "name": "GPS L1 Senaryosu", "detail": "Konum · UTC · PRN", "maturity": "METADATA"},
-        ]
 
     @Property("QVariantList", notify=pipelineChanged)
     def pipelineBlocks(self) -> list[dict[str, object]]:
@@ -1243,6 +1208,7 @@ class OperatorViewModel(
         if self._closed:
             return
         self._closed = True
+        self._et_tx_runner.request_stop()
         self.stop()
         self._probe_error_timer.stop()
         self._playback_timer.stop()
@@ -1507,9 +1473,13 @@ class OperatorViewModel(
                 self._advance()
         elif kind == "measurement":
             self._measurement_requested = False
-            if not isinstance(result, F1ParameterResult) or self._parameter_capability is None:
+            if not isinstance(result, RecordedMeasurement) or self._parameter_capability is None:
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
+            self._measurement_record_path = str(result.path)
+            self._measurement_info = {"completedUtc": result.completed_utc, "durationMs": result.observation_duration_s * 1000.0}
+            self._add_log("Parametre kaydı", f"{result.path} · SHA-256 {result.sha256}")
+            result = result.result
             if result.persistent_payload_bytes > self._parameter_capability.maximum_persistent_payload_bytes:
                 self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
                 return
@@ -1557,6 +1527,28 @@ class OperatorViewModel(
             self._listening_state = self._status_message
             self._add_log("Dinleme", self._status_message)
             self.listeningChanged.emit()
+        elif kind == "et_tx":
+            self._et_transmitting = False
+            if not isinstance(result, TxRunResult):
+                self._et_status = "HATA"
+                self._et_result_title = "Gönderim sonucu geçersiz"
+                self._et_result_detail = "HackRF süreç sonucu sözleşmeyle eşleşmedi."
+            else:
+                self._et_status = result.status
+                self._et_result_title = (
+                    "Tekli görev tamamlandı"
+                    if result.status == "TAMAMLANDI"
+                    else "Tekli görev durduruldu"
+                )
+                self._et_result_detail = f"{result.stop_reason} · süreç kodu {result.return_code}"
+                self._et_metric_rows = [
+                    {"label": "Başlangıç UTC", "value": result.started_at_utc},
+                    {"label": "Bitiş UTC", "value": result.finished_at_utc},
+                    {"label": "Örnek sayısı", "value": str(result.sample_count)},
+                    {"label": "Durdurma nedeni", "value": result.stop_reason},
+                ]
+                self._add_log("ET Tekli Görev", self._et_result_detail)
+            self.etChanged.emit()
         if kind != "frame":
             self.pipelineChanged.emit()
         self.stateChanged.emit()
@@ -1567,6 +1559,20 @@ class OperatorViewModel(
         task_kind = self._active_task_kind
         self._active_task_kind = ""
         if generation == self._generation:
+            if task_kind == "et_tx":
+                from .quick_et_actions import ET_ERROR_TEXT
+
+                self._et_transmitting = False
+                self._et_status = "HATA"
+                self._et_result_title = "Tekli görev tamamlanamadı"
+                self._et_result_detail = ET_ERROR_TEXT.get(
+                    code, f"Gönderim süreci başarısız oldu ({code})."
+                )
+                self._add_log("ET Tekli Görev", self._et_result_detail)
+                self.etChanged.emit()
+                self.pipelineChanged.emit()
+                self.stateChanged.emit()
+                return
             if task_kind == "fixed_verify":
                 candidate = self._fixed_verification_candidate
                 resume = self._fixed_resume_settings
@@ -1924,17 +1930,6 @@ class OperatorViewModel(
             None,
         )
 
-    def _live_measurement_window(self) -> tuple[LiveEDSnapshot, ...]:
-        if self._selected_live_measurement_window:
-            return self._selected_live_measurement_window
-        cached = self._visible_live_measurement_windows.get(self._selected_detection_id, ())
-        if cached:
-            return cached
-        session = self._live_session
-        if session is None or not hasattr(session, "measurement_window"):
-            return ()
-        return tuple(session.measurement_window(self._selected_detection_id))
-
     def _selected_detection_coordinate(self, field: str) -> float:
         selected = self._selected_detection_item()
         return float(selected[field]) if selected is not None else -1.0
@@ -1985,30 +1980,3 @@ class OperatorViewModel(
             and tuple(item[0] for item in tail) == tuple(range(self._frame_index - 3, self._frame_index + 1))
             and all(item[1] for item in tail)
         )
-
-    def _f5_parameter_rows(self, result: F1ParameterResult) -> list[dict[str, str]]:
-        validated = set(self._parameter_capability.validated_fields if self._parameter_capability else ())
-
-        def measured(capability: str, field: object, formatter: Callable[[float], str]) -> str:
-            if capability not in validated:
-                return "Henüz doğrulanmadı"
-            state = str(getattr(field, "state", "uncertain"))
-            value = getattr(field, "value", None)
-            return formatter(float(value)) if state == "valid" and isinstance(value, (int, float)) else self._field_state(state)
-
-        domain = (
-            str(result.signal_domain.value)
-            if "signal_domain" in validated and result.signal_domain.state == "valid"
-            else self._field_state(result.signal_domain.state)
-        )
-        return [
-            {"label": "Emisyon merkez frekansı", "value": measured("emission_center_frequency", result.emission_center_frequency, self._format_frequency)},
-            {"label": "Gözlenen taşıyıcı frekansı", "value": measured("carrier_line_frequency", result.carrier_line_frequency, self._format_frequency)},
-            {"label": "Alt OBW sınırı", "value": measured("occupied_bandwidth", result.lower_band_edge, self._format_frequency)},
-            {"label": "Üst OBW sınırı", "value": measured("occupied_bandwidth", result.upper_band_edge, self._format_frequency)},
-            {"label": "OBW %99", "value": measured("occupied_bandwidth", result.occupied_bandwidth, self._format_rate)},
-            {"label": "Kalibre edilmemiş kanal gücü", "value": measured("uncalibrated_channel_power_dbfs", result.channel_power_dbfs, lambda value: f"{value:.2f} dBFS")},
-            {"label": "SNR kestirimi", "value": measured("snr_estimate_db", result.snr_estimate_db, lambda value: f"{value:.2f} dB")},
-            {"label": "Sinyal türü", "value": domain},
-            {"label": "Güç referansı", "value": "Kalibre edilmemiş · dBFS"},
-        ]

@@ -211,6 +211,9 @@ class _MeasurementSession(_BlockingSession):
     def measurement_window(self, event_id: int):
         return self.window if event_id == 31 else ()
 
+    def current_measurement_window(self, event_id: int):
+        return self.window if event_id == 31 else ()
+
     def run(self, snapshot_handler):
         snapshot_handler(self.window[-1])
         while not self.cancelled.wait(0.01):
@@ -938,12 +941,13 @@ def test_fpga_connection_failure_revokes_combined_receiver_readiness() -> None:
         view_model.shutdown()
 
 
-def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
+def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-measurement-test"])
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
         live_session_factory=_MeasurementSession,
         fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
     )
     try:
         view_model.setSourceMode("hackrf")
@@ -958,6 +962,11 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
         _present(view_model, 50, _event(99))
         assert not view_model.selectedDetectionCurrent
         assert not view_model.selectedDetectionReady
+        assert not view_model.measurementSelectionReady
+        view_model.requestMeasurement()
+        assert view_model._pending_live_measurement is None
+        assert not view_model.parameterRows
+        _present(view_model, 51, _event(31))
         assert view_model.measurementSelectionReady
         view_model._analysis_span_draft = None
         view_model._prepare_analysis_span_draft(31)
@@ -968,6 +977,12 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
         )
         assert view_model.measurementReady
 
+        session = view_model._live_session
+        # The selected cache remains at 0..3; a new measurement must use 10..13.
+        session.window = tuple(replace(item, sequence_number=index + 10,
+            output_frame=replace(item.output_frame, sequence_number=index + 10, frame_id=index + 10),
+            response=replace(item.response, frame_id=index + 10))
+            for index, item in enumerate(session.window))
         view_model.requestMeasurement()
         _drain(app, lambda: not view_model.parameterRows and not view_model.errorMessage)
 
@@ -976,8 +991,147 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames() -> None:
         assert view_model.errorMessage == ""
         assert len(view_model.parameterRows) == 9
         assert "parametre ölçümü tamamlandı" in view_model.statusMessage
+        from app.operator_console.measurement_record import read_measurement, replay_measurement
+        path = Path(view_model.measurementRecordPath)
+        assert path.parent == tmp_path
+        document, _ = read_measurement(path)
+        assert document["source"]["receiver_settings"]["lna_gain_db"] == 0
+        assert document["source"]["sequence_numbers"] == [10, 11, 12, 13]
+        assert document["source"]["board_identity"] is None
+        assert document["source"]["channelizer"] is None
+        assert document["source"]["upstream_amplitude_scale"] is None
+        assert document["source"]["transport_iq_sha256"]
+        assert replay_measurement(path).intent.event_id == 31
+        assert view_model.measurementInfo["durationMs"] == 8.192
+        assert view_model.measurementInfo["completedUtc"] == document["completed_utc"]
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            assert view_model.restartParameterAcquisition()
+            assert not view_model.parameterRows
+            assert not view_model.measurementInfo
+            assert not view_model.measurementRecordPath
+            assert view_model.selectedDetectionId == -1
+            assert not view_model.analysisSpanConfirmed
+            _drain(app, lambda: not any(row["eventId"] == 31 and row["observed"] for row in view_model.detections))
+        view_model.selectDetection(31)
+        view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
+        view_model.confirmAnalysisSpan(float("nan"), float("nan"))
+        assert not view_model.analysisSpanConfirmed
+        assert not view_model.measurementReady
+        view_model.confirmAnalysisSpan(float(view_model.analysisLowerMHzText), float(view_model.analysisUpperMHzText))
+        view_model.requestMeasurement()
+        _drain(app, lambda: not view_model.parameterRows and not view_model.errorMessage)
+        assert view_model.parameterRows
+        assert Path(view_model.measurementRecordPath) != path
+        assert path.exists() and len(list(tmp_path.glob("*.zip"))) == 2
     finally:
         view_model.shutdown()
+
+
+@pytest.mark.parametrize("stage", ["stopping_rx", "worker"])
+def test_parameter_cancel_prevents_late_result_publication(tmp_path, stage):
+    from app.operator_console.quick_measurement_actions import measure_and_record
+    app = QGuiApplication.instance() or QGuiApplication(["measurement-cancel"])
+    vm = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport, measurement_record_directory=tmp_path)
+    entered, release = threading.Event(), threading.Event()
+
+    def delayed(*args, **kwargs):
+        entered.set()
+        assert release.wait(5)
+        return measure_and_record(*args, **kwargs)
+
+    try:
+        vm.probeHackrf()
+        _drain(app, lambda: vm.busy)
+        with patch.object(vm, "_coarse_supports_fpga_region", return_value=True):
+            vm.startLiveEDSession(104_650_000, 0, 0, 4096)
+            _drain(app, lambda: not vm.detections)
+        vm.selectDetection(31)
+        vm.confirmAnalysisSpan(float(vm.analysisLowerMHzText), float(vm.analysisUpperMHzText))
+        with patch("app.operator_console.quick_measurement_actions.measure_and_record", side_effect=delayed):
+            vm.requestMeasurement()
+            assert vm.parameterMeasurementActive
+            if stage == "worker":
+                _drain(app, lambda: not entered.is_set())
+                assert entered.is_set()
+            vm.cancelParameterMeasurement()
+            assert not vm.parameterMeasurementActive
+            release.set()
+            _drain(app, lambda: vm.busy or vm.liveSessionActive)
+        assert not vm.parameterRows
+        assert not vm.measurementRecordPath
+        assert not vm.measurementInfo
+        assert vm._pending_live_measurement is None
+        if stage == "stopping_rx":
+            assert not entered.is_set()
+            assert not list(tmp_path.iterdir())
+    finally:
+        release.set()
+        vm.shutdown()
+
+
+@pytest.mark.parametrize("mutation", ["frequency", "rate", "frame_id", "dma", "drops"])
+def test_live_measurement_rejects_mixed_capture_context(tmp_path, mutation):
+    app = QGuiApplication.instance() or QGuiApplication(["measurement-context"])
+    vm = OperatorViewModel(acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession, fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path)
+    try:
+        vm.probeHackrf()
+        _drain(app, lambda: vm.busy)
+        with patch.object(vm, "_coarse_supports_fpga_region", return_value=True):
+            vm.startLiveEDSession(104_650_000, 0, 0, 4096)
+            _drain(app, lambda: not vm.detections)
+        vm.selectDetection(31)
+        vm.confirmAnalysisSpan(float(vm.analysisLowerMHzText), float(vm.analysisUpperMHzText))
+        session = vm._live_session
+        snapshots = list(session.window)
+        selected = snapshots[1]
+        if mutation == "frequency":
+            selected = replace(selected, output_frame=replace(selected.output_frame, center_frequency_hz=104_000_000))
+        elif mutation == "rate":
+            selected = replace(selected, output_frame=replace(selected.output_frame, sample_rate_hz=8_000_000))
+        elif mutation == "frame_id":
+            selected = replace(selected, output_frame=replace(selected.output_frame, frame_id=999))
+        elif mutation == "dma":
+            selected = replace(selected, response=replace(selected.response, dma_status_flags=0))
+        else:
+            selected = replace(selected, response=replace(selected.response, dropped_candidates=1))
+        snapshots[1] = selected
+        session.window = tuple(snapshots)
+        vm._selected_live_measurement_window = session.window
+        vm.requestMeasurement()
+        assert not vm.parameterRows
+        assert not vm.measurementRecordPath
+        assert not list(tmp_path.iterdir())
+        assert vm._pending_live_measurement is None
+        assert "bağlamı uyuşmuyor" in vm.statusMessage
+    finally:
+        vm.shutdown()
+
+
+def test_live_measurement_record_write_failure_keeps_results_empty(tmp_path):
+    app = QGuiApplication.instance() or QGuiApplication(["measurement-write-failure"])
+    blocked = tmp_path / "not-a-directory"
+    blocked.write_text("preserve", encoding="utf-8")
+    vm = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport, measurement_record_directory=blocked)
+    try:
+        vm.probeHackrf()
+        _drain(app, lambda: vm.busy)
+        with patch.object(vm, "_coarse_supports_fpga_region", return_value=True):
+            vm.startLiveEDSession(104_650_000, 0, 0, 4096)
+            _drain(app, lambda: not vm.detections)
+        vm.selectDetection(31)
+        vm.confirmAnalysisSpan(float(vm.analysisLowerMHzText), float(vm.analysisUpperMHzText))
+        vm.requestMeasurement()
+        _drain(app, lambda: not vm.errorMessage)
+        assert vm.errorMessage
+        assert not vm.parameterRows
+        assert not vm.measurementRecordPath
+        assert blocked.read_text(encoding="utf-8") == "preserve"
+    finally:
+        vm.shutdown()
 
 
 def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> None:

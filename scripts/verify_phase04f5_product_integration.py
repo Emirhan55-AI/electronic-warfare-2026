@@ -23,16 +23,21 @@ from scripts.establish_phase04f5_product_profile import build_profile
 
 SUMMARY_PATH = ROOT / "results" / "evidence" / "phase04f5" / "f5e-verification.json"
 VIEW_MODEL_PATH = ROOT / "app" / "operator_console" / "quick_view_model.py"
+MEASUREMENT_PATH = ROOT / "app" / "operator_console" / "quick_measurement_actions.py"
+PANEL_PATH = ROOT / "app" / "operator_console" / "qml" / "ParameterMeasurementPanel.qml"
 QML_PATH = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 PACKAGE_PATH = ROOT / "config" / "app" / "product-package.json"
 DEPLOY_SPEC_PATH = ROOT / "app" / "operator_console" / "pysidedeploy.spec"
 REQUIRED_ASSETS = {
     "profiles/phase04f5/operation-default.json",
+    "config/p0/hackrf_et_tx.json",
     "datasets/fixtures/phase04f1/domain-model.json",
     "datasets/fixtures/phase04f2/domain-model-v3.json",
     "datasets/fixtures/phase04f4/domain-model-v5.json",
     "algorithms/p0/native/bin/p0_channelizer.dll",
     "app/operator_console/assets/baz-logo-metal-red.png",
+    "app/operator_console/assets/baz-logo-intro.png",
+    "app/operator_console/assets/baz-logo-glow.png",
 }
 
 
@@ -77,7 +82,9 @@ def build_summary() -> dict[str, Any]:
         )
     )
     view_model = VIEW_MODEL_PATH.read_text(encoding="utf-8")
+    measurement = MEASUREMENT_PATH.read_text(encoding="utf-8")
     qml = QML_PATH.read_text(encoding="utf-8")
+    panel = PANEL_PATH.read_text(encoding="utf-8")
     checks.append(
         _check(
             "qml-f5-runtime-binding",
@@ -85,8 +92,10 @@ def build_summary() -> dict[str, Any]:
             and "F5ParameterEstimator" in view_model
             and "P0ParameterExtractor" not in view_model
             and "operator_confirmed_span_required" in tracked
-            and "confirmAnalysisSpan" in qml
-            and "operatorViewModel.measurementReady" in qml,
+            and "ParameterMeasurementPanel" in qml
+            and "viewModel: operatorViewModel" in qml
+            and "confirmAnalysisSpan" in panel
+            and "panel.viewModel.measurementReady" in panel,
         )
     )
     required_terms = (
@@ -101,7 +110,7 @@ def build_summary() -> dict[str, Any]:
     checks.append(
         _check(
             "field-scoped-presentation",
-            all(term in view_model for term in required_terms)
+            all(term in measurement for term in required_terms)
             and "Tepe bin gücü" not in view_model
             and '"dBm"' not in view_model,
         )
@@ -116,7 +125,9 @@ def build_summary() -> dict[str, Any]:
         "artifacts": {
             "product_profile_sha256": sha256_file(PHASE04F5_PROFILE_PATH),
             "view_model_sha256": sha256_file(VIEW_MODEL_PATH),
+            "measurement_actions_sha256": sha256_file(MEASUREMENT_PATH),
             "qml_sha256": sha256_file(QML_PATH),
+            "parameter_panel_sha256": sha256_file(PANEL_PATH),
             "product_package_sha256": sha256_file(PACKAGE_PATH),
             "deploy_spec_sha256": sha256_file(DEPLOY_SPEC_PATH),
         },

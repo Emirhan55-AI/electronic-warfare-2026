@@ -1,5 +1,108 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+## PHASE-10 Tekli Görev — 8 Eylül 2026
+
+Kullanıcının ET'ye geçiş onayıyla PÇ-02 ve PHASE-09 beklemeye alındı. Ürün ET
+alanı yalnız seçilen tek frekans bandında süreli gürültü görevi sunar. İletimsiz
+CI8/spektrum doğrulaması ve fiziksel profil kilitli HackRF süreç yolu uygulanmıştır.
+Depodaki profil kapalı ve cihaz bağlı olmadığı için RF gönderimi yapılmamıştır;
+PHASE-10 fiziksel kabulü açıktır ve PHASE-11 başlatılmamıştır. Ayrıntı:
+`docs/interfaces/ET_SINGLE_TASK_CONTRACT.md`.
+
+## Parametre kabul durumu ve PÇ-02 devamı — 8 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 tamamlanmadı. Güncel kaynakla aynı 30 sentetik
+örnek tekrarlandı ve 30/30 kayıt yeniden hesaplandı; bu doğruluk kabulü
+değildir. CW taşıyıcısı 1/6, AM taşıyıcısı 2/6 geçerli; 24 modülasyonlu
+örneğin tamamı model uzaklığı kapısında Belirsiz kaldı. Sayısal dBFS
+hatası bu kümede en çok 0,189 dB; mutlak dBm kalibrasyonu açık.
+Yeni karar kapısı tanısı ve ölçüm/profil kontrolleri 22/22 geçti.
+Kanıt: `results/evidence/phase08/parameter-diagnostic-20260908-v1.json`
+ve ZIP. Ayrıntı: `docs/plans/PARAMETER_VALIDATION_BENCH.md`.
+Kullanıcı cihazların bağlı olmadığını bildirdi; fiziksel kabul yapılmadı.
+PÇ-02 sürüyor; PÇ-03–05 ve ST-06 kapanmadı. Ürün yöntemi, eşikleri,
+PC/PL/PS görev paylaşımı ve önceki kanıtlar korundu. Aşağıdaki tarihli
+kayıtlar kendi sürümlerinin durumunu belirtir.
+
+
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
+## PÇ-01 ölçüm arayüzü ve güncel gözlem bağı — 7 Eylül 2026
+
+Kullanıcının devam talimatıyla dört zorunlu sonuç ana görünümde ayrıldı:
+taşıyıcı frekansı, OBW %99, kalibrasyonsuz kanal gücü (dBFS) ve Analog/Sayısal.
+Emisyon merkezi, bant kenarları, SNR, gözlem süresi, hesaplama bitiş UTC zamanı
+ve kayıt yolu açılır ayrıntıdadır. Sonuç, alımın durduğu kayıtlı ölçüm olarak
+etiketlenir. Taşıyıcı bulunmadığında merkez onun yerine gösterilmez.
+
+Yeni canlı ölçüm, son işlenen kart yanıtına kadar süren dört ardışık gözlemi
+ister; geçmiş/seçim önbelleği yeni ölçüm girdisi olamaz. Yeniden alım eski
+sonucu ve aralık onayını temizler; operatör güncel tespiti yeniden seçer.
+İptal, gecikmiş çalışan sonucu yayımlamaz. Geçersiz aralık girişi önceki
+onayı kaldırır. Algoritma, eşik, RTL ve kart hizmeti değişmedi; F5 bilgisayarda.
+
+Son doğrulama: 137/137 test geçti. Main.qml 2.137, görünüm modeli 1.996
+satırla mevcut mimari sınırlar içindedir.
+
+KTR-4.2 / KTR-4.2-F1 yazılım kabul kanıtı:
+`results/evidence/phase08/parameter-workflow-v1.json` ve ZIP.
+1280×720 ve 1920×1080 görünüm kontrolleri kayıtlı I/Q ile yapılır.
+Önceki PÇ-00 kanıtı tarihsel baytlarıyla korunur; aşağıdaki 134/135 sonucu
+önceki kaynak içindir. Yeni panel ayrımı Main.qml satır sınırı bulgusunu giderir.
+ST-06, fiziksel RF doğruluğu, dBm kalibrasyonu ve ARM taşıması açıktır.
+PÇ-02 sıradaki planlı çalışma adımıdır; bu değişiklikle uygulanmadı.
+
+## PÇ-00 ölçüm kaydı uygulaması — 7 Eylül 2026
+
+Kullanıcının uygulamaya devam talimatıyla KTR-4.2 / KTR-4.2-F1 için mevcut
+F5 ölçümüne kaynak ve I/Q bağlı kayıt eklendi. Canlı ve SigMF ürün ölçümü,
+dört normalize I/Q karesini ve alanların birim/yöntem/durum/neden bilgilerini
+ayrı ZIP'e kaydeder; kayıt başarısızsa yeni sonuç yayımlamaz. Canlı karelerde
+merkez, örnekleme, sıra ve kart yanıtı bağı ayrıca denetlenir. Profil/model
+özetleri, oturum ayarları, kanal seçici ölçeği ve bilinen kaynak özetleri
+saklanır. Donanım UTC zamanı, çalışan kart imajı ve kalibrasyon gözlenmemişse
+bilinmiyor kalır; dBm veya RF doğruluk sonucu üretilmez.
+[Kayıt ve yeniden üretim sözleşmesi](docs/interfaces/OPERATOR_ASSISTED_PARAMETER_CONTRACT.md) sınırları tanımlar.
+
+F5E paket denetimi mevcut iki ek logoyu açık listesine aldı; eksik model ve
+izinsiz ek dosya retleri korunur. Eski F5E/PHASE-08 kanıtları değiştirilmedi.
+Parametre satırlarını oluşturma işlevi mevcut ölçüm modülüne taşındı; görünen
+alanlar ve algoritma eşikleri değişmedi. Yeni kanıt
+`results/evidence/phase08/parameter-record-v1.json` ve ZIP içindedir.
+Bu yazılım kayıt/entegrasyon kabulüdür; yeni fiziksel kart veya RF deneyi
+değildir. ST-06 ve dört parametrenin saha doğruluğu açıktır. PÇ-01 arayüz
+sadeleştirmesi sonraki iştir; tercihli özellikler ve PHASE-09 açılmadı.
+
+## Zorunlu parametreler için devam planı — 7 Eylül 2026
+
+Kullanıcı yönlendirmesiyle taşıyıcı frekansı, bant genişliği, güç seviyesi ve
+Analog/Sayısal ayrımı için [kontrollü devam planı](docs/plans/IMPLEMENTATION_ROADMAP.md)
+hazırlandı. Mevcut canlı arayüz ölçümü bilgisayarda F5 yöntemini kullanır;
+ARM'da merkez/OBW99/dBFS sayısal çekirdeği vardır. Taşıyıcı ve sınıflandırmanın
+ARM'a taşınması, güncel RF doğruluğu ve dBm kalibrasyonu açıktır.
+ST-06 tamamlanmadı; bu sınırlı kapsamda planlama başladı. Tercihli alanlar
+ve sonraki yarışma görevleri açılmadı. Bu oturum üretim kodunu değiştirmedi.
+Başlangıç doğrulamasındaki eski paket-listesi uyuşmazlığı ve ölçüm sınırları
+planda kayıtlıdır; tarihsel başarılar yeni kaynağa aktarılmaz.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 Sabit frekans ve bant taraması alanlarında sayılar ortalandı; etiketler, alan
@@ -528,7 +631,7 @@ bulma başarısı veya saha kabulü değildir.
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
 | ZedBoard üzerinde DMA ve tespit zinciri | Değişken 64–54.144 bayt aday paketi, S2MM gerçek uzunluk sürücüsü ve yerel Linux hizmeti kalıcı PetaLinux imajında doğrulandı. Soğuk açılış, bit-doğru 54 aday yaşam döngüsü ve tekrarlı 2 MS/s hız kapıları geçti |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
-| ET işlevleri | Python host üzerinde çevrimdışı/loopback modeller; SystemVerilog, FPGA veya RF yayın yolu yok |
+| ET işlevleri | Üründe gönderim uygulanmadı durumu; referans modelleri ürün dışında, RF yayın yolu yok |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
 Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
@@ -538,11 +641,10 @@ Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 Uygulama ED ve ET görevlerini aynı ürün kabuğunda açıkça ayırır. ED alanı; veri
 kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı sinyal ölçümü,
 AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu
-birleştirir. ET alanı yalnız doğrulanmış çevrimdışı sürekli, arabakışlı, analog
-loopback ve GPS L1 C/A metadata modellerini sunar. RF TX yolu yoktur ve bütün ET
-sonuçları fiziksel RF sonucu olmadığını açıkça belirtir. Yayın çalışma zamanı
-yalnız gerçek SigMF/HackRF RX kaynaklarını ve doğrulanmış çevrimdışı ET
-modellerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
+birleştirir. ET alanı görevlerin uygulanmamış gönderim durumunu gösterir.
+Hazır senaryolar, örnek sonuçlar ve çevrimdışı model çalıştırma ürün dışındadır. Yayın çalışma zamanı
+yalnız gerçek SigMF/HackRF RX kaynaklarını ve gerçek kaynaklara bağlı işleme
+bileşenlerini içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
 arayüzleri ürün paketine girmez.
 
 `HackRF Canlı RX` görünümü izleme merkezini, LNA/VGA kazançlarını ve sınırlı

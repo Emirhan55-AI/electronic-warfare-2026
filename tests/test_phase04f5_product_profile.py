@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from algorithms.parameters import F5ParameterEstimator
 from algorithms.pipeline import PHASE04F5_FIELDS, PHASE04F5_PROFILE_PATH, load_phase04f5_capability
@@ -17,6 +18,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Phase04F5ProductProfileTests(unittest.TestCase):
+    def test_release_assets_still_reject_missing_and_unexpected_entries(self) -> None:
+        from scripts import verify_phase04f5_product_integration as verifier
+        package = json.loads(verifier.PACKAGE_PATH.read_text(encoding="utf-8"))
+        for missing in (True, False):
+            altered = dict(package)
+            assets = list(package["allowed_runtime_assets"])
+            if missing:
+                assets.remove("datasets/fixtures/phase04f4/domain-model-v5.json")
+            else:
+                assets.append("datasets/unapproved-model.json")
+            altered["allowed_runtime_assets"] = assets
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "package.json"
+                path.write_text(json.dumps(altered), encoding="utf-8")
+                with patch.object(verifier, "PACKAGE_PATH", path):
+                    summary = verifier.build_summary()
+                self.assertEqual("failed", next(item["status"] for item in summary["checks"] if item["id"] == "release-assets"))
+
     def test_tracked_profile_loads_only_the_locked_capability(self) -> None:
         capability = load_phase04f5_capability()
         self.assertIsNotNone(capability)

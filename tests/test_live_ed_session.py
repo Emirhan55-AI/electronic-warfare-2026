@@ -245,6 +245,20 @@ def test_live_session_channelizes_and_publishes_bounded_fpga_snapshots() -> None
     window = session.measurement_window(17)
     assert [item.sequence_number for item in window] == [0, 1, 2, 3]
     assert all(item.response.active[0].event_id == 17 for item in window)
+    assert session.current_measurement_window(17) == window
+    # A stored snapshot is still available for display, but cannot start a new measurement.
+    last = window[-1]
+    session._record_measurement_snapshot(replace(last, sequence_number=4,
+        response=replace(last.response, active=())))
+    assert session.measurement_window(17) == window
+    assert session.current_measurement_window(17) == ()
+    for sequence in (5, 6, 7):
+        session._record_measurement_snapshot(replace(last, sequence_number=sequence))
+        assert session.current_measurement_window(17) == ()
+    session._record_measurement_snapshot(replace(last, sequence_number=8))
+    assert [item.sequence_number for item in session.current_measurement_window(17)] == [5, 6, 7, 8]
+    session._record_measurement_snapshot(replace(last, sequence_number=10))
+    assert session.current_measurement_window(17) == ()
 
 
 def test_live_session_rejects_clipped_iq_instead_of_presenting_it_as_valid() -> None:

@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "work_package": "APP-F",
-  "recorded_at": "2026-08-27T09:28:56Z",
+  "recorded_at": "2026-09-09T07:02:36Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -31,27 +31,27 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 582,
+      "spectrum_points": 990,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
-        0.5606837606837607,
-        0.5626373626373626,
-        0.5645909645909646
+        0.560546875,
+        0.5625,
+        0.564453125
       ],
       "analysis_span": [
-        0.5584859584859585,
-        0.5667887667887668
+        0.558349609375,
+        0.566650390625
       ],
       "spectrum_view": [
         0.375,
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.17375901245466,
-      "processing_median_ms": 2.3910999298095703,
-      "processing_p95_ms": 2.446299884468317,
-      "maximum_heartbeat_gap_ms": 33.231399953365326,
+      "observed_update_hz": 9.171228754430578,
+      "processing_median_ms": 3.389500081539154,
+      "processing_p95_ms": 4.136400297284126,
+      "maximum_heartbeat_gap_ms": 29.232299886643887,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -59,10 +59,11 @@
           "name": "I/Q Kaynağı",
           "runtime": "HOST",
           "implementation": "Python",
-          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "description": "Canlı alıcı verisini doğrular ve sınırlı RX akışını işleme zincirine bağlar.",
           "hostPath": "algorithms/spectrum/source.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "preprocess",
@@ -72,7 +73,8 @@
           "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "fft_power",
@@ -82,7 +84,8 @@
           "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "regional",
@@ -92,7 +95,8 @@
           "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "temporal",
@@ -102,7 +106,8 @@
           "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "parameters",
@@ -112,7 +117,8 @@
           "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
           "hostPath": "algorithms/parameters/f5_estimator.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "monitoring",
@@ -122,7 +128,8 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         }
       ],
       "event_log_fields": [
@@ -144,7 +151,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "41e970071ca4969b3327d784a53fe298b6c03eb71804b58c3aace12074d9953f"
+      "screenshot_sha256": "1fe3bf3ede223ee4bf56558df91a97d1d862cdfde6c057c0b67c47c936decfb4"
     },
     {
       "name": "measurement-1280x720",
@@ -159,27 +166,27 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 582,
+      "spectrum_points": 780,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
-        0.5606837606837607,
-        0.5626373626373626,
-        0.5645909645909646
+        0.560546875,
+        0.5625,
+        0.564453125
       ],
       "analysis_span": [
-        0.5584859584859585,
-        0.5667887667887668
+        0.558349609375,
+        0.566650390625
       ],
       "spectrum_view": [
         0.375,
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19331388628087,
-      "processing_median_ms": 2.4355000350624323,
-      "processing_p95_ms": 2.857699990272522,
-      "maximum_heartbeat_gap_ms": 32.01900003477931,
+      "observed_update_hz": 9.172331843903548,
+      "processing_median_ms": 3.477599937468767,
+      "processing_p95_ms": 4.109600093215704,
+      "maximum_heartbeat_gap_ms": 30.054000206291676,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -187,10 +194,11 @@
           "name": "I/Q Kaynağı",
           "runtime": "HOST",
           "implementation": "Python",
-          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "description": "Canlı alıcı verisini doğrular ve sınırlı RX akışını işleme zincirine bağlar.",
           "hostPath": "algorithms/spectrum/source.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "preprocess",
@@ -200,7 +208,8 @@
           "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "fft_power",
@@ -210,7 +219,8 @@
           "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "regional",
@@ -220,7 +230,8 @@
           "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "temporal",
@@ -230,7 +241,8 @@
           "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "parameters",
@@ -240,7 +252,8 @@
           "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
           "hostPath": "algorithms/parameters/f5_estimator.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "monitoring",
@@ -250,7 +263,8 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         }
       ],
       "event_log_fields": [
@@ -272,7 +286,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "8288999dfef08cee4c3d0a1dbc1da10d3b919c4d64b7e7e8b5152384b5f97753"
+      "screenshot_sha256": "2ba6f0485d8ff23b35ebc56875630a3652972c82feffa0fea758334b245740bc"
     },
     {
       "name": "standard-1366x768",
@@ -287,27 +301,27 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 742,
+      "spectrum_points": 1150,
       "visible_detections": 12,
       "selected_detection_id": 1,
       "selected_region": [
-        0.6231990231990232,
-        0.6251526251526252,
-        0.6271062271062271
+        0.623046875,
+        0.625,
+        0.626953125
       ],
       "analysis_span": [
-        0.621001221001221,
-        0.6293040293040293
+        0.620849609375,
+        0.629150390625
       ],
       "spectrum_view": [
         0.0,
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.196766784460655,
-      "processing_median_ms": 2.4286999832838774,
-      "processing_p95_ms": 2.7767999563366175,
-      "maximum_heartbeat_gap_ms": 32.052600057795644,
+      "observed_update_hz": 9.196889244477877,
+      "processing_median_ms": 3.51679977029562,
+      "processing_p95_ms": 4.552899859845638,
+      "maximum_heartbeat_gap_ms": 21.02669980376959,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -315,10 +329,11 @@
           "name": "I/Q Kaynağı",
           "runtime": "HOST",
           "implementation": "Python",
-          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "description": "Canlı alıcı verisini doğrular ve sınırlı RX akışını işleme zincirine bağlar.",
           "hostPath": "algorithms/spectrum/source.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "preprocess",
@@ -328,7 +343,8 @@
           "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "fft_power",
@@ -338,7 +354,8 @@
           "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "regional",
@@ -348,7 +365,8 @@
           "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "temporal",
@@ -358,7 +376,8 @@
           "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "parameters",
@@ -368,7 +387,8 @@
           "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
           "hostPath": "algorithms/parameters/f5_estimator.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "monitoring",
@@ -378,7 +398,8 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         }
       ],
       "event_log_fields": [
@@ -400,7 +421,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "787d29371a05384db7086f50af3915a85df73337e0673529914b4c7274878db5"
+      "screenshot_sha256": "575902d62150e29b4f2fa3aa1e5308f618ca5c5ba0320ea6abf27045f211df02"
     },
     {
       "name": "fullhd-1920x1080",
@@ -415,7 +436,7 @@
       "prepare_direction": false,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 742,
+      "spectrum_points": 1150,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -432,10 +453,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.13821397677143,
-      "processing_median_ms": 2.4423999711871147,
-      "processing_p95_ms": 2.6447998825460672,
-      "maximum_heartbeat_gap_ms": 32.41689992137253,
+      "observed_update_hz": 9.19840683494174,
+      "processing_median_ms": 3.360200207680464,
+      "processing_p95_ms": 4.6443999744951725,
+      "maximum_heartbeat_gap_ms": 24.132300168275833,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -443,10 +464,11 @@
           "name": "I/Q Kaynağı",
           "runtime": "HOST",
           "implementation": "Python",
-          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "description": "Canlı alıcı verisini doğrular ve sınırlı RX akışını işleme zincirine bağlar.",
           "hostPath": "algorithms/spectrum/source.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "preprocess",
@@ -456,7 +478,8 @@
           "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "fft_power",
@@ -466,7 +489,8 @@
           "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "regional",
@@ -476,7 +500,8 @@
           "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "temporal",
@@ -486,7 +511,8 @@
           "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "parameters",
@@ -496,7 +522,8 @@
           "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
           "hostPath": "algorithms/parameters/f5_estimator.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "monitoring",
@@ -506,7 +533,8 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         }
       ],
       "event_log_fields": [
@@ -528,7 +556,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "72aa0122080e4f0c4b6f990b08ebf82e7a08854d9d872638e865228fab764769"
+      "screenshot_sha256": "1cd3b6237c5686ea1eac7d5e35224958d88ad1cf233713522cdfff634436a1f8"
     },
     {
       "name": "scale-150-percent",
@@ -543,7 +571,7 @@
       "prepare_direction": true,
       "source_ready": true,
       "source_state": "Hazır",
-      "spectrum_points": 742,
+      "spectrum_points": 1150,
       "visible_detections": 12,
       "selected_detection_id": -1,
       "selected_region": [
@@ -560,10 +588,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.206798668301314,
-      "processing_median_ms": 2.401599893346429,
-      "processing_p95_ms": 2.5057001039385796,
-      "maximum_heartbeat_gap_ms": 34.00269988924265,
+      "observed_update_hz": 9.176661546915394,
+      "processing_median_ms": 3.3551999367773533,
+      "processing_p95_ms": 4.543100018054247,
+      "maximum_heartbeat_gap_ms": 25.734900031238794,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -571,10 +599,11 @@
           "name": "I/Q Kaynağı",
           "runtime": "HOST",
           "implementation": "Python",
-          "description": "SigMF sözleşmesini doğrular veya sınırlandırılmış HackRF RX alımını kaynak zincirine bağlar.",
+          "description": "Canlı alıcı verisini doğrular ve sınırlı RX akışını işleme zincirine bağlar.",
           "hostPath": "algorithms/spectrum/source.py",
           "rtlPath": "",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "preprocess",
@@ -584,7 +613,8 @@
           "description": "Kareleme ve periyodik Hann penceresini doğrulanmış spektrum sözleşmesiyle uygular.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06b/rtl/axis_hann_window.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "fft_power",
@@ -594,7 +624,8 @@
           "description": "4096 nokta FFT ve güç hesabını yürütür; PL uygulaması donanım kabulü değildir.",
           "hostPath": "algorithms/spectrum/dsp.py",
           "rtlPath": "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "regional",
@@ -604,7 +635,8 @@
           "description": "Doğrulanmış Bölgesel Eşik profiliyle kaba spektral adayları üretir.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "algorithms/fpga/phase06g/rtl/axis_regional_detector.sv",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "temporal",
@@ -614,7 +646,8 @@
           "description": "Adayları kareler arasında ilişkilendirir ve 2/3 gözlem kuralıyla tespiti doğrular.",
           "hostPath": "algorithms/detection/pipeline.py",
           "rtlPath": "platforms/embedded/phase06j/src/phase06j_temporal.c",
-          "state": "Hazır"
+          "state": "Hazır",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "parameters",
@@ -624,7 +657,8 @@
           "description": "Operatör onaylı analiz aralığında yalnız doğrulanmış parametre alanlarını ölçer.",
           "hostPath": "algorithms/parameters/f5_estimator.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         },
         {
           "id": "monitoring",
@@ -634,7 +668,8 @@
           "description": "Operatör seçimli AM/NFM kanalını 48 kHz mono PCM16 ses zincirine dönüştürür.",
           "hostPath": "algorithms/monitoring/dsp.py",
           "rtlPath": "",
-          "state": "Bekliyor"
+          "state": "Bekliyor",
+          "hardwareStatus": "Bilgisayar üzerinde yürütülür"
         }
       ],
       "event_log_fields": [
@@ -656,7 +691,7 @@
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "3ad0ede65c157f3662a2a05b2c1eca4cab25a4853c1f9200238642370af5abbc"
+      "screenshot_sha256": "c2312cc0c66ad29d473a4d4f9887c04c73206537053d280cedc8e7e31d3f4631"
     }
   ],
   "empty_run": {
@@ -669,11 +704,11 @@
     "source_state": "Kullanılmıyor",
     "visible_detections": 0,
     "screenshot": "results/evidence/app-f/empty-1280x720.png",
-    "screenshot_sha256": "1de7bdc2d381705f21840e6fdc910b4193e312af27299e4878fb914f368e3315"
+    "screenshot_sha256": "c1e83554f112a935b1712f377a0eda5ba71e7fd10429ef89a432e634ebb2d209"
   },
   "et_runs": [
     {
-      "name": "et-continuous-1280x720",
+      "name": "et-single-1280x720",
       "logical_width": 1280,
       "logical_height": 720,
       "scale_factor": 1.0,
@@ -682,19 +717,23 @@
       "domain": "ET",
       "workspace": 4,
       "task": "continuous",
-      "status": "TAMAMLANDI",
-      "result_title": "Baraj taban bant analizi",
-      "metric_count": 5,
-      "primary_points": 768,
-      "secondary_points": 768,
+      "status": "İLETİMSİZ DOĞRULANDI",
+      "result_title": "Tekli bant hazır",
+      "metric_count": 7,
+      "primary_points": 0,
+      "secondary_points": 512,
       "timeline_count": 0,
       "has_measurement_gap": false,
       "transmit_api_present": false,
-      "screenshot": "results/evidence/app-f/et-continuous-1280x720.png",
-      "screenshot_sha256": "391ce65f4c700e950b87d093f0a1db0ec8f5e7bbecb1f706322f0362958afeeb"
+      "single_tx_api_present": true,
+      "tx_gate_open": false,
+      "synthetic_api_present": false,
+      "offline_et_loaded": false,
+      "screenshot": "results/evidence/app-f/et-single-1280x720.png",
+      "screenshot_sha256": "129ef7b5c0f5dd59843ef8562fcf1ef9b4ef14042128cba88c98ba0b2b2dcef9"
     },
     {
-      "name": "et-interleaved-1440x900",
+      "name": "et-single-1440x900",
       "logical_width": 1440,
       "logical_height": 900,
       "scale_factor": 1.0,
@@ -702,20 +741,24 @@
       "captured_height": 900,
       "domain": "ET",
       "workspace": 4,
-      "task": "interleaved",
-      "status": "TAMAMLANDI",
-      "result_title": "Arabakışlı zamanlama · Sürekli Hedef",
-      "metric_count": 5,
-      "primary_points": 8,
-      "secondary_points": 768,
-      "timeline_count": 8,
-      "has_measurement_gap": true,
+      "task": "continuous",
+      "status": "İLETİMSİZ DOĞRULANDI",
+      "result_title": "Tekli bant hazır",
+      "metric_count": 7,
+      "primary_points": 0,
+      "secondary_points": 512,
+      "timeline_count": 0,
+      "has_measurement_gap": false,
       "transmit_api_present": false,
-      "screenshot": "results/evidence/app-f/et-interleaved-1440x900.png",
-      "screenshot_sha256": "9e1f45e16f294396ac307dec0d213e3232871a5f4e1961a5f6cbd4a2974c8c5f"
+      "single_tx_api_present": true,
+      "tx_gate_open": false,
+      "synthetic_api_present": false,
+      "offline_et_loaded": false,
+      "screenshot": "results/evidence/app-f/et-single-1440x900.png",
+      "screenshot_sha256": "54d80e6ef6c82102f6657759c245a16427fcc42f5f745897e1763b6c8ea1f511"
     },
     {
-      "name": "et-gnss-1180x680",
+      "name": "et-single-1180x680",
       "logical_width": 1180,
       "logical_height": 680,
       "scale_factor": 1.0,
@@ -723,24 +766,28 @@
       "captured_height": 680,
       "domain": "ET",
       "workspace": 4,
-      "task": "gnss",
-      "status": "TAMAMLANDI",
-      "result_title": "GPS L1 C/A senaryo denetimi",
-      "metric_count": 5,
+      "task": "continuous",
+      "status": "İLETİMSİZ DOĞRULANDI",
+      "result_title": "Tekli bant hazır",
+      "metric_count": 7,
       "primary_points": 0,
-      "secondary_points": 0,
+      "secondary_points": 512,
       "timeline_count": 0,
       "has_measurement_gap": false,
       "transmit_api_present": false,
-      "screenshot": "results/evidence/app-f/et-gnss-1180x680.png",
-      "screenshot_sha256": "208c0a34afdb9c18e44206793238709f35d43fb59a6dc6497198b9dd6527af8d"
+      "single_tx_api_present": true,
+      "tx_gate_open": false,
+      "synthetic_api_present": false,
+      "offline_et_loaded": false,
+      "screenshot": "results/evidence/app-f/et-single-1180x680.png",
+      "screenshot_sha256": "27c23ff1948dcd26f324a33e021c33c9a9c971250069b0bded44a1199a54ee91"
     }
   ],
   "hackrf_probe": {
     "source_mode": "hackrf",
-    "source_state": "Kullanılmıyor",
+    "source_state": "Hata",
     "source_ready": false,
-    "status": "HackRF bulunamadı. USB bağlantısını ve izinleri denetleyin.",
+    "status": "Alıcı ve FPGA bağlantısı kurulamadı. USB ve FPGA ağ bağlantılarını denetleyin.",
     "settled": true
   },
   "gates": {
@@ -750,7 +797,7 @@
     "workspace_coverage": true,
     "et_workspace_coverage": true,
     "et_minimum_screen": true,
-    "et_offline_model_binding": true,
+    "et_single_offline_validation": true,
     "et_safety_surface": true,
     "et_operator_language": true,
     "et_motion_feedback": true,

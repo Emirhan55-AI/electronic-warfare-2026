@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-10",
+  "work_package": "TEKLI-GOREV-01",
+  "software_status": "passed",
+  "phase_status": "open_physical_gate",
+  "gates": {
+    "deterministic_finite_ci8": true,
+    "single_band_spectral_support": true,
+    "bounded_peak": true,
+    "hardware_tx_fail_closed": true,
+    "repository_profile_disabled": true
+  },
+  "plan": {
+    "lower_frequency_hz": 853500000,
+    "upper_frequency_hz": 854500000,
+    "center_frequency_hz": 854000000,
+    "bandwidth_hz": 1000000,
+    "duration_seconds": 0.25,
+    "sample_rate_hz": 8000000,
+    "mission_sample_count": 2000000
+  },
+  "waveform": {
+    "tile_sample_count": 262144,
+    "tile_ci8_sha256": "29ced8eb081de046b77d509acbe9b7b6c51ad4f3cbb6668006abecef012df3e3",
+    "peak_magnitude": 0.6500000000000001,
+    "rms_magnitude": 0.18045482118584205,
+    "measured_obw99_hz": 989868.1640625,
+    "outside_requested_band_power_ratio": 1.4349967030687401e-31
+  },
+  "hardware": {
+    "profile": "config/p0/hackrf_et_tx.json",
+    "enabled": false,
+    "physical_gate_approved": false,
+    "device_serial_assigned": false,
+    "allowed_range_count": 0,
+    "observed_device": "not_connected",
+    "tx_executed": false
+  },
+  "claim_boundary": "İletimsiz CI8 ve fail-closed HackRF süreç sınırı doğrulandı; fiziksel RF çıkışı uygulanmış veya kabul edilmiş sayılmaz."
+}

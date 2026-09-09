@@ -38,10 +38,12 @@
   ],
   "artifacts": {
     "product_profile_sha256": "e8e2e4d9b39052863154b0a1f1cd53420fb6d965db5099759a1c978573ba5ff5",
-    "view_model_sha256": "6c738b8119b6092b1af2273839c790a83273bf53631f825655d2ba2fa0efd71c",
-    "qml_sha256": "ce32a121e6dcace41eb65d8dd6bce4cc9b42fff4e48a5e7e8ee7b69869d93b2a",
-    "product_package_sha256": "fc8f2b7a6cb42e776d3c6a06ed61a940bb181050ccbdb633967646ade53b380c",
-    "deploy_spec_sha256": "828e7b5d1d78960802d95efd25e9d0d010328222979aab268e2d36ec0498d4cc"
+    "view_model_sha256": "62e5fc6847225119ccfaa98ffb191894bab0e20307b239e729b8ecb2a30f10d5",
+    "measurement_actions_sha256": "e50947f28f6e986db9adf3edfaf6380177571cde9e6fe3a61f13cb68fd94bf63",
+    "qml_sha256": "4e2c720293d82fd39f4b3066f49fd00cd3a8aee41fa41cba4f5274e5d2231a06",
+    "parameter_panel_sha256": "2c3b1ab1152ceec4dfbf80d9108a43568feda708c2c107cc4aa86d4d29f0555b",
+    "product_package_sha256": "ac3ddf719933014678b7a2650d07627076885b9624e9f4862c15257e64de3e91",
+    "deploy_spec_sha256": "294a5825e1dc056c2bc00475888f5089a41b2da2234c3cd4314d1e0e0939a870"
   },
   "claim_boundary": "F5E yalnız digest bağlı host kestirimcisi ve QML ürün bağını doğrular; FPGA, gerçek canlı RF doğruluğu, dBm kalibrasyonu veya saha kabulü değildir."
 }

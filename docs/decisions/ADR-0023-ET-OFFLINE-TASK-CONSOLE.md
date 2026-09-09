@@ -1,5 +1,25 @@
 # ADR-0023 — ET Offline Görev Konsolu ve TX-Kilitli Modeller
 
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
 - Durum: Kabul edildi
 - Kapsam: Kullanıcı onaylı ET arayüzü ve yalnız bilgisayar üzerindeki deterministik modeller
 - Önceki doğrulanmış sınır: P0 ET taban bant modelleri ve fail-closed görev denetleyicisi

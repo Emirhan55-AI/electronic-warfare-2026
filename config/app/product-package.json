@@ -8,13 +8,14 @@
     "app/operator_console",
     "platforms/acquisition",
     "algorithms/detection",
-    "algorithms/et",
     "algorithms/monitoring",
     "algorithms/p0",
     "algorithms/parameters",
     "algorithms/pipeline",
+    "algorithms/transmission",
     "algorithms/sigmf",
     "algorithms/spectrum",
+    "platforms/transmission",
     "profiles/phase04f5"
   ],
   "excluded_paths": [
@@ -24,7 +25,9 @@
     "datasets",
     "results",
     "scripts",
-    "tests"
+    "tests",
+    "algorithms/et",
+    "app/operator_console/_mixin_et.py"
   ],
   "allowed_runtime_sources": [
     "SigMF Kaydı",
@@ -32,6 +35,7 @@
   ],
   "allowed_runtime_assets": [
     "profiles/phase04f5/operation-default.json",
+    "config/p0/hackrf_et_tx.json",
     "datasets/fixtures/phase04f1/domain-model.json",
     "datasets/fixtures/phase04f2/domain-model-v3.json",
     "datasets/fixtures/phase04f4/domain-model-v5.json",
@@ -43,7 +47,7 @@
   "release_assertions": {
     "mock_backend": false,
     "training_mode": false,
-    "offline_et_console": true,
+    "offline_et_console": false,
     "embedded_demo_data": false,
     "hardcoded_recording_paths": false
   }

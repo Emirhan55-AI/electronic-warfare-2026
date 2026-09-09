@@ -321,7 +321,7 @@ Item {
                     Action {
                         objectName: "surveyMonitor"
                         Layout.fillWidth: true
-                        text: survey.running ? "Önce taramayı durdurun" : "Sabit Frekansta Tara"
+                        text: survey.running ? "Önce taramayı durdurun" : "Sinyali Yeniden Al"
                         enabled: !operatorViewModel.busy && survey.selectedFrequency > 0
                         onClicked: if (operatorViewModel.monitorSurveyObservation()) view.fixedBandRequested()
                     }

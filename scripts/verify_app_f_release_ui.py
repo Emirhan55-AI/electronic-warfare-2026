@@ -24,6 +24,7 @@ LISTENING_FIXTURE = ROOT / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.si
 OUTPUT = ROOT / "results" / "evidence" / "app-f"
 SUMMARY = OUTPUT / "release-ui-verification.json"
 QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
+ET_QML = ROOT / "app" / "operator_console" / "qml" / "ETWorkspace.qml"
 
 
 CONFIGURATIONS = (
@@ -35,9 +36,9 @@ CONFIGURATIONS = (
 )
 
 ET_CONFIGURATIONS = (
-    ("et-continuous-1280x720", 1280, 720, 1.0, "continuous", "barrage"),
-    ("et-interleaved-1440x900", 1440, 900, 1.0, "interleaved", "present"),
-    ("et-gnss-1180x680", 1180, 680, 1.0, "gnss", "valid"),
+    ("et-single-1280x720", 1280, 720, 1.0, "continuous", ""),
+    ("et-single-1440x900", 1440, 900, 1.0, "continuous", ""),
+    ("et-single-1180x680", 1180, 680, 1.0, "continuous", ""),
 )
 
 
@@ -84,33 +85,8 @@ def _child_run(args: argparse.Namespace) -> int:
     if args.et_task:
         root.setProperty("operatingDomain", "ET")
         root.setProperty("workspace", 4)
-        option_indices = {
-            ("continuous", "single"): 0,
-            ("continuous", "multiple"): 1,
-            ("continuous", "barrage"): 2,
-            ("continuous", "sweep"): 3,
-            ("interleaved", "absent"): 0,
-            ("interleaved", "present"): 1,
-            ("interleaved", "intermittent"): 2,
-            ("interleaved", "edge"): 3,
-            ("analog", "NFM"): 0,
-            ("analog", "FM"): 1,
-            ("analog", "AM"): 2,
-        }
-        option_controls = {
-            "continuous": "etContinuousOption",
-            "interleaved": "etInterleavedOption",
-            "analog": "etAnalogOption",
-        }
-        if args.et_task in option_controls:
-            option_control = root.findChild(QObject, option_controls[args.et_task])
-            if option_control is None:
-                raise RuntimeError("ET option control could not be found")
-            option_control.setProperty("currentIndex", option_indices[(args.et_task, args.et_option)])
-        if args.et_task == "gnss":
-            view_model.validateETGNSS(39.9334, 32.8597, "2026-08-16T12:00:00Z", "3, 8, 63")
-        else:
-            view_model.runETTask(args.et_task, args.et_option)
+        view_model.selectETTask(args.et_task)
+        view_model.previewETSingle("853.500", "854.500", "0.1")
         visual_deadline = time.perf_counter() + 0.35
         while time.perf_counter() < visual_deadline:
             app.processEvents()
@@ -138,6 +114,10 @@ def _child_run(args: argparse.Namespace) -> int:
             "timeline_count": len(view_model.etTimeline),
             "has_measurement_gap": any(value is None for value in view_model.etPrimaryValues),
             "transmit_api_present": hasattr(view_model, "transmit"),
+            "single_tx_api_present": hasattr(view_model, "startETSingle"),
+            "tx_gate_open": view_model.etCanTransmit,
+            "synthetic_api_present": hasattr(view_model, "runETTask") or hasattr(view_model, "validateETGNSS"),
+            "offline_et_loaded": "algorithms.et" in sys.modules,
             "screenshot": (OUTPUT / f"{args.name}.png").relative_to(ROOT).as_posix(),
             "screenshot_sha256": _sha256(screenshot),
         }
@@ -488,7 +468,9 @@ def _parent_run() -> int:
         return probe_process.returncode
     hackrf_probe = json.loads(probe_process.stdout.strip().splitlines()[-1])
 
-    qml_text = QML.read_text(encoding="utf-8")
+    qml_text = "\n".join(
+        path.read_text(encoding="utf-8") for path in sorted(QML.parent.glob("*.qml"))
+    )
     gates = {
         "all_sources_real": all(bool(run["source_ready"]) for run in runs),
         "minimum_screen": all(
@@ -504,8 +486,8 @@ def _parent_run() -> int:
             for marker in (
                 'objectName: "emptySpectrumMessage"',
                 'objectName: "emptyDetectionMessage"',
-                "Kaynak seçildiğinde spektrum burada görüntülenir",
-                "Tespitler kaynak hazır olduğunda listelenir",
+                "Taramayı başlatınca spektrum burada görünür",
+                "Taramayı başlatın",
             )
         ),
         "workspace_coverage": {int(run["workspace"]) for run in runs} == {0, 1, 2, 3},
@@ -513,33 +495,19 @@ def _parent_run() -> int:
             run["domain"] == "ET" and int(run["workspace"]) == 4
             for run in et_runs
         )
-        and {str(run["task"]) for run in et_runs} == {"continuous", "interleaved", "gnss"},
+        and {str(run["task"]) for run in et_runs} == {"continuous"},
         "et_minimum_screen": all(
             int(run["logical_width"]) >= 1180 and int(run["logical_height"]) >= 680
             for run in et_runs
         ),
-        "et_offline_model_binding": all(
-            run["status"] == "TAMAMLANDI"
-            and int(run["metric_count"]) == 5
-            and not bool(run["transmit_api_present"])
-            for run in et_runs
-        )
-        and any(
-            run["task"] == "continuous"
-            and int(run["primary_points"]) > 100
-            and int(run["secondary_points"]) > 100
-            for run in et_runs
-        )
-        and any(
-            run["task"] == "interleaved"
-            and int(run["timeline_count"]) == 8
-            and bool(run["has_measurement_gap"])
-            for run in et_runs
-        )
-        and any(
-            run["task"] == "gnss"
+        "et_single_offline_validation": bool(et_runs) and all(
+            run["status"] == "İLETİMSİZ DOĞRULANDI"
+            and int(run["metric_count"]) == 7
             and int(run["primary_points"]) == 0
-            and int(run["secondary_points"]) == 0
+            and int(run["secondary_points"]) == 512
+            and int(run["timeline_count"]) == 0
+            and bool(run["single_tx_api_present"])
+            and not any(bool(run[key]) for key in ("transmit_api_present", "synthetic_api_present", "offline_et_loaded", "tx_gate_open"))
             for run in et_runs
         ),
         "et_safety_surface": all(
@@ -547,14 +515,14 @@ def _parent_run() -> int:
             for marker in (
                 'text: root.operatingDomain === "ET" ? "YAYIN"',
                 'text: root.operatingDomain === "ET" ? "DEVRE DIŞI"',
-                "EFEMERİS YOK  ·  NAV MESAJI YOK  ·  I/Q DALGA ŞEKLİ YOK",
+                'objectName: "etSingleEmergencyStop"',
+                'objectName: "etTxGateState"',
             )
         ),
         "et_operator_language": all(
             marker not in qml_text
             for marker in (
                 "OFFLINE",
-                "TX KİLİTLİ",
                 "RF TX YOK",
                 "host modeli",
                 "fiziksel RF sonucu",
@@ -564,9 +532,7 @@ def _parent_run() -> int:
             marker in qml_text
             for marker in (
                 "scale: control.down ? 0.985 : 1.0",
-                "width: etTaskCard.selected ? parent.width : 0",
-                "id: etResultPulse",
-                "duration: root.transitionDuration + 180",
+                "Behavior on scale",
             )
         ),
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),
@@ -664,7 +630,6 @@ def _parent_run() -> int:
                 "spectrumViewBack",
                 "spectrumViewForward",
                 "setAnalysisSpanDraftNormalized",
-                "Shift+sürükle",
             )
         ),
         "ten_hz_update": all(float(run["observed_update_hz"]) >= 9.0 for run in runs),
@@ -675,14 +640,11 @@ def _parent_run() -> int:
             for marker in (
                 "Accessible.name",
                 "Accessible.role: Accessible.StaticText",
-                'sequence: "Ctrl+O"',
                 'sequence: "Space"',
-                "root.workspace === 0 && operatorViewModel.sourceReady",
+                "operatorViewModel.sourceReady && !operatorViewModel.busy",
                 'sequence: "Ctrl+4"',
-                'sequence: "Alt+Left"',
-                'sequence: "Escape"',
+                'sequence: "Ctrl+6"',
                 'objectName: "workspaceNavigation" + index',
-                "Hareketi azalt",
             )
         ),
         "cross_workspace_consistency": all(
@@ -691,8 +653,7 @@ def _parent_run() -> int:
                 "property int uiBodyTextSize: width >= 1600 ? 11 : 10",
                 "root.systemLogMatchCount() + \" kayıt\"",
                 "Bu filtreyle eşleşen olay yok",
-                'objectName: "eventConsoleButton"',
-                'objectName: "eventConsoleList"',
+                'objectName: "systemLog"',
             )
         ),
         "honest_feature_surface": all(

@@ -1,5 +1,100 @@
 # PHASE-04-E1 Operatör Destekli Parametre Sözleşmesi
 
+## PÇ-01 güncel ölçüm ve sunum sözleşmesi — 7 Eylül 2026
+
+- Ana görünüm dört zorunlu alanı gösterir. Emisyon merkezi taşıyıcı alanına
+  aktarılmaz; OBW99 ve dBFS birimleri görünür kalır. Yetersiz kalite durumları
+  sayısal sonuca çevrilmez. Dokuz alanın kaynak modeli korunur.
+- `current_measurement_window`, ölçüm kilidi altında son işlenen yanıta kadar
+  ardışık dört gözlem döndürür. Olay kaybolursa veya sıra kesilirse yeni dört
+  gözlem gerekir. Görünüm için saklanan `measurement_window` yeni ölçümde
+  kullanılmaz. İşlem düğmesi de güncel seçili gözlem ister.
+- Düğmeye basılınca bu değişmez pencere sabitlenir ve RX durdurulur. Pencere
+  seçimi ile RX'nin tamamen kapanması arasındaki yeni kareler bu kayda eklenmez.
+- Yeni alım aynı merkez ve son LNA/VGA ayarlarını kullanır; önceki sonuç,
+  seçili olay ve aralık onayı temizlenir. Eski tarama satırı geçmiş olarak
+  kalabilir; operatör yeni oturumda doğrulanmış gözlemi yeniden seçer.
+  Bu, oturumlar arasında aynı fiziksel vericinin otomatik kimlik eşlemesi değildir.
+- İptal RX kapanırken bekleyen ölçümü kaldırır. Hesaplama başladıysa sınırlı
+  çalışan güvenle biter; nesil bağı geçersizleştiğinden geç sonucu yayımlanmaz.
+  Başlamış çalışan bir ZIP bırakabilir; bu iptal edilmiş ölçümün UI sonucu değildir.
+- Ayrıntıdaki UTC hesaplama bitişidir, donanım alım zamanı değildir. Süre
+  kayda yazılan örnek sayısı/örnekleme oranından gelir. Kayıt yolu yalnız sonuç
+  görünürken sunulur. Geçersiz yeni aralık önceki onayı iptal eder.
+- Kanıt: `results/evidence/phase08/parameter-workflow-v1.json` ve ZIP;
+  eski `parameter-record-v1` arşivi yeniden yazılmaz. Yazılım akışı kabulü
+  donanım, RF doğruluğu, standart uyumluluğu veya dBm kabulü değildir.
+
+## PÇ-00: F5 ürün ölçüm kaydı — 7 Eylül 2026
+
+Bu bölüm KTR-4.2 / KTR-4.2-F1 güncel QML/F5 kayıt katmanını tanımlar;
+aşağıdaki tarihsel E1 matematiğini veya kilitli F5 yöntemini değiştirmez.
+Canlı ve SigMF ölçümleri `parameter-measurement-v1` kaydı oluşturulmadan
+ürün sonucu yayımlamaz. Kayıt yalnız açık ölçüm komutunda ve ölçüm işçisinde
+üretilir; tespit karelerinin sürekli disk yazımı değildir.
+
+Her ZIP iki girdi taşır: UTF-8 `measurement.json` ve `iq.cf64_le`.
+İkincisi kestirimciye verilen dört adet 4096 kompleks örneğin küçük uçlu,
+normalize kompleks float64 baytlarıdır: tam 262.144 bayt. Bu ham USB kaydı
+veya volt cinsinden RF ölçümü değildir. Büyük kaynak kaydın tamamı okunmaz
+ve hash'lenmez. JSON en fazla 131.072 bayttır; arşiv okuyucu sıkıştırılmış
+ve açılmış boyut sınırlarını dosya çıkarmadan denetler.
+
+Kayıt içeriği:
+
+- ölçüm UUID'si, uygulama oturumu/nesli, olay ve aralık revizyonu;
+- kullanılan kare indisleri, canlı yolda kart kare/sıra kimlikleri, aynı
+  olayın dört gözlemi ve karta gönderilen CI8 baytlarının SHA-256 özetleri;
+- normalize I/Q'nun toplam ve kare bazlı SHA-256 özeti, örnekleme/merkez
+  frekansı, gerçek kullanılan spektrum yapılandırması ve `4×4096/fs` süre;
+- sekiz ham sonuç alanının birimi, yöntem kimliği, durumu, değeri ve neden
+  kodu; geçerli olmayan sayısal sonuç `null` olur, sıfırla doldurulmaz;
+- kilitli F5 profilinin, yöntem/model dosyalarının ve kayıt/orkestrasyon
+  kaynaklarının özetleri; Python/NumPy sürümü ve işletim sistemi/mimari;
+- canlı oturumun LNA/VGA/RF kazancı, alıcı LO'su, örnekleme ve cihaz ayarı;
+  kanal seçicinin mevcut profili, genlik ölçeği, arka ucu ve varsa kitaplık
+  dosyasının oturum başlangıcında alınan özeti;
+- kalibrasyon `unavailable`, profil/özet `null`, güç referansı dijital tam
+  ölçek, `dbm_available: false`, `accuracy_proven: false`.
+
+Alıcı ayarları oturumun yazılıma verdiği yapılandırmadır; bağımsız cihaz
+geri okuması sayılmaz. SigMF'de bilinmeyen kazanç/ölçek `null` kalır.
+Kartın çalışan hizmet/imaj özetleri gözlenmediğinden `board_identity: null`
+olur; bir derleme dosyası özeti çalışan karta atfedilmez. Donanım UTC örnek
+zamanı yoktur: `acquisition_utc: null`; istek/bitiş UTC zamanları yalnız
+bilgisayar saatidir. Seçimde sabitlenmiş eski dört kare güncel alım diye
+yeniden tarihlenmez; özgün kare kimlikleri korunur. Zaman aralığı, hücre
+aralığı ve kullanılan örnekleme arasındaki ilişki yeniden oynatımda denetlenir.
+
+Canlı ölçüm girişi dört karenin aynı merkez/örnekleme, CI8 biçimi/boyutu,
+sıra, kart kare kimliği, DMA başarı ve sıfır aday düşümü bağını ayrıca
+denetler. Devam eden ölçümde aralık düzenlemesi engellenir. Kayıt, yalnız
+izole aralık doğrulamasını geçen sayıları geçerli taşır; düşük kalite
+sonuçları da nedenleriyle saklanır. Eski E1/F5 gürültü, kenar ve sınıflandırma
+eşikleri bu değişiklikte korunmuştur.
+
+Kayıtlar Qt yerel uygulama veri dizininin `parameter-records/` altındadır.
+Dosya yolu ve dış SHA-256 özeti uygulamanın Parametre kaydı günlüğündedir;
+`measurementRecordPath` yalnız sonuç görünürken döner. Her dosya özel yeni
+adla oluşturulur, var olan kaydın üzerine yazılmaz. Yazma hatasında kısmi
+dosya kaldırılır ve yeni sonuç yayımlanmaz. Oluşturulmuş kayıtlar otomatik
+silinmez; toplam disk kullanımı ölçüm sayısıyla artar. Kayıt başına ek 256 KiB
+I/Q ve sınırlı JSON, F5 çekirdeğinin kalıcı bellek hesabından ayrı kayıt
+maliyetidir; GUI/RX gerçek zamanlı hız kabulü yapılmış değildir.
+
+Yeniden üretim:
+
+```powershell
+python scripts/verify_parameter_record.py KAYIT.zip --sha256 GUNLUKTEKI_OZET
+```
+
+Doğrulayıcı I/Q bütünlüğünü, dış özet verilmişse tüm arşivi ve güncel
+çalışma zamanı/kaynak eşleşmesini denetler; kayıtlı I/Q'dan F5'i çalıştırır,
+alan değer/durum/nedenlerini ve kaliteyi birebir karşılaştırır. Farklı kaynak
+sürümündeki kaydı güncel kabul yapmaz. Dış özet olmadan yeniden hesaplama
+sayısal tutarlılık sağlar; alıcı metadata'sının özgünlüğünü doğrulamaz.
+Özet kriptografik imza değildir. Bu araç RF doğruluk veya dBm kabulü üretmez.
+
 ## Akış
 
 Yalnız `confirmed && observed_this_frame` olay seçilebilir. PHASE-03 candidate bölgesi `[20,4075]` içinde `clamp(max(8, ceil(width/2)), 8, 64)` bin/yan marjla otomatik önizleme üretir. Komşu candidate orta noktası ile dört-bin guard aşılmaz. Otomatik öneri ölçümü başlatmaz; operatör aralığı sürükleyebilir ve sonuç yalnız `Ölçümü Başlat` ile üretilir.

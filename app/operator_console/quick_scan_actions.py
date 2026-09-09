@@ -271,6 +271,8 @@ class QuickScanActionsMixin:
     def startScan(self) -> None:
         if self._source is None or self._busy:
             return
+        if self._parameter_rows:
+            self.clearDetectionSelection()
         was_playing = self._playing
         if self._measurement_requested:
             self._measurement_requested = False

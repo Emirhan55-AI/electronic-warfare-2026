@@ -1,5 +1,282 @@
 # Uygulama Yol Haritası
 
+## PHASE-10 Tekli Görev geçişi — 8 Eylül 2026
+
+Kullanıcı PÇ-02 ve PHASE-09 çalışmalarını beklemeye alıp ET çalışmasına geçişi
+açıkça onayladı. Bu kullanıcı onaylı öncelik istisnasıyla PHASE-10 yalnız KTR-5.1
+Tekli Görev kapsamında açıldı; açık ED maddeleri tamamlanmış sayılmaz. Tek hedef
+bant için deterministik bant sınırlı CI8, iletimsiz spektrum/OBW doğrulaması,
+Türkçe operatör akışı ve fail-closed HackRF süreç sınırı uygulanmıştır.
+
+Depodaki ET_TX güvenlik profili kapalı, seri kimliği ve izin listesi boştur.
+HackRF bağlı olmadığı ve kablolu/zayıflatıcılı veya RF ekranlı düzen ölçülmediği
+için fiziksel TX çalıştırılmamış, PHASE-10 çıkış kapısı kapanmamış ve PHASE-11
+başlatılmamıştır. Sözleşme `docs/interfaces/ET_SINGLE_TASK_CONTRACT.md`, karar
+ADR-0041 ve yazılım kanıtı `results/evidence/phase10/single-et-software-v1.json`
+içindedir.
+
+## Parametre kabul durumu ve PÇ-02 devamı — 8 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 tamamlanmadı. Güncel kaynakla aynı 30 sentetik
+örnek tekrarlandı ve 30/30 kayıt yeniden hesaplandı; bu doğruluk kabulü
+değildir. CW taşıyıcısı 1/6, AM taşıyıcısı 2/6 geçerli; 24 modülasyonlu
+örneğin tamamı model uzaklığı kapısında Belirsiz kaldı. Sayısal dBFS
+hatası bu kümede en çok 0,189 dB; mutlak dBm kalibrasyonu açık.
+Yeni karar kapısı tanısı ve ölçüm/profil kontrolleri 22/22 geçti.
+Kanıt: `results/evidence/phase08/parameter-diagnostic-20260908-v1.json`
+ve ZIP. Ayrıntı: `docs/plans/PARAMETER_VALIDATION_BENCH.md`.
+Kullanıcı cihazların bağlı olmadığını bildirdi; fiziksel kabul yapılmadı.
+PÇ-02 sürüyor; PÇ-03–05 ve ST-06 kapanmadı. Ürün yöntemi, eşikleri,
+PC/PL/PS görev paylaşımı ve önceki kanıtlar korundu. Aşağıdaki tarihli
+kayıtlar kendi sürümlerinin durumunu belirtir.
+
+
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
+## Dört parametre bağımsız tanılama — 7 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 kapsamında PÇ-02 sayısal başlangıç çalıştırıldı:
+`scripts/validate_parameter_bench.py` ile beş ailede 30 bağımsız sentetik
+I/Q kaydı üretildi; ürün F5 ölçümü ve 30/30 yeniden hesaplama eşleşti.
+Bu doğruluk kabulü değildir: 24 modülasyonlu örneğin tamamında sınıf Belirsiz;
+CW taşıyıcı alanı 1/6 sonuç verdi. Geniş kuyruklu BPSK tam emisyonu ölçüm
+aralığını aşıyor. Güç hatası bu sentetik örneklerde en çok 0,189 dB;
+dBm kalibrasyonu ve canlı ölçüm sürekliliği açık. İlgili 82 yazılım testi geçti.
+Yöntem/eşik/RTL değişmedi; eski kanıtlar korunur. Ayrıntılı referans, paydalar,
+sınırlamalar ve fiziksel deney düzeni `docs/plans/PARAMETER_VALIDATION_BENCH.md`
+içindedir. Yerel rapor: `build/acceptance/parameter-bench-20260907-v1/report.json`.
+
+## PÇ-01 ölçüm arayüzü ve güncel gözlem bağı — 7 Eylül 2026
+
+Kullanıcının devam talimatıyla dört zorunlu sonuç ana görünümde ayrıldı:
+taşıyıcı frekansı, OBW %99, kalibrasyonsuz kanal gücü (dBFS) ve Analog/Sayısal.
+Emisyon merkezi, bant kenarları, SNR, gözlem süresi, hesaplama bitiş UTC zamanı
+ve kayıt yolu açılır ayrıntıdadır. Sonuç, alımın durduğu kayıtlı ölçüm olarak
+etiketlenir. Taşıyıcı bulunmadığında merkez onun yerine gösterilmez.
+
+Yeni canlı ölçüm, son işlenen kart yanıtına kadar süren dört ardışık gözlemi
+ister; geçmiş/seçim önbelleği yeni ölçüm girdisi olamaz. Yeniden alım eski
+sonucu ve aralık onayını temizler; operatör güncel tespiti yeniden seçer.
+İptal, gecikmiş çalışan sonucu yayımlamaz. Geçersiz aralık girişi önceki
+onayı kaldırır. Algoritma, eşik, RTL ve kart hizmeti değişmedi; F5 bilgisayarda.
+
+Son doğrulama: 137/137 test geçti. Main.qml 2.137, görünüm modeli 1.996
+satırla mevcut mimari sınırlar içindedir.
+
+KTR-4.2 / KTR-4.2-F1 yazılım kabul kanıtı:
+`results/evidence/phase08/parameter-workflow-v1.json` ve ZIP.
+1280×720 ve 1920×1080 görünüm kontrolleri kayıtlı I/Q ile yapılır.
+Önceki PÇ-00 kanıtı tarihsel baytlarıyla korunur; aşağıdaki 134/135 sonucu
+önceki kaynak içindir. Yeni panel ayrımı Main.qml satır sınırı bulgusunu giderir.
+ST-06, fiziksel RF doğruluğu, dBm kalibrasyonu ve ARM taşıması açıktır.
+PÇ-02 sıradaki planlı çalışma adımıdır; bu değişiklikle uygulanmadı.
+
+## PÇ-00 ölçüm kaydı uygulaması — 7 Eylül 2026
+
+Son doğrulama: 135 kontrolün 134'ü geçti. Tek başarısızlık değiştirilmemiş
+`Main.qml` dosyasının mevcut 2.255 satırıyla 2.200 satır mimari sınırını
+aşmasıdır; HEAD ve güncel metin aynıdır, sınır gevşetilmedi. PÇ-00 paket,
+kayıt/yeniden üretim, olumsuz giriş ve canlı/SigMF ürün bağları geçti.
+Paket genel test sonucu bu açık bulgu nedeniyle başarısız olarak saklandı.
+PÇ-00 işlevleri uygulanmıştır; bu kayıt bütünlüğü başarısı sayısal/RF
+doğruluğa dönüştürülmez. Sonraki çalışma PÇ-01'dir.
+
+Kullanıcının uygulamaya devam talimatıyla KTR-4.2 / KTR-4.2-F1 için mevcut
+F5 ölçümüne kaynak ve I/Q bağlı kayıt eklendi. Canlı ve SigMF ürün ölçümü,
+dört normalize I/Q karesini ve alanların birim/yöntem/durum/neden bilgilerini
+ayrı ZIP'e kaydeder; kayıt başarısızsa yeni sonuç yayımlamaz. Canlı karelerde
+merkez, örnekleme, sıra ve kart yanıtı bağı ayrıca denetlenir. Profil/model
+özetleri, oturum ayarları, kanal seçici ölçeği ve bilinen kaynak özetleri
+saklanır. Donanım UTC zamanı, çalışan kart imajı ve kalibrasyon gözlenmemişse
+bilinmiyor kalır; dBm veya RF doğruluk sonucu üretilmez.
+[Kayıt ve yeniden üretim sözleşmesi](../interfaces/OPERATOR_ASSISTED_PARAMETER_CONTRACT.md) sınırları tanımlar.
+
+F5E paket denetimi mevcut iki ek logoyu açık listesine aldı; eksik model ve
+izinsiz ek dosya retleri korunur. Eski F5E/PHASE-08 kanıtları değiştirilmedi.
+Parametre satırlarını oluşturma işlevi mevcut ölçüm modülüne taşındı; görünen
+alanlar ve algoritma eşikleri değişmedi. Yeni kanıt
+`results/evidence/phase08/parameter-record-v1.json` ve ZIP içindedir.
+Bu yazılım kayıt/entegrasyon kabulüdür; yeni fiziksel kart veya RF deneyi
+değildir. ST-06 ve dört parametrenin saha doğruluğu açıktır. PÇ-01 arayüz
+sadeleştirmesi sonraki iştir; tercihli özellikler ve PHASE-09 açılmadı.
+
+## Dört zorunlu parametre için kontrollü devam planı — 7 Eylül 2026
+
+Kullanıcı, sinyal tespiti kabulü henüz açıkken parametre çıkarımına sınırlı
+geçişi ve önce dört zorunlu alanın planlanmasını açıkça istedi. Bu yönlendirme,
+aşağıdaki tarihli kayıtlardaki yalnız tespitle sınırlı çalışma talimatını bu
+kapsamda günceller. PHASE-08 / ST-06 tamamlanmış sayılmaz. Çalışma mevcut
+PHASE-04-F5 yeteneğinin PHASE-08 canlı entegrasyonuna devamdır; PHASE-09 açılmaz.
+Modülasyon/protokol/çoklama/EKKT ve diğer tercihli özellikler sonraki kapsamdır.
+Bu oturum envanter, başlangıç doğrulaması ve planlamadır; aşağıdaki uygulama
+işlerinin tamamlandığı veya karta yeni yazılım yüklendiği anlamına gelmez.
+
+### Gereksinim ve mevcut durum
+
+Kullanıcının paylaştığı yarışma metni §5.1.2, depodaki kalıcı `KTR-4.2` ve
+`KTR-4.2-F1` kimliklerine bağlanır. Eski kimlikler korunur. Paylaşılan kesitte
+sayısal hata toleransı, güç birimi ve taşıyıcısız yayın için değerlendirme
+yöntemi belirtilmediğinden aşağıdaki hedefler yarışmanın resmî eşikleri değildir.
+
+| Zorunlu alan | Mevcut kaynakta olan | Açık iş |
+|---|---|---|
+| Taşıyıcı frekansı | F5 bilgisayar yöntemi dar çizgi kanıtıyla ayrı taşıyıcı alanı üretir; ARM yalnız emisyon merkezini hesaplar. | Çizgi olmayan/bastırılmış taşıyıcılı yayında merkezin taşıyıcı diye sunulmaması; desteklenen ailelerde taşıyıcı kestirimi, frekans kalibrasyonu ve ARM taşıması. |
+| Bant genişliği | F5 ve ARM C çekirdeğinde alt/üst kenar ve OBW99 kestirimi vardır. Tespitin kaba aralığı ayrı kavramdır. | Güncel 2 MS/s canlı yolda fiziksel bant doğruluğu, komşu sinyal/kenar etkisi, gözlem süresi ve daha geniş ölçüm kapsamı. |
+| Güç seviyesi | F5 ve ARM onaylı aralıkta gürültü çıkarılmış kanal gücünü dBFS olarak hesaplar. | Kazanç, sayısal ölçek ve filtre etkisinin izlenmesi; RF girişine göre dBm kalibrasyonu ve hata bütçesi. |
+| Analog/Sayısal ayrımı | F5 bilgisayar yöntemi zaman/istatistik özellikleri ve aile prototipleriyle Analog/Sayısal/Belirsiz sonucu üretir. | Bağımsız gerçek yayınlarla doğrulama, kapsam dışı ve kararsız örneklerde karar vermeme; ardından aynı yöntemin ARM C uygulaması. |
+
+Kaynaklar: `app/operator_console/quick_measurement_actions.py`,
+`quick_view_model.py` içindeki `_f5_parameter_rows`,
+`algorithms/parameters/f5_estimator.py`, `f4_estimator.py`, `f4_domain.py`,
+`platforms/embedded/p0/src/p0_parameter_runtime.c` ve `p0_ed_service.c`.
+`algorithms/p0/parameters.py` içindeki ayrı P0 referansı güncel QML F5 yolu
+değildir; onun %98 geri dönüş bant yöntemi F5 OBW99 yerine geçirilmez.
+
+### Gerçek veri yolu ve hedef görev paylaşımı
+
+Bugün canlı QML ölçümü, karta gönderilmiş ve aynı olay için kart yanıtı
+doğrulanmış dört I/Q karesini bilgisayarda sabitler. Alımı durdurur; bilgisayar
+bu I/Q'dan spektrumu yeniden hesaplayıp F5 ölçümünü ayrı iş parçacığında yapar.
+Bu, parametrelerin PL'de hesaplandığı anlamına gelmez. Kart hizmetinde parametre
+isteği desteği vardır; mevcut QML ölçüm eylemi bu desteği kullanmaz.
+
+Hedef görev paylaşımı:
+
+| Bileşen | Görev |
+|---|---|
+| FPGA / PL | Mevcut Hann → 4096 FFT → UQ28.30 güç → OS-CFAR zinciri; sayısal ölçüme spektral güç sağlar. İlk uygulama adımı yeni RTL gerektirmez. |
+| Kartın ARM / PS işlemcisi | Onaylı olaya bağlı merkez/taşıyıcı, OBW99, kanal gücü ve Analog/Sayısal kararı; zaman alanı için karta ulaşan I/Q kullanılır. Mevcut sayısal C çekirdeği temel alınır. |
+| Bilgisayar | HackRF USB alımı, kanal seçimi, taşıma, operatör arayüzü, kayıt ve kalibrasyon profilinin yönetimi. Python F5, geçiş süresince ölçüm yolu ve sonrasında bağımsız karşılaştırma referansıdır. |
+
+ARM, ZedBoard üzerindeki işlemcidir. Mevcut CPU0 DMA/güç çözme ve CPU1 tespit
+iş paylaşımı iki çekirdeği zaten kullanır. Yeni ölçümün boş bir çekirdekte
+ücretsiz çalışacağı varsayılmaz. Önce tek seçili sinyal için sınırlı ölçüm işi
+uygulanır; eşzamanlı sürekli tespit ancak ölçülen gecikme/kuyruk bütçesiyle açılır.
+PL'ye yeni hızlandırıcı taşıması ancak ARM profili gerekli olduğunu gösterirse
+ayrı RTL, bit-tam referans, benzetim ve fiziksel zamanlama kabulüyle ele alınır.
+
+### Uygulama sırası ve kabul kapıları
+
+| Sıra | Yapılacak iş | Çıkış kapısı |
+|---|---|---|
+| PÇ-00 | Güncel ölçüm profilini ve paket doğrulamasını eşleştir; ölçüm sözleşmesine birim, yöntem, alan durumu, olay/oturum, zaman, I/Q ve kaynak hash'i, örnekleme, kazanç/ölçek/kalibrasyon kimliği ekle. | Mevcut F5 profil bütünlüğü korunur; paket kapısı geçer; alanlar ayrı geçerli/belirsiz/ölçülemedi durumuyla kaydedilir. Eski RF kanıtı yeni kaynak kabulü yapılmaz. |
+| PÇ-01 | Tarama sonucu → yeniden alım → aynı sinyalin yeniden doğrulanması → önerilen izole aralığın onayı → tek ölçüm akışını sadeleştir; dört zorunlu sonucu öne al. | Eski tarama satırı, kayıp olay veya kazanç değişimi yeni ölçüm gibi kullanılamaz. İptal, hata, tekrar ölçüm ve seçili hedef değişimi sınanır; 1280×720 ve 1920×1080 görünümü doğrulanır. |
+| PÇ-02 | Mevcut F5 ile taşıyıcı/merkez, OBW99 ve dBFS doğruluğunu bağımsız bilinen I/Q ve kontrollü RX kayıtlarında ölç; frekans/güç kalibrasyonunu kur. | CW, AM, NFM ve en az bir sayısal aile; farklı frekans/kazanç/SNR; komşu sinyal, kırpılma, aralık kenarı ve yalnız gürültü kontrolleri. dBm yalnız kalibrasyon geçerlilik alanında açılır. |
+| PÇ-03 | Analog/Sayısal yöntemini AM/NFM ile OOK/FSK/PSK/QAM gibi bağımsız aile/ayar örneklerinde değerlendir; gerekli geliştirmeyi ayrı veriyle yap. | Aile bazlı karışıklık matrisi, doğru karar oranı, karar verilebilen örnek oranı ve Belirsiz oranı birlikte raporlanır. Test örnekleriyle eşik ayarlanmaz; CW otomatik Analog sayılmaz. |
+| PÇ-04 | Karttaki sayısal ölçüm isteğini ürün akışına bağla; eksik taşıyıcı ve sınıflandırma yöntemlerini ARM'a taşı. | Aynı I/Q ve gerçek PL güç kareleriyle Python ↔ host C ↔ ARM karşılaştırması; sayısal toleranslar önceden sabit; alan durum/nedenleri ve sınıflar eşleşir. Süre, ek bellek, sıra/kuyruk kaybı ve iptal ölçülür. |
+| PÇ-05 | Dört alanı birlikte, kaynağı operatöre önceden açıklanmayan kontrollü RX senaryolarında değerlendir. | Başarısız ve Belirsiz denemeler dahil tüm paydalar, kaynak/hizmet/imaj hash'leri, gerçek alıcı ayarları ve referans ölçümler saklanır. Parametre kabulü ve ST-06 kabulü ayrı kararlardır. |
+
+Bu sıra dört zorunlu alanı kapsar. Tercihli modülasyon etiketlerini arayüze
+eklemek veya başka yarışma görevine geçmek bu planın çıkışı değildir.
+
+### Ölçüm tanımları ve ilk sınırlar
+
+- Taşıyıcı ile emisyon merkezi ayrı kalır. Taşıyıcı çizgisi gözlenmiyorsa
+  `Gözlenmedi` gösterilir; merkez ancak kendi adı ve yöntemiyle verilir.
+  Bastırılmış taşıyıcı için yeni kestirim ayrı yöntem/kanıt ister; en güçlü FFT
+  hücresinin RF taşıyıcı olduğu varsayılmaz.
+- Hedef bant tanımı OBW99'dur. ITU-R SM.443-4 doğrudan yöntemi toplam gücün
+  iki yanında %0,5 bırakır. Mevcut F5'in %0,75 kuyruk ve 0,375 hücre kenar
+  düzeltmesi kendi deneysel OBW99 kestirimidir; doğrudan standart algoritması
+  veya saha uyumluluk belgesi diye adlandırılmaz. Bağımsız referansla hata
+  ölçülür. [Birincil kaynak: ITU-R SM.443-4](https://www.itu.int/rec/R-REC-SM.443/en).
+- Canlı 2 MS/s ve 4096 FFT için hücre aralığı 488,28125 Hz'dir. Mevcut 8–512
+  hücre analiz sınırı yaklaşık 3,906–250 kHz aralık demektir; ölçülen sinyal
+  bant genişliğinin doğruluk aralığı değildir. İki tarafta gürültü referansı
+  gerekir. 8 MHz önizleme bu ölçüm sınırını genişletmez. 250 kHz üzerindeki
+  emisyonlar için ayrı profil/geniş aralık desteği ve yeniden kabul gerekir.
+- Dört kare 2 MS/s'de 8,192 ms I/Q süresidir. Bu ilk sınırlı ölçüm penceresi,
+  yavaş analog değişimi veya aralıklı sayısal yayını temsil etmeyebilir.
+  PÇ-02/03'te örneğin 50/100/250 ms gözlem adayları süre/bellek/doğruluk
+  karşılaştırmasına alınır; bunlar henüz uygulanmış süre seçenekleri değildir.
+- Güç hedefi alıcının RF girişindeki kanal gücüdür; uzaktaki vericinin çıkış
+  gücü değildir. dBFS ön sonuç olarak kalır. dBm dönüşümü referans düzlemi,
+  frekans, LNA/VGA/RF kazancı, örnekleme, kanal filtresi ve sayısal ölçeğe bağlı
+  kalibrasyon gerektirir. Sadece LNA/VGA değerini dBFS'den çıkarmak yeterli
+  kalibrasyon sayılmaz. Ölçüm boyunca kazanç sabitlenir; değişirse birikim
+  sıfırlanır. Kalibrasyon dışı ayar, kırpılma veya bilinmeyen ölçek dBm'yi kapatır.
+- Analog/Sayısal alanı için güç spektrumu tek başına giriş değildir; mevcut
+  yöntem I/Q zaman özelliklerini de kullanır. Aile prototipleri ve bütün
+  ön işleme ARM'a birlikte taşınır. Belirsiz sonucu korunur; model uzaklığı
+  veya karar marjı kalibre bir doğruluk yüzdesi gibi sunulmaz.
+
+İlk mühendislik hedef önerisi: desteklenen taşıyıcılı örneklerde frekans
+hatasının %95 yüzdeliği en fazla bir FFT hücresi, OBW99 hatasının %95 yüzdeliği
+en fazla `max(2 hücre, referans bandın %10'u)`; kalibre bölgede güç hatasının
+%95 yüzdeliği en fazla 3 dB. Frekans için saat/ppm ve referans cihaz belirsizliği
+ayrıca raporlanır; hücre aralığı mutlak doğruluk değildir. Analog/Sayısal için
+desteklenen her ailede en az %80 karar kapsamı ve verilen kararlarda en az %90
+doğruluk başlangıç hedefidir. Bunlar henüz karşılanmış değildir. Deney öncesi
+örnek sayısı, bağımsız tekrar, SNR/ayar matrisi, güven aralığı ve kapsam dışı
+yanlış karar sınırı bir kabul protokolünde sabitlenir; sonuca göre değiştirilmez.
+
+### Arayüz kararı
+
+Mevcut spektrum + sağ ölçüm paneli korunabilecek bir temeldir. Bugünkü panel
+dokuz satırı aynı ağırlıkta gösterir; ölçüm yokken de aralık denetimleri ve
+teknik açıklamalar görünür. Dört zorunlu alanın önceliği yeterince belirgin
+değildir. PÇ-01 hedefi:
+
+1. Seçili sinyal ve tek bir sonraki eylem: `Sinyali Seç`, `Aralığı Onayla`,
+   ardından `Ölçümü Başlat`. Var olan tarama sonucunu izlemeye alma işlevi
+   yeniden kullanılır; güncel ölçüm için yeni olay ve dört gözlem şartı korunur.
+2. Ana sonuçlar: `Taşıyıcı frekansı`, `Bant genişliği (%99)`,
+   `Güç seviyesi` (dBFS/dBm açık birimle), `Sinyal türü`.
+3. `Ayrıntılar`: emisyon merkezi, alt/üst sınır, SNR, ölçüm zamanı/süresi,
+   kalibrasyon durumu ve alanın neden ölçülemediği. Teknik kaynak/işlemci
+   bilgileri kayıt ve tanıda kalır.
+4. Tarama geçmişi güncel alım sayılmaz. Sonuç zamanını koru; yeni oturum,
+   kazanç veya hedef değişiminde eski değeri canlıymış gibi taşıma. İlk sürüm
+   ölçümün alımı durdurduğunu açıkça söyler. Sürekli ölçüm ayrı kabul ister.
+
+### Bu oturumdaki başlangıç doğrulaması
+
+Üretim kodu değiştirilmeden yapılan inceleme:
+
+- `verify_p0_parameter_runtime.py`: MSVC C11 durum makinesi geçti; AM ve
+  geniş bant sahnesinde altı sayısal alan Python ile sıfır fark verdi;
+  yalnız gürültüde ret korundu. Kalıcı yük 56.064 bayt. Bu host C testidir,
+  yeni fiziksel ARM/RF kabulü değildir; test örnekleme hızı 8 MS/s'dir.
+- F5 ürün profili + tarihsel canlı parametre arşivi + güncel QML paketi:
+  32 geçti, 1 başarısız. Başarısız kontrol `release-assets`: F5E doğrulayıcısı
+  paket listesinin eski altı dosyayla birebir eşitliğini isterken mevcut paket
+  iki ek logo (`baz-logo-intro.png`, `baz-logo-glow.png`) taşır. Profil üretimi,
+  çalışma zamanı yeteneği, değişmiş profilin reddi ve QML bağı geçti. Başarısız
+  kontrol kaldırılmaz; PÇ-00'da güncel paket sözleşmesiyle uyumlu hale getirilir.
+- Boş ve kayıtlı tek-ton sonuç durumları 1280×720 / 1920×1080 olarak üretildi.
+  İncelenen küçük sonuç ekranında dokuz alan sığıyor fakat yazı yoğunluğu
+  fazla. Kayıtlı CW örneğinde `Belirsiz` sınıfı ve 281,48 dB SNR gösterildi;
+  bu fiziksel SNR değildir. PÇ-02'de sıfıra yakın gürültü tabanı ve bant
+  çözünürlük sınırının sunumu ayrıca denetlenir.
+- Yerel çıktılar `build/acceptance/parameter-planning-20260907/` içindedir:
+  `arm-host-verification.json`, `f5-integration-baseline.json`, `tests.xml`,
+  `ui-inspection.json` ve dört PNG. Bunlar donanım ölçümü değildir. Tarihsel
+  `live-parameter-functional.json` kaydındaki `accuracy_proven: false` korunur;
+  eski kaynak hash'leri güncel kaynağa taşınmaz. Tarihsel canlı parametre
+  kaydındaki dokuz kaynak hash'inin yedisi bugün farklıdır. İnceleme çıktıları
+  ve kaynak hash'leri yerel `planning-inspection.json` içinde ayrıca bağlıdır.
+- Plan ve bağlantılı durum belgeleri güncellendikten sonra depo sözleşmesi
+  20/20 geçti. Değişiklikler belge eklemeleriyle sınırlıdır; eski ölçümler,
+  kilitli profiller ve başarısız kanıtlar korunmuştur.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 PHASE-08 / ST-06 arayüzünde sabit frekans ve bant taraması alanlarının sayı,

@@ -1,5 +1,143 @@
 # KTR Gereksinim İzlenebilirliği
 
+## KTR-5.1 Tekli Görev / PHASE-10 geçişi — 8 Eylül 2026
+
+Kullanıcının PÇ-02 ve PHASE-09'u beklemeye alma ve ET'ye geçme onayıyla PHASE-10
+yalnız Tekli Görev için açıldı. Tek hedef bantta deterministik bant sınırlı CI8,
+iletimsiz spektrum/OBW özeti, 0,1–30 saniye sınırı, 8 MS/s profil, sonlu görev
+dosyası ve fail-closed HackRF süreç sözleşmesi uygulanmıştır. Ürün yalnız Tekli
+Görev'i gösterir; çoklu, baraj, süpürme, arabakış, analog ve GNSS kapsam dışıdır.
+
+Fiziksel profil kapalı, seri kimliği ve izin listesi boştur; cihaz bağlı değildir.
+Yazılım testi 10/10 ve güncel Qt Quick ürün doğrulaması 28/28 geçmiştir. Kanıt
+`results/evidence/phase10/single-et-software-v1.json` dosyasındadır. Bu, RF çıkış, güç,
+etki veya KTR-5.1 kabulü değildir. Kapalı düzen kimliği/zayıflatması ile kısa
+fiziksel spektrum ve durdurma negatifleri tamamlanmadan PHASE-10 kapanmaz;
+PHASE-11 açılmaz. Bağ: `docs/interfaces/ET_SINGLE_TASK_CONTRACT.md` ve ADR-0041.
+
+## Parametre kabul durumu ve PÇ-02 devamı — 8 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 tamamlanmadı. Güncel kaynakla aynı 30 sentetik
+örnek tekrarlandı ve 30/30 kayıt yeniden hesaplandı; bu doğruluk kabulü
+değildir. CW taşıyıcısı 1/6, AM taşıyıcısı 2/6 geçerli; 24 modülasyonlu
+örneğin tamamı model uzaklığı kapısında Belirsiz kaldı. Sayısal dBFS
+hatası bu kümede en çok 0,189 dB; mutlak dBm kalibrasyonu açık.
+Yeni karar kapısı tanısı ve ölçüm/profil kontrolleri 22/22 geçti.
+Kanıt: `results/evidence/phase08/parameter-diagnostic-20260908-v1.json`
+ve ZIP. Ayrıntı: `docs/plans/PARAMETER_VALIDATION_BENCH.md`.
+Kullanıcı cihazların bağlı olmadığını bildirdi; fiziksel kabul yapılmadı.
+PÇ-02 sürüyor; PÇ-03–05 ve ST-06 kapanmadı. Ürün yöntemi, eşikleri,
+PC/PL/PS görev paylaşımı ve önceki kanıtlar korundu. Aşağıdaki tarihli
+kayıtlar kendi sürümlerinin durumunu belirtir.
+
+
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
+## Dört parametre bağımsız tanılama — 7 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 kapsamında PÇ-02 sayısal başlangıç çalıştırıldı:
+`scripts/validate_parameter_bench.py` ile beş ailede 30 bağımsız sentetik
+I/Q kaydı üretildi; ürün F5 ölçümü ve 30/30 yeniden hesaplama eşleşti.
+Bu doğruluk kabulü değildir: 24 modülasyonlu örneğin tamamında sınıf Belirsiz;
+CW taşıyıcı alanı 1/6 sonuç verdi. Geniş kuyruklu BPSK tam emisyonu ölçüm
+aralığını aşıyor. Güç hatası bu sentetik örneklerde en çok 0,189 dB;
+dBm kalibrasyonu ve canlı ölçüm sürekliliği açık. İlgili 82 yazılım testi geçti.
+Yöntem/eşik/RTL değişmedi; eski kanıtlar korunur. Ayrıntılı referans, paydalar,
+sınırlamalar ve fiziksel deney düzeni `docs/plans/PARAMETER_VALIDATION_BENCH.md`
+içindedir. Yerel rapor: `build/acceptance/parameter-bench-20260907-v1/report.json`.
+
+## Test alıcısının değişimi — 7 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0 ve KTR-4.2 test hazırlığında kullanıcı cihazları
+değiştirdi; ED_RX artık `0000000000000000a32868dc35138247` kimliğidir.
+Önceki alıcı kanıtları yeni cihaza taşınmaz. Oturum gözlemi ve açık sınırlamalar
+`docs/interfaces/SIGNAL_DETECTION_STATUS.md` içindedir; yeni kabul kanıtı oluşmadı.
+
+## PÇ-01 ölçüm arayüzü ve güncel gözlem bağı — 7 Eylül 2026
+
+Kullanıcının devam talimatıyla dört zorunlu sonuç ana görünümde ayrıldı:
+taşıyıcı frekansı, OBW %99, kalibrasyonsuz kanal gücü (dBFS) ve Analog/Sayısal.
+Emisyon merkezi, bant kenarları, SNR, gözlem süresi, hesaplama bitiş UTC zamanı
+ve kayıt yolu açılır ayrıntıdadır. Sonuç, alımın durduğu kayıtlı ölçüm olarak
+etiketlenir. Taşıyıcı bulunmadığında merkez onun yerine gösterilmez.
+
+Yeni canlı ölçüm, son işlenen kart yanıtına kadar süren dört ardışık gözlemi
+ister; geçmiş/seçim önbelleği yeni ölçüm girdisi olamaz. Yeniden alım eski
+sonucu ve aralık onayını temizler; operatör güncel tespiti yeniden seçer.
+İptal, gecikmiş çalışan sonucu yayımlamaz. Geçersiz aralık girişi önceki
+onayı kaldırır. Algoritma, eşik, RTL ve kart hizmeti değişmedi; F5 bilgisayarda.
+
+Son doğrulama: 137/137 test geçti. Main.qml 2.137, görünüm modeli 1.996
+satırla mevcut mimari sınırlar içindedir.
+
+KTR-4.2 / KTR-4.2-F1 yazılım kabul kanıtı:
+`results/evidence/phase08/parameter-workflow-v1.json` ve ZIP.
+1280×720 ve 1920×1080 görünüm kontrolleri kayıtlı I/Q ile yapılır.
+Önceki PÇ-00 kanıtı tarihsel baytlarıyla korunur; aşağıdaki 134/135 sonucu
+önceki kaynak içindir. Yeni panel ayrımı Main.qml satır sınırı bulgusunu giderir.
+ST-06, fiziksel RF doğruluğu, dBm kalibrasyonu ve ARM taşıması açıktır.
+PÇ-02 sıradaki planlı çalışma adımıdır; bu değişiklikle uygulanmadı.
+
+## PÇ-00 ölçüm kaydı uygulaması — 7 Eylül 2026
+
+Kayıt/entegrasyon doğrulamasında 134 kontrol geçti; değiştirilmemiş QML
+dosyasının 2.255/2.200 satır sınırı bir açık mimari bulgu olarak kaldı.
+Genel test paketi başarısızdır; bu tek bulgu PÇ-00 alan kayıtları, girdi
+bütünlüğü veya yeniden hesaplama testinde başarısızlık değildir.
+
+Kullanıcının uygulamaya devam talimatıyla KTR-4.2 / KTR-4.2-F1 için mevcut
+F5 ölçümüne kaynak ve I/Q bağlı kayıt eklendi. Canlı ve SigMF ürün ölçümü,
+dört normalize I/Q karesini ve alanların birim/yöntem/durum/neden bilgilerini
+ayrı ZIP'e kaydeder; kayıt başarısızsa yeni sonuç yayımlamaz. Canlı karelerde
+merkez, örnekleme, sıra ve kart yanıtı bağı ayrıca denetlenir. Profil/model
+özetleri, oturum ayarları, kanal seçici ölçeği ve bilinen kaynak özetleri
+saklanır. Donanım UTC zamanı, çalışan kart imajı ve kalibrasyon gözlenmemişse
+bilinmiyor kalır; dBm veya RF doğruluk sonucu üretilmez.
+[Kayıt ve yeniden üretim sözleşmesi](../interfaces/OPERATOR_ASSISTED_PARAMETER_CONTRACT.md) sınırları tanımlar.
+
+F5E paket denetimi mevcut iki ek logoyu açık listesine aldı; eksik model ve
+izinsiz ek dosya retleri korunur. Eski F5E/PHASE-08 kanıtları değiştirilmedi.
+Parametre satırlarını oluşturma işlevi mevcut ölçüm modülüne taşındı; görünen
+alanlar ve algoritma eşikleri değişmedi. Yeni kanıt
+`results/evidence/phase08/parameter-record-v1.json` ve ZIP içindedir.
+Bu yazılım kayıt/entegrasyon kabulüdür; yeni fiziksel kart veya RF deneyi
+değildir. ST-06 ve dört parametrenin saha doğruluğu açıktır. PÇ-01 arayüz
+sadeleştirmesi sonraki iştir; tercihli özellikler ve PHASE-09 açılmadı.
+
+## Dört zorunlu parametre kapsamı — 7 Eylül 2026
+
+Kullanıcının paylaştığı yarışma §5.1.2 metni, mevcut `KTR-4.2` / `KTR-4.2-F1`
+kimlikleri korunarak taşıyıcı frekansı, bant genişliği, güç seviyesi ve
+Analog/Sayısal ayrımına bağlanır. Tercihli alanlar sonraki kapsamdır.
+[Uygulama sırası ve alan kabul kapıları](../plans/IMPLEMENTATION_ROADMAP.md)
+PÇ-00–PÇ-05 olarak planlandı. Sayısal hedefler mühendislik önerisidir;
+paylaşılan metinde resmî hata toleransı veya güç birimi verilmemiştir.
+KTR-4.1 / ST-06 kabulü açıkken bu sınırlı parametre çalışmasına kullanıcı
+izin verdi; PHASE-09 açılmadı. Bugünkü QML ölçümü PC/F5 yoludur; ARM'da
+emisyon merkezi, OBW99 ve kanal dBFS vardır, taşıyıcı ve sınıf yoktur.
+Mevcut host C karşılaştırması geçti; 32/33 profil/arşiv/QML kontrolü geçti.
+Tek başarısızlık F5E doğrulayıcısının eski paket dosya listesidir; dBm ve
+kontrollü dört-alan RF doğruluğu ayrıca açıktır. Aşağıdaki tarihsel tamamlanma
+ifadeleri kendi sürümleriyle sınırlıdır; güncel bütün ürün kabulü sayılmaz.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 KTR-4.1 / KTR-4.1-OPS-B0: sabit frekans ve bant taraması kontrolleri ortak
@@ -623,10 +761,10 @@ Bu matris yarışma görevlerini ve genel algoritma sırasını gerçek referans
 | KTR-4.3 | 4.3 Sinyal İzleme ve Analog Dinleme | Seçilen analog yayını operatör denetiminde dinleme | PHASE-03 confirmed olay veya operatör ayarlı kanal; açık AM/NFM seçimi; bounded DDC, 129 tap kanal filtresi, 48 kHz resample, AM zarf/NFM faz-fark, 65 tap ses filtresi, mono PCM16/WAV; canlı yolda karta gönderilmiş ve yanıtı doğrulanmış host I/Q için 5,001216 saniyelik sınırlı tampon | PHASE-05 ve PHASE-08 | Deterministik AM/NFM clean ve 20 dB kapıları; bağımsız periodogram/korelasyon oracle'ı; QML tespit/ofset/BW/süre/dalga biçimi/WAV binding'i; noise-only negatif kontrol; sıra boşluğunda tampon sıfırlama ve canlı oturumu durdurup immutable pencereyi işleme yaşam döngüsü | Kısmi — AM/NFM HOST/REPLAY bağımsız doğrulandı ve QML ürün akışına bağlandı; canlı host I/Q'su için kart yanıtı bağlı sınırlı ürün yolu birim/QML testinde geçti. Kontrollü AM/NFM RF doğruluğu, fiziksel ses çıkışı ve saha kabulü yok |
 | KTR-4.4 | 4.4 Yön Bulma | Sinyal geliş yönünü yaklaşık belirleme | HackRF-1 ve uygun yönlü antenle manuel açı; açı/göreli güç/frekans/zaman/güven kaydı; açık `KUZEY / 0°` veya manuel coğrafi baş referansı ile ham maksimum LOB; yalnız geçerli sensör konumu ve açık referansla gerçek basemap üzerinde geodezik LOB sunumu | P0 Mandatory EH Core | 7 köşe fixture'ı ve estimatorü çağırmayan 15° adımlı üç yönlü anten eğitim sahnesi; bağımsız argmax, dairesel hata, 0/360 wrap, manuel referans dönüşümü, kardinal geodezik endpoint; PC konum başarı/hata ve manuel fallback Qt regresyonu | P0 model/eğitim UI ve PC/manuel konum iş akışı doğrulandı; hedef konumu çıkarımı, fiziksel anten açısı kestirimi, canlı anten/HackRF saha ölçümü ve kalibre doğruluk iddiası yok |
 | KTR-4.5 | 4.5 Konum Belirleme | Yaklaşık verici konumu çıkarma | Bilinen iki ölçüm noktasından manuel LOB doğrularını birleştirme | Sonraki fazlar | Bilinen konumlu kontrollü hedeflerle hata analizi | Uygulanmadı |
-| KTR-5.1 | 5.1 Sürekli Karıştırma | Kontrollü sürekli ET deneyi | Bilgisayar-2 üzerinde tekli, çoklu, baraj ve süpürmeli deterministik kompleks taban bant; OFFLINE/LOOPBACK; HackRF-2 TX kilitli | P0 Mandatory EH Core + ET-A offline kabulü | Tekli/çoklu spektral yapı, seeded baraj bant içi güç ve flatness, doğrusal süpürme ilerlemesi, iki kuyruklu OBW99, finite/normalizasyon ve güvenlik kilidi | ET-A host offline kapısı geçti; gerçek TX backend'i, RF güç/etki veya kapalı düzen deneyi yok |
-| KTR-5.2 | 5.2 Arabakışlı Karıştırma | Kontrollü aralıklı ET deneyi | Deterministik yerel analiz girişi üzerinde birbirini dışlayan `DİNLE → GECİKME → GÖREV → KORUMA` pencereleri; enerji eşiği, ardışık onay, histerezis, sınır kontrollü offline görev tamponu ve örnek-seviyesi çıkış maskesi; TX kilitli | ET-B offline zamanlama kabulü; RF kabulü sonraki kontrollü faz | Hedef yok/sürekli/kesintili/eşik-köşe girişleri; dinleme/görev dışlama, gecikme ve koruma sırası, görev çevrimi, maske dışı sıfır, tepe sınırı, görev frekansı ve güvenlik kilidi | ET-B host offline zamanlama kapısı geçti; gerçek zamanlı deadline/latency ölçümü, HackRF-2, RF görev çevrimi, güç/etki ve kapalı düzen spektrum kabulü uygulanmadı |
-| KTR-5.3 | 5.3 Analog Telsiz Aldatma | Kontrollü analog aldatma deneyi | 1 kHz doğrulama sesi normalizasyonu, 3 kHz bant sınırlama, AM/FM/NFM kompleks taban bant ve çıkış normalizasyonu; TX kilitli | P0 Mandatory EH Core + ET-A offline kabulü | AM zarf ve FM/NFM quadrature yerel demodülasyon korelasyonu, bant dışı ses gücü, bounded görev ve güvenlik testi | ET-A test sesi taban bant/loopback kapısı geçti; gerçek ses kaydı, mikrofon, kablolu RF ve HackRF-2 TX uygulanmadı |
-| KTR-5.4 | 5.4 GNSS Aldatma | Kontrollü GNSS aldatma deneyi | Yalnız GPS L1 C/A offline metadata: konum, açık UTC, 1–63 PRN kodu ve kaynak sözleşmesi; dalga şekli yok, TX kilitli | ET-A offline kabulü; RF kabulü sonraki kontrollü faz | Geçerli metadata; UTC ofseti, aralık dışı PRN, boş metadata kaynağı ve geçersiz konum/zaman negatifleri; sıfır örnek ve TX yokluğu | Metadata sözleşmesi doğrulandı; GNSS RF dalga şekli, ephemeris/NAV işleme, alıcı testi ve her türlü OTA/kablolu GNSS TX uygulanmadı |
+| KTR-5.1 | 5.1 Sürekli Karıştırma | Kontrollü sürekli ET deneyi | PHASE-10 öncelik istisnasında PC üzerinde tek hedef RF bandı için 8 MS/s deterministik bant sınırlı CI8; sonlu görev dosyası; seri/izin/zayıflatma/süre/TX VGA kilitli HackRF süreç sınırı | PHASE-10 Tekli Görev açık; PHASE-11 başlamadı | Tek bant spektral destek ve OBW99; CI8 uzunluğu/normalizasyon; geçersiz bant/süre; tarihli fiziksel profil negatifleri; sonlu `hackrf_transfer` argv; acil durdurma kilidi | Yazılım ve iletimsiz kapı geçti; ürün yalnız Tekli Görev'i sunuyor. ET_TX profili kapalı, cihaz bağlı değil ve TX çalıştırılmadı. Kapalı düzen spektrum, süre, normal/acil durdurma, USB kopması ve uygulama kapanması fiziksel kabulü açık |
+| KTR-5.2 | 5.2 Arabakışlı Karıştırma | Kontrollü aralıklı ET deneyi | Deterministik yerel analiz girişi üzerinde birbirini dışlayan `DİNLE → GECİKME → GÖREV → KORUMA` pencereleri; enerji eşiği, ardışık onay, histerezis, sınır kontrollü offline görev tamponu ve örnek-seviyesi çıkış maskesi; TX kilitli | ET-B offline zamanlama kabulü; RF kabulü sonraki kontrollü faz | Hedef yok/sürekli/kesintili/eşik-köşe girişleri; dinleme/görev dışlama, gecikme ve koruma sırası, görev çevrimi, maske dışı sıfır, tepe sınırı, görev frekansı ve güvenlik kilidi | ET-B host offline zamanlama kapısı geçti; gerçek zamanlı deadline/latency ölçümü, HackRF-2, RF görev çevrimi, güç/etki ve kapalı düzen spektrum kabulü uygulanmadı; 8 Eylül: çevrimdışı çalıştırma ürün dışına çıkarıldı, ürün yalnız gönderim uygulanmadı durumunu sunar |
+| KTR-5.3 | 5.3 Analog Telsiz Aldatma | Kontrollü analog aldatma deneyi | 1 kHz doğrulama sesi normalizasyonu, 3 kHz bant sınırlama, AM/FM/NFM kompleks taban bant ve çıkış normalizasyonu; TX kilitli | P0 Mandatory EH Core + ET-A offline kabulü | AM zarf ve FM/NFM quadrature yerel demodülasyon korelasyonu, bant dışı ses gücü, bounded görev ve güvenlik testi | ET-A test sesi taban bant/loopback kapısı geçti; gerçek ses kaydı, mikrofon, kablolu RF ve HackRF-2 TX uygulanmadı; 8 Eylül: çevrimdışı çalıştırma ürün dışına çıkarıldı, ürün yalnız gönderim uygulanmadı durumunu sunar |
+| KTR-5.4 | 5.4 GNSS Aldatma | Kontrollü GNSS aldatma deneyi | Yalnız GPS L1 C/A offline metadata: konum, açık UTC, 1–63 PRN kodu ve kaynak sözleşmesi; dalga şekli yok, TX kilitli | ET-A offline kabulü; RF kabulü sonraki kontrollü faz | Geçerli metadata; UTC ofseti, aralık dışı PRN, boş metadata kaynağı ve geçersiz konum/zaman negatifleri; sıfır örnek ve TX yokluğu | Metadata sözleşmesi doğrulandı; GNSS RF dalga şekli, ephemeris/NAV işleme, alıcı testi ve her türlü OTA/kablolu GNSS TX uygulanmadı; 8 Eylül: çevrimdışı çalıştırma ürün dışına çıkarıldı, ürün yalnız gönderim uygulanmadı durumunu sunar |
 | KTR-6 | 6 Simülasyon ve Test | Modelleri ve donanım uygulamasını doğrulama | Deterministik veri, PHASE-06A–J kanıtları, P0 OS-CFAR/parametre/DF/ET host modelleri ve gerçek PS↔DMA↔PL Vivado blok tasarımı | P0 Mandatory EH Core | Golden ölçümler, C eşdeğerliği, Qt binding/lifecycle, 16-bit DMA length Vivado BD/sentez/route/timing/bitstream/XSA, PetaLinux device-tree/modül/rootfs/boot derlemesi, fiziksel boot/FCLK/DMA, PHASE-07 kanal seçici/çift CRC/TCP→yerel hizmet loopback ve repository regresyonu | ADR-0037 öncesi CI8→aday-paket imajı ZedBoard'da DONE/UART/Linux, FPGA `operating`, DMA ve 54-aday bit-doğru paket kapılarını geçti. Beş karelik fiziksel servis dizisi 2-of-3 confirmation ve expiry alanlarında host oracle ile eşdeğerdir. Beş bağımsız 4.096-kare kart içi koşuda toplam 20.480 kare sıfır işlevsel hatayla işlendi; en düşük hız `508,759225230 kare/s` ve marj `1,041938893` ile 2 MS/s yerel hizmet kapısı geçti. Güncel ADR-0040 RTL/C kaynakları Vivado 50 MHz sentez/route/timing/bitstream/XSA, PetaLinux P09 kalıcı soğuk açılış ve 20.480 karelik dijital kart kabulünü geçmiştir; kör canlı RF Pd/Pfa kabulü açıktır. HackRF bounded host RX 5/5 geçti. PHASE-07 host alt kapısında 8→2 MS/s anti-alias kanal seçici, sürüm 2 çift CRC, portable C decoder ve dört derinlikli Linux ağ köprüsü loopback'i geçti. Köprünün PetaLinux kurulumu, fiziksel Ethernet ve güncel P09 kart kabulü geçti; kalibrasyon ve kör canlı RF Pd/Pfa kabulü açıktır |
 
 PHASE-08 FPGA-bağlı dayanıklılık yeniden kabulü, üstteki KTR-4.1 ve

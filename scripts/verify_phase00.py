@@ -536,6 +536,14 @@ APPROVED_PHASE08A_FILES = (
 )
 
 APPROVED_PHASE08_FILES = (
+    "app/operator_console/qml/ParameterMeasurementPanel.qml",
+    "results/evidence/phase08/parameter-workflow-v1.json",
+    "results/evidence/phase08/parameter-workflow-v1.zip",
+    "app/operator_console/measurement_record.py",
+    "tests/test_measurement_record.py",
+    "scripts/verify_parameter_record.py",
+    "results/evidence/phase08/parameter-record-v1.json",
+    "results/evidence/phase08/parameter-record-v1.zip",
     "algorithms/ps/persistent_weak_cfar.py",
     "algorithms/p0/coarse_detection.py",
     "algorithms/p0/native_channelizer.py",
@@ -1230,6 +1238,34 @@ APPROVED_ET_OFFLINE_FILES = (
     "tests/test_p0_et_verifier.py",
 )
 
+# Kullanıcı onaylı PÇ-02 tanı paketi PHASE-04/08 açık durumunu değiştirmez.
+APPROVED_PARAMETER_DIAGNOSTIC_FILES = (
+    "docs/plans/PARAMETER_VALIDATION_BENCH.md",
+    "results/evidence/phase08/parameter-diagnostic-20260908-v1.json",
+    "results/evidence/phase08/parameter-diagnostic-20260908-v1.zip",
+    "scripts/diagnose_parameter_bench.py",
+    "scripts/validate_parameter_bench.py",
+    "tests/test_parameter_bench_diagnostics.py",
+)
+
+# ADR-0041 ile açılan PHASE-10 Tekli Görev öncelik istisnası. Fiziksel profil
+# varsayılanında kapalıdır; bu allowlist RF kabulü veya PHASE-11 onayı değildir.
+APPROVED_PHASE10_SINGLE_ET_FILES = (
+    "algorithms/transmission/__init__.py",
+    "algorithms/transmission/single_band_noise.py",
+    "platforms/transmission/__init__.py",
+    "platforms/transmission/hackrf_tx.py",
+    "config/p0/hackrf_et_tx.json",
+    "docs/interfaces/ET_SINGLE_TASK_CONTRACT.md",
+    "docs/decisions/ADR-0041-PHASE10-SINGLE-ET-SAFETY.md",
+    "scripts/verify_phase10_single_et.py",
+    "tests/test_phase10_single_et.py",
+    "results/evidence/phase10/single-et-software-v1.json",
+    "results/evidence/app-f/et-single-1180x680.png",
+    "results/evidence/app-f/et-single-1280x720.png",
+    "results/evidence/app-f/et-single-1440x900.png",
+)
+
 # APP sağlamlaştırma çalışması mevcut PHASE sırasını ilerletmez.  Bu dosyalar
 # yalnız repository/ürün sınırını ve sonraki onay kapılarını tanımlar.
 APPROVED_APP_HARDENING_FILES = (
@@ -1632,6 +1668,8 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_PHASE06J_FILES)
         | set(APPROVED_P0_FILES)
         | set(APPROVED_ET_OFFLINE_FILES)
+        | set(APPROVED_PARAMETER_DIAGNOSTIC_FILES)
+        | set(APPROVED_PHASE10_SINGLE_ET_FILES)
         | set(APPROVED_APP_HARDENING_FILES)
         | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
     )
@@ -1771,7 +1809,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("algorithms", "app", "verification", "datasets", "platforms")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_PARAMETER_DIAGNOSTIC_FILES) | set(APPROVED_PHASE10_SINGLE_ET_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | {
         "algorithms/fpga/README.md",
         "algorithms/README.md",
         "verification/README.md",

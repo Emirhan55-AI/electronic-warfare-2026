@@ -1186,7 +1186,9 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "ÖLÇÜM DURUMU"; Layout.fillWidth: true }
                                 Label {
-                                    text: operatorViewModel.parameterRows.length > 0 ? "SONUÇ HAZIR"
+                                    text: operatorViewModel.parameterMeasurementActive ? "ÖLÇÜLÜYOR"
+                                          : operatorViewModel.parameterRows.length > 0 ? "SONUÇ HAZIR"
+                                          : operatorViewModel.sourceMode === "hackrf" && !operatorViewModel.liveSessionActive && operatorViewModel.selectedDetectionId >= 0 ? "ALIM DURDU"
                                           : operatorViewModel.analysisSpanConfirmed ? "ARALIK ONAYLI"
                                           : operatorViewModel.measurementSelectionReady ? "ARALIK BEKLİYOR"
                                           : "TESPİT BEKLİYOR"
@@ -1195,132 +1197,12 @@ ApplicationWindow {
                                     font.weight: Font.Bold
                                 }
                             }
-                            ScrollView {
-                                id: measurementScroll
-                                objectName: "measurementScroll"
+                            ParameterMeasurementPanel {
                                 visible: root.spectrumTaskTab === 1
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
-                                clip: true
-                                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-
-                                ColumnLayout {
-                                    width: measurementScroll.availableWidth
-                                    spacing: 9
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 5
-                                        Repeater {
-                                            model: ["1  Tespit", "2  Aralık", "3  Ölçüm"]
-                                            delegate: Rectangle {
-                                                required property string modelData
-                                                required property int index
-                                                Layout.fillWidth: true
-                                                implicitHeight: 24
-                                                radius: 3
-                                                color: (index === 0 && operatorViewModel.measurementSelectionReady)
-                                                       || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                                       || (index === 2 && operatorViewModel.parameterRows.length > 0) ? root.accentSoft : "#313131"
-                                                border.color: (index === 0 && operatorViewModel.measurementSelectionReady)
-                                                              || (index === 1 && operatorViewModel.analysisSpanConfirmed)
-                                                              || (index === 2 && operatorViewModel.parameterRows.length > 0) ? "#0078D4" : root.border
-                                                Label { anchors.centerIn: parent; text: modelData; color: parent.border.color === root.border ? root.textMuted : root.accent; font.pixelSize: 8; font.weight: Font.DemiBold }
-                                            }
-                                        }
-                                    }
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: operatorViewModel.liveSessionActive
-                                              ? "Aynı tespitin dört ardışık FPGA karesi sabitlenir; ölçüm komutu alımı güvenli biçimde durdurur."
-                                              : operatorViewModel.recordedIQReady && operatorViewModel.parameterCapabilityReady
-                                              ? "Dört ardışık gözlem ve operatör onaylı analiz aralığı kullanılır."
-                                              : "Canlı ölçüm için taramayı başlatın."
-                                        color: (operatorViewModel.liveSessionActive || operatorViewModel.recordedIQReady) && operatorViewModel.parameterCapabilityReady ? root.textSecondary : root.warning
-                                        font.pixelSize: 10
-                                        wrapMode: Text.Wrap
-                                    }
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: "Spektrum üzerinde Shift+sürükle ile aralık taslağı oluşturabilirsiniz."
-                                        color: root.accent
-                                        font.pixelSize: 9
-                                        wrapMode: Text.Wrap
-                                    }
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 6
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 2
-                                            Label { text: "Analiz alt frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
-                                            TextField {
-                                                id: analysisLowerMHz
-                                                Layout.fillWidth: true
-                                                text: operatorViewModel.analysisLowerMHzText
-                                                color: root.textPrimary
-                                                validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
-                                                Accessible.name: "Analiz alt frekansı megahertz"
-                                                background: Rectangle { color: "#313131"; border.color: analysisLowerMHz.activeFocus ? root.accent : root.border; radius: 4 }
-                                            }
-                                        }
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 2
-                                            Label { text: "Analiz üst frekansı (MHz)"; color: root.textSecondary; font.pixelSize: 9 }
-                                            TextField {
-                                                id: analysisUpperMHz
-                                                Layout.fillWidth: true
-                                                text: operatorViewModel.analysisUpperMHzText
-                                                color: root.textPrimary
-                                                validator: DoubleValidator { decimals: 6; notation: DoubleValidator.StandardNotation }
-                                                Accessible.name: "Analiz üst frekansı megahertz"
-                                                background: Rectangle { color: "#313131"; border.color: analysisUpperMHz.activeFocus ? root.accent : root.border; radius: 4 }
-                                            }
-                                        }
-                                    }
-                                    QuietButton {
-                                        Layout.fillWidth: true
-                                        text: operatorViewModel.analysisSpanConfirmed ? "Analiz Aralığı Onaylandı" : "Analiz Aralığını Onayla"
-                                        enabled: (operatorViewModel.recordedIQReady || operatorViewModel.liveSessionActive) && operatorViewModel.measurementSelectionReady && operatorViewModel.parameterCapabilityReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
-                                        onClicked: operatorViewModel.confirmAnalysisSpan(Number(analysisLowerMHz.text), Number(analysisUpperMHz.text))
-                                    }
-                                    PrimaryButton {
-                                        Layout.fillWidth: true
-                                        text: "Ölçümü Başlat"
-                                        enabled: operatorViewModel.measurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
-                                        onClicked: operatorViewModel.requestMeasurement()
-                                    }
-                                    Repeater {
-                                        model: operatorViewModel.parameterRows
-                                        delegate: RowLayout {
-                                            required property var modelData
-                                            Layout.fillWidth: true
-                                            implicitHeight: 26
-                                            Label { text: modelData.label; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                            Label { text: modelData.value; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
-                                        }
-                                    }
-                                    Label {
-                                        visible: operatorViewModel.parameterRows.length === 0
-                                        text: operatorViewModel.measurementSelectionReady
-                                              ? (operatorViewModel.analysisSpanConfirmed
-                                                 ? "Dört ardışık gözlem ve ölçüm komutu bekleniyor."
-                                                 : "Önerilen analiz aralığını doğrulayıp onaylayın.")
-                                              : "Doğrulanmış bir tespit seçin."
-                                        color: root.textSecondary
-                                        font.pixelSize: 10
-                                        wrapMode: Text.Wrap
-                                        Layout.fillWidth: true
-                                    }
-                                    Label {
-                                        text: "Sayılar kalibrasyonsuz göreli ölçümlerdir; kalite kapısı geçmeyen alanlarda sonuç gösterilmez."
-                                        color: root.textSecondary
-                                        font.pixelSize: 10
-                                        wrapMode: Text.Wrap
-                                        Layout.fillWidth: true
-                                    }
-                                }
+                                viewModel: operatorViewModel
+                                onDetectionRequested: root.spectrumTaskTab = 0
                             }
                         }
                     }
@@ -2201,18 +2083,6 @@ ApplicationWindow {
             // ET GÖREV ALANI
             ETWorkspace { shell: root }
         }
-    }
-
-    Connections {
-        target: operatorViewModel
-        function onEtChanged() {
-            if (root.operatingDomain === "ET") etResultPulse.restart()
-        }
-    }
-
-    SequentialAnimation {
-        id: etResultPulse
-        NumberAnimation { target: etResultFlash; property: "opacity"; from: 0.55; to: 0; duration: root.transitionDuration + 180; easing.type: Easing.OutCubic }
     }
 
     Component {

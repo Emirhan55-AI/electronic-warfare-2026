@@ -1,5 +1,109 @@
 # P0 Gerçek Sistem Mimarisi
 
+## PHASE-10 Tekli Görev sınırı — 8 Eylül 2026
+
+Kullanıcı onaylı ET önceliği kapsamında PC, tek hedef bant için deterministik
+CI8 görev verisini üretir ve fiziksel güvenlik profili geçerse seri kimliğe bağlı
+HackRF sürecinin sahibidir. HackRF tekrar modu kullanılmaz; dosya ve örnek sayısı
+sonludur. ZedBoard/PL bu PHASE-10 Tekli Görev yolunda bulunmaz. Bağlı cihaz ve
+kapalı RF düzeni doğrulanmadığından donanım kapısı kapalıdır.
+
+## Parametre kabul durumu ve PÇ-02 devamı — 8 Eylül 2026
+
+KTR-4.2 / KTR-4.2-F1 tamamlanmadı. Güncel kaynakla aynı 30 sentetik
+örnek tekrarlandı ve 30/30 kayıt yeniden hesaplandı; bu doğruluk kabulü
+değildir. CW taşıyıcısı 1/6, AM taşıyıcısı 2/6 geçerli; 24 modülasyonlu
+örneğin tamamı model uzaklığı kapısında Belirsiz kaldı. Sayısal dBFS
+hatası bu kümede en çok 0,189 dB; mutlak dBm kalibrasyonu açık.
+Yeni karar kapısı tanısı ve ölçüm/profil kontrolleri 22/22 geçti.
+Kanıt: `results/evidence/phase08/parameter-diagnostic-20260908-v1.json`
+ve ZIP. Ayrıntı: `docs/plans/PARAMETER_VALIDATION_BENCH.md`.
+Kullanıcı cihazların bağlı olmadığını bildirdi; fiziksel kabul yapılmadı.
+PÇ-02 sürüyor; PÇ-03–05 ve ST-06 kapanmadı. Ürün yöntemi, eşikleri,
+PC/PL/PS görev paylaşımı ve önceki kanıtlar korundu. Aşağıdaki tarihli
+kayıtlar kendi sürümlerinin durumunu belirtir.
+
+
+## ET ürününden hazır senaryoların çıkarılması — 8 Eylül 2026
+
+Kullanıcının hazır/sentetik ET gösterimlerini kaldırma talimatıyla KTR-5.1–5.4
+ürün kapsamı güncellendi. QML ET alanından hazır dalga biçimi çalıştırma,
+önceden tanımlı hedef sahneleri, otomatik test sesi ve örnek GNSS konum/UTC/PRN
+formu kaldırıldı. Görev seçimi yalnız uygulanmamış gönderim durumunu gösterir;
+ölçüm, grafik, zaman çizelgesi veya tamamlanmış görev sonucu üretmez.
+`quick_et_actions.py` artık model çalıştırma ya da GNSS doğrulama API'si sunmaz.
+`algorithms/et` ürün import ve paket sınırının dışındadır; eski konsolun ET
+mixin'i de paket dışında tutulur. HackRF gönderim yolu uygulanmamıştır.
+
+Sayısal referans modelleri, doğrulama testleri ve özgün ET-A/B/C kanıtları
+geçmiş çalışmanın yeniden üretimi için depoda korunur; güncel ürün yeteneği
+sayılmaz. Aşağıdaki eski ET-C arayüz kabulü kayıtları tarihsel kapsamındadır.
+ED kaynakları ve açık ST-06/parametre kabul kapıları bu ET düzenlemesiyle kapanmaz.
+PHASE-10–12 donanım veya RF kabulü yapılmadı. Güncel ürün sınırı
+`tests/test_operator_product_boundary.py` ve
+`tests/test_app_f_quick_product.py` içindeki ET yokluk denetimiyle sınanır.
+
+
+## PÇ-01 ölçüm arayüzü ve güncel gözlem bağı — 7 Eylül 2026
+
+Kullanıcının devam talimatıyla dört zorunlu sonuç ana görünümde ayrıldı:
+taşıyıcı frekansı, OBW %99, kalibrasyonsuz kanal gücü (dBFS) ve Analog/Sayısal.
+Emisyon merkezi, bant kenarları, SNR, gözlem süresi, hesaplama bitiş UTC zamanı
+ve kayıt yolu açılır ayrıntıdadır. Sonuç, alımın durduğu kayıtlı ölçüm olarak
+etiketlenir. Taşıyıcı bulunmadığında merkez onun yerine gösterilmez.
+
+Yeni canlı ölçüm, son işlenen kart yanıtına kadar süren dört ardışık gözlemi
+ister; geçmiş/seçim önbelleği yeni ölçüm girdisi olamaz. Yeniden alım eski
+sonucu ve aralık onayını temizler; operatör güncel tespiti yeniden seçer.
+İptal, gecikmiş çalışan sonucu yayımlamaz. Geçersiz aralık girişi önceki
+onayı kaldırır. Algoritma, eşik, RTL ve kart hizmeti değişmedi; F5 bilgisayarda.
+
+Son doğrulama: 137/137 test geçti. Main.qml 2.137, görünüm modeli 1.996
+satırla mevcut mimari sınırlar içindedir.
+
+KTR-4.2 / KTR-4.2-F1 yazılım kabul kanıtı:
+`results/evidence/phase08/parameter-workflow-v1.json` ve ZIP.
+1280×720 ve 1920×1080 görünüm kontrolleri kayıtlı I/Q ile yapılır.
+Önceki PÇ-00 kanıtı tarihsel baytlarıyla korunur; aşağıdaki 134/135 sonucu
+önceki kaynak içindir. Yeni panel ayrımı Main.qml satır sınırı bulgusunu giderir.
+ST-06, fiziksel RF doğruluğu, dBm kalibrasyonu ve ARM taşıması açıktır.
+PÇ-02 sıradaki planlı çalışma adımıdır; bu değişiklikle uygulanmadı.
+
+## PÇ-00 ölçüm kaydı uygulaması — 7 Eylül 2026
+
+Kullanıcının uygulamaya devam talimatıyla KTR-4.2 / KTR-4.2-F1 için mevcut
+F5 ölçümüne kaynak ve I/Q bağlı kayıt eklendi. Canlı ve SigMF ürün ölçümü,
+dört normalize I/Q karesini ve alanların birim/yöntem/durum/neden bilgilerini
+ayrı ZIP'e kaydeder; kayıt başarısızsa yeni sonuç yayımlamaz. Canlı karelerde
+merkez, örnekleme, sıra ve kart yanıtı bağı ayrıca denetlenir. Profil/model
+özetleri, oturum ayarları, kanal seçici ölçeği ve bilinen kaynak özetleri
+saklanır. Donanım UTC zamanı, çalışan kart imajı ve kalibrasyon gözlenmemişse
+bilinmiyor kalır; dBm veya RF doğruluk sonucu üretilmez.
+[Kayıt ve yeniden üretim sözleşmesi](../interfaces/OPERATOR_ASSISTED_PARAMETER_CONTRACT.md) sınırları tanımlar.
+
+F5E paket denetimi mevcut iki ek logoyu açık listesine aldı; eksik model ve
+izinsiz ek dosya retleri korunur. Eski F5E/PHASE-08 kanıtları değiştirilmedi.
+Parametre satırlarını oluşturma işlevi mevcut ölçüm modülüne taşındı; görünen
+alanlar ve algoritma eşikleri değişmedi. Yeni kanıt
+`results/evidence/phase08/parameter-record-v1.json` ve ZIP içindedir.
+Bu yazılım kayıt/entegrasyon kabulüdür; yeni fiziksel kart veya RF deneyi
+değildir. ST-06 ve dört parametrenin saha doğruluğu açıktır. PÇ-01 arayüz
+sadeleştirmesi sonraki iştir; tercihli özellikler ve PHASE-09 açılmadı.
+
+## Parametre ölçümünün mevcut ve hedef yerleşimi — 7 Eylül 2026
+
+Kullanıcı dört zorunlu parametre için sınırlı devam planlamasını açtı.
+Bugünkü QML yolu, karta gönderilmiş ve aynı olaya ait yanıtı doğrulanmış
+dört I/Q karesini PC'de sabitler; RX'i durdurup spektrumu ve F5 parametrelerini
+PC'de hesaplar. Kartın `p0_ed_service` parametre isteği ve ARM sayısal çekirdeği
+mevcuttur; bu QML eylemi o yolu kullanmaz. ARM çekirdeğinde emisyon merkezi,
+OBW99 ve dBFS/SNR vardır; taşıyıcı ve Analog/Sayısal ayrımı yoktur.
+Hedef, mevcut PL spektrumundan ve PS'ye gelen I/Q'dan dört alanı ARM'da
+üretmek; PC'yi alım/taşıma/arayüz/kayıt ve referans karşılaştırmasında tutmaktır.
+İlk adım yeni RTL değildir; CPU0/CPU1 tespit yüküne eklenecek maliyet ölçülür.
+[PÇ-00–PÇ-05 planı](../plans/IMPLEMENTATION_ROADMAP.md) kapsam ve kabulü tanımlar.
+Bu oturum donanım veya üretim yazılımı değiştirmedi; ST-06 açık kalır.
+
 ## Son arayüz düzenlemesi — 7 Eylül 2026
 
 PC operatör arayüzünün sabit frekans ve bant taraması görünümleri ortak sayı
@@ -438,9 +542,10 @@ değişmemiştir. Kanıt: `results/evidence/phase08/st06-product-board-diagnosti
 
 ## Bilgisayar-2 — ET
 
-Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur. P0 yazılım kabulü
-yalnız `OFFLINE` ve `LOOPBACK` modlarındadır. `CABLED_LAB` güvenlik/interlock
-kanıtı olmadan kilitlidir; gerçek TX backend'i uygulanmamıştır.
+Hedef mimaride Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur.
+Güncel ürün yalnız gönderim uygulanmadı durumunu sunar; ET modeli çalıştırmaz.
+P0 çevrimdışı/yerel döngü kabulü tarihsel referanstır. Modeller ürün dışında
+korunur; gerçek TX backend'i uygulanmamıştır.
 
 İki bilgisayar Python belleği veya süreç durumu paylaşmaz. Gelecekte görev verisi
 aktarılması gerekirse sürümlü ağ veya dosya sözleşmesi kullanılır.
