@@ -23,6 +23,7 @@ MAX_PAYLOAD_BYTES = 131_072
 MAX_RESPONSE_BYTES = 16_384
 P0_SAMPLE_RATE_HZ = 2_000_000
 P0_COMPLEX_SAMPLES = 4_096
+P0_SUPPORTED_COMPLEX_SAMPLES = (4_096, 8_192, 16_384)
 P0_PAYLOAD_BYTES = P0_COMPLEX_SAMPLES * 2
 P0_PIPELINE_DEPTH = 4
 LOCAL_ED_RESPONSE_MAGIC = 0x31534550
@@ -87,7 +88,7 @@ def decode_local_ed_response(payload: bytes, expected_frame_id: int) -> LocalEDR
     header_crc = struct.unpack_from("<I", payload, 44)[0]
     if (
         magic != LOCAL_ED_RESPONSE_MAGIC
-        or version != 3
+        or version not in (3, 4)
         or header_bytes != LOCAL_ED_RESPONSE_HEADER_BYTES
         or total_bytes != len(payload)
         or frame_id != expected_frame_id
@@ -95,7 +96,7 @@ def decode_local_ed_response(payload: bytes, expected_frame_id: int) -> LocalEDR
         or header_crc != zlib.crc32(payload[:44]) & 0xFFFFFFFF
         or any(payload[offset] != 0 for offset in range(32, 44))
     ):
-        raise TransportError("local_response_header", "Yerel kart hizmeti sürüm 3 başlığı doğrulanamadı.")
+        raise TransportError("local_response_header", "Yerel kart hizmeti kompakt yanıt başlığı doğrulanamadı.")
     result = payload[LOCAL_ED_RESPONSE_HEADER_BYTES:]
     if len(result) != result_bytes or result_bytes < 20:
         raise TransportError("local_response_length", "Yerel kart hizmeti sonuç uzunluğu geçersiz.")
@@ -200,14 +201,14 @@ class IQFrameCodec:
         if (
             frame.sample_format != "ci8"
             or frame.sample_rate_hz != P0_SAMPLE_RATE_HZ
-            or frame.complex_sample_count != P0_COMPLEX_SAMPLES
-            or len(frame.payload) != P0_PAYLOAD_BYTES
+            or frame.complex_sample_count not in P0_SUPPORTED_COMPLEX_SAMPLES
+            or len(frame.payload) != frame.complex_sample_count * 2
             or frame.chunk_index != 0
             or frame.chunk_count != 1
         ):
             raise TransportError(
                 "processing_profile_mismatch",
-                "FPGA işleme yolu tam 2 MS/s, 4096 örnek, tek parça ci8 çerçeve gerektirir.",
+                "FPGA işleme yolu 2 MS/s, 4096 örnek ile 8192/16384 seçeneklerinden birini ve tek parça ci8 çerçeveyi gerektirir.",
             )
 
 

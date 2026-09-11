@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from decimal import Decimal, InvalidOperation, ROUND_HALF_EVEN
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -21,7 +22,8 @@ from .measurement_record import RecordedMeasurement
 from algorithms.monitoring import (
     AnalogMonitorResult,
 )
-from algorithms.p0.df import ManualAmplitudeDF
+from algorithms.p0.df import FIELD_AMPLITUDE_DF_PROFILE, ManualAmplitudeDF
+from algorithms.p0.direction_client import BoardDFEstimate
 from algorithms.p0.coarse_detection import CoarseDetectionFrame
 from algorithms.parameters import (
     AnalysisSpan,
@@ -37,6 +39,9 @@ from algorithms.pipeline import (
 )
 from algorithms.spectrum import SigMFFrameSource
 from algorithms.p0.transport import TCPClientIQTransport, TransportError
+from algorithms.p0.detection_config import (
+    DetectionProfile, DetectionConfigError, exchange_profile, NORMAL_DEFAULT, WEAK_DEFAULT,
+)
 from platforms.acquisition import (
     DeviceStatus,
     HackRFBackend,
@@ -87,6 +92,7 @@ from .quick_et_actions import QuickETActionsMixin
 from .quick_listening_actions import QuickListeningActionsMixin
 from .quick_measurement_actions import QuickMeasurementActionsMixin
 from .quick_scan_actions import QuickScanActionsMixin
+from .quick_task_completion import QuickTaskCompletionMixin
 from .quick_runtime import (
     ERROR_TEXT,
     ERROR_TITLE,
@@ -134,6 +140,7 @@ OPERATOR_DEFAULT_VGA_GAIN_DB = 16
 
 class OperatorViewModel(
     QuickDetectionStateMixin,
+    QuickTaskCompletionMixin,
     QuickDirectionActionsMixin,
     QuickETActionsMixin,
     QuickListeningActionsMixin,
@@ -146,12 +153,15 @@ class OperatorViewModel(
     stateChanged = Signal()
     spectrumChanged = Signal()
     detectionsChanged = Signal()
+    surveyParameterReady = Signal()
     directionChanged = Signal()
     logChanged = Signal()
     listeningChanged = Signal()
     playbackChanged = Signal()
     pipelineChanged = Signal()
     liveReceiveSettingsChanged = Signal()
+    detectionSettingsChanged = Signal()
+    detectionProfileChanged = Signal()
 
     def __init__(
         self,
@@ -200,6 +210,8 @@ class OperatorViewModel(
         self._generation = 0
         self._closed = False
         self._busy = False
+        self._card_detection_profile = None
+        self._card_detection_message = "Etkin tespit ayarları karttan henüz okunmadı."
         self._pending_frame = False
         self._playing = False
         self._source: object | None = None
@@ -215,6 +227,10 @@ class OperatorViewModel(
         self._last_result: RuntimeFrameResult | None = None
         self._spectrum_values: list[float] = []
         self._spectral_display = SpectralDisplay(self)
+        self._detection_settings = {
+            "display_fft_size": 16384, "display_interval_frames": 15,
+            "survey_frames": 128, "survey_guard_frames": 8,
+        }
         self._spectral_display.levelsChanged.connect(self.spectrumChanged)
         self._spectrum_min_db = -120.0
         self._spectrum_max_db = 0.0
@@ -271,9 +287,11 @@ class OperatorViewModel(
         self._survey_controller = SurveyController(self, factory=survey_factory)
         self._survey_controller.preview.connect(self._survey_preview)
         self._survey_controller.finished.connect(self._survey_finished)
+        self._pending_survey_parameter_frequency_hz: int | None = None
+        self._pending_listening_frequency_hz: int | None = None
         self._pending_live_measurement: Callable[[], RecordedMeasurement] | None = None
         self._pending_live_listening: Callable[
-            [], tuple[AnalogMonitorResult, str, float, float, float]
+            [], tuple[AnalogMonitorResult, str, float, float, float, dict | None]
         ] | None = None
         self._selected_live_measurement_window: tuple[LiveEDSnapshot, ...] = ()
         self._operation_samples_ms: list[float] = []
@@ -288,21 +306,32 @@ class OperatorViewModel(
 
         self._audio_playback = AudioPlayback(self)
         self._listening_result: AnalogMonitorResult | None = None
+        self._listening_parameter_target_hz: float | None = None
+        self._listening_parameter_bandwidth_khz = 16.0
+        self._listening_parameter_record_path = ""
         self._listening_state = "Doğrulanmış bir tespit seçin."
         self._listening_rows: list[dict[str, str]] = []
         self._listening_waveform: list[float] = []
+        self._listening_observation_points: list[dict[str, float]] = []
         self._listening_short_preview = False
         self._listening_playback_state = "Ses hazırlanmadı"
         self._listening_playback_position_s = 0.0
         self._listening_playback_duration_s = 0.0
 
-        self._df = ManualAmplitudeDF()
+        self._df = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
         self._df_points: list[dict[str, str]] = []
-        self._df_status = "En az üç farklı anten açısında gerçek güç ölçümü gerekir."
+        self._df_status = "15° adımlı 24 farklı anten açısında kanal gücü gerekir."
         self._df_relative = "—"
         self._df_bearing = "—"
         self._df_reference_key: tuple[str, float | None] | None = None
         self._direction_frame_power_dbfs: float | None = None
+        self._direction_frame_frequency_hz: float | None = None
+        self._direction_frame_bandwidth_hz: float | None = None
+        self._direction_receiver_binding = ""
+        self._direction_frame_id: int | None = None
+        self._pending_direction_measurement: dict[str, object] | None = None
+        self._df_channel_span: tuple[int, int] | None = None
+        self._df_target_frequency_hz: float | None = None
 
         self._et_task = "continuous"
         self._et_status = "TX KİLİTLİ"
@@ -477,6 +506,126 @@ class OperatorViewModel(
     @Property("QVariantMap", notify=liveReceiveSettingsChanged)
     def liveReceiveSettings(self):
         return dict(self._live_receive_settings)
+
+    @Property("QVariantMap", notify=detectionSettingsChanged)
+    def detectionSettings(self):
+        return dict(self._detection_settings)
+
+    @Property("QVariantMap", notify=detectionProfileChanged)
+    def cardDetectionProfile(self):
+        profile = self._card_detection_profile
+        return {"ready": profile is not None, "message": self._card_detection_message,
+                "normal": f"{profile.alpha_q32 / (1 << 32):.10f}" if profile else "",
+                "weak": f"{profile.weak_alpha_q32 / (1 << 32):.10f}" if profile else "",
+                "generation": profile.generation if profile else 0,
+                "fftSize": profile.fft_size if profile else 4096,
+                "runtimeFftSupported": profile.runtime_fft_supported if profile else False}
+
+    def _start_detection_profile_request(self, profile=None):
+        if self._busy or self._live_session is not None or self._closed:
+            return False
+        self._generation += 1
+        generation = self._generation
+        self._active_task_kind = "detection_config"
+        self._set_busy(True, "Kart tespit ayarları doğrulanıyor…")
+        def operation():
+            try:
+                return {"profile": exchange_profile(LIVE_BOARD_HOST, LIVE_BOARD_PORT, profile=profile)}
+            except Exception as exc:
+                return {"error": str(exc) if isinstance(exc, DetectionConfigError) else "Kart tespit ayarları doğrulanamadı."}
+        task = _Task(generation, "detection_config", operation)
+        task.signals.completed.connect(self._on_detection_profile_completed)
+        self._pool.start(task)
+        return True
+
+    @Slot()
+    def refreshCardDetectionProfile(self):
+        self._start_detection_profile_request()
+
+    @Slot(str, str, result=bool)
+    def applyCardDetectionProfile(self, normal, weak):
+        fft_size = self._card_detection_profile.fft_size if self._card_detection_profile else 4096
+        return self._apply_card_detection_profile(fft_size, normal, weak)
+
+    @Slot(int, str, str, result=bool)
+    def applyCardDetectionProfileWithFFT(self, fft_size, normal, weak):
+        return self._apply_card_detection_profile(fft_size, normal, weak)
+
+    def _apply_card_detection_profile(self, fft_size, normal, weak):
+        if self._busy or self._card_detection_profile is None:
+            return False
+        try:
+            if fft_size not in (4096, 8192, 16384):
+                raise ValueError()
+            if (not self._card_detection_profile.runtime_fft_supported
+                    and fft_size != self._card_detection_profile.fft_size):
+                raise DetectionConfigError("Kart imajı çalışma zamanında FFT değişimini desteklemiyor.")
+            if (self._card_detection_profile.runtime_fft_supported
+                    and fft_size < self._card_detection_profile.fft_size):
+                raise DetectionConfigError(
+                    "Daha küçük FPGA FFT boyutu için kartı yeniden başlatın.")
+            values = [Decimal(value.strip().replace(",", ".")) for value in (normal, weak)]
+            if any(not value.is_finite() or value < 1 or value >= limit
+                   for value, limit in zip(values, (16, 4))):
+                raise ValueError()
+            quantized = [int((value * (1 << 32)).to_integral_value(rounding=ROUND_HALF_EVEN)) for value in values]
+            profile = DetectionProfile(
+                self._card_detection_profile.generation, *quantized, fft_size,
+                self._card_detection_profile.runtime_fft_supported)
+        except DetectionConfigError as exc:
+            self._card_detection_message = str(exc)
+            self.detectionProfileChanged.emit()
+            return False
+        except (InvalidOperation, ValueError):
+            self._card_detection_message = (
+                "FFT 4096, 8192 veya 16384 olmalı ve kart imajı seçimi desteklemeli. "
+                "Normal katsayı 1–16, zayıf katsayı 1–4 aralığında ve üst sınırdan "
+                "küçük olmalı; zayıf eşik normali aşamaz.")
+            self.detectionProfileChanged.emit()
+            return False
+        return self._start_detection_profile_request(profile)
+
+    @Slot(result=bool)
+    def restoreCardDetectionProfile(self):
+        if self._card_detection_profile is None:
+            return False
+        if (self._card_detection_profile.runtime_fft_supported
+                and self._card_detection_profile.fft_size > 4096):
+            self._card_detection_message = "4096 varsayılanı için kartı yeniden başlatın."
+            self.detectionProfileChanged.emit()
+            return False
+        return self._start_detection_profile_request(DetectionProfile(
+            self._card_detection_profile.generation, NORMAL_DEFAULT, WEAK_DEFAULT,
+            4096, self._card_detection_profile.runtime_fft_supported))
+
+    @Slot(int, str, object, float)
+    def _on_detection_profile_completed(self, generation, kind, result, elapsed):
+        if generation != self._generation or self._closed:
+            return
+        self._card_detection_profile = result.get("profile")
+        self._card_detection_message = result.get("error", "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.")
+        self._active_task_kind = ""
+        self._set_busy(False, self._card_detection_message)
+        self.detectionProfileChanged.emit()
+
+    @Slot(int, int, int, int, result=bool)
+    def setDetectionSettings(self, fft_size, interval, survey_frames, guard_frames):
+        if self._busy or self._live_session is not None:
+            return False
+        if any(isinstance(value, bool) or not isinstance(value, int)
+               for value in (fft_size, interval, survey_frames, guard_frames)):
+            return False
+        if (fft_size not in (4096, 8192, 16384) or interval not in (8, 15, 32, 64)
+                or survey_frames not in (64, 128, 256, 512)
+                or guard_frames not in (8, 16, 32)
+                or guard_frames >= survey_frames - 3):
+            return False
+        self._detection_settings = {
+            "display_fft_size": fft_size, "display_interval_frames": interval,
+            "survey_frames": survey_frames, "survey_guard_frames": guard_frames,
+        }
+        self.detectionSettingsChanged.emit()
+        return True
 
     @Property(float, notify=stateChanged)
     def sampleRateHz(self) -> float:
@@ -691,6 +840,7 @@ class OperatorViewModel(
         selected = self._selected_detection_item()
         if (
             session is None
+            or self._live_fpga_fft_size() != 4096
             or selected is None
             or not self.selectedDetectionCurrent
             or not bool(selected.get("confirmed", selected["stateKey"] == "confirmed"))
@@ -906,7 +1056,12 @@ class OperatorViewModel(
     def directionStatusText(self) -> str:
         return {
             "LOB HAZIR": "Tek istasyon radyo kerterizi hazır",
-            "YETERSİZ AÇI": "En az üç farklı anten açısı gerekli",
+            "YETERSİZ AÇI": "15° adımlı 24 anten açısı gerekli",
+            "YETERSİZ AÇI KAPSAMI": "Açı ölçümleri 360° çevreyi kapsamıyor",
+            "YETERSİZ TEKRAR": "Her açı için ek güç ölçümü gerekli",
+            "ALICI AYARI DEĞİŞTİ": "Alıcı ayarları ölçüm sırasında değişti",
+            "HEDEF FREKANSI DEĞİŞTİ": "Aynı RF kaynağı izlenemedi",
+            "ÖN/ARKA BELİRSİZ": "Anten ön ve arka yönü ayıramadı",
             "BELİRSİZ MAKSİMUM": "Güç maksimumu ayrıştırılamadı",
         }.get(self._df_status, self._df_status)
 
@@ -924,12 +1079,12 @@ class OperatorViewModel(
 
     @Property(float, notify=directionChanged)
     def directionProgress(self) -> float:
-        return min(1.0, self.directionDistinctAngleCount / 3.0)
+        return min(1.0, self.directionDistinctAngleCount / 24.0)
 
     @Property(str, notify=directionChanged)
     def directionRequirementText(self) -> str:
         count = self.directionDistinctAngleCount
-        return f"{count}/3 farklı açı · {self.directionMeasurementCount} ölçüm"
+        return f"{count}/24 farklı açı · {self.directionMeasurementCount} ölçüm"
 
     @Property(str, notify=directionChanged)
     def directionReferenceText(self) -> str:
@@ -952,8 +1107,44 @@ class OperatorViewModel(
 
     @Property(str, notify=spectrumChanged)
     def directionFramePowerText(self) -> str:
+        if self._source_mode == "hackrf" and self.selectedDetectionReady:
+            return "4 FPGA karesi"
         power = self._direction_frame_power_dbfs
         return "—" if power is None else f"{power:.2f} dBFS"
+
+    @Property(bool, notify=stateChanged)
+    def directionMeasurementReady(self) -> bool:
+        if self._source_mode == "hackrf":
+            return bool(
+                self.measurementSelectionReady
+                and self._analysis_span_draft is not None
+                and self._live_session is not None
+            )
+        return bool(
+            self.selectedDetectionReady
+            and self._direction_frame_power_dbfs is not None
+            and self._direction_frame_frequency_hz is not None
+            and self._direction_frame_bandwidth_hz is not None
+        )
+
+    @Property(str, notify=spectrumChanged)
+    def directionTargetText(self) -> str:
+        frequency_hz = self._direction_frame_frequency_hz
+        bandwidth_hz = self._direction_frame_bandwidth_hz
+        if self._source_mode == "hackrf":
+            selected = self._selected_detection_item()
+            if selected is not None:
+                frequency_hz = self._df_target_frequency_hz or float(selected["frequencyHz"])
+                span = self._df_channel_span or self._analysis_span_draft
+                if span is not None:
+                    bandwidth_hz = (span[1] - span[0] + 1) * self.sampleRateHz / 4096.0
+        if frequency_hz is None or bandwidth_hz is None:
+            return "Doğrulanmış bir tespit seçin"
+        return (
+            f"{self._format_frequency(frequency_hz)} · "
+            f"{self._format_rate(bandwidth_hz)} kanal"
+        )
+
 
     @Property(str, notify=detectionsChanged)
     def listeningDetectionTitle(self) -> str:
@@ -967,6 +1158,25 @@ class OperatorViewModel(
     def selectedDetectionOffsetKHz(self) -> float:
         selected = self._selected_detection_item()
         return float(selected["offsetKHz"]) if selected is not None else 0.0
+
+    @Property(float, notify=detectionsChanged)
+    def listeningSuggestedOffsetKHz(self) -> float:
+        if self._listening_parameter_target_hz is not None and self.centerFrequencyHz > 0.0:
+            return (self._listening_parameter_target_hz - self.centerFrequencyHz) / 1_000.0
+        return self.selectedDetectionOffsetKHz
+
+    @Property(float, notify=detectionsChanged)
+    def listeningSuggestedBandwidthKHz(self) -> float:
+        return self._listening_parameter_bandwidth_khz
+
+    @Property(str, notify=listeningChanged)
+    def listeningParameterBasisText(self) -> str:
+        if self._listening_parameter_target_hz is None:
+            return ""
+        return (
+            f"Parametre ölçümü · {self._format_frequency(self._listening_parameter_target_hz)} · "
+            f"OBW {self._format_rate(self._listening_parameter_bandwidth_khz * 1_000.0)}"
+        )
 
     @Property(bool, notify=listeningChanged)
     def listeningReady(self) -> bool:
@@ -1018,6 +1228,10 @@ class OperatorViewModel(
     @Property("QVariantList", notify=listeningChanged)
     def listeningWaveform(self) -> list[float]:
         return self._listening_waveform
+
+    @Property("QVariantList", notify=listeningChanged)
+    def listeningObservationPoints(self) -> list[dict[str, float]]:
+        return self._listening_observation_points
 
     @Property(str, notify=playbackChanged)
     def listeningPlaybackState(self) -> str:
@@ -1076,6 +1290,8 @@ class OperatorViewModel(
             if mode == "sigmf"
             else "Önce yapılandırılmış alıcıyı denetleyin."
         )
+        self._pending_listening_frequency_hz = None
+        self._clear_listening_parameter_basis()
         self._clear_results()
         self.stateChanged.emit()
 
@@ -1145,8 +1361,22 @@ class OperatorViewModel(
             self._busy and self._active_task_kind in {"listening", "measurement"}
         ):
             return
-        if not any(int(item["eventId"]) == event_id for item in self._detections):
+        selected_row = next(
+            (item for item in self._detections if int(item["eventId"]) == event_id), None
+        )
+        if selected_row is None:
             return
+        if event_id != self._selected_detection_id:
+            target_hz = self._pending_listening_frequency_hz
+            preserves_handoff = bool(
+                target_hz is not None
+                and float(selected_row.get("lowerFrequencyHz", selected_row["frequencyHz"])) - 50_000.0
+                <= target_hz
+                <= float(selected_row.get("upperFrequencyHz", selected_row["frequencyHz"])) + 50_000.0
+            )
+            if not preserves_handoff:
+                self._pending_listening_frequency_hz = None
+                self._clear_listening_parameter_basis()
         if event_id != self._selected_detection_id:
             self._clear_listening("Seçili kanal değişti; dinlemeyi yeniden hazırlayın.")
         self._selected_detection_id = event_id
@@ -1160,6 +1390,9 @@ class OperatorViewModel(
         self._parameter_rows = []
         self._analysis_span = None
         self._prepare_analysis_span_draft(event_id)
+        if self._last_result is not None:
+            self._set_direction_channel_power(self._last_result.spectrum)
+            self.spectrumChanged.emit()
         self.detectionsChanged.emit()
         self.stateChanged.emit()
 
@@ -1176,6 +1409,8 @@ class OperatorViewModel(
             self._busy and self._active_task_kind in {"listening", "measurement"}
         ):
             return
+        if self._pending_listening_frequency_hz is None:
+            self._clear_listening_parameter_basis()
         self._selected_detection_id = -1
         self._selected_live_detection = None
         self._selected_live_measurement_window = ()
@@ -1236,11 +1471,14 @@ class OperatorViewModel(
             prepared = prepared.take()
         if generation != self._generation or self._live_session is None or prepared is None:
             return
+        display_spectrum = None
         if len(prepared) == 3:
             preview, spectrum, processing_ms = prepared
         else:
             # Compatibility with older/injected live-task fixtures.
             preview, spectrum, _coarse, processing_ms = prepared
+            if isinstance(_coarse, type(spectrum)):
+                display_spectrum = _coarse
         if not isinstance(preview, LiveEDPreview) or preview.sequence_number < self._frame_index:
             return
         self._operation_samples_ms.append(processing_ms)
@@ -1251,7 +1489,7 @@ class OperatorViewModel(
         self._live_received_at = preview.received_monotonic
         self._live_age_ms = (time.perf_counter() - self._live_received_at) * 1000
         self._source_state = "Çalışıyor"
-        self._update_spectrum_result(spectrum)
+        self._update_spectrum_result(spectrum, display_spectrum=display_spectrum)
         if first_preview:
             self._start_next_fixed_verification()
         if first_preview:
@@ -1327,6 +1565,11 @@ class OperatorViewModel(
             self._status_message = f"RX önizleme tamamlandı · {result.completed_frames} kare. FPGA tespiti yapılmadı."
         self._add_log("Canlı ED", self._status_message)
         self._refresh_live_detection_list(force=True)
+        if self._pending_listening_frequency_hz is not None:
+            self._pending_listening_frequency_hz = None
+            self._clear_listening_parameter_basis()
+            self._status_message = "Ölçülen sinyal dinleme için yeniden bulunamadı."
+            self._add_log("Dinleme", self._status_message)
         self.pipelineChanged.emit()
         self.stateChanged.emit()
         self._start_pending_live_task()
@@ -1386,6 +1629,8 @@ class OperatorViewModel(
         else:
             self._pending_live_measurement = None
             self._pending_live_listening = None
+            self._pending_listening_frequency_hz = None
+            self._clear_listening_parameter_basis()
             self._measurement_requested = False
             if code in READINESS_INVALIDATING_LIVE_ERRORS:
                 self._hackrf_ready = False
@@ -1400,222 +1645,6 @@ class OperatorViewModel(
         self.stateChanged.emit()
         if code == "operation_cancelled":
             self._start_pending_live_task()
-
-    @Slot(int, str, object, float)
-    def _task_completed(self, generation: int, kind: str, result: object, elapsed: float) -> None:
-        self._busy = False
-        self._active_task_kind = ""
-        if generation != self._generation:
-            if hasattr(result, "close"):
-                result.close()  # type: ignore[attr-defined]
-            if kind != "frame":
-                self.pipelineChanged.emit()
-            self.stateChanged.emit()
-            return
-        if kind == "fixed_verify":
-            if not isinstance(result, FixedBandVerification):
-                self._show_error("fixed_verification_result", "Sabit bant doğrulama sonucu geçersiz.")
-                self.stateChanged.emit()
-                return
-            record = self._fixed_verification_record(result.candidate.frequency_hz)
-            if record is not None:
-                record.update(state=result.state, result=result)
-            resume = self._fixed_resume_settings
-            preserved = [self._apply_fixed_verification(row) for row in self._fixed_preserved_history]
-            self._fixed_verification_candidate = None
-            self._fixed_verifier = None
-            self._fixed_verification_stop_requested = False
-            self._fixed_resume_settings = None
-            self._fixed_preserved_history = []
-            if resume is None:
-                self._show_error("fixed_verification_resume", "Sabit bant görünümü yeniden başlatılamadı.")
-                self.stateChanged.emit()
-                return
-            center_hz = resume["center_hz"]
-            self._status_message = (
-                (
-                    "Aday FPGA tarafından iki alıcı ayarında yeniden görüldü; görünüm sürdürülüyor."
-                    if result.verification_method == "fpga"
-                    else "Aday alıcı spektrumunda iki fiziksel ayarda yeniden görüldü; FPGA görünümü sürdürülüyor."
-                )
-                if result.verified else
-                "Aday ikinci ayarlarda yeniden görülmedi; önceki görünüm sürdürülüyor."
-            )
-            self._add_log("Sabit bant doğrulama", self._status_message)
-            self.startLiveEDSession(
-                center_hz,
-                resume["lna_db"],
-                resume["vga_db"],
-                resume["frame_count"],
-                preserve_fixed_context=True,
-            )
-            if self._live_session is not None:
-                self._live_detection_history = preserved
-                self._refresh_live_detection_list(force=True)
-            return
-        if kind == "open":
-            self._install_source(result, Path(getattr(result, "metadata_path")).name)
-        elif kind == "probe":
-            inventory, device, fpga_ready, fpga_reason = result  # type: ignore[misc]
-            self._apply_probe(inventory, device, fpga_ready, fpga_reason)
-        elif kind == "frame":
-            if not isinstance(result, RuntimeFrameResult):
-                self._show_error("processing_failed", "İşleme sonucu sözleşmeyle eşleşmedi.")
-                return
-            self._operation_samples_ms.append(elapsed * 1000.0)
-            self._operation_samples_ms = self._operation_samples_ms[-256:]
-            self._last_result = result
-            self._update_spectrum(result)
-            self._update_detections(result)
-            self._status_message = f"Kare {self._frame_index + 1}/{self._frame_count} işlendi."
-            if self._pending_frame:
-                self._pending_frame = False
-                self._advance()
-        elif kind == "measurement":
-            self._measurement_requested = False
-            if not isinstance(result, RecordedMeasurement) or self._parameter_capability is None:
-                self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
-                return
-            self._measurement_record_path = str(result.path)
-            self._measurement_info = {"completedUtc": result.completed_utc, "durationMs": result.observation_duration_s * 1000.0}
-            self._add_log("Parametre kaydı", f"{result.path} · SHA-256 {result.sha256}")
-            result = result.result
-            if result.persistent_payload_bytes > self._parameter_capability.maximum_persistent_payload_bytes:
-                self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
-                return
-            self._parameter_rows = self._f5_parameter_rows(result)
-            self._status_message = f"Tespit #{self._selected_detection_id} parametre ölçümü tamamlandı."
-            self._add_log("Parametre", self._status_message)
-            self.detectionsChanged.emit()
-        elif kind == "listening":
-            if not isinstance(result, tuple) or len(result) != 5 or not isinstance(result[0], AnalogMonitorResult):
-                self._show_error("insufficient_audio", "Dinleme sonucu sözleşmeyle eşleşmedi.")
-                return
-            listening, scope, input_duration, offset_hz, bandwidth_hz = result
-            self._listening_result = listening
-            self._audio_playback.load(listening.pcm16)
-            self._playback_timer.stop()
-            self._listening_playback_position_s = 0.0
-            self._listening_playback_duration_s = self._audio_playback.duration_seconds
-            self._listening_playback_state = "Oynatmaya hazır"
-            self._listening_short_preview = float(input_duration) < LIVE_AUDIO_WINDOW_SECONDS
-            audio_duration = listening.audio.size / listening.sample_rate_hz
-            channel_frequency = self.centerFrequencyHz + float(offset_hz)
-            self._listening_rows = [
-                {"label": "Demodülasyon", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
-                {"label": "Kanal merkez frekansı", "value": self._format_frequency(channel_frequency)},
-                {"label": "Kanal bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
-                {"label": "Giriş kapsamı", "value": f"{scope} · {float(input_duration):.3f} s"},
-                {"label": "Ses çıkışı", "value": "48 kHz · mono PCM16"},
-                {"label": "Üretilen ses süresi", "value": f"{audio_duration:.3f} s"},
-                {"label": "Baskın ses bileşeni", "value": self._format_rate(listening.dominant_tone_hz)},
-            ]
-            waveform_points = min(720, listening.audio.size)
-            indices = np.linspace(0, listening.audio.size - 1, waveform_points, dtype=np.int64)
-            self._listening_waveform = [float(listening.audio[index]) for index in indices]
-            self._listening_state = (
-                "Kısa önizleme hazır; kesintisiz dinleme kabulü için en az 5 saniyelik kayıt gerekir."
-                if self._listening_short_preview
-                else "Kesintisiz kanal sesi hazır."
-            )
-            self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
-            self._add_log("Dinleme", self._status_message)
-            self.playbackChanged.emit()
-            self.listeningChanged.emit()
-        elif kind == "wav_export":
-            self._status_message = f"WAV kaydedildi: {Path(str(result)).name}"
-            self._listening_state = self._status_message
-            self._add_log("Dinleme", self._status_message)
-            self.listeningChanged.emit()
-        elif kind == "et_tx":
-            self._et_transmitting = False
-            if not isinstance(result, TxRunResult):
-                self._et_status = "HATA"
-                self._et_result_title = "Gönderim sonucu geçersiz"
-                self._et_result_detail = "HackRF süreç sonucu sözleşmeyle eşleşmedi."
-            else:
-                self._et_status = result.status
-                self._et_result_title = (
-                    "Tekli görev tamamlandı"
-                    if result.status == "TAMAMLANDI"
-                    else "Tekli görev durduruldu"
-                )
-                self._et_result_detail = f"{result.stop_reason} · süreç kodu {result.return_code}"
-                self._et_metric_rows = [
-                    {"label": "Başlangıç UTC", "value": result.started_at_utc},
-                    {"label": "Bitiş UTC", "value": result.finished_at_utc},
-                    {"label": "Örnek sayısı", "value": str(result.sample_count)},
-                    {"label": "Durdurma nedeni", "value": result.stop_reason},
-                ]
-                self._add_log("ET Tekli Görev", self._et_result_detail)
-            self.etChanged.emit()
-        if kind != "frame":
-            self.pipelineChanged.emit()
-        self.stateChanged.emit()
-
-    @Slot(int, str, str)
-    def _task_failed(self, generation: int, code: str, detail: str) -> None:
-        self._busy = False
-        task_kind = self._active_task_kind
-        self._active_task_kind = ""
-        if generation == self._generation:
-            if task_kind == "et_tx":
-                from .quick_et_actions import ET_ERROR_TEXT
-
-                self._et_transmitting = False
-                self._et_status = "HATA"
-                self._et_result_title = "Tekli görev tamamlanamadı"
-                self._et_result_detail = ET_ERROR_TEXT.get(
-                    code, f"Gönderim süreci başarısız oldu ({code})."
-                )
-                self._add_log("ET Tekli Görev", self._et_result_detail)
-                self.etChanged.emit()
-                self.pipelineChanged.emit()
-                self.stateChanged.emit()
-                return
-            if task_kind == "fixed_verify":
-                candidate = self._fixed_verification_candidate
-                resume = self._fixed_resume_settings
-                if candidate is not None:
-                    record = self._fixed_verification_record(candidate.frequency_hz)
-                    if record is not None:
-                        record.update(state="verification_error", result=None)
-                stopped = self._fixed_verification_stop_requested or self._closed
-                self._fixed_verification_candidate = None
-                self._fixed_verifier = None
-                self._fixed_verification_stop_requested = False
-                self._fixed_resume_settings = None
-                self._fixed_preserved_history = []
-                if stopped and code == "operation_cancelled":
-                    self._source_state = "Hazır" if self._live_has_data else "Kullanılmıyor"
-                    self._status_message = "Sabit frekans taraması durduruldu."
-                elif resume is not None and not self._closed:
-                    self._add_log(
-                        "Sabit bant doğrulama",
-                        "İkinci alıcı ayarı tamamlanamadı; ana görünüm yeniden başlatılıyor.",
-                    )
-                    self.startLiveEDSession(
-                        resume["center_hz"],
-                        resume["lna_db"],
-                        resume["vga_db"],
-                        resume["frame_count"],
-                        preserve_fixed_context=True,
-                    )
-                else:
-                    self._show_error(code, detail)
-                self.pipelineChanged.emit()
-                self.stateChanged.emit()
-                return
-            if task_kind == "measurement":
-                self._measurement_requested = False
-            if task_kind in {"listening", "wav_export"}:
-                self._listening_state = ERROR_TEXT.get(code, f"Dinleme işlemi tamamlanamadı ({code}).")
-                self._add_log("Dinleme", self._listening_state)
-                self.listeningChanged.emit()
-            else:
-                self._show_error(code, detail)
-        self.pipelineChanged.emit()
-        self.stateChanged.emit()
 
     def _request_frame(self) -> None:
         if self._source is None:
@@ -1743,21 +1772,6 @@ class OperatorViewModel(
         self.pipelineChanged.emit()
         self.stateChanged.emit()
 
-    def _clear_listening(self, message: str) -> None:
-        self._playback_timer.stop()
-        self._audio_playback.stop()
-        self._listening_result = None
-        self._listening_rows = []
-        self._listening_waveform = []
-        self._listening_short_preview = False
-        self._listening_state = message
-        self._listening_playback_state = "Ses hazırlanmadı"
-        self._listening_playback_position_s = 0.0
-        self._listening_playback_duration_s = 0.0
-        self.playbackChanged.emit()
-        self.listeningChanged.emit()
-        self.pipelineChanged.emit()
-
     def _close_source(self) -> None:
         source, self._source = self._source, None
         if source is not None and hasattr(source, "close"):
@@ -1807,6 +1821,7 @@ class OperatorViewModel(
             self._listening_playback_position_s = self._listening_playback_duration_s
             self._listening_playback_state = "Oynatma tamamlandı"
         self.playbackChanged.emit()
+
 
     @staticmethod
     def _format_frequency(value: float) -> str:
@@ -1955,6 +1970,7 @@ class OperatorViewModel(
             "endBin": int(event.region.end_bin),
             "peakBin": int(event.region.peak_bin),
         }.get(field)
+
 
     @staticmethod
     def _normalized_shifted_bin(value: int) -> float:

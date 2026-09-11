@@ -35,7 +35,7 @@ from scripts.verify_st06_wideband_c import (
 )
 
 
-DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-stream-v3.json"
+DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-stream-v4.json"
 SEQUENCES_PER_SCENE = 8
 FRAMES_PER_STREAM = 16
 
@@ -278,7 +278,7 @@ def evaluate() -> dict[str, Any]:
         "scripts/verify_st06_wideband_stream.py",
     )
     return {
-        "schema": "phase08-st06-wideband-stream-v3",
+        "schema": "phase08-st06-wideband-stream-v4",
         "status": "passed" if passed else "failed",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "transmit_enabled": False,
@@ -297,7 +297,7 @@ def evaluate() -> dict[str, Any]:
         "invalid_update_transaction_checks": invalid_transaction_checks,
         "records": records,
         "source_sha256": {name: _sha256(ROOT / name) for name in sources},
-        "supersedes": "results/evidence/phase08/st06-wideband-stream-v2.json",
+        "supersedes": "results/evidence/phase08/st06-wideband-stream-v3.json",
         "claim_boundary": [
             "This verifies a bounded eight-frame sliding C state and reset/error lifecycle on synthetic host data.",
             "Frame order inside the ring is irrelevant because the selected detector uses commutative frame means and occupancy counts.",

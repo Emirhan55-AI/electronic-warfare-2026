@@ -20,7 +20,7 @@ from scripts.verify_st06_wideband_c import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE = ROOT / "results/evidence/phase08/st06-wideband-c-equivalence-v3.json"
+EVIDENCE = ROOT / "results/evidence/phase08/st06-wideband-c-equivalence-v5.json"
 
 
 def _load(path: Path) -> dict:
@@ -30,7 +30,7 @@ def _load(path: Path) -> dict:
 def test_st06_evidence_is_source_bound_and_keeps_hardware_acceptance_open() -> None:
     evidence = _load(EVIDENCE)
 
-    assert evidence["schema"] == "phase08-st06-wideband-c-equivalence-v3"
+    assert evidence["schema"] == "phase08-st06-wideband-c-equivalence-v5"
     assert evidence["status"] == "passed"
     assert evidence["st06_c_ps_reference_complete"] is True
     assert evidence["st06_complete"] is False
@@ -38,7 +38,7 @@ def test_st06_evidence_is_source_bound_and_keeps_hardware_acceptance_open() -> N
     assert evidence["rtl_implementation_present"] is False
     assert evidence["product_algorithm_changed"] is False
     assert evidence["transmit_enabled"] is False
-    assert evidence["supersedes"] == "results/evidence/phase08/st06-wideband-c-equivalence-v2.json"
+    assert evidence["supersedes"] == "results/evidence/phase08/st06-wideband-c-equivalence-v4.json"
     for relative, expected in evidence["source_sha256"].items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == expected
 

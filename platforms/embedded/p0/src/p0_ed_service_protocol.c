@@ -48,6 +48,69 @@ static double load_le_double(const uint8_t *source)
     return value;
 }
 
+int p0_detection_message_decode(const uint8_t *bytes, size_t size, int response,
+                                 p0_detection_message_t *message)
+{
+    uint16_t version;
+    uint32_t wire_fft_size;
+    int has_profile;
+
+    if (bytes == NULL || message == NULL || size != P0_DETECTION_MESSAGE_BYTES ||
+        memcmp(bytes, response ? "P0DR" : "P0DC", 4U) != 0 ||
+        load_le16(bytes + 6) != P0_DETECTION_MESSAGE_BYTES ||
+        load_le32(bytes + 44) != p0_ed_crc32(bytes, 44U))
+        return -1;
+    version = load_le16(bytes + 4);
+    wire_fft_size = load_le32(bytes + 40);
+    if (version != 1U && version != 2U)
+        return -1;
+    message->protocol_version = version;
+    message->operation = load_le32(bytes + 8);
+    message->request_id = load_le32(bytes + 12);
+    message->status = load_le32(bytes + 16);
+    message->generation = load_le32(bytes + 20);
+    message->alpha_q32 = load_le64(bytes + 24);
+    message->weak_alpha_q32 = load_le64(bytes + 32);
+    if ((message->operation != P0_DETECTION_GET && message->operation != P0_DETECTION_SET) ||
+        message->status > P0_DETECTION_INTERNAL || (!response && message->status != 0U))
+        return -1;
+    has_profile = (!response && message->operation == P0_DETECTION_SET) ||
+                  (response && message->status == P0_DETECTION_OK);
+    if (!has_profile) {
+        if (message->generation || message->alpha_q32 || message->weak_alpha_q32 ||
+            wire_fft_size != 0U) return -1;
+        message->fft_size = 0U;
+    } else if (message->alpha_q32 < (UINT64_C(1) << 32) ||
+               message->alpha_q32 >= (UINT64_C(1) << 36) ||
+               message->weak_alpha_q32 < (UINT64_C(1) << 32) ||
+               message->weak_alpha_q32 >= (UINT64_C(1) << 34) ||
+               message->weak_alpha_q32 > message->alpha_q32 ||
+               (version == 1U && wire_fft_size != 0U) ||
+               (version == 2U && wire_fft_size != 4096U &&
+                wire_fft_size != 8192U && wire_fft_size != 16384U)) return -1;
+    else
+        message->fft_size = version == 1U ? 4096U : wire_fft_size;
+    return 0;
+}
+
+int p0_detection_message_encode(const p0_detection_message_t *message, int response,
+                                 uint8_t bytes[P0_DETECTION_MESSAGE_BYTES])
+{
+    p0_detection_message_t checked;
+    if (message == NULL || bytes == NULL) return -1;
+    memset(bytes, 0, P0_DETECTION_MESSAGE_BYTES);
+    memcpy(bytes, response ? "P0DR" : "P0DC", 4U);
+    store_le16(bytes + 4, message->protocol_version == 2U ? 2U : 1U);
+    store_le16(bytes + 6, P0_DETECTION_MESSAGE_BYTES);
+    store_le32(bytes + 8, message->operation); store_le32(bytes + 12, message->request_id);
+    store_le32(bytes + 16, message->status); store_le32(bytes + 20, message->generation);
+    store_le64(bytes + 24, message->alpha_q32); store_le64(bytes + 32, message->weak_alpha_q32);
+    if (message->protocol_version == 2U)
+        store_le32(bytes + 40, message->fft_size);
+    store_le32(bytes + 44, p0_ed_crc32(bytes, 44U));
+    return p0_detection_message_decode(bytes, P0_DETECTION_MESSAGE_BYTES, response, &checked);
+}
+
 static void store_le_double(uint8_t *target, double value)
 {
     uint64_t bits;
@@ -585,6 +648,180 @@ static int parameter_result_valid(const p0_parameter_result_t *result)
            parameter_field_valid(&result->snr_estimate_db);
 }
 
+int p0_parameter_batch_decode(const uint8_t *bytes, size_t size,
+                              p0_parameter_batch_request_t *request)
+{
+    unsigned int width;
+    if (bytes == NULL || request == NULL || size != P0_PARAMETER_BATCH_REQUEST_BYTES ||
+        memcmp(bytes, "P0PM", 4U) != 0 || load_le16(bytes + 4U) != 1U ||
+        load_le16(bytes + 6U) != P0_PARAMETER_BATCH_HEADER_BYTES ||
+        load_le32(bytes + 44U) != 0U || load_le32(bytes + 48U) != 0U ||
+        load_le32(bytes + 52U) != 0U || load_le32(bytes + 56U) != 0U ||
+        load_le32(bytes + 60U) != p0_ed_crc32(bytes, 60U) ||
+        load_le32(bytes + 40U) != p0_ed_crc32(bytes + 64U, 32768U)) return -1;
+    memset(request, 0, sizeof(*request));
+    request->token = load_le32(bytes + 8U);
+    request->first_frame_id = load_le32(bytes + 12U);
+    request->sample_rate_hz = load_le32(bytes + 16U);
+    request->center_frequency_hz = (int64_t)load_le64(bytes + 20U);
+    request->event_id = load_le64(bytes + 28U);
+    request->lower_bin = load_le16(bytes + 36U);
+    request->upper_bin = load_le16(bytes + 38U);
+    request->iq_crc32 = load_le32(bytes + 40U);
+    request->iq = bytes + 64U;
+    width = (unsigned int)request->upper_bin - request->lower_bin + 1U;
+    if (request->token == 0U || request->event_id == 0U || request->sample_rate_hz == 0U ||
+        request->sample_rate_hz > 20000000U || request->first_frame_id > UINT32_MAX - 3U ||
+        request->lower_bin < 56U || request->upper_bin > 4039U ||
+        request->lower_bin > request->upper_bin || width < 8U || width > 512U) return -1;
+    return 0;
+}
+
+int p0_parameter_batch_response_encode(const p0_parameter_batch_request_t *request,
+    uint32_t status, uint32_t elapsed_us, uint32_t generation,
+    const p0_parameter_result_t *result, uint8_t *bytes)
+{
+    if (request == NULL || bytes == NULL || status > 5U) return -1;
+    if (status == 0U && (result == NULL || !parameter_result_valid(result) ||
+        result->observation_count != 4U || result->frame_id != request->first_frame_id + 3U ||
+        result->intent_id != request->token || result->event_id != request->event_id ||
+        result->carrier_line_frequency_hz.state > P0_PARAMETER_FIELD_NOT_OBSERVED ||
+        result->carrier_line_frequency_hz.reason > P0_PARAMETER_REASON_CARRIER_LOW_SNR ||
+        !isfinite(result->carrier_line_frequency_hz.value) ||
+        (result->carrier_line_frequency_hz.state == P0_PARAMETER_FIELD_VALID &&
+         result->carrier_line_frequency_hz.reason != P0_PARAMETER_REASON_NONE))) return -1;
+    memset(bytes, 0, P0_PARAMETER_BATCH_RESPONSE_BYTES);
+    memcpy(bytes, "P0PR", 4U);
+    store_le16(bytes + 4U, 1U);
+    store_le16(bytes + 6U, P0_PARAMETER_BATCH_RESPONSE_BYTES);
+    store_le32(bytes + 8U, request->token);
+    store_le32(bytes + 12U, status);
+    if (status == 0U) {
+        encode_parameter_result(bytes + 16U, result);
+        encode_parameter_field(bytes + 144U, &result->carrier_line_frequency_hz);
+        store_le32(bytes + 156U, elapsed_us);
+        store_le32(bytes + 160U, request->iq_crc32);
+        store_le32(bytes + 164U, generation);
+        store_le32(bytes + 168U, 4096U);
+    }
+    store_le32(bytes + 172U, p0_ed_crc32(bytes, 172U));
+    return 0;
+}
+
+int p0_parameter_batch_response_check(const uint8_t *bytes, size_t size, uint32_t token)
+{
+    return bytes != NULL && size == P0_PARAMETER_BATCH_RESPONSE_BYTES &&
+        memcmp(bytes, "P0PR", 4U) == 0 && load_le16(bytes + 4U) == 1U &&
+        load_le16(bytes + 6U) == size && load_le32(bytes + 8U) == token &&
+        load_le32(bytes + 12U) <= 5U &&
+        load_le32(bytes + 172U) == p0_ed_crc32(bytes, 172U) ? 0 : -1;
+}
+
+int p0_df_batch_decode(const uint8_t *bytes, size_t size,
+                       p0_df_batch_request_t *request)
+{
+    uint32_t count;
+    size_t index;
+    if (bytes == NULL || request == NULL || size != P0_DF_BATCH_REQUEST_BYTES ||
+        memcmp(bytes, "P0DF", 4U) != 0 || load_le16(bytes + 4U) != 1U ||
+        load_le16(bytes + 6U) != P0_DF_BATCH_HEADER_BYTES ||
+        load_le32(bytes + 8U) != P0_DF_BATCH_REQUEST_BYTES ||
+        load_le32(bytes + 12U) == 0U || load_le32(bytes + 24U) != 0U ||
+        load_le32(bytes + 20U) !=
+            p0_ed_crc32(bytes + P0_DF_BATCH_HEADER_BYTES,
+                        P0_DF_BATCH_REQUEST_BYTES - P0_DF_BATCH_HEADER_BYTES) ||
+        load_le32(bytes + 28U) != p0_ed_crc32(bytes, 28U))
+        return -1;
+    count = load_le32(bytes + 16U);
+    if (count == 0U || count > P0_DF_MAX_MEASUREMENTS)
+        return -1;
+    memset(request, 0, sizeof(*request));
+    request->token = load_le32(bytes + 12U);
+    request->measurement_count = count;
+    for (index = 0U; index < count; ++index) {
+        const uint8_t *source = bytes + P0_DF_BATCH_HEADER_BYTES +
+                                index * P0_DF_BATCH_MEASUREMENT_BYTES;
+        p0_df_measurement_t *target = &request->measurements[index];
+        target->angle_deg = load_le_double(source + 0U);
+        target->relative_power_db = load_le_double(source + 8U);
+        target->frequency_hz = load_le_double(source + 16U);
+        target->confidence = load_le_double(source + 24U);
+        target->power_spread_db = load_le_double(source + 32U);
+        target->observation_count = load_le32(source + 40U);
+        target->frame_id = load_le32(source + 44U);
+        target->channel_bandwidth_hz = load_le_double(source + 48U);
+        target->receiver_binding_hash = load_le64(source + 56U);
+        target->channel_bandwidth_valid = 1U;
+        target->receiver_binding_valid = 1U;
+        target->frame_id_valid = 1U;
+    }
+    for (index = P0_DF_BATCH_HEADER_BYTES +
+                 (size_t)count * P0_DF_BATCH_MEASUREMENT_BYTES;
+         index < P0_DF_BATCH_REQUEST_BYTES; ++index) {
+        if (bytes[index] != 0U)
+            return -1;
+    }
+    return 0;
+}
+
+int p0_df_batch_response_encode(const p0_df_batch_request_t *request,
+                                uint32_t service_status,
+                                const p0_df_result_t *result,
+                                uint8_t *bytes)
+{
+    uint32_t flags = 0U;
+    if (request == NULL || bytes == NULL ||
+        service_status > P0_DF_BATCH_COMPUTATION_FAILED ||
+        (service_status == P0_DF_BATCH_OK && result == NULL))
+        return -1;
+    memset(bytes, 0, P0_DF_BATCH_RESPONSE_BYTES);
+    memcpy(bytes, "P0FR", 4U);
+    store_le16(bytes + 4U, 1U);
+    store_le16(bytes + 6U, P0_DF_BATCH_RESPONSE_BYTES);
+    store_le32(bytes + 8U, request->token);
+    store_le32(bytes + 12U, service_status);
+    if (service_status == P0_DF_BATCH_OK) {
+        if (result->status > P0_DF_STATUS_LOB_READY ||
+            !isfinite(result->raw_maximum_angle_deg) ||
+            !isfinite(result->estimated_angle_deg) ||
+            !isfinite(result->peak_power_db) || !isfinite(result->confidence) ||
+            !isfinite(result->maximum_angular_gap_deg) ||
+            !isfinite(result->peak_prominence_db) ||
+            (result->front_to_back_valid && !isfinite(result->front_to_back_db)) ||
+            (result->angular_sampling_rms_valid &&
+             !isfinite(result->angular_sampling_rms_deg)))
+            return -1;
+        if (result->front_to_back_valid) flags |= 1U;
+        if (result->angular_sampling_rms_valid) flags |= 2U;
+        store_le32(bytes + 16U, (uint32_t)result->status);
+        store_le32(bytes + 20U, result->measurement_count);
+        store_le32(bytes + 24U, result->distinct_angle_count);
+        store_le32(bytes + 28U, flags);
+        store_le_double(bytes + 32U, result->raw_maximum_angle_deg);
+        store_le_double(bytes + 40U, result->estimated_angle_deg);
+        store_le_double(bytes + 48U, result->peak_power_db);
+        store_le_double(bytes + 56U, result->confidence);
+        store_le_double(bytes + 64U, result->maximum_angular_gap_deg);
+        store_le_double(bytes + 72U, result->peak_prominence_db);
+        if (result->front_to_back_valid)
+            store_le_double(bytes + 80U, result->front_to_back_db);
+        if (result->angular_sampling_rms_valid)
+            store_le_double(bytes + 88U, result->angular_sampling_rms_deg);
+    }
+    store_le32(bytes + 100U, p0_ed_crc32(bytes, 100U));
+    return 0;
+}
+
+int p0_df_batch_response_check(const uint8_t *bytes, size_t size, uint32_t token)
+{
+    return bytes != NULL && size == P0_DF_BATCH_RESPONSE_BYTES &&
+        memcmp(bytes, "P0FR", 4U) == 0 && load_le16(bytes + 4U) == 1U &&
+        load_le16(bytes + 6U) == P0_DF_BATCH_RESPONSE_BYTES &&
+        load_le32(bytes + 8U) == token &&
+        load_le32(bytes + 12U) <= P0_DF_BATCH_COMPUTATION_FAILED &&
+        load_le32(bytes + 100U) == p0_ed_crc32(bytes, 100U) ? 0 : -1;
+}
+
 int p0_ed_request_encode(uint32_t frame_id, uint32_t flags, const uint8_t *iq,
                          size_t iq_bytes, uint8_t *message, size_t capacity)
 {
@@ -624,6 +861,34 @@ int p0_ed_request_encode_compact(uint32_t frame_id, uint32_t flags,
     store_le32(message + 24U, 0U);
     store_le32(message + 28U, p0_ed_crc32(message, 28U));
     memcpy(message + P0_ED_REQUEST_HEADER_BYTES_V3, iq, iq_bytes);
+    return 0;
+}
+
+static int runtime_iq_bytes_valid(size_t iq_bytes)
+{
+    return iq_bytes == 8192U || iq_bytes == 16384U || iq_bytes == 32768U;
+}
+
+int p0_ed_request_encode_runtime(uint32_t frame_id, uint32_t flags,
+                                 const uint8_t *iq, size_t iq_bytes,
+                                 uint8_t *message, size_t capacity)
+{
+    size_t total = P0_ED_REQUEST_HEADER_BYTES_V4 + iq_bytes;
+
+    if (iq == NULL || message == NULL || !runtime_iq_bytes_valid(iq_bytes) ||
+        capacity < total || (flags & ~P0_ED_REQUEST_FLAGS_V4_ALLOWED) != 0U)
+        return -1;
+    memset(message, 0, P0_ED_REQUEST_HEADER_BYTES_V4);
+    store_le32(message + 0U, P0_ED_REQUEST_MAGIC);
+    store_le16(message + 4U, P0_ED_SERVICE_ABI_VERSION_V4);
+    store_le16(message + 6U, P0_ED_REQUEST_HEADER_BYTES_V4);
+    store_le32(message + 8U, (uint32_t)total);
+    store_le32(message + 12U, frame_id);
+    store_le32(message + 16U, (uint32_t)iq_bytes);
+    store_le32(message + 20U, flags);
+    store_le32(message + 24U, 0U);
+    store_le32(message + 28U, p0_ed_crc32(message, 28U));
+    memcpy(message + P0_ED_REQUEST_HEADER_BYTES_V4, iq, iq_bytes);
     return 0;
 }
 
@@ -699,6 +964,21 @@ int p0_ed_request_decode(const uint8_t *message, size_t message_bytes,
                            : P0_ED_REQUEST_FLAGS_V3_ALLOWED)) != 0U)
             return -1;
         request->iq = message + P0_ED_REQUEST_HEADER_BYTES_V1;
+        request->iq_bytes = P0_ED_IQ_FRAME_BYTES;
+    } else if (version == P0_ED_SERVICE_ABI_VERSION_V4) {
+        uint32_t iq_bytes = load_le32(message + 16U);
+        if (!runtime_iq_bytes_valid(iq_bytes) ||
+            load_le16(message + 6U) != P0_ED_REQUEST_HEADER_BYTES_V4 ||
+            load_le32(message + 8U) != P0_ED_REQUEST_HEADER_BYTES_V4 + iq_bytes ||
+            message_bytes != P0_ED_REQUEST_HEADER_BYTES_V4 + (size_t)iq_bytes ||
+            load_le32(message + 24U) != 0U ||
+            load_le32(message + 28U) != p0_ed_crc32(message, 28U))
+            return -1;
+        flags = load_le32(message + 20U);
+        if ((flags & ~P0_ED_REQUEST_FLAGS_V4_ALLOWED) != 0U)
+            return -1;
+        request->iq = message + P0_ED_REQUEST_HEADER_BYTES_V4;
+        request->iq_bytes = iq_bytes;
     } else if (version == P0_ED_SERVICE_ABI_VERSION_V2) {
         if (message_bytes != P0_ED_REQUEST_BYTES_V2 ||
             load_le16(message + 6U) != P0_ED_REQUEST_HEADER_BYTES_V2 ||
@@ -742,6 +1022,7 @@ int p0_ed_request_decode(const uint8_t *message, size_t message_bytes,
             return -1;
         }
         request->iq = message + P0_ED_REQUEST_HEADER_BYTES_V2;
+        request->iq_bytes = P0_ED_IQ_FRAME_BYTES;
     } else {
         return -1;
     }
@@ -766,7 +1047,8 @@ int p0_ed_response_encode(const p0_ed_response_t *response, uint8_t *message,
                                            response->abi_version;
     if (version != P0_ED_SERVICE_ABI_VERSION_V1 &&
         version != P0_ED_SERVICE_ABI_VERSION_V2 &&
-        version != P0_ED_SERVICE_ABI_VERSION_V3)
+        version != P0_ED_SERVICE_ABI_VERSION_V3 &&
+        version != P0_ED_SERVICE_ABI_VERSION_V4)
         return -1;
     if (version != P0_ED_SERVICE_ABI_VERSION_V2 && response->parameter_present != 0U)
         return -1;
@@ -774,7 +1056,8 @@ int p0_ed_response_encode(const p0_ed_response_t *response, uint8_t *message,
                        ? P0_ED_RESPONSE_HEADER_BYTES_V2
                        : P0_ED_RESPONSE_HEADER_BYTES_V1;
     result_bytes = response->status == P0_ED_SERVICE_OK
-                       ? (uint32_t)(version == P0_ED_SERVICE_ABI_VERSION_V3
+                       ? (uint32_t)((version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+                                    version == P0_ED_SERVICE_ABI_VERSION_V4)
                                         ? compact_result_bytes(&response->result)
                                         : P0_ED_RESULT_BYTES)
                        : 0U;
@@ -804,11 +1087,13 @@ int p0_ed_response_encode(const p0_ed_response_t *response, uint8_t *message,
     store_le32(message + 24U, response->raw_candidate_count);
     store_le32(message + 28U, response->dma_status_flags);
     if (result_bytes != 0U) {
-        if (version == P0_ED_SERVICE_ABI_VERSION_V3)
+        if (version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+            version == P0_ED_SERVICE_ABI_VERSION_V4)
             encode_result_compact(message + header_bytes, &response->result);
         else
             encode_result(message + header_bytes, &response->result);
-        if (version != P0_ED_SERVICE_ABI_VERSION_V3)
+        if (version != P0_ED_SERVICE_ABI_VERSION_V3 &&
+            version != P0_ED_SERVICE_ABI_VERSION_V4)
             store_le32(message + 32U,
                        p0_ed_crc32(message + header_bytes, result_bytes));
     }
@@ -845,7 +1130,8 @@ int p0_ed_response_decode(const uint8_t *message, size_t message_bytes,
         return -1;
     version = load_le16(message + 4U);
     if (version == P0_ED_SERVICE_ABI_VERSION_V1 ||
-        version == P0_ED_SERVICE_ABI_VERSION_V3) {
+        version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+        version == P0_ED_SERVICE_ABI_VERSION_V4) {
         header_bytes = P0_ED_RESPONSE_HEADER_BYTES_V1;
         if (load_le16(message + 6U) != header_bytes ||
             load_le32(message + 8U) != message_bytes ||
@@ -884,17 +1170,21 @@ int p0_ed_response_decode(const uint8_t *message, size_t message_bytes,
                        message_bytes == header_bytes && load_le32(message + 32U) == 0U
                    ? 0 : -1;
     if ((version != P0_ED_SERVICE_ABI_VERSION_V3 &&
+         version != P0_ED_SERVICE_ABI_VERSION_V4 &&
          result_bytes != P0_ED_RESULT_BYTES) ||
-        (version == P0_ED_SERVICE_ABI_VERSION_V3 &&
+        ((version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+          version == P0_ED_SERVICE_ABI_VERSION_V4) &&
          (result_bytes < P0_ED_RESULT_HEADER_BYTES ||
           result_bytes > P0_ED_RESULT_BYTES)) ||
         message_bytes != header_bytes + result_bytes + parameter_bytes ||
-        (version == P0_ED_SERVICE_ABI_VERSION_V3
+        ((version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+          version == P0_ED_SERVICE_ABI_VERSION_V4)
              ? load_le32(message + 32U) != 0U
              : load_le32(message + 32U) !=
                    p0_ed_crc32(message + header_bytes, result_bytes)))
         return -1;
-    if ((version == P0_ED_SERVICE_ABI_VERSION_V3
+    if (((version == P0_ED_SERVICE_ABI_VERSION_V3 ||
+          version == P0_ED_SERVICE_ABI_VERSION_V4)
              ? decode_result_compact(message + header_bytes, result_bytes,
                                      &response->result)
              : decode_result(message + header_bytes, &response->result)) != 0 ||

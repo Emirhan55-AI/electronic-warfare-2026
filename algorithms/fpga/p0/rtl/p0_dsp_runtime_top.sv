@@ -1,4 +1,6 @@
-module p0_dsp_runtime_top (
+module p0_dsp_runtime_top #(
+  parameter bit RUNTIME_CONFIG = 1'b0
+) (
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 aclk CLK" *)
   (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME aclk, ASSOCIATED_BUSIF S_AXIS:M_AXIS, ASSOCIATED_RESET aresetn, FREQ_HZ 50000000" *)
   input  logic        aclk,
@@ -22,9 +24,23 @@ module p0_dsp_runtime_top (
   output logic        configuration_done,
   output logic [5:0]  status_events_sticky,
   output logic        input_keep_error_sticky,
-  output logic        detector_frame_error_sticky
+  output logic        detector_frame_error_sticky,
+  input logic         hold_input,
+  output logic        pipeline_idle,
+  input logic         config_valid,
+  output logic        config_ready,
+  input logic [35:0]  config_alpha_q32,
+  input logic [33:0]  config_weak_alpha_q32,
+  output logic        config_applied,
+  output logic        config_rejected,
+  output logic [35:0] active_alpha_q32,
+  output logic [33:0] active_weak_alpha_q32
 );
   logic        hann_valid;
+  logic        input_ready;
+  logic        input_enabled;
+  logic        input_in_frame;
+  logic        frame_in_flight;
   logic        hann_ready;
   logic [31:0] hann_data;
   logic        hann_last;
@@ -62,13 +78,33 @@ module p0_dsp_runtime_top (
   logic        fft_event_data_in_channel_halt;
   logic        fft_event_data_out_channel_halt;
 
+  // Configurable mode serializes frames through the complete DSP pipeline.
+  // Once a frame starts, a hold request must not truncate its remaining I/Q.
+  assign pipeline_idle = !frame_in_flight && !input_in_frame;
+  assign input_enabled = !RUNTIME_CONFIG || input_in_frame ||
+                         (!frame_in_flight && !hold_input && !config_valid);
+  assign s_axis_tready = input_ready && input_enabled;
+  always_ff @(posedge aclk) begin
+    if (!aresetn) begin
+      input_in_frame <= 1'b0;
+      frame_in_flight <= 1'b0;
+    end else begin
+      if (m_axis_tvalid && m_axis_tready && m_axis_tlast)
+        frame_in_flight <= 1'b0;
+      if (s_axis_tvalid && s_axis_tready) begin
+        input_in_frame <= !s_axis_tlast;
+        frame_in_flight <= 1'b1;
+      end
+    end
+  end
+
   axis_hann_window #(
     .COEFFICIENT_FILE("hann-coefficients.mem")
   ) hann (
     .aclk(aclk),
     .aresetn(aresetn),
-    .s_axis_tvalid(s_axis_tvalid),
-    .s_axis_tready(s_axis_tready),
+    .s_axis_tvalid(s_axis_tvalid && input_enabled),
+    .s_axis_tready(input_ready),
     .s_axis_tdata(s_axis_tdata),
     .s_axis_tlast(s_axis_tlast),
     .m_axis_tvalid(hann_valid),
@@ -135,7 +171,7 @@ module p0_dsp_runtime_top (
     .m_axis_tdata(power_data), .m_axis_tlast(power_last), .m_axis_tuser_index(power_index)
   );
 
-  axis_p0_os_cfar detector (
+  axis_p0_os_cfar #(.RUNTIME_CONFIG(RUNTIME_CONFIG)) detector (
     .aclk(aclk), .aresetn(aresetn),
     .s_axis_tvalid(power_valid), .s_axis_tready(power_ready),
     .s_axis_tdata(power_data), .s_axis_tlast(power_last),
@@ -143,7 +179,11 @@ module p0_dsp_runtime_top (
     .m_axis_tvalid(detector_valid), .m_axis_tready(m_axis_tready),
     .m_axis_tdata(detector_data), .m_axis_tlast(detector_last),
     .m_axis_tuser_index(detector_index),
-    .status_frame_error_sticky(detector_frame_error_sticky)
+    .status_frame_error_sticky(detector_frame_error_sticky),
+    .config_valid(config_valid), .config_ready(config_ready),
+    .config_alpha_q32(config_alpha_q32), .config_weak_alpha_q32(config_weak_alpha_q32),
+    .config_applied(config_applied), .config_rejected(config_rejected),
+    .active_alpha_q32(active_alpha_q32), .active_weak_alpha_q32(active_weak_alpha_q32)
   );
 
   assign m_axis_tvalid = detector_valid;

@@ -1,0 +1,51 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "am32_failed_low_snr",
+  "operator_play_confirmation": null,
+  "source_family_support": "1699,22 Hz zarf tonu hazırlanan 1700 Hz AM dosyasıyla uyumlu.",
+  "receiver_gain_db": 32,
+  "usb_overruns": 0,
+  "settled_rail_components": 0,
+  "envelope_peak_hz": 1699.21875,
+  "classification": {
+    "Belirsiz": 10
+  },
+  "snr_db": [
+    -9.085482841842536,
+    -3.26368546016596,
+    -4.002850143355696,
+    -2.507461712046694,
+    -0.4010869584440257,
+    -0.35752986436705,
+    0.42215690029710035,
+    0.43114225936401357,
+    -0.17980064303229137,
+    0.702531392075326
+  ],
+  "comparison": "RX 32/32 dB, RX 24/24 dB koşusuna göre aday SNR sonucunu iyileştirmedi.",
+  "product_acceptance": false,
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "teknofest-rx-newport-off32-20260909/capture.json": "38f01de43c0dcae56885eaf697930c3adb528f478bea360dae0eaf820de3aa0d",
+    "teknofest-rx-newport-off32-20260909/rx.ci8": "79626256409192669165ed562523f14fed8da46939171e2ed39c0fa720888e72",
+    "teknofest-rx-newport-off32-20260909/transfer.log": "d0e9a2472c49b49a9dbf01ed50dbdb9ca6d7f133138a67e5db9fd4a74a0150be",
+    "teknofest-rx-newport-am32-20260909/activity.json": "0e5e65fc593dba7f4635948c48c2dcf0580513f3d8673371dac1b86baccc50a1",
+    "teknofest-rx-newport-am32-20260909/am-analysis.json": "a047b5715573908fb3a5e2f6ba30776939958549898007b94546bd98100aa8b3",
+    "teknofest-rx-newport-am32-20260909/capture.json": "11a47f23bf2c22dac93bfa51f3bb96897c8d4375175346ce8d932066210dd447",
+    "teknofest-rx-newport-am32-20260909/rx.ci8": "beb06a57c2f23baff511a8f75ce2573843448232ba771e06bf0ad5382d41ee3f",
+    "teknofest-rx-newport-am32-20260909/transfer.log": "5d199dbf2ebfc950080efbb686c25b3ecd1118f9bd34538bee9827ff93ea41d4",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "scripts/analyze_replay_am.py": "d81268fcfd4d435b3e4f262f665f7978f295ad9c60a159eba40ced9b749e5699",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6"
+  },
+  "limits": [
+    "Tek fiziksel kaydın on penceresi bağımsız koşular değildir.",
+    "Play basışına ait operatör yanıtı kayda ulaşmadı; kaynak ailesi zarf tonuyla desteklenir.",
+    "PC adayıdır; ürün F5, ARM ve FPGA kullanılmadı."
+  ]
+}

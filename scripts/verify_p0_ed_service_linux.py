@@ -28,6 +28,7 @@ SOURCE_PATHS = {
     "p0_ed_service_protocol.c": P0 / "src/p0_ed_service_protocol.c",
     "p0_ed_pipeline.c": P0 / "src/p0_ed_pipeline.c",
     "p0_parameter_runtime.c": P0 / "src/p0_parameter_runtime.c",
+    "p0_amplitude_df.c": P0 / "src/p0_amplitude_df.c",
     "p0_ed_client.c": P0 / "src/p0_ed_client.c",
     "p0_ed_throughput_run.c": P0 / "src/p0_ed_throughput_run.c",
     "p0_multiscale_detector.c": P0 / "src/p0_multiscale_detector.c",
@@ -69,7 +70,7 @@ def _run_as_nobody(command: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(command, capture_output=True, text=True, check=False, preexec_fn=demote)
 
 
-def verify() -> dict[str, object]:
+def verify(*, weak_power_path: bool = False) -> dict[str, object]:
     if os.name != "posix" or os.geteuid() != 0:
         raise RuntimeError("this acceptance requires a root Linux host")
     cc = shutil.which("cc") or shutil.which("gcc")
@@ -95,6 +96,7 @@ def verify() -> dict[str, object]:
             [
                 ROOT / "tests/p0/p0_ed_fake_dma_runtime.c",
                 P0 / "src/p0_parameter_runtime.c",
+                P0 / "src/p0_amplitude_df.c",
                 P0 / "src/p0_ed_pipeline.c",
                 P0 / "src/p0_ed_service_protocol.c",
                 P0 / "src/p0_ed_service.c",
@@ -185,6 +187,39 @@ def verify() -> dict[str, object]:
             )
             if malformed.returncode == 0 or (output_directory / "must-not-exist.json").exists():
                 raise AssertionError("invalid input was accepted or published")
+
+            if weak_power_path:
+                weak_input = directory / "weak.ci8"
+                weak_off = directory / "weak-off.ci8"
+                weak_input.write_bytes(bytes([0x55]) + bytes(8191))
+                weak_off.write_bytes(bytes([0x56]) + bytes(8191))
+                weak_input.chmod(0o644)
+                weak_off.chmod(0o644)
+                weak_frames = []
+                for index in range(80):
+                    output = output_directory / f"weak-{index}.json"
+                    command = [str(client), str(100 + index),
+                               str(weak_input if index < 40 else weak_off), str(output)]
+                    if index == 0:
+                        command.append("--reset")
+                    command.append(str(socket_path))
+                    run = _run_as_nobody(command)
+                    if run.returncode:
+                        raise RuntimeError(run.stderr)
+                    weak_frames.append(json.loads(output.read_text(encoding="utf-8")))
+                if any(frame["active_count"] for frame in weak_frames[:31]):
+                    raise AssertionError("weak event emitted before the 32-frame observation window")
+                if any(frame["active_count"] != 1 for frame in weak_frames[31:48]):
+                    raise AssertionError("persistent weak event missing")
+                on_event = weak_frames[39]["active"][0]
+                off_event = weak_frames[40]["active"][0]
+                if (on_event["peak_power_uq28_30"] != 500 << 30
+                        or not on_event["observed_this_frame"]
+                        or off_event["peak_power_uq28_30"] != 100 << 30
+                        or off_event["observed_this_frame"]
+                        or off_event["last_seen_frame_id"] != 139
+                        or any(frame["active_count"] for frame in weak_frames[48:])):
+                    raise AssertionError("weak power/last-seen/expiry fields are inconsistent")
 
             reset_output = output_directory / "parameter-reset.json"
             reset = _run_as_nobody(
@@ -277,6 +312,16 @@ def verify() -> dict[str, object]:
         "parameter_numeric_fields_valid": True,
         "throughput_client_frames": 64,
         "throughput_client_status": throughput_result["status"],
+        **({"weak_power_service_frames": 80, "weak_power_service_status": "passed",
+            "weak_power_first_confirmation_offset": 31,
+            "weak_power_first_ended_offset": 48,
+            "weak_power_source_sha256": {
+                path.relative_to(ROOT).as_posix(): _sha256(path)
+                for path in [*SOURCE_PATHS.values(), *ACCEPTANCE_SOURCE_PATHS.values(),
+                             *(P0 / "include").glob("*.h"),
+                             *(P06I / "include").glob("*.h"),
+                             *(P06J / "include").glob("*.h")]
+            }} if weak_power_path else {}),
     }
 
 

@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 
-module axis_p0_os_cfar (
+module axis_p0_os_cfar #(
+  parameter bit RUNTIME_CONFIG = 1'b0
+) (
   input  logic        aclk,
   input  logic        aresetn,
 
@@ -16,7 +18,16 @@ module axis_p0_os_cfar (
   output logic        m_axis_tlast,
   output logic [11:0] m_axis_tuser_index,
 
-  output logic        status_frame_error_sticky
+  output logic        status_frame_error_sticky,
+
+  input logic         config_valid,
+  output logic        config_ready,
+  input logic [35:0]  config_alpha_q32,
+  input logic [33:0]  config_weak_alpha_q32,
+  output logic       config_applied,
+  output logic       config_rejected,
+  output logic [35:0] active_alpha_q32,
+  output logic [33:0] active_weak_alpha_q32
 );
   import p0_os_cfar_pkg::*;
 
@@ -41,10 +52,37 @@ module axis_p0_os_cfar (
   } state_t;
 
   state_t state;
+  logic [11:0] expected_input_index;
+  // Data wins an idle-cycle collision. A configuration cannot split a frame.
+  assign config_ready = aresetn && RUNTIME_CONFIG && state == ST_COLLECT &&
+                        expected_input_index == 0 && !s_axis_tvalid;
+  always_ff @(posedge aclk) begin
+    if (!aresetn) begin
+      active_alpha_q32 <= ALPHA_Q32;
+      active_weak_alpha_q32 <= WEAK_ALPHA_Q32;
+      config_applied <= 1'b0;
+      config_rejected <= 1'b0;
+    end else begin
+      config_applied <= 1'b0;
+      config_rejected <= 1'b0;
+      if (config_valid && config_ready) begin
+        // Bounds reflect the multiplier widths, not RF performance acceptance.
+        if (config_alpha_q32 >= 36'd4294967296 &&
+            config_weak_alpha_q32 >= 34'd4294967296 &&
+            {2'b00, config_weak_alpha_q32} <= config_alpha_q32) begin
+          active_alpha_q32 <= config_alpha_q32;
+          active_weak_alpha_q32 <= config_weak_alpha_q32;
+          config_applied <= 1'b1;
+        end else begin
+          config_rejected <= 1'b1;
+        end
+      end
+    end
+  end
   (* ram_style = "block" *) logic [57:0] frame_memory [0:FRAME_LENGTH-1];
-  (* ram_style = "distributed" *) logic [1:0] metadata_memory [0:FRAME_LENGTH-1];
+  (* ram_style = "distributed" *) logic [2:0] metadata_memory [0:FRAME_LENGTH-1];
   logic [57:0] frame_read_data;
-  logic [1:0] metadata_read_data;
+  logic [2:0] metadata_read_data;
 
   logic [57:0] window [0:40];
   logic [57:0] left_sorted [0:15];
@@ -56,7 +94,6 @@ module axis_p0_os_cfar (
   logic [57:0] left_update_next [0:15];
   logic [57:0] right_update_next [0:15];
 
-  logic [11:0] expected_input_index;
   logic [5:0] init_index;
   logic [11:0] read_shifted_index;
   logic [11:0] cut_shifted_index;
@@ -95,6 +132,7 @@ module axis_p0_os_cfar (
   logic rank_step_found;
   logic [57:0] rank_value;
   logic [93:0] rank_product_registered;
+  logic [91:0] weak_rank_product_registered;
   logic [89:0] cut_scaled;
 
   integer init_scan_index;
@@ -108,7 +146,8 @@ module axis_p0_os_cfar (
   assign s_axis_tready = state == ST_COLLECT || state == ST_RESYNC;
   assign m_axis_tvalid = state == ST_OUTPUT_PRESENT;
   assign m_axis_tdata = {
-    OUTPUT_MARKER,
+    OUTPUT_MARKER[3:1],
+    metadata_read_data[2],
     metadata_read_data[1],
     metadata_read_data[0],
     frame_read_data
@@ -245,7 +284,7 @@ module axis_p0_os_cfar (
       cut_shifted_index <= 12'd0;
       output_index <= 12'd0;
       frame_read_data <= 58'd0;
-      metadata_read_data <= 2'd0;
+      metadata_read_data <= 3'd0;
       init_left_position <= 5'd16;
       init_right_position <= 5'd16;
       left_remove_index <= 4'd0;
@@ -258,6 +297,7 @@ module axis_p0_os_cfar (
       rank_partition_i <= 5'd12;
       rank_value <= 58'd0;
       rank_product_registered <= 94'd0;
+      weak_rank_product_registered <= 92'd0;
       status_frame_error_sticky <= 1'b0;
       for (sequential_index = 0; sequential_index < 41; sequential_index = sequential_index + 1)
         window[sequential_index] <= 58'd0;
@@ -283,7 +323,7 @@ module axis_p0_os_cfar (
                 state <= ST_RESYNC;
             end else begin
               frame_memory[expected_input_index] <= s_axis_tdata;
-              metadata_memory[expected_input_index ^ 12'h800] <= 2'b00;
+              metadata_memory[expected_input_index ^ 12'h800] <= 3'b000;
               if (expected_input_index == 12'd4095) begin
                 expected_input_index <= 12'd0;
                 state <= ST_INIT_RESET;
@@ -365,12 +405,14 @@ module axis_p0_os_cfar (
         end
 
         ST_MULTIPLY: begin
-          rank_product_registered <= rank_value * ALPHA_Q32;
+          rank_product_registered <= rank_value * (RUNTIME_CONFIG ? active_alpha_q32 : ALPHA_Q32);
+          weak_rank_product_registered <= rank_value * (RUNTIME_CONFIG ? active_weak_alpha_q32 : WEAK_ALPHA_Q32);
           state <= ST_DECIDE;
         end
 
         ST_DECIDE: begin
           metadata_memory[cut_shifted_index] <= {
+            {2'b00, cut_scaled} > weak_rank_product_registered,
             {{4{1'b0}}, cut_scaled} > rank_product_registered,
             1'b1
           };

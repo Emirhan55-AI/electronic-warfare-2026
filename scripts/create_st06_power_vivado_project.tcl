@@ -3,6 +3,10 @@ set repository_root [file normalize [file join $script_directory ..]]
 set build_root [file normalize [file join $repository_root build p0 vivado]]
 set allowed_root [file normalize [file join $repository_root build p0]]
 set isolated_build 0
+set runtime_config 0
+if {[info exists ::env(P0_RUNTIME_CONFIG)] && $::env(P0_RUNTIME_CONFIG) eq "1"} {
+  set runtime_config 1
+}
 if {![info exists ::env(P0_BUILD_VARIANT)] || $::env(P0_BUILD_VARIANT) eq ""} {
   error "ST-06 power build requires a unique P0_BUILD_VARIANT"
 }
@@ -54,6 +58,11 @@ set rtl_sources [list \
   [file join $repository_root algorithms fpga p0 rtl p0_dsp_runtime_bd.v] \
 ]
 add_files -fileset sources_1 -norecurse $rtl_sources
+if {$runtime_config} {
+  add_files -fileset sources_1 -norecurse [list \
+    [file join $repository_root algorithms fpga p0 rtl p0_detection_control.sv] \
+    [file join $repository_root algorithms fpga p0 rtl p0_dsp_configurable_bd.v]]
+}
 set coefficient_file [file join $repository_root datasets fixtures phase06b hann-coefficients.mem]
 add_files -fileset sources_1 -norecurse $coefficient_file
 set_property file_type {Memory Initialization Files} [get_files [file tail $coefficient_file]]
@@ -87,9 +96,12 @@ set_property -dict [list \
   CONFIG.c_s2mm_burst_size {16} \
 ] $dma
 
-set dsp [create_bd_cell -type module -reference p0_dsp_runtime_bd p0_dsp_runtime_0]
+set dsp_module p0_dsp_runtime_bd
+if {$runtime_config} { set dsp_module p0_dsp_configurable_bd }
+set dsp [create_bd_cell -type module -reference $dsp_module p0_dsp_runtime_0]
 set control_ic [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_control_interconnect]
 set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {1}] $control_ic
+if {$runtime_config} { set_property CONFIG.NUM_MI {2} $control_ic }
 set memory_ic [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_memory_interconnect]
 set_property -dict [list CONFIG.NUM_SI {2} CONFIG.NUM_MI {1}] $memory_ic
 set reset [create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0]
@@ -98,6 +110,11 @@ set_property -dict [list CONFIG.NUM_PORTS {2}] $irq_concat
 
 connect_bd_intf_net [get_bd_intf_pins $ps/M_AXI_GP0] [get_bd_intf_pins $control_ic/S00_AXI]
 connect_bd_intf_net [get_bd_intf_pins $control_ic/M00_AXI] [get_bd_intf_pins $dma/S_AXI_LITE]
+if {$runtime_config} {
+  connect_bd_intf_net [get_bd_intf_pins $control_ic/M01_AXI] [get_bd_intf_pins $dsp/S_AXI]
+  connect_bd_net [get_bd_pins $ps/FCLK_CLK0] [get_bd_pins $control_ic/M01_ACLK]
+  connect_bd_net [get_bd_pins $reset/peripheral_aresetn] [get_bd_pins $control_ic/M01_ARESETN]
+}
 connect_bd_intf_net [get_bd_intf_pins $dma/M_AXI_MM2S] [get_bd_intf_pins $memory_ic/S00_AXI]
 connect_bd_intf_net [get_bd_intf_pins $dma/M_AXI_S2MM] [get_bd_intf_pins $memory_ic/S01_AXI]
 connect_bd_intf_net [get_bd_intf_pins $memory_ic/M00_AXI] [get_bd_intf_pins $ps/S_AXI_HP0]
@@ -135,6 +152,12 @@ connect_bd_net [get_bd_pins $dma/s2mm_introut] [get_bd_pins $irq_concat/In1]
 connect_bd_net [get_bd_pins $irq_concat/dout] [get_bd_pins $ps/IRQ_F2P]
 
 assign_bd_address
+if {$runtime_config} {
+  set config_segment [get_bd_addr_segs -of_objects [get_bd_intf_pins $dsp/S_AXI]]
+  if {[llength $config_segment] != 1} { error "Expected one DSP configuration address segment" }
+  assign_bd_address -force -offset 0x43C00000 -range 0x00010000 \
+    -target_address_space [get_bd_addr_spaces $ps/Data] $config_segment
+}
 regenerate_bd_layout
 validate_bd_design
 save_bd_design
@@ -150,4 +173,6 @@ puts "P0:PROJECT=[file join $build_root p0_runtime.xpr]"
 puts "P0:BLOCK_DESIGN=$bd_file"
 puts "P0:VALIDATE_BD=PASS"
 close_project
-exit
+if {![info exists ::env(P0_CONTINUE_BUILD)] || $::env(P0_CONTINUE_BUILD) ne "1"} {
+  exit
+}

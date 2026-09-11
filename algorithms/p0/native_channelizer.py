@@ -60,7 +60,7 @@ class NativeP0Channelizer:
         self.library_path = path.resolve()
         self._library = ctypes.CDLL(str(self.library_path))
         self._configure_library()
-        if self._library.p0_channelizer_abi_version() != 1:
+        if self._library.p0_channelizer_abi_version() != 2:
             raise RuntimeError("P0 yerel kanal seçici ABI sürümü uyumsuz.")
         self._handle: int | None = None
         self._binding: tuple[int, int] | None = None
@@ -75,6 +75,7 @@ class NativeP0Channelizer:
         library.p0_channelizer_abi_version.restype = ctypes.c_uint32
         library.p0_channelizer_create.argtypes = (
             ctypes.POINTER(ctypes.c_double), ctypes.c_size_t, ctypes.c_double,
+            ctypes.c_size_t, ctypes.c_size_t,
         )
         library.p0_channelizer_create.restype = ctypes.c_void_p
         library.p0_channelizer_reset.argtypes = (ctypes.c_void_p,)
@@ -108,6 +109,8 @@ class NativeP0Channelizer:
             self._taps.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
             self._taps.size,
             phase_step,
+            self.profile.input_samples_per_frame,
+            self.profile.output_samples_per_frame,
         )
         if not handle:
             raise RuntimeError("P0 yerel kanal seçici durumu oluşturulamadı.")
@@ -130,7 +133,8 @@ class NativeP0Channelizer:
         if input_sample_rate_hz != profile.input_sample_rate_hz:
             raise ValueError("Kanal seçici girişi kilitli 8 MS/s profiliyle eşleşmiyor.")
         if len(payload) != profile.input_samples_per_frame * 2:
-            raise ValueError("Kanal seçici tam 16.384 kompleks CI8 giriş örneği gerektirir.")
+            raise ValueError(
+                f"Kanal seçici tam {profile.input_samples_per_frame} kompleks CI8 giriş örneği gerektirir.")
         if not 0 <= sequence_number <= 0xFFFFFFFF or not 0 <= frame_id <= 0xFFFFFFFF:
             raise ValueError("Çerçeve ve sıra kimliği uint32 sınırında olmalıdır.")
         if input_center_frequency_hz <= 0 or output_center_frequency_hz <= 0:
@@ -174,9 +178,9 @@ class NativeP0Channelizer:
             pass
 
 
-def create_realtime_channelizer():
+def create_realtime_channelizer(profile: P0ChannelizerProfile | None = None):
     path = find_native_channelizer_library()
     if path is not None:
-        return NativeP0Channelizer(library_path=path)
+        return NativeP0Channelizer(profile, library_path=path)
     from .channelizer import P0Channelizer
-    return P0Channelizer()
+    return P0Channelizer(profile)

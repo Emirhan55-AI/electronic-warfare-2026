@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
 #include "p0_parameter_runtime.h"
 
@@ -30,6 +32,44 @@ int main(void)
                                     P0_PARAMETER_MAXIMUM_LOCAL_BINS *
                                     (sizeof(double) + sizeof(p0_parameter_complex_t));
     unsigned int index;
+
+    /* Artificial calibration fixtures validate arithmetic and rejection only;
+     * they must never be deployed as an actual receiver calibration. */
+    {
+        p0_power_calibration_t calibration = {0};
+        p0_parameter_field_t measured_power = {P0_PARAMETER_FIELD_VALID, P0_PARAMETER_REASON_NONE, -30.0};
+        p0_calibrated_power_t calibrated;
+        uint8_t context[32] = {1};
+        memcpy(calibration.context_sha256, context, sizeof(context));
+        calibration.reference_dbfs = -40.0;
+        calibration.reference_dbm = -70.0;
+        calibration.minimum_dbfs = -50.0;
+        calibration.maximum_dbfs = -20.0;
+        calibration.uncertainty_db = 1.5;
+        calibration.measured_at_unix = 100U;
+        calibration.valid_until_unix = 200U;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == 0);
+        REQUIRE(calibrated.valid && fabs(calibrated.dbm - (-60.0)) < 1e-12);
+        REQUIRE(calibrated.uncertainty_db == 1.5);
+        context[31] = 1U;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == -1);
+        REQUIRE(!calibrated.valid && isnan(calibrated.dbm));
+        context[31] = 0U;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, NULL, context, 150U, &calibrated) == -1);
+        REQUIRE(!calibrated.valid && isnan(calibrated.dbm));
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 99U, &calibrated) == -1);
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 201U, &calibrated) == -1);
+        measured_power.value = -51.0;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == -1);
+        measured_power.value = NAN;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == -1);
+        measured_power.value = -30.0;
+        measured_power.state = P0_PARAMETER_FIELD_UNCERTAIN;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == -1);
+        measured_power.state = P0_PARAMETER_FIELD_VALID;
+        calibration.uncertainty_db = 0.0;
+        REQUIRE(p0_parameter_calibrate_power(&measured_power, &calibration, context, 150U, &calibrated) == -1);
+    }
 
     REQUIRE(payload_bytes == P0_PARAMETER_PERSISTENT_PAYLOAD_BYTES);
     REQUIRE(payload_bytes <= 65536U);

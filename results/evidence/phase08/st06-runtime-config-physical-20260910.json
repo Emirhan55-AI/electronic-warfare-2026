@@ -1,0 +1,144 @@
+{
+  "schema": "phase08-st06-runtime-config-physical-v2",
+  "status": "passed",
+  "generated_at_utc": "2026-09-10T14:28:43.642180+00:00",
+  "scope": "temporary ZedBoard image; FPGA runtime CFAR, UI path and deterministic digital throughput",
+  "checks": {
+    "physical_control_checks": true,
+    "ui_control_checks": true,
+    "default_sensitive_restored_counts": true,
+    "all_digital_cases_transport_clean": true,
+    "tone_confirmed_255_of_256": true,
+    "wide_confirmed_249_of_256": true,
+    "three_long_runs_above_required_rate": true,
+    "long_run_response_identity": true,
+    "board_and_local_artifact_hashes_match": true,
+    "fpga_operating_and_overlay_applied": true
+  },
+  "throughput": {
+    "required_frames_per_second": 488.28125,
+    "measured_frames_per_second": [
+      495.4207987202937,
+      495.3708165713255,
+      495.23862999012385
+    ],
+    "minimum_frames_per_second": 495.23862999012385,
+    "minimum_margin_percent": 1.4248714219773584,
+    "measured_frames_per_run": 4096,
+    "response_sha256": "00d9bb928b54fbdc387a252626c846016d2895884ebcd0aad466291de0153169"
+  },
+  "runtime_control": {
+    "candidate_totals": {
+      "default": 33,
+      "sensitive": 862,
+      "restored": 33
+    },
+    "final_generation": 12,
+    "final_alpha_q32": 36851433755,
+    "final_weak_alpha_q32": 17098572778
+  },
+  "digital_detection": {
+    "zero_confirmed_events": 0,
+    "noise_confirmed_events": 0,
+    "tone_confirmed_target_frames": 255,
+    "wide_confirmed_target_frames": 249
+  },
+  "implementation": {
+    "timing_constraints_met": true,
+    "wns_ns": 0.234,
+    "whs_ns": 0.011,
+    "routing_errors": 0,
+    "slice_luts": 19895,
+    "slice_registers": 17716,
+    "block_ram_tiles": 23.5,
+    "dsps": 53
+  },
+  "board_identity": {
+    "captured_at_utc": "2018-03-09T13:25:40Z",
+    "kernel": "6.12.40-xilinx-g31626ef92ff1",
+    "fpga_state": "operating",
+    "overlay_status": "applied",
+    "detection_control_id": "0x53540601",
+    "detection_control_status": "0x00000003",
+    "generation": "0x0000000C",
+    "bitstream_bin_sha256": "4086dee796f3e5ca18299e06dc920fc350ee86f1ab624fb7b32e70a5cf87f467",
+    "module_sha256": "45814531c4f1e8ada223d4ec6147c5d3c8a7c7c0197cbbe275e0e9dcd6ef40b8",
+    "service_sha256": "a7de191794eb92768859b23679327cac81257fdf47a37792b4e58ebdf6b433c5",
+    "bridge_sha256": "5a451a6e0d4153cd0da120b0cc85fe8a5484dcf58dfbbf1bb86c825a7ee25098",
+    "service_running": true,
+    "bridge_running": true
+  },
+  "local_artifact_identity": {
+    "bitstream_bin_sha256": "4086dee796f3e5ca18299e06dc920fc350ee86f1ab624fb7b32e70a5cf87f467",
+    "module_sha256": "45814531c4f1e8ada223d4ec6147c5d3c8a7c7c0197cbbe275e0e9dcd6ef40b8",
+    "service_sha256": "a7de191794eb92768859b23679327cac81257fdf47a37792b4e58ebdf6b433c5",
+    "bridge_sha256": "5a451a6e0d4153cd0da120b0cc85fe8a5484dcf58dfbbf1bb86c825a7ee25098"
+  },
+  "build_flags": [
+    "-std=c11",
+    "-O3",
+    "-mcpu=cortex-a9",
+    "-mfpu=neon",
+    "-mfloat-abi=hard",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pedantic"
+  ],
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "2783c8f003e946376fd7a0f5114de0d1d69cea882efe9eb806a2088786249fc5",
+    "platforms/embedded/p0/src/p0_ed_service.c": "1a86168fad57d7150307507f960e74da0c2359bd048c6a9d61b7241985289406",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "b363795a524ee20cb81e0dcd5313fb6fbfb287ac9116ef65e9a02317c7373c09",
+    "platforms/embedded/p0/src/p0_persistent_weak.c": "88336dac47fbeb5f6eabe48c1dafb3961da09e6e873cf410063961a07ded325a",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "6b7c646e39c6ea71c1c9a7e7ba4a235384efff700618d5b66db7b41bb23736cf",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "a4daebd9a9d40f2f16c6d5259a8f8451ae5ed172d813934d5854062bc7b405ee",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "fd015520c29b469649822350be1a171d6ca010b7a47bbd6bc361c94d7d5da54c",
+    "scripts/build_st06_runtime_services.py": "c80dffc8ca76012aa32ca50560c2389f2204396fa246349bad889be37de6baf5",
+    "scripts/diagnose_st06_product_board.py": "4646a98796f032066d7618ef5461acf77187e0d1edf981e0ee5e31a73e491ca2",
+    "scripts/package_st06_runtime_config_physical.py": "9679f15f5b77e04adca51d1eb17e6b624587eb57209b14eac7ec8c172951518d",
+    "scripts/verify_st06_runtime_config_physical.py": "d90623a476e418f3edf47438f326d0f403fbd326bed2b93352ecdf4176a5b100",
+    "scripts/verify_st06_runtime_config_ui_physical.py": "771565c9efa0745ddb555045550c243c6fad91a221fee886ff6ae62fdf83784c"
+  },
+  "input_sha256": {
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-physical-final-v3/physical.json": "61701f593ee20e9df66589d7eae5fa0af8526948f03af53bfd3e040fa5653b7f",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-ui-physical-final-v2.json": "ab402375e04792c9ec9f6b021cc0cda976e94ee6b126caadd3b54898ff44b9db",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/summary.json": "b410b27eff26d791e0041b9e7db6d83c54b0ad06f588c7c10f4a454dd5283824",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-throughput-final-repeat1/summary.json": "bfdf0372fb5dbb014a5e5fc0a7eff99d78985b073224d0d0e48ad3a35cb195b2",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-throughput-final-repeat2/summary.json": "eb4b006b89e0db3531cece4190dbaa3f70be4c298edd357ff0e91ad784e040ca",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-final-board-identity.json": "0a3d3e6f5cda92a1dc091d59d077b2a0454c16796ed9935c10d1b0b270726f86",
+    "build/p0/st06-runtime-config-v2-20260910/software/build.json": "00c47afd8295ccb6069188590cd7853ccff4887cd4958cd3a4aa77f7b4a3e758",
+    "build/p0/st06-runtime-config-v2-20260910/vivado/reports/implementation-timing-summary.rpt": "749a63e3caee90a37235593c7ed87d44bec1635256559584b773002ecd4a8935",
+    "build/p0/st06-runtime-config-v2-20260910/vivado/reports/route-status.rpt": "bd64f3d0f9cba5d07fd8cacfa719a603cf2fd7badc57969f39518880cd4ec794",
+    "build/p0/st06-runtime-config-v2-20260910/vivado/reports/implementation-utilization-summary.rpt": "afc1a9cf810e3405f05cd15635658a4f546872d32a8d7370fb5ecb5eae2f052b",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/independent_noise.responses.bin": "ce6fbcf9b2221b34c0d5fe95656ebd16c08393cb340f156d5fdf7d5adb12a721",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/repeated_tone_throughput.responses.bin": "00d9bb928b54fbdc387a252626c846016d2895884ebcd0aad466291de0153169",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/tone_independent_noise.responses.bin": "4e98f879a3513a74a120de5c57cbf3d6ab1664a187ca1b999d87ba869864fe80",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/wide_independent_noise.responses.bin": "ef8dc1d6dfdc588aa901e595e6ecbd23cac5429e051bf8b5f8f40f2035f51773",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-board-diagnostic-final-v3/zero.responses.bin": "747a59a72011f5504181dee4da901cf9ce9e5f3321e48bb56a43c989f587b0dd",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-physical-final-v3/default.responses.bin": "17949296fb1203aa8646f173e3ff1265d8c7be0f0a8c30b2be9caed57b6821dd",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-physical-final-v3/restored.responses.bin": "17949296fb1203aa8646f173e3ff1265d8c7be0f0a8c30b2be9caed57b6821dd",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-config-physical-final-v3/sensitive.responses.bin": "8ceae2a85ba1348b8b646d309aad93101c4c490ec77612d553d4a3899c926848",
+    "platforms/embedded/p0/src/p0_ed_pipeline.c": "2783c8f003e946376fd7a0f5114de0d1d69cea882efe9eb806a2088786249fc5",
+    "platforms/embedded/p0/src/p0_ed_service.c": "1a86168fad57d7150307507f960e74da0c2359bd048c6a9d61b7241985289406",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "b363795a524ee20cb81e0dcd5313fb6fbfb287ac9116ef65e9a02317c7373c09",
+    "platforms/embedded/p0/src/p0_persistent_weak.c": "88336dac47fbeb5f6eabe48c1dafb3961da09e6e873cf410063961a07ded325a",
+    "platforms/embedded/p0/src/p0_st05_stream.c": "6b7c646e39c6ea71c1c9a7e7ba4a235384efff700618d5b66db7b41bb23736cf",
+    "platforms/embedded/p0/src/p0_st05_wideband.c": "a4daebd9a9d40f2f16c6d5259a8f8451ae5ed172d813934d5854062bc7b405ee",
+    "platforms/embedded/p0/include/p0_st05_stream.h": "fd015520c29b469649822350be1a171d6ca010b7a47bbd6bc361c94d7d5da54c",
+    "scripts/build_st06_runtime_services.py": "c80dffc8ca76012aa32ca50560c2389f2204396fa246349bad889be37de6baf5",
+    "scripts/diagnose_st06_product_board.py": "4646a98796f032066d7618ef5461acf77187e0d1edf981e0ee5e31a73e491ca2",
+    "scripts/package_st06_runtime_config_physical.py": "9679f15f5b77e04adca51d1eb17e6b624587eb57209b14eac7ec8c172951518d",
+    "scripts/verify_st06_runtime_config_physical.py": "d90623a476e418f3edf47438f326d0f403fbd326bed2b93352ecdf4176a5b100",
+    "scripts/verify_st06_runtime_config_ui_physical.py": "771565c9efa0745ddb555045550c243c6fad91a221fee886ff6ae62fdf83784c"
+  },
+  "archive_sha256": "e83bcecf15fc64138b6fe29c92cddbde422e10a62c7b7b15266a74dd14a235e6",
+  "claim_boundary": {
+    "temporary_load_only": true,
+    "persistent_sd_updated": false,
+    "hackrf_used": false,
+    "rf_pd_pfa_accepted": false,
+    "cold_boot_accepted": false,
+    "fft_window_runtime_configurable": false,
+    "st06_complete": false
+  }
+}

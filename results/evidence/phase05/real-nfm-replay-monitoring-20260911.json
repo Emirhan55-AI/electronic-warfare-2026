@@ -1,0 +1,56 @@
+{
+  "schema": "phase05-real-nfm-replay-monitoring-v1",
+  "requirements": [
+    "5.1.3",
+    "KTR-4.3"
+  ],
+  "status": "diagnostic_passed",
+  "source": {
+    "kind": "physical_hackrf_capture_of_synthetic_nfm_replay",
+    "archive_sha256": "6f99140c096d49551807b83d6784db4c0f1396761b752f925c8144257024bda6",
+    "raw_member_sha256": "e7d54711a000944fc02f3224a976709b85b9a990c3be1c204a0518fa53bc0e06",
+    "input_center_frequency_hz": 825300000,
+    "reference_frequency_hz": 824989819.3359375,
+    "start_seconds": 21.75,
+    "duration_seconds": 5.001216,
+    "reference_content": "1700 Hz tone, 6000 Hz peak-deviation synthetic NFM replayed over RF"
+  },
+  "processing": {
+    "channelizer": "native-cpp",
+    "channelizer_binary_sha256": "60514f3b75e8ad2a2d3dc2f93bc0723440ef4073d8881145f7d8f39215d67204",
+    "output_sample_rate_hz": 2000000,
+    "output_complex_samples": 10002432,
+    "input_saturated_components": 0,
+    "output_saturated_components": 0,
+    "demodulation": "NFM phase difference with 750 us de-emphasis",
+    "channel_bandwidth_hz": 25000
+  },
+  "result": {
+    "audio_sample_rate_hz": 48000,
+    "audio_seconds": 4.999875,
+    "dominant_tone_hz": 1699.951171875,
+    "reference_tone_hz": 1700.0,
+    "tone_error_hz": 0.048828125,
+    "channel_power_dbfs": -64.14050862230408,
+    "power_range_dbfs": [
+      -65.63796663371248,
+      -63.27104642927981
+    ],
+    "residual_frequency_range_hz": [
+      -50.93695183715469,
+      236.93101633700235
+    ],
+    "observation_points": 20,
+    "clipping_count": 0,
+    "pcm16_sha256": "252df56e05de2df108a060275066067ef735ab4b72ff6960a3534e461e20ce74"
+  },
+  "source_sha256": {
+    "algorithms/monitoring/models.py": "5565e78e416f69292f2c8e56f425a819070263bb37af172b072871e3b78fe510",
+    "algorithms/monitoring/dsp.py": "d32d11c4ed2eb4f39aad872bc945892a8404628cdd068e535a3fd50b487080c7",
+    "algorithms/p0/channelizer.py": "2c2910122c404e4fcb5fbd2751e58d3980433b469fa57ae5d63357c5d50f20eb",
+    "algorithms/p0/native_channelizer.py": "9eeb7ba0d602ae83e2c3e1616c3e16bdd8decf7ed0409576bb8582fb96b83ff7"
+  },
+  "product_acceptance": false,
+  "physical_acceptance": false,
+  "claim_boundary": "Korunmuş fiziksel HackRF kaydındaki sentetik 1700 Hz NFM tekrarının güncel host kanal seçici ve dinleme DSP'siyle tanısıdır. Canlı FPGA olay bağı, gerçek konuşma anlaşılırlığı, amatör telsiz profili veya saha kabulü değildir."
+}

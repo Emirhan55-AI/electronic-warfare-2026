@@ -1,0 +1,112 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "candidate_only",
+  "summary": {
+    "CW": {
+      "total": 24,
+      "decisions": {
+        "Belirsiz": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 24,
+      "decision_coverage": 0.0,
+      "definite_precision": null,
+      "gate_pass": true
+    },
+    "AM": {
+      "total": 24,
+      "decisions": {
+        "Analog": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 0,
+      "decision_coverage": 1.0,
+      "definite_precision": 1.0,
+      "gate_pass": true
+    },
+    "NFM": {
+      "total": 24,
+      "decisions": {
+        "Analog": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 0,
+      "decision_coverage": 1.0,
+      "definite_precision": 1.0,
+      "gate_pass": true
+    },
+    "FSK": {
+      "total": 24,
+      "decisions": {
+        "Sayısal": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 0,
+      "decision_coverage": 1.0,
+      "definite_precision": 1.0,
+      "gate_pass": true
+    },
+    "BPSK": {
+      "total": 24,
+      "decisions": {
+        "Sayısal": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 0,
+      "decision_coverage": 1.0,
+      "definite_precision": 1.0,
+      "gate_pass": true
+    },
+    "QPSK": {
+      "total": 24,
+      "decisions": {
+        "Sayısal": 24
+      },
+      "correct": 24,
+      "wrong_definite": 0,
+      "abstained": 0,
+      "decision_coverage": 1.0,
+      "definite_precision": 1.0,
+      "gate_pass": true
+    }
+  },
+  "software_gate": true,
+  "product_acceptance": false,
+  "hardware_acceptance": false,
+  "model_sha256": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+  "runtime": {
+    "python": "3.13.7",
+    "numpy": "2.2.6",
+    "scipy": "1.16.0"
+  },
+  "command": "python scripts/validate_candidate_classification.py --output build/acceptance/parameter-independent-classification-20260909 --model build/acceptance/parameter-independent-classification-20260909/candidate-model.json --model-sha256 afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+  "reproduction_note": "Arşivdeki modeli girdi olarak kullanın; --output için yeni, var olmayan dizin seçin. Varsayılan kök tohum 26000000.",
+  "tests": {
+    "command": "python -m pytest tests/test_candidate_classification_validation.py tests/test_refined_parameter_candidate.py -q",
+    "passed": 11
+  },
+  "limits": [
+    "Eğitimden ayrı mevcut sayısal üretici; bağımsız RF kabulü değildir.",
+    "48 dalga biçimi tohumu, 144 SNR varyantı; OOK/QAM ve kapsam dışı aileler bu koşuda yok.",
+    "Gerçek alıcı nicemleme, saat ve kanal bozulmaları bu üreticide temsil edilmez."
+  ],
+  "files": {
+    "build/acceptance/parameter-independent-classification-20260909/candidate-model.json": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+    "build/acceptance/parameter-independent-classification-20260909/protocol.json": "6b4a04511074299e7a78e50386aaf9fa53bdc42a715f63eed2d1486b48eb04e1",
+    "build/acceptance/parameter-independent-classification-20260909/report.json": "c386b9e68ab8b23f7c6cb011b03521fb8ee8b0b82b3015c0ce7fa345a7c86e5f",
+    "scripts/validate_candidate_classification.py": "8a45ed0ce87c2e3565ca2c57abae820f88f6bfd198bb16d1521b646ed266db06",
+    "scripts/validate_candidate_numeric.py": "710f333728a3c1012e349330021cd1938432e20c00bd56b904406cf0b6fbfacb",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "tests/test_candidate_classification_validation.py": "7b999cbf46450834d3804ae9377ca029f6121a98474f9a41ea7411b631187d08",
+    "tests/test_refined_parameter_candidate.py": "7584b31e12065478ef56eb124096394c45d15b87c37edc67a555ff9048d3088c"
+  },
+  "archive_sha256": "f35b121c520c5bfc74ea95f793e45bad72dbec7eb5a6929a1b67e6eca548573c"
+}

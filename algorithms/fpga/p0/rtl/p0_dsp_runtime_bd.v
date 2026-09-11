@@ -23,6 +23,8 @@ module p0_dsp_runtime_bd (
   wire        unused_detector_frame_error;
 
   p0_dsp_runtime_top core (
+    .hold_input(1'b0), .config_valid(1'b0),
+    .config_alpha_q32(36'd36851433755), .config_weak_alpha_q32(34'd17098572778),
     .aclk(aclk), .aresetn(aresetn),
     .s_axis_tvalid(s_axis_tvalid), .s_axis_tready(s_axis_tready),
     .s_axis_tdata(s_axis_tdata), .s_axis_tkeep(s_axis_tkeep), .s_axis_tlast(s_axis_tlast),

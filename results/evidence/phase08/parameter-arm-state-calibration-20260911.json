@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-11",
+  "status": "passed",
+  "scope": "current C parameter state and calibration API executed on physical ZedBoard ARM",
+  "target": "armv7l",
+  "output": "P0_PARAMETER_RUNTIME_STATE_TEST=PASS",
+  "binary_sha256": "fb4d5467c34e21535a8828406503ef463cf97c69bbc0747e51cc838840fe4292",
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "f7ff210ae104af749fa0502723f5fc41fb17f36eb22ee44afb2a34cb6b302e9d",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h": "f4dbe8666b6139f5277623b87108caffd7a7d8e6f3a858b6c41e8bd6da55d7de",
+    "tests/p0/p0_parameter_runtime_test.c": "7adbbb7aa3060830279abdf33ce86bd983a19d7715acd1b2d01e8b255531d318"
+  },
+  "calibration_tests": [
+    "valid affine dBFS to dBm conversion",
+    "receiver context hash mismatch rejection",
+    "missing profile rejection",
+    "not-yet-valid and expired profile rejection",
+    "measured-range extrapolation rejection",
+    "non-finite power rejection",
+    "invalid measurement state rejection",
+    "zero uncertainty rejection"
+  ],
+  "note": "The calibration values in the test are artificial fixtures. No physical dBm calibration was established.",
+  "not_verified": [
+    "receiver dBm accuracy",
+    "frequency reference accuracy",
+    "live HackRF"
+  ]
+}

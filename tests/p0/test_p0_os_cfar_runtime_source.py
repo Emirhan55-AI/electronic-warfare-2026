@@ -45,13 +45,16 @@ def test_pl_dma_format_is_validated_before_accelerated_processing() -> None:
     pipeline = PIPELINE_SOURCE.read_text(encoding="utf-8")
 
     for token in (
-        "P0_FORMAT_MARKER", "marked_words != 0U && marked_words != P0_PL_OS_CFAR_FRAME_BINS",
-        "evaluated != expected_evaluated", "detected && !evaluated",
+        "P0_FORMAT_MARKER", "(word & P0_FORMAT_MASK) != P0_FORMAT_MARKER",
+        "(word & P0_V2_MASK) != P0_V2_MARKER", "evaluated != expected_evaluated",
+        "detected && !evaluated", "detected && !weak",
     ):
         assert token in decoder
-    assert pipeline.index("p0_pl_os_cfar_decode(") < pipeline.index("p0_multiscale_process_pl_trusted(")
-    assert "p0_multiscale_process(" in pipeline
-    assert "p0_multiscale_process_pl_trusted(" in pipeline
+    assert pipeline.index("p0_pl_os_cfar_decode_with_weak(") < pipeline.index(
+        "p0_os_cfar_group_detections_trusted("
+    )
+    assert "p0_os_cfar_process(" in pipeline
+    assert "p0_os_cfar_group_detections_trusted(" in pipeline
 
 
 def test_temporal_runtime_preserves_versioned_packet_boundary() -> None:

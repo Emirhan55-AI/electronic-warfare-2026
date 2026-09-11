@@ -27,4 +27,15 @@ P0_API int p0_st05_stream_update(
     int *result_valid
 );
 
+/* Internal fast path for finite, nonnegative power produced by the validated
+ * PL decoder. Callers outside the embedded pipeline use p0_st05_stream_update. */
+P0_API int p0_st05_stream_update_trusted(
+    void *memory,
+    size_t memory_bytes,
+    const double *power,
+    size_t power_count,
+    p0_st05_result_t *result,
+    int *result_valid
+);
+
 #endif

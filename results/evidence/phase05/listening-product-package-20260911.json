@@ -1,0 +1,42 @@
+{
+  "schema": "phase05-listening-product-package-v1",
+  "requirements": [
+    "5.1.3",
+    "KTR-4.3"
+  ],
+  "status": "passed",
+  "package": {
+    "executable": "dist/operator-console-20260911/BAZ.dist/baz_operator_console.exe",
+    "executable_sha256": "ae0d63e11267878cbbd075791320ec7e98331caa189d52214b0def585531473e",
+    "executable_bytes": 118289408,
+    "required_assets": {
+      "app/operator_console/qml/ParameterMeasurementPanel.qml": "bc87160f2eae3c2c6ce5e0e6672bb6f08171fe626717966f84adcdf7a883f734",
+      "app/operator_console/qml/DetectionSettings.qml": "66398afc07c3bd281727018a470260fdd4eb211f58c2b569e2c01d7d4b53a50b",
+      "algorithms/p0/native/bin/p0_channelizer.dll": "60514f3b75e8ad2a2d3dc2f93bc0723440ef4073d8881145f7d8f39215d67204",
+      "profiles/phase03/operation-default.json": "4de3cb4644c7330d610ed39a81c9262e94513ed622ff5f383fc9c89bb67a7a67",
+      "profiles/phase04f5/operation-default.json": "e8e2e4d9b39052863154b0a1f1cd53420fb6d965db5099759a1c978573ba5ff5",
+      "config/p0/hackrf_ed_rx.json": "3fa6532d6bd6500cdadeb5b54e6e23a20fe0fb6a1b7e11d84ec967fa741cd1a5",
+      "config/p0/hackrf_spurs.json": "bb4ffa97837605f0f0bcf164ca0742541bc1d7f3d495d78a26bff74386e16473"
+    }
+  },
+  "smoke_test": {
+    "arguments": [
+      "--smoke-test",
+      "--no-intro"
+    ],
+    "qt_platform": "offscreen",
+    "exit_code": 0
+  },
+  "source_sha256": {
+    "baz_operator_console.py": "e3592331694bf21cd1e683fe999ef2b90c0f492870a367d367149fb21f432923",
+    "app/operator_console/pysidedeploy.spec": "0bb84c9c5e1b749bef9ca8ed96605c1f2df4cae95bf7773cde3de8ef70b08117",
+    "app/operator_console/quick_listening_actions.py": "576e339bc2f6aff619dc2ad8da831e94825216f6e8875954d7238fbb7d76c10a",
+    "app/operator_console/quick_view_model.py": "deaf04d6c41090fe3703b961700a34cf06ecc22be7e657d5570d852d57c4f87e",
+    "app/operator_console/qml/Main.qml": "6f067bb6c04e7049b4af0debd4a14d6b84517f845a434138b71f0ec7ecb22544",
+    "app/operator_console/qml/ParameterMeasurementPanel.qml": "bc87160f2eae3c2c6ce5e0e6672bb6f08171fe626717966f84adcdf7a883f734"
+  },
+  "hardware_status": "zedboard_not_exercised_by_package_smoke_test",
+  "hackrf_status": "not_connected",
+  "physical_acceptance": false,
+  "claim_boundary": "Windows standalone paketinin başlangıç, QML ve zorunlu varlık bütünlüğü kanıtıdır; canlı HackRF, FPGA işlem sonucu veya analog ses kabulü değildir."
+}

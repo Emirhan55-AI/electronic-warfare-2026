@@ -1,5 +1,48 @@
 # Zynq PS
 
+## PHASE-09 genlik tabanlı yön bulma — 11 Eylül 2026
+
+`p0_amplitude_df.c`, 15° adımlı 24 açılık alan profilini, doğrusal güç
+ortalamasını, kapsama/tepe/ön-arka/alıcı/frekans kapılarını ve dairesel RMS
+hesabını ARM için taşır. Python referansıyla yedi sahnede sıfır fark elde edildi.
+`P0DF-v1/P0FR-v1` CRC korumalı hizmet yolu geçici 47008 ve kalıcı 47007 uçlarında
+gerçek ZedBoard `armv7l` üzerinde yedi sahneyi geçti. PetaLinux 5.679/5.679
+görevle derlendi; SD `image.ub` yazıldı, kart yeniden başladı ve hizmetler açılışta
+çalıştı. Canlı ürün açı başına dört ardışık kareyi mevcut PL/ARM parametre güç
+yoluyla ölçer. HackRF/yönlü anten ve bilinen yönle fiziksel RMS kabulü açıktır.
+Ayrıntı:
+[yön bulma durum sözleşmesi](../../docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
+
+## PÇ-04 ilk üç parametre — 11 Eylül 2026
+
+`p0_parameter_runtime.c` artık emisyon merkezi, gözlenen taşıyıcı, OBW %99,
+dBFS güç ve SNR için F5 sayısal yöntemini ARM'da yürütür. `P0PM-v1` hizmet yolu
+dört kayıtlı CI8 kareyi gerçek PL'den geçirir ve çözülmüş PL gücünü ARM'a verir.
+PC kestirimci fallback'i yoktur. Altı fiziksel sayısal sahne kartta, 33 sahne
+host C referansında geçti. PetaLinux 2025.2 imajı SD'ye yazıldı; üç yeniden
+başlatmada FPGA, DMA modülü, hizmet ve ağ köprüsü otomatik başladı. dBm
+kalibrasyon kapısı uygulanmıştır fakat gerçek alıcı kalibrasyonu yapılmadı.
+
+## ST-06 dinamik FFT ve zayıf doğrulama — 11 Eylül 2026
+
+Hizmet CPU0 çözümünde `p0_pl_os_cfar_decode_with_weak` kullanır. Pipeline,
+zayıf hücreleri normal gruplamadan ayırıp 24/32 biriktirmesine bağlar.
+Normal/grup ve geniş bant yolları korunur; hata durumunda zayıf durum da
+geri alınır. Eski A biçimi normal karar desteğini korur, zayıf bilgi taşımaz.
+ARM hedef derlemesi, Linux hizmet testi ve güncel fiziksel sayısal kart kabulü
+geçmiştir. Üç uzun koşunun en düşüğü 507,587 kare/s'dir; HackRF/RF ve soğuk
+açılış kabulü ayrıdır.
+[Biçim, kaynaklar ve testler](../../docs/interfaces/DETECTION_TUNING_AND_SOURCE_GUIDE.md).
+
+4096/8192/16384 XFFT, uzunluğa bağlı Hann, güç/CFAR, DMA ABI v3 ve ARM hizmet
+ABI v4 birlikte uygulanmıştır. ARM 8192/16384 hücrelerini yerleşik 4096 olay
+ızgarasına enerji korunarak indirger. Her boyut üç tekrarlı fiziksel sayısal
+hız kapısını geçti. Aynı açılışta FFT küçültme XFFT/DMA kilitlenmesine yol
+açabildiğinden sürücü bunu `EOPNOTSUPP` ile reddeder; yeniden başlatma 4096'a
+döndürür. Pencere türü Hann olarak sabittir. Entegrasyon sınırı
+[çalışma zamanı sözleşmesinde](../../docs/interfaces/DETECTION_RUNTIME_CONFIG_CONTRACT.md)
+tanımlıdır.
+
 ## PÇ-01 sınırı — 7 Eylül 2026
 
 KTR-4.2 / KTR-4.2-F1 arayüz ve güncel gözlem bağı uygulanmıştır.

@@ -106,6 +106,9 @@ class RepositoryContractTests(unittest.TestCase):
             | set(VERIFY.APPROVED_ET_SIGNAL_GENERATOR_FILES)
             | set(VERIFY.APPROVED_APP_HARDENING_FILES)
             | set(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
+            | set(VERIFY.APPROVED_ST06_RUNTIME_CONFIG_FILES)
+            | set(VERIFY.APPROVED_PARAMETER_ARM_FILES)
+            | set(VERIFY.APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES)
         )
         self.assertEqual(31, len(VERIFY.APPROVED_PHASE03_FILES))
         self.assertEqual(37, len(VERIFY.APPROVED_PHASE04_BASE_FILES))
@@ -120,8 +123,8 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(52, len(VERIFY.APPROVED_PHASE04_F5_FILES))
         self.assertEqual(346, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
-        self.assertEqual(247, len(VERIFY.APPROVED_PHASE08_FILES))
-        self.assertEqual(32, len(VERIFY.APPROVED_PHASE05_FILES))
+        self.assertEqual(259, len(VERIFY.APPROVED_PHASE08_FILES))
+        self.assertEqual(42, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
         self.assertEqual(26, len(VERIFY.APPROVED_PHASE06C_FILES))
@@ -136,11 +139,14 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(22, len(VERIFY.APPROVED_PHASE06J_FILES))
         self.assertEqual(96, len(VERIFY.APPROVED_P0_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_ET_OFFLINE_FILES))
-        self.assertEqual(6, len(VERIFY.APPROVED_PARAMETER_DIAGNOSTIC_FILES))
+        self.assertEqual(8, len(VERIFY.APPROVED_PARAMETER_DIAGNOSTIC_FILES))
         self.assertEqual(13, len(VERIFY.APPROVED_PHASE10_SINGLE_ET_FILES))
         self.assertEqual(8, len(VERIFY.APPROVED_ET_SIGNAL_GENERATOR_FILES))
-        self.assertEqual(80, len(VERIFY.APPROVED_APP_HARDENING_FILES))
+        self.assertEqual(82, len(VERIFY.APPROVED_APP_HARDENING_FILES))
         self.assertEqual(237, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
+        self.assertEqual(82, len(VERIFY.APPROVED_ST06_RUNTIME_CONFIG_FILES))
+        self.assertEqual(14, len(VERIFY.APPROVED_PARAMETER_ARM_FILES))
+        self.assertEqual(95, len(VERIFY.APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:
@@ -216,6 +222,15 @@ class RepositoryContractTests(unittest.TestCase):
                 "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv",
                 "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv",
                 "algorithms/fpga/p0/rtl/p0_os_cfar_synthesis_top.sv",
+                "algorithms/fpga/p0/rtl/p0_detection_control.sv",
+                "algorithms/fpga/p0/rtl/amd_xfft_runtime_adapter.sv",
+                "algorithms/fpga/p0/rtl/axis_fft_power_normalizer.sv",
+                "algorithms/fpga/p0/rtl/axis_fft_runtime_linear_power.sv",
+                "algorithms/fpga/p0/rtl/axis_fft_runtime_wrapper.sv",
+                "algorithms/fpga/p0/rtl/axis_hann_window_runtime.sv",
+                "algorithms/fpga/p0/rtl/axis_p0_runtime_os_cfar.sv",
+                "algorithms/fpga/p0/rtl/p0_detection_profile_control.sv",
+                "algorithms/fpga/p0/rtl/p0_dsp_runtime_fft_top.sv",
                 "algorithms/fpga/p0/rtl/p0_dsp_runtime_top.sv",
                 "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv",
                 "algorithms/fpga/p0/rtl/p0_candidate_reducer_pkg.sv",

@@ -6,6 +6,7 @@ ColumnLayout {
     required property var shell
     width: parent ? parent.width : 240
     spacing: 7
+    DetectionSettings { id: detectionSettings; theme: shell }
     QuietButton { Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
     QuietButton { visible: !operatorViewModel.hackrfReady; Layout.fillWidth: true; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
     Label { text: "Merkez frekansı (MHz)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
@@ -46,7 +47,7 @@ ColumnLayout {
         ColumnLayout {
             Layout.fillWidth: true
             Label { text: "VGA (dB)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-            AppCombo { id: vgaInput; objectName: "liveVgaInput"; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
+            AppCombo { id: vgaInput; objectName: "liveVgaInput"; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
         }
     }
     CheckBox {
@@ -79,6 +80,7 @@ ColumnLayout {
         enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && centerInput.frequencyValid
         onClicked: operatorViewModel.startManagedLiveEDSession(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit, automaticGain.checked)
     }
+    QuietButton { objectName: "liveDetectionSettingsButton"; Layout.fillWidth: true; text: "Tespit ve Görüntü Ayarları"; onClicked: detectionSettings.open() }
     QuietButton {
         Layout.fillWidth: true
         text: "Yalnız RX Önizleme"

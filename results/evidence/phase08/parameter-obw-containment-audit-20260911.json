@@ -1,0 +1,112 @@
+{
+  "schema": "parameter-obw-containment-audit-v1",
+  "recorded_at": "2026-09-11T05:27:13.532092+00:00",
+  "status": "candidate_not_promoted",
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "records": 30,
+  "families": {
+    "CW": {
+      "records": 6,
+      "long_hann_states": {
+        "not_proven": 3,
+        "contained": 3
+      },
+      "short_rectangular_near_excess_ratio_range": [
+        1.7076750254649253e-07,
+        0.00014500593587017478
+      ],
+      "product_obw_states": {
+        "valid": 6
+      },
+      "product_obw_maximum_absolute_error_hz": 2545.2277041753227
+    },
+    "AM": {
+      "records": 6,
+      "long_hann_states": {
+        "not_proven": 3,
+        "contained": 3
+      },
+      "short_rectangular_near_excess_ratio_range": [
+        1.673283684315854e-06,
+        0.00016553949214256198
+      ],
+      "product_obw_states": {
+        "valid": 6
+      },
+      "product_obw_maximum_absolute_error_hz": 1595.7399154426676
+    },
+    "NFM": {
+      "records": 6,
+      "long_hann_states": {
+        "not_proven": 3,
+        "contained": 3
+      },
+      "short_rectangular_near_excess_ratio_range": [
+        0.0,
+        0.0001447502039124258
+      ],
+      "product_obw_states": {
+        "valid": 6
+      },
+      "product_obw_maximum_absolute_error_hz": 1987.4990045194263
+    },
+    "BPSK": {
+      "records": 6,
+      "long_hann_states": {
+        "not_proven": 6
+      },
+      "short_rectangular_near_excess_ratio_range": [
+        0.0001942304368860085,
+        0.0013861314260689992
+      ],
+      "product_obw_states": {
+        "uncertain": 3,
+        "valid": 3
+      },
+      "product_obw_maximum_absolute_error_hz": 325643.8106862195
+    },
+    "FSK": {
+      "records": 6,
+      "long_hann_states": {
+        "not_proven": 3,
+        "contained": 3
+      },
+      "short_rectangular_near_excess_ratio_range": [
+        0.0,
+        0.0001415727932146107
+      ],
+      "product_obw_states": {
+        "valid": 6
+      },
+      "product_obw_maximum_absolute_error_hz": 6322.307121562248
+    }
+  },
+  "findings": [
+    "The locked four-frame product returned false-valid narrow-span OBW in 3/6 rectangular BPSK records.",
+    "A four-frame rectangular-FFT near-span cue separated these 30 records only by a narrow empirical margin and is not a family-wide containment proof.",
+    "A conservative 16,384-sample Hann tail-uncertainty bound rejected all 6 out-of-span BPSK records, but also withheld OBW for every tested 12 dB record in the other four families.",
+    "Increasing only the selectable span cannot recover tails that remain below the four short-frame noise floor and would also exceed the locked 64 KiB ARM persistent-memory design without a runtime redesign."
+  ],
+  "decision": {
+    "production_changed": false,
+    "reason": "The promising long-observation gate lacks a separately locked multi-family/RF validation and Python-C-ARM equivalence. Promoting it now would replace a characterized limitation with an unvalidated method.",
+    "ui_action": "The result is named occupied bandwidth (OBW 99%) and the interface states that the approved analysis interval must contain the complete signal."
+  },
+  "open_acceptance": [
+    "Lock a new containment protocol before its evaluation set.",
+    "Measure family and SNR coverage, neighboring-emitter rejection, colored-noise behavior, memory and ARM latency.",
+    "Implement and compare Python, host C and ARM if the gate passes.",
+    "Repeat with controlled RF and a known reference emission."
+  ],
+  "report_sha256": "16edf38d03417b2c59476907b0bbdc358072985c39241ba70c98c608b57846a9",
+  "script_sha256": "0e7a226eaff8e2a3229f28f65bb656a353d0a74f08e0f02937aa9fe622bdbdc6",
+  "not_claimed": [
+    "product OBW acceptance",
+    "live RF accuracy",
+    "dBm accuracy",
+    "field acceptance"
+  ]
+}

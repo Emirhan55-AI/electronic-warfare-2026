@@ -113,7 +113,8 @@ class P0Channelizer:
         """Reference CI8 adapter used when the native real-time core is unavailable."""
         expected_bytes = self.profile.input_samples_per_frame * 2
         if len(payload) != expected_bytes:
-            raise ValueError("Kanal seçici tam 16.384 kompleks CI8 giriş örneği gerektirir.")
+            raise ValueError(
+                f"Kanal seçici tam {self.profile.input_samples_per_frame} kompleks CI8 giriş örneği gerektirir.")
         raw = np.frombuffer(payload, dtype=np.int8)
         input_saturated = int(np.count_nonzero((raw == -128) | (raw == 127)))
         values = raw.astype(np.float64).reshape(-1, 2) / 128.0
@@ -137,7 +138,8 @@ class P0Channelizer:
             raise ValueError("Kanal seçici girişi kilitli 8 MS/s profiliyle eşleşmiyor.")
         values = np.asarray(samples, dtype=np.complex128)
         if values.ndim != 1 or values.size != profile.input_samples_per_frame:
-            raise ValueError("Kanal seçici tam 16.384 kompleks giriş örneği gerektirir.")
+            raise ValueError(
+                f"Kanal seçici tam {profile.input_samples_per_frame} kompleks giriş örneği gerektirir.")
         if not np.all(np.isfinite(values.real)) or not np.all(np.isfinite(values.imag)):
             raise ValueError("Kanal seçici girişi sonlu kompleks örneklerden oluşmalıdır.")
         if not 0 <= sequence_number <= 0xFFFFFFFF or not 0 <= frame_id <= 0xFFFFFFFF:

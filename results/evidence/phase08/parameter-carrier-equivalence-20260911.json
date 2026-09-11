@@ -1,0 +1,1221 @@
+{
+  "status": "passed",
+  "compiler": "MSVC C11",
+  "state_machine_test": "P0_PARAMETER_RUNTIME_STATE_TEST=PASS",
+  "persistent_payload_bytes": 56064,
+  "carrier_peak_heap_workspace_bytes": 327680,
+  "profile": "phase04f5-operator-assisted-parameters-v6",
+  "ported_fields": [
+    "carrier_line_frequency",
+    "emission_center_frequency",
+    "occupied_bandwidth",
+    "uncalibrated_channel_power_dbfs",
+    "snr_estimate_db"
+  ],
+  "not_ported": [
+    "signal_domain"
+  ],
+  "cases": [
+    {
+      "scene": "am-carrier",
+      "snr_db": 12.0,
+      "span": [
+        1776,
+        1819
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "wideband-noise-like",
+      "snr_db": 12.0,
+      "span": [
+        2455,
+        2576
+      ],
+      "span_width_bins": 122,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "noise-only",
+      "snr_db": 12.0,
+      "span": [
+        1792,
+        2303
+      ],
+      "span_width_bins": 512,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "tone-bin-centered",
+      "snr_db": -3.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "tone-off-bin",
+      "snr_db": -3.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "am-carrier",
+      "snr_db": -3.0,
+      "span": [
+        1776,
+        1819
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "nfm",
+      "snr_db": -3.0,
+      "span": [
+        2410,
+        2454
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "ook",
+      "snr_db": -3.0,
+      "span": [
+        1514,
+        1557
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "two-fsk",
+      "snr_db": -3.0,
+      "span": [
+        2720,
+        2776
+      ],
+      "span_width_bins": 57,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "bpsk",
+      "snr_db": -3.0,
+      "span": [
+        1126,
+        1170
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "qpsk",
+      "snr_db": -3.0,
+      "span": [
+        3117,
+        3179
+      ],
+      "span_width_bins": 63,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "wideband-noise-like",
+      "snr_db": -3.0,
+      "span": [
+        2455,
+        2576
+      ],
+      "span_width_bins": 122,
+      "maximum_absolute_error": 6.661338147750939e-16,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 6.661338147750939e-16
+        }
+      }
+    },
+    {
+      "scene": "dsb-sc",
+      "snr_db": -3.0,
+      "span": [
+        926,
+        970
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "tone-bin-centered",
+      "snr_db": 3.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "tone-off-bin",
+      "snr_db": 3.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "am-carrier",
+      "snr_db": 3.0,
+      "span": [
+        1776,
+        1819
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "nfm",
+      "snr_db": 3.0,
+      "span": [
+        2410,
+        2454
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "ook",
+      "snr_db": 3.0,
+      "span": [
+        1514,
+        1557
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "two-fsk",
+      "snr_db": 3.0,
+      "span": [
+        2720,
+        2776
+      ],
+      "span_width_bins": 57,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "bpsk",
+      "snr_db": 3.0,
+      "span": [
+        1126,
+        1170
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 1.7763568394002505e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "uncertain"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "uncertain"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "uncertain"
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 1.7763568394002505e-15
+        }
+      }
+    },
+    {
+      "scene": "qpsk",
+      "snr_db": 3.0,
+      "span": [
+        3117,
+        3179
+      ],
+      "span_width_bins": 63,
+      "maximum_absolute_error": 1.4901161193847656e-08,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 1.4901161193847656e-08
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "wideband-noise-like",
+      "snr_db": 3.0,
+      "span": [
+        2455,
+        2576
+      ],
+      "span_width_bins": 122,
+      "maximum_absolute_error": 8.881784197001252e-16,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 8.881784197001252e-16
+        }
+      }
+    },
+    {
+      "scene": "dsb-sc",
+      "snr_db": 3.0,
+      "span": [
+        926,
+        970
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "insufficient_quality"
+        },
+        "lower_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "upper_occupied_edge_hz": {
+          "state": "insufficient_quality"
+        },
+        "occupied_bandwidth_hz": {
+          "state": "insufficient_quality"
+        },
+        "channel_power_dbfs": {
+          "state": "insufficient_quality"
+        },
+        "snr_estimate_db": {
+          "state": "insufficient_quality"
+        }
+      }
+    },
+    {
+      "scene": "tone-bin-centered",
+      "snr_db": 12.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 1.7763568394002505e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 1.7763568394002505e-15
+        }
+      }
+    },
+    {
+      "scene": "tone-off-bin",
+      "snr_db": 12.0,
+      "span": [
+        2290,
+        2318
+      ],
+      "span_width_bins": 29,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "am-carrier",
+      "snr_db": 12.0,
+      "span": [
+        1776,
+        1819
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 1.7763568394002505e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 1.7763568394002505e-15
+        }
+      }
+    },
+    {
+      "scene": "nfm",
+      "snr_db": 12.0,
+      "span": [
+        2410,
+        2454
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 1.7763568394002505e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 1.7763568394002505e-15
+        }
+      }
+    },
+    {
+      "scene": "ook",
+      "snr_db": 12.0,
+      "span": [
+        1514,
+        1557
+      ],
+      "span_width_bins": 44,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "two-fsk",
+      "snr_db": 12.0,
+      "span": [
+        2720,
+        2776
+      ],
+      "span_width_bins": 57,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "bpsk",
+      "snr_db": 12.0,
+      "span": [
+        1126,
+        1170
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 3.552713678800501e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 3.552713678800501e-15
+        }
+      }
+    },
+    {
+      "scene": "qpsk",
+      "snr_db": 12.0,
+      "span": [
+        3117,
+        3179
+      ],
+      "span_width_bins": 63,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "wideband-noise-like",
+      "snr_db": 12.0,
+      "span": [
+        2455,
+        2576
+      ],
+      "span_width_bins": 122,
+      "maximum_absolute_error": 0.0,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "scene": "dsb-sc",
+      "snr_db": 12.0,
+      "span": [
+        926,
+        970
+      ],
+      "span_width_bins": 45,
+      "maximum_absolute_error": 5.329070518200751e-15,
+      "fields": {
+        "carrier_line_frequency_hz": {
+          "state": "not_observed"
+        },
+        "emission_center_frequency_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "lower_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "upper_occupied_edge_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "occupied_bandwidth_hz": {
+          "state": "valid",
+          "absolute_error": 0.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "absolute_error": 3.552713678800501e-15
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "absolute_error": 5.329070518200751e-15
+        }
+      }
+    }
+  ],
+  "scope": "software reference equivalence; not RF accuracy or deployed service acceptance",
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "f7ff210ae104af749fa0502723f5fc41fb17f36eb22ee44afb2a34cb6b302e9d",
+    "platforms/embedded/p0/src/p0_parameter_run.c": "2aa6c6550a98c79fa0019f5f8eea60b51f2899d8175b29aae39a31c39b53cd7e",
+    "tests/p0/p0_parameter_runtime_test.c": "7adbbb7aa3060830279abdf33ce86bd983a19d7715acd1b2d01e8b255531d318",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h": "f4dbe8666b6139f5277623b87108caffd7a7d8e6f3a858b6c41e8bd6da55d7de",
+    "scripts/verify_p0_parameter_runtime.py": "1c4f091c0459bc4b36d986bb7d92da4f4ad406132deea180e9c587f9a03ee4b8"
+  }
+}

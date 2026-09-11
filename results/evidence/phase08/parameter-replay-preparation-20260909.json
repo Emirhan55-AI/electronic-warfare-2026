@@ -1,0 +1,23 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "replay_files_prepared_only",
+  "tests_passed": 6,
+  "iq_files": 6,
+  "files": {
+    "scripts/prepare_parameter_replay.py": "3b2ce0d6674afed5e6bf89ef965f30238b6ee0c1dd3dd3778b2f8a8f19bbe611",
+    "tests/test_parameter_replay_pack.py": "e58b15aa698b221887c6f1a7cce07a7a39ec8d2e923515763965e734ebfccb82",
+    "docs/plans/PARAMETER_REPLAY_LAB_GUIDE.md": "7c5f0db98f0dcb4f829af4512cd5c11a6cb0a475d1362818412ee5a9b81ee3bb",
+    "build/acceptance/parameter-replay-pack-v2-20260909/manifest.json": "07c22a08f30f10547e77a438b1e411a2c7dcf98b1f0a8768acb486039abec15e",
+    "build/acceptance/parameter-replay-pack-v2-20260909/PARAMTEST_SD.zip": "4c0d2a0b70b40c87d7abac7d1a5722adff70f298c32b9567bb5d7d5d42e9bdca"
+  },
+  "archive_sha256": "3100524a3060cdfd090d794f4b88ac5009ad68664db4eb31b0c076177e700caa",
+  "rf_transmitted": false,
+  "dbm_calibrated": false,
+  "product_acceptance": false,
+  "command": "python scripts/prepare_parameter_replay.py --output <yeni-dizin>",
+  "test_command": "python -m pytest tests/test_parameter_replay_pack.py -q",
+  "historical_failed_preparation": "İlk yerel paket Welch varsayılan DC çıkarımı nedeniyle CW OBW için NaN üretti; teslim edilmedi. v2 detrend=False ve sonlu spektrum denetimi kullanır. Dalga biçimi seçimi veya sınıflandırıcı değişmedi."
+}

@@ -51,7 +51,10 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         self.assertIn("app/operator_console/_mixin_et.py", excluded)
         self.assertEqual(
             {
+                "profiles/phase03/operation-default.json",
                 "profiles/phase04f5/operation-default.json",
+                "config/p0/hackrf_ed_rx.json",
+                "config/p0/hackrf_spurs.json",
                 "config/p0/hackrf_et_tx.json",
                 "datasets/fixtures/phase04f1/domain-model.json",
                 "datasets/fixtures/phase04f2/domain-model-v3.json",
@@ -66,6 +69,10 @@ class OperatorProductBoundaryTests(unittest.TestCase):
 
     def test_deploy_spec_enforces_the_same_import_boundary(self) -> None:
         spec = (ROOT / "app" / "operator_console" / "pysidedeploy.spec").read_text(encoding="utf-8")
+        self.assertIn("input_file = ../../baz_operator_console.py", spec)
+        self.assertIn("--include-data-dir=qml=app/operator_console/qml", spec)
+        for qml_path in (ROOT / "app" / "operator_console" / "qml").glob("*.qml"):
+            self.assertIn(f"qml/{qml_path.name}", spec)
         for module in (
             "platforms.acquisition.mock",
             "app.operator_console.laboratory",
@@ -74,7 +81,10 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             self.assertIn(f"--nofollow-import-to={module}", spec)
         self.assertIn("--nofollow-import-to=algorithms.et", spec)
         for asset in (
+            "profiles/phase03/operation-default.json",
             "profiles/phase04f5/operation-default.json",
+            "config/p0/hackrf_ed_rx.json",
+            "config/p0/hackrf_spurs.json",
             "config/p0/hackrf_et_tx.json",
             "datasets/fixtures/phase04f1/domain-model.json",
             "datasets/fixtures/phase04f2/domain-model-v3.json",

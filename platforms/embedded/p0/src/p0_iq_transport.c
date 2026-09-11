@@ -108,8 +108,10 @@ int p0_iq_processing_frame_decode(const uint8_t *packet, size_t packet_bytes,
         return -1;
     return frame->chunk_index == 0U && frame->chunk_count == 1U &&
                    frame->sample_rate_hz == P0_IQ_PROCESSING_SAMPLE_RATE_HZ &&
-                   frame->complex_sample_count == P0_IQ_PROCESSING_COMPLEX_SAMPLES &&
-                   frame->payload_bytes == P0_IQ_PROCESSING_PAYLOAD_BYTES
+                   (frame->complex_sample_count == 4096U ||
+                    frame->complex_sample_count == 8192U ||
+                    frame->complex_sample_count == 16384U) &&
+                   frame->payload_bytes == frame->complex_sample_count * 2U
                ? 0 : -1;
 }
 

@@ -1,0 +1,213 @@
+{
+  "schema": "parameter-math-audit-v1",
+  "recorded_at": "2026-09-11T05:04:08.168501+00:00",
+  "status": "characterized_with_open_limits",
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "formulae": {
+    "bin_spacing_hz": "sample_rate_hz / 4096",
+    "noise_removed_bin_power": "d[k] = p[k] - n",
+    "channel_power_dbfs": "10*log10(sum(d[k]) * bin_spacing_hz)",
+    "obw99": "smooth four-frame mean excess with [0.25,0.5,0.25], subtract 2.5*n*sqrt(0.375/4), find 0.75%/99.25% cumulative edges, expand each edge 0.375 FFT bin; reject edge clipping or >7-bin leave-one-out instability",
+    "emission_center": "first moment of positive smoothed excess-power weights, with temporal and broad-support gates",
+    "snr_estimate": "W=max(4*sqrt(positive-excess spectral variance),1); 0.8*10*log10(T/(n*W))+1.6 dB; an in-band spectral estimate, not full-band time-domain input SNR",
+    "dbm": "channel_power_dbfs + calibration_offset_db, only inside matching receiver context and validity bounds"
+  },
+  "implementation_equivalence": {
+    "c_vs_python_cases": 33,
+    "status": "passed",
+    "scope": "software reference equivalence; not RF accuracy or deployed service acceptance",
+    "report_sha256": "0cf52ecf3ebdddd2fd6bc5b159c5727bc4f26e3b200731c7729f966b65987fb4"
+  },
+  "physical_pl_arm_equivalence": {
+    "cases": 6,
+    "maximum_absolute_error": {
+      "emission_center_frequency": 0.006908029317855835,
+      "carrier_line_frequency": 0.0009285658597946167,
+      "lower_band_edge": 0.010066226124763489,
+      "upper_band_edge": 0.02056853473186493,
+      "occupied_bandwidth": 0.020423781554200104,
+      "channel_power_dbfs": 4.835630555888315e-05,
+      "snr_estimate_db": 9.908464499375214e-05
+    },
+    "evidence": "parameter-board-persistent-20260911.json"
+  },
+  "independent_long_record_characterization": {
+    "records": 30,
+    "replay_match_count": 30,
+    "families": {
+      "CW": {
+        "count": 6,
+        "domain_outputs": {
+          "Belirsiz": 6
+        },
+        "emission_center_frequency": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 5342.863706469536
+        },
+        "carrier_line_frequency": {
+          "states": {
+            "valid": 1,
+            "not_observed": 5
+          },
+          "max_absolute_error": 7.246437668800354
+        },
+        "channel_power_dbfs": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 0.0288180307555308
+        },
+        "occupied_bandwidth": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 2545.2277041753227
+        }
+      },
+      "AM": {
+        "count": 6,
+        "domain_outputs": {
+          "Belirsiz": 6
+        },
+        "emission_center_frequency": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 4254.722215294838
+        },
+        "carrier_line_frequency": {
+          "states": {
+            "not_observed": 4,
+            "valid": 2
+          },
+          "max_absolute_error": 366.2109375
+        },
+        "channel_power_dbfs": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 0.044172872268459784
+        },
+        "occupied_bandwidth": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 1595.7399154426676
+        }
+      },
+      "NFM": {
+        "count": 6,
+        "domain_outputs": {
+          "Belirsiz": 6
+        },
+        "emission_center_frequency": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 2207.0982673168182
+        },
+        "carrier_line_frequency": {
+          "states": {
+            "not_observed": 4,
+            "valid": 2
+          },
+          "max_absolute_error": null
+        },
+        "channel_power_dbfs": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 0.018932361358029226
+        },
+        "occupied_bandwidth": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 1987.4990045194263
+        }
+      },
+      "BPSK": {
+        "count": 6,
+        "domain_outputs": {
+          "Belirsiz": 6
+        },
+        "emission_center_frequency": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 10208.543035387993
+        },
+        "carrier_line_frequency": {
+          "states": {
+            "not_observed": 6
+          },
+          "max_absolute_error": null
+        },
+        "channel_power_dbfs": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 0.1888012416342839
+        },
+        "occupied_bandwidth": {
+          "states": {
+            "uncertain": 3,
+            "valid": 3
+          },
+          "max_absolute_error": 325643.8106862195
+        }
+      },
+      "FSK": {
+        "count": 6,
+        "domain_outputs": {
+          "Belirsiz": 6
+        },
+        "emission_center_frequency": {
+          "states": {
+            "valid": 4,
+            "insufficient_quality": 2
+          },
+          "max_absolute_error": 7364.603727698326
+        },
+        "carrier_line_frequency": {
+          "states": {
+            "not_observed": 6
+          },
+          "max_absolute_error": null
+        },
+        "channel_power_dbfs": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 0.023276829313573444
+        },
+        "occupied_bandwidth": {
+          "states": {
+            "valid": 6
+          },
+          "max_absolute_error": 6322.307121562248
+        }
+      }
+    },
+    "report_sha256": "10fdd1f84b9abb9a4a94035632d503445730781da64cd549d4714ca8a6911b32"
+  },
+  "conclusions": [
+    "The PL/ARM implementation reproduces the locked Python equations closely; this proves implementation fidelity, not RF truth.",
+    "Uncalibrated channel power was valid in all 30 independent records; worst absolute error was 0.188802 dB.",
+    "Emission-center error reached 10.209 kHz in the tested BPSK records and carrier-line output abstained frequently.",
+    "OBW was useful when the chosen analysis span contained the emission, but rectangular BPSK produced three false-valid narrow-span results with up to 325.644 kHz error.",
+    "Therefore frequency/OBW/power computation is real and evidence-based, but full-emission span containment and live RF calibration remain acceptance gates.",
+    "dBm stays unavailable until a measured, context-matched physical calibration profile exists."
+  ],
+  "not_claimed": [
+    "live RF accuracy",
+    "universal modulation-family accuracy",
+    "dBm accuracy",
+    "field acceptance"
+  ]
+}

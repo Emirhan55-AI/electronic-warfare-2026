@@ -1,0 +1,129 @@
+{
+  "schema": "phase08-st06-runtime-fft-feasibility-v1",
+  "generated_at": "2026-09-10T15:36:36.824045+00:00",
+  "status": "passed",
+  "scope": "Vivado out-of-context FFT IP synthesis and conservative full-design resource estimate",
+  "device": "xc7z020clg484-1",
+  "vivado": "2025.2",
+  "profiles": {
+    "fixed4096": {
+      "properties": {
+        "CONFIG.transform_length": "4096",
+        "CONFIG.run_time_configurable_transform_length": "false",
+        "s_axis_config_tdata": "8",
+        "m_axis_data_tuser": "16"
+      },
+      "resources": {
+        "slice_luts": 4005,
+        "slice_registers": 7196,
+        "bram_tiles": 14.5,
+        "dsps": 30
+      }
+    },
+    "runtime16384": {
+      "supported_lengths": [
+        4096,
+        8192,
+        16384
+      ],
+      "config_nfft_values": {
+        "4096": 12,
+        "8192": 13,
+        "16384": 14
+      },
+      "config_layout": "NFFT in s_axis_config_tdata[3:0], forward/inverse bit in bit 8",
+      "properties": {
+        "CONFIG.transform_length": "16384",
+        "CONFIG.run_time_configurable_transform_length": "true",
+        "s_axis_config_tdata": "16",
+        "m_axis_data_tuser": "16"
+      },
+      "resources": {
+        "slice_luts": 6641,
+        "slice_registers": 9947,
+        "bram_tiles": 49,
+        "dsps": 38
+      }
+    }
+  },
+  "resource_delta": {
+    "slice_luts": 2636,
+    "slice_registers": 2751,
+    "bram_tiles": 34.5,
+    "dsps": 8
+  },
+  "current_routed_full_design": {
+    "slice_luts": 19895,
+    "slice_registers": 17716,
+    "bram_tiles": 23.5,
+    "dsps": 53
+  },
+  "estimated_full_design_after_ip_replacement": {
+    "slice_luts": 22531,
+    "slice_registers": 20467,
+    "bram_tiles": 58.0,
+    "dsps": 61
+  },
+  "estimated_full_design_utilization_percent": {
+    "slice_luts": 42.352,
+    "slice_registers": 19.236,
+    "bram_tiles": 41.429,
+    "dsps": 27.727
+  },
+  "checks": {
+    "ooc_synthesis": {
+      "fixed4096": true,
+      "runtime16384": true
+    },
+    "properties": {
+      "fixed4096": {
+        "CONFIG.transform_length": true,
+        "CONFIG.run_time_configurable_transform_length": true,
+        "s_axis_config_tdata": true,
+        "m_axis_data_tuser": true
+      },
+      "runtime16384": {
+        "CONFIG.transform_length": true,
+        "CONFIG.run_time_configurable_transform_length": true,
+        "s_axis_config_tdata": true,
+        "m_axis_data_tuser": true
+      }
+    },
+    "estimated_capacity": {
+      "slice_luts": true,
+      "slice_registers": true,
+      "bram_tiles": true,
+      "dsps": true
+    }
+  },
+  "conclusions": {
+    "fft_ip_runtime_length_feasible": true,
+    "full_design_synthesized": false,
+    "full_design_routed": false,
+    "timing_closed": false,
+    "rtl_integrated": false,
+    "dma_arm_protocol_integrated": false,
+    "hardware_verified": false,
+    "ui_may_claim_fpga_runtime_fft": false
+  },
+  "required_integration_surfaces": [
+    "Hann window coefficient memory and runtime frame boundary",
+    "FFT adapter configuration handshake and 14-bit bin index",
+    "power/OS-CFAR memories, counters, and runtime frame length",
+    "DMA input/output capacities and versioned frame metadata",
+    "ARM decoder, candidate pipeline, and network protocol arrays",
+    "PC request/response framing and verified UI readback",
+    "full Vivado implementation, RTL/reference equivalence, and physical board tests"
+  ],
+  "source_sha256": {
+    "scripts/probe_st06_runtime_fft.tcl": "ca9d68fee9663217ad78945d498265a999cd6131d6753e64a6115ad982f63b8f",
+    "scripts/phase06d_ip_config.tcl": "fd364133b15f7b2fe6d4586cd7b703dc217429ca92a93db2c85c0ed2639c4533",
+    "scripts/verify_st06_runtime_fft_feasibility.py": "4627d3c4d6f7d3df2c05edb6b0d3d98d4d7885bb2b094eba55481bac39e924a6"
+  },
+  "artifact_sha256": {
+    "properties-fixed4096.txt": "dd1986b39fb5c0135d39c15041212c21396d1a5d31f3d1525e9a0e7f6b856fda",
+    "properties-runtime16384.txt": "412dabc723d54182358b2a2a210366f72d57a6f1172ca982c5be3d5c8b342dcc",
+    "utilization-fixed4096.rpt": "662b3214cb7d7f5c7910e22aaacc4fd7ace839027834f0c42adf4709e986b745",
+    "utilization-runtime16384.rpt": "2a38219d3314b32ecc3c9d687579ea6ab4c0245e30c9a6b3fa03ddeb43550fd6"
+  }
+}

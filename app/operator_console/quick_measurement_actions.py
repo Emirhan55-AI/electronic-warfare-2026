@@ -350,6 +350,7 @@ class QuickMeasurementActionsMixin:
                 center_frequency_hz=float(first_frame.center_frequency_hz),
                 spectrum_config=spectrum_processor.config, source=source_info,
                 requested_utc=requested_utc, directory=record_directory,
+                board_endpoint=(configuration.board_host, configuration.board_port),
             )
 
         self._pending_live_measurement = operation
@@ -392,9 +393,9 @@ class QuickMeasurementActionsMixin:
             {"label": "Gözlenen taşıyıcı frekansı", "value": measured("carrier_line_frequency", result.carrier_line_frequency, self._format_frequency)},
             {"label": "Alt OBW sınırı", "value": measured("occupied_bandwidth", result.lower_band_edge, self._format_frequency)},
             {"label": "Üst OBW sınırı", "value": measured("occupied_bandwidth", result.upper_band_edge, self._format_frequency)},
-            {"label": "OBW %99", "value": measured("occupied_bandwidth", result.occupied_bandwidth, self._format_rate)},
-            {"label": "Kalibre edilmemiş kanal gücü", "value": measured("uncalibrated_channel_power_dbfs", result.channel_power_dbfs, lambda value: f"{value:.2f} dBFS")},
-            {"label": "SNR kestirimi", "value": measured("snr_estimate_db", result.snr_estimate_db, lambda value: f"{value:.2f} dB")},
+            {"label": "İşgal edilen bant genişliği (OBW %99)", "value": measured("occupied_bandwidth", result.occupied_bandwidth, self._format_rate)},
+            {"label": "Kanal gücü (dBFS)", "value": measured("uncalibrated_channel_power_dbfs", result.channel_power_dbfs, lambda value: f"{value:.2f} dBFS")},
+            {"label": "Bant içi SNR kestirimi", "value": measured("snr_estimate_db", result.snr_estimate_db, lambda value: f"{value:.2f} dB")},
             {"label": "Sinyal türü", "value": domain},
             {"label": "Güç referansı", "value": "Kalibre edilmemiş · dBFS"},
         ]

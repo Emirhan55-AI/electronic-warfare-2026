@@ -79,11 +79,12 @@ def verify() -> dict[str, object]:
     required_service_tokens = (
         "AF_UNIX", "SOCK_SEQPACKET", "MSG_TRUNC", "SO_RCVTIMEO", "setgroups(0U, NULL)",
         "setgid(gid)", "setuid(uid)", "P0_ED_IQ_FRAME_BYTES", "p0_dma_runtime_run(",
-        "p0_ed_pipeline_process_decoded_trusted(", "p0_pl_os_cfar_decode(",
-        "P0_DMA_OUTPUT_CAPACITY_BYTES",
+        "p0_ed_pipeline_process_decoded_trusted(", "p0_pl_os_cfar_decode_with_weak(",
+        "P0_DMA_MAX_OUTPUT_CAPACITY_BYTES",
         "chmod(socket_path, 0660)",
-        "P0_ED_REQUEST_BYTES_V2", "P0_ED_REQUEST_FLAG_PARAMETER",
+        "P0_PARAMETER_BATCH_REQUEST_BYTES", "P0_ED_REQUEST_FLAG_PARAMETER",
         "p0_ed_pipeline_measure(", "P0_ED_PIPELINE_DEPTH", "pthread_create(",
+        "P0_DF_BATCH_REQUEST_BYTES", "p0_amplitude_df_estimate(",
     )
     missing = [token for token in required_service_tokens if token not in service]
     if missing:
@@ -93,6 +94,7 @@ def verify() -> dict[str, object]:
         'INITSCRIPT_PARAMS = "defaults 99"',
         "p0-ed-service", "p0-ed-client", "p0-ed-throughput-run",
         "p0-parameter-run", "p0-parameter-client", "p0_ed_throughput_run.c",
+        "p0-amplitude-df-run", "p0_amplitude_df.c", "p0_amplitude_df.h",
         "p0_multiscale_detector.c", "p0_multiscale_detector.h",
         "p0_pl_os_cfar.c", "p0_pl_os_cfar.h",
         "p0_persistent_weak.c", "p0_persistent_weak.h",
@@ -108,9 +110,11 @@ def verify() -> dict[str, object]:
         "request_bytes_v1": 8224,
         "request_bytes_v2": 8272,
         "request_bytes_v3": 8224,
+        "request_bytes_v4": {"4096": 8224, "8192": 16416, "16384": 32800},
         "maximum_response_bytes_v1": 8772,
         "maximum_response_bytes_v2": 8916,
         "maximum_response_bytes_v3": 8772,
+        "maximum_response_bytes_v4": 8772,
         "compact_response_bytes_for_two_events_v3": 204,
         "v3_integrity_boundary": "AF_UNIX SOCK_SEQPACKET plus header CRC32",
         "transport": "AF_UNIX SOCK_SEQPACKET",

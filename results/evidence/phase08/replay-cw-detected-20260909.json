@@ -1,0 +1,38 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "cw_detected_capture_overrun",
+  "operator_report": "Hazır yanıtından sonra Play basıldı. Önceki 24/24 koşusunda mesaj geç görüldü; TX başarısızlığı değildir.",
+  "frequency_hz": 824989697.265625,
+  "active_windows": 43,
+  "total_windows": 598,
+  "usb_overruns": 3,
+  "longest_overrun_bytes": 4527552,
+  "settled_rail_components": 0,
+  "sample_index_span_s": 2.15,
+  "duration_accepted": false,
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "scripts/capture_replay_rx.py": "cfd2a5779dfb06e5a354ff0811a2699f8a2ecdcbca19939c208447f8f4ebc9a2",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "build/acceptance/replay-cw-off24-20260909/capture.json": "e6ed426b22572e74389172e061b0fd8eac2b4e1391dbc5c2a19c4ff4b426ef37",
+    "build/acceptance/replay-cw-off24-20260909/rx.ci8": "8e2f70a89c9ea0ef6f057fd0218f23423be8179bf510141440dc6418cb8e019c",
+    "build/acceptance/replay-cw-off24-20260909/transfer.log": "1a201590a46805d47213fd516d8ceb72b4b2dcdad9c0499d7dbd086a2ffb86d3",
+    "build/acceptance/replay-cw-window24-20260909/capture.json": "17c5406a11540ee51dd2016d362c1c575e115522c1c79a13bf1122f3087a8d91",
+    "build/acceptance/replay-cw-window24-20260909/cw-analysis.json": "e36224f14885c91ec0b43dfd3e46bb2b82627a74368533b8923eb092dcf5678f",
+    "build/acceptance/replay-cw-window24-20260909/rx.ci8": "0c06822b4b51f6615fcd63d7788cf5bc4866dc91b207568ffb1614327595b33c",
+    "build/acceptance/replay-cw-window24-20260909/transfer.log": "bff245cfe3d5d5eb53ea20e5ba9eb1de7a5731f6029ec5e254d5a451b23efdef",
+    "build/acceptance/replay-cw-window24-ready-20260909/capture.json": "9c62179c448f3013765d939019aeb636a74dd87c71d45d97f428692aa5389a13",
+    "build/acceptance/replay-cw-window24-ready-20260909/cw-analysis.json": "1a85b2a1e5d92f197f4b146162ec0c7ef7030f4c41ada5d415eef384f7915d50",
+    "build/acceptance/replay-cw-window24-ready-20260909/rx.ci8": "e5581c4ef65c3078fd585412f5716560b73c7130589a5c6544161994021c1fd9",
+    "build/acceptance/replay-cw-window24-ready-20260909/transfer.log": "3ee9476dda3a5a2d4dd0f7cf57741a1cc6c80b57d9abb60082e8cfd6a0c94468"
+  },
+  "limits": [
+    "Taşma nedeniyle örnek indisleri kesintisiz duvar zamanı değildir.",
+    "Frekans farkı TX veya RX saatine ayrı ayrı atfedilemez.",
+    "capture.json complete yalnız dosya boyutu ve çıkış kodudur; USB sürekliliğini kanıtlamaz."
+  ]
+}

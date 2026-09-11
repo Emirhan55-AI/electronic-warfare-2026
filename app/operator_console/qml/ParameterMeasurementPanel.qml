@@ -7,17 +7,20 @@ ScrollView {
     objectName: "measurementScroll"
     required property var viewModel
     signal detectionRequested()
+    signal listeningRequested()
     readonly property bool hasResult: viewModel.parameterRows.length > 0
     readonly property bool measuring: viewModel.parameterMeasurementActive
     property bool detailsOpen: false
     property bool editRange: false
-    readonly property var mainKeys: ["carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs", "signal_domain"]
-    readonly property var mainLabels: ["Taşıyıcı frekansı", "Bant genişliği · OBW %99", "Güç seviyesi · kalibrasyonsuz", "Analog / Sayısal"]
+    readonly property var mainKeys: ["carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs"]
+    readonly property var mainLabels: ["Taşıyıcı frekansı", "İşgal edilen bant genişliği (OBW %99)", "Kanal gücü (dBFS)"]
     readonly property var primaryRows: mainKeys.map(function(key, index) {
         var row = viewModel.parameterRows.find(function(item) { return item.key === key })
         return { label: mainLabels[index], value: row ? row.value : "—", state: row ? row.state : "pending" }
     })
-    readonly property var detailRows: viewModel.parameterRows.filter(function(row) { return mainKeys.indexOf(row.key) < 0 })
+    readonly property var detailRows: viewModel.parameterRows.filter(function(row) {
+        return mainKeys.indexOf(row.key) < 0 && row.key !== "signal_domain"
+    })
     onHasResultChanged: { detailsOpen = false; editRange = false }
     clip: true
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -44,7 +47,7 @@ ScrollView {
             Layout.fillWidth: true
             text: panel.measuring ? "Alım durduruluyor ve seçili gözlem ölçülüyor…"
                   : panel.hasResult ? (panel.viewModel.sourceMode === "hackrf" ? "Kayıtlı sonuç · Alım durdu" : "Kayıtlı I/Q sonucu · Tarama duraklatıldı")
-                  : panel.viewModel.measurementSelectionReady ? "Önerilen aralıkta yalnız seçtiğiniz sinyal bulunduğunu kontrol edin."
+                  : panel.viewModel.measurementSelectionReady ? "Analiz aralığı sinyalin tamamını kapsamalıdır."
                   : panel.viewModel.selectedDetectionId >= 0 ? "Seçili sinyalin güncel, ardışık gözlemi bekleniyor."
                   : "Tespit ekranından doğrulanmış bir sinyal seçin."
             color: BazTheme.textSecondary
@@ -147,7 +150,7 @@ ScrollView {
         }
         Label {
             Layout.fillWidth: true
-            text: "Güç dBFS referansındadır. Taşıyıcı çizgisi ve emisyon merkezi ayrı ölçümlerdir; yeterli kanıt yoksa karar belirsiz kalır."
+            text: "OBW için analiz aralığı sinyalin tamamını kapsamalıdır."
             color: BazTheme.textMuted
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -189,6 +192,14 @@ ScrollView {
                 font.pixelSize: 10
                 wrapMode: Text.WrapAnywhere
             }
+        }
+        PrimaryButton {
+            objectName: "parameterContinueListening"
+            visible: panel.hasResult
+            text: panel.viewModel.sourceMode === "hackrf" ? "Dinleme İçin Yeniden Al" : "Dinlemeye Geç"
+            Layout.fillWidth: true
+            enabled: !panel.viewModel.busy
+            onClicked: if (panel.viewModel.continueToListening()) panel.listeningRequested()
         }
         PrimaryButton {
             objectName: "parameterReacquire"

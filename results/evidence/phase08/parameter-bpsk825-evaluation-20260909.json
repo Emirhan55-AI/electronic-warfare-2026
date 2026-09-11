@@ -1,0 +1,40 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "classification_coverage_failed",
+  "source_modulation": "BPSK operator declared",
+  "source_shape": "not adjustable per operator",
+  "source_symbol_rate": null,
+  "rf_runs": 6,
+  "windows_per_run": 10,
+  "gain16_low_snr": 20,
+  "gain24_low_snr": 20,
+  "gain32_quality_passed_domain_uncertain": 20,
+  "product_acceptance": false,
+  "model_changed": false,
+  "archive_sha256": "9ac308b1a5b7251220ae81fa6e837830b3ffea656a6d7ca6580d00255ee8ff23",
+  "files": {
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/report.json": "216d844d9d6112fa3d0c646aab694189e10b383b83c4e96854c2e56930818367",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-824700000.ci8": "a85f965e01805f4b75c8e8e5877292fecd6a69970ddca406af59bffa97324955",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-824700000.json": "8fa1089aef4d9c24e01ab520574a43b447043bbff8e095ac7a9450e45007c8d4",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-824700000.log": "a3b6befedb641c95922dd17f95ac5a11a477b3079a2a6147a4bf6aa050a0773a",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-825300000.ci8": "1a9fc98084d3782c2b5cfbbc886583a42cd30524355c8fc4c0a3fb4d37293861",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-825300000.json": "a69b839a1dace80b21a9cd1f5d63bd679fb526c6bde1ffa7a5257494b978583a",
+    "build/acceptance/parameter-rf-bpsk825-g16-20260909/rx-825300000.log": "8b7fef44782f501e632423c8e5d6447fd829d7558fd7ae1c553e744e6fcc8ff3",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/report.json": "ad4507fd087391190978fb036852923759d48326e045dbb002b898fda1cfe168",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-824700000.ci8": "9b54b0944206d66a9ededd892609cfef72b1865ae2d966da2e46b2c42e6a3ed9",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-824700000.json": "daca633925d1d5a114f6ebf390bf36b899f33806cc612d25c63d2612d00480aa",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-824700000.log": "bf6ca5bf415367653c6ece419f39ebd735a8ad82a0609de94d30784b5e8e8181",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-825300000.ci8": "984b6a173df4c852f2ea7c2236d43a50aab9f246f49a9708abb58067d32cd463",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-825300000.json": "d93b9b036d31e3fd4af3a2c912b460135eee282673c35bcc396eaa9b28bb5e2e",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/rx-825300000.log": "a65c5a4920f928afe5e21abc2b0a251c77e939182992337910eee43f13438b0d",
+    "build/acceptance/parameter-rf-bpsk825-g24-20260909/span-diagnostic.json": "d8a182441a0d1cdb0a67f2b76139b993a3f345e50dbda543b1fc4c1e5dbaa363",
+    "build/acceptance/parameter-rf-bpsk825-g32-20260909/report.json": "5b38b5e559cdd40f12091f6d7214124f2c6683cc701fb42f89f180f84ffa3f30",
+    "build/acceptance/parameter-rf-bpsk825-g32-20260909/rx-824700000.ci8": "91d797f4dcfed53becd49245b28d114d45c5d49a575c8ac438fa4a85f2984bb6",
+    "build/acceptance/parameter-rf-bpsk825-g32-20260909/rx-824700000.log": "6dd350c544e45e079012af8dfae32e06c9d446078bff31d9d28ef5df576c2bde",
+    "build/acceptance/parameter-rf-bpsk825-g32-20260909/rx-825300000.ci8": "9deb823fde9a03e913534354a1015299b9edcfa9a613e79db9adbeb933c1f2d9",
+    "build/acceptance/parameter-rf-bpsk825-g32-20260909/rx-825300000.log": "dbfe074316261600c9cf74eddbf54570fec76e6bcad00c1943ea169f9e7c6355"
+  }
+}

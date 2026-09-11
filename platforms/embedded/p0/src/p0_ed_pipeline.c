@@ -4,6 +4,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef P0_ED_PIPELINE_PROFILE
+#include <inttypes.h>
+#include <stdio.h>
+#include <time.h>
+#endif
 
 #include "p0_candidate_packet.h"
 #include "p0_multiscale_detector.h"
@@ -14,6 +19,55 @@
 #define P0_FRAME_BINS PHASE06I_FFT_SIZE
 #define P0_POWER_BYTES_PER_BIN 8U
 #define P0_POWER_FRAME_BYTES (P0_FRAME_BINS * P0_POWER_BYTES_PER_BIN)
+
+#ifdef P0_ED_PIPELINE_PROFILE
+enum {
+    P0_PROFILE_CHECKPOINT,
+    P0_PROFILE_WEAK_COLLECT,
+    P0_PROFILE_GROUP,
+    P0_PROFILE_WIDEBAND,
+    P0_PROFILE_ENCODE,
+    P0_PROFILE_TEMPORAL,
+    P0_PROFILE_WEAK_STATE,
+    P0_PROFILE_FINALIZE,
+    P0_PROFILE_STAGE_COUNT
+};
+
+static uint64_t pipeline_profile_totals[P0_PROFILE_STAGE_COUNT];
+static uint64_t pipeline_profile_frames;
+
+static uint64_t pipeline_profile_now(void)
+{
+    struct timespec value;
+
+    if (clock_gettime(CLOCK_MONOTONIC, &value) != 0)
+        return 0U;
+    return (uint64_t)value.tv_sec * UINT64_C(1000000000) + (uint64_t)value.tv_nsec;
+}
+
+static void pipeline_profile_record(const uint64_t *marks)
+{
+    static const char *const names[P0_PROFILE_STAGE_COUNT] = {
+        "checkpoint", "weak_collect", "group", "wideband", "encode",
+        "temporal", "weak_state", "finalize"
+    };
+    size_t index;
+
+    for (index = 0U; index < P0_PROFILE_STAGE_COUNT; ++index)
+        pipeline_profile_totals[index] += marks[index + 1U] - marks[index];
+    ++pipeline_profile_frames;
+    if (pipeline_profile_frames % UINT64_C(4096) != 0U)
+        return;
+    fprintf(stderr, "{\"schema\":\"p0-ed-pipeline-profile-v1\",\"frames\":%" PRIu64,
+            pipeline_profile_frames);
+    for (index = 0U; index < P0_PROFILE_STAGE_COUNT; ++index) {
+        fprintf(stderr, ",\"%s_mean_ms\":%.9f", names[index],
+                (double)pipeline_profile_totals[index] /
+                    (double)pipeline_profile_frames / 1000000.0);
+    }
+    fputs("}\n", stderr);
+}
+#endif
 
 typedef struct {
     uint64_t high;
@@ -232,6 +286,7 @@ int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline)
         return -1;
     }
     memset(pipeline, 0, sizeof(*pipeline));
+    pipeline->weak_alpha_q32 = UINT64_C(17098572778);
     pipeline->power = calloc(P0_FRAME_BINS, sizeof(*pipeline->power));
     pipeline->raw_power = calloc(P0_FRAME_BINS, sizeof(*pipeline->raw_power));
     pipeline->noise = calloc(P0_FRAME_BINS, sizeof(*pipeline->noise));
@@ -313,6 +368,32 @@ int p0_ed_pipeline_reset(p0_ed_pipeline_t *pipeline)
     return p0_st05_stream_reset(pipeline->wideband_stream_state,
                                 pipeline->wideband_stream_state_bytes) == P0_ST05_OK
                ? 0 : -1;
+}
+
+static int weak_candidates_overlap(
+    const p0_persistent_weak_candidate_v1 *left,
+    const p0_persistent_weak_candidate_v1 *right);
+
+int p0_ed_pipeline_set_cfar(p0_ed_pipeline_t *pipeline, uint64_t alpha_q32,
+                            uint64_t weak_alpha_q32)
+{
+    if (pipeline == NULL || alpha_q32 < (UINT64_C(1) << 32) ||
+        alpha_q32 >= (UINT64_C(1) << 36) || weak_alpha_q32 < (UINT64_C(1) << 32) ||
+        weak_alpha_q32 >= (UINT64_C(1) << 34) || weak_alpha_q32 > alpha_q32) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (p0_ed_pipeline_reset(pipeline) != 0) return -1;
+    pipeline->custom_cfar_profile = alpha_q32 != UINT64_C(36851433755) ||
+                                    weak_alpha_q32 != UINT64_C(17098572778);
+    if (!pipeline->custom_cfar_profile) {
+        // Preserve the original floating reference coefficient exactly.
+        if (p0_os_cfar_canonical_config(&pipeline->config) != 0) return -1;
+    } else {
+        pipeline->config.threshold_coefficient = (double)alpha_q32 / 4294967296.0;
+    }
+    pipeline->weak_alpha_q32 = weak_alpha_q32;
+    return 0;
 }
 
 static int weak_candidates_overlap(
@@ -429,6 +510,67 @@ static int append_persistent_weak(
     return 0;
 }
 
+static uint64_t power_rank24(const uint64_t *power, uint32_t peak)
+{
+    uint64_t references[32];
+    uint32_t source, length = 0U;
+    for (source = peak - 20U; source <= peak + 20U; ++source) {
+        uint32_t position;
+        uint64_t value;
+        if (source >= peak - 4U && source <= peak + 4U) continue;
+        value = power[source];
+        position = length++;
+        while (position != 0U && references[position - 1U] > value) {
+            references[position] = references[position - 1U];
+            --position;
+        }
+        references[position] = value;
+    }
+    return references[23];
+}
+
+/* Consume PL weak metadata before the ordinary grouping path sees its bool mask.
+ * Rank work is limited to nominated region peaks; the PL still decides all cells. */
+static uint16_t collect_power_weak(p0_ed_pipeline_t *pipeline)
+{
+    uint16_t count = 0U;
+    uint32_t index;
+
+    for (index = 0U; index < 20U; ++index)
+        pipeline->detections[index] &= 1U;
+    while (index < P0_FRAME_BINS - 20U) {
+        uint32_t start, end, peak;
+        p0_weak_nomination_v1 nomination;
+        if (pipeline->detections[index] != 2U) {
+            pipeline->detections[index] &= 1U;
+            ++index;
+            continue;
+        }
+        start = end = peak = index++;
+        pipeline->detections[start] &= 1U;
+        while (index < P0_FRAME_BINS - 20U && index - end <= 2U) {
+            uint8_t detection = pipeline->detections[index];
+            pipeline->detections[index] &= 1U;
+            if (detection == 2U) {
+                end = index;
+                if (pipeline->raw_power[index] > pipeline->raw_power[peak]) peak = index;
+            }
+            ++index;
+        }
+        nomination.start_shifted_bin = (uint16_t)start;
+        nomination.end_shifted_bin = (uint16_t)end;
+        nomination.peak_shifted_bin = (uint16_t)peak;
+        nomination.reserved = 0U;
+        nomination.peak_power = pipeline->raw_power[peak];
+        nomination.order_statistic = power_rank24(pipeline->raw_power, peak);
+        admit_weak_nomination(pipeline->weak_nominations, &count, &nomination);
+    }
+    for (; index < P0_FRAME_BINS; ++index)
+        pipeline->detections[index] &= 1U;
+    sort_weak_nominations_by_bin(pipeline->weak_nominations, count);
+    return count;
+}
+
 static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
                            const uint8_t *natural_power, size_t power_bytes,
                            phase06j_frame_result_v1 *result, size_t *raw_candidate_count, int decoded)
@@ -443,6 +585,13 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
     uint32_t previous_frame_id;
     int previous_has_frame_id;
     int code;
+    uint16_t weak_count;
+    int weak_checkpoint_saved = 0;
+    p0_persistent_weak_result_v1 weak_result;
+    p0_persistent_weak_result_v1 previous_weak_backup;
+#ifdef P0_ED_PIPELINE_PROFILE
+    uint64_t profile_marks[P0_PROFILE_STAGE_COUNT + 1U];
+#endif
 
     if (pipeline == NULL || pipeline->temporal_state == NULL ||
         pipeline->temporal_backup == NULL || pipeline->wideband_stream_state == NULL ||
@@ -452,12 +601,18 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
         errno = EINVAL;
         return -1;
     }
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[0] = pipeline_profile_now();
+#endif
     previous_frame_id = pipeline->wideband_last_frame_id;
     previous_has_frame_id = pipeline->wideband_has_frame_id;
     context_reset = reset_requested ||
                     (pipeline->wideband_has_frame_id &&
                      frame_id != pipeline->wideband_last_frame_id + UINT32_C(1));
     memcpy(pipeline->temporal_backup, pipeline->temporal_state, phase06j_state_bytes());
+    if (context_reset)
+        memcpy(pipeline->weak_backup, pipeline->weak_state, p0_persistent_weak_state_bytes());
+    previous_weak_backup = pipeline->previous_weak_result;
     if (context_reset) {
         memcpy(pipeline->wideband_stream_backup, pipeline->wideband_stream_state,
                pipeline->wideband_stream_state_bytes);
@@ -471,7 +626,7 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
     if (context_reset && p0_ed_pipeline_reset(pipeline) != 0)
         goto rollback;
     if (decoded < 0) {
-    code = p0_pl_os_cfar_decode(natural_power, power_bytes, pipeline->raw_power,
+    code = p0_pl_os_cfar_decode_with_weak(natural_power, power_bytes, pipeline->raw_power,
                                 pipeline->power, pipeline->detections,
                                 &pl_decisions_present);
     if (code != P0_PL_OS_CFAR_OK)
@@ -479,6 +634,13 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
     } else {
         pl_decisions_present = decoded;
     }
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[1] = pipeline_profile_now();
+#endif
+    weak_count = collect_power_weak(pipeline);
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[2] = pipeline_profile_now();
+#endif
     if (pl_decisions_present) {
         code = p0_os_cfar_group_detections_trusted(
             pipeline->power, P0_FRAME_BINS, &pipeline->config,
@@ -494,7 +656,10 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
     }
     if (code != P0_OS_CFAR_OK)
         goto protocol_error;
-    code = p0_st05_stream_update(
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[3] = pipeline_profile_now();
+#endif
+    code = p0_st05_stream_update_trusted(
         pipeline->wideband_stream_state, pipeline->wideband_stream_state_bytes,
         pipeline->power, P0_FRAME_BINS, &wideband, &wideband_valid);
     if (code != P0_ST05_OK)
@@ -507,20 +672,73 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
     } else {
         first_wideband = candidate_count;
     }
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[4] = pipeline_profile_now();
+#endif
     code = p0_candidate_records_encode(
         pipeline->raw_power, P0_FRAME_BINS, &pipeline->config,
         pipeline->candidates, candidate_count, pipeline->candidate_records,
         PHASE06I_MAX_CANDIDATES);
     if (code != P0_CANDIDATE_PACKET_OK)
         goto protocol_error;
+    if (pipeline->custom_cfar_profile) {
+        size_t custom_index;
+        for (custom_index = 0; custom_index < candidate_count; ++custom_index)
+            pipeline->candidate_records[custom_index].pfa_select = 3U;
+    }
     if (wideband_valid && wideband.candidate_count != 0U &&
         mark_wideband_records(pipeline, &wideband, first_wideband) != 0)
         goto protocol_error;
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[5] = pipeline_profile_now();
+#endif
     code = phase06j_process_candidates(
         pipeline->temporal_state, phase06j_state_bytes(), frame_id,
         pipeline->candidate_records, (uint16_t)candidate_count, result);
     if (code != PHASE06J_OK)
         goto protocol_error;
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[6] = pipeline_profile_now();
+#endif
+    if (!context_reset) {
+        if (p0_persistent_weak_checkpoint_save(pipeline->weak_state,
+                p0_persistent_weak_state_bytes(), pipeline->weak_nominations, weak_count,
+                pipeline->weak_backup, p0_persistent_weak_state_bytes()) != 0)
+            goto protocol_error;
+        weak_checkpoint_saved = 1;
+    }
+    code = p0_persistent_weak_update(
+        pipeline->weak_state, p0_persistent_weak_state_bytes(),
+        pipeline->weak_nominations, weak_count, &weak_result);
+    if (code != 0 || append_persistent_weak(pipeline, result, frame_id, &weak_result) != 0)
+        goto protocol_error;
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[7] = pipeline_profile_now();
+#endif
+    {
+        uint16_t event_index;
+        for (event_index = 0; event_index < result->active_count + result->ended_count; ++event_index) {
+            phase06j_event_v1 *event = event_index < result->active_count
+                ? &result->active[event_index] : &result->ended[event_index - result->active_count];
+            uint32_t peak = event->candidate.peak_shifted_bin;
+            uint64_t rank;
+            p0_u128_pair_t threshold;
+            int age;
+            if (!(event->candidate.flags & PHASE06I_RECORD_WEAK_EVIDENCE)) continue;
+            age = p0_persistent_weak_last_seen_age(pipeline->weak_state,
+                p0_persistent_weak_state_bytes(), (uint16_t)peak);
+            if (age < 0 || peak < 20U || peak >= P0_FRAME_BINS - 20U) goto protocol_error;
+            event->observed_this_frame = event_index < result->active_count && age == 0;
+            event->last_seen_frame_id = frame_id - (uint32_t)age;
+            /* Current measured power, never a ratio masquerading as absolute power. */
+            rank = power_rank24(pipeline->raw_power, peak);
+            threshold = weak_multiply_u64(rank, pipeline->weak_alpha_q32);
+            if (pipeline->custom_cfar_profile) event->candidate.pfa_select = 3U;
+            event->candidate.peak_power_uq28_30 = pipeline->raw_power[peak];
+            event->candidate.regional_noise_uq28_30 = rank;
+            event->candidate.threshold_uq32_30 = (threshold.high << 32U) | (threshold.low >> 32U);
+        }
+    }
     if ((uint32_t)result->dropped_candidates + dropped_narrow > UINT16_MAX)
         result->dropped_candidates = UINT16_MAX;
     else
@@ -530,12 +748,22 @@ static int process_power(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int rese
         result->reset_applied = 1U;
     pipeline->wideband_last_frame_id = frame_id;
     pipeline->wideband_has_frame_id = 1;
-    *raw_candidate_count = candidate_count;
+    *raw_candidate_count = candidate_count + weak_count;
+#ifdef P0_ED_PIPELINE_PROFILE
+    profile_marks[8] = pipeline_profile_now();
+    pipeline_profile_record(profile_marks);
+#endif
     return 0;
 
 protocol_error:
     errno = EPROTO;
 rollback:
+    if (context_reset)
+        memcpy(pipeline->weak_state, pipeline->weak_backup, p0_persistent_weak_state_bytes());
+    else if (weak_checkpoint_saved)
+        (void)p0_persistent_weak_checkpoint_restore(pipeline->weak_state,
+            p0_persistent_weak_state_bytes(), pipeline->weak_backup, p0_persistent_weak_state_bytes());
+    pipeline->previous_weak_result = previous_weak_backup;
     memcpy(pipeline->temporal_state, pipeline->temporal_backup,
            phase06j_state_bytes());
     if (context_reset) {
@@ -704,9 +932,14 @@ int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
         errno = EINVAL;
         return -1;
     }
-    if (p0_parameter_power_from_ci8(iq, iq_bytes, pipeline->raw_power,
-                                    P0_FRAME_BINS) != 0)
+    /* Consume the same decoded PL power frame that produced the event.
+     * Recomputing Hann/FFT here discards the hardware measurement. */
+    if (!pipeline->wideband_has_frame_id || pipeline->wideband_last_frame_id != frame_id ||
+        temporal->frame_id != frame_id) {
+        p0_parameter_runtime_reset(&pipeline->parameter_runtime);
+        errno = EPROTO;
         return -1;
+    }
     protected_lower = lower_shifted_bin >= P0_PARAMETER_LOCAL_PADDING
                           ? lower_shifted_bin - P0_PARAMETER_LOCAL_PADDING
                           : 0U;

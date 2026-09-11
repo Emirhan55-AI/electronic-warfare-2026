@@ -32,6 +32,11 @@ LIVE_COARSE_MAX_AGE_FRAMES = 3 * LIVE_COARSE_INTERVAL_DSP_FRAMES
 
 
 class QuickDetectionStateMixin:
+    def _live_fpga_fft_size(self) -> int:
+        session = self._live_session
+        configuration = getattr(session, "configuration", None)
+        return int(getattr(configuration, "fpga_fft_size", 4096))
+
     def _update_spectrum(self, result: RuntimeFrameResult) -> None:
         self._update_spectrum_result(result.spectrum)
 
@@ -98,19 +103,19 @@ class QuickDetectionStateMixin:
         ]
         self._refresh_live_detection_list(force=True)
 
-    def _update_spectrum_result(self, spectrum: object) -> None:
+    def _update_spectrum_result(self, spectrum: object, *, display_spectrum=None) -> None:
         display = getattr(spectrum, "display")
-        values = np.asarray(display.bin_power_dbfs, dtype=np.float64)
+        visual = display_spectrum if display_spectrum is not None else spectrum
+        values = np.asarray(visual.display.bin_power_dbfs, dtype=np.float64)
         power_fs2 = np.asarray(display.bin_power_fs2, dtype=np.float64)
-        finite_power = power_fs2[np.isfinite(power_fs2) & (power_fs2 > 0.0)]
-        self._direction_frame_power_dbfs = (
-            None if finite_power.size == 0 else float(10.0 * np.log10(np.mean(finite_power)))
-        )
+        self._set_direction_channel_power(spectrum, power_fs2)
         width = min(self._viewport_points, values.size)
         reduced = _reduce_display_max(values, width)
         self._spectral_display.append(
             values,
-            timestamp=self._frame_index * spectrum.frame_length / spectrum.sample_rate_hz,
+            timestamp=self._frame_index * (self._live_fpga_fft_size() / 2_000_000
+                                          if self._live_session is not None
+                                          else spectrum.frame_length / spectrum.sample_rate_hz),
             binding=(
                 self._source_mode,
                 spectrum.center_frequency_hz,
@@ -126,6 +131,47 @@ class QuickDetectionStateMixin:
         self._spectrum_values = [float(value) for value in reduced]
         self._update_live_spur_guard(spectrum)
         self.spectrumChanged.emit()
+
+    def _set_direction_channel_power(self, spectrum: object, power_fs2: np.ndarray | None = None) -> None:
+        display = getattr(spectrum, "display")
+        if power_fs2 is None:
+            power_fs2 = np.asarray(display.bin_power_fs2, dtype=np.float64)
+        self._direction_frame_power_dbfs = None
+        self._direction_frame_frequency_hz = None
+        self._direction_frame_bandwidth_hz = None
+        self._direction_receiver_binding = ""
+        self._direction_frame_id = None
+        start_bin = self._selected_detection_bin("startBin")
+        end_bin = self._selected_detection_bin("endBin")
+        selected = self._selected_detection_item()
+        if self.selectedDetectionReady and start_bin is not None and end_bin is not None and selected is not None:
+            lower = max(0, min(start_bin, end_bin))
+            upper = min(power_fs2.size - 1, max(start_bin, end_bin))
+            channel_power = power_fs2[lower : upper + 1]
+            finite_power = channel_power[np.isfinite(channel_power) & (channel_power > 0.0)]
+            if finite_power.size:
+                self._direction_frame_power_dbfs = float(10.0 * np.log10(np.sum(finite_power, dtype=np.float64)))
+                if self._source_mode == "hackrf":
+                    frequency_hz = float(selected["frequencyHz"])
+                else:
+                    event = next(
+                        (
+                            item for item in self._last_result.detection.active_events
+                            if item.event_id == self._selected_detection_id and item.observed_this_frame
+                        ),
+                        None,
+                    )
+                    frequency_hz = float(event.region.peak_frequency_hz) if event is not None else float("nan")
+                if math.isfinite(frequency_hz):
+                    self._direction_frame_frequency_hz = frequency_hz
+                    self._direction_frame_bandwidth_hz = (upper - lower + 1) * float(spectrum.sample_rate_hz) / power_fs2.size
+                    lna = int(self._live_receive_settings["lna_db"]) if self._source_mode == "hackrf" else -1
+                    vga = int(self._live_receive_settings["vga_db"]) if self._source_mode == "hackrf" else -1
+                    self._direction_receiver_binding = (
+                        f"{self._source_mode}|{float(spectrum.center_frequency_hz):.6f}|"
+                        f"{float(spectrum.sample_rate_hz):.6f}|{lower}:{upper}|{lna}:{vga}"
+                    )
+                    self._direction_frame_id = int(self._frame_index)
 
     def _fixed_verification_record(self, frequency_hz: float) -> dict[str, object] | None:
         return next(
@@ -208,6 +254,7 @@ class QuickDetectionStateMixin:
     def _queue_fixed_verification(self, candidate: FixedBandCandidate) -> None:
         if (
             self._live_session is None
+            or self._live_fpga_fft_size() != 4096
             or self._fixed_verification_candidate is not None
             or self._fixed_verifier is not None
             or self._fixed_verification_record(candidate.frequency_hz) is not None
@@ -265,6 +312,8 @@ class QuickDetectionStateMixin:
         self,
         candidates: list[FixedBandCandidate],
     ) -> None:
+        if self._live_fpga_fft_size() != 4096:
+            return
         for candidate in sorted(
             candidates,
             key=lambda item: item.peak_to_noise_db,
@@ -598,6 +647,8 @@ class QuickDetectionStateMixin:
         }
         self._detection_model.set_rows(self._detections)
         self.detectionsChanged.emit()
+        self._select_pending_survey_parameter_target()
+        self._select_pending_listening_target()
 
     def _update_detections(self, result: RuntimeFrameResult) -> None:
         for event in result.detection.active_events:
@@ -647,9 +698,14 @@ class QuickDetectionStateMixin:
         *,
         keep_source: bool = False,
         keep_spectrum: bool = False,
+        keep_direction: bool = False,
     ) -> None:
         self._last_result = None
         self._direction_frame_power_dbfs = None
+        self._direction_frame_frequency_hz = None
+        self._direction_frame_bandwidth_hz = None
+        self._direction_receiver_binding = ""
+        self._direction_frame_id = None
         if not keep_spectrum:
             self._spectrum_values = []
             self._spectral_display.clear()
@@ -673,7 +729,8 @@ class QuickDetectionStateMixin:
         self._analysis_span_draft = None
         self._event_observation_history.clear()
         self._frame_index = 0
-        self._reset_direction()
+        if not keep_direction:
+            self._reset_direction()
         self._clear_listening("Doğrulanmış bir tespit seçin.")
         if not keep_source:
             self._frame_count = 0

@@ -1,0 +1,45 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "source_confirmed_am_classification_failed_low_snr",
+  "operator_report": "Doğru 01_AM.C16 seçildi ve Play basıldı.",
+  "receiver_gain_db": 24,
+  "usb_overruns": 0,
+  "settled_rail_components": 0,
+  "envelope_peak_hz": 1699.21875,
+  "expected_envelope_hz": 1700,
+  "classification": {
+    "Belirsiz": 10
+  },
+  "snr_db": [
+    2.039702826581008,
+    2.9862515909459884,
+    3.904822559135046,
+    4.29213272206531,
+    4.1009280380701965,
+    4.383367361049471,
+    4.110908275404404,
+    3.342528866383652,
+    2.799400237598912,
+    3.413780442889373
+  ],
+  "product_acceptance": false,
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "activity.json": "9e88a63f9c0aad56606586465283c07853569d29ab74839855366e01cebcd180",
+    "am-analysis.json": "77c545a33638a09583fdc5a836a8e0125ff6576ad9cb9849786e0da271228345",
+    "capture.json": "075ab824e344be110a1af3170bbc03f8faa29aafcc004c4c7b206b9ca82df4c8",
+    "rx.ci8": "aae85f3990af0e07d44e3521f54e7a8872ac7037c787c753e7389280c366d3b5",
+    "transfer.log": "5a3ade45c2c93de3a5353b126cc2be7a0b9454e4aeb07713ef27c6d4bfb6b21e",
+    "build/analyze_replay_am_correct.py": "b8acfeda64a02848fdcf6eb9962114c459ea8206f0a43688f43f0569c655165b",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6"
+  },
+  "limits": [
+    "Tek fiziksel yayın kaydından on pencere; bağımsız on RF koşusu değildir.",
+    "Kaynak adı operatör beyanı, 1,699 kHz zarf tonu ve hazırlanan dosya ayarıyla desteklenir; verici kimliği açık.",
+    "Aday PC üzerinde çalıştı; ürün F5, ARM ve FPGA kullanılmadı."
+  ]
+}

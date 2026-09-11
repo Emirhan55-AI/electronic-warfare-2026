@@ -1,0 +1,63 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "rf_frontend_development_only",
+  "independent_rf_captures": 4,
+  "on_windows": 40,
+  "pre_windows": 4,
+  "checks": {
+    "real_iq_scale_and_frequency": {
+      "power_error_db": 8.881784197001252e-16,
+      "snr_error_db": 0.0,
+      "feature_max_absolute_change": 0.0,
+      "absolute_frequency_context_error_hz": 0.0
+    },
+    "receiver_dc_band_rejected": true,
+    "no_unvalidated_definite_classes": true,
+    "low_snr_does_not_erase_power": true
+  },
+  "inputs": [
+    {
+      "evidence": "results/evidence/phase08/parameter-am-linkcheck-20260909.json",
+      "evidence_sha256": "0105aab29d09f045108b5aecfbc40c0d5b01ac5f121ac273ea567fa5efd35328",
+      "raw_sha256": "4e46f0df19ceae139020fa1d5d247460a6a7479a31eb6e94e5aeaaf97fbe913f",
+      "transport_valid": true
+    },
+    {
+      "evidence": "results/evidence/phase08/replay-amg8-evaluation-20260909.json",
+      "evidence_sha256": "012b8d7018c1f37fb1368e610723b9f7debc324437b7ae937aef9882274144f0",
+      "raw_sha256": "223bfb73ed06f5c4a11382eca56f7f417a1e3a2828e34ad50c26c7dbb052f347",
+      "transport_valid": true
+    },
+    {
+      "evidence": "results/evidence/phase08/replay-nfmg8-evaluation-20260909.json",
+      "evidence_sha256": "574a92c2b5ff4fdbf5e96d587228335191925269813fc0ea7745cd0abbadcda1",
+      "raw_sha256": "e7d54711a000944fc02f3224a976709b85b9a990c3be1c204a0518fa53bc0e06",
+      "transport_valid": true
+    },
+    {
+      "evidence": "results/evidence/phase08/replay-bpskg8-diagnostic-20260909.json",
+      "evidence_sha256": "8c69039c6f9f23dea8c4ba42ec709cd58bc100146b0bca4f1b0d34e4d8fa9710",
+      "raw_sha256": "cba8c689f216743bcd7a3bcaccf550bc4a6cce357aa45feec750edd871946d58",
+      "transport_valid": false
+    }
+  ],
+  "limits": [
+    "Yeni ön işleme, sınıflandırıcı veya fiziksel ürün kabulü değildir.",
+    "BPSK tek taşmalı RF kaydıdır; kabul paydasına alınmaz.",
+    "Mutlak taşıyıcı/tam OBW/dBm bu aday tarafından doğrulanmadı."
+  ],
+  "physical_acceptance": false,
+  "product_acceptance": false,
+  "dbm_calibrated": false,
+  "archive_file": "rf-observation-records-20260909.zip",
+  "archive_sha256": "098ea7f2ddcdb1f60dc93425dd37c1442e66a5d2cf68634a25bbf9ba1ac58e6d",
+  "files": {
+    "report.json": "b6c2f9c17ab6c3001c00888d24c7ba839cb5d8fc10a3a15c2113b2ac4fae8041",
+    "algorithms/parameters/rf_observation.py": "9b516a7b7a232291c4c5f05294adadcdc48ad00f42db2ffd1a83ab0f36fbfdb3",
+    "scripts/validate_rf_observation_records.py": "4681110c6af526c827243c54fda7ba8cc4cd6a4ae1d8bd118078e383eca68fab",
+    "scripts/analyze_parameter_rf_readiness.py": "3db7076b8c8fcdd171fd619638a5001ecde532dca3fbe0ef7e787ac8d504900f"
+  }
+}

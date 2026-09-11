@@ -6,7 +6,7 @@ import time
 
 from PySide6.QtCore import Slot
 
-from algorithms.spectrum import SpectrumProcessor
+from algorithms.spectrum import SpectrumConfig, SpectrumProcessor
 
 from .live_ed import LiveEDConfiguration
 from .quick_runtime import _LiveTask
@@ -45,10 +45,13 @@ class QuickScanActionsMixin:
             config = SurveyConfig(
                 round(lower_mhz * 1e6), round(upper_mhz * 1e6),
                 lna_gain_db, vga_gain_db, operator_condition=operator_condition,
+                frames_per_window=self._detection_settings["survey_frames"],
+                guard_frames=self._detection_settings["survey_guard_frames"],
             )
         except (ValueError, OverflowError) as exc:
             self._show_error("invalid_survey_config", str(exc))
             return
+        self._pending_survey_parameter_frequency_hz = None
         if operator_condition == "tx_on_comparison" and not self._survey_controller.reference_matches(config, self._device_config.serial):
             self._show_error(
                 "survey_reference_required",
@@ -110,6 +113,21 @@ class QuickScanActionsMixin:
 
     @Slot(result=bool)
     def monitorSurveyObservation(self):
+        self._pending_survey_parameter_frequency_hz = None
+        return self._monitor_survey_observation()
+
+    @Slot(result=bool)
+    def openSurveyObservationParameters(self):
+        frequency = self._survey_controller.selectedFrequency
+        if self._busy or frequency <= 0:
+            return False
+        self._pending_survey_parameter_frequency_hz = round(frequency)
+        if self._monitor_survey_observation():
+            return True
+        self._pending_survey_parameter_frequency_hz = None
+        return False
+
+    def _monitor_survey_observation(self) -> bool:
         frequency = self._survey_controller.selectedFrequency
         if self._busy or frequency <= 0:
             return False
@@ -120,6 +138,55 @@ class QuickScanActionsMixin:
             analysis_center_hz = target_hz + SURVEY_MONITOR_CENTER_OFFSET_HZ
         self.startLiveEDSession(analysis_center_hz, config.lna_gain_db, config.vga_gain_db, 878_906)
         return self.liveSessionActive
+
+    def _select_pending_survey_parameter_target(self) -> None:
+        target_hz = self._pending_survey_parameter_frequency_hz
+        if target_hz is None or self._live_session is None:
+            return
+        matches = [
+            row for row in self._detections
+            if row.get("stateKey") == "confirmed"
+            and bool(row.get("observed", True))
+            and (
+                float(row.get("lowerFrequencyHz", row["frequencyHz"])) - 50_000.0
+                <= target_hz
+                <= float(row.get("upperFrequencyHz", row["frequencyHz"])) + 50_000.0
+            )
+        ]
+        if not matches:
+            return
+        selected = min(matches, key=lambda row: abs(float(row["frequencyHz"]) - target_hz))
+        event_id = int(selected["eventId"])
+        if self._selected_detection_id != event_id:
+            self.selectDetection(event_id)
+        if self.measurementSelectionReady:
+            self._pending_survey_parameter_frequency_hz = None
+            self.surveyParameterReady.emit()
+
+    def _select_pending_listening_target(self) -> None:
+        target_hz = self._pending_listening_frequency_hz
+        if target_hz is None or self._live_session is None:
+            return
+        matches = [
+            row for row in self._detections
+            if row.get("stateKey") == "confirmed"
+            and bool(row.get("observed", True))
+            and (
+                float(row.get("lowerFrequencyHz", row["frequencyHz"])) - 50_000.0
+                <= target_hz
+                <= float(row.get("upperFrequencyHz", row["frequencyHz"])) + 50_000.0
+            )
+        ]
+        if not matches:
+            return
+        selected = min(matches, key=lambda row: abs(float(row["frequencyHz"]) - target_hz))
+        event_id = int(selected["eventId"])
+        if self._selected_detection_id != event_id:
+            self.selectDetection(event_id)
+        self._pending_listening_frequency_hz = None
+        self._status_message = "Ölçülen sinyal yeniden doğrulandı; dinleme tamponu dolduruluyor."
+        self._add_log("Dinleme", self._status_message)
+        self.stateChanged.emit()
 
     @Slot(float, int, int, int, bool)
     def startManagedLiveEDSession(self, center_hz, lna_gain_db, vga_gain_db, frame_count, automatic):
@@ -142,6 +209,7 @@ class QuickScanActionsMixin:
         *,
         fpga_enabled: bool = True,
         preserve_fixed_context: bool = False,
+        preserve_direction: bool = False,
         managed_gain: bool = False,
     ) -> None:
         if (
@@ -162,7 +230,12 @@ class QuickScanActionsMixin:
                 device_serial=self._device_config.serial,
                 # Every DSP frame is processed; only presentation is sampled.
                 # The GUI mailbox bounds queued display work even during a stall.
-                display_interval_frames=15,
+                display_interval_frames=self._detection_settings["display_interval_frames"],
+                display_fft_size=self._detection_settings["display_fft_size"],
+                fpga_fft_size=(
+                    self._card_detection_profile.fft_size
+                    if fpga_enabled and self._card_detection_profile is not None and
+                    self._card_detection_profile.runtime_fft_supported else 4096),
                 fpga_enabled=fpga_enabled,
                 assess_receive_level=managed_gain,
             )
@@ -199,7 +272,7 @@ class QuickScanActionsMixin:
         self._generation += 1
         generation = self._generation
         self._close_source()
-        self._clear_results(keep_spectrum=same_fixed_settings)
+        self._clear_results(keep_spectrum=same_fixed_settings, keep_direction=preserve_direction)
         if retained_history:
             self._live_detection_history = [
                 self._last_observation(self._apply_fixed_verification(row))
@@ -238,6 +311,8 @@ class QuickScanActionsMixin:
         self._live_session = session
         task = _LiveTask(generation, session)
         task.processor = SpectrumProcessor(self._pipeline.processor.config)
+        if configuration.display_fft_size != 16384:
+            task.display_processor = SpectrumProcessor(SpectrumConfig(frame_length=configuration.display_fft_size))
         task.signals.snapshot.connect(self._live_snapshot)
         task.signals.preview.connect(self._live_preview)
         task.signals.coarse.connect(self._live_coarse)
@@ -260,6 +335,7 @@ class QuickScanActionsMixin:
             return
         self._fixed_verification_queue.clear()
         self._fixed_verification_stop_requested = True
+        self._pending_listening_frequency_hz = None
         self._status_message = "Canlı ED oturumu durduruluyor…"
         if self._live_session is not None:
             self._live_session.cancel()

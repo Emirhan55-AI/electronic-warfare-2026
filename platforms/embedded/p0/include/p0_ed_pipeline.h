@@ -30,12 +30,16 @@ typedef struct {
     uint32_t wideband_last_frame_id;
     int wideband_has_frame_id;
     p0_os_cfar_config_t config;
+    uint64_t weak_alpha_q32;
+    int custom_cfar_profile;
     p0_parameter_runtime_t parameter_runtime;
 } p0_ed_pipeline_t;
 
 int p0_ed_pipeline_init(p0_ed_pipeline_t *pipeline);
 void p0_ed_pipeline_release(p0_ed_pipeline_t *pipeline);
 int p0_ed_pipeline_reset(p0_ed_pipeline_t *pipeline);
+int p0_ed_pipeline_set_cfar(p0_ed_pipeline_t *pipeline, uint64_t alpha_q32,
+                            uint64_t weak_alpha_q32);
 int p0_ed_pipeline_process(p0_ed_pipeline_t *pipeline, uint32_t frame_id, int reset_requested,
                            const uint8_t *natural_power, size_t power_bytes,
                            phase06j_frame_result_v1 *result, size_t *raw_candidate_count);
@@ -58,7 +62,7 @@ int p0_ed_pipeline_measure(p0_ed_pipeline_t *pipeline,
                            const phase06j_frame_result_v1 *temporal,
                            p0_parameter_result_t *result);
 
-/* Internal service path; arrays must come from successful p0_pl_os_cfar_decode. */
+/* Internal service path; arrays come from successful p0_pl_os_cfar_decode_with_weak. */
 int p0_ed_pipeline_process_decoded_trusted(p0_ed_pipeline_t *, uint32_t, int, int,
     phase06j_frame_result_v1 *, size_t *);
 #endif

@@ -10,6 +10,61 @@
 #define P0_PARAMETER_HANN_POWER_SUM 1536.0
 #define P0_PARAMETER_PI 3.14159265358979323846264338327950288
 
+int p0_parameter_calibrate_power(
+    const p0_parameter_field_t *power_dbfs,
+    const p0_power_calibration_t *calibration,
+    const uint8_t context_sha256[32], uint64_t now_unix,
+    p0_calibrated_power_t *result)
+{
+    unsigned int index;
+    unsigned int nonzero = 0U;
+    double value;
+
+    if (result == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    result->valid = 0U;
+    result->dbm = NAN;
+    result->uncertainty_db = NAN;
+    if (power_dbfs == NULL || calibration == NULL || context_sha256 == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+    for (index = 0U; index < 32U; ++index)
+        nonzero |= calibration->context_sha256[index];
+    if (nonzero == 0U ||
+        memcmp(context_sha256, calibration->context_sha256, 32U) != 0 ||
+        power_dbfs->state != P0_PARAMETER_FIELD_VALID ||
+        power_dbfs->reason != P0_PARAMETER_REASON_NONE ||
+        !isfinite(power_dbfs->value) ||
+        !isfinite(calibration->reference_dbfs) ||
+        !isfinite(calibration->reference_dbm) ||
+        !isfinite(calibration->minimum_dbfs) ||
+        !isfinite(calibration->maximum_dbfs) ||
+        !isfinite(calibration->uncertainty_db) || calibration->uncertainty_db <= 0.0 ||
+        calibration->minimum_dbfs > calibration->maximum_dbfs ||
+        calibration->reference_dbfs < calibration->minimum_dbfs ||
+        calibration->reference_dbfs > calibration->maximum_dbfs ||
+        power_dbfs->value < calibration->minimum_dbfs ||
+        power_dbfs->value > calibration->maximum_dbfs ||
+        calibration->measured_at_unix == 0U ||
+        calibration->valid_until_unix <= calibration->measured_at_unix ||
+        now_unix < calibration->measured_at_unix || now_unix > calibration->valid_until_unix) {
+        errno = ERANGE;
+        return -1;
+    }
+    value = power_dbfs->value + (calibration->reference_dbm - calibration->reference_dbfs);
+    if (!isfinite(value)) {
+        errno = ERANGE;
+        return -1;
+    }
+    result->dbm = value;
+    result->uncertainty_db = calibration->uncertainty_db;
+    result->valid = 1U;
+    return 0;
+}
+
 static void set_field(p0_parameter_field_t *field, uint8_t state, uint8_t reason,
                       double value)
 {
@@ -33,6 +88,7 @@ static void initialize_result(p0_parameter_result_t *result, uint64_t intent_id,
     set_field(&result->occupied_bandwidth_hz, state, reason, 0.0);
     set_field(&result->channel_power_dbfs, state, reason, 0.0);
     set_field(&result->snr_estimate_db, state, reason, 0.0);
+    set_field(&result->carrier_line_frequency_hz, state, reason, 0.0);
     result->reference_difference_db = NAN;
     result->detection_significance = NAN;
     result->center_uncertainty_bins = NAN;
@@ -411,8 +467,178 @@ static int broad_emission_bin(const p0_parameter_runtime_t *runtime,
     return 0;
 }
 
+/* F5 carrier artifact gates use a 3968-sample cropped channel. Bluestein
+ * preserves that DFT length; padding the channel itself changes entropy. */
+static int carrier_artifact_features(const p0_parameter_runtime_t *runtime,
+                                     double *entropy, double *skewness)
+{
+    const unsigned int count = 3968U;
+    const unsigned int convolution = 8192U;
+    unsigned int lower = runtime->lower_shifted_bin;
+    unsigned int upper = runtime->upper_shifted_bin;
+    unsigned int transition = (upper - lower + 1U) / 4U;
+    p0_parameter_complex_t *channel = calloc(4096U, sizeof(*channel));
+    p0_parameter_complex_t *a = calloc(convolution, sizeof(*a));
+    p0_parameter_complex_t *b = calloc(convolution, sizeof(*b));
+    unsigned int frame, index;
+    double center = 0.5 * (double)(lower + upper) - 2048.0;
+
+    if (channel == NULL || a == NULL || b == NULL) {
+        free(channel);
+        free(a);
+        free(b);
+        return -1;
+    }
+    if (transition > 4U) transition = 4U;
+    *entropy = 0.0;
+    *skewness = 0.0;
+    for (index = 0U; index < count; ++index) {
+        double angle = P0_PARAMETER_PI * (double)index * (double)index / count;
+        b[index].real = cos(angle);
+        b[index].imag = sin(angle);
+        if (index != 0U) b[convolution - index] = b[index];
+    }
+    fft(b, convolution, 0);
+    for (frame = 0U; frame < 4U; ++frame) {
+        double mean = 0.0, variance = 0.0, third = 0.0, total = 0.0;
+        double frame_entropy = 0.0, scale;
+        memset(channel, 0, 4096U * sizeof(*channel));
+        memset(a, 0, convolution * sizeof(*a));
+        for (index = lower; index <= upper; ++index) {
+            double taper = 1.0;
+            p0_parameter_complex_t value = local_rectangular_fft(runtime, frame, index);
+            unsigned int edge = index - lower < upper - index ? index - lower : upper - index;
+            if (edge < transition) {
+                taper = sin(P0_PARAMETER_PI * 0.5 * (double)(edge + 1U) / transition);
+                taper *= taper;
+            }
+            channel[index ^ 2048U].real = value.real * taper;
+            channel[index ^ 2048U].imag = value.imag * taper;
+        }
+        fft(channel, 4096U, 1);
+        for (index = 0U; index < count; ++index)
+            mean += sqrt(magnitude_squared(channel[index + 64U])) / count;
+        for (index = 0U; index < count; ++index) {
+            double delta = sqrt(magnitude_squared(channel[index + 64U])) - mean;
+            variance += delta * delta / count;
+        }
+        scale = fmax(sqrt(variance), 0x1p-1022);
+        for (index = 0U; index < count; ++index) {
+            p0_parameter_complex_t value = channel[index + 64U];
+            double delta = (sqrt(magnitude_squared(value)) - mean) / scale;
+            double angle = -2.0 * P0_PARAMETER_PI * center * (index + 64U) / 4096.0 -
+                           P0_PARAMETER_PI * (double)index * (double)index / count;
+            double real = cos(angle), imag = sin(angle);
+            third += delta * delta * delta / count;
+            a[index].real = value.real * real - value.imag * imag;
+            a[index].imag = value.real * imag + value.imag * real;
+        }
+        *skewness += fmax(-10.0, fmin(10.0, third)) / 4.0;
+        fft(a, convolution, 0);
+        for (index = 0U; index < convolution; ++index) {
+            double real = a[index].real * b[index].real - a[index].imag * b[index].imag;
+            a[index].imag = a[index].real * b[index].imag + a[index].imag * b[index].real;
+            a[index].real = real;
+        }
+        fft(a, convolution, 1);
+        /* The final unit-magnitude chirp is unnecessary for power. */
+        for (index = 0U; index < count; ++index) total += magnitude_squared(a[index]);
+        for (index = 0U; index < count; ++index) {
+            double probability = magnitude_squared(a[index]) / fmax(total, 0x1p-1022);
+            frame_entropy -= probability * log(fmax(probability, 1.0e-15));
+        }
+        *entropy += frame_entropy / log((double)count) / 4.0;
+    }
+    free(channel);
+    free(a);
+    free(b);
+    return 0;
+}
+
+static double carrier_background(const p0_parameter_runtime_t *runtime,
+                                 unsigned int peak, int frame)
+{
+    double values[12];
+    unsigned int count = 0U, index, outer;
+    for (index = runtime->lower_shifted_bin; index <= runtime->upper_shifted_bin; ++index) {
+        if ((index + 8U >= peak && index + 3U <= peak) ||
+            (index >= peak + 3U && index <= peak + 8U))
+            values[count++] = frame < 0 ? average_psd(runtime, index, -1) :
+                                           local_psd(runtime, (unsigned int)frame, index);
+    }
+    for (outer = 1U; outer < count; ++outer) {
+        double value = values[outer];
+        unsigned int inner = outer;
+        while (inner > 0U && values[inner - 1U] > value) {
+            values[inner] = values[inner - 1U];
+            --inner;
+        }
+        values[inner] = value;
+    }
+    return count == 0U ? NAN : 0.5 * (values[(count - 1U) / 2U] + values[count / 2U]);
+}
+
+static int finalize_carrier(const p0_parameter_runtime_t *runtime,
+                            p0_parameter_result_t *result)
+{
+    double spacing = (double)runtime->sample_rate_hz / 4096.0;
+    double emission_bin, rounded, left, right, noise, total = 0.0, share = 0.0;
+    double background, prominence, entropy, skewness, logs[3], denominator, delta;
+    unsigned int peak, index;
+    if (result->emission_center_frequency_hz.state != P0_PARAMETER_FIELD_VALID ||
+        result->snr_estimate_db.state != P0_PARAMETER_FIELD_VALID) {
+        set_field(&result->carrier_line_frequency_hz, P0_PARAMETER_FIELD_NOT_OBSERVED,
+                  result->emission_center_frequency_hz.reason, 0.0);
+        return 0;
+    }
+    set_field(&result->carrier_line_frequency_hz, P0_PARAMETER_FIELD_NOT_OBSERVED,
+              P0_PARAMETER_REASON_CARRIER_THRESHOLD, 0.0);
+    if (result->snr_estimate_db.value < 3.0) {
+        result->carrier_line_frequency_hz.reason = P0_PARAMETER_REASON_CARRIER_LOW_SNR;
+        return 0;
+    }
+    emission_bin = (result->emission_center_frequency_hz.value -
+                    (double)runtime->center_frequency_hz) / spacing + 2048.0;
+    /* Python round uses ties to even independently of the C rounding mode. */
+    rounded = floor(emission_bin);
+    if (emission_bin - rounded > 0.5 ||
+        (emission_bin - rounded == 0.5 && fmod(rounded, 2.0) != 0.0)) rounded += 1.0;
+    peak = (unsigned int)fmax(runtime->lower_shifted_bin + 1U,
+                             fmin(runtime->upper_shifted_bin - 1U, rounded));
+    noise = reference_noise(runtime, -1, &left, &right);
+    for (index = runtime->lower_shifted_bin; index <= runtime->upper_shifted_bin; ++index)
+        total += average_psd(runtime, index, -1) - noise;
+    if (!(total > 0.0)) return 0;
+    background = carrier_background(runtime, peak, -1);
+    prominence = 10.0 * log10(average_psd(runtime, peak, -1) / fmax(background, 0x1p-1022));
+    if (!isfinite(background) || prominence < 5.25) return 0;
+    for (index = 0U; index < 4U; ++index) {
+        background = carrier_background(runtime, peak, (int)index);
+        prominence = 10.0 * log10(local_psd(runtime, index, peak) / fmax(background, 0x1p-1022));
+        if (!isfinite(prominence) || prominence < 0.98) return 0;
+    }
+    for (index = 0U; index < 3U; ++index) {
+        /* Hann coherent-bin power = PSD * 1.5 * bin spacing. */
+        double power = 1.5 * average_psd(runtime, peak + index - 1U, -1);
+        share += fmax(power - noise, 0.0) / total;
+        logs[index] = log(fmax(power, 0x1p-1022));
+    }
+    if (share < 0.235) return 0;
+    if (carrier_artifact_features(runtime, &entropy, &skewness) != 0) return -1;
+    if (!isfinite(entropy) || !isfinite(skewness) || (entropy >= 0.32 && skewness <= -0.1))
+        return 0;
+    denominator = logs[0] - 2.0 * logs[1] + logs[2];
+    delta = fabs(denominator) > 1.0e-15 ?
+                fmax(-0.5, fmin(0.5, 0.5 * (logs[0] - logs[2]) / denominator)) : 0.0;
+    set_field(&result->carrier_line_frequency_hz, P0_PARAMETER_FIELD_VALID,
+              P0_PARAMETER_REASON_NONE, (double)runtime->center_frequency_hz +
+                  ((double)peak + delta - 2048.0) * spacing);
+    return 0;
+}
+
 static void fail_common(p0_parameter_result_t *result, uint8_t state, uint8_t reason)
 {
+    set_field(&result->carrier_line_frequency_hz, state, reason, 0.0);
     set_field(&result->emission_center_frequency_hz, state, reason, 0.0);
     set_field(&result->lower_occupied_edge_hz, state, reason, 0.0);
     set_field(&result->upper_occupied_edge_hz, state, reason, 0.0);
@@ -795,8 +1021,7 @@ int p0_parameter_runtime_observe(
             ((double)raw / (double)(UINT64_C(1) << P0_PARAMETER_POWER_FRACTION_BITS)) /
             normalization;
     }
-    if ((unsigned int)upper_shifted_bin - lower_shifted_bin + 1U >= 100U &&
-        store_rectangular_fft(runtime, iq_ci8, observation) != 0) {
+    if (store_rectangular_fft(runtime, iq_ci8, observation) != 0) {
         p0_parameter_runtime_reset(runtime);
         return -1;
     }
@@ -813,7 +1038,7 @@ int p0_parameter_runtime_observe(
                       P0_PARAMETER_REQUIRED_FRAMES,
                       P0_PARAMETER_FIELD_NOT_AVAILABLE,
                       P0_PARAMETER_REASON_NONE);
-    if (finalize_result(runtime, result) != 0) {
+    if (finalize_result(runtime, result) != 0 || finalize_carrier(runtime, result) != 0) {
         p0_parameter_runtime_reset(runtime);
         return -1;
     }

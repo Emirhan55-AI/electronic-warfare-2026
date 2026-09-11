@@ -1,0 +1,38 @@
+{
+  "schema": "st06-runtime-cfar-core-v1",
+  "status": "passed",
+  "scope": "RTL core and integer model only",
+  "runtime_cases_passed": 6,
+  "runtime_words_checked": 16384,
+  "default_rtl": {
+    "status": "passed",
+    "scope": "RTL v2 / integer reference; no hardware or RF acceptance",
+    "stdout": "P0_OS_CFAR_METRIC frame_completion_cycles=48910\nP0_OS_CFAR_METRIC last_input_to_first_output_cycles=36625\nP0_OS_CFAR_METRIC input_stalls=511090 output_stalls=7508 payload_stability_checks=7508\nP0_OS_CFAR_METRIC malformed_frames_checked=3 frame_error_sticky=1\nP0 OS-CFAR TB PASS: 49152 DMA words checked\nC:\\Users\\EMIRHA~1\\AppData\\Local\\Temp\\st06-weak-v2-7u91q_hs\\tb.sv:209: $finish called at 6141005000 (1ps)\n",
+    "sources": {
+      "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "3ee328658f6c5c890c66f914f3b609bb520027002344a2ed145c38c4fb9a9614",
+      "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "45b13d777d04a4aa1cf4a30d81416d26c9e4e89d42bb652de3523110fa740d46",
+      "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv": "037b361b1cdd0ac69ef4acc3774f7bd5a296e79841f25ba4e1dbc73690b6952c",
+      "algorithms/rtl/p0_os_cfar.py": "289cdea53588c1c5af95843b3b5b3bd1973ac740cafcf5edf875d9ab85e28ee7",
+      "algorithms/rtl/p0_os_cfar_vectors.py": "91699d637582160f326fce42a70c06db3baa0314a6a827fc2060fe6fa6f7d06c",
+      "scripts/check_st06_weak_power_rtl.py": "30ee2f838439a8fcc1b09fb57ad6588c2350896f442485dda42861af8ea5a816"
+    },
+    "vector_sha256": "3b16b931a3240ee679d77f5be800d6d7d86a409693ce3f712accdfe5b36408e0"
+  },
+  "production_runtime_enabled": false,
+  "axi_service_ui_complete": false,
+  "fft_window_configurable": false,
+  "hardware_verified": false,
+  "sources": {
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "3ee328658f6c5c890c66f914f3b609bb520027002344a2ed145c38c4fb9a9614",
+    "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "45b13d777d04a4aa1cf4a30d81416d26c9e4e89d42bb652de3523110fa740d46",
+    "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv": "037b361b1cdd0ac69ef4acc3774f7bd5a296e79841f25ba4e1dbc73690b6952c",
+    "algorithms/rtl/p0_os_cfar.py": "289cdea53588c1c5af95843b3b5b3bd1973ac740cafcf5edf875d9ab85e28ee7",
+    "algorithms/rtl/p0_os_cfar_vectors.py": "91699d637582160f326fce42a70c06db3baa0314a6a827fc2060fe6fa6f7d06c",
+    "scripts/check_st06_weak_power_rtl.py": "30ee2f838439a8fcc1b09fb57ad6588c2350896f442485dda42861af8ea5a816",
+    "tests/test_cfar_runtime_config.py": "d8385decd153cbb079da6bada9accd495549f4ee26ab7d9af008247d6a8cf89f",
+    "docs/interfaces/DETECTION_RUNTIME_CONFIG_CONTRACT.md": "b33a31638c9149bfdc7b658072b58add29aa1db0c0127af59b6d05410cfb4b37",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-cfar-tests.xml": "d4b18a403f3c91f5401dc7be76656516f2dcbec5e29a787876fe26f2455c6840",
+    "outputs/sinyal-tespiti-inceleme-20260910/runtime-cfar-default-rtl.json": "2fd79d244d3cf072b241617903439f2f80d21bf8e5ae471d5256a71def0c838f"
+  },
+  "archive_sha256": "942e954f9a47453de959a3717c1d9914f62ccef003c73ef9aa3b6b6d2bb7b9b8"
+}

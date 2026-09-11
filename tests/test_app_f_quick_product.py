@@ -347,6 +347,30 @@ print(json.dumps(payload))
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         return json.loads(process.stdout.strip().splitlines()[-1])
 
+    def test_detection_settings_dialog_applies_and_rejects_invalid_values(self):
+        payload = self.run_qml("""
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+view_model.setSourceMode("hackrf")
+root.setProperty("sourcePanelOpen", True)
+for _ in range(30): app.processEvents(); time.sleep(.005)
+button = root.findChild(QObject, "liveDetectionSettingsButton")
+button.clicked.emit()
+for _ in range(30): app.processEvents(); time.sleep(.005)
+fft = root.findChild(QObject, "detectionDisplayFFT")
+changed = view_model.setDetectionSettings(8192, 32, 256, 16)
+rejected = not view_model.setDetectionSettings(65536, 32, 256, 16)
+payload = {"button": button is not None, "fft": fft is not None,
+           "changed": changed, "rejected": rejected,
+           "settings": view_model.detectionSettings}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+""")
+        self.assertTrue(payload["button"] and payload["fft"])
+        self.assertTrue(payload["changed"] and payload["rejected"])
+        self.assertEqual(8192, payload["settings"]["display_fft_size"])
+        self.assertEqual(256, payload["settings"]["survey_frames"])
+
     def test_fixed_band_fields_follow_actual_requested_settings_after_manual_edit(self) -> None:
         payload = self.run_qml(
             """
@@ -481,6 +505,8 @@ payload = {"visible":panel.property("visible"),
            "upper":root.findChild(QObject,"surveyUpperMHz").property("text"),
            "start":root.findChild(QObject,"surveyStart").property("enabled"),
            "stop":root.findChild(QObject,"surveyStop").property("enabled"),
+           "parameters":root.findChild(QObject,"surveyOpenParameters").property("enabled"),
+           "parameter_text":root.findChild(QObject,"surveyOpenParameters").property("text"),
            "monitor":root.findChild(QObject,"surveyMonitor").property("enabled"),
            "source_panel":root.findChild(QObject,"sourcePanel").property("visible"),
            "coverage":view_model.survey.coverageText,"count":view_model.survey.observationModel.rowCount()}
@@ -492,6 +518,8 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual(("1", "6000"), (payload["lower"], payload["upper"]))
         self.assertFalse(payload["start"])
         self.assertFalse(payload["stop"])
+        self.assertFalse(payload["parameters"])
+        self.assertEqual("Parametre Çıkarımına Git", payload["parameter_text"])
         self.assertFalse(payload["monitor"])
         self.assertFalse(payload["source_panel"])
         self.assertEqual(0, payload["count"])
@@ -757,9 +785,11 @@ view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
-        self.assertEqual(4, len(payload["primary_rows"]))
+        self.assertEqual(3, len(payload["primary_rows"]))
         self.assertEqual(5, len(payload["detail_rows"]))
         self.assertEqual("Taşıyıcı frekansı", payload["primary_rows"][0]["label"])
+        self.assertEqual("İşgal edilen bant genişliği (OBW %99)", payload["primary_rows"][1]["label"])
+        self.assertEqual("Kanal gücü (dBFS)", payload["primary_rows"][2]["label"])
         self.assertTrue(payload["details_initially_hidden"])
         self.assertTrue(payload["details_visible_after_click"])
         self.assertGreater(payload["measurement_info"]["durationMs"], 0)
@@ -784,7 +814,7 @@ print(json.dumps(payload,ensure_ascii=False))
         labels = [row["label"] for row in payload["after"]]
         self.assertNotIn("Tepe bin gücü", labels)
         self.assertIn("Gözlenen taşıyıcı frekansı", labels)
-        self.assertIn("SNR kestirimi", labels)
+        self.assertIn("Bant içi SNR kestirimi", labels)
         self.assertIn("Sinyal türü", labels)
         self.assertIn("Güç referansı", labels)
 
@@ -807,6 +837,12 @@ print(json.dumps(payload,ensure_ascii=False))
 view_model.openSigmf(str(fixture))
 deadline=time.perf_counter()+8
 while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady or not view_model.spectrumValues): app.processEvents(); time.sleep(.002)
+view_model.startScan()
+while time.perf_counter()<deadline and not any(item["stateKey"]=="confirmed" for item in view_model.detections): app.processEvents(); time.sleep(.002)
+view_model.pause()
+while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
+selected=next(item for item in view_model.detections if item["stateKey"]=="confirmed")
+view_model.selectDetection(int(selected["eventId"]))
 view_model.addDirectionMeasurement(0.0,"north",0.0)
 first={{"count":view_model.directionMeasurementCount,"distinct":view_model.directionDistinctAngleCount,"reference":view_model.directionReferenceText,"power":view_model.directionFramePowerText,"row":view_model.directionPoints[0]}}
 view_model.addDirectionMeasurement(90.0,"none",0.0)
@@ -824,7 +860,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("Gerçek kuzey · anten 0°", payload["first"]["reference"])
         self.assertNotEqual("—", payload["first"]["power"])
         self.assertIn("known-tone-ci8.sigmf-meta", payload["first"]["row"]["source"])
-        self.assertEqual("100 MHz", payload["first"]["row"]["frequency"])
+        self.assertEqual("100.5 MHz", payload["first"]["row"]["frequency"])
         self.assertEqual(1, payload["locked"]["count"])
         self.assertIn("referansı değiştirilemez", payload["locked"]["status"])
         self.assertEqual(0, payload["cleared"])
@@ -913,7 +949,7 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "directionSettingsScroll"',
             'objectName: "directionCompass"',
             'objectName: "directionMeasurementList"',
-            "Kare Gücünü Kaydet",
+            "Kanal Gücünü Kaydet",
             'objectName: "pipelineList"',
             'objectName: "systemLog"',
             "SALT OKUNUR",

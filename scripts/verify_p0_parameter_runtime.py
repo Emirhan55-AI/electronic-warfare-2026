@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -11,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 import numpy as np
 
@@ -30,7 +33,7 @@ RUNNER = P0 / "src" / "p0_parameter_run.c"
 STATE_HARNESS = ROOT / "tests" / "p0" / "p0_parameter_runtime_test.c"
 SAMPLE_RATE_HZ = 8_000_000
 CENTER_FREQUENCY_HZ = 100_000_000
-STATE = {"valid": 1, "insufficient_quality": 2, "uncertain": 3}
+STATE = {"not_available": 0, "valid": 1, "insufficient_quality": 2, "uncertain": 3, "not_observed": 4}
 
 
 def _msvc_vcvars() -> Path | None:
@@ -110,13 +113,14 @@ def _case(
     scene_id: str,
     seed: int,
     span_override: tuple[int, int] | None = None,
+    snr_db: float = 12.0,
 ) -> dict[str, object]:
     catalog = load_parameter_catalog()
     processor = SpectrumProcessor()
     generated = tuple(
         generate_parameter_scene(
             scene_id, trial_index=0, condition_index=3, frame_index=index,
-            clean_power_dbfs=-18.0, snr_db=12.0, catalog=catalog,
+            clean_power_dbfs=-18.0, snr_db=snr_db, catalog=catalog,
             scene_seed_override=seed,
         )
         for index in range(4)
@@ -166,6 +170,7 @@ def _case(
         raise RuntimeError(f"parameter runtime failed:\n{run.stdout}\n{run.stderr}")
     actual = json.loads(output.read_text(encoding="utf-8"))
     fields = {
+        "carrier_line_frequency_hz": expected.carrier_line_frequency,
         "emission_center_frequency_hz": expected.emission_center_frequency,
         "lower_occupied_edge_hz": expected.lower_band_edge,
         "upper_occupied_edge_hz": expected.upper_band_edge,
@@ -193,6 +198,7 @@ def _case(
             comparisons[name] = {"state": reference.state}
     return {
         "scene": scene_id,
+        "snr_db": snr_db,
         "span": list(span),
         "span_width_bins": span[1] - span[0] + 1,
         "maximum_absolute_error": maximum_error,
@@ -200,7 +206,7 @@ def _case(
     }
 
 
-def verify() -> dict[str, object]:
+def verify(*, extended: bool = False) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="p0-parameter-runtime-") as raw:
         directory = Path(raw)
         executable, state_executable, compiler = _build(directory)
@@ -220,6 +226,13 @@ def verify() -> dict[str, object]:
                 (1792, 2303),
             ),
         ]
+        if extended:
+            scenes = ("tone-bin-centered", "tone-off-bin", "am-carrier", "nfm",
+                      "ook", "two-fsk", "bpsk", "qpsk", "wideband-noise-like", "dsb-sc")
+            for snr in (-3.0, 3.0, 12.0):
+                for index, scene in enumerate(scenes):
+                    cases.append(_case(directory, executable, scene,
+                                       3502604761305544000 + index, snr_db=snr))
     if not any(int(case["span_width_bins"]) >= 100 for case in cases):
         raise AssertionError("broad-span FFT path was not exercised")
     return {
@@ -227,18 +240,37 @@ def verify() -> dict[str, object]:
         "compiler": compiler,
         "state_machine_test": state_run.stdout.strip(),
         "persistent_payload_bytes": 56064,
+        "carrier_peak_heap_workspace_bytes": 327680,
         "profile": "phase04f5-operator-assisted-parameters-v6",
         "ported_fields": [
-            "emission_center_frequency", "occupied_bandwidth",
+            "carrier_line_frequency", "emission_center_frequency", "occupied_bandwidth",
             "uncalibrated_channel_power_dbfs", "snr_estimate_db",
         ],
-        "not_ported": ["carrier_line_frequency", "signal_domain"],
+        "not_ported": ["signal_domain"],
         "cases": cases,
+        "scope": "software reference equivalence; not RF accuracy or deployed service acceptance",
+        "source_sha256": {
+            path.relative_to(ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in (RUNTIME, RUNNER, STATE_HARNESS, P0 / "include/p0_parameter_runtime.h", Path(__file__))
+        },
     }
 
 
 def main() -> int:
-    print(json.dumps(verify(), ensure_ascii=False, indent=2))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--extended", action="store_true")
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    result = verify(extended=args.extended)
+    payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        with args.output.open("x", encoding="utf-8") as stream:
+            stream.write(payload)
+        with zipfile.ZipFile(args.output.with_suffix(".zip"), "x", zipfile.ZIP_STORED) as archive:
+            archive.writestr(args.output.name, payload.encode("utf-8"))
+    print(json.dumps({"status": result["status"], "cases": len(result["cases"]),
+                      "ported_fields": result["ported_fields"]}, ensure_ascii=False))
     return 0
 
 

@@ -13,8 +13,8 @@
 #endif
 
 namespace {
-constexpr std::size_t kInputSamples = 16384;
-constexpr std::size_t kOutputSamples = 4096;
+constexpr std::size_t kMaximumInputSamples = 65536;
+constexpr std::size_t kMaximumOutputSamples = 16384;
 constexpr std::size_t kTapCount = 193;
 constexpr std::size_t kDelaySamples = kTapCount - 1;
 constexpr double kScale = 128.0;
@@ -22,10 +22,12 @@ constexpr double kTwoPi = 6.283185307179586476925286766559;
 
 struct State {
     std::array<double, kTapCount> taps{};
-    std::array<double, kInputSamples> nco_real{};
-    std::array<double, kInputSamples> nco_imag{};
-    std::array<double, kDelaySamples + kInputSamples> extended_real{};
-    std::array<double, kDelaySamples + kInputSamples> extended_imag{};
+    std::array<double, kMaximumInputSamples> nco_real{};
+    std::array<double, kMaximumInputSamples> nco_imag{};
+    std::array<double, kDelaySamples + kMaximumInputSamples> extended_real{};
+    std::array<double, kDelaySamples + kMaximumInputSamples> extended_imag{};
+    std::size_t input_samples = 0;
+    std::size_t output_samples = 0;
     double phase = 0.0;
 };
 
@@ -62,13 +64,17 @@ inline double avx2_symmetric_dot_193(const double* taps, const double* newest) {
 
 extern "C" {
 
-P0_EXPORT std::uint32_t p0_channelizer_abi_version() { return 1U; }
+P0_EXPORT std::uint32_t p0_channelizer_abi_version() { return 2U; }
 
 P0_EXPORT void* p0_channelizer_create(
     const double* taps,
     std::size_t tap_count,
-    double phase_step_radians) {
-    if (taps == nullptr || tap_count != kTapCount || !std::isfinite(phase_step_radians)) {
+    double phase_step_radians,
+    std::size_t input_samples,
+    std::size_t output_samples) {
+    if (taps == nullptr || tap_count != kTapCount || !std::isfinite(phase_step_radians) ||
+        input_samples != 4 * output_samples ||
+        (output_samples != 4096 && output_samples != 8192 && output_samples != 16384)) {
         return nullptr;
     }
     for (std::size_t index = 0; index < kTapCount; ++index) {
@@ -81,7 +87,9 @@ P0_EXPORT void* p0_channelizer_create(
         return nullptr;
     }
     std::copy_n(taps, kTapCount, state->taps.begin());
-    for (std::size_t index = 0; index < kInputSamples; ++index) {
+    state->input_samples = input_samples;
+    state->output_samples = output_samples;
+    for (std::size_t index = 0; index < input_samples; ++index) {
         const double phase = phase_step_radians * static_cast<double>(index);
         state->nco_real[index] = std::cos(phase);
         state->nco_imag[index] = std::sin(phase);
@@ -114,7 +122,8 @@ P0_EXPORT int p0_channelizer_process_ci8(
     auto* state = static_cast<State*>(opaque);
     if (state == nullptr || input == nullptr || output == nullptr ||
         input_saturated == nullptr || output_saturated == nullptr ||
-        input_bytes != kInputSamples * 2 || output_bytes != kOutputSamples * 2) {
+        input_bytes != state->input_samples * 2 ||
+        output_bytes != state->output_samples * 2) {
         return -1;
     }
 
@@ -122,7 +131,7 @@ P0_EXPORT int p0_channelizer_process_ci8(
     *output_saturated = 0;
     const double phase_real = std::cos(state->phase);
     const double phase_imag = std::sin(state->phase);
-    for (std::size_t index = 0; index < kInputSamples; ++index) {
+    for (std::size_t index = 0; index < state->input_samples; ++index) {
         const std::int8_t raw_real = input[2 * index];
         const std::int8_t raw_imag = input[2 * index + 1];
         *input_saturated += static_cast<std::uint64_t>(raw_real == -128 || raw_real == 127);
@@ -140,7 +149,7 @@ P0_EXPORT int p0_channelizer_process_ci8(
     if (*input_saturated != 0) {
         std::fill_n(output, output_bytes, static_cast<std::int8_t>(0));
     } else {
-        for (std::size_t output_index = 0; output_index < kOutputSamples; ++output_index) {
+        for (std::size_t output_index = 0; output_index < state->output_samples; ++output_index) {
             const std::size_t newest = kDelaySamples + 4 * output_index;
             const double accumulated_real =
                 avx2_symmetric_dot_193(state->taps.data(), state->extended_real.data() + newest);
@@ -152,11 +161,11 @@ P0_EXPORT int p0_channelizer_process_ci8(
     }
 
     std::copy_n(
-        state->extended_real.begin() + kInputSamples,
+        state->extended_real.begin() + state->input_samples,
         kDelaySamples,
         state->extended_real.begin());
     std::copy_n(
-        state->extended_imag.begin() + kInputSamples,
+        state->extended_imag.begin() + state->input_samples,
         kDelaySamples,
         state->extended_imag.begin());
     // The block phase advance is supplied through the precomputed NCO. All
@@ -165,7 +174,7 @@ P0_EXPORT int p0_channelizer_process_ci8(
     const double step_imag = state->nco_imag[1];
     const double step = std::atan2(step_imag, step_real);
     state->phase = std::remainder(
-        state->phase + step * static_cast<double>(kInputSamples),
+        state->phase + step * static_cast<double>(state->input_samples),
         kTwoPi);
     return 0;
 }

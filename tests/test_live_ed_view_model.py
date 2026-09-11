@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+import struct
 import threading
 import time
+import zlib
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,7 +22,9 @@ from PySide6.QtTest import QSignalSpy
 
 from algorithms.p0 import CoarseDetection, CoarseDetectionFrame, IQFrame, TransportStats
 from algorithms.p0.transport import TransportError
+from algorithms.p0.parameter_client import decode_response as decode_board_parameter_response
 from algorithms.monitoring import AnalogMonitorResult
+from app.operator_console.fixed_band_verification import FixedBandCandidate
 from app.operator_console.live_ed import (
     LIVE_AUDIO_WINDOW_FRAMES,
     LiveEDConfiguration,
@@ -43,6 +47,23 @@ from platforms.acquisition import (
 
 
 SERIAL = load_ed_rx_config().serial
+
+
+def _fake_board_parameter_measurement(host, port, intent, iq, *, sample_rate_hz,
+                                      center_frequency_hz):
+    del host, port, sample_rate_hz
+    token = 7
+    payload = bytearray(176)
+    struct.pack_into('<4sHHIIQQIB', payload, 0, b'P0PR', 1, 176, token, 0,
+                     token, intent.event_id, intent.start_frame + 3, 4)
+    values = (center_frequency_hz, center_frequency_hz - 5_000,
+              center_frequency_hz + 5_000, 10_000, -30, 12)
+    for offset, value in zip(range(40, 112, 12), values):
+        struct.pack_into('<BBHd', payload, offset, 1, 0, 0, value)
+    struct.pack_into('<BBHd', payload, 144, 4, 9, 0, 0.)
+    struct.pack_into('<IIII', payload, 156, 25_000, zlib.crc32(iq), 3, 4096)
+    struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
+    return decode_board_parameter_response(bytes(payload), intent, iq, token)
 
 
 class _Backend:
@@ -246,6 +267,15 @@ class _LiveListeningSession(_BlockingSession):
     def audio_window(self, event_id=None):
         return self.window if event_id in {None, 31} else ()
 
+    def audio_window_quality(self, event_id):
+        return {
+            "total_frames": len(self.window),
+            "observed_frames": len(self.window) - 2,
+            "observed_fraction": (len(self.window) - 2) / len(self.window),
+            "max_consecutive_misses": 1,
+            "acceptable": event_id == 31,
+        }
+
     def run(self, snapshot_handler):
         event = LiveEDEvent(
             event_id=31,
@@ -310,6 +340,38 @@ def _drain(app: QGuiApplication, predicate, timeout: float = 3.0) -> None:
         time.sleep(0.002)
 
 
+def test_detection_settings_reach_actual_live_and_survey_configuration():
+    captured = []
+    class ConfiguredSession(_Session):
+        def __init__(self, executable, configuration):
+            self.configuration, self.cancelled = configuration, False
+            captured.append(configuration)
+
+    app = QGuiApplication.instance() or QGuiApplication(["settings-forwarding"])
+    view = OperatorViewModel(acquisition_backend=_Backend(),
+                             live_session_factory=ConfiguredSession,
+                             fpga_transport_factory=_FPGAReadyTransport)
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        assert view.setDetectionSettings(8192, 32, 256, 16)
+        view.startLiveEDSession(104_650_000, 16, 62, 4)
+        assert not view.setDetectionSettings(4096, 8, 64, 8)
+        _drain(app, lambda: view.busy)
+        assert captured[0].display_fft_size == 8192
+        assert captured[0].display_interval_frames == 32
+        assert captured[0].vga_gain_db == 62
+        with patch.object(view._survey_controller, "start") as start:
+            view.startFrequencySurvey(100, 102, 16, 62)
+            config = start.call_args.args[2]
+            assert config.frames_per_window == 256
+            assert config.guard_frames == 16
+            assert config.vga_gain_db == 62
+    finally:
+        view.shutdown()
+
+
 def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-view-model-test"])
     view_model = OperatorViewModel(
@@ -340,7 +402,7 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     assert blocks["fft_power"]["runtime"] == "FPGA"
     assert blocks["fft_power"]["implementation"] == "AMD FFT IP · SystemVerilog"
     assert blocks["regional"]["name"] == "OS-CFAR ve Aday Gruplama"
-    assert blocks["regional"]["rtlPath"].endswith("p0_candidate_reducer_packetizer_top.sv")
+    assert blocks["regional"]["rtlPath"].endswith("axis_p0_os_cfar.sv")
     assert blocks["regional"]["hardwareStatus"] == "Bu oturumda kart yanıtı alındı"
     assert blocks["temporal"]["runtime"] == "ZYNQ PS"
     assert view_model.performanceText == "Canlı yol 500.00 kare/s"
@@ -796,6 +858,20 @@ def test_multiple_coarse_candidates_are_retained_for_serial_verification(live_pr
     assert not view._fixed_verification_queue
 
 
+def test_high_resolution_fpga_fft_does_not_start_4096_only_fixed_verification(
+    live_presentation,
+):
+    view = live_presentation
+    view._live_session.configuration = SimpleNamespace(fpga_fft_size=8192)
+    view._offer_fixed_verification_candidates([
+        FixedBandCandidate(104_700_000.0, 104_700_000.0, 104_690_000.0,
+                           104_710_000.0, 24.0, "fpga")
+    ])
+
+    assert view._fixed_verification_candidate is None
+    assert not view._fixed_verification_queue
+
+
 def test_clear_resets_retained_rows_and_selection(live_presentation):
     view = live_presentation
     _present(view, 0, _event(1))
@@ -949,6 +1025,9 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         fpga_transport_factory=_FPGAReadyTransport,
         measurement_record_directory=tmp_path,
     )
+    board_patch = patch("app.operator_console.measurement_record.measure_on_board",
+                        side_effect=_fake_board_parameter_measurement)
+    board_patch.start()
     try:
         view_model.setSourceMode("hackrf")
         view_model.probeHackrf()
@@ -957,6 +1036,13 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
             view_model.startLiveEDSession(104_650_000, 0, 0, 4_096)
             _drain(app, lambda: not view_model.detections)
         assert view_model.liveSessionActive
+        _drain(
+            app,
+            lambda: not any(
+                int(row["eventId"]) == 31 and bool(row["observed"])
+                for row in view_model.detections
+            ),
+        )
         view_model.selectDetection(31)
         assert view_model.selectedDetectionReady
         _present(view_model, 50, _event(99))
@@ -968,6 +1054,11 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert not view_model.parameterRows
         _present(view_model, 51, _event(31))
         assert view_model.measurementSelectionReady
+        original_configuration = view_model._live_session.configuration
+        view_model._live_session.configuration = replace(
+            original_configuration, fpga_fft_size=8192)
+        assert not view_model.measurementSelectionReady
+        view_model._live_session.configuration = original_configuration
         view_model._analysis_span_draft = None
         view_model._prepare_analysis_span_draft(31)
         assert view_model.analysisLowerMHzText
@@ -1004,6 +1095,9 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert replay_measurement(path).intent.event_id == 31
         assert view_model.measurementInfo["durationMs"] == 8.192
         assert view_model.measurementInfo["completedUtc"] == document["completed_utc"]
+        assert view_model.listeningSuggestedOffsetKHz == 0.0
+        assert view_model.listeningSuggestedBandwidthKHz == 12.0
+        assert "Parametre ölçümü" in view_model.listeningParameterBasisText
         with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
             assert view_model.restartParameterAcquisition()
             assert not view_model.parameterRows
@@ -1024,6 +1118,117 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert Path(view_model.measurementRecordPath) != path
         assert path.exists() and len(list(tmp_path.glob("*.zip"))) == 2
     finally:
+        board_patch.stop()
+        view_model.shutdown()
+
+
+def test_parameter_handoff_reacquires_and_revalidates_listening_target() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["parameter-listening-handoff-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model._listening_parameter_target_hz = 104_726_660.15625
+        view_model._listening_parameter_bandwidth_khz = 12.0
+        view_model._listening_parameter_record_path = "measurement.zip"
+
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            assert view_model.continueToListening()
+            _drain(app, lambda: view_model.selectedDetectionId < 0)
+
+        assert view_model.liveSessionActive
+        assert view_model.selectedDetectionId == 31
+        assert view_model.selectedDetectionReady
+        assert view_model._pending_listening_frequency_hz is None
+        assert view_model.listeningSuggestedOffsetKHz == pytest.approx(76.66015625)
+        assert view_model.listeningSuggestedBandwidthKHz == 12.0
+        assert "Parametre ölçümü" in view_model.listeningParameterBasisText
+    finally:
+        view_model.shutdown()
+
+
+def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["live-direction-power-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
+    )
+    board_patch = patch(
+        "app.operator_console.measurement_record.measure_on_board",
+        side_effect=_fake_board_parameter_measurement,
+    )
+    board_patch.start()
+    coarse_patch = patch.object(view_model, "_coarse_supports_fpga_region", return_value=True)
+    coarse_patch.start()
+    try:
+        view_model.setSourceMode("hackrf")
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model.startLiveEDSession(104_650_000, 8, 16, 4_096)
+        _drain(app, lambda: not view_model.detections)
+        view_model.selectDetection(31)
+        assert view_model.selectedDetectionReady
+        assert view_model._analysis_span_draft is not None
+
+        view_model.addDirectionMeasurement(0.0, "north", 0.0)
+        _drain(
+            app,
+            lambda: view_model.directionMeasurementCount != 1 or not view_model.liveSessionActive,
+            timeout=8.0,
+        )
+
+        assert view_model.directionMeasurementCount == 1, (
+            view_model.statusMessage,
+            view_model.errorMessage,
+            view_model._active_task_kind,
+            view_model._pending_direction_measurement,
+        )
+        assert view_model.directionPoints[0]["power"] == "-30.00 dBFS"
+        assert view_model.directionPoints[0]["angle"] == "0.0°"
+        assert view_model.liveSessionActive
+        assert view_model._live_session.configuration.lna_gain_db == 8
+        assert view_model._live_session.configuration.vga_gain_db == 16
+        assert any(
+            row["component"] == "Yön Bulma" and "kanal gücü kaydedildi" in row["message"]
+            for row in view_model.eventLog
+        )
+        _drain(
+            app,
+            lambda: not any(
+                int(row["eventId"]) == 31 and bool(row["observed"])
+                for row in view_model.detections
+            ),
+        )
+        view_model.selectDetection(31)
+        _drain(app, lambda: not view_model.selectedDetectionCurrent)
+        assert view_model.directionMeasurementReady, (
+            view_model.measurementSelectionReady,
+            view_model.selectedDetectionReady,
+            view_model.selectedDetectionCurrent,
+            view_model._analysis_span_draft,
+            view_model._live_fpga_fft_size(),
+            view_model._coarse_detection_sequence,
+            view_model._frame_index,
+        )
+        view_model.addDirectionMeasurement(15.0, "north", 0.0)
+        _drain(
+            app,
+            lambda: view_model.directionMeasurementCount != 2 or not view_model.liveSessionActive,
+            timeout=8.0,
+        )
+        assert view_model.directionMeasurementCount == 2
+        assert [row["angle"] for row in view_model.directionPoints] == ["0.0°", "15.0°"]
+        assert len({item.frame_id for item in view_model._df.measurements}) == 2
+        assert list(tmp_path.glob("*.zip"))
+    finally:
+        coarse_patch.stop()
+        board_patch.stop()
         view_model.shutdown()
 
 
@@ -1153,6 +1358,10 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
         input_complex_samples=LIVE_AUDIO_WINDOW_FRAMES * 4096,
         transient_guard_input_samples=0,
         quality_code="valid",
+        observation_interval_s=0.25,
+        observation_times_s=(0.125, 0.375),
+        channel_power_dbfs_trace=(-20.0, -19.5),
+        residual_frequency_hz_trace=(-12.0, 8.0),
     )
     try:
         view_model.setSourceMode("hackrf")
@@ -1187,6 +1396,18 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
             and row["value"].startswith("Canlı kesintisiz alım · 5.001 s")
             for row in view_model.listeningRows
         )
+        rows = {row["label"]: row["value"] for row in view_model.listeningRows}
+        assert rows["Kanal gücü aralığı"] == "-20.00…-19.50 dBFS"
+        assert rows["Merkez frekans değişimi"] == "-12.0…+8.0 Hz"
+        assert rows["Zamansal gözlem"] == "2 nokta · 250 ms"
+        assert rows["Tespit sürekliliği"] == (
+            f"Doğrulandı · {LIVE_AUDIO_WINDOW_FRAMES - 2}/{LIVE_AUDIO_WINDOW_FRAMES} kare gözlendi · "
+            "en uzun boşluk 1 kare"
+        )
+        assert view_model.listeningObservationPoints == [
+            {"time": 0.125, "power": -20.0, "frequency": -12.0},
+            {"time": 0.375, "power": -19.5, "frequency": 8.0},
+        ]
         blocks = process_continuous.call_args.args[0]
         assert sum(block.size for block in blocks) == LIVE_AUDIO_WINDOW_FRAMES * 4096
     finally:
@@ -1327,6 +1548,36 @@ def test_frequency_survey_excludes_other_sources_and_keeps_historical_selection(
         assert view.liveReceiveSettings == {"center_hz": 1_200_000, "lna_db": 16, "vga_db": 16}
         _drain(app, lambda: view.busy)
         assert view.centerFrequencyHz == 1_200_000
+    finally:
+        view.shutdown()
+
+
+def test_survey_parameter_action_reacquires_and_selects_matching_live_detection():
+    from app.operator_console.rx_survey import SurveyConfig
+
+    app = QGuiApplication.instance() or QGuiApplication(["survey-parameter-transfer-test"])
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        view.survey._config = SurveyConfig(1_000_000, 2_000_000, 16, 16)
+        view.survey._rows = [{"eventId": "survey:31", "frequencyHz": 1_300_000.0}]
+        view.survey.selectObservation("survey:31")
+        ready = QSignalSpy(view.surveyParameterReady)
+
+        with patch.object(view, "_coarse_supports_fpga_region", return_value=True):
+            assert view.openSurveyObservationParameters()
+            _drain(app, lambda: ready.count() == 0)
+
+        assert ready.count() == 1
+        assert view.selectedDetectionId == 31
+        assert view.measurementSelectionReady
+        assert view.selectedDetectionFrequencyText != "—"
     finally:
         view.shutdown()
 

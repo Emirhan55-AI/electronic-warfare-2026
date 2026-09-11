@@ -28,9 +28,9 @@ EXPECTED_PARAMETER_LABELS = (
     "Gözlenen taşıyıcı frekansı",
     "Alt OBW sınırı",
     "Üst OBW sınırı",
-    "OBW %99",
-    "Kalibre edilmemiş kanal gücü",
-    "SNR kestirimi",
+    "İşgal edilen bant genişliği (OBW %99)",
+    "Kanal gücü (dBFS)",
+    "Bant içi SNR kestirimi",
     "Sinyal türü",
     "Güç referansı",
 )

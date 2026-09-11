@@ -31,11 +31,17 @@ class AnalogMonitorConfig:
     center_offset_hz: float
     channel_bandwidth_hz: float
     output_sample_rate_hz: int = 48_000
+    nfm_deemphasis_us: float = 750.0
 
     def __post_init__(self) -> None:
         if self.mode not in ("am", "nfm"):
             raise MonitoringError("unsupported_demodulation", "Yalnız AM ve NFM desteklenir.")
-        values = (self.sample_rate_hz, self.center_offset_hz, self.channel_bandwidth_hz)
+        values = (
+            self.sample_rate_hz,
+            self.center_offset_hz,
+            self.channel_bandwidth_hz,
+            self.nfm_deemphasis_us,
+        )
         if not all(math.isfinite(float(value)) for value in values):
             raise MonitoringError("invalid_sample_rate", "Dinleme ayarları sonlu olmalıdır.")
         if self.sample_rate_hz <= 0.0 or self.output_sample_rate_hz != 48_000:
@@ -44,6 +50,8 @@ class AnalogMonitorConfig:
             raise MonitoringError("invalid_channel_bandwidth", "Kanal bant genişliği desteklenen sınırın dışındadır.")
         if abs(self.center_offset_hz) + self.channel_bandwidth_hz / 2.0 > self.sample_rate_hz / 2.0:
             raise MonitoringError("nyquist_limit", "Seçilen kanal kaynak Nyquist sınırını aşıyor.")
+        if not 0.0 <= self.nfm_deemphasis_us <= 2_000.0:
+            raise MonitoringError("invalid_deemphasis", "NFM de-emphasis zaman sabiti geçersizdir.")
 
 
 @dataclass(frozen=True)
@@ -91,6 +99,10 @@ class AnalogMonitorResult:
     transient_guard_input_samples: int
     quality_code: str
     rf_power_dbfs: float = float("nan")
+    observation_interval_s: float = 0.0
+    observation_times_s: tuple[float, ...] = ()
+    channel_power_dbfs_trace: tuple[float, ...] = ()
+    residual_frequency_hz_trace: tuple[float, ...] = ()
 
     def __post_init__(self) -> None:
         if self.sample_rate_hz != 48_000:
@@ -99,3 +111,17 @@ class AnalogMonitorResult:
             raise MonitoringError("nonfinite_audio", "Ses sonucu sonlu mono örneklerden oluşmalıdır.")
         if self.clipping_count != 0:
             raise MonitoringError("pcm_clipping", "PCM16 dönüşümünde taşma oluştu.")
+        trace_lengths = {
+            len(self.observation_times_s),
+            len(self.channel_power_dbfs_trace),
+            len(self.residual_frequency_hz_trace),
+        }
+        if trace_lengths != {0} and (len(trace_lengths) != 1 or self.observation_interval_s <= 0.0):
+            raise MonitoringError("invalid_observation_trace", "Kanal gözlem dizileri birbiriyle uyuşmuyor.")
+        trace_values = (
+            *self.observation_times_s,
+            *self.channel_power_dbfs_trace,
+            *self.residual_frequency_hz_trace,
+        )
+        if trace_values and not all(math.isfinite(float(value)) for value in trace_values):
+            raise MonitoringError("invalid_observation_trace", "Kanal gözlem dizileri sonlu olmalıdır.")

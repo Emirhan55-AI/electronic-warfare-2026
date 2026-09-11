@@ -59,6 +59,9 @@ class P0TransportTests(unittest.TestCase):
             {
                 "algorithms/p0/channelizer.py",
                 "platforms/acquisition/continuous.py",
+                # Runtime FFT transport supersedes this historical RF capture.
+                "algorithms/p0/transport.py",
+                "platforms/embedded/p0/src/p0_ed_network_bridge.c",
             },
         )
         current_rx_display = json.loads(
@@ -159,6 +162,11 @@ class P0TransportTests(unittest.TestCase):
         self.assertEqual(
             changed_since_capture,
             {
+                # These ABI changes have digital card evidence, not a new RF run.
+                "algorithms/p0/transport.py",
+                "platforms/embedded/p0/include/p0_iq_transport.h",
+                "platforms/embedded/p0/src/p0_iq_transport.c",
+                "platforms/embedded/p0/src/p0_ed_network_bridge.c",
                 "platforms/embedded/p0/petalinux/p0-dma_1.0.bb",
                 "platforms/embedded/p0/petalinux/p0-ed-network-bridge.default",
                 "platforms/embedded/p0/petalinux/p0-ed-network-bridge.init",
@@ -207,6 +215,15 @@ class P0TransportTests(unittest.TestCase):
             IQFrameCodec.validate_processing_frame(
                 IQFrame(5, 8_000_000, 101_500_000, b"\x01\x02" * 4096, frame_id=9)
             )
+
+    def test_processing_profile_accepts_all_runtime_fft_frame_sizes(self) -> None:
+        for samples in (4096, 8192, 16384):
+            frame = IQFrame(
+                samples, 2_000_000, 101_500_000,
+                b"\x01\x02" * samples, frame_id=samples)
+            IQFrameCodec.validate_processing_frame(frame)
+            decoded = IQFrameCodec.decode(IQFrameCodec.encode(frame))
+            self.assertEqual(decoded.complex_sample_count, samples)
 
     def test_response_round_trip_and_crc(self) -> None:
         response = IQResponse(7, bytes(range(128)))

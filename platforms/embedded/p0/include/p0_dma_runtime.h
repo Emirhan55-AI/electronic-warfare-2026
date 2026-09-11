@@ -12,6 +12,14 @@ typedef struct {
 
 int p0_dma_runtime_open(p0_dma_runtime_t *runtime, const char *device_path);
 void p0_dma_runtime_close(p0_dma_runtime_t *runtime);
+int p0_dma_runtime_get_detection_config(p0_dma_runtime_t *runtime,
+                                        struct p0_detection_config *config);
+int p0_dma_runtime_set_detection_config(p0_dma_runtime_t *runtime,
+                                        struct p0_detection_config *config);
+int p0_dma_runtime_get_detection_profile(p0_dma_runtime_t *runtime,
+                                         struct p0_detection_profile *profile);
+int p0_dma_runtime_set_detection_profile(p0_dma_runtime_t *runtime,
+                                         struct p0_detection_profile *profile);
 int p0_dma_runtime_run(p0_dma_runtime_t *runtime, const uint8_t *input, size_t input_bytes,
                        uint8_t *output, size_t output_capacity,
                        size_t *actual_output_bytes, struct p0_dma_status *status);

@@ -10,5 +10,6 @@ package p0_os_cfar_pkg;
   localparam int COEFFICIENT_FRACTION_BITS = 32;
   localparam logic [35:0] ALPHA_Q32 = 36'd36851433755;
   localparam logic [33:0] WEAK_ALPHA_Q32 = 34'd17098572778;
-  localparam logic [3:0] OUTPUT_MARKER = 4'hA;
+  // Bits 63:61 identify v2; bit 60 carries weak nomination metadata.
+  localparam logic [3:0] OUTPUT_MARKER = 4'hC;
 endpackage

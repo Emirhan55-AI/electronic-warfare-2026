@@ -21,6 +21,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--case", choices=("zero", "independent_noise",
+                                           "tone_independent_noise",
+                                           "wide_independent_noise",
+                                           "repeated_tone_throughput"))
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     rng = np.random.default_rng(6100602)
@@ -47,6 +51,8 @@ def main() -> None:
     cases["wide_independent_noise"] = wide
     # Aynı kareyi tekrarlayan hız yükü doğruluk/Pfa popülasyonu değildir.
     cases["repeated_tone_throughput"] = [cases["tone_independent_noise"][0]] * 4160
+    if args.case is not None:
+        cases = {args.case: cases[args.case]}
     report = {"schema_version": 1, "seed": 6100602,
               "scope": "physical_board_digital_iq_diagnostic_not_rf_acceptance",
               "sample_rate_hz": 2000000, "samples_per_frame": 4096,

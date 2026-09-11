@@ -1,0 +1,60 @@
+{
+  "schema": "teknofest.phase09.amplitude-df-numeric.v1",
+  "status": "passed",
+  "method": "same-channel linear power by measured angle; raw argmax; no interpolation",
+  "profile": {
+    "id": "P0_AMPLITUDE_DF_FIELD_V1",
+    "minimum_distinct_angles": 24,
+    "maximum_angular_gap_deg": 15.0,
+    "minimum_peak_prominence_db": 3.0,
+    "minimum_front_to_back_db": 3.0,
+    "average_domain": "linear_power"
+  },
+  "rms_definition": "sqrt(mean(wrap180(estimated_deg - truth_deg)^2))",
+  "uniform_grid_quantization_reference": "step_deg/sqrt(12); ideal uniform truth phase only",
+  "grid_evaluations": [
+    {
+      "angular_step_deg": 45,
+      "scene_count": 360,
+      "status_counts": {
+        "YETERSİZ AÇI": 360
+      },
+      "rms_error_deg": 12.987173159185437,
+      "p95_error_deg": 21.0,
+      "maximum_error_deg": 22.0,
+      "ideal_uniform_grid_rms_deg": 12.99038105676658
+    },
+    {
+      "angular_step_deg": 30,
+      "scene_count": 360,
+      "status_counts": {
+        "YETERSİZ AÇI": 360
+      },
+      "rms_error_deg": 8.669871202426636,
+      "p95_error_deg": 14.0,
+      "maximum_error_deg": 15.0,
+      "ideal_uniform_grid_rms_deg": 8.660254037844387
+    },
+    {
+      "angular_step_deg": 15,
+      "scene_count": 360,
+      "status_counts": {
+        "LOB HAZIR": 360
+      },
+      "rms_error_deg": 4.377975178854566,
+      "p95_error_deg": 7.0,
+      "maximum_error_deg": 8.0,
+      "ideal_uniform_grid_rms_deg": 4.330127018922194
+    }
+  ],
+  "negative_gate_statuses": {
+    "clustered_angles": "YETERSİZ AÇI KAPSAMI",
+    "front_back_ambiguity": "ÖN/ARKA BELİRSİZ",
+    "receiver_binding_change": "ALICI AYARI DEĞİŞTİ"
+  },
+  "source_sha256": {
+    "algorithms/p0/df.py": "a57c727cbeca4da4413b17142ffca2bcd581e50ac9082f303b8e9538e6c623e5",
+    "scripts/verify_phase09_amplitude_df.py": "6d22f9a099ef14a0d9103e4cf4d6e3b84544f22ca5079351af73532f48e8fecd"
+  },
+  "claim_boundary": "Deterministic independent angle-power scenes validate circular error, raw-maximum logic and fail-closed gates. They do not establish antenna, multipath or field RMS accuracy."
+}

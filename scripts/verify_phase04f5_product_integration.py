@@ -29,7 +29,10 @@ QML_PATH = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
 PACKAGE_PATH = ROOT / "config" / "app" / "product-package.json"
 DEPLOY_SPEC_PATH = ROOT / "app" / "operator_console" / "pysidedeploy.spec"
 REQUIRED_ASSETS = {
+    "profiles/phase03/operation-default.json",
     "profiles/phase04f5/operation-default.json",
+    "config/p0/hackrf_ed_rx.json",
+    "config/p0/hackrf_spurs.json",
     "config/p0/hackrf_et_tx.json",
     "datasets/fixtures/phase04f1/domain-model.json",
     "datasets/fixtures/phase04f2/domain-model-v3.json",
@@ -103,8 +106,8 @@ def build_summary() -> dict[str, Any]:
         "Gözlenen taşıyıcı frekansı",
         "Alt OBW sınırı",
         "Üst OBW sınırı",
-        "Kalibre edilmemiş kanal gücü",
-        "SNR kestirimi",
+        "Kanal gücü (dBFS)",
+        "Bant içi SNR kestirimi",
         "Sinyal türü",
     )
     checks.append(

@@ -19,6 +19,7 @@ from algorithms.monitoring import (
     aligned_correlation,
     dominant_tone_hz,
     generate_iq,
+    nfm_deemphasis,
     pcm16_bytes,
     wav_bytes,
     write_wav,
@@ -72,6 +73,47 @@ class Phase05MonitoringTests(unittest.TestCase):
         chunked = monitor.process_continuous(tuple(source[index : index + 4096] for index in range(0, source.size, 4096)), config)
         self.assertEqual(whole.pcm16, chunked.pcm16)
         self.assertGreaterEqual(whole.audio.size / whole.sample_rate_hz, 5.0)
+        self.assertGreaterEqual(len(chunked.observation_times_s), 19)
+        self.assertEqual(len(chunked.observation_times_s), len(chunked.channel_power_dbfs_trace))
+        self.assertEqual(len(chunked.observation_times_s), len(chunked.residual_frequency_hz_trace))
+        np.testing.assert_allclose(whole.channel_power_dbfs_trace, chunked.channel_power_dbfs_trace, atol=1e-12)
+        np.testing.assert_allclose(whole.residual_frequency_hz_trace, chunked.residual_frequency_hz_trace, atol=1e-12)
+        self.assertLess(max(abs(value) for value in chunked.residual_frequency_hz_trace), 10.0)
+
+    def test_channel_observation_tracks_known_frequency_drift(self) -> None:
+        sample_rate = 192_000.0
+        duration = 5.0
+        count = int(sample_rate * duration)
+        time_axis = np.arange(count, dtype=np.float64) / sample_rate
+        injected_drift = -200.0 + 400.0 * time_axis / duration
+        phase = 2.0 * np.pi * (
+            24_000.0 * time_axis + np.cumsum(injected_drift) / sample_rate
+        )
+        audio = np.sin(2.0 * np.pi * 1_000.0 * time_axis)
+        iq = 0.55 * (1.0 + 0.4 * audio) * np.exp(1j * phase)
+        result = AnalogMonitor().process_continuous(
+            tuple(iq[index:index + 4096] for index in range(0, iq.size, 4096)),
+            AnalogMonitorConfig("am", sample_rate, 24_000.0, 16_000.0),
+        )
+
+        self.assertEqual(20, len(result.observation_times_s))
+        self.assertAlmostEqual(-190.0, result.residual_frequency_hz_trace[0], delta=2.0)
+        self.assertAlmostEqual(190.0, result.residual_frequency_hz_trace[-1], delta=2.0)
+        self.assertLess(max(result.channel_power_dbfs_trace) - min(result.channel_power_dbfs_trace), 0.02)
+
+    def test_nfm_deemphasis_has_expected_six_db_per_octave_slope(self) -> None:
+        sample_rate = 48_000.0
+        time_axis = np.arange(int(sample_rate), dtype=np.float64) / sample_rate
+        source = np.sin(2.0 * np.pi * 300.0 * time_axis) + np.sin(2.0 * np.pi * 3_000.0 * time_axis)
+        filtered = nfm_deemphasis(source, 750.0)
+
+        def amplitude(values: np.ndarray, frequency_hz: float) -> float:
+            reference = np.exp(-2j * np.pi * frequency_hz * time_axis)
+            return 2.0 * abs(np.vdot(reference, values)) / values.size
+
+        attenuation_db = 20.0 * np.log10(amplitude(filtered, 3_000.0) / amplitude(filtered, 300.0))
+        self.assertAlmostEqual(-18.3, attenuation_db, delta=0.4)
+        np.testing.assert_array_equal(nfm_deemphasis(source, 0.0), source)
 
     def test_invalid_inputs_are_rejected(self) -> None:
         spec = FIXTURE_SPECS[0]

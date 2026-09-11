@@ -1,0 +1,427 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "real_recording_band_and_noise_diagnostic",
+  "independent_rf_captures": 3,
+  "on_windows": 30,
+  "pre_post_windows": 6,
+  "source_inputs_verified": 6,
+  "cases": [
+    {
+      "family": "AM",
+      "transport_valid": true,
+      "source_evidence": "results/evidence/phase08/replay-amg8-evaluation-20260909.json",
+      "summary": [
+        {
+          "span_hz": 8000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            11.451154044957896,
+            12.059591597334178,
+            12.607166343790748
+          ],
+          "signal_dbfs_min_median_max": [
+            -60.74212932313797,
+            -60.308060450172334,
+            -59.72766210527137
+          ],
+          "conditional_obw_hz_min_median_max": [
+            3637.6406800746918,
+            3640.956972181797,
+            3644.7667948007584
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.5785418653410375,
+            0.9462642188266557,
+            1.4910883212868242
+          ],
+          "side_difference_abs_db_max": 0.23837071417124459
+        },
+        {
+          "span_hz": 16000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            8.40354246806308,
+            8.985665100486312,
+            9.558884762410354
+          ],
+          "signal_dbfs_min_median_max": [
+            -60.798575732114735,
+            -60.33401582552008,
+            -59.78753831954371
+          ],
+          "conditional_obw_hz_min_median_max": [
+            3635.724951148033,
+            3640.287814974785,
+            3643.5374422073364
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.6052728687434126,
+            0.9393859132941529,
+            1.5252370197851661
+          ],
+          "side_difference_abs_db_max": 0.2965610946928816
+        },
+        {
+          "span_hz": 32000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            6.18368378000791,
+            6.660731061047803,
+            7.0683852847298265
+          ],
+          "signal_dbfs_min_median_max": [
+            -60.74518309460948,
+            -60.29436859342823,
+            -59.717990628733034
+          ],
+          "conditional_obw_hz_min_median_max": [
+            3640.0994881391525,
+            3646.2347447276115,
+            3695.2444187402725
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.12851746667219288,
+            0.3291726709802276,
+            0.4793858486998914
+          ],
+          "side_difference_abs_db_max": 0.1699360245262893
+        },
+        {
+          "span_hz": 64000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            3.530404240098493,
+            3.942163046307284,
+            4.578437749375288
+          ],
+          "signal_dbfs_min_median_max": [
+            -60.49071072193274,
+            -60.09812931387944,
+            -59.36839706327136
+          ],
+          "conditional_obw_hz_min_median_max": [
+            41740.18200671673,
+            41998.84057253599,
+            42281.532480955124
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.034108221502791025,
+            0.22478517862057856,
+            0.36553510737403627
+          ],
+          "side_difference_abs_db_max": 0.37039688250933633
+        },
+        {
+          "span_hz": 100000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            1.3698970075833905,
+            1.8632888721260727,
+            2.258914427501443
+          ],
+          "signal_dbfs_min_median_max": [
+            -60.57100344666556,
+            -60.12472596648772,
+            -59.49974121580793
+          ],
+          "conditional_obw_hz_min_median_max": [
+            42048.09115278721,
+            42292.675850212574,
+            61573.86881029606
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.21160523699319356,
+            0.3606879647436543,
+            0.67300732964312
+          ],
+          "side_difference_abs_db_max": 0.23722155030201625
+        }
+      ]
+    },
+    {
+      "family": "NFM",
+      "transport_valid": true,
+      "source_evidence": "results/evidence/phase08/replay-nfmg8-evaluation-20260909.json",
+      "summary": [
+        {
+          "span_hz": 8000,
+          "smaller_than_reference_file_obw": true,
+          "snr_db_min_median_max": [
+            0.015547610949337199,
+            4.796503567253986,
+            5.919920645646356
+          ],
+          "signal_dbfs_min_median_max": [
+            -74.24412084395561,
+            -69.31680639543453,
+            -67.80876254043977
+          ],
+          "conditional_obw_hz_min_median_max": [
+            6991.1331396102905,
+            7057.652108430862,
+            7411.637574195862
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.29111448661274153,
+            0.47668303340099527,
+            1.2709231224442306
+          ],
+          "side_difference_abs_db_max": 0.11988777848267192
+        },
+        {
+          "span_hz": 16000,
+          "smaller_than_reference_file_obw": true,
+          "snr_db_min_median_max": [
+            -1.3793473987987104,
+            3.6948705809827334,
+            4.562273537107246
+          ],
+          "signal_dbfs_min_median_max": [
+            -72.51770794204866,
+            -67.32981968215157,
+            -66.23046441514626
+          ],
+          "conditional_obw_hz_min_median_max": [
+            13746.72325873375,
+            13867.472191631794,
+            14772.22268152237
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.33480791205576566,
+            0.4497377093845927,
+            1.2747910869334476
+          ],
+          "side_difference_abs_db_max": 0.20627822596045567
+        },
+        {
+          "span_hz": 32000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            -5.478357778300856,
+            -1.3835099285415153,
+            0.3618095716116453
+          ],
+          "signal_dbfs_min_median_max": [
+            -73.29245919523127,
+            -68.20404383199997,
+            -66.82859805729842
+          ],
+          "conditional_obw_hz_min_median_max": [
+            13542.793954253197,
+            15093.305034160614,
+            16395.642811656
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.6033351975124219,
+            1.0279032980550369,
+            2.173476772741026
+          ],
+          "side_difference_abs_db_max": 0.19406008754353876
+        },
+        {
+          "span_hz": 64000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            -11.636605267064862,
+            -6.594775162069412,
+            -3.813931113426574
+          ],
+          "signal_dbfs_min_median_max": [
+            -76.31449565701897,
+            -70.49931540768003,
+            -68.02319353053349
+          ],
+          "conditional_obw_hz_min_median_max": [
+            11690.121636748314,
+            13313.657685935497,
+            16056.125712871552
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.8153979535612024,
+            1.3203669127268398,
+            2.4691187820669285
+          ],
+          "side_difference_abs_db_max": 0.7791281265432632
+        },
+        {
+          "span_hz": 100000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            -24.845294698476597,
+            -10.4722072563608,
+            -7.019977918549918
+          ],
+          "signal_dbfs_min_median_max": [
+            -87.0292715931948,
+            -71.52777283048094,
+            -69.33008116662056
+          ],
+          "conditional_obw_hz_min_median_max": [
+            211.074077129364,
+            11698.575034976006,
+            13638.98443698883
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.9145165578900389,
+            1.5174991048432354,
+            2.727382862416434
+          ],
+          "side_difference_abs_db_max": 0.15078173427047079
+        }
+      ]
+    },
+    {
+      "family": "BPSK",
+      "transport_valid": false,
+      "source_evidence": "results/evidence/phase08/replay-bpskg8-diagnostic-20260909.json",
+      "summary": [
+        {
+          "span_hz": 8000,
+          "smaller_than_reference_file_obw": true,
+          "snr_db_min_median_max": [
+            5.234549352867212,
+            5.800164111001696,
+            8.711998948570423
+          ],
+          "signal_dbfs_min_median_max": [
+            -68.59268002325058,
+            -68.0913466792033,
+            -65.12060998018141
+          ],
+          "conditional_obw_hz_min_median_max": [
+            7757.56654882431,
+            7769.756201863289,
+            7776.739684700966
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.01408728410889637,
+            0.25817886580485805,
+            0.3474471566017314
+          ],
+          "side_difference_abs_db_max": 0.26547516696388196
+        },
+        {
+          "span_hz": 16000,
+          "smaller_than_reference_file_obw": true,
+          "snr_db_min_median_max": [
+            4.616834628866505,
+            5.289294390713193,
+            8.29559687395054
+          ],
+          "signal_dbfs_min_median_max": [
+            -66.14162240100202,
+            -65.58311555056963,
+            -62.486314050697224
+          ],
+          "conditional_obw_hz_min_median_max": [
+            15711.693580269814,
+            15739.90392524004,
+            15777.512286782265
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.03463089468208125,
+            0.2700906375838983,
+            0.3715822540789162
+          ],
+          "side_difference_abs_db_max": 0.2041790556125481
+        },
+        {
+          "span_hz": 32000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            2.042295875404428,
+            2.8383863234492592,
+            5.769195346110651
+          ],
+          "signal_dbfs_min_median_max": [
+            -65.63972030269726,
+            -65.02602706364328,
+            -61.915180865780435
+          ],
+          "conditional_obw_hz_min_median_max": [
+            21480.14592254162,
+            22254.238488912582,
+            24141.969079375267
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.10721081554154921,
+            0.3804257782960363,
+            0.47187815932907995
+          ],
+          "side_difference_abs_db_max": 0.22290540803650588
+        },
+        {
+          "span_hz": 64000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            -0.8674557674590562,
+            -0.051714579715088554,
+            2.9499872681468204
+          ],
+          "signal_dbfs_min_median_max": [
+            -65.60921080072532,
+            -64.96152281518226,
+            -61.86304496959493
+          ],
+          "conditional_obw_hz_min_median_max": [
+            31355.377071738243,
+            45347.69010800123,
+            48229.791164278984
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.0688131223624282,
+            0.26911916462522356,
+            0.39324009909374524
+          ],
+          "side_difference_abs_db_max": 0.0965712275651435
+        },
+        {
+          "span_hz": 100000,
+          "smaller_than_reference_file_obw": false,
+          "snr_db_min_median_max": [
+            -2.9266969192857712,
+            -2.100571079219525,
+            1.2143629528511677
+          ],
+          "signal_dbfs_min_median_max": [
+            -65.67478275367716,
+            -64.95447713129326,
+            -61.75357658614142
+          ],
+          "conditional_obw_hz_min_median_max": [
+            64941.56258368492,
+            81186.26738101244,
+            85513.76343894005
+          ],
+          "noise_on_minus_pre_db_min_median_max": [
+            0.13898713739741453,
+            0.20091410205835913,
+            0.4072214958496545
+          ],
+          "side_difference_abs_db_max": 0.21250495407045528
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Önceden incelenmiş RF tanısı; yeni kör doğrulama değildir.",
+    "BPSK USB taşmalıdır; kabul paydasına alınmaz.",
+    "Aralık içi koşullu bant tam emisyon OBW değildir."
+  ],
+  "physical_acceptance": false,
+  "product_acceptance": false,
+  "dbm_calibrated": false,
+  "archive_file": "parameter-rf-readiness-20260909.zip",
+  "archive_sha256": "4255c7fc05753a8a9c713dd765140b66d5fd025f2d662973e2a9ebdb61e7763c",
+  "files": {
+    "AM-spectra.npz": "93e5cf18d2ac4eb2e6e2e9036c00ce7d8af4d6a0d8228f827fc2160e0d5d9fca",
+    "BPSK-spectra.npz": "f720e605d2285f359ffc44fe862e6226fec550c801e00aac14791dac77b89c30",
+    "NFM-spectra.npz": "f1ae67045814e62b597cfbf58bdbcf6f526270a4be8d4bc1d16379369dd0d0d5",
+    "report.json": "3f7349300b53f2fbebb37292c36c89b56bc43d4a842ff1ddf1c0a13ad732c9a0",
+    "scripts/analyze_parameter_rf_readiness.py": "3db7076b8c8fcdd171fd619638a5001ecde532dca3fbe0ef7e787ac8d504900f",
+    "algorithms/parameters/operator_assisted.py": "5d805e28d3c1991630a416bfc5059f9891db3eefe39eba8d5eaf8f412d49d6af"
+  }
+}

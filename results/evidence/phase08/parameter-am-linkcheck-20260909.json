@@ -1,0 +1,190 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "new_physical_link_diagnostic",
+  "operator_play_confirmed": true,
+  "settings_note": "Operatöre bildirilen ayarlar; verici ekranı/seri kimliği ayrı okunmadı.",
+  "transport_valid": true,
+  "usb_overruns": 0,
+  "rail_components": 0,
+  "segments": [
+    {
+      "first_s": 13.75,
+      "last_s": 19.7,
+      "sampled_span_s": 5.999999999999999,
+      "peak_frequency_median_hz": 824989697.265625
+    }
+  ],
+  "band_diagnostic_summary": [
+    {
+      "span_hz": 8000,
+      "snr_db_min_median_max": [
+        13.36403467558405,
+        14.667096286489478,
+        15.321141453376764
+      ],
+      "power_dbfs_min_median_max": [
+        -60.44600818203896,
+        -58.906899880111055,
+        -58.27775283983469
+      ],
+      "conditional_obw_hz_min_median_max": [
+        3682.28346657753,
+        3693.859400033951,
+        3702.2687326669693
+      ]
+    },
+    {
+      "span_hz": 16000,
+      "snr_db_min_median_max": [
+        10.329466338186137,
+        11.628445057501297,
+        12.29463027559927
+      ],
+      "power_dbfs_min_median_max": [
+        -60.451214442627474,
+        -58.909855192969985,
+        -58.288981217806125
+      ],
+      "conditional_obw_hz_min_median_max": [
+        3690.5380965471268,
+        3704.2358677983284,
+        3740.6182384490967
+      ]
+    },
+    {
+      "span_hz": 32000,
+      "snr_db_min_median_max": [
+        7.602498427708993,
+        8.902923385837628,
+        9.53753931387312
+      ],
+      "power_dbfs_min_median_max": [
+        -60.44181978405608,
+        -58.90253051780327,
+        -58.27422659326031
+      ],
+      "conditional_obw_hz_min_median_max": [
+        3698.634457588196,
+        3715.709656596184,
+        3735.6244354248047
+      ]
+    },
+    {
+      "span_hz": 64000,
+      "snr_db_min_median_max": [
+        5.014603494180464,
+        6.470313421031698,
+        7.1846281010303965
+      ],
+      "power_dbfs_min_median_max": [
+        -60.284735763431826,
+        -58.743996275095895,
+        -58.11100788633529
+      ],
+      "conditional_obw_hz_min_median_max": [
+        41156.04672682285,
+        41731.00487744808,
+        41930.63483166695
+      ]
+    },
+    {
+      "span_hz": 100000,
+      "snr_db_min_median_max": [
+        3.1537463966723065,
+        4.477165358586635,
+        5.100319019280514
+      ],
+      "power_dbfs_min_median_max": [
+        -60.22702386900595,
+        -58.72801397327359,
+        -58.104311903379546
+      ],
+      "conditional_obw_hz_min_median_max": [
+        56822.001579642296,
+        74746.49834883213,
+        80454.18167507648
+      ]
+    }
+  ],
+  "envelope_peak_hz": 1699.21875,
+  "candidate_summary": [
+    {
+      "span_hz": 8000,
+      "decisions": {
+        "Belirsiz": 10
+      },
+      "reasons": {
+        "None": 10
+      }
+    },
+    {
+      "span_hz": 16000,
+      "decisions": {
+        "Belirsiz": 10
+      },
+      "reasons": {
+        "None": 10
+      }
+    },
+    {
+      "span_hz": 32000,
+      "decisions": {
+        "Belirsiz": 9,
+        "Analog": 1
+      },
+      "reasons": {
+        "None": 10
+      }
+    },
+    {
+      "span_hz": 64000,
+      "decisions": {
+        "Belirsiz": 8,
+        "Analog": 2
+      },
+      "reasons": {
+        "None": 7,
+        "low_snr": 3
+      }
+    },
+    {
+      "span_hz": 100000,
+      "decisions": {
+        "Belirsiz": 10
+      },
+      "reasons": {
+        "None": 1,
+        "low_snr": 9
+      }
+    }
+  ],
+  "limits": [
+    "Tek sonlu RF koşusu; on pencere bağımsız on deney değildir.",
+    "Aralık taraması tanıdır; en iyi sonuç seçilerek kabul yapılmaz.",
+    "Model/eşik ve ürün/ARM/RTL değişmedi."
+  ],
+  "physical_acceptance": false,
+  "product_acceptance": false,
+  "dbm_calibrated": false,
+  "archive_file": "parameter-am-linkcheck-20260909.zip",
+  "archive_sha256": "0f1bff3b80a71682ffec52aa2022be9b44232f96e8b8e59dc6ade96b2ea7ca17",
+  "files": {
+    "analysis/candidate.json": "f1dd43cc9138bbc8fe72781024373d13387b82ce2db112cf6f0999721af3eeae",
+    "analysis/report.json": "df68859322f3b050ef960262548dd6e3d565b05670d66b61d79ebc3a9712c2c3",
+    "analysis/spectra.npz": "3ba3ac4c0d64c2414923dba15f430bd6c4fa700636bd2ae598e876ace539e546",
+    "capture/rx.ci8": "4e46f0df19ceae139020fa1d5d247460a6a7479a31eb6e94e5aeaaf97fbe913f",
+    "capture/capture.json": "c6af05aa9f02f23c924a8c14366d7ddcef9e19d105cfd87bec388a7b42d91955",
+    "capture/transfer.log": "e91ef4b4a91530581f7286bc1dc4f00d5b1fceaa4008ddd47ffa4ed346e56b8f",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+    "scripts/analyze_parameter_link_capture.py": "cc5df51901bf1cbf7d9fe1c53db0e38d3f84833ac28c9d0d61d2a8daf4c8a629",
+    "scripts/analyze_parameter_rf_readiness.py": "3db7076b8c8fcdd171fd619638a5001ecde532dca3fbe0ef7e787ac8d504900f",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "scripts/evaluate_parameter_link_candidate.py": "8400d49537cada191ebe4700af22a80942646f2348949cd07cbc6c46938d51b9",
+    "algorithms/parameters/operator_assisted.py": "5d805e28d3c1991630a416bfc5059f9891db3eefe39eba8d5eaf8f412d49d6af",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "candidate-model.json": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9"
+  }
+}

@@ -51,6 +51,9 @@ SRC_URI = "file://Makefile \
            file://p0_parameter_runtime.h \
            file://p0_parameter_run.c \
            file://p0_parameter_client.c \
+           file://p0_amplitude_df.c \
+           file://p0_amplitude_df.h \
+           file://p0_amplitude_df_run.c \
            file://p0-ed-service.init \
            file://p0-ed-network-bridge.init \
            file://p0-ed-network-bridge.default \
@@ -59,6 +62,13 @@ SRC_URI = "file://Makefile \
 S = "${WORKDIR}"
 
 inherit module update-rc.d useradd
+
+# module.bbclass suppresses the normal userspace toolchain dependencies.  This
+# mixed kernel/userspace recipe also links executables, so declare their C
+# runtime inputs explicitly instead of relying on a previously populated
+# recipe sysroot.
+INHIBIT_DEFAULT_DEPS = ""
+DEPENDS += "virtual/${TARGET_PREFIX}gcc virtual/${TARGET_PREFIX}compilerlibs virtual/libc"
 
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM:${PN} = "--system p0ed"
@@ -76,13 +86,14 @@ do_compile:append() {
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_persistent_weak.c ${S}/p0_persistent_weak_run.c ${LDFLAGS} -o ${S}/p0-persistent-weak-run
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_st05_wideband.c ${S}/p0_st05_stream.c ${S}/p0_st06_power_runtime.c ${S}/p0_st06_power_benchmark.c ${LDFLAGS} -lm -o ${S}/p0-st06-power-benchmark
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_st05_wideband.c ${S}/p0_st05_stream.c ${S}/p0_st06_power_runtime.c ${S}/p0_st06_dma_profile_run.c ${LDFLAGS} -lm -pthread -o ${S}/p0-st06-dma-profile-run
-    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_service.c ${S}/p0_os_cfar.c ${S}/p0_pl_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/p0_persistent_weak.c ${S}/p0_st05_wideband.c ${S}/p0_st05_stream.c ${S}/phase06j_temporal.c ${LDFLAGS} -lm -pthread -o ${S}/p0-ed-service
+    ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_amplitude_df.c ${S}/p0_ed_pipeline.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_service.c ${S}/p0_os_cfar.c ${S}/p0_pl_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/p0_persistent_weak.c ${S}/p0_st05_wideband.c ${S}/p0_st05_stream.c ${S}/phase06j_temporal.c ${LDFLAGS} -lm -pthread -o ${S}/p0-ed-service
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -DP0_IQ_USE_SERVICE_CRC32 -I${S} ${S}/p0_iq_transport.c ${S}/p0_ed_service_protocol.c ${S}/p0_ed_network_bridge.c ${LDFLAGS} -lm -o ${S}/p0-ed-network-bridge
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_ed_client.c ${LDFLAGS} -o ${S}/p0-ed-client
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_ed_throughput_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-throughput-run
     ${CC} ${CPPFLAGS} ${CFLAGS} ${P0_HOT_PATH_CFLAGS} -I${S} ${S}/p0_dma_runtime.c ${S}/p0_parameter_runtime.c ${S}/p0_ed_pipeline.c ${S}/p0_os_cfar.c ${S}/p0_pl_os_cfar.c ${S}/p0_multiscale_detector.c ${S}/p0_candidate_packet.c ${S}/p0_persistent_weak.c ${S}/p0_st05_wideband.c ${S}/p0_st05_stream.c ${S}/phase06j_temporal.c ${S}/p0_ed_stage_profile_run.c ${LDFLAGS} -lm -o ${S}/p0-ed-stage-profile-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_parameter_runtime.c ${S}/p0_parameter_run.c ${LDFLAGS} -lm -o ${S}/p0-parameter-run
     ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_ed_service_protocol.c ${S}/p0_parameter_client.c ${LDFLAGS} -o ${S}/p0-parameter-client
+    ${CC} ${CPPFLAGS} ${CFLAGS} -I${S} ${S}/p0_amplitude_df.c ${S}/p0_amplitude_df_run.c ${LDFLAGS} -lm -o ${S}/p0-amplitude-df-run
 }
 
 do_install:append() {
@@ -99,6 +110,7 @@ do_install:append() {
     install -m 0755 ${S}/p0-ed-stage-profile-run ${D}${bindir}/p0-ed-stage-profile-run
     install -m 0755 ${S}/p0-parameter-run ${D}${bindir}/p0-parameter-run
     install -m 0755 ${S}/p0-parameter-client ${D}${bindir}/p0-parameter-client
+    install -m 0755 ${S}/p0-amplitude-df-run ${D}${bindir}/p0-amplitude-df-run
     install -d ${D}${sbindir}
     install -m 0755 ${S}/p0-ed-service ${D}${sbindir}/p0-ed-service
     install -m 0755 ${S}/p0-ed-network-bridge ${D}${sbindir}/p0-ed-network-bridge
@@ -109,6 +121,6 @@ do_install:append() {
     install -m 0644 ${S}/p0-ed-network-bridge.default ${D}${sysconfdir}/default/p0-ed-network-bridge
 }
 
-FILES:${PN} += "${bindir}/p0-dma-run ${bindir}/p0-os-cfar-run ${bindir}/p0-ed-runtime-run ${bindir}/p0-multiframe-narrowband-run ${bindir}/p0-persistent-weak-run ${bindir}/p0-st06-power-benchmark ${bindir}/p0-st06-dma-profile-run ${bindir}/p0-ed-client ${bindir}/p0-ed-throughput-run ${bindir}/p0-ed-stage-profile-run ${bindir}/p0-parameter-run ${bindir}/p0-parameter-client ${sbindir}/p0-ed-service ${sbindir}/p0-ed-network-bridge ${sysconfdir}/init.d/p0-ed-service ${sysconfdir}/init.d/p0-ed-network-bridge ${sysconfdir}/default/p0-ed-network-bridge"
+FILES:${PN} += "${bindir}/p0-dma-run ${bindir}/p0-os-cfar-run ${bindir}/p0-ed-runtime-run ${bindir}/p0-multiframe-narrowband-run ${bindir}/p0-persistent-weak-run ${bindir}/p0-st06-power-benchmark ${bindir}/p0-st06-dma-profile-run ${bindir}/p0-ed-client ${bindir}/p0-ed-throughput-run ${bindir}/p0-ed-stage-profile-run ${bindir}/p0-parameter-run ${bindir}/p0-parameter-client ${bindir}/p0-amplitude-df-run ${sbindir}/p0-ed-service ${sbindir}/p0-ed-network-bridge ${sysconfdir}/init.d/p0-ed-service ${sysconfdir}/init.d/p0-ed-network-bridge ${sysconfdir}/default/p0-ed-network-bridge"
 RDEPENDS:${PN} += "kernel-module-p0-dma-client"
 KERNEL_MODULE_AUTOLOAD += "p0_dma_client"

@@ -1,0 +1,16 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "physical_acceptance": false,
+  "product_acceptance": false,
+  "files": {
+    "docs/reviews/PARAMETER_EXTRACTION_ASSESSMENT.md": "f9e7a6473b7dbbbe03bf94c3f1e499e8617fb09cb9a8b594bbcc6d8a382d37e1",
+    "results/evidence/phase08/parameter-rf-assessment-20260909.png": "71090a8f29047a2f7b35f648e771a9abf0c95926fe95c4640b9b1abf288f0cdf",
+    "outputs/01a086c7-4d85-7932-8318-dbf56e51c09d/Gerçek_RF_Ölçümleri.xlsx": "cd2b4bd6e07e85c9b35a01f0723f4eb52c2bb48d23e575f4034cf6635ace8883",
+    "build/plot_parameter_assessment.py": "e345bd0fcadcb46fd23f1314f4509b17ec17ed6539d387939753bf0326354a04",
+    "build/prepare_parameter_chart_data.py": "6f8a66cb6bd32328fb9c1656e3cd84e51c25295947a58701c2188734c1e87746",
+    "build/parameter_sheet/create.mjs": "89ae04843653e85a5735da3015f32a7493031f8f7e32972a3a6a5de0c7d50cd4"
+  }
+}

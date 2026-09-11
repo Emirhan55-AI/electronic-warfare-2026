@@ -15,6 +15,7 @@ from typing import Callable, Protocol
 import numpy as np
 
 from algorithms.p0.native_channelizer import create_realtime_channelizer
+from algorithms.p0.channelizer import P0ChannelizerProfile
 from algorithms.p0.transport import (
     IQFrame,
     IQResponse,
@@ -64,6 +65,8 @@ LIVE_AUDIO_WINDOW_SECONDS = 5.0
 LIVE_AUDIO_WINDOW_FRAMES = math.ceil(
     LIVE_AUDIO_WINDOW_SECONDS * LIVE_OUTPUT_SAMPLE_RATE_HZ / LIVE_OUTPUT_SAMPLES_PER_FRAME
 )
+LIVE_AUDIO_MIN_OBSERVED_FRACTION = 0.95
+LIVE_AUDIO_MAX_CONSECUTIVE_MISSES = 8
 
 
 @dataclass(frozen=True)
@@ -79,8 +82,16 @@ class LiveEDConfiguration:
     input_center_frequency_hz_override: int | None = None
     fpga_enabled: bool = True
     assess_receive_level: bool = False
+    display_fft_size: int = 16384
+    fpga_fft_size: int = 4096
 
     def __post_init__(self) -> None:
+        if (isinstance(self.fpga_fft_size, bool) or not isinstance(self.fpga_fft_size, int)
+                or self.fpga_fft_size not in (4096, 8192, 16384)):
+            raise AcquisitionError("invalid_rx_config", "FPGA FFT boyutu 4096, 8192 veya 16384 olmalıdır.")
+        if (isinstance(self.display_fft_size, bool) or not isinstance(self.display_fft_size, int)
+                or self.display_fft_size not in (4096, 8192, 16384)):
+            raise AcquisitionError("invalid_rx_config", "Görüntü FFT boyutu 4096, 8192 veya 16384 olmalıdır.")
         if not isinstance(self.assess_receive_level, bool):
             raise AcquisitionError("invalid_rx_config", "Alım seviyesi denetim modu geçersizdir.")
         if not isinstance(self.fpga_enabled, bool):
@@ -129,7 +140,7 @@ class LiveEDConfiguration:
         return RXConfig(
             center_frequency_hz=self.input_center_frequency_hz,
             sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
-            sample_count=LIVE_INPUT_SAMPLES_PER_FRAME,
+            sample_count=4 * self.fpga_fft_size,
             rf_amplifier=False,
             lna_gain_db=self.lna_gain_db,
             vga_gain_db=self.vga_gain_db,
@@ -334,9 +345,9 @@ class LiveEDSession:
         self._measurement_lock = threading.Lock()
         self._measurement_histories: dict[int, list[LiveEDSnapshot]] = {}
         self._measurement_windows: OrderedDict[int, tuple[LiveEDSnapshot, ...]] = OrderedDict()
-        self._audio_lock = threading.Lock()
+        self._audio_lock = threading.RLock()
         self._audio_frames: deque[IQFrame] = deque(maxlen=LIVE_AUDIO_WINDOW_FRAMES)
-        self._audio_observations: dict[int, int] = {}
+        self._audio_event_observations: dict[int, deque[bool]] = {}
         self._preview_handler: Callable[[LiveEDPreview], None] | None = None
         self.last_diagnostics: dict = {}
         self.measurement_channelizer: dict | None = None
@@ -366,32 +377,82 @@ class LiveEDSession:
 
     def audio_window_frame_count(self, event_id: int | None = None) -> int:
         with self._audio_lock:
-            return len(self._audio_frames) if event_id is None else min(
-                len(self._audio_frames), self._audio_observations.get(event_id, 0)
-            )
+            if event_id is None:
+                return len(self._audio_frames)
+            observations = self._audio_event_observations.get(event_id)
+            return min(len(self._audio_frames), len(observations) if observations is not None else 0)
 
     def audio_window_ready(self, event_id: int | None = None) -> bool:
-        return self.audio_window_frame_count(event_id) == LIVE_AUDIO_WINDOW_FRAMES
+        if event_id is None:
+            return self.audio_window_frame_count() == LIVE_AUDIO_WINDOW_FRAMES
+        return bool(self.audio_window_quality(event_id).get("acceptable", False))
+
+    def audio_window_quality(self, event_id: int) -> dict[str, int | float | bool]:
+        """Report bounded detector continuity for the selected confirmed event."""
+        with self._audio_lock:
+            observations = tuple(self._audio_event_observations.get(int(event_id), ()))
+            total_frames = len(observations)
+            observed_frames = sum(observations)
+            maximum_misses = 0
+            current_misses = 0
+            for observed in observations:
+                if observed:
+                    current_misses = 0
+                else:
+                    current_misses += 1
+                    maximum_misses = max(maximum_misses, current_misses)
+            fraction = observed_frames / total_frames if total_frames else 0.0
+            acceptable = (
+                len(self._audio_frames) == LIVE_AUDIO_WINDOW_FRAMES
+                and total_frames == LIVE_AUDIO_WINDOW_FRAMES
+                and fraction >= LIVE_AUDIO_MIN_OBSERVED_FRACTION
+                and maximum_misses <= LIVE_AUDIO_MAX_CONSECUTIVE_MISSES
+            )
+            return {
+                "total_frames": total_frames,
+                "observed_frames": observed_frames,
+                "observed_fraction": fraction,
+                "max_consecutive_misses": maximum_misses,
+                "acceptable": acceptable,
+            }
 
     def audio_window(self, event_id: int | None = None) -> tuple[IQFrame, ...]:
         """Snapshot contiguous submitted I/Q whose FPGA responses were validated."""
+        return self.audio_window_snapshot(event_id)[0]
+
+    def audio_window_snapshot(
+        self, event_id: int | None = None
+    ) -> tuple[tuple[IQFrame, ...], dict[str, int | float | bool] | None]:
+        """Atomically snapshot I/Q and the selected event's continuity evidence."""
         with self._audio_lock:
             if len(self._audio_frames) != LIVE_AUDIO_WINDOW_FRAMES:
-                return ()
-            if event_id is not None and self._audio_observations.get(event_id, 0) < LIVE_AUDIO_WINDOW_FRAMES:
-                return ()
-            return tuple(self._audio_frames)
+                return (), None if event_id is None else self.audio_window_quality(event_id)
+            quality = None if event_id is None else self.audio_window_quality(event_id)
+            if quality is not None and not quality.get("acceptable", False):
+                return (), quality
+            return tuple(self._audio_frames), quality
 
-    def _record_audio_frame(self, frame: IQFrame, observed_ids: tuple[int, ...] = ()) -> None:
+    def _record_audio_frame(
+        self,
+        frame: IQFrame,
+        observed_ids: tuple[int, ...] = (),
+        active_confirmed_ids: tuple[int, ...] | None = None,
+    ) -> None:
+        observed = set(observed_ids)
+        active = observed if active_confirmed_ids is None else set(active_confirmed_ids)
         with self._audio_lock:
             if self._audio_frames and frame.sequence_number != self._audio_frames[-1].sequence_number + 1:
                 self._audio_frames.clear()
-                self._audio_observations.clear()
+                self._audio_event_observations.clear()
             self._audio_frames.append(frame)
-            self._audio_observations = {
-                event_id: min(LIVE_AUDIO_WINDOW_FRAMES, self._audio_observations.get(event_id, 0) + 1)
-                for event_id in observed_ids
-            }
+            for event_id in tuple(self._audio_event_observations):
+                if event_id not in active:
+                    del self._audio_event_observations[event_id]
+            for event_id in active:
+                history = self._audio_event_observations.setdefault(
+                    event_id, deque(maxlen=LIVE_AUDIO_WINDOW_FRAMES)
+                )
+                history.append(event_id in observed)
 
     def _record_measurement_snapshot(self, snapshot: LiveEDSnapshot) -> None:
         observed_ids: set[int] = set()
@@ -419,7 +480,13 @@ class LiveEDSession:
         if self._cancellation.is_set():
             raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
         config = self.configuration
-        channelizer = self._channelizer_factory()
+        channelizer_profile = P0ChannelizerProfile(
+            input_samples_per_frame=4 * config.fpga_fft_size,
+            output_samples_per_frame=config.fpga_fft_size,
+        )
+        channelizer = (self._channelizer_factory()
+                       if config.fpga_fft_size == 4096
+                       else self._channelizer_factory(channelizer_profile))
         channelizer_backend = str(getattr(channelizer, "backend_name", "unknown"))
         profile = getattr(channelizer, "profile", None)
         self.measurement_channelizer = {
@@ -546,7 +613,7 @@ class LiveEDSession:
                 # frames. This detects coarse CI8 quantization, not RF absence.
                 if config.assess_receive_level and 16 <= index < 48:
                     level_nonzero += len(channelized.frame.payload) - channelized.frame.payload.count(0)
-                    if index == 47 and level_nonzero < 32 * 8192 * 0.05:
+                    if index == 47 and level_nonzero < 32 * config.fpga_fft_size * 2 * 0.05:
                         raise AcquisitionError(
                             "rx_level_low",
                             "Kanal seçici çıkışının %95'inden fazlası sıfır; alım seviyesi ayarlanmalı.",
@@ -615,11 +682,19 @@ class LiveEDSession:
                 raise TransportError("candidate_drop", "Canlı FPGA olay zincirinde aday düşürüldü.")
             output_frame = pending_frames.pop(response.sequence_number)
             snapshot = LiveEDSnapshot(response.sequence_number, output_frame, decoded)
-            self._record_audio_frame(output_frame, tuple(
-                event.event_id for event in decoded.active
-                if event.state == "confirmed" and event.observed_this_frame
-            ))
-            self._record_measurement_snapshot(snapshot)
+            if output_frame.complex_sample_count == 4096:
+                confirmed_ids = tuple(
+                    event.event_id for event in decoded.active if event.state == "confirmed"
+                )
+                self._record_audio_frame(
+                    output_frame,
+                    tuple(
+                        event.event_id for event in decoded.active
+                        if event.state == "confirmed" and event.observed_this_frame
+                    ),
+                    confirmed_ids,
+                )
+                self._record_measurement_snapshot(snapshot)
             completed += 1
             raw_candidate_total += decoded.raw_candidate_count
             maximum_active = max(maximum_active, len(decoded.active))
@@ -701,7 +776,7 @@ class LiveEDSession:
         if (
             stream_statistics.frames_received != config.frame_count
             or stream_statistics.bytes_received
-            != config.frame_count * LIVE_INPUT_SAMPLES_PER_FRAME * 2
+            != config.frame_count * config.rx_config.sample_count * 2
             or stream_statistics.process_returncode != 0
         ):
             raise AcquisitionError("stream_integrity", "HackRF canlı RX bütünlüğü doğrulanamadı.")
@@ -723,7 +798,8 @@ class LiveEDSession:
             completed_frames=completed,
             elapsed_seconds=elapsed,
             frames_per_second=frames_per_second,
-            real_time_margin=frames_per_second / LIVE_REQUIRED_FRAMES_PER_SECOND,
+            real_time_margin=frames_per_second /
+                (LIVE_OUTPUT_SAMPLE_RATE_HZ / config.fpga_fft_size),
             raw_candidate_total=raw_candidate_total,
             maximum_active_events=maximum_active,
             input_saturated_components=input_saturated,

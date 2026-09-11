@@ -34,7 +34,7 @@ from scripts.verify_st06_wideband_c import (
 )
 
 
-DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-uq28-30-v4.json"
+DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-uq28-30-v6.json"
 FRACTIONAL_BITS = 30
 SCALE = 1 << FRACTIONAL_BITS
 POWER_WIDTH = 58
@@ -211,7 +211,7 @@ def evaluate() -> dict[str, Any]:
         "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv",
     )
     return {
-        "schema": "phase08-st06-wideband-uq28-30-v4",
+        "schema": "phase08-st06-wideband-uq28-30-v6",
         "status": "passed" if passed else "failed",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "transmit_enabled": False,
@@ -245,8 +245,8 @@ def evaluate() -> dict[str, Any]:
         "performance_claim": "none; this is not an ARM, RTL, DMA, or product throughput measurement",
         "records": records,
         "source_sha256": {name: _sha256(ROOT / name) for name in sources},
-        "supersedes": "results/evidence/phase08/st06-wideband-uq28-30-v3.json",
-        "verifier_correction": "V3 binds the equivalent direct-selection median implementation; the representable overflow probe correction from V2 is retained.",
+        "supersedes": "results/evidence/phase08/st06-wideband-uq28-30-v5.json",
+        "verifier_correction": "V6 binds the decision-equivalent single-pass support grouping; lazy seed, median and representable-overflow corrections are retained.",
         "claim_boundary": [
             "This verifies decision and boundary stability after the existing PL UQ28.30 power quantization on the frozen synthetic corpus.",
             "The C detector still executes floating-point arithmetic after decoding; no claim of an all-integer ST-05 RTL implementation is made.",

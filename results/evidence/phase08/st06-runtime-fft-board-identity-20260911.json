@@ -1,0 +1,30 @@
+{
+  "schema": "phase08-st06-runtime-fft-board-identity-v1",
+  "generated_at_utc": "2026-09-10T21:41:28.2565018Z",
+  "host": "192.168.7.2",
+  "fpga_state": "operating",
+  "detection_control_id": "0x53540602",
+  "detection_control_status": "0x00000003",
+  "generation": 12,
+  "fft_log2": 12,
+  "fft_size": 4096,
+  "card_sha256": {
+    "bitstream": "24fe7666d55f7a5dceb75ebb54a1dd5595b8981763500c2eccd2c320a2e264ac",
+    "module": "b1214b4a75adf96fb66d8a60e3c57132b01225b3be45ac84f4979152c06e2d79",
+    "service": "1342d93700e3d282ce3d516bbefa5167915045e7a47428f68099afddfeff0a2b",
+    "bridge": "41e8e53d2ad9802fff13f5c111b51522328d56144f3ebaf97384819d831befa8"
+  },
+  "checks": {
+    "fpga_operating": true,
+    "runtime_control_identity_matches": true,
+    "runtime_control_idle": true,
+    "default_fft_restored": true,
+    "card_artifacts_match_local_products": true
+  },
+  "claim_boundary": {
+    "temporary_load_only": true,
+    "persistent_boot_files_changed": false,
+    "cold_boot_acceptance": false,
+    "rf_input_used": false
+  }
+}

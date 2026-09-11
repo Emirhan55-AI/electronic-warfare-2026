@@ -8,7 +8,7 @@ from algorithms.parameters import AnalysisSpan, MeasurementCandidate, Measuremen
 from algorithms.spectrum import SpectrumConfig
 from app.operator_console.measurement_record import measure_and_record, utc_now
 from scripts.diagnose_parameter_bench import diagnose, run
-from scripts.validate_parameter_bench import signal
+from scripts.validate_parameter_bench import containment_diagnostic, signal
 
 
 def test_diagnostic_matches_product_and_preserves_record(tmp_path):
@@ -37,3 +37,14 @@ def test_report_digest_mismatch_does_not_publish_diagnostic(tmp_path):
     with pytest.raises(ValueError, match="özetle eşleşmiyor"):
         run(tmp_path, output)
     assert not output.exists()
+
+
+def test_obw_containment_probe_is_conservative_and_separate_from_product():
+    bpsk_frames, _ = signal("BPSK", 73001, 24)
+    cw_frames, _ = signal("CW", 73001, 24)
+    bpsk = containment_diagnostic(bpsk_frames, 1978, 2438)
+    cw = containment_diagnostic(cw_frames, 1978, 2438)
+
+    assert bpsk["long_hann_state"] == "not_proven"
+    assert cw["long_hann_state"] == "contained"
+    assert bpsk["short_rectangular_near_excess_ratio"] > cw["short_rectangular_near_excess_ratio"]

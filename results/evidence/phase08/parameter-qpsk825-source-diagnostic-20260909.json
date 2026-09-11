@@ -1,0 +1,38 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "rf_runs": 4,
+  "windows_per_run": 10,
+  "quality_passed_uncertain_windows": 40,
+  "product_acceptance": false,
+  "model_changed": false,
+  "installed_tx_firmware_verified": false,
+  "source_reference_commit": "31b25a445b166b13101ea4c6546f78b84dcc6499",
+  "finding": "Upstream periyodik BPSK ve DSB kare aynı I/Q üretir. RF çizgileri yaklaşık 2 kHz ton hipoteziyle uyumlu; cihaz referansı değildir.",
+  "archive_sha256": "a34850944520af2ea6b930b9657de37005adff7519894a8eedcb5b903be837c7",
+  "files": {
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/report.json": "059484d1cf3b8df0c35c62d4057816e42bfa83cb2e1144a68330762f8885a5da",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-824700000.ci8": "a87547e75f2e9d66ad29b50df3859c8e4015849d262ae206210b3571716a168e",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-824700000.json": "ab2228ad9f7d91a144fb8f67e1899c2b027b571d97ece085ee843c77ef51dc8f",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-824700000.log": "08cdd7d476b18e5f90ebceef72be115f21a60ac93376a8cd3b126c88971a0764",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-825300000.ci8": "2252fc2d9412e28a14a3bfd13a67a935da286810dbd74acc0bfbc12571fb411a",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-825300000.json": "ab275882f87f7826de64b01024108ac9f5f80903c79ce99177a5cbcd56a2ca19",
+    "build/acceptance/parameter-rf-qpsk825-g24-20260909/rx-825300000.log": "4949d1a0cffcb0e1d944489f5e2190eab96acacbe4d15817df34b28240a1954a",
+    "build/acceptance/parameter-rf-qpsk825-g32-20260909/report.json": "0f6ffc295ec5948fccd97ceaa7fa222d93bd2606e6cc345792fb2f0ce7e0f505",
+    "build/acceptance/parameter-rf-qpsk825-g32-20260909/rx-824700000.ci8": "0f8cb5d2d32526c1bc2c29aa3d86be8c61d91f866515d4c724c5f6c7af135de7",
+    "build/acceptance/parameter-rf-qpsk825-g32-20260909/rx-824700000.log": "44c8e2ea76da98890d84e7e004b209b4d4bbc8c69dcadefb06f2e15ac0e31504",
+    "build/acceptance/parameter-rf-qpsk825-g32-20260909/rx-825300000.ci8": "cd4a9638074a8eb865bbe48a64c562cd504b0a5d6180a35e7ffbd34ce8d10487",
+    "build/acceptance/parameter-rf-qpsk825-g32-20260909/rx-825300000.log": "2afc675b1d894f046bbd888450d12355f45b22c692e0cd56e39d9d782be919c5",
+    "build/acceptance/parameter-siggen-diagnostic-20260909/proc_siggen.cpp": "fa0ba78675092de9b4ac188dc7b7be8117106a9c9adca93704073de931f46881",
+    "build/acceptance/parameter-siggen-diagnostic-20260909/proc_siggen.hpp": "b18de90e69587797180c41e39890c0345d99e3455e725a461ca782e9a393e431",
+    "build/acceptance/parameter-siggen-diagnostic-20260909/report.json": "df55b5cc36e1118979631cd8a56557d27244d7796d5c68fa751a3aeaca0b64a8",
+    "build/acceptance/parameter-siggen-diagnostic-20260909/ui_siggen.cpp": "17268ad2a7ac33c867c41158966327490f62ab6a1ab070f0a8b13d9f3b96f3b2",
+    "build/acceptance/parameter-siggen-diagnostic-20260909/upstream-commit.json": "d69fb66ac4bb8c0f2db26e9eded14c0190ac5d94295ac5d0e8b41d848193a664",
+    "scripts/diagnose_siggen_reference.py": "12df7201450b47d6d1ec4aecfaf7152fdfb3d02774221fc66ac31bb36559d12d",
+    "scripts/capture_parameter_candidate_rx.py": "b6dc0f05a40d5c023654202f30cda3289d377265b93b9b6ca007416a71a9ec8d",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "build/acceptance/parameter-candidate-v9-20260909/candidate-model.json": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9"
+  }
+}

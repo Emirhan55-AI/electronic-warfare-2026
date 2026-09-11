@@ -106,6 +106,7 @@ static int write_result(const char *path, const p0_parameter_result_t *result)
     write_field(file, "occupied_bandwidth_hz", &result->occupied_bandwidth_hz, 1);
     write_field(file, "channel_power_dbfs", &result->channel_power_dbfs, 1);
     write_field(file, "snr_estimate_db", &result->snr_estimate_db, 1);
+    write_field(file, "carrier_line_frequency_hz", &result->carrier_line_frequency_hz, 1);
     fputs("  \"quality\":{\"reference_difference_db\":", file);
     write_json_double(file, result->reference_difference_db);
     fputs(",\"detection_significance\":", file);

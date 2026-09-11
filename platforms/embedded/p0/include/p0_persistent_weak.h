@@ -37,6 +37,13 @@ typedef struct {
 } p0_persistent_weak_result_v1;
 
 size_t p0_persistent_weak_state_bytes(void);
+/* Age of the most recent actual nomination within the configured peak tolerance. */
+int p0_persistent_weak_last_seen_age(const void *memory, size_t bytes, uint16_t peak);
+size_t p0_persistent_weak_checkpoint_bytes(void);
+int p0_persistent_weak_checkpoint_save(const void *memory, size_t bytes,
+    const p0_weak_nomination_v1 *nominations, uint16_t count, void *backup, size_t backup_bytes);
+int p0_persistent_weak_checkpoint_restore(void *memory, size_t bytes,
+    const void *backup, size_t backup_bytes);
 int p0_persistent_weak_init(void *memory, size_t bytes);
 int p0_persistent_weak_update(
     void *memory, size_t bytes,

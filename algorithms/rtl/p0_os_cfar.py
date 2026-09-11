@@ -15,7 +15,7 @@ RADIUS = REFERENCE_PER_SIDE + GUARD_PER_SIDE
 COEFFICIENT_FRACTION_BITS = 32
 ALPHA_Q32 = 36_851_433_755
 WEAK_ALPHA_Q32 = 17_098_572_778
-OUTPUT_MARKER = 0xA
+OUTPUT_MARKER = 0xC
 
 
 def natural_to_shifted(index: int) -> int:
@@ -44,21 +44,27 @@ def _frame(values: Iterable[int]) -> tuple[int, ...]:
     return result
 
 
-def fixed_decision(cut_power: int, order_statistic: int) -> bool:
+def _coefficient(value: int, width: int) -> int:
+    if type(value) is not int or not (1 << 32) <= value < (1 << width):
+        raise ValueError("CFAR katsayısı desteklenen Q32 aralığında olmalıdır.")
+    return value
+
+
+def fixed_decision(cut_power: int, order_statistic: int, alpha_q32: int = ALPHA_Q32) -> bool:
     if not 0 <= cut_power < (1 << POWER_WIDTH):
         raise ValueError("CUT unsigned 58-bit olmalıdır.")
     if not 0 <= order_statistic < (1 << POWER_WIDTH):
         raise ValueError("Sıra istatistiği unsigned 58-bit olmalıdır.")
-    return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * ALPHA_Q32
+    return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * _coefficient(alpha_q32, 36)
 
 
-def fixed_weak_nomination(cut_power: int, order_statistic: int) -> bool:
+def fixed_weak_nomination(cut_power: int, order_statistic: int, alpha_q32: int = WEAK_ALPHA_Q32) -> bool:
     """Return the exact PL weak-cell decision used only by 24/32 persistence."""
     if not 0 <= cut_power < (1 << POWER_WIDTH):
         raise ValueError("CUT unsigned 58-bit olmalıdır.")
     if not 0 <= order_statistic < (1 << POWER_WIDTH):
         raise ValueError("Sıra istatistiği unsigned 58-bit olmalıdır.")
-    return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * WEAK_ALPHA_Q32
+    return (cut_power << COEFFICIENT_FRACTION_BITS) > order_statistic * _coefficient(alpha_q32, 34)
 
 
 @dataclass(frozen=True)
@@ -66,15 +72,22 @@ class P0OSCFARFrame:
     natural_power: tuple[int, ...]
     evaluated_shifted: tuple[bool, ...]
     detected_shifted: tuple[bool, ...]
+    weak_shifted: tuple[bool, ...]
     order_statistic_shifted: tuple[int, ...]
     dma_words_natural: tuple[int, ...]
 
 
-def detect_frame(natural_power: Iterable[int]) -> P0OSCFARFrame:
+def detect_frame(natural_power: Iterable[int], *, alpha_q32: int = ALPHA_Q32,
+                 weak_alpha_q32: int = WEAK_ALPHA_Q32) -> P0OSCFARFrame:
+    _coefficient(alpha_q32, 36)
+    _coefficient(weak_alpha_q32, 34)
+    if weak_alpha_q32 > alpha_q32:
+        raise ValueError("Zayıf eşik normal eşikten büyük olamaz.")
     natural = _frame(natural_power)
     shifted = tuple(natural[shifted_to_natural(index)] for index in range(FRAME_LENGTH))
     evaluated = [False] * FRAME_LENGTH
     detected = [False] * FRAME_LENGTH
+    weak = [False] * FRAME_LENGTH
     order_statistics = [0] * FRAME_LENGTH
 
     for cut in range(RADIUS, FRAME_LENGTH - RADIUS):
@@ -85,7 +98,8 @@ def detect_frame(natural_power: Iterable[int]) -> P0OSCFARFrame:
         order_statistic = sorted(references)[ORDER_STATISTIC_RANK - 1]
         evaluated[cut] = True
         order_statistics[cut] = order_statistic
-        detected[cut] = fixed_decision(shifted[cut], order_statistic)
+        detected[cut] = fixed_decision(shifted[cut], order_statistic, alpha_q32)
+        weak[cut] = fixed_weak_nomination(shifted[cut], order_statistic, weak_alpha_q32)
 
     words = []
     for natural_index, power in enumerate(natural):
@@ -94,11 +108,13 @@ def detect_frame(natural_power: Iterable[int]) -> P0OSCFARFrame:
         word |= int(evaluated[shifted_index]) << 58
         word |= int(detected[shifted_index]) << 59
         word |= OUTPUT_MARKER << 60
+        word |= int(weak[shifted_index]) << 60
         words.append(word)
     return P0OSCFARFrame(
         natural_power=natural,
         evaluated_shifted=tuple(evaluated),
         detected_shifted=tuple(detected),
+        weak_shifted=tuple(weak),
         order_statistic_shifted=tuple(order_statistics),
         dma_words_natural=tuple(words),
     )
@@ -125,7 +141,7 @@ def architecture_study() -> dict[str, object]:
             },
         ],
         "stored_power_bins": FRAME_LENGTH,
-        "stored_metadata_bits_per_bin": 2,
+        "stored_metadata_bits_per_bin": 3,
         "ping_pong": False,
         "runtime_profile": "fixed P0_OS_CFAR_EXPONENTIAL_PFA_1E4",
     }

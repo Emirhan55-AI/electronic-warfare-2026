@@ -1,0 +1,96 @@
+{
+  "schema": "phase08-st06-runtime-config-ui-physical-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-10T21:56:50.171164+00:00",
+  "scope": "OperatorViewModel read/apply/restore slots over the real card control service",
+  "snapshots": {
+    "read": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "8.5801430407",
+      "weak": "3.9810717055",
+      "generation": 12,
+      "fftSize": 4096,
+      "runtimeFftSupported": true
+    },
+    "applied": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "9.0000000000",
+      "weak": "3.0000000000",
+      "generation": 13,
+      "fftSize": 4096,
+      "runtimeFftSupported": true
+    },
+    "fft_8192": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "9.0000000000",
+      "weak": "3.0000000000",
+      "generation": 14,
+      "fftSize": 8192,
+      "runtimeFftSupported": true
+    },
+    "fft_16384": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "9.0000000000",
+      "weak": "3.0000000000",
+      "generation": 15,
+      "fftSize": 16384,
+      "runtimeFftSupported": true
+    },
+    "fft_4096": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "9.0000000000",
+      "weak": "3.0000000000",
+      "generation": 16,
+      "fftSize": 4096,
+      "runtimeFftSupported": true
+    },
+    "restored": {
+      "ready": true,
+      "message": "Etkin katsayılar FPGA’dan okundu. Yeni alım bu profille başlayacak.",
+      "normal": "8.5801430407",
+      "weak": "3.9810717055",
+      "generation": 17,
+      "fftSize": 4096,
+      "runtimeFftSupported": true
+    }
+  },
+  "card_applied": {
+    "generation": 13,
+    "alpha_q32": 38654705664,
+    "weak_alpha_q32": 12884901888,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "card_restored": {
+    "generation": 17,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "checks": {
+    "ui_fft_8192_reached_card": true,
+    "ui_fft_16384_reached_card": true,
+    "ui_fft_4096_reached_card": true,
+    "ui_read_ready": true,
+    "ui_apply_reached_card": true,
+    "ui_apply_generation_visible": true,
+    "ui_restore_reached_card": true,
+    "ui_restore_generation_visible": true,
+    "final_card_defaults": true
+  },
+  "hackrf_used": false,
+  "rf_acceptance": false,
+  "source_sha256": {
+    "scripts/verify_st06_runtime_config_ui_physical.py": "3057736e9bfbbc3f1bd27246d419ac6a1e3d000226cdb36c4d2334dcba9766c8",
+    "app/operator_console/quick_view_model.py": "1856f44c95115fb838173d60b62aa1b0f91cb5b98176e74fbfb0509450dd668d",
+    "app/operator_console/qml/DetectionSettings.qml": "240df09c78afc95e48e06b2848ccf05e505fa006d6d5bbd09945ca0728475f2a",
+    "algorithms/p0/detection_config.py": "b777a10d241a0f758116663400f2eebdbff317c86d45714ec46b328062e4524a"
+  },
+  "physical_product_evidence": "results/evidence/phase08/st06-runtime-fft-physical-repeated-20260911.json"
+}

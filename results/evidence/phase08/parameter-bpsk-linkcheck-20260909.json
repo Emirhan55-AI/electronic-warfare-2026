@@ -1,0 +1,39 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "new_physical_link_diagnostic",
+  "operator_play_confirmed": true,
+  "settings_note": "Operatöre bildirilen ayarlar; verici ekranı/seri kimliği ayrı okunmadı. Play basışının kayıtla kesin zaman eşleşmesi bilinmiyor.",
+  "transport_valid": true,
+  "usb_overruns": 0,
+  "rail_components": 0,
+  "segments": [],
+  "band_diagnostic_summary": [],
+  "envelope_peak_hz": null,
+  "candidate_summary": null,
+  "limits": [
+    "Tek sonlu RF koşusu; on pencere bağımsız on deney değildir.",
+    "Aralık taraması tanıdır; en iyi sonuç seçilerek kabul yapılmaz.",
+    "Model/eşik ve ürün/ARM/RTL değişmedi."
+  ],
+  "physical_acceptance": false,
+  "product_acceptance": false,
+  "dbm_calibrated": false,
+  "archive_file": "parameter-bpsk-linkcheck-20260909.zip",
+  "archive_sha256": "4b29d188576ccaf28b2322b6d280f32236ad5a37ad6943b4309e0d0a2deb87ef",
+  "files": {
+    "analysis/report.json": "75c4d33f795c3ec299e912d386c043c5ce3ad14d13a7c5dacb3b9159115d781f",
+    "capture/rx.ci8": "ffce0fa8e3542246c0b99caa74a81bab8f5193dcef8a53d2328dbe14e54b8e0d",
+    "capture/capture.json": "e4fd5ce3e64095111a7a89fba894e52e8bf8d682f9dd3050e93254eeb2c0a97d",
+    "capture/transfer.log": "9008ddaebb130d30052ba44c01bbc8ab806e7c84074ed956c8f470fe0e29fd98",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+    "scripts/analyze_parameter_link_capture.py": "cc5df51901bf1cbf7d9fe1c53db0e38d3f84833ac28c9d0d61d2a8daf4c8a629",
+    "scripts/analyze_parameter_rf_readiness.py": "3db7076b8c8fcdd171fd619638a5001ecde532dca3fbe0ef7e787ac8d504900f",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "scripts/evaluate_parameter_link_candidate.py": "8400d49537cada191ebe4700af22a80942646f2348949cd07cbc6c46938d51b9",
+    "algorithms/parameters/operator_assisted.py": "5d805e28d3c1991630a416bfc5059f9891db3eefe39eba8d5eaf8f412d49d6af",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6"
+  }
+}

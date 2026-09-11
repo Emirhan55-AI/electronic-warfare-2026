@@ -168,14 +168,14 @@ LIVE_PIPELINE_DETAILS = {
         "name": "OS-CFAR ve Aday Gruplama",
         "runtime": "FPGA",
         "implementation": "SystemVerilog",
-        "description": "OS-CFAR hücreleri ve bütünleşik geniş bant enerjisinden adaylar üretir; gruplama ve sürümlü aday paketleme PL üzerinde çalışır.",
-        "hostPath": "algorithms/p0/detection.py",
-        "rtlPath": "algorithms/fpga/p0/rtl/p0_candidate_reducer_packetizer_top.sv",
+        "description": "PL, OS-CFAR hücre kararlarını üretir. ARM CPU1 dar adayları gruplar ve sekiz karelik geniş bant enerjisini değerlendirir.",
+        "hostPath": "platforms/embedded/p0/src/p0_ed_pipeline.c",
+        "rtlPath": "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv",
     },
     "temporal": {
         "runtime": "ZYNQ PS",
         "implementation": "Taşınabilir C",
-        "description": "ARM hizmeti FPGA aday paketini doğrular, 2/3 gözlem kuralını uygular ve etkin olayları ABI v3 yanıtıyla bilgisayara iletir.",
+        "description": "ARM CPU0 DMA güç çıktısını doğrular ve çözer; CPU1 adaylara 2/3 gözlem kuralını uygular. Hizmet olayları ABI v3 yanıtıyla bilgisayara iletir.",
         "rtlPath": "platforms/embedded/p0/src/p0_ed_pipeline.c",
     },
 }
@@ -291,6 +291,7 @@ class _LiveTask(QRunnable):
         self._last_coarse_queued_sequence = -LIVE_COARSE_INTERVAL_DSP_FRAMES
         self.processor = SpectrumProcessor()
         self.wide_processor = SpectrumProcessor(SpectrumConfig(frame_length=16_384))
+        self.display_processor = self.wide_processor
         self.coarse_detector = CoarseSpectrumDetector()
         self.independent_preview = hasattr(session, "set_preview_handler")
         if self.independent_preview:
@@ -309,7 +310,16 @@ class _LiveTask(QRunnable):
             sample_rate_hz=frame.sample_rate_hz,
             center_frequency_hz=frame.center_frequency_hz,
         )
-        prepared = (preview, spectrum, (time.perf_counter() - started) * 1000)
+        display_spectrum = spectrum
+        if frame.sample_rate_hz == 8_000_000 and self.display_processor is not self.wide_processor:
+            count = self.display_processor.config.frame_length
+            # Real contiguous samples from this frame; no padding or joining dropped previews.
+            display_spectrum = self.display_processor.process(
+                decode_ci8(frame.payload[:count * 2], expected_complex_samples=count),
+                sample_rate_hz=frame.sample_rate_hz,
+                center_frequency_hz=frame.center_frequency_hz,
+            )
+        prepared = (preview, spectrum, display_spectrum, (time.perf_counter() - started) * 1000)
         if self.preview_mailbox.publish(prepared):
             self.signals.preview.emit(self.generation, self.preview_mailbox)
         if (

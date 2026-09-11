@@ -28,8 +28,8 @@
 #endif
 
 typedef struct {
-    uint8_t network_request[P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES];
-    uint8_t local_request_header[P0_ED_REQUEST_HEADER_BYTES_V3];
+    uint8_t network_request[P0_PARAMETER_BATCH_REQUEST_BYTES];
+    uint8_t local_request_header[P0_ED_REQUEST_HEADER_BYTES_V4];
     uint8_t local_response[P0_ED_RESPONSE_BYTES];
     uint8_t network_response[P0_IQ_RESPONSE_HEADER_BYTES + P0_ED_RESPONSE_BYTES];
     p0_iq_frame_view_t frame;
@@ -97,17 +97,22 @@ static int pin_to_network_cpu(void)
     return sched_setaffinity(0, sizeof(affinity), &affinity);
 }
 
-static int set_io_timeouts(int descriptor)
+static int set_io_timeout_seconds(int descriptor, int seconds)
 {
     struct timeval timeout;
 
-    timeout.tv_sec = P0_NETWORK_IO_TIMEOUT_SECONDS;
+    timeout.tv_sec = seconds;
     timeout.tv_usec = 0;
     return setsockopt(descriptor, SOL_SOCKET, SO_RCVTIMEO,
                       &timeout, sizeof(timeout)) == 0 &&
                    setsockopt(descriptor, SOL_SOCKET, SO_SNDTIMEO,
                               &timeout, sizeof(timeout)) == 0
                ? 0 : -1;
+}
+
+static int set_io_timeouts(int descriptor)
+{
+    return set_io_timeout_seconds(descriptor, P0_NETWORK_IO_TIMEOUT_SECONDS);
 }
 
 static int configure_tcp_client(int descriptor)
@@ -163,23 +168,48 @@ static int write_exact(int descriptor, const uint8_t *buffer, size_t bytes)
 static int read_processing_frame(int client, bridge_slot_t *slot,
                                  int allow_clean_eof)
 {
+    uint32_t payload_bytes;
     int status = read_exact(client, slot->network_request, P0_IQ_HEADER_BYTES,
                             allow_clean_eof);
 
     if (status != 0)
         return status;
+    if (memcmp(slot->network_request, "P0PM", 4U) == 0) {
+        p0_parameter_batch_request_t batch;
+        if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
+                       P0_PARAMETER_BATCH_REQUEST_BYTES - P0_IQ_HEADER_BYTES, 0) != 0)
+            return -1;
+        return p0_parameter_batch_decode(slot->network_request, P0_PARAMETER_BATCH_REQUEST_BYTES,
+                                         &batch) == 0 ? 3 : -1;
+    }
+    if (memcmp(slot->network_request, "P0DF", 4U) == 0) {
+        p0_df_batch_request_t batch;
+        if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
+                       P0_DF_BATCH_REQUEST_BYTES - P0_IQ_HEADER_BYTES, 0) != 0)
+            return -1;
+        return p0_df_batch_decode(slot->network_request, P0_DF_BATCH_REQUEST_BYTES,
+                                  &batch) == 0 ? 4 : -1;
+    }
+    if (memcmp(slot->network_request, "P0DC", 4U) == 0) {
+        p0_detection_message_t message;
+        return p0_detection_message_decode(slot->network_request, P0_IQ_HEADER_BYTES,
+                                            0, &message) == 0 ? 2 : -1;
+    }
     if (memcmp(slot->network_request, "P0IQ", 4U) != 0 ||
         slot->network_request[4] != P0_IQ_TRANSPORT_VERSION ||
         slot->network_request[5] != P0_IQ_SAMPLE_FORMAT_CI8 ||
         slot->network_request[6] != P0_IQ_HEADER_BYTES ||
-        slot->network_request[7] != 0U ||
-        load_le32(slot->network_request + 36U) != P0_IQ_PROCESSING_PAYLOAD_BYTES)
+        slot->network_request[7] != 0U)
+        return -1;
+    payload_bytes = load_le32(slot->network_request + 36U);
+    if (payload_bytes != 8192U && payload_bytes != 16384U &&
+        payload_bytes != P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES)
         return -1;
     if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
-                   P0_IQ_PROCESSING_PAYLOAD_BYTES, 0) != 0)
+                   payload_bytes, 0) != 0)
         return -1;
     return p0_iq_processing_frame_decode(slot->network_request,
-                                         sizeof(slot->network_request),
+                                         P0_IQ_HEADER_BYTES + payload_bytes,
                                          &slot->frame);
 }
 
@@ -229,11 +259,12 @@ static int submit_local_request(int local, bridge_slot_t *slot,
         return -1;
     memset(slot->local_request_header, 0, sizeof(slot->local_request_header));
     store_le32(slot->local_request_header + 0U, P0_ED_REQUEST_MAGIC);
-    store_le16(slot->local_request_header + 4U, P0_ED_SERVICE_ABI_VERSION_V3);
-    store_le16(slot->local_request_header + 6U, P0_ED_REQUEST_HEADER_BYTES_V3);
-    store_le32(slot->local_request_header + 8U, P0_ED_REQUEST_BYTES_V3);
+    store_le16(slot->local_request_header + 4U, P0_ED_SERVICE_ABI_VERSION_V4);
+    store_le16(slot->local_request_header + 6U, P0_ED_REQUEST_HEADER_BYTES_V4);
+    store_le32(slot->local_request_header + 8U,
+               P0_ED_REQUEST_HEADER_BYTES_V4 + slot->frame.payload_bytes);
     store_le32(slot->local_request_header + 12U, slot->frame.frame_id);
-    store_le32(slot->local_request_header + 16U, P0_ED_IQ_FRAME_BYTES);
+    store_le32(slot->local_request_header + 16U, slot->frame.payload_bytes);
     store_le32(slot->local_request_header + 20U, flags);
     store_le32(slot->local_request_header + 28U,
                p0_ed_crc32(slot->local_request_header, 28U));
@@ -247,7 +278,8 @@ static int submit_local_request(int local, bridge_slot_t *slot,
     do {
         sent = sendmsg(local, &message, MSG_NOSIGNAL);
     } while (sent < 0 && errno == EINTR);
-    if (sent != (ssize_t)P0_ED_REQUEST_BYTES_V3)
+    if (sent != (ssize_t)(P0_ED_REQUEST_HEADER_BYTES_V4 +
+                          slot->frame.payload_bytes))
         return -1;
     *first_request = 0;
     return 0;
@@ -326,7 +358,59 @@ static int serve_peer(int client, const char *local_socket)
             (descriptors[0].revents & (POLLIN | POLLHUP)) != 0) {
             int read_status = read_processing_frame(client, &slots[tail], 1);
 
-            if (read_status == 1) {
+            if (read_status == 3) {
+                p0_parameter_batch_request_t batch;
+                ssize_t count;
+                if (!first_request || outstanding != 0U ||
+                    p0_parameter_batch_decode(slots[tail].network_request,
+                        P0_PARAMETER_BATCH_REQUEST_BYTES, &batch) != 0) goto done;
+                if (set_io_timeout_seconds(client, 30) != 0 ||
+                    set_io_timeout_seconds(local, 30) != 0) goto done;
+                count = send(local, slots[tail].network_request, P0_PARAMETER_BATCH_REQUEST_BYTES, MSG_NOSIGNAL);
+                if (count != P0_PARAMETER_BATCH_REQUEST_BYTES) goto done;
+                count = recv(local, slots[tail].local_response, sizeof(slots[tail].local_response), MSG_TRUNC);
+                if (p0_parameter_batch_response_check(slots[tail].local_response,
+                        (size_t)count, batch.token) != 0 ||
+                    write_exact(client, slots[tail].local_response, (size_t)count) != 0) goto done;
+                result = 0;
+                goto done;
+            } else if (read_status == 4) {
+                p0_df_batch_request_t batch;
+                ssize_t count;
+                if (!first_request || outstanding != 0U ||
+                    p0_df_batch_decode(slots[tail].network_request,
+                        P0_DF_BATCH_REQUEST_BYTES, &batch) != 0) goto done;
+                if (set_io_timeout_seconds(client, 10) != 0 ||
+                    set_io_timeout_seconds(local, 10) != 0) goto done;
+                count = send(local, slots[tail].network_request,
+                             P0_DF_BATCH_REQUEST_BYTES, MSG_NOSIGNAL);
+                if (count != P0_DF_BATCH_REQUEST_BYTES) goto done;
+                count = recv(local, slots[tail].local_response,
+                             sizeof(slots[tail].local_response), MSG_TRUNC);
+                if (p0_df_batch_response_check(slots[tail].local_response,
+                        (size_t)count, batch.token) != 0 ||
+                    write_exact(client, slots[tail].local_response,
+                                (size_t)count) != 0) goto done;
+                result = 0;
+                goto done;
+            } else if (read_status == 2) {
+                p0_detection_message_t request, response;
+                ssize_t count;
+                if (!first_request || outstanding != 0U ||
+                    p0_detection_message_decode(slots[tail].network_request,
+                        P0_DETECTION_MESSAGE_BYTES, 0, &request) != 0)
+                    goto done;
+                count = send(local, slots[tail].network_request, P0_DETECTION_MESSAGE_BYTES, MSG_NOSIGNAL);
+                if (count != P0_DETECTION_MESSAGE_BYTES) goto done;
+                count = recv(local, slots[tail].local_response, sizeof(slots[tail].local_response), MSG_TRUNC);
+                if (count != P0_DETECTION_MESSAGE_BYTES ||
+                    p0_detection_message_decode(slots[tail].local_response, (size_t)count, 1, &response) != 0 ||
+                    response.request_id != request.request_id || response.operation != request.operation ||
+                    write_exact(client, slots[tail].local_response, (size_t)count) != 0)
+                    goto done;
+                result = 0;
+                goto done;
+            } else if (read_status == 1) {
                 input_closed = 1;
             } else if (read_status != 0 ||
                        submit_local_request(local, &slots[tail],

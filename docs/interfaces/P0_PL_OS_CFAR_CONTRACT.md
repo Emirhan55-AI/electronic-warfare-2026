@@ -1,5 +1,8 @@
 # P0 PL OS-CFAR Sözleşmesi
 
+10 Eylül 2026: kaynak v2 zayıf metaverisini içerir. Yeni RTL ile yeni ARM
+hizmetinin birlikte fiziksel kabulü ayrıdır; tarihsel v1 kanıtı değiştirilmez.
+
 ## Kanonik profil
 
 | Alan | Değer |
@@ -35,7 +38,16 @@ durumu kurulur ve akış bilinen sınırda veya sonraki `TLAST` ile eşzamanlan�
 | `57:0` | exact giriş gücü |
 | `58` | `evaluated` |
 | `59` | `detected` |
-| `63:60` | biçim işareti `4'hA` |
+| `60` | `weak_nomination`: `(CUT << 32) > X_(24) × 17098572778` |
+| `63:61` | v2 biçim işareti `3'b110` |
+
+Üst nibble bu nedenle `C` veya `D` olur. Normal güçlü karar zayıf kararı da
+gerektirir; değerlendirme dışı hücrelerde iki karar biti de sıfırdır. ARM v2
+çözücüsü karışık biçim ve tutarsız bitleri reddeder. Eski `4'hA` kareleri
+normal karar yolunda desteklenir; zayıf aday bilgisi içermez. Eski boole
+çözücü API’si normal karar döndürmeye devam eder; hizmetin kullandığı
+`p0_pl_os_cfar_decode_with_weak` bit 0 güçlü / bit 1 zayıf maskesini döndürür.
+Pipeline bu maskeden zayıf adayları ayırıp normal gruplamaya boole maske verir.
 
 `TKEEP=8'hFF`, son natural binde `TLAST=1` olur. Output stall boyunca kelime,
 index ve `TLAST` sabit kalır. Eski güç-only kelimelerinin üst altı biti sıfırdır;
@@ -43,7 +55,7 @@ ARM bu kareleri PL-OS-CFAR biçimi olarak kabul etmez.
 
 ## Mimari ve çevrim bütçesi
 
-Tek 4096×58 frame RAM ve 4096×2 metadata RAM kullanılır. İlk 41 shifted hücre
+Tek 4096×58 frame RAM ve 4096×3 metadata RAM kullanılır. İlk 41 shifted hücre
 ile iki sıralı 16-hücre referans kümesi kurulur. Sonraki her CUT'ta iki küme
 birer değer silme/ekleme ile güncellenir. Birleşik rank, iki sıralı 16-elemanlı
 kümenin sabit sınırlı ikili bölünmesiyle bulunur.
@@ -57,5 +69,5 @@ yerel protokol ile ayrıca ölçülür.
 ## Kapsam sınırı
 
 Bu blok aday gruplama, geniş bant kurtarma, temporal doğrulama, Hz/dBFS dönüşümü,
-parametre çıkarımı, yön bulma veya RF işlevi üretmez. `0xA` işareti yalnız veri
+parametre çıkarımı, yön bulma veya RF işlevi üretmez. Biçim işareti yalnız veri
 biçimini tanımlar; fiziksel kabul veya doğruluk işareti değildir.

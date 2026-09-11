@@ -61,3 +61,27 @@ def test_native_channelizer_counts_clipped_input_and_resets_binding() -> None:
         input_center_frequency_hz=100_000_000,
         output_center_frequency_hz=98_500_000,
     )
+
+
+@pytest.mark.skipif(find_native_channelizer_library() is None, reason="Yerel kanal seçici derlenmemiş.")
+@pytest.mark.parametrize("output_samples", [4096, 8192, 16384])
+def test_native_channelizer_runtime_frame_sizes_match_reference(output_samples) -> None:
+    profile = P0ChannelizerProfile(
+        input_samples_per_frame=4 * output_samples,
+        output_samples_per_frame=output_samples,
+    )
+    reference = P0Channelizer(profile)
+    native = NativeP0Channelizer(profile)
+    rng = np.random.default_rng(20260910 + output_samples)
+    payload = rng.integers(-48, 49, 8 * output_samples, dtype=np.int8).tobytes()
+    arguments = dict(
+        sequence_number=0, frame_id=0, input_sample_rate_hz=8_000_000,
+        input_center_frequency_hz=100_000_000,
+        output_center_frequency_hz=101_500_000,
+    )
+    expected, expected_input_saturated = reference.process_ci8(payload, **arguments)
+    observed, observed_input_saturated = native.process_ci8(payload, **arguments)
+    assert observed.frame.complex_sample_count == output_samples
+    assert observed.frame.payload == expected.frame.payload
+    assert observed.saturated_components == expected.saturated_components
+    assert observed_input_saturated == expected_input_saturated == 0

@@ -1,5 +1,32 @@
 # PHASE-04-E1 Operatör Destekli Parametre Sözleşmesi
 
+## P0PM-v1 kart ölçüm sözleşmesi — 11 Eylül 2026
+
+HackRF canlı yolunda onaylanmış dört 4096 örnekli CI8 kare, alım durduktan sonra
+tek CRC bağlı istekle karta gönderilir. FPGA profili ölçümün başında/sonunda
+4096 ve aynı kuşak olmalıdır. PL dört kare için Hann→FFT→güç üretir; ARM ilk üç
+teknik parametreyi hesaplar. Yanıt ölçüm/olay/kare kimliği, giriş CRC'si, profil
+kuşağı ve hesap süresini taşır. Herhangi bir uyuşmazlık sonucu geçersiz kılar.
+
+Taşıyıcı yalnız çizgi belirginliği, üç hücrelik enerji payı, dört kare asgari
+belirginliği ve bant sınırlı artifakt kapıları geçtiğinde geçerlidir. Aksi halde
+`gözlenmedi` olur. Emisyon merkezi taşıyıcı yerine kullanılmaz. Güç dBFS'dir;
+dBm sadece bağlam özeti, ölçülmüş aralık, süre ve belirsizlik denetlenen fiziksel
+kalibrasyonla açılabilir. Güncel ürün profilinde bu kalibrasyon yoktur.
+
+Bu yol PetaLinux açılış imajına alınmış ve iki yeniden başlatmada otomatik
+başlangıçla doğrulanmıştır. Ölçüm yalnız FPGA profili 4096 iken çalışır. FFT
+8192 veya 16384'e çıkarılmışsa parametre ölçümünden önce kart yeniden
+başlatılarak 4096'a dönülür; çalışma sırasında küçültme sürücüde reddedilir.
+
+## Bant taraması seçim köprüsü — 10 Eylül 2026
+
+Bant taramasındaki seçili frekans, parametre ekranına geçmiş kayıt olarak
+aktarılmaz. `Parametre Çıkarımına Git` önce aynı kazançlarla sabit alımı açar.
+Yalnız hedef frekans aralığıyla eşleşen güncel `confirmed` gözlem seçilir; canlı
+dört karelik ölçüm penceresi hazır olduğunda Parametre görünümü açılır. Hedef
+yeniden görülmezse seçim hazır sayılmaz ve ölçüm başlatılamaz.
+
 ## PÇ-01 güncel ölçüm ve sunum sözleşmesi — 7 Eylül 2026
 
 - Ana görünüm dört zorunlu alanı gösterir. Emisyon merkezi taşıyıcı alanına
@@ -118,9 +145,38 @@ d[k] = p[k] - n
 T = Σ d[k]
 ```
 
-`T` pozitif ve kanal SNR'si en az `6 dB` değilse ölçüm abstain eder. `d`, toplamı tam `T` olan non-negative simplex üzerine deterministik projekte edilir. Projected `s[k]` sonlu, non-negative ve `Σs=T` olmalıdır. İlk ve son dört hücrenin payı ayrı ayrı en fazla `%0,5` olabilir. OBW99 kenarları `s` kümülatif gücünün `%0,5/%99,5` noktalarıdır; fractional-bin interpolasyon fiziksel FFT çözünürlüğünü artırdığı iddiası değildir.
+`T` pozitif ve kanal SNR'si en az `6 dB` değilse ölçüm abstain eder. `d`, toplamı tam `T` olan non-negative simplex üzerine deterministik projekte edilir. Projected `s[k]` sonlu, non-negative ve `Σs=T` olmalıdır. İlk ve son dört hücrenin payı ayrı ayrı en fazla `%0,5` olabilir. OBW99 kenarları `s` kümülatif gücünün `%0,5/%99,5` noktalarıdır; fractional-bin interpolasyon fiziksel FFT çözünürlüğünü artırdığı iddiası değildir. Operatör aralığı emisyonun tamamını kapsamalıdır. Yalnız aralığın kendi kenarlarında düşük enerji görülmesi, uzun spektral kuyrukların aralık dışında bulunmadığını kanıtlamaz; bağımsız 30 kayıt tanısında dikdörtgen BPSK bu sınırı göstermiştir. Bu kapsama kapısı kapanmadan OBW saha doğruluğu kabul edilmez.
 
 Emisyon merkez frekansı `s` birinci momentidir. Gözlenen taşıyıcı frekansı yalnız tepe/noise `≥10 dB`, üç-bin çizgi payı `≥%35` ve dört frame tepe aralığı `≤1 bin` olduğunda log-güç parabolik kestirimdir. Kanal gücü `T·Δf` üzerinden dBFS, tepe bin gücü PHASE-02 `bin_power_fs2` üzerinden dBFS/bin olur; PHASE-02 normalizasyonu ikinci kez uygulanmaz.
+
+F5 OBW düzeltmesinde dört-kare ortalama fazlalık güç `[0,25; 0,5; 0,25]`
+çekirdeğiyle yumuşatılır, `2,5·n·sqrt(0,375/4)` küçültmesi uygulanır;
+`%0,75/%99,25` kümülatif noktaları bulunup iki kenar `0,375` FFT hücresi
+dışarı genişletilir. Dört adet leave-one-out kenarının medyan sapması `7`
+hücreyi aşarsa veya düzeltilmiş kenar seçili aralığa dayanırsa OBW belirsizdir.
+Bu ampirik kuyruk düzeltmesi ITU-R OBW99 tanımını sonlu FFT'de kestirir;
+standarttan türetilmiş evrensel hata garantisi değildir.
+
+Dört karenin tek 16.384 örnekli Hann periodogramında aralık dışı enerjiye
+istatistiksel gürültü belirsizliği ekleyen bir fail-closed aday ayrıca
+karakterize edilmiştir. Bağımsız 30 örnekte aralık dışı 6/6 BPSK sonucunu
+tutmuş, 12 dB'deki CW/AM/NFM/FSK sonuçlarının tamamını da tutmuştur. Bu yöntem
+ürün F5 veya ARM çekirdeğine alınmamıştır; daha geniş önceden kilitli sayısal
+değerlendirme, komşu yayın ve renkli gürültü kontrolleri, C/ARM eşdeğerliği ve
+fiziksel RF doğrulaması gerektirir.
+
+Pozitif fazlalık gücün spektral varyansı `V` için eşdeğer genişlik
+`W=max(4·sqrt(V),1)` hücre alınır. Gösterilen bant içi SNR kestirimi
+`0,8·10·log10(T/(n·W))+1,6 dB` formülüdür. `0,8` ve `1,6 dB` kilitli sayısal
+kalibrasyon katsayılarıdır; tam bant zaman-alanı SNR'si veya RF ölçer sonucu
+değildir.
+
+Buradaki dBFS, sayısal tam ölçeğe göre güçtür; bant içi SNR dB cinsinden bir
+orandır. Tam bant zaman-alanı giriş SNR'siyle aynı sayı olması beklenmez.
+Mutlak güç yalnız `P_dBm = P_dBFS + C` ile ve `C` aynı alıcı seri numarası,
+frekans aralığı, örnekleme, LNA/VGA, filtre, örnek ölçeği, geçerlilik süresi ve
+belirsizlik sınırına bağlı ölçülmüş kalibrasyon olduğunda hesaplanır. Bu
+koşullardan biri uyuşmazsa dBm alanı kullanılamaz kalır.
 
 Modülasyon kategorisi dört frame'in her birinde frame-local bant sınırlama ile hesaplanan envelope, iki-seviye, constant-modulus, phase-jump ve instantaneous-frequency özelliklerinden çıkar. Frame sınırları arasında faz farkı alınmaz, raw I/Q geçmişi tutulmaz, çelişkili kanıt `Belirsiz` olur. Çıktı belirli bir modülasyon türü tanıma sonucu değildir.
 

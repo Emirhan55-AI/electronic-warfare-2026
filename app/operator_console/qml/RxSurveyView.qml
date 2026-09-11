@@ -8,6 +8,13 @@ Item {
     required property var theme
     readonly property var survey: operatorViewModel.survey
     signal fixedBandRequested()
+    signal parameterRequested()
+    DetectionSettings { id: detectionSettings; theme: view.theme; surveyMode: true }
+
+    Connections {
+        target: operatorViewModel
+        function onSurveyParameterReady() { view.parameterRequested() }
+    }
 
     component Caption: Label {
         color: view.theme.textSecondary
@@ -92,6 +99,7 @@ Item {
                     Layout.fillWidth: true
                     Label { text: "BANT TARAMASI"; color: view.theme.textPrimary; font.pixelSize: 14; font.weight: Font.DemiBold }
                     Item { Layout.fillWidth: true }
+                    Action { objectName: "surveyDetectionSettingsButton"; text: "Tarama Ayarları"; onClicked: detectionSettings.open() }
                     Action { text: "Sabit Frekans ›"; enabled: !operatorViewModel.busy; onClicked: view.fixedBandRequested() }
                 }
                 RowLayout {
@@ -115,7 +123,7 @@ Item {
                     ColumnLayout {
                         spacing: 3
                         Caption { text: "Azami VGA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-                        GainChoice { id: vga; objectName: "surveyVgaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,8,16,24,32,40,48,56]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
+                        GainChoice { id: vga; objectName: "surveyVgaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(16); enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
                     }
                     Item { Layout.fillWidth: true }
                     Action { visible: !operatorViewModel.hackrfReady; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
@@ -317,6 +325,13 @@ Item {
                                 Caption { visible: !!modelData.recheckStatus; text: modelData.recheckStatus || ""; color: view.theme.textSecondary; font.pixelSize: 10 }
                             }
                         }
+                    }
+                    Action {
+                        objectName: "surveyOpenParameters"
+                        Layout.fillWidth: true
+                        text: "Parametre Çıkarımına Git"
+                        enabled: !operatorViewModel.busy && survey.selectedFrequency > 0
+                        onClicked: if (operatorViewModel.openSurveyObservationParameters()) view.fixedBandRequested()
                     }
                     Action {
                         objectName: "surveyMonitor"

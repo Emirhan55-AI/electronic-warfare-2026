@@ -1,0 +1,89 @@
+{
+  "schema": "phase08-st06-runtime-fft-build-v1",
+  "generated_at_utc": "2026-09-10T21:40:06.053472+00:00",
+  "status": "passed",
+  "scope": "routed Zynq-7020 Hann/4096-8192-16384 FFT/power/OS-CFAR build plus ARM product artifacts",
+  "vivado": "2025.2",
+  "device": "xc7z020clg484-1",
+  "supported_fft_sizes": [
+    4096,
+    8192,
+    16384
+  ],
+  "timing": {
+    "wns_ns": 0.613,
+    "tns_ns": 0.0,
+    "whs_ns": 0.03,
+    "ths_ns": 0.0
+  },
+  "resources": {
+    "slice_luts": 24251,
+    "slice_registers": 20802,
+    "block_ram_tiles": 94.5,
+    "dsps": 61
+  },
+  "hann_resources": {
+    "total_luts": 123,
+    "block_ram_36": 14,
+    "block_ram_18": 0,
+    "dsps": 2
+  },
+  "checks": {
+    "timing_constraints_met": true,
+    "setup_slack_positive": true,
+    "hold_slack_positive": true,
+    "routing_errors_zero": true,
+    "resources_fit_zynq_7020": true,
+    "hann_uses_block_ram": true,
+    "hann_lut_cost_bounded": true,
+    "runtime_control_identity_present": true
+  },
+  "source_sha256": {
+    "algorithms/fpga/p0/rtl/axis_hann_window_runtime.sv": "48022b0753c4698ec45282e357f36457c1b5a8bd194859b87d141e4de7db82ad",
+    "algorithms/fpga/p0/rtl/axis_fft_runtime_wrapper.sv": "27ca05f8bcd4993d4627501162937797541e8d831a0293b70063ec5fc0c36df9",
+    "algorithms/fpga/p0/rtl/amd_xfft_runtime_adapter.sv": "e61865437db769c8719ed4797e366aa8ee61fc0e5ddfce7581ab1e8cf870089e",
+    "algorithms/fpga/p0/rtl/axis_fft_runtime_linear_power.sv": "c586d0c48b479f25a284531d3ded5dfc80f534a2b12f78f3a40bf1786222c085",
+    "algorithms/fpga/p0/rtl/axis_fft_power_normalizer.sv": "eb69123e0acb3bcb3ea8030d0dbf7d8b9a70b5e46a923c7501d015b014f430c3",
+    "algorithms/fpga/p0/rtl/axis_p0_runtime_os_cfar.sv": "003af25a1c042419f7ebac6bf2f750118eaaf5dc6bc6cbef36d3881753515f07",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_fft_top.sv": "adb68e32def7c5f12ced48ef946adeb913545e1d68f3880d4c0c55e9de276541",
+    "algorithms/fpga/p0/rtl/p0_detection_profile_control.sv": "e52430aa190f4c21144d807e1dcdc1a1c95a1a1c4ee6e90985e4f0411409e165",
+    "platforms/embedded/p0/src/p0_dma_client.c": "4a6d6ae38814645bcb8cf7192e5125d58f66bd82ef3295bd168f3b4d2955e1b5",
+    "platforms/embedded/p0/src/p0_dma_runtime.c": "dc4586e2bfa7235bbe64b1d1eb267555ae119a657ebe2dfcfdb5b4b5d21baa36",
+    "platforms/embedded/p0/src/p0_ed_service.c": "b7d1f83093f88bf8f3f8495afcdfb5b8fb542d246921b09d74142135d8207934",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c": "109cec636710aba4fda66448537cbe97d33c8105f274d36ae921462370c0f885",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "fe52e6d15c5aab5c5692188c640c15cd7e277ef9d6672c8a7c302f00f168b447",
+    "platforms/embedded/p0/src/p0_pl_os_cfar.c": "a336260804763d474715c7f3fdc0170f8b2612fece888e63a47f8085d6860025",
+    "platforms/embedded/p0/include/p0_dma_uapi.h": "a6eaff445e16ffed8f8e67fd4d041db929f8c07e7b31c20ae4eb4106e73c2292",
+    "platforms/embedded/p0/include/p0_ed_service_protocol.h": "29e9e66c2ab4e6725ab62739b3e25d974de29525672692b4ebc77ebb8c9ee378",
+    "platforms/embedded/p0/petalinux/p0-dma_1.0.bb": "8e3203613f167c109a128468bc550432802ac6ea8c55fc94540ae2d91cb6613b",
+    "algorithms/p0/transport.py": "89d41e6fdcd7785d4179b56c794bb28f9c6900343b16ae1ef71cf295745602fa",
+    "algorithms/p0/detection_config.py": "b777a10d241a0f758116663400f2eebdbff317c86d45714ec46b328062e4524a",
+    "app/operator_console/live_ed.py": "29908cad01b96263abb9406ca278beaab4786999979346e33ec3deaf5d3bc006",
+    "app/operator_console/quick_scan_actions.py": "3f194ee38156aacc7e3dcf6c48e6289682cac8e1e945ef90e788df1a290f7af2",
+    "app/operator_console/quick_view_model.py": "1856f44c95115fb838173d60b62aa1b0f91cb5b98176e74fbfb0509450dd668d",
+    "app/operator_console/qml/DetectionSettings.qml": "240df09c78afc95e48e06b2848ccf05e505fa006d6d5bbd09945ca0728475f2a",
+    "datasets/fixtures/phase06b/hann-runtime-coefficients-4096.mem": "4ecf1d2603cc33d1afe4dc84396b95cf40881b021f2270918a595edb90c98d47",
+    "datasets/fixtures/phase06b/hann-runtime-coefficients-8192.mem": "7ebda7c5f840229fda84f6967cf3fb3d5a91f1165ff7c69cc18e972b8a2ff2bc",
+    "datasets/fixtures/phase06b/hann-runtime-coefficients-16384.mem": "8a70c550d93139648b52cf8c5fd3af236afff1862ea7c4f2e7441237a60d42c4",
+    "scripts/create_st06_runtime_fft_vivado_project.tcl": "ed9bc8fde0729e27310a2321f7d86b2b557f4b7d12d99e6ba9ce5aeb7062abe7",
+    "scripts/build_st06_runtime_fft_vivado.tcl": "e3f8e2433ac9d1ff016e656489068010d7609e80bc22929f7e372d0200c7d4cd",
+    "scripts/st06_runtime_fft_ip_config.tcl": "e3c3816e7943f911c7b1b1604dcf2003d3b891e305111f240379cd91b642fdd6"
+  },
+  "artifact_sha256": {
+    "vivado/reports/implementation-utilization-summary.rpt": "ff60fcc6eab09598c28f6e7a27daac189d794cecd5a67f929ab04a64051ca728",
+    "vivado/reports/synthesis-utilization.rpt": "a6e8d29a903b43d80a3c9c90dad3e9437cbd304ff3d2f61a6821c36a1647107e",
+    "vivado/reports/implementation-timing-summary.rpt": "8f9fcc60fde0129916b6861893da8cb52c0551e999826cf730d84632376e586b",
+    "vivado/reports/route-status.rpt": "14b08b61dd7fc09967d38fec4959398b036a2e67bb2ee519e04b48bfd14b8caa",
+    "hardware/p0_system_wrapper.bit.bin": "24fe7666d55f7a5dceb75ebb54a1dd5595b8981763500c2eccd2c320a2e264ac",
+    "hardware/p0_system_50mhz.xsa": "7277934095ec1e4b3e1bf4c6fab414205320dec1c7db8426139b42b8f44f13f8",
+    "software/lib/modules/6.12.40-xilinx-g31626ef92ff1/updates/p0_dma_client.ko": "b1214b4a75adf96fb66d8a60e3c57132b01225b3be45ac84f4979152c06e2d79",
+    "software/usr/sbin/p0-ed-service": "1342d93700e3d282ce3d516bbefa5167915045e7a47428f68099afddfeff0a2b",
+    "software/usr/sbin/p0-ed-network-bridge": "41e8e53d2ad9802fff13f5c111b51522328d56144f3ebaf97384819d831befa8"
+  },
+  "claim_boundary": {
+    "hardware_executed": false,
+    "hackrf_used": false,
+    "rf_pd_pfa_accepted": false,
+    "cold_boot_accepted": false
+  }
+}

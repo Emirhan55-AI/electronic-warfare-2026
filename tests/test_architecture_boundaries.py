@@ -63,6 +63,7 @@ class ArchitectureBoundaryTests(unittest.TestCase):
             "app/operator_console/quick_measurement_actions.py",
             "app/operator_console/quick_listening_actions.py",
             "app/operator_console/quick_direction_actions.py",
+            "app/operator_console/quick_task_completion.py",
             "app/operator_console/quick_et_actions.py",
             "app/operator_console/quick_detection_state.py",
             "app/operator_console/_mixin_controls.py",

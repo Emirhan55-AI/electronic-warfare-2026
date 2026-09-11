@@ -21,6 +21,7 @@ MAX_AUDIO_SECONDS = 20
 MAX_AUDIO_SAMPLES = AUDIO_SAMPLE_RATE_HZ * MAX_AUDIO_SECONDS
 CHANNEL_TAPS = 129
 AUDIO_TAPS = 65
+OBSERVATION_INTERVAL_SECONDS = 0.250
 
 
 def _readonly(values: npt.ArrayLike) -> npt.NDArray[np.float64]:
@@ -47,6 +48,25 @@ def _resample_linear(values: npt.NDArray[np.float64], input_rate: float) -> npt.
     source_time = np.arange(values.size, dtype=np.float64) / input_rate
     target_time = np.arange(count, dtype=np.float64) / AUDIO_SAMPLE_RATE_HZ
     return np.interp(target_time, source_time, values).astype(np.float64, copy=False)
+
+
+def nfm_deemphasis(values: npt.ArrayLike, time_constant_us: float) -> npt.NDArray[np.float64]:
+    """Apply the standard first-order 6 dB/octave NFM receive de-emphasis."""
+    source = np.asarray(values, dtype=np.float64)
+    if source.ndim != 1 or not np.all(np.isfinite(source)):
+        raise MonitoringError("nonfinite_audio", "NFM de-emphasis girişi sonlu mono olmalıdır.")
+    if not math.isfinite(time_constant_us) or not 0.0 <= time_constant_us <= 2_000.0:
+        raise MonitoringError("invalid_deemphasis", "NFM de-emphasis zaman sabiti geçersizdir.")
+    if time_constant_us == 0.0 or source.size == 0:
+        return source.copy()
+    alpha = math.exp(-1.0 / (AUDIO_SAMPLE_RATE_HZ * time_constant_us * 1e-6))
+    output = np.empty_like(source)
+    state = float(source[0])
+    output[0] = state
+    for index in range(1, source.size):
+        state = alpha * state + (1.0 - alpha) * float(source[index])
+        output[index] = state
+    return output
 
 
 def dominant_tone_hz(audio: npt.ArrayLike, sample_rate_hz: int = AUDIO_SAMPLE_RATE_HZ) -> float:
@@ -213,6 +233,27 @@ class AnalogMonitor:
         baseband_parts: list[npt.NDArray[np.float64]] = []
         channel_power_sum = 0.0
         channel_power_count = 0
+        observation_size = max(256, int(round(intermediate_rate * OBSERVATION_INTERVAL_SECONDS)))
+        observation_pending = np.empty(0, dtype=np.complex128)
+        observation_times: list[float] = []
+        observation_power: list[float] = []
+        observation_frequency: list[float] = []
+        observed_channel_samples = 0
+
+        def observe(segment: npt.NDArray[np.complex128]) -> None:
+            nonlocal observed_channel_samples
+            power = float(np.mean(np.abs(segment) ** 2))
+            products = segment[1:] * np.conj(segment[:-1])
+            phasor = complex(np.sum(products))
+            residual_hz = (
+                math.atan2(phasor.imag, phasor.real) * intermediate_rate / (2.0 * math.pi)
+                if abs(phasor) > np.finfo(np.float64).tiny
+                else 0.0
+            )
+            observation_times.append((observed_channel_samples + segment.size / 2.0) / intermediate_rate)
+            observation_power.append(10.0 * math.log10(max(power, np.finfo(np.float64).tiny)))
+            observation_frequency.append(residual_hz)
+            observed_channel_samples += segment.size
 
         for block in input_blocks:
             indices = phase + np.arange(block.size, dtype=np.float64)
@@ -229,6 +270,10 @@ class AnalogMonitor:
             channel_state = np.asarray(decimated[-(CHANNEL_TAPS - 1):], dtype=np.complex128)
             channel_power_sum += float(np.vdot(filtered, filtered).real)
             channel_power_count += filtered.size
+            observation_pending = np.concatenate((observation_pending, filtered))
+            while observation_pending.size >= observation_size:
+                observe(observation_pending[:observation_size])
+                observation_pending = observation_pending[observation_size:]
             if config.mode == "am":
                 baseband_parts.append(np.abs(filtered))
             else:
@@ -238,10 +283,17 @@ class AnalogMonitor:
 
         if not baseband_parts:
             raise MonitoringError("insufficient_iq", "Kesintisiz kanaldan ses örneği üretilemedi.")
+        if observation_pending.size >= observation_size // 2:
+            observe(observation_pending)
         baseband = np.concatenate(baseband_parts)
         baseband -= float(np.mean(baseband))  # DC/audio offset removal, before resampling.
         audio = _resample_linear(baseband, intermediate_rate)
-        audio_cutoff = min(15_000.0, max(3_000.0, config.channel_bandwidth_hz * 0.42), 0.45 * AUDIO_SAMPLE_RATE_HZ)
+        if config.mode == "nfm":
+            audio = nfm_deemphasis(audio, config.nfm_deemphasis_us)
+        audio_cutoff = min(
+            2_550.0 if config.mode == "nfm" and config.channel_bandwidth_hz <= 12_500.0 else 3_000.0,
+            0.45 * AUDIO_SAMPLE_RATE_HZ,
+        )
         audio = np.convolve(audio, _lowpass(audio_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS), mode="same")
         # Discard the causal filter warm-up once, never at each capture block.
         audio = audio[AUDIO_TAPS - 1 :]
@@ -268,6 +320,10 @@ class AnalogMonitor:
             transient_guard_input_samples=CHANNEL_TAPS - 1,
             quality_code="passed",
             rf_power_dbfs=10.0 * math.log10(max(power, np.finfo(np.float64).tiny)),
+            observation_interval_s=OBSERVATION_INTERVAL_SECONDS,
+            observation_times_s=tuple(observation_times),
+            channel_power_dbfs_trace=tuple(observation_power),
+            residual_frequency_hz_trace=tuple(observation_frequency),
         )
 
 

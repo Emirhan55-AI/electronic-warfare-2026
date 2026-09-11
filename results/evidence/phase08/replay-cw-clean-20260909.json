@@ -1,0 +1,4134 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "cw_observed_without_usb_overrun",
+  "operator_report": "USB portu değiştirildi, alıcı HackRF moduna alındı ve CW için Play basıldı.",
+  "runs": [
+    {
+      "requirements": [
+        "KTR-4.2",
+        "KTR-4.2-F1"
+      ],
+      "command": [
+        "C:\\msys64\\ucrt64\\bin\\hackrf_transfer.exe",
+        "-d",
+        "0000000000000000a32868dc35138247",
+        "-r",
+        "C:\\Users\\emirhan55\\AppData\\Local\\Temp\\teknofest-rx-newport-off24-20260909\\rx.ci8",
+        "-f",
+        "825300000",
+        "-s",
+        "8000000",
+        "-n",
+        "80000000",
+        "-l",
+        "24",
+        "-g",
+        "24",
+        "-a",
+        "0",
+        "-p",
+        "0",
+        "-B"
+      ],
+      "started_utc": "2026-09-09T12:48:41.365516+00:00",
+      "external_tx_context": "off_after_usb_port_change_and_hackrf_mode",
+      "tx_controlled_by_script": false,
+      "sample_rate_hz": 8000000,
+      "center_frequency_hz": 825300000,
+      "gain_db": 24,
+      "requested_seconds": 10,
+      "tool_sha256": "5045c949bbf879c553b1b0d3dc3351a2f197c56a3262dc9bd985b81aaa98894e",
+      "source_sha256": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+      "product_acceptance": false,
+      "dbm_calibrated": false,
+      "returncode": 0,
+      "finished_utc": "2026-09-09T12:48:51.521191+00:00",
+      "bytes": 160000000,
+      "complete": true,
+      "usb_overruns": 0,
+      "longest_overrun_bytes": 0,
+      "transport_valid": true,
+      "raw_sha256": "11b30d90824ca74fd1ad0e79cdcb6c4e5db5c9ab0b47b45f2a1a17213ba838bb",
+      "settled_rail_components": 0,
+      "settled_components": 158951424
+    },
+    {
+      "requirements": [
+        "KTR-4.2",
+        "KTR-4.2-F1"
+      ],
+      "command": [
+        "C:\\msys64\\ucrt64\\bin\\hackrf_transfer.exe",
+        "-d",
+        "0000000000000000a32868dc35138247",
+        "-r",
+        "C:\\Users\\emirhan55\\AppData\\Local\\Temp\\teknofest-rx-newport-cw24-20260909\\rx.ci8",
+        "-f",
+        "825300000",
+        "-s",
+        "8000000",
+        "-n",
+        "240000000",
+        "-l",
+        "24",
+        "-g",
+        "24",
+        "-a",
+        "0",
+        "-p",
+        "0",
+        "-B"
+      ],
+      "started_utc": "2026-09-09T12:49:03.719101+00:00",
+      "external_tx_context": "manual_CW_2s_after_newport_off_pass",
+      "tx_controlled_by_script": false,
+      "sample_rate_hz": 8000000,
+      "center_frequency_hz": 825300000,
+      "gain_db": 24,
+      "requested_seconds": 30,
+      "tool_sha256": "5045c949bbf879c553b1b0d3dc3351a2f197c56a3262dc9bd985b81aaa98894e",
+      "source_sha256": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+      "product_acceptance": false,
+      "dbm_calibrated": false,
+      "returncode": 0,
+      "finished_utc": "2026-09-09T12:49:33.782110+00:00",
+      "bytes": 480000000,
+      "complete": true,
+      "usb_overruns": 0,
+      "longest_overrun_bytes": 0,
+      "transport_valid": true,
+      "raw_sha256": "786d966fd005a298d654b9829d94bf356c20d3a2bece3624187cf2fc9ef45a6e",
+      "settled_rail_components": 0,
+      "settled_components": 478951424
+    }
+  ],
+  "analysis": {
+    "requirements": [
+      "KTR-4.2",
+      "KTR-4.2-F1"
+    ],
+    "threshold_dbfs": -71.19690651284705,
+    "method": "825 MHz ±50 kHz, 65536 Hann FFT, 50 ms adım; kapalı q99 +6 dB tanı eşiği.",
+    "source_sha256": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "off_sha256": "11b30d90824ca74fd1ad0e79cdcb6c4e5db5c9ab0b47b45f2a1a17213ba838bb",
+    "on_sha256": "786d966fd005a298d654b9829d94bf356c20d3a2bece3624187cf2fc9ef45a6e",
+    "active_windows": 43,
+    "total_windows": 598,
+    "segments": [
+      {
+        "first_s": 16.85,
+        "last_s": 18.95,
+        "sampled_span_s": 2.1499999999999977,
+        "median_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.091462701245824
+      }
+    ],
+    "baseline": [
+      {
+        "time_s": 0.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.71105068824887
+      },
+      {
+        "time_s": 0.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.80398355360603
+      },
+      {
+        "time_s": 0.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.59304451630473
+      },
+      {
+        "time_s": 0.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.31714657500109
+      },
+      {
+        "time_s": 0.3,
+        "peak_frequency_hz": 825017773.4375,
+        "peak_dbfs": -81.65879132843153
+      },
+      {
+        "time_s": 0.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.5945940278935
+      },
+      {
+        "time_s": 0.4,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -81.60308876312457
+      },
+      {
+        "time_s": 0.45,
+        "peak_frequency_hz": 824978955.078125,
+        "peak_dbfs": -81.23514324718062
+      },
+      {
+        "time_s": 0.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.03596333065215
+      },
+      {
+        "time_s": 0.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.24001623845588
+      },
+      {
+        "time_s": 0.6,
+        "peak_frequency_hz": 825021069.3359375,
+        "peak_dbfs": -82.04499583411226
+      },
+      {
+        "time_s": 0.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.80129883955748
+      },
+      {
+        "time_s": 0.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.36792858752787
+      },
+      {
+        "time_s": 0.75,
+        "peak_frequency_hz": 824959545.8984375,
+        "peak_dbfs": -80.74636003976984
+      },
+      {
+        "time_s": 0.8,
+        "peak_frequency_hz": 825034863.28125,
+        "peak_dbfs": -82.0359810552041
+      },
+      {
+        "time_s": 0.85,
+        "peak_frequency_hz": 824963696.2890625,
+        "peak_dbfs": -81.45816101888131
+      },
+      {
+        "time_s": 0.9,
+        "peak_frequency_hz": 824986035.15625,
+        "peak_dbfs": -81.59958622880963
+      },
+      {
+        "time_s": 0.95,
+        "peak_frequency_hz": 825026074.21875,
+        "peak_dbfs": -81.69743225996967
+      },
+      {
+        "time_s": 1.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.39484582116009
+      },
+      {
+        "time_s": 1.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.18842466864851
+      },
+      {
+        "time_s": 1.1,
+        "peak_frequency_hz": 824985302.734375,
+        "peak_dbfs": -82.13412220776698
+      },
+      {
+        "time_s": 1.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.10214233866934
+      },
+      {
+        "time_s": 1.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.28172467189934
+      },
+      {
+        "time_s": 1.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -76.70649701137117
+      },
+      {
+        "time_s": 1.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.61501803851755
+      },
+      {
+        "time_s": 1.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -76.60531178197952
+      },
+      {
+        "time_s": 1.4,
+        "peak_frequency_hz": 824958813.4765625,
+        "peak_dbfs": -82.95814294136832
+      },
+      {
+        "time_s": 1.45,
+        "peak_frequency_hz": 824982861.328125,
+        "peak_dbfs": -80.74074079792032
+      },
+      {
+        "time_s": 1.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.02352804810808
+      },
+      {
+        "time_s": 1.55,
+        "peak_frequency_hz": 825023388.671875,
+        "peak_dbfs": -81.88775357364551
+      },
+      {
+        "time_s": 1.6,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -82.65555680066251
+      },
+      {
+        "time_s": 1.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.17707330521331
+      },
+      {
+        "time_s": 1.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.46007532231356
+      },
+      {
+        "time_s": 1.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.14044204713872
+      },
+      {
+        "time_s": 1.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.48222004703433
+      },
+      {
+        "time_s": 1.85,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -78.0500084359975
+      },
+      {
+        "time_s": 1.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.25394780309666
+      },
+      {
+        "time_s": 1.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.21044190531342
+      },
+      {
+        "time_s": 2.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.90282847215201
+      },
+      {
+        "time_s": 2.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.50423462265408
+      },
+      {
+        "time_s": 2.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.05818787695776
+      },
+      {
+        "time_s": 2.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.93625963736896
+      },
+      {
+        "time_s": 2.2,
+        "peak_frequency_hz": 825008984.375,
+        "peak_dbfs": -80.32098932918841
+      },
+      {
+        "time_s": 2.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.72418025711698
+      },
+      {
+        "time_s": 2.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.72604097297233
+      },
+      {
+        "time_s": 2.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.52267022768872
+      },
+      {
+        "time_s": 2.4,
+        "peak_frequency_hz": 824973706.0546875,
+        "peak_dbfs": -81.6154507839662
+      },
+      {
+        "time_s": 2.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.50967694931616
+      },
+      {
+        "time_s": 2.5,
+        "peak_frequency_hz": 824971752.9296875,
+        "peak_dbfs": -82.08435721066665
+      },
+      {
+        "time_s": 2.55,
+        "peak_frequency_hz": 824982617.1875,
+        "peak_dbfs": -81.23442477728841
+      },
+      {
+        "time_s": 2.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.08492080122801
+      },
+      {
+        "time_s": 2.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.75878390207916
+      },
+      {
+        "time_s": 2.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.70930839659799
+      },
+      {
+        "time_s": 2.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.49707183884512
+      },
+      {
+        "time_s": 2.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.65628909545612
+      },
+      {
+        "time_s": 2.85,
+        "peak_frequency_hz": 825049633.7890625,
+        "peak_dbfs": -80.30901614007716
+      },
+      {
+        "time_s": 2.9,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -81.97587460090973
+      },
+      {
+        "time_s": 2.95,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.77121264605029
+      },
+      {
+        "time_s": 3.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.27403174372793
+      },
+      {
+        "time_s": 3.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.41962728555652
+      },
+      {
+        "time_s": 3.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.2120738170164
+      },
+      {
+        "time_s": 3.15,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.09762628257039
+      },
+      {
+        "time_s": 3.2,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -81.62981720985735
+      },
+      {
+        "time_s": 3.25,
+        "peak_frequency_hz": 825041088.8671875,
+        "peak_dbfs": -82.3130048406607
+      },
+      {
+        "time_s": 3.3,
+        "peak_frequency_hz": 824971142.578125,
+        "peak_dbfs": -80.74102156698699
+      },
+      {
+        "time_s": 3.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.97457528645026
+      },
+      {
+        "time_s": 3.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.11784437060606
+      },
+      {
+        "time_s": 3.45,
+        "peak_frequency_hz": 824983593.75,
+        "peak_dbfs": -83.4050495594932
+      },
+      {
+        "time_s": 3.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.3656262975286
+      },
+      {
+        "time_s": 3.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.31146092653822
+      },
+      {
+        "time_s": 3.6,
+        "peak_frequency_hz": 825038647.4609375,
+        "peak_dbfs": -82.17096218574545
+      },
+      {
+        "time_s": 3.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.45103326457757
+      },
+      {
+        "time_s": 3.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.91773540446164
+      },
+      {
+        "time_s": 3.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.30360869613183
+      },
+      {
+        "time_s": 3.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.48631729606942
+      },
+      {
+        "time_s": 3.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.19497856501644
+      },
+      {
+        "time_s": 3.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.83500249676975
+      },
+      {
+        "time_s": 3.95,
+        "peak_frequency_hz": 824985546.875,
+        "peak_dbfs": -82.44047802245761
+      },
+      {
+        "time_s": 4.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.17443686244732
+      },
+      {
+        "time_s": 4.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.19320783695322
+      },
+      {
+        "time_s": 4.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.9015602290689
+      },
+      {
+        "time_s": 4.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.21675198411607
+      },
+      {
+        "time_s": 4.2,
+        "peak_frequency_hz": 825034497.0703125,
+        "peak_dbfs": -82.65575400713558
+      },
+      {
+        "time_s": 4.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.0242165209281
+      },
+      {
+        "time_s": 4.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.88121640102659
+      },
+      {
+        "time_s": 4.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.18958369336337
+      },
+      {
+        "time_s": 4.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -83.54094925221537
+      },
+      {
+        "time_s": 4.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.94100698503985
+      },
+      {
+        "time_s": 4.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.88698002828221
+      },
+      {
+        "time_s": 4.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.56070139425807
+      },
+      {
+        "time_s": 4.6,
+        "peak_frequency_hz": 824992871.09375,
+        "peak_dbfs": -81.63945027829782
+      },
+      {
+        "time_s": 4.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.45166807583405
+      },
+      {
+        "time_s": 4.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.64737843238578
+      },
+      {
+        "time_s": 4.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.20596744116283
+      },
+      {
+        "time_s": 4.8,
+        "peak_frequency_hz": 824987133.7890625,
+        "peak_dbfs": -82.48072694892375
+      },
+      {
+        "time_s": 4.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.33138337354232
+      },
+      {
+        "time_s": 4.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.22486593210193
+      },
+      {
+        "time_s": 4.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.01078716925583
+      },
+      {
+        "time_s": 5.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.0063600990671
+      },
+      {
+        "time_s": 5.05,
+        "peak_frequency_hz": 825012524.4140625,
+        "peak_dbfs": -82.56934777720181
+      },
+      {
+        "time_s": 5.1,
+        "peak_frequency_hz": 825014233.3984375,
+        "peak_dbfs": -82.0232627201081
+      },
+      {
+        "time_s": 5.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.30411500459138
+      },
+      {
+        "time_s": 5.2,
+        "peak_frequency_hz": 825042919.921875,
+        "peak_dbfs": -82.10020201515626
+      },
+      {
+        "time_s": 5.25,
+        "peak_frequency_hz": 825038769.53125,
+        "peak_dbfs": -81.88951014861287
+      },
+      {
+        "time_s": 5.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.18927831173372
+      },
+      {
+        "time_s": 5.35,
+        "peak_frequency_hz": 824951489.2578125,
+        "peak_dbfs": -82.11815043497762
+      },
+      {
+        "time_s": 5.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.14970869630369
+      },
+      {
+        "time_s": 5.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.81833801480323
+      },
+      {
+        "time_s": 5.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.20264322079655
+      },
+      {
+        "time_s": 5.55,
+        "peak_frequency_hz": 825048291.015625,
+        "peak_dbfs": -81.81510242539836
+      },
+      {
+        "time_s": 5.6,
+        "peak_frequency_hz": 825024121.09375,
+        "peak_dbfs": -81.55360322534597
+      },
+      {
+        "time_s": 5.65,
+        "peak_frequency_hz": 824981884.765625,
+        "peak_dbfs": -82.9398901894161
+      },
+      {
+        "time_s": 5.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.39036990874952
+      },
+      {
+        "time_s": 5.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.10787191860736
+      },
+      {
+        "time_s": 5.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.91591038179463
+      },
+      {
+        "time_s": 5.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.2546212454535
+      },
+      {
+        "time_s": 5.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.40549120659385
+      },
+      {
+        "time_s": 5.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.11753388574691
+      },
+      {
+        "time_s": 6.0,
+        "peak_frequency_hz": 825032177.734375,
+        "peak_dbfs": -81.38252398183731
+      },
+      {
+        "time_s": 6.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.6681840432623
+      },
+      {
+        "time_s": 6.1,
+        "peak_frequency_hz": 825038037.109375,
+        "peak_dbfs": -82.10431730632482
+      },
+      {
+        "time_s": 6.15,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.71274902839815
+      },
+      {
+        "time_s": 6.2,
+        "peak_frequency_hz": 825033276.3671875,
+        "peak_dbfs": -82.00979534073839
+      },
+      {
+        "time_s": 6.25,
+        "peak_frequency_hz": 824965527.34375,
+        "peak_dbfs": -81.78202555073612
+      },
+      {
+        "time_s": 6.3,
+        "peak_frequency_hz": 824988964.84375,
+        "peak_dbfs": -80.94642084426489
+      },
+      {
+        "time_s": 6.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.18259383156582
+      },
+      {
+        "time_s": 6.4,
+        "peak_frequency_hz": 824965405.2734375,
+        "peak_dbfs": -82.00407986906978
+      },
+      {
+        "time_s": 6.45,
+        "peak_frequency_hz": 824980786.1328125,
+        "peak_dbfs": -81.44519493033258
+      },
+      {
+        "time_s": 6.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.72917203025608
+      },
+      {
+        "time_s": 6.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.73000124321635
+      },
+      {
+        "time_s": 6.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.40163276926738
+      },
+      {
+        "time_s": 6.65,
+        "peak_frequency_hz": 825019360.3515625,
+        "peak_dbfs": -82.44555774937751
+      },
+      {
+        "time_s": 6.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.74129622559835
+      },
+      {
+        "time_s": 6.75,
+        "peak_frequency_hz": 824977734.375,
+        "peak_dbfs": -81.75155746734478
+      },
+      {
+        "time_s": 6.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.66356490733075
+      },
+      {
+        "time_s": 6.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.02969804705891
+      },
+      {
+        "time_s": 6.9,
+        "peak_frequency_hz": 824984814.453125,
+        "peak_dbfs": -81.0187358752359
+      },
+      {
+        "time_s": 6.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.70279014843116
+      },
+      {
+        "time_s": 7.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.01093233393685
+      },
+      {
+        "time_s": 7.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.70774358062997
+      },
+      {
+        "time_s": 7.1,
+        "peak_frequency_hz": 824961743.1640625,
+        "peak_dbfs": -82.108326316713
+      },
+      {
+        "time_s": 7.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.48473539884596
+      },
+      {
+        "time_s": 7.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.18745743815688
+      },
+      {
+        "time_s": 7.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.9166989176689
+      },
+      {
+        "time_s": 7.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.11735048261438
+      },
+      {
+        "time_s": 7.35,
+        "peak_frequency_hz": 824958325.1953125,
+        "peak_dbfs": -81.27523539714296
+      },
+      {
+        "time_s": 7.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.57013516261125
+      },
+      {
+        "time_s": 7.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.26743429112815
+      },
+      {
+        "time_s": 7.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.68408512632801
+      },
+      {
+        "time_s": 7.55,
+        "peak_frequency_hz": 824954907.2265625,
+        "peak_dbfs": -81.55700545204424
+      },
+      {
+        "time_s": 7.6,
+        "peak_frequency_hz": 824963085.9375,
+        "peak_dbfs": -81.70597204966258
+      },
+      {
+        "time_s": 7.65,
+        "peak_frequency_hz": 824977734.375,
+        "peak_dbfs": -82.73289261351712
+      },
+      {
+        "time_s": 7.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.39963328495494
+      },
+      {
+        "time_s": 7.75,
+        "peak_frequency_hz": 824951611.328125,
+        "peak_dbfs": -81.38092760893981
+      },
+      {
+        "time_s": 7.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.67894440032286
+      },
+      {
+        "time_s": 7.85,
+        "peak_frequency_hz": 824961254.8828125,
+        "peak_dbfs": -81.8682601489314
+      },
+      {
+        "time_s": 7.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.31468624134858
+      },
+      {
+        "time_s": 7.95,
+        "peak_frequency_hz": 825008496.09375,
+        "peak_dbfs": -80.56094396275273
+      },
+      {
+        "time_s": 8.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.80396940877897
+      },
+      {
+        "time_s": 8.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.46081300023737
+      },
+      {
+        "time_s": 8.1,
+        "peak_frequency_hz": 824998364.2578125,
+        "peak_dbfs": -82.83025909701325
+      },
+      {
+        "time_s": 8.15,
+        "peak_frequency_hz": 825029248.046875,
+        "peak_dbfs": -82.39887473943838
+      },
+      {
+        "time_s": 8.2,
+        "peak_frequency_hz": 825032666.015625,
+        "peak_dbfs": -81.80368657079134
+      },
+      {
+        "time_s": 8.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.37612914978696
+      },
+      {
+        "time_s": 8.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.31533683221245
+      },
+      {
+        "time_s": 8.35,
+        "peak_frequency_hz": 824986523.4375,
+        "peak_dbfs": -82.15083288789774
+      },
+      {
+        "time_s": 8.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.34535697872762
+      },
+      {
+        "time_s": 8.45,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -81.9997939187766
+      },
+      {
+        "time_s": 8.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.8868611652675
+      },
+      {
+        "time_s": 8.55,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.0904381278619
+      },
+      {
+        "time_s": 8.6,
+        "peak_frequency_hz": 824963085.9375,
+        "peak_dbfs": -83.0947055981602
+      },
+      {
+        "time_s": 8.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.01939171914343
+      },
+      {
+        "time_s": 8.7,
+        "peak_frequency_hz": 825009594.7265625,
+        "peak_dbfs": -83.15107400360012
+      },
+      {
+        "time_s": 8.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.59824154050631
+      },
+      {
+        "time_s": 8.8,
+        "peak_frequency_hz": 824977734.375,
+        "peak_dbfs": -82.41245071151891
+      },
+      {
+        "time_s": 8.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.66328372482276
+      },
+      {
+        "time_s": 8.9,
+        "peak_frequency_hz": 825043408.203125,
+        "peak_dbfs": -82.88163425930634
+      },
+      {
+        "time_s": 8.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.71488782053477
+      },
+      {
+        "time_s": 9.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.95320804732894
+      },
+      {
+        "time_s": 9.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.81679884931525
+      },
+      {
+        "time_s": 9.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.69905152779737
+      },
+      {
+        "time_s": 9.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.30374667851449
+      },
+      {
+        "time_s": 9.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.35646239327365
+      },
+      {
+        "time_s": 9.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.68117368450875
+      },
+      {
+        "time_s": 9.3,
+        "peak_frequency_hz": 825028149.4140625,
+        "peak_dbfs": -81.92215636964279
+      },
+      {
+        "time_s": 9.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.08697443574643
+      },
+      {
+        "time_s": 9.4,
+        "peak_frequency_hz": 824987255.859375,
+        "peak_dbfs": -82.96624291065753
+      },
+      {
+        "time_s": 9.45,
+        "peak_frequency_hz": 825024975.5859375,
+        "peak_dbfs": -82.17769169860145
+      },
+      {
+        "time_s": 9.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.74811516744816
+      },
+      {
+        "time_s": 9.55,
+        "peak_frequency_hz": 824956616.2109375,
+        "peak_dbfs": -79.52898471168572
+      },
+      {
+        "time_s": 9.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.6640760578053
+      },
+      {
+        "time_s": 9.65,
+        "peak_frequency_hz": 825000195.3125,
+        "peak_dbfs": -81.9129675496186
+      },
+      {
+        "time_s": 9.7,
+        "peak_frequency_hz": 824961376.953125,
+        "peak_dbfs": -82.62023270026555
+      },
+      {
+        "time_s": 9.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.6189450966282
+      },
+      {
+        "time_s": 9.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.65020406454981
+      },
+      {
+        "time_s": 9.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.310989995981
+      },
+      {
+        "time_s": 9.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.9256322249148
+      },
+      {
+        "time_s": 9.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.87327693614428
+      }
+    ],
+    "rows": [
+      {
+        "time_s": 0.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.96906656220007
+      },
+      {
+        "time_s": 0.15,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.69527291224726
+      },
+      {
+        "time_s": 0.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.23067882153993
+      },
+      {
+        "time_s": 0.25,
+        "peak_frequency_hz": 824974560.546875,
+        "peak_dbfs": -82.63007678796077
+      },
+      {
+        "time_s": 0.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.3636060153884
+      },
+      {
+        "time_s": 0.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.8150350344339
+      },
+      {
+        "time_s": 0.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.99179576835391
+      },
+      {
+        "time_s": 0.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.74106078343645
+      },
+      {
+        "time_s": 0.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.19263573233309
+      },
+      {
+        "time_s": 0.55,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.05369666371946
+      },
+      {
+        "time_s": 0.6,
+        "peak_frequency_hz": 824985058.59375,
+        "peak_dbfs": -81.04863617376795
+      },
+      {
+        "time_s": 0.65,
+        "peak_frequency_hz": 824953930.6640625,
+        "peak_dbfs": -81.55904250815382
+      },
+      {
+        "time_s": 0.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -77.81342050840871
+      },
+      {
+        "time_s": 0.75,
+        "peak_frequency_hz": 824953442.3828125,
+        "peak_dbfs": -81.91408530047481
+      },
+      {
+        "time_s": 0.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.15729592661324
+      },
+      {
+        "time_s": 0.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.5637349862282
+      },
+      {
+        "time_s": 0.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.31525339850377
+      },
+      {
+        "time_s": 0.95,
+        "peak_frequency_hz": 824980419.921875,
+        "peak_dbfs": -82.51554230862716
+      },
+      {
+        "time_s": 1.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.81905948030163
+      },
+      {
+        "time_s": 1.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.85039573844807
+      },
+      {
+        "time_s": 1.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.94789461488622
+      },
+      {
+        "time_s": 1.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.11064353230125
+      },
+      {
+        "time_s": 1.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.70178106147576
+      },
+      {
+        "time_s": 1.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.79036306167474
+      },
+      {
+        "time_s": 1.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.5244222881324
+      },
+      {
+        "time_s": 1.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.33289361626228
+      },
+      {
+        "time_s": 1.4,
+        "peak_frequency_hz": 824992504.8828125,
+        "peak_dbfs": -81.7451584832407
+      },
+      {
+        "time_s": 1.45,
+        "peak_frequency_hz": 824974926.7578125,
+        "peak_dbfs": -82.40058132265341
+      },
+      {
+        "time_s": 1.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.27384453756109
+      },
+      {
+        "time_s": 1.55,
+        "peak_frequency_hz": 825040966.796875,
+        "peak_dbfs": -81.82476202951412
+      },
+      {
+        "time_s": 1.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.27954368330904
+      },
+      {
+        "time_s": 1.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.25173305793069
+      },
+      {
+        "time_s": 1.7,
+        "peak_frequency_hz": 825005932.6171875,
+        "peak_dbfs": -81.74362626031352
+      },
+      {
+        "time_s": 1.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.4301508664024
+      },
+      {
+        "time_s": 1.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.66535748803803
+      },
+      {
+        "time_s": 1.85,
+        "peak_frequency_hz": 824954174.8046875,
+        "peak_dbfs": -81.74379505949423
+      },
+      {
+        "time_s": 1.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.65292607770584
+      },
+      {
+        "time_s": 1.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.32516139738189
+      },
+      {
+        "time_s": 2.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.23883162341403
+      },
+      {
+        "time_s": 2.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.64030067975837
+      },
+      {
+        "time_s": 2.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.62528814265684
+      },
+      {
+        "time_s": 2.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.99969542040425
+      },
+      {
+        "time_s": 2.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.27250579125877
+      },
+      {
+        "time_s": 2.25,
+        "peak_frequency_hz": 824974316.40625,
+        "peak_dbfs": -82.65313729760263
+      },
+      {
+        "time_s": 2.3,
+        "peak_frequency_hz": 825014111.328125,
+        "peak_dbfs": -81.93480478322294
+      },
+      {
+        "time_s": 2.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.35120080336286
+      },
+      {
+        "time_s": 2.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.16856221519127
+      },
+      {
+        "time_s": 2.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.62176037586633
+      },
+      {
+        "time_s": 2.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.16419810356511
+      },
+      {
+        "time_s": 2.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.1648554999739
+      },
+      {
+        "time_s": 2.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.012796336406
+      },
+      {
+        "time_s": 2.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.33658236199722
+      },
+      {
+        "time_s": 2.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.88107500161293
+      },
+      {
+        "time_s": 2.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.72671611075627
+      },
+      {
+        "time_s": 2.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.38260758390226
+      },
+      {
+        "time_s": 2.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.07965390544855
+      },
+      {
+        "time_s": 2.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.5895349528577
+      },
+      {
+        "time_s": 2.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.24941307981479
+      },
+      {
+        "time_s": 3.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.81797399752617
+      },
+      {
+        "time_s": 3.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.19830273644916
+      },
+      {
+        "time_s": 3.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.96050242175828
+      },
+      {
+        "time_s": 3.15,
+        "peak_frequency_hz": 825049145.5078125,
+        "peak_dbfs": -83.24266845215236
+      },
+      {
+        "time_s": 3.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.06931365242244
+      },
+      {
+        "time_s": 3.25,
+        "peak_frequency_hz": 824994335.9375,
+        "peak_dbfs": -81.07121406936449
+      },
+      {
+        "time_s": 3.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.35074587486531
+      },
+      {
+        "time_s": 3.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.40064305619171
+      },
+      {
+        "time_s": 3.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.63466105975577
+      },
+      {
+        "time_s": 3.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.59524577911021
+      },
+      {
+        "time_s": 3.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.94788753677031
+      },
+      {
+        "time_s": 3.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.31719326927707
+      },
+      {
+        "time_s": 3.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.87431730074867
+      },
+      {
+        "time_s": 3.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.49687346257922
+      },
+      {
+        "time_s": 3.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.52256018398117
+      },
+      {
+        "time_s": 3.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.60066352728141
+      },
+      {
+        "time_s": 3.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.02811243559567
+      },
+      {
+        "time_s": 3.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.5364377018875
+      },
+      {
+        "time_s": 3.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.56923681831616
+      },
+      {
+        "time_s": 3.95,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.27590894087949
+      },
+      {
+        "time_s": 4.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.89327362654433
+      },
+      {
+        "time_s": 4.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.41147455421802
+      },
+      {
+        "time_s": 4.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.57783891647091
+      },
+      {
+        "time_s": 4.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.90270580125025
+      },
+      {
+        "time_s": 4.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.67829025220324
+      },
+      {
+        "time_s": 4.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.1604497669029
+      },
+      {
+        "time_s": 4.3,
+        "peak_frequency_hz": 824955639.6484375,
+        "peak_dbfs": -81.20784335032025
+      },
+      {
+        "time_s": 4.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.75535834517133
+      },
+      {
+        "time_s": 4.4,
+        "peak_frequency_hz": 824951489.2578125,
+        "peak_dbfs": -82.08977096952393
+      },
+      {
+        "time_s": 4.45,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.39793271281961
+      },
+      {
+        "time_s": 4.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.68253093645043
+      },
+      {
+        "time_s": 4.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.62418687490903
+      },
+      {
+        "time_s": 4.6,
+        "peak_frequency_hz": 824971508.7890625,
+        "peak_dbfs": -80.33001457528394
+      },
+      {
+        "time_s": 4.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.83317754657766
+      },
+      {
+        "time_s": 4.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.49423190629582
+      },
+      {
+        "time_s": 4.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.26066593221952
+      },
+      {
+        "time_s": 4.8,
+        "peak_frequency_hz": 825019604.4921875,
+        "peak_dbfs": -80.34195480837128
+      },
+      {
+        "time_s": 4.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.63139435979501
+      },
+      {
+        "time_s": 4.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.46527313099035
+      },
+      {
+        "time_s": 4.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.91988614439472
+      },
+      {
+        "time_s": 5.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.85606997590301
+      },
+      {
+        "time_s": 5.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.71874456085473
+      },
+      {
+        "time_s": 5.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.00498110411192
+      },
+      {
+        "time_s": 5.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.56461779553658
+      },
+      {
+        "time_s": 5.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.44663312198922
+      },
+      {
+        "time_s": 5.25,
+        "peak_frequency_hz": 824977612.3046875,
+        "peak_dbfs": -81.11997449726633
+      },
+      {
+        "time_s": 5.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.90607306655625
+      },
+      {
+        "time_s": 5.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.959853006474
+      },
+      {
+        "time_s": 5.4,
+        "peak_frequency_hz": 824955151.3671875,
+        "peak_dbfs": -80.95315838756547
+      },
+      {
+        "time_s": 5.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.5721714002406
+      },
+      {
+        "time_s": 5.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.08423607706277
+      },
+      {
+        "time_s": 5.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.35038649822133
+      },
+      {
+        "time_s": 5.6,
+        "peak_frequency_hz": 825045483.3984375,
+        "peak_dbfs": -81.96885543769022
+      },
+      {
+        "time_s": 5.65,
+        "peak_frequency_hz": 824974194.3359375,
+        "peak_dbfs": -82.28277428744674
+      },
+      {
+        "time_s": 5.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.98004419232622
+      },
+      {
+        "time_s": 5.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.24054425583257
+      },
+      {
+        "time_s": 5.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.40776354634647
+      },
+      {
+        "time_s": 5.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.94248110025775
+      },
+      {
+        "time_s": 5.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.35210772867231
+      },
+      {
+        "time_s": 5.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -76.76408197204567
+      },
+      {
+        "time_s": 6.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.55668306081287
+      },
+      {
+        "time_s": 6.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.26962935490477
+      },
+      {
+        "time_s": 6.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.66396816223228
+      },
+      {
+        "time_s": 6.15,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.4174316004114
+      },
+      {
+        "time_s": 6.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.1705554615366
+      },
+      {
+        "time_s": 6.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.93130307085362
+      },
+      {
+        "time_s": 6.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.04573750964218
+      },
+      {
+        "time_s": 6.35,
+        "peak_frequency_hz": 825037792.96875,
+        "peak_dbfs": -82.60457008236438
+      },
+      {
+        "time_s": 6.4,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -79.55844153722859
+      },
+      {
+        "time_s": 6.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.82646440162193
+      },
+      {
+        "time_s": 6.5,
+        "peak_frequency_hz": 824953442.3828125,
+        "peak_dbfs": -82.19725371545955
+      },
+      {
+        "time_s": 6.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.63421265416531
+      },
+      {
+        "time_s": 6.6,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -81.97707698880325
+      },
+      {
+        "time_s": 6.65,
+        "peak_frequency_hz": 824956860.3515625,
+        "peak_dbfs": -81.68319890912184
+      },
+      {
+        "time_s": 6.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.6394524980218
+      },
+      {
+        "time_s": 6.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.91636701793239
+      },
+      {
+        "time_s": 6.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.91585393309683
+      },
+      {
+        "time_s": 6.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.75984762530886
+      },
+      {
+        "time_s": 6.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.11544529510971
+      },
+      {
+        "time_s": 6.95,
+        "peak_frequency_hz": 825000195.3125,
+        "peak_dbfs": -78.20120819062033
+      },
+      {
+        "time_s": 7.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.36166853828335
+      },
+      {
+        "time_s": 7.05,
+        "peak_frequency_hz": 825001904.296875,
+        "peak_dbfs": -81.87444442147208
+      },
+      {
+        "time_s": 7.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.3511980724932
+      },
+      {
+        "time_s": 7.15,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.96715832229927
+      },
+      {
+        "time_s": 7.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.42388816515307
+      },
+      {
+        "time_s": 7.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.04604943361171
+      },
+      {
+        "time_s": 7.3,
+        "peak_frequency_hz": 825010327.1484375,
+        "peak_dbfs": -82.91065397529651
+      },
+      {
+        "time_s": 7.35,
+        "peak_frequency_hz": 824984448.2421875,
+        "peak_dbfs": -81.10836949459664
+      },
+      {
+        "time_s": 7.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.29233736907466
+      },
+      {
+        "time_s": 7.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.74563230937935
+      },
+      {
+        "time_s": 7.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.82124931383022
+      },
+      {
+        "time_s": 7.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.73702172905264
+      },
+      {
+        "time_s": 7.6,
+        "peak_frequency_hz": 825045605.46875,
+        "peak_dbfs": -82.9817150127719
+      },
+      {
+        "time_s": 7.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.94140112735373
+      },
+      {
+        "time_s": 7.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.58688845552403
+      },
+      {
+        "time_s": 7.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.36272043448052
+      },
+      {
+        "time_s": 7.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.46032154060615
+      },
+      {
+        "time_s": 7.85,
+        "peak_frequency_hz": 825050000.0,
+        "peak_dbfs": -81.0182408313471
+      },
+      {
+        "time_s": 7.9,
+        "peak_frequency_hz": 825011059.5703125,
+        "peak_dbfs": -82.07316544671912
+      },
+      {
+        "time_s": 7.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.02428171729618
+      },
+      {
+        "time_s": 8.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.73208127462993
+      },
+      {
+        "time_s": 8.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.15802586501103
+      },
+      {
+        "time_s": 8.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.799882325871
+      },
+      {
+        "time_s": 8.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.09740186300411
+      },
+      {
+        "time_s": 8.2,
+        "peak_frequency_hz": 824960156.25,
+        "peak_dbfs": -81.66824504201242
+      },
+      {
+        "time_s": 8.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.88889270608736
+      },
+      {
+        "time_s": 8.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.57444946426665
+      },
+      {
+        "time_s": 8.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.53125144556425
+      },
+      {
+        "time_s": 8.4,
+        "peak_frequency_hz": 824972607.421875,
+        "peak_dbfs": -80.70610195941065
+      },
+      {
+        "time_s": 8.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.1586970606885
+      },
+      {
+        "time_s": 8.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.18510940121269
+      },
+      {
+        "time_s": 8.55,
+        "peak_frequency_hz": 825050000.0,
+        "peak_dbfs": -82.40859997160504
+      },
+      {
+        "time_s": 8.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.97938932081098
+      },
+      {
+        "time_s": 8.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.76935708262897
+      },
+      {
+        "time_s": 8.7,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -81.84820323681055
+      },
+      {
+        "time_s": 8.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.17957013917697
+      },
+      {
+        "time_s": 8.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.80834214539232
+      },
+      {
+        "time_s": 8.85,
+        "peak_frequency_hz": 824954174.8046875,
+        "peak_dbfs": -80.68895944124988
+      },
+      {
+        "time_s": 8.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.4564990453354
+      },
+      {
+        "time_s": 8.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.73933308020217
+      },
+      {
+        "time_s": 9.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.76192778501752
+      },
+      {
+        "time_s": 9.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.00067130440755
+      },
+      {
+        "time_s": 9.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.19823719820454
+      },
+      {
+        "time_s": 9.15,
+        "peak_frequency_hz": 825031567.3828125,
+        "peak_dbfs": -82.70553145652642
+      },
+      {
+        "time_s": 9.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.04229914527095
+      },
+      {
+        "time_s": 9.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.72269979229844
+      },
+      {
+        "time_s": 9.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.52306674287408
+      },
+      {
+        "time_s": 9.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.90157925417132
+      },
+      {
+        "time_s": 9.4,
+        "peak_frequency_hz": 825000561.5234375,
+        "peak_dbfs": -80.4640043066383
+      },
+      {
+        "time_s": 9.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.17123522741801
+      },
+      {
+        "time_s": 9.5,
+        "peak_frequency_hz": 824952099.609375,
+        "peak_dbfs": -79.90022134524638
+      },
+      {
+        "time_s": 9.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.91397039512572
+      },
+      {
+        "time_s": 9.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.68336897944407
+      },
+      {
+        "time_s": 9.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.94066470067781
+      },
+      {
+        "time_s": 9.7,
+        "peak_frequency_hz": 824956494.140625,
+        "peak_dbfs": -81.96266343626209
+      },
+      {
+        "time_s": 9.75,
+        "peak_frequency_hz": 824956005.859375,
+        "peak_dbfs": -82.06241128072422
+      },
+      {
+        "time_s": 9.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.86921275548853
+      },
+      {
+        "time_s": 9.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.57071483736767
+      },
+      {
+        "time_s": 9.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.35830882834699
+      },
+      {
+        "time_s": 9.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.3178354503367
+      },
+      {
+        "time_s": 10.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.99103890852014
+      },
+      {
+        "time_s": 10.05,
+        "peak_frequency_hz": 825032666.015625,
+        "peak_dbfs": -81.16500632027794
+      },
+      {
+        "time_s": 10.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.49453955608134
+      },
+      {
+        "time_s": 10.15,
+        "peak_frequency_hz": 825043041.9921875,
+        "peak_dbfs": -82.62679676754274
+      },
+      {
+        "time_s": 10.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.4241945130377
+      },
+      {
+        "time_s": 10.25,
+        "peak_frequency_hz": 824981762.6953125,
+        "peak_dbfs": -81.83458905596615
+      },
+      {
+        "time_s": 10.3,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.68412671506303
+      },
+      {
+        "time_s": 10.35,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.39665220499558
+      },
+      {
+        "time_s": 10.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.69264239002621
+      },
+      {
+        "time_s": 10.45,
+        "peak_frequency_hz": 825008251.953125,
+        "peak_dbfs": -81.42872474253947
+      },
+      {
+        "time_s": 10.5,
+        "peak_frequency_hz": 824966503.90625,
+        "peak_dbfs": -81.48374925206765
+      },
+      {
+        "time_s": 10.55,
+        "peak_frequency_hz": 824971508.7890625,
+        "peak_dbfs": -82.70299383395282
+      },
+      {
+        "time_s": 10.6,
+        "peak_frequency_hz": 825014599.609375,
+        "peak_dbfs": -81.73937915454502
+      },
+      {
+        "time_s": 10.65,
+        "peak_frequency_hz": 824952587.890625,
+        "peak_dbfs": -82.3326253321043
+      },
+      {
+        "time_s": 10.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.21589242315183
+      },
+      {
+        "time_s": 10.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.18646283386424
+      },
+      {
+        "time_s": 10.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.3810978151141
+      },
+      {
+        "time_s": 10.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.3470916984991
+      },
+      {
+        "time_s": 10.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.84959127671873
+      },
+      {
+        "time_s": 10.95,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.37123491971596
+      },
+      {
+        "time_s": 11.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.04529065766664
+      },
+      {
+        "time_s": 11.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.54223147257476
+      },
+      {
+        "time_s": 11.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.45830314836748
+      },
+      {
+        "time_s": 11.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.68955190086393
+      },
+      {
+        "time_s": 11.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.51250394965936
+      },
+      {
+        "time_s": 11.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.5151347783508
+      },
+      {
+        "time_s": 11.3,
+        "peak_frequency_hz": 824958203.125,
+        "peak_dbfs": -81.524393670067
+      },
+      {
+        "time_s": 11.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.32133532438161
+      },
+      {
+        "time_s": 11.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.1367720912199
+      },
+      {
+        "time_s": 11.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.60571926685172
+      },
+      {
+        "time_s": 11.5,
+        "peak_frequency_hz": 824952099.609375,
+        "peak_dbfs": -81.86015437985907
+      },
+      {
+        "time_s": 11.55,
+        "peak_frequency_hz": 825045727.5390625,
+        "peak_dbfs": -80.33550748655614
+      },
+      {
+        "time_s": 11.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.32764684414566
+      },
+      {
+        "time_s": 11.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.05099194353933
+      },
+      {
+        "time_s": 11.7,
+        "peak_frequency_hz": 824999829.1015625,
+        "peak_dbfs": -81.98461020165479
+      },
+      {
+        "time_s": 11.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.37322621972545
+      },
+      {
+        "time_s": 11.8,
+        "peak_frequency_hz": 824967114.2578125,
+        "peak_dbfs": -81.19245230008207
+      },
+      {
+        "time_s": 11.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.69359544021043
+      },
+      {
+        "time_s": 11.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.1498422875826
+      },
+      {
+        "time_s": 11.95,
+        "peak_frequency_hz": 824951733.3984375,
+        "peak_dbfs": -82.63628703209336
+      },
+      {
+        "time_s": 12.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.77986336215929
+      },
+      {
+        "time_s": 12.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.19985552660967
+      },
+      {
+        "time_s": 12.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.92643958577534
+      },
+      {
+        "time_s": 12.15,
+        "peak_frequency_hz": 825018750.0,
+        "peak_dbfs": -82.74339783668465
+      },
+      {
+        "time_s": 12.2,
+        "peak_frequency_hz": 824996411.1328125,
+        "peak_dbfs": -80.83475874769636
+      },
+      {
+        "time_s": 12.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.92707610642552
+      },
+      {
+        "time_s": 12.3,
+        "peak_frequency_hz": 824973583.984375,
+        "peak_dbfs": -81.28115813741908
+      },
+      {
+        "time_s": 12.35,
+        "peak_frequency_hz": 825005566.40625,
+        "peak_dbfs": -81.96793165127742
+      },
+      {
+        "time_s": 12.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.826083144412
+      },
+      {
+        "time_s": 12.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.58711482651105
+      },
+      {
+        "time_s": 12.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.60782069141122
+      },
+      {
+        "time_s": 12.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.34610557580258
+      },
+      {
+        "time_s": 12.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.37664305335696
+      },
+      {
+        "time_s": 12.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.54516282828651
+      },
+      {
+        "time_s": 12.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.44424957469036
+      },
+      {
+        "time_s": 12.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.59488509576069
+      },
+      {
+        "time_s": 12.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.32008748595263
+      },
+      {
+        "time_s": 12.85,
+        "peak_frequency_hz": 825029125.9765625,
+        "peak_dbfs": -82.36225783660969
+      },
+      {
+        "time_s": 12.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.34325801189445
+      },
+      {
+        "time_s": 12.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.29660179779303
+      },
+      {
+        "time_s": 13.0,
+        "peak_frequency_hz": 825040844.7265625,
+        "peak_dbfs": -81.18018001212508
+      },
+      {
+        "time_s": 13.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.26122125408676
+      },
+      {
+        "time_s": 13.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.01238388328294
+      },
+      {
+        "time_s": 13.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.67782376862799
+      },
+      {
+        "time_s": 13.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.6303364481797
+      },
+      {
+        "time_s": 13.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.27190327719063
+      },
+      {
+        "time_s": 13.3,
+        "peak_frequency_hz": 824994213.8671875,
+        "peak_dbfs": -81.6042820925498
+      },
+      {
+        "time_s": 13.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.09800778263491
+      },
+      {
+        "time_s": 13.4,
+        "peak_frequency_hz": 825007031.25,
+        "peak_dbfs": -80.8730520949957
+      },
+      {
+        "time_s": 13.45,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.47412769646934
+      },
+      {
+        "time_s": 13.5,
+        "peak_frequency_hz": 825021557.6171875,
+        "peak_dbfs": -82.4981811533808
+      },
+      {
+        "time_s": 13.55,
+        "peak_frequency_hz": 824966015.625,
+        "peak_dbfs": -81.56682385589738
+      },
+      {
+        "time_s": 13.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.56982440323361
+      },
+      {
+        "time_s": 13.65,
+        "peak_frequency_hz": 824970288.0859375,
+        "peak_dbfs": -81.12059748846207
+      },
+      {
+        "time_s": 13.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.93724349226878
+      },
+      {
+        "time_s": 13.75,
+        "peak_frequency_hz": 825030346.6796875,
+        "peak_dbfs": -81.25346160601114
+      },
+      {
+        "time_s": 13.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.81972981738946
+      },
+      {
+        "time_s": 13.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.80188963529295
+      },
+      {
+        "time_s": 13.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.45146661695922
+      },
+      {
+        "time_s": 13.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.91926064424189
+      },
+      {
+        "time_s": 14.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.2307438188668
+      },
+      {
+        "time_s": 14.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.27617957207312
+      },
+      {
+        "time_s": 14.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.51135473921902
+      },
+      {
+        "time_s": 14.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.41778554970472
+      },
+      {
+        "time_s": 14.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.73513799330246
+      },
+      {
+        "time_s": 14.25,
+        "peak_frequency_hz": 825039379.8828125,
+        "peak_dbfs": -81.85584033807673
+      },
+      {
+        "time_s": 14.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.79081961684972
+      },
+      {
+        "time_s": 14.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.37001996658178
+      },
+      {
+        "time_s": 14.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.21795842172848
+      },
+      {
+        "time_s": 14.45,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -82.72696167439081
+      },
+      {
+        "time_s": 14.5,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -81.1489787365494
+      },
+      {
+        "time_s": 14.55,
+        "peak_frequency_hz": 824974438.4765625,
+        "peak_dbfs": -81.48766055371067
+      },
+      {
+        "time_s": 14.6,
+        "peak_frequency_hz": 825021557.6171875,
+        "peak_dbfs": -82.29497863739704
+      },
+      {
+        "time_s": 14.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.89750789103977
+      },
+      {
+        "time_s": 14.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.38064431810807
+      },
+      {
+        "time_s": 14.75,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -81.08080695330726
+      },
+      {
+        "time_s": 14.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.49128276612541
+      },
+      {
+        "time_s": 14.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.7287947850578
+      },
+      {
+        "time_s": 14.9,
+        "peak_frequency_hz": 825028393.5546875,
+        "peak_dbfs": -82.00754604569872
+      },
+      {
+        "time_s": 14.95,
+        "peak_frequency_hz": 825031323.2421875,
+        "peak_dbfs": -82.7196634208243
+      },
+      {
+        "time_s": 15.0,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -80.51374145505011
+      },
+      {
+        "time_s": 15.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.28841815273636
+      },
+      {
+        "time_s": 15.1,
+        "peak_frequency_hz": 824998608.3984375,
+        "peak_dbfs": -81.18193558734703
+      },
+      {
+        "time_s": 15.15,
+        "peak_frequency_hz": 825016430.6640625,
+        "peak_dbfs": -82.52697033642275
+      },
+      {
+        "time_s": 15.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.86996871033563
+      },
+      {
+        "time_s": 15.25,
+        "peak_frequency_hz": 825042675.78125,
+        "peak_dbfs": -82.20160787554997
+      },
+      {
+        "time_s": 15.3,
+        "peak_frequency_hz": 825035717.7734375,
+        "peak_dbfs": -80.92909517028859
+      },
+      {
+        "time_s": 15.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.04190275096725
+      },
+      {
+        "time_s": 15.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -76.99163076338692
+      },
+      {
+        "time_s": 15.45,
+        "peak_frequency_hz": 825036083.984375,
+        "peak_dbfs": -82.32890924202076
+      },
+      {
+        "time_s": 15.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.40863842070384
+      },
+      {
+        "time_s": 15.55,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.84759806483274
+      },
+      {
+        "time_s": 15.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.7215613691614
+      },
+      {
+        "time_s": 15.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.17585271372587
+      },
+      {
+        "time_s": 15.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.77081292825066
+      },
+      {
+        "time_s": 15.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.2550143071021
+      },
+      {
+        "time_s": 15.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.79013841808448
+      },
+      {
+        "time_s": 15.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.8781820826952
+      },
+      {
+        "time_s": 15.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.6684399832429
+      },
+      {
+        "time_s": 15.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.56654779419006
+      },
+      {
+        "time_s": 16.0,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.93562939542197
+      },
+      {
+        "time_s": 16.05,
+        "peak_frequency_hz": 825045361.328125,
+        "peak_dbfs": -82.19244562782585
+      },
+      {
+        "time_s": 16.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.5344768108206
+      },
+      {
+        "time_s": 16.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.77738803862206
+      },
+      {
+        "time_s": 16.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.43336778765755
+      },
+      {
+        "time_s": 16.25,
+        "peak_frequency_hz": 824981884.765625,
+        "peak_dbfs": -81.12772348671952
+      },
+      {
+        "time_s": 16.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.4371128713423
+      },
+      {
+        "time_s": 16.35,
+        "peak_frequency_hz": 824994580.078125,
+        "peak_dbfs": -82.50430630803565
+      },
+      {
+        "time_s": 16.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.61766662846377
+      },
+      {
+        "time_s": 16.45,
+        "peak_frequency_hz": 825047192.3828125,
+        "peak_dbfs": -80.89645810610853
+      },
+      {
+        "time_s": 16.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.42763653420742
+      },
+      {
+        "time_s": 16.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.36096141915694
+      },
+      {
+        "time_s": 16.6,
+        "peak_frequency_hz": 824966259.765625,
+        "peak_dbfs": -81.52343993189447
+      },
+      {
+        "time_s": 16.65,
+        "peak_frequency_hz": 825000195.3125,
+        "peak_dbfs": -83.08171293825849
+      },
+      {
+        "time_s": 16.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.12061458095414
+      },
+      {
+        "time_s": 16.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.5099093272639
+      },
+      {
+        "time_s": 16.8,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.00670879318358
+      },
+      {
+        "time_s": 16.85,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.58859580663315
+      },
+      {
+        "time_s": 16.9,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.95273654940218
+      },
+      {
+        "time_s": 16.95,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.35168351201398
+      },
+      {
+        "time_s": 17.0,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.73326578675339
+      },
+      {
+        "time_s": 17.05,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.168510733780494
+      },
+      {
+        "time_s": 17.1,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.29745943075964
+      },
+      {
+        "time_s": 17.15,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.45638653308174
+      },
+      {
+        "time_s": 17.2,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.091462701245824
+      },
+      {
+        "time_s": 17.25,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.56547562062613
+      },
+      {
+        "time_s": 17.3,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.41740092335954
+      },
+      {
+        "time_s": 17.35,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.94880529670444
+      },
+      {
+        "time_s": 17.4,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.30995290664299
+      },
+      {
+        "time_s": 17.45,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.53139445547776
+      },
+      {
+        "time_s": 17.5,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.59609880692054
+      },
+      {
+        "time_s": 17.55,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.8444919394514
+      },
+      {
+        "time_s": 17.6,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.904625834876
+      },
+      {
+        "time_s": 17.65,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.37434600474021
+      },
+      {
+        "time_s": 17.7,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.020851340926896
+      },
+      {
+        "time_s": 17.75,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.34088164843626
+      },
+      {
+        "time_s": 17.8,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -60.10920486279312
+      },
+      {
+        "time_s": 17.85,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.943543660980566
+      },
+      {
+        "time_s": 17.9,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.251140704324506
+      },
+      {
+        "time_s": 17.95,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.91606175847756
+      },
+      {
+        "time_s": 18.0,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.90264050919127
+      },
+      {
+        "time_s": 18.05,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.91098062926268
+      },
+      {
+        "time_s": 18.1,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.844931809199124
+      },
+      {
+        "time_s": 18.15,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -56.94125124822112
+      },
+      {
+        "time_s": 18.2,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.669334280583556
+      },
+      {
+        "time_s": 18.25,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.724148876134905
+      },
+      {
+        "time_s": 18.3,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.14226144516583
+      },
+      {
+        "time_s": 18.35,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.25758673257291
+      },
+      {
+        "time_s": 18.4,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.87099678754566
+      },
+      {
+        "time_s": 18.45,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.245559136856826
+      },
+      {
+        "time_s": 18.5,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.289586935624854
+      },
+      {
+        "time_s": 18.55,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.938990633680056
+      },
+      {
+        "time_s": 18.6,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.121882076319345
+      },
+      {
+        "time_s": 18.65,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -61.18272916012657
+      },
+      {
+        "time_s": 18.7,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -57.774268788323454
+      },
+      {
+        "time_s": 18.75,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.01661704424479
+      },
+      {
+        "time_s": 18.8,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.794524310266134
+      },
+      {
+        "time_s": 18.85,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -58.80546727780431
+      },
+      {
+        "time_s": 18.9,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.15327460838884
+      },
+      {
+        "time_s": 18.95,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -59.395225704898266
+      },
+      {
+        "time_s": 19.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.5994064894448
+      },
+      {
+        "time_s": 19.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.26365752841325
+      },
+      {
+        "time_s": 19.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.2505258714218
+      },
+      {
+        "time_s": 19.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.49851135101001
+      },
+      {
+        "time_s": 19.2,
+        "peak_frequency_hz": 824951489.2578125,
+        "peak_dbfs": -82.5288821436668
+      },
+      {
+        "time_s": 19.25,
+        "peak_frequency_hz": 824989575.1953125,
+        "peak_dbfs": -83.00522792526246
+      },
+      {
+        "time_s": 19.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.8458157498302
+      },
+      {
+        "time_s": 19.35,
+        "peak_frequency_hz": 825023754.8828125,
+        "peak_dbfs": -82.67900434316694
+      },
+      {
+        "time_s": 19.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.64394060457576
+      },
+      {
+        "time_s": 19.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -83.66196928147318
+      },
+      {
+        "time_s": 19.5,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.7774790867393
+      },
+      {
+        "time_s": 19.55,
+        "peak_frequency_hz": 825035839.84375,
+        "peak_dbfs": -82.2299323923889
+      },
+      {
+        "time_s": 19.6,
+        "peak_frequency_hz": 825031079.1015625,
+        "peak_dbfs": -82.53483480697697
+      },
+      {
+        "time_s": 19.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.96796557284006
+      },
+      {
+        "time_s": 19.7,
+        "peak_frequency_hz": 824994213.8671875,
+        "peak_dbfs": -82.6974450031174
+      },
+      {
+        "time_s": 19.75,
+        "peak_frequency_hz": 824970043.9453125,
+        "peak_dbfs": -83.06596973753058
+      },
+      {
+        "time_s": 19.8,
+        "peak_frequency_hz": 824990063.4765625,
+        "peak_dbfs": -83.07262518389979
+      },
+      {
+        "time_s": 19.85,
+        "peak_frequency_hz": 825045971.6796875,
+        "peak_dbfs": -82.15755462237306
+      },
+      {
+        "time_s": 19.9,
+        "peak_frequency_hz": 824971997.0703125,
+        "peak_dbfs": -82.2716906629001
+      },
+      {
+        "time_s": 19.95,
+        "peak_frequency_hz": 824959790.0390625,
+        "peak_dbfs": -83.9196394047736
+      },
+      {
+        "time_s": 20.0,
+        "peak_frequency_hz": 825032055.6640625,
+        "peak_dbfs": -83.26610498274829
+      },
+      {
+        "time_s": 20.05,
+        "peak_frequency_hz": 824953930.6640625,
+        "peak_dbfs": -82.78397551275768
+      },
+      {
+        "time_s": 20.1,
+        "peak_frequency_hz": 824951000.9765625,
+        "peak_dbfs": -82.34439527554487
+      },
+      {
+        "time_s": 20.15,
+        "peak_frequency_hz": 824971875.0,
+        "peak_dbfs": -82.2743866484663
+      },
+      {
+        "time_s": 20.2,
+        "peak_frequency_hz": 824999951.171875,
+        "peak_dbfs": -82.21843918086037
+      },
+      {
+        "time_s": 20.25,
+        "peak_frequency_hz": 824997875.9765625,
+        "peak_dbfs": -82.08751545760343
+      },
+      {
+        "time_s": 20.3,
+        "peak_frequency_hz": 824976025.390625,
+        "peak_dbfs": -82.34458642837652
+      },
+      {
+        "time_s": 20.35,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -82.48350490730783
+      },
+      {
+        "time_s": 20.4,
+        "peak_frequency_hz": 824951123.046875,
+        "peak_dbfs": -83.36311723624185
+      },
+      {
+        "time_s": 20.45,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.52464693296747
+      },
+      {
+        "time_s": 20.5,
+        "peak_frequency_hz": 824959423.828125,
+        "peak_dbfs": -83.22274210807703
+      },
+      {
+        "time_s": 20.55,
+        "peak_frequency_hz": 824969677.734375,
+        "peak_dbfs": -83.00058601236833
+      },
+      {
+        "time_s": 20.6,
+        "peak_frequency_hz": 825006787.109375,
+        "peak_dbfs": -81.40501237753476
+      },
+      {
+        "time_s": 20.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.65603236564456
+      },
+      {
+        "time_s": 20.7,
+        "peak_frequency_hz": 825000805.6640625,
+        "peak_dbfs": -80.94941978314623
+      },
+      {
+        "time_s": 20.75,
+        "peak_frequency_hz": 825035473.6328125,
+        "peak_dbfs": -80.96030993361421
+      },
+      {
+        "time_s": 20.8,
+        "peak_frequency_hz": 824956372.0703125,
+        "peak_dbfs": -82.83304721759097
+      },
+      {
+        "time_s": 20.85,
+        "peak_frequency_hz": 824976879.8828125,
+        "peak_dbfs": -81.90511226575062
+      },
+      {
+        "time_s": 20.9,
+        "peak_frequency_hz": 825001660.15625,
+        "peak_dbfs": -82.94956896309301
+      },
+      {
+        "time_s": 20.95,
+        "peak_frequency_hz": 825029003.90625,
+        "peak_dbfs": -82.13121009034688
+      },
+      {
+        "time_s": 21.0,
+        "peak_frequency_hz": 824969921.875,
+        "peak_dbfs": -82.81707508866724
+      },
+      {
+        "time_s": 21.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.60675473594833
+      },
+      {
+        "time_s": 21.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.27919087661809
+      },
+      {
+        "time_s": 21.15,
+        "peak_frequency_hz": 825015698.2421875,
+        "peak_dbfs": -82.58352652342579
+      },
+      {
+        "time_s": 21.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.21478758259953
+      },
+      {
+        "time_s": 21.25,
+        "peak_frequency_hz": 825037182.6171875,
+        "peak_dbfs": -82.59497236279324
+      },
+      {
+        "time_s": 21.3,
+        "peak_frequency_hz": 825032299.8046875,
+        "peak_dbfs": -82.85441685140034
+      },
+      {
+        "time_s": 21.35,
+        "peak_frequency_hz": 825040722.65625,
+        "peak_dbfs": -82.43253406338445
+      },
+      {
+        "time_s": 21.4,
+        "peak_frequency_hz": 825030102.5390625,
+        "peak_dbfs": -82.94920042908626
+      },
+      {
+        "time_s": 21.45,
+        "peak_frequency_hz": 824969677.734375,
+        "peak_dbfs": -82.01072515043859
+      },
+      {
+        "time_s": 21.5,
+        "peak_frequency_hz": 824964306.640625,
+        "peak_dbfs": -81.63979119794007
+      },
+      {
+        "time_s": 21.55,
+        "peak_frequency_hz": 825002758.7890625,
+        "peak_dbfs": -82.30004674400175
+      },
+      {
+        "time_s": 21.6,
+        "peak_frequency_hz": 825029248.046875,
+        "peak_dbfs": -82.26767287473018
+      },
+      {
+        "time_s": 21.65,
+        "peak_frequency_hz": 825017529.296875,
+        "peak_dbfs": -81.70256983900757
+      },
+      {
+        "time_s": 21.7,
+        "peak_frequency_hz": 824964672.8515625,
+        "peak_dbfs": -82.82251020731192
+      },
+      {
+        "time_s": 21.75,
+        "peak_frequency_hz": 825044384.765625,
+        "peak_dbfs": -82.90609026671495
+      },
+      {
+        "time_s": 21.8,
+        "peak_frequency_hz": 825019848.6328125,
+        "peak_dbfs": -81.41318687238376
+      },
+      {
+        "time_s": 21.85,
+        "peak_frequency_hz": 824978710.9375,
+        "peak_dbfs": -83.33252739889268
+      },
+      {
+        "time_s": 21.9,
+        "peak_frequency_hz": 825015454.1015625,
+        "peak_dbfs": -83.61879523825819
+      },
+      {
+        "time_s": 21.95,
+        "peak_frequency_hz": 824995800.78125,
+        "peak_dbfs": -82.14062283238242
+      },
+      {
+        "time_s": 22.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.66768469388563
+      },
+      {
+        "time_s": 22.05,
+        "peak_frequency_hz": 825024487.3046875,
+        "peak_dbfs": -82.95179400394582
+      },
+      {
+        "time_s": 22.1,
+        "peak_frequency_hz": 825045239.2578125,
+        "peak_dbfs": -82.12584986173528
+      },
+      {
+        "time_s": 22.15,
+        "peak_frequency_hz": 825012402.34375,
+        "peak_dbfs": -82.6616727367525
+      },
+      {
+        "time_s": 22.2,
+        "peak_frequency_hz": 824999462.890625,
+        "peak_dbfs": -81.76609215424483
+      },
+      {
+        "time_s": 22.25,
+        "peak_frequency_hz": 824956005.859375,
+        "peak_dbfs": -82.18572656881886
+      },
+      {
+        "time_s": 22.3,
+        "peak_frequency_hz": 825014477.5390625,
+        "peak_dbfs": -82.16388709897844
+      },
+      {
+        "time_s": 22.35,
+        "peak_frequency_hz": 825019116.2109375,
+        "peak_dbfs": -83.17001645827642
+      },
+      {
+        "time_s": 22.4,
+        "peak_frequency_hz": 825048779.296875,
+        "peak_dbfs": -82.5243533811374
+      },
+      {
+        "time_s": 22.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.20876222988042
+      },
+      {
+        "time_s": 22.5,
+        "peak_frequency_hz": 824976025.390625,
+        "peak_dbfs": -82.39581288773307
+      },
+      {
+        "time_s": 22.55,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.46251854678587
+      },
+      {
+        "time_s": 22.6,
+        "peak_frequency_hz": 824984570.3125,
+        "peak_dbfs": -81.83903033549905
+      },
+      {
+        "time_s": 22.65,
+        "peak_frequency_hz": 825013378.90625,
+        "peak_dbfs": -81.97966281502771
+      },
+      {
+        "time_s": 22.7,
+        "peak_frequency_hz": 824971997.0703125,
+        "peak_dbfs": -83.2892314475002
+      },
+      {
+        "time_s": 22.75,
+        "peak_frequency_hz": 825030834.9609375,
+        "peak_dbfs": -81.44032496873993
+      },
+      {
+        "time_s": 22.8,
+        "peak_frequency_hz": 825035839.84375,
+        "peak_dbfs": -82.63709385340304
+      },
+      {
+        "time_s": 22.85,
+        "peak_frequency_hz": 824997387.6953125,
+        "peak_dbfs": -81.73145763990875
+      },
+      {
+        "time_s": 22.9,
+        "peak_frequency_hz": 825028637.6953125,
+        "peak_dbfs": -81.39278322302755
+      },
+      {
+        "time_s": 22.95,
+        "peak_frequency_hz": 825038403.3203125,
+        "peak_dbfs": -81.70820672357476
+      },
+      {
+        "time_s": 23.0,
+        "peak_frequency_hz": 825004711.9140625,
+        "peak_dbfs": -81.40229128625424
+      },
+      {
+        "time_s": 23.05,
+        "peak_frequency_hz": 824987377.9296875,
+        "peak_dbfs": -82.42421330108809
+      },
+      {
+        "time_s": 23.1,
+        "peak_frequency_hz": 824958691.40625,
+        "peak_dbfs": -81.65665533299938
+      },
+      {
+        "time_s": 23.15,
+        "peak_frequency_hz": 824977490.234375,
+        "peak_dbfs": -82.20636432223033
+      },
+      {
+        "time_s": 23.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.22161700876741
+      },
+      {
+        "time_s": 23.25,
+        "peak_frequency_hz": 824969677.734375,
+        "peak_dbfs": -81.07270063942913
+      },
+      {
+        "time_s": 23.3,
+        "peak_frequency_hz": 824987744.140625,
+        "peak_dbfs": -82.24914197333527
+      },
+      {
+        "time_s": 23.35,
+        "peak_frequency_hz": 825038037.109375,
+        "peak_dbfs": -82.16893257440418
+      },
+      {
+        "time_s": 23.4,
+        "peak_frequency_hz": 825008862.3046875,
+        "peak_dbfs": -82.01067480225558
+      },
+      {
+        "time_s": 23.45,
+        "peak_frequency_hz": 824968701.171875,
+        "peak_dbfs": -83.13645195095427
+      },
+      {
+        "time_s": 23.5,
+        "peak_frequency_hz": 824961621.09375,
+        "peak_dbfs": -82.91805268992815
+      },
+      {
+        "time_s": 23.55,
+        "peak_frequency_hz": 824992993.1640625,
+        "peak_dbfs": -80.58475479279261
+      },
+      {
+        "time_s": 23.6,
+        "peak_frequency_hz": 825025708.0078125,
+        "peak_dbfs": -82.2780457473223
+      },
+      {
+        "time_s": 23.65,
+        "peak_frequency_hz": 825047192.3828125,
+        "peak_dbfs": -81.19552128994974
+      },
+      {
+        "time_s": 23.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.67324208908168
+      },
+      {
+        "time_s": 23.75,
+        "peak_frequency_hz": 824957104.4921875,
+        "peak_dbfs": -81.97696156836288
+      },
+      {
+        "time_s": 23.8,
+        "peak_frequency_hz": 824986035.15625,
+        "peak_dbfs": -81.43674444884738
+      },
+      {
+        "time_s": 23.85,
+        "peak_frequency_hz": 825000195.3125,
+        "peak_dbfs": -82.40601005241484
+      },
+      {
+        "time_s": 23.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.18319945408145
+      },
+      {
+        "time_s": 23.95,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -81.96097964021341
+      },
+      {
+        "time_s": 24.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.26587358810907
+      },
+      {
+        "time_s": 24.05,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.35307480983194
+      },
+      {
+        "time_s": 24.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.09895115163866
+      },
+      {
+        "time_s": 24.15,
+        "peak_frequency_hz": 825034863.28125,
+        "peak_dbfs": -82.70688984324053
+      },
+      {
+        "time_s": 24.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.02004934176139
+      },
+      {
+        "time_s": 24.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.8343120494756
+      },
+      {
+        "time_s": 24.3,
+        "peak_frequency_hz": 825032666.015625,
+        "peak_dbfs": -82.0991392376939
+      },
+      {
+        "time_s": 24.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.49245174882934
+      },
+      {
+        "time_s": 24.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.37030669532783
+      },
+      {
+        "time_s": 24.45,
+        "peak_frequency_hz": 825049145.5078125,
+        "peak_dbfs": -82.84584761541232
+      },
+      {
+        "time_s": 24.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.71406730596429
+      },
+      {
+        "time_s": 24.55,
+        "peak_frequency_hz": 825001904.296875,
+        "peak_dbfs": -80.56418820478179
+      },
+      {
+        "time_s": 24.6,
+        "peak_frequency_hz": 824952832.03125,
+        "peak_dbfs": -82.19002759563382
+      },
+      {
+        "time_s": 24.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.8988827898664
+      },
+      {
+        "time_s": 24.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.32762222448274
+      },
+      {
+        "time_s": 24.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.2055481033442
+      },
+      {
+        "time_s": 24.8,
+        "peak_frequency_hz": 824951733.3984375,
+        "peak_dbfs": -79.70641350609571
+      },
+      {
+        "time_s": 24.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.04760775818465
+      },
+      {
+        "time_s": 24.9,
+        "peak_frequency_hz": 825045727.5390625,
+        "peak_dbfs": -83.49785734802813
+      },
+      {
+        "time_s": 24.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.65237705200974
+      },
+      {
+        "time_s": 25.0,
+        "peak_frequency_hz": 825018872.0703125,
+        "peak_dbfs": -82.40781101885388
+      },
+      {
+        "time_s": 25.05,
+        "peak_frequency_hz": 824975292.96875,
+        "peak_dbfs": -80.14226090441589
+      },
+      {
+        "time_s": 25.1,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.01831537668639
+      },
+      {
+        "time_s": 25.15,
+        "peak_frequency_hz": 824959912.109375,
+        "peak_dbfs": -80.40661607681179
+      },
+      {
+        "time_s": 25.2,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.39344751059872
+      },
+      {
+        "time_s": 25.25,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.47146999247289
+      },
+      {
+        "time_s": 25.3,
+        "peak_frequency_hz": 825024731.4453125,
+        "peak_dbfs": -81.76757366807864
+      },
+      {
+        "time_s": 25.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.61039429528913
+      },
+      {
+        "time_s": 25.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.9759238363585
+      },
+      {
+        "time_s": 25.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.04464651617764
+      },
+      {
+        "time_s": 25.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.75133729357107
+      },
+      {
+        "time_s": 25.55,
+        "peak_frequency_hz": 825038525.390625,
+        "peak_dbfs": -83.08583082625461
+      },
+      {
+        "time_s": 25.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.26357659806955
+      },
+      {
+        "time_s": 25.65,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -80.98547970110491
+      },
+      {
+        "time_s": 25.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.78316012856828
+      },
+      {
+        "time_s": 25.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.35491882394803
+      },
+      {
+        "time_s": 25.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.28273899528358
+      },
+      {
+        "time_s": 25.85,
+        "peak_frequency_hz": 824994335.9375,
+        "peak_dbfs": -82.13728506780042
+      },
+      {
+        "time_s": 25.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.38071015469187
+      },
+      {
+        "time_s": 25.95,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.69921454472359
+      },
+      {
+        "time_s": 26.0,
+        "peak_frequency_hz": 824990795.8984375,
+        "peak_dbfs": -82.35601897600247
+      },
+      {
+        "time_s": 26.05,
+        "peak_frequency_hz": 824997998.046875,
+        "peak_dbfs": -82.82800715995974
+      },
+      {
+        "time_s": 26.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.0189416142117
+      },
+      {
+        "time_s": 26.15,
+        "peak_frequency_hz": 825002880.859375,
+        "peak_dbfs": -80.73575222112125
+      },
+      {
+        "time_s": 26.2,
+        "peak_frequency_hz": 825008618.1640625,
+        "peak_dbfs": -81.76201523203113
+      },
+      {
+        "time_s": 26.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.05249938307153
+      },
+      {
+        "time_s": 26.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.25419906639662
+      },
+      {
+        "time_s": 26.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.38819536435092
+      },
+      {
+        "time_s": 26.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.49950260846124
+      },
+      {
+        "time_s": 26.45,
+        "peak_frequency_hz": 825000317.3828125,
+        "peak_dbfs": -80.55084454976907
+      },
+      {
+        "time_s": 26.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.9440379567976
+      },
+      {
+        "time_s": 26.55,
+        "peak_frequency_hz": 825033154.296875,
+        "peak_dbfs": -80.81324182738983
+      },
+      {
+        "time_s": 26.6,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.11444125851173
+      },
+      {
+        "time_s": 26.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.95807272585787
+      },
+      {
+        "time_s": 26.7,
+        "peak_frequency_hz": 825000195.3125,
+        "peak_dbfs": -81.80530057232573
+      },
+      {
+        "time_s": 26.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -77.98103990902268
+      },
+      {
+        "time_s": 26.8,
+        "peak_frequency_hz": 824956005.859375,
+        "peak_dbfs": -82.93739261375651
+      },
+      {
+        "time_s": 26.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.04225702388885
+      },
+      {
+        "time_s": 26.9,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.51481479527548
+      },
+      {
+        "time_s": 26.95,
+        "peak_frequency_hz": 825039624.0234375,
+        "peak_dbfs": -81.2225208110879
+      },
+      {
+        "time_s": 27.0,
+        "peak_frequency_hz": 824961254.8828125,
+        "peak_dbfs": -82.23951478321737
+      },
+      {
+        "time_s": 27.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.5305288449357
+      },
+      {
+        "time_s": 27.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.92818558178472
+      },
+      {
+        "time_s": 27.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.58303632478628
+      },
+      {
+        "time_s": 27.2,
+        "peak_frequency_hz": 825018994.140625,
+        "peak_dbfs": -81.56712559232979
+      },
+      {
+        "time_s": 27.25,
+        "peak_frequency_hz": 825021801.7578125,
+        "peak_dbfs": -81.66499916611946
+      },
+      {
+        "time_s": 27.3,
+        "peak_frequency_hz": 825021679.6875,
+        "peak_dbfs": -79.18606040825358
+      },
+      {
+        "time_s": 27.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.63556761115234
+      },
+      {
+        "time_s": 27.4,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.9446899569939
+      },
+      {
+        "time_s": 27.45,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.29695273241035
+      },
+      {
+        "time_s": 27.5,
+        "peak_frequency_hz": 825004345.703125,
+        "peak_dbfs": -83.00437856599706
+      },
+      {
+        "time_s": 27.55,
+        "peak_frequency_hz": 825022045.8984375,
+        "peak_dbfs": -82.56535898122137
+      },
+      {
+        "time_s": 27.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.46929857658489
+      },
+      {
+        "time_s": 27.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.30764358856499
+      },
+      {
+        "time_s": 27.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -82.35048666750416
+      },
+      {
+        "time_s": 27.75,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.45819036684199
+      },
+      {
+        "time_s": 27.8,
+        "peak_frequency_hz": 824988110.3515625,
+        "peak_dbfs": -80.55293532950158
+      },
+      {
+        "time_s": 27.85,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.52323973229313
+      },
+      {
+        "time_s": 27.9,
+        "peak_frequency_hz": 825047070.3125,
+        "peak_dbfs": -81.41390149264845
+      },
+      {
+        "time_s": 27.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.73935699516464
+      },
+      {
+        "time_s": 28.0,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.80284206482534
+      },
+      {
+        "time_s": 28.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.66782587424382
+      },
+      {
+        "time_s": 28.1,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.40652032103348
+      },
+      {
+        "time_s": 28.15,
+        "peak_frequency_hz": 824950024.4140625,
+        "peak_dbfs": -82.5938092740739
+      },
+      {
+        "time_s": 28.2,
+        "peak_frequency_hz": 825030102.5390625,
+        "peak_dbfs": -80.3574994428948
+      },
+      {
+        "time_s": 28.25,
+        "peak_frequency_hz": 825005322.265625,
+        "peak_dbfs": -83.0325797495267
+      },
+      {
+        "time_s": 28.3,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.48934794497646
+      },
+      {
+        "time_s": 28.35,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.51113401040193
+      },
+      {
+        "time_s": 28.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.9726502669902
+      },
+      {
+        "time_s": 28.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.64340637127131
+      },
+      {
+        "time_s": 28.5,
+        "peak_frequency_hz": 825032910.15625,
+        "peak_dbfs": -79.54574987202507
+      },
+      {
+        "time_s": 28.55,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -78.72043339974988
+      },
+      {
+        "time_s": 28.6,
+        "peak_frequency_hz": 825015087.890625,
+        "peak_dbfs": -82.19028097637299
+      },
+      {
+        "time_s": 28.65,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.39844784386216
+      },
+      {
+        "time_s": 28.7,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -79.60117728668253
+      },
+      {
+        "time_s": 28.75,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.74021357084558
+      },
+      {
+        "time_s": 28.8,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -83.15301585637108
+      },
+      {
+        "time_s": 28.85,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.35490940166562
+      },
+      {
+        "time_s": 28.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.08165918304769
+      },
+      {
+        "time_s": 28.95,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -82.45696703151236
+      },
+      {
+        "time_s": 29.0,
+        "peak_frequency_hz": 825010815.4296875,
+        "peak_dbfs": -82.73712517890452
+      },
+      {
+        "time_s": 29.05,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.28474895451465
+      },
+      {
+        "time_s": 29.1,
+        "peak_frequency_hz": 825033642.578125,
+        "peak_dbfs": -81.96150452162671
+      },
+      {
+        "time_s": 29.15,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.72930137341848
+      },
+      {
+        "time_s": 29.2,
+        "peak_frequency_hz": 824983105.46875,
+        "peak_dbfs": -81.60224420924601
+      },
+      {
+        "time_s": 29.25,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -79.92531100730434
+      },
+      {
+        "time_s": 29.3,
+        "peak_frequency_hz": 825029003.90625,
+        "peak_dbfs": -81.47661694017376
+      },
+      {
+        "time_s": 29.35,
+        "peak_frequency_hz": 825032666.015625,
+        "peak_dbfs": -81.92669004908478
+      },
+      {
+        "time_s": 29.4,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.60829765303096
+      },
+      {
+        "time_s": 29.45,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.75370219443094
+      },
+      {
+        "time_s": 29.5,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -78.78596334110088
+      },
+      {
+        "time_s": 29.55,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.57232307013518
+      },
+      {
+        "time_s": 29.6,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -77.73192967190211
+      },
+      {
+        "time_s": 29.65,
+        "peak_frequency_hz": 824962719.7265625,
+        "peak_dbfs": -82.05420026889087
+      },
+      {
+        "time_s": 29.7,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.35497228526323
+      },
+      {
+        "time_s": 29.75,
+        "peak_frequency_hz": 824955151.3671875,
+        "peak_dbfs": -81.19366578453653
+      },
+      {
+        "time_s": 29.8,
+        "peak_frequency_hz": 824989819.3359375,
+        "peak_dbfs": -81.20760136126702
+      },
+      {
+        "time_s": 29.85,
+        "peak_frequency_hz": 824992749.0234375,
+        "peak_dbfs": -82.02591908291188
+      },
+      {
+        "time_s": 29.9,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -81.0100506386597
+      },
+      {
+        "time_s": 29.95,
+        "peak_frequency_hz": 824983227.5390625,
+        "peak_dbfs": -80.54000326285119
+      }
+    ],
+    "acceptance": false,
+    "limits": "Aralıklı spektrum tanısı; sürekli RF yokluğu, kalibre frekans/dBm veya ürün kabulü değildir."
+  },
+  "files": {
+    "teknofest-rx-newport-off24-20260909/capture.json": "c1c70471da0f94729b1f027c6aafc737792d28f7613e006d069f40e5b4c46b85",
+    "teknofest-rx-newport-off24-20260909/rx.ci8": "11b30d90824ca74fd1ad0e79cdcb6c4e5db5c9ab0b47b45f2a1a17213ba838bb",
+    "teknofest-rx-newport-off24-20260909/transfer.log": "e6517ed05fb0878c5851f45e54cf7a8adf2a1f01ca1729056f00d0449c98376e",
+    "teknofest-rx-newport-cw24-20260909/capture.json": "fd4c3a2bc35d43f8f25b56bf50c0bcd1a4d933d3f585cceaf750ec88a0dceec1",
+    "teknofest-rx-newport-cw24-20260909/cw-analysis.json": "e42df58a11ed8b703f4fc90ee329d7daaf40385bd830aad643b5f93e1549e72c",
+    "teknofest-rx-newport-cw24-20260909/rx.ci8": "786d966fd005a298d654b9829d94bf356c20d3a2bece3624187cf2fc9ef45a6e",
+    "teknofest-rx-newport-cw24-20260909/transfer.log": "1670ac8ef1957bc38ed8955b8fb1dd31221ffae1dc671f5bb92d793a5886de4b",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7"
+  },
+  "product_acceptance": false,
+  "dbm_calibrated": false,
+  "limits": [
+    "Tek temiz açık kayıt kalıcı USB çözümünü kanıtlamaz.",
+    "50 ms adımlı tanı; hassas süre, genel RF yokluğu veya acil Stop testi değildir.",
+    "Verici seri ve yüklü sürüm bağımsız doğrulanmadı; mutlak frekans kalibre değil."
+  ]
+}

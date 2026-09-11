@@ -1,0 +1,90 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "bpsk_observed_transport_invalid_candidate_abstained",
+  "operator_play_confirmation": "bastım",
+  "source_evidence": {
+    "file": "03_BPSK.C16",
+    "expected_duration_s": 6,
+    "observed_first_s": 20.35,
+    "observed_last_s": 26.2,
+    "sampled_activity_span_s": 5.899999999999998,
+    "reference_obw99_hz": 21496.072017016937
+  },
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "center_frequency_hz": 825300000,
+    "sample_rate_hz": 8000000,
+    "lna_gain_db": 24,
+    "vga_gain_db": 24,
+    "amp_enabled": false
+  },
+  "transmitter": {
+    "file": "03_BPSK.C16",
+    "nominal_frequency_hz": 825000000,
+    "sample_rate_hz": 500000,
+    "reported_tx_gain_db": 8,
+    "amp_enabled": false,
+    "loop_enabled": false
+  },
+  "transport": {
+    "complete": true,
+    "transport_valid": false,
+    "usb_overruns": 1,
+    "longest_overrun_bytes": 873472,
+    "settled_rail_components": 0,
+    "raw_sha256": "cba8c689f216743bcd7a3bcaccf550bc4a6cce357aa45feec750edd871946d58"
+  },
+  "candidate": {
+    "summary": {
+      "Belirsiz": 10
+    },
+    "reasons": {
+      "low_snr": 10
+    },
+    "snr_db": [
+      3.9595628378548744,
+      1.9487238405946863,
+      1.724181477725103,
+      4.697803113010208,
+      4.487827846627377,
+      3.9529309360623848,
+      2.037161546777746,
+      1.3181621107464268,
+      2.497765856606526,
+      2.228691403187026
+    ],
+    "model_sha256": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+    "analysis_source_sha256": "a6c35446791867ad6f6e991ec55430ef3861d90924c4240a909f4b0bd93f0a09"
+  },
+  "decision": "BPSK ile uyumlu 5,90 saniyelik hedef bant etkinliği gözlendi. Bir USB taşması koşuyu kabul dışı bırakır; aday ayrıca 10/10 low_snr Belirsiz üretti. Aynı RF koşusunu tekrarlamak yerine kalite kapısı ve fiziksel veri alanı ayrı geliştirme verisiyle düzeltilmelidir.",
+  "product_acceptance": false,
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "off/capture.json": "d6f9bb23e38260a3036ff8ab43b6002ee7e917fb60e2cdfddff7d10a3cc50d44",
+    "off/rx.ci8": "aed679606b78965598984b3513db2b39a11d96049d8df3f98463da0785fc00c0",
+    "off/transfer.log": "7bc0b4d02cac55c35dd0b8abc6d1cb1527d7af5454377bbbbb4412e43ef7db69",
+    "on/activity.json": "d23f56d37ffb68e69304d341b46e4cf390ae3ab64c062393e7380dc93f79b5b9",
+    "on/bpsk-diagnostic-v2.json": "e1ebc12ccc79dce515007af33f330042712bb11ad0dda101741a0c17e971fc4f",
+    "on/capture.json": "cd4c168b02d054c59acdee2ca21cafa7097682207b610ac782345a5960cd4316",
+    "on/rx.ci8": "cba8c689f216743bcd7a3bcaccf550bc4a6cce357aa45feec750edd871946d58",
+    "on/transfer.log": "6bd0d2ee3ac30f3977627b03f8a88d39c4dc3d56029817254802c06a4e626684",
+    "replay/03_BPSK.C16": "e72ec9618d2bce000c7e73edf6f2ed27a837ba1bbe32e2df41e0cd74eefc6960",
+    "replay/03_BPSK.TXT": "6370675c6cafc6c5028a0db719bed765de8056fcc21c5f400c5d3e54c3a3ddb3",
+    "replay/manifest.json": "07c22a08f30f10547e77a438b1e411a2c7dcf98b1f0a8768acb486039abec15e",
+    "scripts/analyze_replay_bpsk.py": "a6c35446791867ad6f6e991ec55430ef3861d90924c4240a909f4b0bd93f0a09",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774"
+  },
+  "limits": [
+    "Bir USB taşması nedeniyle kayıt kabul paydasına alınmaz.",
+    "Bant enerjisi zaman tanısı kaynak sınıfını tek başına kanıtlamaz; operatör Play teyidi ve RF öncesi dosya hash bağı birlikte korunur.",
+    "Tek RF koşusunun on penceresi bağımsız koşu değildir.",
+    "Frekans merkezi önceki CW, bant genişliği RF öncesi manifestten gelir.",
+    "PC adayıdır; ürün F5, ARM ve FPGA kullanılmadı.",
+    "dBFS, dBm kalibrasyonu değildir."
+  ]
+}

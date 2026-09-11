@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE = ROOT / "results/evidence/phase08/st06-wideband-stream-v3.json"
+EVIDENCE = ROOT / "results/evidence/phase08/st06-wideband-stream-v4.json"
 
 
 def _load(path: Path) -> dict:
@@ -16,7 +16,7 @@ def _load(path: Path) -> dict:
 def test_stream_evidence_has_bounded_state_and_exact_sliding_results() -> None:
     evidence = _load(EVIDENCE)
 
-    assert evidence["schema"] == "phase08-st06-wideband-stream-v3"
+    assert evidence["schema"] == "phase08-st06-wideband-stream-v4"
     assert evidence["status"] == "passed"
     assert evidence["st06_stream_lifecycle_complete"] is True
     assert evidence["st06_complete"] is False
@@ -28,7 +28,7 @@ def test_stream_evidence_has_bounded_state_and_exact_sliding_results() -> None:
     assert evidence["mismatch_details"] == []
     assert evidence["reset_checks"] == 120
     assert evidence["invalid_update_transaction_checks"] == 1
-    assert evidence["supersedes"] == "results/evidence/phase08/st06-wideband-stream-v2.json"
+    assert evidence["supersedes"] == "results/evidence/phase08/st06-wideband-stream-v3.json"
 
 
 def test_stream_evidence_retains_historical_sources_and_keeps_product_open() -> None:

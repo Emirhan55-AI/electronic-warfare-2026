@@ -10,6 +10,7 @@ import pytest
 
 from algorithms.p0 import IQFrame, IQResponse, P0Channelizer, TransportError, TransportStats
 from app.operator_console.live_ed import (
+    LIVE_AUDIO_MAX_CONSECUTIVE_MISSES,
     LIVE_AUDIO_WINDOW_FRAMES,
     LiveEDConfiguration,
     LiveEDSession,
@@ -76,6 +77,20 @@ class _FakeStream:
 
     def __exit__(self, exc_type, exc_value, traceback):
         del exc_type, exc_value, traceback
+
+
+class _ProfileSizedFakeStream(_FakeStream):
+    def __init__(self, executable, config, frame_count, *, cancellation):
+        super().__init__(executable, config, frame_count, cancellation=cancellation)
+        self.sample_count = config.sample_count
+
+    def __iter__(self):
+        payload = bytes(self.sample_count * 2)
+        for _ in range(self.frame_count):
+            yield payload
+        self.statistics = HackRFStreamStatistics(
+            self.frame_count, self.frame_count * len(payload), .01, 0, 0, 0,
+            "0 overruns, longest 0 bytes")
 
 
 class _FakeTransport:
@@ -261,6 +276,30 @@ def test_live_session_channelizes_and_publishes_bounded_fpga_snapshots() -> None
     assert session.current_measurement_window(17) == ()
 
 
+@pytest.mark.parametrize("fft_size", (4096, 8192, 16384))
+def test_runtime_fpga_fft_sizes_drive_capture_channelizer_and_transport(fft_size) -> None:
+    configuration = LiveEDConfiguration(
+        104_650_000, SERIAL, frame_count=1, fpga_fft_size=fft_size)
+    assert configuration.rx_config.sample_count == 4 * fft_size
+    factory = (lambda: P0Channelizer()) if fft_size == 4096 else (
+        lambda profile: P0Channelizer(profile))
+    session = LiveEDSession(
+        "hackrf_transfer", configuration,
+        stream_factory=_ProfileSizedFakeStream,
+        transport_factory=_FakeTransport,
+        channelizer_factory=factory,
+    )
+    snapshots = []
+    result = session.run(snapshots.append)
+    assert result.completed_frames == 1
+    assert snapshots[0].output_frame.complex_sample_count == fft_size
+    assert result.hackrf_statistics.bytes_received == 8 * fft_size
+    if fft_size == 4096:
+        assert session.current_measurement_window(17) == ()
+    else:
+        assert session.audio_window_frame_count() == 0
+
+
 def test_live_session_rejects_clipped_iq_instead_of_presenting_it_as_valid() -> None:
     configuration = LiveEDConfiguration(
         output_center_frequency_hz=104_650_000,
@@ -422,7 +461,7 @@ def test_live_audio_window_is_bounded_and_resets_on_sequence_gap() -> None:
     assert session.audio_window() == ()
 
 
-def test_live_audio_requires_consecutive_confirmed_observations_for_selected_event() -> None:
+def test_live_audio_allows_only_bounded_detector_misses_for_confirmed_event() -> None:
     session = LiveEDSession(
         "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
         stream_factory=_FakeStream, transport_factory=_FakeTransport,
@@ -436,11 +475,58 @@ def test_live_audio_requires_consecutive_confirmed_observations_for_selected_eve
     assert len(session.audio_window(17)) == LIVE_AUDIO_WINDOW_FRAMES
     assert not session.audio_window_ready(18)
     assert session.audio_window(18) == ()
-    # A single missed observation invalidates event continuity even while IQ is contiguous.
+    # A brief detector miss is tolerated only while the ARM event remains confirmed.
     sequence = LIVE_AUDIO_WINDOW_FRAMES
-    session._record_audio_frame(IQFrame(sequence, 2_000_000, 104_650_000, payload), ())
+    session._record_audio_frame(
+        IQFrame(sequence, 2_000_000, 104_650_000, payload), (), (17,)
+    )
     assert session.audio_window_ready()
+    assert session.audio_window_ready(17)
+    assert session.audio_window_quality(17)["observed_frames"] == LIVE_AUDIO_WINDOW_FRAMES - 1
+
+    for offset in range(1, LIVE_AUDIO_MAX_CONSECUTIVE_MISSES):
+        session._record_audio_frame(
+            IQFrame(sequence + offset, 2_000_000, 104_650_000, payload), (), (17,)
+        )
+    assert session.audio_window_ready(17)
+    assert session.audio_window_quality(17)["max_consecutive_misses"] == LIVE_AUDIO_MAX_CONSECUTIVE_MISSES
+
+    session._record_audio_frame(
+        IQFrame(
+            sequence + LIVE_AUDIO_MAX_CONSECUTIVE_MISSES,
+            2_000_000,
+            104_650_000,
+            payload,
+        ),
+        (),
+        (17,),
+    )
     assert not session.audio_window_ready(17)
     assert session.audio_window(17) == ()
-    session._record_audio_frame(IQFrame(sequence + 1, 2_000_000, 104_650_000, payload), (17,))
-    assert session.audio_window_frame_count(17) == 1
+
+    # Losing the confirmed ARM event invalidates the event-bound window immediately.
+    session._record_audio_frame(
+        IQFrame(sequence + LIVE_AUDIO_MAX_CONSECUTIVE_MISSES + 1, 2_000_000, 104_650_000, payload),
+        (),
+        (),
+    )
+    assert session.audio_window_frame_count(17) == 0
+
+
+def test_live_audio_rejects_low_observation_coverage_even_without_long_gap() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
+        stream_factory=_FakeStream, transport_factory=_FakeTransport,
+    )
+    payload = bytes(8192)
+    for sequence in range(LIVE_AUDIO_WINDOW_FRAMES):
+        observed_ids = () if sequence % 10 == 0 else (17,)
+        session._record_audio_frame(
+            IQFrame(sequence, 2_000_000, 104_650_000, payload), observed_ids, (17,)
+        )
+
+    quality = session.audio_window_quality(17)
+    assert quality["observed_fraction"] < 0.95
+    assert quality["max_consecutive_misses"] == 1
+    assert not quality["acceptable"]
+    assert session.audio_window(17) == ()

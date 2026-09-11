@@ -109,13 +109,32 @@ static double range_mean(const double *values, size_t start, size_t stop)
     return total / (double)(stop - start);
 }
 
-static int has_seed(const uint8_t *seeds, size_t start, size_t end)
+static int has_seed(const double *prefix, double reference,
+                    size_t start, size_t end)
 {
-    size_t index;
+    size_t scale;
 
-    for (index = start; index <= end; ++index) {
-        if (seeds[index] != 0U)
-            return 1;
+    for (scale = 0U;
+         scale < sizeof(P0_ST05_SEED_WIDTHS) / sizeof(P0_ST05_SEED_WIDTHS[0U]);
+         ++scale) {
+        size_t width = P0_ST05_SEED_WIDTHS[scale];
+        size_t left = (width - 1U) / 2U;
+        size_t right = width - left - 1U;
+        size_t first = start > left ? start : left;
+        size_t last_available = P0_ST05_FRAME_BINS - right - 1U;
+        size_t last = end < last_available ? end : last_available;
+        double integrated_threshold =
+            reference * P0_ST05_SEED_MULTIPLIER * (double)width;
+        size_t index;
+
+        if (first > last)
+            continue;
+        for (index = first; index <= last; ++index) {
+            double integrated =
+                prefix[index + right + 1U] - prefix[index - left];
+            if (integrated > integrated_threshold)
+                return 1;
+        }
     }
     return 0;
 }
@@ -238,13 +257,12 @@ int p0_st05_wideband_process_precomputed_trusted(
 {
     double prefix[P0_ST05_FRAME_BINS + 1U];
     double sorted_regions[P0_ST05_INTERNAL_REGION_COUNT];
-    uint8_t seeds[P0_ST05_FRAME_BINS];
-    uint8_t support[P0_ST05_FRAME_BINS];
-    size_t support_indices[P0_ST05_FRAME_BINS];
-    size_t support_count = 0U;
+    size_t group_start = 0U;
+    size_t group_end = 0U;
+    size_t last_support = 0U;
+    int support_open = 0;
     double reference;
     size_t index;
-    size_t scale;
     int code;
 
     memset(result, 0, sizeof(*result));
@@ -260,25 +278,10 @@ int p0_st05_wideband_process_precomputed_trusted(
         return P0_ST05_OK;
     }
 
-    memset(seeds, 0, sizeof(seeds));
-    memset(support, 0, sizeof(support));
     prefix[0U] = 0.0;
     for (index = 0U; index < P0_ST05_FRAME_BINS; ++index)
         prefix[index + 1U] = prefix[index] + mean_power[index];
 
-    for (scale = 0U; scale < sizeof(P0_ST05_SEED_WIDTHS) / sizeof(P0_ST05_SEED_WIDTHS[0U]); ++scale) {
-        size_t width = P0_ST05_SEED_WIDTHS[scale];
-        size_t left = (width - 1U) / 2U;
-        size_t right = width - left - 1U;
-        double integrated_threshold =
-            reference * P0_ST05_SEED_MULTIPLIER * (double)width;
-        for (index = left; index < P0_ST05_FRAME_BINS - right; ++index) {
-            double integrated =
-                prefix[index + right + 1U] - prefix[index - left];
-            if (integrated > integrated_threshold)
-                seeds[index] = 1U;
-        }
-    }
     {
         size_t width = P0_ST05_SUPPORT_INTEGRATION_BINS;
         size_t left = (width - 1U) / 2U;
@@ -288,31 +291,33 @@ int p0_st05_wideband_process_precomputed_trusted(
         for (index = left; index < P0_ST05_FRAME_BINS - right; ++index) {
             double integrated =
                 prefix[index + right + 1U] - prefix[index - left];
-            if (integrated > integrated_threshold) {
-                support[index] = 1U;
-                support_indices[support_count++] = index;
+            if (integrated <= integrated_threshold)
+                continue;
+            if (!support_open) {
+                group_start = index;
+                group_end = index;
+                last_support = index;
+                support_open = 1;
+                continue;
             }
-        }
-    }
-    if (support_count != 0U) {
-        size_t group_start = 0U;
-        size_t position;
-        for (position = 1U; position <= support_count; ++position) {
-            int ends_group = position == support_count ||
-                support_indices[position] - support_indices[position - 1U] >
-                    P0_ST05_MAXIMUM_SUPPORT_GAP_BINS + 1U;
-            if (ends_group) {
-                size_t start = support_indices[group_start];
-                size_t end = support_indices[position - 1U];
-                if (has_seed(seeds, start, end)) {
+            if (index - last_support > P0_ST05_MAXIMUM_SUPPORT_GAP_BINS + 1U) {
+                if (has_seed(prefix, reference, group_start, group_end)) {
                     code = append_support(frame_power, frame_count, mean_power,
-                                          start, end, result);
+                                          group_start, group_end, result);
                     if (code != P0_ST05_OK)
                         return code;
                 }
-                group_start = position;
+                group_start = index;
             }
+            group_end = index;
+            last_support = index;
         }
+    }
+    if (support_open && has_seed(prefix, reference, group_start, group_end)) {
+        code = append_support(frame_power, frame_count, mean_power,
+                              group_start, group_end, result);
+        if (code != P0_ST05_OK)
+            return code;
     }
 
     if (result->candidate_count != 0U)

@@ -1,0 +1,38 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "coverage_failed",
+  "gain16": {
+    "uncertain": 20,
+    "reason": "low_snr"
+  },
+  "gain24": {
+    "analog": 10,
+    "uncertain": 10,
+    "digital": 0,
+    "total": 20
+  },
+  "independent_rf_runs": 4,
+  "model_changed": false,
+  "product_accepted": false,
+  "archive_sha256": "b0d990e9ecf7e07f9aaf41ac5716e84590d0ca208767c55d1d3853e8caf5c7a2",
+  "files": {
+    "build/acceptance/parameter-rf-am825-heldout-20260909/report.json": "9c4a1a65946dec8bc8bc667214675e25aa989484ccd94e0178b7482e41a35149",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-824700000.ci8": "e0c74b17492bfc3e8d3271a7d2cb6d9ff39c2425bc9d4f72500a8c0612c6fae8",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-824700000.json": "835f6a83745a21edc548992e0464c3705b184464416cf98003e2a2aad8910a8b",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-824700000.log": "6c72e96079247deff190024702e5173664b9d569c3c40b5bdf2ba76c768c864e",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-825300000.ci8": "b864d76b6e4145154c4f4ca0dda6261d92ca857278fe73b64e86bc84b29c03cf",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-825300000.json": "c2d8aa51f018b5309a31b0a1ed5d8e54ae66f7331f53a733d8b57b014aea6876",
+    "build/acceptance/parameter-rf-am825-heldout-20260909/rx-825300000.log": "6166e307eae94fd67ad0740cc11ded87f77dc601cfd5bcf62563152b5cf8de11",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/report.json": "31dfd64f3dede794b5ccfb24b1551b35e07e5d98fa1f61978aa359e55a0ad63e",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-824700000.ci8": "4e88e3fc7c61f16bdd25ae971c9ebe16ed48f83a613361589db9cd651223a2cb",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-824700000.json": "a8136f81e6a6a361c5b20e7d78ea36fbefced035af50ea51f550fa5ab2519d17",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-824700000.log": "ea4984788fce00c79fbf0543142b740ecc022fba29109707556c46bb532e4a69",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-825300000.ci8": "b114ecf05e432f60590aacdb1a0c584b1af90cbe2e3f905e90f5908c12d86758",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-825300000.json": "6d21bbc7e60f1936be2e8b4957e24865bfa84b2e5406a68a5e1a65319e6ea415",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/rx-825300000.log": "9b0334b8d1e5cf1cc86de9477229cf9ba3f69ab53934af9fc9222ed4ee405ac8",
+    "build/acceptance/parameter-rf-am825-heldout-g24-20260909/tone.json": "54441a8567062d691fd217f19480021693afb1586efec2457b99f7930b946a05"
+  }
+}

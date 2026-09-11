@@ -1,0 +1,72 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "development_only_not_product_accepted",
+  "unit_regression_tests": "27 passed",
+  "current_candidate": "v7 measurement, v6 frozen model",
+  "synthetic_modulated_test_total": 700,
+  "synthetic_definite_correct": 613,
+  "synthetic_wrong": 0,
+  "synthetic_abstained": 87,
+  "cw_abstained": 100,
+  "rf_regression": {
+    "AM": {
+      "Analog": 16,
+      "Belirsiz": 4
+    },
+    "FM": {
+      "Analog": 20
+    }
+  },
+  "blocking_gate": "full-emission OBW not reliable; product integration and ARM unavailable",
+  "archive_sha256": "60f73d5f31d9f02dce305c20348babac6db50a8c0767562413199b45bc41ee39",
+  "files": {
+    "algorithms/parameters/refined_candidate.py": "4d040afba4e10876b42a4163ab2161b4ec02ee3d3fe093571658911bd2b427ef",
+    "scripts/develop_parameter_candidate.py": "ef8422f4b0d7d649327422c526bbb940a860ddfabf0ab42671eefa266a183310",
+    "scripts/verify_parameter_candidate.py": "4e0e38422de4aee17ab4e91c46fa7b529fbe11790030e007e0f6516be324ff9c",
+    "scripts/check_parameter_candidate_rf.py": "3fae7f5ba304da51c9554ab341d0b8daa237d383c8eea206021c35effee7179a",
+    "scripts/revalidate_parameter_candidate.py": "c6d755d3912cdee6f71029083d891e02ee57e2ca32e53463569098f2b702ff2e",
+    "tests/test_refined_parameter_candidate.py": "56791d164583f4bb314778e02e367627e4698102014b657c1bbe66c99be61116",
+    "docs/plans/PARAMETER_REFINEMENT_PROTOCOL.md": "2e0867a091a75491f74ec7b79cbfcfbed8998003518db6b20b164b4da8fd15ef",
+    "build/acceptance/parameter-candidate-v1-20260909/candidate-model.json": "e11f9f983b60337774bf6b479113e96f6cf660c6cc7cff8a8fc3637b158e5f8a",
+    "build/acceptance/parameter-candidate-v1-20260909/develop_parameter_candidate.py": "fcfddf12631a771c354bc8e4e0fa81869e10d7a0f1a4d8734df35041608ec057",
+    "build/acceptance/parameter-candidate-v1-20260909/refined_candidate-current.py": "cde8217d0cfd15152f68aed7961630a679331dc7a144cf9af3410b06e4a75392",
+    "build/acceptance/parameter-candidate-v1-20260909/refined_candidate.py": "a072b52c97dd98c18feb3d81a4fdc414d463634b67061b44b225676bf5693bcc",
+    "build/acceptance/parameter-candidate-v1-20260909/report.json": "f00c46319c28f369b39108370e1aa45bd0e7215c47a5880a99d6d3a202d8d41f",
+    "build/acceptance/parameter-candidate-v1-20260909/rf-regression.json": "bfcfabdfc23a01c975d87e0ff0ac948eda14b398d13c2efc7655e45d84a2c93c",
+    "build/acceptance/parameter-candidate-v2-20260909/candidate-model.json": "057410824c81fc390a2e0b0d1799e3ce7bdbb0bc937132e8de6dd99bd31c7be6",
+    "build/acceptance/parameter-candidate-v2-20260909/develop_parameter_candidate.py": "cb53325fb8570ae3e0e5bddbb3a7318c66b3147947829defcffbfc742eb5657a",
+    "build/acceptance/parameter-candidate-v2-20260909/refined_candidate.py": "cde8217d0cfd15152f68aed7961630a679331dc7a144cf9af3410b06e4a75392",
+    "build/acceptance/parameter-candidate-v2-20260909/report.json": "d12b39c8acbd8dca61b7ffedbac78ec014b974868d11d4e39de2e3e47fe3098a",
+    "build/acceptance/parameter-candidate-v2-20260909/rf-regression.json": "a7ef54c54689bd874432e076bd47eab7692752650a834a9ff6994d4e41174c98",
+    "build/acceptance/parameter-candidate-v2-20260909/verification.json": "adf41184b8974fe4c20c7c3ce776d89d8bdb70ae2e3f7c70f4921cdf8188b34e",
+    "build/acceptance/parameter-candidate-v3-20260909/candidate-model.json": "6b55e2ddae276945d929fa03930de020cd509bc9642348c049ea7816ece08fdd",
+    "build/acceptance/parameter-candidate-v3-20260909/develop_parameter_candidate.py": "aa3307916e120326e8baba197f876040d27baf74ef497481bbbcbed5ebd81f6c",
+    "build/acceptance/parameter-candidate-v3-20260909/refined_candidate.py": "f57d343bb35b388afe1b6bef8d085ed0e8d7513c67dba6632cfaa7b870ae7e41",
+    "build/acceptance/parameter-candidate-v3-20260909/report.json": "0c01b1cc748ecf891e24021be9ceb38277e77774becf825169d935bc759b734d",
+    "build/acceptance/parameter-candidate-v3-20260909/rf-regression.json": "8586e872d12d5df940e68e53b4f1b4a6e10dbe039cf7af60d0020872d9f7b092",
+    "build/acceptance/parameter-candidate-v4-20260909/candidate-model.json": "c9c12af7f31aedd14fdf679b2d841a1d9ed8289bb9a1bdae4bbc597092548e82",
+    "build/acceptance/parameter-candidate-v4-20260909/develop_parameter_candidate.py": "f3bb06bfdbe8d23a32896adc734e395183e8d95be45135f3e226ae2b4dba3df1",
+    "build/acceptance/parameter-candidate-v4-20260909/refined_candidate.py": "30be2e0048e8996494bd333a2ddd3ba3dd39f240a53bebfb5912879b28db4d74",
+    "build/acceptance/parameter-candidate-v4-20260909/report.json": "0dde4ffee0d3dbf0187495b860feaf3b2132980a5b0355880e4676719c394122",
+    "build/acceptance/parameter-candidate-v4-20260909/rf-regression.json": "59af4308639db4424ecba5ffdd415d06eb85b3e46c3009df3f8cf2a4ce8c7f5c",
+    "build/acceptance/parameter-candidate-v4-20260909/verification.json": "59d98bdee6864651ffb7ad592dfa530952559480b687d2f57778852026a624ac",
+    "build/acceptance/parameter-candidate-v5-20260909/candidate-model.json": "cead5bec6c89a162b696d72735e3482dd26542d81c9a1a9bccb9ba03ff862257",
+    "build/acceptance/parameter-candidate-v5-20260909/develop_parameter_candidate.py": "a917d3bd3e11e63ef5cb2d494d20a386acad4d247cc104e7e8f4e886dc61e149",
+    "build/acceptance/parameter-candidate-v5-20260909/refined_candidate.py": "30be2e0048e8996494bd333a2ddd3ba3dd39f240a53bebfb5912879b28db4d74",
+    "build/acceptance/parameter-candidate-v5-20260909/report.json": "cbe101dde6bc389a7896740798b04e69e0b9843acb083b59be5ad537bb8ff30f",
+    "build/acceptance/parameter-candidate-v5-20260909/rf-check.json": "1c958e769e7b4e9a964c110b7ebd778da5abaf7dec260eba58cba2a72df9e0c0",
+    "build/acceptance/parameter-candidate-v6-20260909/candidate-model.json": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+    "build/acceptance/parameter-candidate-v6-20260909/develop_parameter_candidate.py": "ef8422f4b0d7d649327422c526bbb940a860ddfabf0ab42671eefa266a183310",
+    "build/acceptance/parameter-candidate-v6-20260909/independent-bench-regression.json": "602f6590741f9e0ab81128a031b8a36f77fff9394e025f54af049d30494e00f2",
+    "build/acceptance/parameter-candidate-v6-20260909/refined_candidate.py": "15cd0663790f2e7b277ce213ca141cb611248026c7c002d2f0cf31702e582bfc",
+    "build/acceptance/parameter-candidate-v6-20260909/report.json": "eb14aa65f55c4f22bccb072ca1c521db93e0f65fdb2078492bf95faea4e51a12",
+    "build/acceptance/parameter-candidate-v6-20260909/rf-check.json": "6217cabf0fe2e4e88f84a3c7368132fb3a802d9d22d70057c8ca3e6cc755bcdd",
+    "build/acceptance/parameter-candidate-v6-20260909/verification.json": "ae7d469d1d5c9594dbe6887d9b287e9263f51f65bd51afe1c1cf51d52658e690",
+    "build/acceptance/parameter-candidate-v7-20260909/candidate-model.json": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+    "build/acceptance/parameter-candidate-v7-20260909/regression.json": "39beba8154c43b1c390dbc68f82e4d3934f5fec895ec710b79b6a40bb842e005",
+    "build/acceptance/parameter-candidate-v7-20260909/rf-check.json": "f546627a1116d753b7f4dbdb2cda641e2c36772d7cb12b151934da11e998c61d"
+  }
+}

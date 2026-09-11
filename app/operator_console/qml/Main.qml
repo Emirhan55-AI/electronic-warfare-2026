@@ -484,6 +484,10 @@ ApplicationWindow {
                     theme: root
                     visible: operatorViewModel.sourceMode === "hackrf" && root.rfSearchMode && root.spectrumTaskTab === 0
                     onFixedBandRequested: root.rfSearchMode = false
+                    onParameterRequested: {
+                        root.rfSearchMode = false
+                        root.spectrumTaskTab = 1
+                    }
                 }
                 RowLayout {
                     visible: operatorViewModel.sourceMode !== "hackrf" || !root.rfSearchMode || root.spectrumTaskTab !== 0
@@ -1203,6 +1207,7 @@ ApplicationWindow {
                                 Layout.fillHeight: true
                                 viewModel: operatorViewModel
                                 onDetectionRequested: root.spectrumTaskTab = 0
+                                onListeningRequested: root.workspace = 1
                             }
                         }
                     }
@@ -1230,7 +1235,7 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 66
+                                implicitHeight: 78
                                 radius: 4
                                 color: operatorViewModel.selectedDetectionReady ? root.accentSoft : root.surfaceAlt
                                 border.color: operatorViewModel.selectedDetectionReady ? "#0078D4" : root.border
@@ -1279,7 +1284,7 @@ ApplicationWindow {
                                         TextField {
                                             id: listeningOffset
                                             Layout.fillWidth: true
-                                            text: operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
+                                            text: operatorViewModel.listeningSuggestedOffsetKHz.toFixed(3)
                                             color: root.textPrimary
                                             validator: DoubleValidator { decimals: 3; notation: DoubleValidator.StandardNotation }
                                             Accessible.name: "Dinleme merkez frekans ofseti kilohertz"
@@ -1290,18 +1295,26 @@ ApplicationWindow {
                                             implicitHeight: 36
                                             font.pixelSize: 10
                                             enabled: operatorViewModel.selectedDetectionReady
-                                            onClicked: listeningOffset.text = operatorViewModel.selectedDetectionOffsetKHz.toFixed(3)
+                                            onClicked: listeningOffset.text = operatorViewModel.listeningSuggestedOffsetKHz.toFixed(3)
                                         }
                                     }
                                     Label { text: "Kanal bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
                                     TextField {
                                         id: listeningBandwidth
                                         Layout.fillWidth: true
-                                        text: "16"
+                                        text: operatorViewModel.listeningSuggestedBandwidthKHz.toFixed(1)
                                         color: root.textPrimary
                                         validator: DoubleValidator { bottom: 2; top: 200; decimals: 1; notation: DoubleValidator.StandardNotation }
                                         Accessible.name: "Dinleme kanal bant genişliği kilohertz"
                                         background: Rectangle { color: "#313131"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
+                                    }
+                                    Label {
+                                        visible: operatorViewModel.listeningParameterBasisText.length > 0
+                                        Layout.fillWidth: true
+                                        text: operatorViewModel.listeningParameterBasisText
+                                        color: root.accent
+                                        font.pixelSize: 9
+                                        wrapMode: Text.Wrap
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
@@ -1409,6 +1422,47 @@ ApplicationWindow {
                                             if (index === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py)
                                         }
                                         ctx.stroke()
+                                    }
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    SectionTitle { text: "KANAL DAVRANIŞI"; Layout.fillWidth: true }
+                                    Label { text: "GÜÇ"; color: root.accent; font.pixelSize: 8; font.weight: Font.Bold }
+                                    Label { text: "FREKANS"; color: root.warning; font.pixelSize: 8; font.weight: Font.Bold }
+                                }
+                                Canvas {
+                                    id: listeningObservationCanvas
+                                    objectName: "listeningObservationCanvas"
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 72
+                                    Accessible.name: "Kanal gücü ve merkez frekans değişimi"
+                                    Connections { target: operatorViewModel; function onListeningChanged() { listeningObservationCanvas.requestPaint() } }
+                                    onPaint: {
+                                        var ctx = getContext("2d")
+                                        ctx.reset(); ctx.fillStyle = "#1F1F1F"; ctx.fillRect(0, 0, width, height)
+                                        var points = operatorViewModel.listeningObservationPoints
+                                        if (!points || points.length < 2) {
+                                            ctx.fillStyle = root.textMuted; ctx.font = "10px 'Segoe UI'"; ctx.textAlign = "center"; ctx.textBaseline = "middle"
+                                            ctx.fillText("Beş saniyelik kanal gözlemi yok", width / 2, height / 2)
+                                            return
+                                        }
+                                        function drawSeries(key, color) {
+                                            var low = points[0][key]
+                                            var high = low
+                                            for (var scan = 1; scan < points.length; scan++) {
+                                                low = Math.min(low, points[scan][key]); high = Math.max(high, points[scan][key])
+                                            }
+                                            var span = Math.max(1e-12, high - low)
+                                            ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.beginPath()
+                                            for (var index = 0; index < points.length; index++) {
+                                                var px = index * width / (points.length - 1)
+                                                var py = height - 5 - (points[index][key] - low) * (height - 10) / span
+                                                if (index === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py)
+                                            }
+                                            ctx.stroke()
+                                        }
+                                        drawSeries("power", root.accent)
+                                        drawSeries("frequency", root.warning)
                                     }
                                 }
                                 RowLayout {
@@ -1550,15 +1604,16 @@ ApplicationWindow {
                                     RowLayout {
                                         Layout.fillWidth: true
                                         Label { text: "ÖLÇÜM GİRDİSİ"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold; Layout.fillWidth: true }
-                                        Label { text: operatorViewModel.sourceReady ? "ETKİN KARE" : "KAYNAK YOK"; color: operatorViewModel.sourceReady ? root.success : root.warning; font.pixelSize: 8; font.weight: Font.Bold }
+                                        Label { text: operatorViewModel.directionMeasurementReady ? "HEDEF SEÇİLDİ" : "HEDEF BEKLENİYOR"; color: operatorViewModel.directionMeasurementReady ? root.success : root.warning; font.pixelSize: 8; font.weight: Font.Bold }
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
-                                        Label { text: "Geniş bant kare gücü"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        Label { text: "Seçili kanal gücü"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
                                         Label { text: operatorViewModel.directionFramePowerText; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
                                         Rectangle { width: 1; height: 12; color: root.border }
                                         Label { text: operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount + " kare"; color: root.textSecondary; font.pixelSize: 9 }
                                     }
+                                    Label { text: operatorViewModel.directionTargetText; color: root.textMuted; font.pixelSize: 8; elide: Text.ElideMiddle; Layout.fillWidth: true }
                                 }
                             }
                             ScrollView {
@@ -1630,13 +1685,13 @@ ApplicationWindow {
                             PrimaryButton {
                                 Layout.fillWidth: true
                                 implicitHeight: 42
-                                text: "Kare Gücünü Kaydet"
-                                enabled: operatorViewModel.sourceReady && !operatorViewModel.busy && antennaAngle.acceptableInput && (referenceMode.currentIndex !== 1 || referenceAngle.acceptableInput)
-                                Accessible.name: "Etkin kare gücünü anten açısıyla kaydet"
+                                text: "Kanal Gücünü Kaydet"
+                                enabled: operatorViewModel.directionMeasurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive) && antennaAngle.acceptableInput && (referenceMode.currentIndex !== 1 || referenceAngle.acceptableInput)
+                                Accessible.name: "Seçili hedef kanalının gücünü anten açısıyla kaydet"
                                 onClicked: operatorViewModel.addDirectionMeasurement(Number(antennaAngle.text), referenceMode.model[referenceMode.currentIndex].value, Number(referenceAngle.text))
                             }
-                            QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: operatorViewModel.directionPoints.length > 0; onClicked: operatorViewModel.clearDirectionMeasurements() }
-                            Label { text: "Güç örüntüsü · Faz uyumlu DoA, menzil ve konum üretmez."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: operatorViewModel.directionPoints.length > 0 && (!operatorViewModel.busy || operatorViewModel.liveSessionActive); onClicked: operatorViewModel.clearDirectionMeasurements() }
+                            Label { text: "360° taramayı 15° adımlarla tamamlayın."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                         }
                     }
 
@@ -1779,7 +1834,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     visible: operatorViewModel.directionMeasurementCount > 0
                                     Label { text: "ANTEN AÇISI"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 86 }
-                                    Label { text: "KARE GÜCÜ"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 100 }
+                                    Label { text: "KANAL GÜCÜ"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 100 }
                                     Label { text: "ANTEN AZİMUTU"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 105 }
                                     Label { text: "FREKANS"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 95 }
                                     Label { text: "KAYNAK"; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }

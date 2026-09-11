@@ -1,0 +1,347 @@
+{
+  "schema": "phase08-st06-weak-power-build-v1",
+  "status": "passed",
+  "generated_at_utc": "2026-09-10T11:42:35.536978+00:00",
+  "transmit_enabled": false,
+  "product_algorithm_changed": true,
+  "st06_complete": false,
+  "build_variant": "st06-weak-power-20260910",
+  "tool": "Vivado v2025.2 build 6299465",
+  "target": "xc7z020clg484-1",
+  "clock_hz": 50000000,
+  "data_path": [
+    "AXI DMA MM2S CI8 input",
+    "UQ1.15 periodic Hann window",
+    "AMD 4096-point FFT",
+    "exact UQ28.30 linear power",
+    "OS-CFAR strong + weak cell metadata (C/D format)",
+    "4096 natural-order AXI64 power words to PS"
+  ],
+  "dma": {
+    "input_frame_bytes": 8192,
+    "output_frame_bytes": 32768,
+    "output_words": 4096,
+    "output_word_bits": 64,
+    "maximum_length_bytes": 65535,
+    "output_fits_length_field": true
+  },
+  "synthesis": "PASS",
+  "implementation": "ROUTE_DESIGN_COMPLETE",
+  "route": {
+    "routable_nets": 28926,
+    "fully_routed_nets": 28926,
+    "routing_errors": 0
+  },
+  "timing": {
+    "setup_wns_ns": 0.708,
+    "setup_tns_ns": 0.0,
+    "setup_failing_endpoints": 0,
+    "hold_whs_ns": 0.023,
+    "hold_ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "check_timing_issue_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "post_route_resources": {
+    "slice_luts": {
+      "used": 19647,
+      "available": 53200,
+      "utilization_percent": 36.93
+    },
+    "slice_registers": {
+      "used": 17182,
+      "available": 106400,
+      "utilization_percent": 16.15
+    },
+    "block_ram_tiles": {
+      "used": 23.5,
+      "available": 140,
+      "utilization_percent": 16.79
+    },
+    "dsps": {
+      "used": 53,
+      "available": 220,
+      "utilization_percent": 24.09
+    }
+  },
+  "p03_comparison": {
+    "baseline_path": "results/evidence/p0/vivado-50mhz-adr0040-p03.json",
+    "baseline_sha256": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745",
+    "baseline_resources": {
+      "slice_luts": {
+        "used": 48040,
+        "available": 53200,
+        "utilization_percent": 90.3
+      },
+      "slice_registers": {
+        "used": 30360,
+        "available": 106400,
+        "utilization_percent": 28.53
+      },
+      "block_ram_tiles": {
+        "used": 73,
+        "available": 140,
+        "utilization_percent": 52.14
+      },
+      "dsps": {
+        "used": 77,
+        "available": 220,
+        "utilization_percent": 35.0
+      }
+    },
+    "resource_delta": {
+      "slice_luts": {
+        "absolute": -28393.0,
+        "relative_percent": -59.10283097418818
+      },
+      "slice_registers": {
+        "absolute": -13178.0,
+        "relative_percent": -43.405797101449274
+      },
+      "block_ram_tiles": {
+        "absolute": -49.5,
+        "relative_percent": -67.8082191780822
+      },
+      "dsps": {
+        "absolute": -24.0,
+        "relative_percent": -31.16883116883117
+      }
+    },
+    "baseline_setup_wns_ns": 0.199,
+    "baseline_hold_whs_ns": 0.01
+  },
+  "hann_memory_initialization": {
+    "status": "PASS",
+    "failure_count": 0,
+    "log_sha256": "b483295c3ee0699fedbdbf8d98b9f97896085ce17fcd7bb1f60f61a4ba92fdbe"
+  },
+  "drc_errors": 0,
+  "drc_critical_warnings": 0,
+  "drc_warnings": {
+    "DPIP-1": 18,
+    "DPOP-1": 10,
+    "DPOP-2": 20,
+    "PDCN-1569": 3,
+    "REQP-1839": 8,
+    "RTSTAT-10": 1
+  },
+  "methodology_warnings": {
+    "LUTAR-1": 3
+  },
+  "bitstream": {
+    "relative_path": "build/p0/st06-weak-power-20260910/vivado/p0_runtime.runs/impl_1/p0_system_wrapper.bit",
+    "bytes": 4045693,
+    "sha256": "c0324e2d4aa5c5a94230ec3851972cf799d78e5fd799eddfdc01cb94dbe3f8b1"
+  },
+  "hardware_platform": {
+    "relative_path": "build/p0/st06-weak-power-20260910/hardware/p0_system_50mhz.xsa",
+    "bytes": 1026260,
+    "xsa_sha256": "443fed688db8a707bf1369a17d4a7308a8b1f8511c254270e1188580529d4a00",
+    "hwh_sha256": "252db1c287a727edbacb1157e18447434c5917a6dbb23feb20fc45f6402dcd66"
+  },
+  "report_sha256": {
+    "implementation-timing-summary.rpt": "4677d914ebdb01519a84b714541d1a85dfecd9c3d5a3d52e07f8279dd55382b1",
+    "implementation-utilization-summary.rpt": "6d0e4446ed90ca03340e1138b8f36545e02b7eea038c2df859ff5ef106b260db",
+    "route-status.rpt": "482111149315f53edb783be86011998f2e2e166bcf92cccdc776b0db80d58cdb",
+    "implementation-drc.rpt": "2bb41e67c66ce840b83f1d199c43b28e4fe49920b03b4d54b3ed63652fe2cd20",
+    "methodology.rpt": "6f941030b2497743ca07f27ff76d043afaa3923cd71252a198cf43ed1a7515e4",
+    "check-timing.rpt": "1b4de67cea3e3af546dbce4315895dd26b5eacc919eb06a650a2e520a7bc1530"
+  },
+  "source_sha256": {
+    "algorithms/fpga/phase06a/rtl/axis_skid_buffer.sv": "b96dde6d5a415fd3ed428a0b7e09d60441ac09c1708d2c6c44fb42a566de66d9",
+    "algorithms/fpga/phase06b/rtl/phase06b_pkg.sv": "a03b8af113cb502760a40afbe4a1cb02a16ccbd3f695aed831cc9788362482da",
+    "algorithms/fpga/phase06b/rtl/axis_hann_window.sv": "98b8edd684c26e309f05d80052bea528fbd77080ec5d621a40e211d72e09d2bd",
+    "datasets/fixtures/phase06b/hann-coefficients.mem": "d8c409a859dc5483e7cf4f63de885273fa0ea31d8ff423115feec12415ff7f3f",
+    "algorithms/fpga/phase06c/rtl/phase06c_pkg.sv": "f3150511107c4a7f2b568cdb3a83ef7a5100a295144e94d6975b221278c6b24e",
+    "algorithms/fpga/phase06c/rtl/axis_fft_wrapper.sv": "30e08fb10d2705daa1b64685087839dbe3b6c4343448080def5baae340600c5e",
+    "algorithms/fpga/phase06d/rtl/amd_xfft_adapter.sv": "20db16f85679aad817b771b7e2172143ec4ef3895e383b87362e6046399f6216",
+    "algorithms/fpga/phase06d/ip/phase06d_fft_4096/phase06d_fft_4096.xci": "7766f8c57aefa8178ad7980919f6cbfc34fbf63ebd1a449128e568110c0b63d4",
+    "algorithms/fpga/phase06f/rtl/axis_fft_linear_power.sv": "a8a62a27927d2471b9498dc1ad9ee8ade4baf1be1dc7865a0a0d9ff3447bc19e",
+    "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "3ee328658f6c5c890c66f914f3b609bb520027002344a2ed145c38c4fb9a9614",
+    "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "f26611ffbcf83e31b30d77fea699fbf8cea689ccd68c4dde93a98e62a3fb5919",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_top.sv": "bfdae3c533fa085712addf259b2d1e5e8626785799cd3571dca427a241bef463",
+    "algorithms/fpga/p0/rtl/p0_dsp_runtime_bd.v": "a60792dc7be7abf78983c759f009055118c34988d2c1c5eb9db079b04ea8b75e",
+    "scripts/create_st06_power_vivado_project.tcl": "8d061fe377640a118cdb380406220dbf60cfe678cfbeaef3f6ed84cf6346afd4",
+    "scripts/run_p0_vivado.tcl": "fc0dd884a861e7bf8dbffd983c3a244ca3fe95ae04dfc87105eecc717f9f1a5d",
+    "scripts/verify_st06_power_vivado.py": "2c3b07d36f9e687baf54f85083e9e5d9f1c774064a75c939cf369383c72c3947",
+    "results/evidence/p0/vivado-50mhz-adr0040-p03.json": "be19c16faf6b5fc4ced2f888f7df3f1168de76c0af6bf9d422c8d1019b701745",
+    "scripts/build_st06_weak_service.py": "f0cdeda1c4fa434b40c293b14d176d06ca33da7bbff17a4d0da189bd703bcdd7",
+    "scripts/check_st06_weak_power_rtl.py": "30ee2f838439a8fcc1b09fb57ad6588c2350896f442485dda42861af8ea5a816",
+    "scripts/build_st06_weak_power.tcl": "9ff15062180b28997c22848b6a1c5f90bd3473e2bd4791c1f95d495f5250d2d1",
+    "scripts/resume_st06_weak_power.tcl": "1f0aa512c10908ff173dc4f8061158e50e3d8944aa39454ba6c799f97931982f",
+    "scripts/export_st06_weak_power.tcl": "1dedfdd35e70c8a21b002af514c741e8be63d0592a0d340edc4d36136e0ef04b",
+    "scripts/verify_st06_weak_power_build.py": "4df5f124662aaf753e0f937b8c4e80e20d53fd654ef092a7c62ef14c19707e8c"
+  },
+  "claim_boundary": [
+    "This proves synthesis, routed 50 MHz timing, resource use, bitstream and XSA generation for the isolated full-power FPGA option.",
+    "The generated image has not been loaded onto the board and is not the product image.",
+    "ARM execution time, DMA lifecycle, sustained throughput, live RF, Pd/Pfa and field acceptance remain open."
+  ],
+  "hardware_export": {
+    "status": "passed",
+    "embedded_bitstream_matches": true,
+    "log_sha256": "37973ccee7a4df778ce5096dabffaedfd499359f6f1fc477b2781ee408d27bbd"
+  },
+  "arm_build": {
+    "status": "compiled",
+    "hardware_executed": false,
+    "compiler": "arm-linux-gnueabihf-gcc 11.4.0",
+    "flags": [
+      "-std=c11",
+      "-O3",
+      "-mcpu=cortex-a9",
+      "-mfpu=neon",
+      "-mfloat-abi=hard",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pedantic"
+    ],
+    "binary": {
+      "path": "build/p0/st06-weak-power-20260910/p0-ed-service",
+      "sha256": "21215f58da446326370e080665fd8a7907e56d29afb4c98201002777dd598fe7"
+    },
+    "sources": {
+      "platforms/embedded/p0/src/p0_dma_runtime.c": "a37e4fee7ad8804db8f23248927307b35560240d18cd702afaf01e02c415323d",
+      "platforms/embedded/p0/src/p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
+      "platforms/embedded/p0/src/p0_ed_pipeline.c": "3340e57137dcb83b8edf9653963b358a111d9e0677dbb5aa483e7e24b2d321aa",
+      "platforms/embedded/p0/src/p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
+      "platforms/embedded/p0/src/p0_ed_service.c": "d6cf6d4db6480e4d6291cf82c74e89abe5015d9c2712d8e8d9e44f10d85f4004",
+      "platforms/embedded/p0/src/p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
+      "platforms/embedded/p0/src/p0_pl_os_cfar.c": "e9d63d6b4866c411edf74600a8ada75b5cd18acc1e201afd056a01285af8b6a5",
+      "platforms/embedded/p0/src/p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
+      "platforms/embedded/p0/src/p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
+      "platforms/embedded/p0/src/p0_persistent_weak.c": "685daede194f5b2ae9f03c639bb162b325693349e1e451a3eed72ea794914637",
+      "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+      "platforms/embedded/p0/src/p0_st05_stream.c": "9a1a74eed42a0815a3e53ab6b77345aa19e2b7260a5d2a7fd327159a098f4188",
+      "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+      "platforms/embedded/p0/include/p0_candidate_packet.h": "4ce00e343c2b19a34d5afd0a6483508accf94ed500e223b90102e95c3efa6c13",
+      "platforms/embedded/p0/include/p0_dma_runtime.h": "7ff5f9fad3134a565fd6a28a906e5608058b444d51da3b065dcfbe47fce37ee9",
+      "platforms/embedded/p0/include/p0_dma_uapi.h": "85dbd8ca540847f0680f0881f6237df6e506c1fed8a9d14af720a17c118cf807",
+      "platforms/embedded/p0/include/p0_ed_pipeline.h": "acc157d4474cecfceed9694d6a57bfc427d463220a258caf4feed7c128e658e7",
+      "platforms/embedded/p0/include/p0_ed_service_protocol.h": "fa9dad6382c0b202ed64f90d9fff0fbe4876ce294e2244fd262aec6c555efc3a",
+      "platforms/embedded/p0/include/p0_fclk_guard_logic.h": "2d3d55a67026c391a02645cec1385e3416bf66b8767434254f1a13d1b781b736",
+      "platforms/embedded/p0/include/p0_fclk_guard_uapi.h": "297198724ec4e519dc945093bcd87eb47f58adb38dc8005eecca8738d0fb14e0",
+      "platforms/embedded/p0/include/p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28",
+      "platforms/embedded/p0/include/p0_multiframe_narrowband.h": "519d03017d4ae60d5e949e0b527237ff9f81bb03e3575db019d1cf09e9030283",
+      "platforms/embedded/p0/include/p0_multiscale_detector.h": "65e5fe6090895dd4e6263915b2f32394bc750b1946f64887f5ba8e4d65fafae3",
+      "platforms/embedded/p0/include/p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
+      "platforms/embedded/p0/include/p0_parameter_runtime.h": "509b40efbc19a8f9d4001637ee0a58518fca0298f092dfe019e89b7c6009c699",
+      "platforms/embedded/p0/include/p0_persistent_weak.h": "6250de00b2d526b3ea81d8fab93b12e0ee40a17d83295917c6ab80573f999c60",
+      "platforms/embedded/p0/include/p0_pl_os_cfar.h": "f3a2eb2ca3023fa2ae1a9db845989232e5729819ef6e45af4f3b0e20916f02b4",
+      "platforms/embedded/p0/include/p0_st05_stream.h": "13586ae8dc13762275f680765276e2f088cfe3cea9d704a070588ae9fef4520f",
+      "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+      "platforms/embedded/p0/include/p0_st06_power_runtime.h": "5debf7c96546c393ffcf8c48b8867cf29a2f574b5dfce980591ccb2e0788566f",
+      "platforms/embedded/phase06i/include/phase06i_transport_abi.h": "0025203ad25df78a8829bd00ad5b599a4749b5b8374a10bb4029fcc5dde98a35",
+      "platforms/embedded/phase06j/include/phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed"
+    }
+  },
+  "rtl_simulation": {
+    "status": "passed",
+    "scope": "RTL v2 / integer reference; no hardware or RF acceptance",
+    "stdout": "P0_OS_CFAR_METRIC frame_completion_cycles=48910\nP0_OS_CFAR_METRIC last_input_to_first_output_cycles=36625\nP0_OS_CFAR_METRIC input_stalls=511090 output_stalls=7508 payload_stability_checks=7508\nP0_OS_CFAR_METRIC malformed_frames_checked=3 frame_error_sticky=1\nP0 OS-CFAR TB PASS: 49152 DMA words checked\nC:\\Users\\EMIRHA~1\\AppData\\Local\\Temp\\st06-weak-v2-h3y1nh31\\tb.sv:209: $finish called at 6141005000 (1ps)\n",
+    "sources": {
+      "algorithms/fpga/p0/rtl/p0_os_cfar_pkg.sv": "3ee328658f6c5c890c66f914f3b609bb520027002344a2ed145c38c4fb9a9614",
+      "algorithms/fpga/p0/rtl/axis_p0_os_cfar.sv": "f26611ffbcf83e31b30d77fea699fbf8cea689ccd68c4dde93a98e62a3fb5919",
+      "algorithms/fpga/p0/tb/tb_axis_p0_os_cfar.sv": "037b361b1cdd0ac69ef4acc3774f7bd5a296e79841f25ba4e1dbc73690b6952c",
+      "algorithms/rtl/p0_os_cfar.py": "14d032d34affb4df368c4efc90015d69906100d742e8b5132e5f331c5a57bd7e",
+      "algorithms/rtl/p0_os_cfar_vectors.py": "91699d637582160f326fce42a70c06db3baa0314a6a827fc2060fe6fa6f7d06c",
+      "scripts/check_st06_weak_power_rtl.py": "30ee2f838439a8fcc1b09fb57ad6588c2350896f442485dda42861af8ea5a816"
+    },
+    "vector_sha256": "3b16b931a3240ee679d77f5be800d6d7d86a409693ce3f712accdfe5b36408e0"
+  },
+  "host_service_test": {
+    "status": "passed",
+    "compiler": "cc",
+    "service_source": "production p0_ed_service.c",
+    "client_identity": "nobody without supplementary groups",
+    "frames": 5,
+    "first_confirmation_frame": 1,
+    "expiry_frame": 4,
+    "invalid_input_published": false,
+    "pipeline_failure_preserved_state": true,
+    "clean_shutdown_removed_socket": true,
+    "parameter_observations": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "parameter_numeric_fields_valid": true,
+    "throughput_client_frames": 64,
+    "throughput_client_status": "passed",
+    "weak_power_service_frames": 80,
+    "weak_power_service_status": "passed",
+    "weak_power_first_confirmation_offset": 31,
+    "weak_power_first_ended_offset": 48,
+    "weak_power_source_sha256": {
+      "platforms/embedded/p0/src/p0_ed_service.c": "d6cf6d4db6480e4d6291cf82c74e89abe5015d9c2712d8e8d9e44f10d85f4004",
+      "platforms/embedded/p0/src/p0_ed_service_protocol.c": "50d7cae48883bc989d978268d6c4610580c601e5d1525c234fd8f28382f93fec",
+      "platforms/embedded/p0/src/p0_ed_pipeline.c": "3340e57137dcb83b8edf9653963b358a111d9e0677dbb5aa483e7e24b2d321aa",
+      "platforms/embedded/p0/src/p0_parameter_runtime.c": "222ad21009c57c8dcc7911ad8bad003e2a377786aba9f8f0f6ab98328ec7834b",
+      "platforms/embedded/p0/src/p0_ed_client.c": "3ef2032405d063b9496531b1d26881c891b34f311e74e3a7e762b38ed69acc8a",
+      "platforms/embedded/p0/src/p0_ed_throughput_run.c": "3fdd135fd94792060756a87d3daf8e5964878fe85d0e2394f8d1db490bf399ab",
+      "platforms/embedded/p0/src/p0_multiscale_detector.c": "4428e0537816ccad746853433419068d73e659ad880003c46dbcc9928e15e156",
+      "platforms/embedded/p0/src/p0_candidate_packet.c": "3a1cf2cf9874c39608eef36beb59aafb87047ca8edfbdc96d9937737ce7c98d2",
+      "platforms/embedded/p0/src/p0_os_cfar.c": "619ed307a184b1e9a626b0b181c9d6ab87619b34704f98dfc5f15c7fb70682a3",
+      "platforms/embedded/p0/src/p0_pl_os_cfar.c": "e9d63d6b4866c411edf74600a8ada75b5cd18acc1e201afd056a01285af8b6a5",
+      "platforms/embedded/p0/src/p0_persistent_weak.c": "685daede194f5b2ae9f03c639bb162b325693349e1e451a3eed72ea794914637",
+      "platforms/embedded/p0/src/p0_st05_wideband.c": "4d760252ac3586578ef92ea424f05c119a0d9bb9015ede0303e193c44defe91f",
+      "platforms/embedded/p0/src/p0_st05_stream.c": "9a1a74eed42a0815a3e53ab6b77345aa19e2b7260a5d2a7fd327159a098f4188",
+      "platforms/embedded/phase06j/src/phase06j_temporal.c": "32f6e39d981125cf6b7142e3960972dbc0aa02e6e371ab455cd4d0169b441509",
+      "scripts/verify_p0_ed_service_linux.py": "f95f30a9866e5b0808c0879ac49f5c4b76f4ad5c7bf976da9643e0ceaf1b7c06",
+      "tests/p0/p0_ed_fake_dma_runtime.c": "9e2da7140a9261e842c9df408d16a05ace7f25f8717db4e29498ce0f7a8f1ff5",
+      "platforms/embedded/p0/include/p0_candidate_packet.h": "4ce00e343c2b19a34d5afd0a6483508accf94ed500e223b90102e95c3efa6c13",
+      "platforms/embedded/p0/include/p0_dma_runtime.h": "7ff5f9fad3134a565fd6a28a906e5608058b444d51da3b065dcfbe47fce37ee9",
+      "platforms/embedded/p0/include/p0_dma_uapi.h": "85dbd8ca540847f0680f0881f6237df6e506c1fed8a9d14af720a17c118cf807",
+      "platforms/embedded/p0/include/p0_ed_pipeline.h": "acc157d4474cecfceed9694d6a57bfc427d463220a258caf4feed7c128e658e7",
+      "platforms/embedded/p0/include/p0_ed_service_protocol.h": "fa9dad6382c0b202ed64f90d9fff0fbe4876ce294e2244fd262aec6c555efc3a",
+      "platforms/embedded/p0/include/p0_fclk_guard_logic.h": "2d3d55a67026c391a02645cec1385e3416bf66b8767434254f1a13d1b781b736",
+      "platforms/embedded/p0/include/p0_fclk_guard_uapi.h": "297198724ec4e519dc945093bcd87eb47f58adb38dc8005eecca8738d0fb14e0",
+      "platforms/embedded/p0/include/p0_iq_transport.h": "2974ce0d38b8cabfb98187e2cd8bd9a18de00cdadbc0f96224b97c1db2871f28",
+      "platforms/embedded/p0/include/p0_multiframe_narrowband.h": "519d03017d4ae60d5e949e0b527237ff9f81bb03e3575db019d1cf09e9030283",
+      "platforms/embedded/p0/include/p0_multiscale_detector.h": "65e5fe6090895dd4e6263915b2f32394bc750b1946f64887f5ba8e4d65fafae3",
+      "platforms/embedded/p0/include/p0_os_cfar.h": "9a1cfe9832939ee229fdeab530abb0ceeddecb96f3316bef0a1e8f48e53ce676",
+      "platforms/embedded/p0/include/p0_parameter_runtime.h": "509b40efbc19a8f9d4001637ee0a58518fca0298f092dfe019e89b7c6009c699",
+      "platforms/embedded/p0/include/p0_persistent_weak.h": "6250de00b2d526b3ea81d8fab93b12e0ee40a17d83295917c6ab80573f999c60",
+      "platforms/embedded/p0/include/p0_pl_os_cfar.h": "f3a2eb2ca3023fa2ae1a9db845989232e5729819ef6e45af4f3b0e20916f02b4",
+      "platforms/embedded/p0/include/p0_st05_stream.h": "13586ae8dc13762275f680765276e2f088cfe3cea9d704a070588ae9fef4520f",
+      "platforms/embedded/p0/include/p0_st05_wideband.h": "fe9850a565419fa5fc2a937b2762a23c09f1d62b3c5627beb09b967b8ceb40be",
+      "platforms/embedded/p0/include/p0_st06_power_runtime.h": "5debf7c96546c393ffcf8c48b8867cf29a2f574b5dfce980591ccb2e0788566f",
+      "platforms/embedded/phase06i/include/phase06i_transport_abi.h": "0025203ad25df78a8829bd00ad5b599a4749b5b8374a10bb4029fcc5dde98a35",
+      "platforms/embedded/phase06j/include/phase06j_temporal.h": "ca36509418df16c158f1149217ff9e7f1cd12f76f3f9961b711d1ad38f0794ed"
+    }
+  },
+  "weak_checkpoint_test": {
+    "status": "passed",
+    "scope": "host byte-exact rollback and repeated-update comparison",
+    "state_bytes": 63624,
+    "checkpoint_bytes": 1616,
+    "frames": 4096,
+    "source_sha256": {
+      "platforms/embedded/p0/src/p0_persistent_weak.c": "685daede194f5b2ae9f03c639bb162b325693349e1e451a3eed72ea794914637",
+      "tests/p0/p0_weak_checkpoint_run.c": "014b4185939c6532a059f31ee076ab39bdc5e4fb6d07addf34f2e1f4c217e4e4",
+      "platforms/embedded/p0/include/p0_persistent_weak.h": "6250de00b2d526b3ea81d8fab93b12e0ee40a17d83295917c6ab80573f999c60"
+    }
+  },
+  "physical_acceptance": {
+    "board_service_identity_verified": false,
+    "new_bitstream_loaded": false,
+    "arm_throughput_measured": false,
+    "gui_rx_soak_passed": false,
+    "rf_pd_pfa_passed": false,
+    "cold_boot_passed": false
+  }
+}

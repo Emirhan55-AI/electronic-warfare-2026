@@ -10,6 +10,7 @@ import math
 import os
 from pathlib import Path
 import platform
+import struct
 from uuid import uuid4
 import zipfile
 
@@ -21,6 +22,7 @@ from algorithms.parameters import (
 )
 from algorithms.pipeline import PHASE04F5_PROFILE_PATH, load_phase04f5_capability
 from algorithms.spectrum import SpectrumConfig, SpectrumProcessor
+from algorithms.p0.parameter_client import decode_response as decode_board_response, measure_on_board
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,6 +50,13 @@ PROVENANCE_SOURCES = (
     "algorithms/spectrum/source.py",
     "algorithms/p0/channelizer.py",
     "algorithms/p0/native_channelizer.py",
+    "algorithms/p0/parameter_client.py",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h",
+    "platforms/embedded/p0/include/p0_ed_service_protocol.h",
+    "platforms/embedded/p0/src/p0_parameter_runtime.c",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c",
+    "platforms/embedded/p0/src/p0_ed_service.c",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c",
 )
 
 
@@ -117,6 +126,7 @@ def measure_and_record(
     sample_rate_hz: float, center_frequency_hz: float,
     spectrum_config: SpectrumConfig, source: dict, requested_utc: str,
     directory: Path,
+    board_endpoint: tuple[str, int] | None = None,
 ) -> RecordedMeasurement:
     """Run in the measurement worker; no full recording is read or hashed."""
     if len(samples) != 4 or any(np.shape(frame) != (4096,) for frame in samples):
@@ -130,10 +140,28 @@ def measure_and_record(
     frames = tuple(np.frombuffer(iq, dtype="<c16").reshape(4, 4096))
     binding = runtime_binding()
     source = json.loads(json_bytes(source))
-    processor = SpectrumProcessor(spectrum_config)
-    spectra = tuple(processor.process(frame, sample_rate_hz=sample_rate_hz,
-                                      center_frequency_hz=center_frequency_hz) for frame in frames)
-    result = F5ParameterEstimator().measure(intent, frames, spectra)
+    board = None
+    if board_endpoint is not None:
+        from algorithms.parameters.f1_estimator import _context_reason
+        if _context_reason(intent) is not None:
+            raise ValueError("Seçilen tespitin ölçüm sahipliği veya analiz aralığı geçersiz.")
+        if not float(sample_rate_hz).is_integer() or not float(center_frequency_hz).is_integer():
+            raise ValueError("Kart ölçümünün frekans bağlamı tam Hz olmalıdır.")
+        interleaved = np.stack((np.stack(frames).real, np.stack(frames).imag), axis=-1) * 128.0
+        if np.any(interleaved != np.rint(interleaved)) or np.any(interleaved < -128) or np.any(interleaved > 127):
+            raise ValueError("Kart ölçümü özgün CI8 örneklerini gerektirir.")
+        raw_ci8 = interleaved.astype(np.int8).tobytes()
+        expected_hashes = source.get("transport_iq_sha256")
+        if expected_hashes is not None and expected_hashes != [digest(raw_ci8[i*8192:(i+1)*8192]) for i in range(4)]:
+            raise ValueError("Ölçüm girdisi kartta gözlenen karelerle eşleşmiyor.")
+        board = measure_on_board(*board_endpoint, intent, raw_ci8,
+            sample_rate_hz=int(sample_rate_hz), center_frequency_hz=int(center_frequency_hz))
+        result = board.result
+    else:
+        processor = SpectrumProcessor(spectrum_config)
+        spectra = tuple(processor.process(frame, sample_rate_hz=sample_rate_hz,
+                                          center_frequency_hz=center_frequency_hz) for frame in frames)
+        result = F5ParameterEstimator().measure(intent, frames, spectra)
     if runtime_binding() != binding:
         raise ValueError("Ölçüm sırasında yöntem veya kaynak değişti; sonuç kaydedilmedi.")
     capability = load_phase04f5_capability()
@@ -146,7 +174,8 @@ def measure_and_record(
         "requirements": ["KTR-4.2", "KTR-4.2-F1"],
         "requested_utc": requested_utc, "completed_utc": utc_now(),
         "acquisition_utc": None, "time_reference": "host_request_and_completion_only",
-        "processing_location": "host", "spectrum_origin": "host_recomputed_from_recorded_iq",
+        "processing_location": "zedboard_arm" if board else "host",
+        "spectrum_origin": "physical_pl_replay_of_recorded_ci8" if board else "host_recomputed_from_recorded_iq",
         "source": source, "intent": asdict(intent), "runtime": binding,
         "sample_rate_hz": sample_rate_hz, "center_frequency_hz": center_frequency_hz,
         "spectrum_config": asdict(spectrum_config),
@@ -162,6 +191,19 @@ def measure_and_record(
                         "frequency_calibration_available": False},
         "accuracy_proven": False,
     }
+    if board:
+        document["board_measurement"] = {
+            "protocol": "P0PM-v1", "response_hex": board.response.hex(),
+            "elapsed_us": board.elapsed_us, "profile_generation": board.profile_generation,
+            "fft_size": 4096, "classification_performed": False,
+            "live_detection_revalidated": False,
+            "input_ci8_sha256": digest(raw_ci8),
+            "execution": "reprocess_operator_selected_record_on_pl_and_arm",
+            "executed_methods": [name for name in binding["methods"] if name != "signal_domain"],
+            "service_binary_sha256": None,
+            "service_identity_reason": "running_service_hash_not_exposed_by_protocol",
+        }
+        document["fields"]["signal_domain"]["method_id"] = None
     payload = json_bytes(document)
     if len(payload) > MAX_DOCUMENT_BYTES:
         raise ValueError("Ölçüm kaydı boyut sınırını aştı.")
@@ -213,7 +255,7 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
     if not math.isfinite(sample_rate) or sample_rate <= 0 or (
         document["observation_duration_s"] != 4 * 4096 / sample_rate
         or document["bin_spacing_hz"] != sample_rate / 4096
-        or document["processing_location"] != "host"
+        or document["processing_location"] not in {"host", "zedboard_arm"}
         or document["iq"]["encoding"] != "complex_float64_little_endian"
         or document["iq"]["bytes"] != IQ_BYTES
     ):
@@ -230,6 +272,31 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
         context["owner_observed_frames"] = tuple(context["owner_observed_frames"])
         values["context"] = MeasurementContext(**context)
     intent = MeasurementIntent(**values)
+    if document["processing_location"] == "zedboard_arm":
+        board = document.get("board_measurement")
+        if not isinstance(board, dict) or board.get("protocol") != "P0PM-v1":
+            raise ValueError("Kart ölçüm kaydı eksik veya geçersiz.")
+        interleaved = np.stack((np.stack(frames).real, np.stack(frames).imag), axis=-1) * 128.0
+        if np.any(interleaved != np.rint(interleaved)) or np.any(interleaved < -128) or np.any(interleaved > 127):
+            raise ValueError("Kart ölçüm kaydındaki CI8 örnekleri geri üretilemiyor.")
+        raw_ci8 = interleaved.astype(np.int8).tobytes()
+        try:
+            response = bytes.fromhex(board["response_hex"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Kart ölçüm yanıtı geçersiz.") from exc
+        token = struct.unpack_from("<I", response, 8)[0] if len(response) >= 12 else 0
+        measured = decode_board_response(response, intent, raw_ci8, token)
+        if (board.get("input_ci8_sha256") != digest(raw_ci8)
+                or board.get("elapsed_us") != measured.elapsed_us
+                or board.get("profile_generation") != measured.profile_generation
+                or board.get("classification_performed") is not False):
+            raise ValueError("Kart ölçüm üstverisi yanıtla eşleşmiyor.")
+        fields = result_fields(measured.result)
+        fields["signal_domain"]["method_id"] = None
+        if (json_bytes(fields) != json_bytes(document["fields"])
+                or json_bytes(asdict(measured.result.quality)) != json_bytes(document["quality"])):
+            raise ValueError("Kart ölçüm yanıtı kaydedilen alanlarla eşleşmiyor.")
+        return measured.result
     processor = SpectrumProcessor(SpectrumConfig(**document["spectrum_config"]))
     spectra = tuple(processor.process(
         frame, sample_rate_hz=document["sample_rate_hz"],

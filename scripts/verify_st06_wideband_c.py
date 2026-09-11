@@ -31,7 +31,7 @@ from scripts.evaluate_st05_wideband import CONTRACT, _frames
 
 
 ST05_EVIDENCE = ROOT / "results/evidence/phase08/st05-wideband-holdout-v2.json"
-DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-c-equivalence-v3.json"
+DEFAULT_OUTPUT = ROOT / "results/evidence/phase08/st06-wideband-c-equivalence-v5.json"
 FRAME_BINS = 4096
 MAXIMUM_FRAMES = 64
 MAXIMUM_CANDIDATES = 64
@@ -439,7 +439,7 @@ def evaluate() -> dict[str, Any]:
         "scripts/verify_st06_wideband_c.py",
     )
     return {
-        "schema": "phase08-st06-wideband-c-equivalence-v3",
+        "schema": "phase08-st06-wideband-c-equivalence-v5",
         "status": "passed" if passed else "failed",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "transmit_enabled": False,
@@ -470,7 +470,8 @@ def evaluate() -> dict[str, Any]:
         "performance_claim": "none; this Windows x64 observation is not an ARM or product throughput result",
         "records": records,
         "source_sha256": {name: _sha256(ROOT / name) for name in source_paths},
-        "supersedes": "results/evidence/phase08/st06-wideband-c-equivalence-v2.json",
+        "supersedes": "results/evidence/phase08/st06-wideband-c-equivalence-v4.json",
+        "implementation_note": "Seed windows remain lazy and support regions are now grouped during the integration scan; decisions and boundaries remain identical.",
         "claim_boundary": [
             "This proves host-compiled C11/Python equivalence on the frozen synthetic ST-05 corpus only.",
             "It does not prove ARM execution, fixed-point equivalence, RTL behavior, timing closure, live RF, Pd/Pfa, or product acceptance.",

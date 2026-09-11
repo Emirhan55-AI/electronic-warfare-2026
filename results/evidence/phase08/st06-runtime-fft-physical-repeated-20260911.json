@@ -1,0 +1,100 @@
+{
+  "schema": "phase08-st06-runtime-fft-physical-repeated-v1",
+  "generated_at_utc": "2026-09-10T21:52:11.844457+00:00",
+  "status": "passed",
+  "scope": "three repeated temporary-load ZedBoard dynamic FPGA FFT digital throughput runs",
+  "checks": {
+    "three_runs_present": true,
+    "all_runs_passed": true,
+    "all_run_checks_passed": true,
+    "all_case_checks_passed": true,
+    "each_run_used_4096_measured_frames_per_size": true,
+    "build_report_passed": true,
+    "board_identity_checks_passed": true,
+    "card_artifacts_match_packaged_products": true
+  },
+  "throughput": {
+    "4096": {
+      "required_frames_per_second": 488.28125,
+      "measured_frames_per_second": [
+        540.0814827093695,
+        542.9714225124706,
+        543.267740866825
+      ],
+      "minimum_frames_per_second": 540.0814827093695,
+      "minimum_realtime_margin": 1.1060868765887888
+    },
+    "8192": {
+      "required_frames_per_second": 244.140625,
+      "measured_frames_per_second": [
+        252.21838259864927,
+        250.72797115160583,
+        249.96966158054414
+      ],
+      "minimum_frames_per_second": 249.96966158054414,
+      "minimum_realtime_margin": 1.0238757338339088
+    },
+    "16384": {
+      "required_frames_per_second": 122.0703125,
+      "measured_frames_per_second": [
+        138.19437723348352,
+        138.16847292924453,
+        138.1200365150404
+      ],
+      "minimum_frames_per_second": 138.1200365150404,
+      "minimum_realtime_margin": 1.131479339131211
+    }
+  },
+  "board_identity": {
+    "schema": "phase08-st06-runtime-fft-board-identity-v1",
+    "generated_at_utc": "2026-09-10T21:41:28.2565018Z",
+    "host": "192.168.7.2",
+    "fpga_state": "operating",
+    "detection_control_id": "0x53540602",
+    "detection_control_status": "0x00000003",
+    "generation": 12,
+    "fft_log2": 12,
+    "fft_size": 4096,
+    "card_sha256": {
+      "bitstream": "24fe7666d55f7a5dceb75ebb54a1dd5595b8981763500c2eccd2c320a2e264ac",
+      "module": "b1214b4a75adf96fb66d8a60e3c57132b01225b3be45ac84f4979152c06e2d79",
+      "service": "1342d93700e3d282ce3d516bbefa5167915045e7a47428f68099afddfeff0a2b",
+      "bridge": "41e8e53d2ad9802fff13f5c111b51522328d56144f3ebaf97384819d831befa8"
+    },
+    "checks": {
+      "fpga_operating": true,
+      "runtime_control_identity_matches": true,
+      "runtime_control_idle": true,
+      "default_fft_restored": true,
+      "card_artifacts_match_local_products": true
+    },
+    "claim_boundary": {
+      "temporary_load_only": true,
+      "persistent_boot_files_changed": false,
+      "cold_boot_acceptance": false,
+      "rf_input_used": false
+    }
+  },
+  "product_sha256": {
+    "bitstream": "24fe7666d55f7a5dceb75ebb54a1dd5595b8981763500c2eccd2c320a2e264ac",
+    "module": "b1214b4a75adf96fb66d8a60e3c57132b01225b3be45ac84f4979152c06e2d79",
+    "service": "1342d93700e3d282ce3d516bbefa5167915045e7a47428f68099afddfeff0a2b",
+    "bridge": "41e8e53d2ad9802fff13f5c111b51522328d56144f3ebaf97384819d831befa8"
+  },
+  "input_sha256": {
+    "results/evidence/phase08/st06-runtime-fft-physical-20260911.json": "4acaf104b3b677357e9d72ad3b946503f9557011382225aa3eae9253d61db23f",
+    "results/evidence/phase08/st06-runtime-fft-physical-20260911-repeat2.json": "6d92b25ee746e0cfde27e444fd5d6d6c46a1aba3da96428c5ae8b8b350686300",
+    "results/evidence/phase08/st06-runtime-fft-physical-20260911-repeat3.json": "e579639beb9dae46ba554164ee06e08b619a7e6d2789e81eea1b784588f36376",
+    "results/evidence/phase08/st06-runtime-fft-build-20260910.json": "8eee5ca057edcd96068fcada59e5b4156ecda4a31e4dca1fc6da628fb7d98e43",
+    "results/evidence/phase08/st06-runtime-fft-board-identity-20260911.json": "a585ad9c2c855cab4e9c0838152c8cf7748577544cd6019fcf0f681b9ab06cf9"
+  },
+  "claim_boundary": {
+    "hackrf_used": false,
+    "rf_input_used": false,
+    "pd_pfa_acceptance": false,
+    "cold_boot_acceptance": false,
+    "persistent_boot_files_changed": false,
+    "st06_complete": false
+  },
+  "archive_sha256": "50701005d4b43cd6cedebcbf766b750b05338fbdef40e18ed743a05b0d682614"
+}

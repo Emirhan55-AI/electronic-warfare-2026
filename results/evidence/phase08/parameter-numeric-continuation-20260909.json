@@ -1,0 +1,86 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "candidate_only",
+  "seed_base": 25000000,
+  "command": "python scripts/validate_candidate_numeric.py build/acceptance/parameter-numeric-continuation-20260909 --seed-base 25000000",
+  "summary": {
+    "CW": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 399.9625672810539,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "AM": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 266.77248995413083,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "NFM": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 215.86760028858043,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "FSK": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 2829.438579746864,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "BPSK": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 804.0957540230811,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "QPSK": {
+      "total": 24,
+      "obw_valid": 16,
+      "obw_tolerance_pass": 16,
+      "obw_max_absolute_error_hz": 767.1233106797335,
+      "outside_span_total": 0,
+      "outside_span_false_valid": 0
+    },
+    "BPSK_RECT": {
+      "total": 24,
+      "obw_valid": 0,
+      "obw_tolerance_pass": 0,
+      "obw_max_absolute_error_hz": null,
+      "outside_span_total": 24,
+      "outside_span_false_valid": 0
+    }
+  },
+  "power_max_absolute_error_db": 0.18341379810394542,
+  "tests": {
+    "command": "python -m pytest tests/test_refined_parameter_candidate.py tests/test_parameter_bench_diagnostics.py -q",
+    "passed": 10
+  },
+  "product_accepted": false,
+  "hardware_accepted": false,
+  "limits": [
+    "Aynı üretici, yeni tohum kümesi; SNR varyantları bağımsız yayın değildir.",
+    "Sınıflandırma bu koşuda sınanmadı; dBm ve mutlak RF frekansı doğrulanmadı."
+  ],
+  "files": {
+    "build/acceptance/parameter-numeric-continuation-20260909/report.json": "c06c1462131fe160b44d6ef734da42c77c62a393a83fc23b1cf6d235c845f8b9",
+    "scripts/validate_candidate_numeric.py": "710f333728a3c1012e349330021cd1938432e20c00bd56b904406cf0b6fbfacb",
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "tests/test_refined_parameter_candidate.py": "7584b31e12065478ef56eb124096394c45d15b87c37edc67a555ff9048d3088c",
+    "tests/test_parameter_bench_diagnostics.py": "3199270c386aa0c70c0d0f2e4a81f8079dfad29fc71ffccbf4bb29d6391b4d7d"
+  },
+  "archive_sha256": "a4c8aeddcd21eb2aa0c5a62620fba65e5f6210961f65d27e978d09627223041f"
+}

@@ -600,7 +600,7 @@ def _parent_run() -> int:
                 'objectName: "directionSettingsScroll"',
                 'objectName: "directionCompass"',
                 'objectName: "directionMeasurementList"',
-                "Kare Gücünü Kaydet",
+                "Kanal Gücünü Kaydet",
             )
         ),
         "system_diagnostics": all(

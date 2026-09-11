@@ -1,0 +1,11 @@
+results/evidence/phase08/parameter-am-linkcheck-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/parameter-bpsk-linkcheck-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-am24-evaluation-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-am32-evaluation-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-amg8-evaluation-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-bpskg8-diagnostic-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-cw-clean-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-cw-detected-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-cw-initial-attempts-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-nfmg8-evaluation-20260909.zip filter=lfs diff=lfs merge=lfs -text
+results/evidence/phase08/replay-usb-comparison-20260909.zip filter=lfs diff=lfs merge=lfs -text

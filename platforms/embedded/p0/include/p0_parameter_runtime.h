@@ -20,7 +20,8 @@ typedef enum {
     P0_PARAMETER_FIELD_NOT_AVAILABLE = 0,
     P0_PARAMETER_FIELD_VALID = 1,
     P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY = 2,
-    P0_PARAMETER_FIELD_UNCERTAIN = 3
+    P0_PARAMETER_FIELD_UNCERTAIN = 3,
+    P0_PARAMETER_FIELD_NOT_OBSERVED = 4
 } p0_parameter_field_state_t;
 
 typedef enum {
@@ -32,7 +33,9 @@ typedef enum {
     P0_PARAMETER_REASON_EXCESS_POWER = 5,
     P0_PARAMETER_REASON_CENTER_TEMPORAL_UNCERTAINTY = 6,
     P0_PARAMETER_REASON_SPAN_EDGE_CLIPPING = 7,
-    P0_PARAMETER_REASON_OBW_TEMPORAL_INSTABILITY = 8
+    P0_PARAMETER_REASON_OBW_TEMPORAL_INSTABILITY = 8,
+    P0_PARAMETER_REASON_CARRIER_THRESHOLD = 9,
+    P0_PARAMETER_REASON_CARRIER_LOW_SNR = 10
 } p0_parameter_reason_t;
 
 typedef struct {
@@ -40,6 +43,35 @@ typedef struct {
     uint8_t reason;
     double value;
 } p0_parameter_field_t;
+
+/* A calibration is valid only for the receiver configuration identified by
+ * context_sha256 (device, tuning, sample rate, gains, filter and sample scale).
+ * Bounds must come from measured calibration coverage, never extrapolation.
+ * This API does not establish that the supplied reference is calibrated. */
+typedef struct {
+    uint8_t context_sha256[32];
+    double reference_dbfs;
+    double reference_dbm;
+    double minimum_dbfs;
+    double maximum_dbfs;
+    double uncertainty_db; /* Calibration contribution, not total measurement uncertainty. */
+    uint64_t measured_at_unix;
+    uint64_t valid_until_unix;
+} p0_power_calibration_t;
+
+typedef struct {
+    uint8_t valid;
+    double dbm;
+    double uncertainty_db;
+} p0_calibrated_power_t;
+
+/* Returns 0 only for an applicable measured calibration; otherwise -1 and
+ * NaN output. Neither missing profiles nor changed gains fall back to dBm. */
+int p0_parameter_calibrate_power(
+    const p0_parameter_field_t *power_dbfs,
+    const p0_power_calibration_t *calibration,
+    const uint8_t context_sha256[32], uint64_t now_unix,
+    p0_calibrated_power_t *result);
 
 typedef struct {
     uint64_t intent_id;
@@ -56,6 +88,8 @@ typedef struct {
     double detection_significance;
     double center_uncertainty_bins;
     double temporal_edge_range_bins;
+    /* Local extension: the legacy 128-byte service result does not carry this field. */
+    p0_parameter_field_t carrier_line_frequency_hz;
 } p0_parameter_result_t;
 
 typedef struct {

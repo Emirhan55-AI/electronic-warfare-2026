@@ -34,7 +34,7 @@ static uint32_t load_le32(const uint8_t *data)
 
 int main(void)
 {
-    static uint8_t packet[P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES];
+    static uint8_t packet[P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES];
     static uint8_t response[P0_IQ_RESPONSE_HEADER_BYTES + 128U];
     uint8_t result[128U];
     p0_iq_frame_view_t frame;
@@ -63,16 +63,32 @@ int main(void)
                            P0_IQ_PROCESSING_PAYLOAD_BYTES));
     store_le32(packet + 44U, p0_iq_crc32(packet, P0_IQ_HEADER_PREFIX_BYTES));
 
-    REQUIRE(p0_iq_processing_frame_decode(packet, sizeof(packet), &frame) == 0);
+    REQUIRE(p0_iq_processing_frame_decode(
+                packet, P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES,
+                &frame) == 0);
     REQUIRE(frame.sequence_number == 17U && frame.frame_id == 23U);
     REQUIRE(frame.center_frequency_hz == UINT64_C(101500000));
     REQUIRE(frame.payload_bytes == P0_IQ_PROCESSING_PAYLOAD_BYTES);
 
     packet[12] ^= 1U;
-    REQUIRE(p0_iq_processing_frame_decode(packet, sizeof(packet), &frame) != 0);
+    REQUIRE(p0_iq_processing_frame_decode(
+                packet, P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES,
+                &frame) != 0);
     packet[12] ^= 1U;
     packet[P0_IQ_HEADER_BYTES + 99U] ^= 1U;
-    REQUIRE(p0_iq_processing_frame_decode(packet, sizeof(packet), &frame) != 0);
+    REQUIRE(p0_iq_processing_frame_decode(
+                packet, P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES,
+                &frame) != 0);
+    packet[P0_IQ_HEADER_BYTES + 99U] ^= 1U;
+    for (index = 0U; index < P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES; ++index)
+        packet[P0_IQ_HEADER_BYTES + index] = (uint8_t)(index * 19U + 7U);
+    store_le32(packet + 32U, P0_IQ_PROCESSING_MAX_COMPLEX_SAMPLES);
+    store_le32(packet + 36U, P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES);
+    store_le32(packet + 40U, p0_iq_crc32(
+        packet + P0_IQ_HEADER_BYTES, P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES));
+    store_le32(packet + 44U, p0_iq_crc32(packet, P0_IQ_HEADER_PREFIX_BYTES));
+    REQUIRE(p0_iq_processing_frame_decode(packet, sizeof(packet), &frame) == 0);
+    REQUIRE(frame.complex_sample_count == P0_IQ_PROCESSING_MAX_COMPLEX_SAMPLES);
 
     for (index = 0U; index < sizeof(result); ++index)
         result[index] = (uint8_t)index;

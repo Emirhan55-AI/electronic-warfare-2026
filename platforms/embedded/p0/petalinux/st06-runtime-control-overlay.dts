@@ -1,0 +1,26 @@
+/dts-v1/;
+/plugin/;
+
+/* Temporary live-tree overlay for the matching ST-06 runtime-control bitstream. */
+/ {
+    fragment@0 {
+        target-path = "/pl-bus";
+        __overlay__ {
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            p0_detection_control: detection-control@43c00000 {
+                compatible = "teknofest,st06-detection-control-1.0";
+                reg = <0x43c00000 0x00010000>;
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@1 {
+        target-path = "/pl-bus/dma@40400000";
+        __overlay__ {
+            teknofest,detection-control = <&p0_detection_control>;
+        };
+    };
+};

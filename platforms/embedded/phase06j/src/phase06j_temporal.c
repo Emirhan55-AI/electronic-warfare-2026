@@ -133,7 +133,7 @@ static int validate_candidate_records(const packet_view_t *view) {
         candidate.start_bin > candidate.peak_bin || candidate.peak_bin > candidate.end_bin ||
         candidate.end_bin >= PHASE06I_FFT_SIZE ||
         candidate.span_bins != (uint16_t)(candidate.end_bin - candidate.start_bin + 1u) ||
-        candidate.pfa_select > 2u || candidate.peak_power >= (UINT64_C(1) << 58) ||
+        candidate.pfa_select > 3u || candidate.peak_power >= (UINT64_C(1) << 58) ||
         candidate.noise_power >= (UINT64_C(1) << 58) ||
         candidate.threshold_power >= (UINT64_C(1) << 62)) {
       return PHASE06J_ERR_CANDIDATE;

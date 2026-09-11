@@ -19,12 +19,15 @@ olarak hesaplanır; UI'ya kalibre edilmemiş göreli dBFS olarak verilebilir:
 
 `P_dBFS = 10 log10(P/P_FS)`
 
-Mevcut `ManualAmplitudeDF`, aynı açıdaki tekrarları güven ağırlıklı ortalar ve
+Alan profilindeki `ManualAmplitudeDF`, aynı açıdaki tekrarları doğrusal güç
+alanında güven ve gözlem sayısıyla ağırlıklı ortalar ve
 
 `θ_hat = argmax_θ P(θ)`
 
-ile en güçlü ölçülen açıyı seçer. En büyük ve ikinci büyük değer arasındaki
-kontrast, açı kapsamı ve operatör güveni kalite metriğine katılır.
+ile en güçlü ölçülen açıyı seçer. Güncel ürün profili 15° adımlı 24 açılı tam
+tur, ana lob dışı tepe belirginliği, ön/arka ayrımı, hedef frekans sürekliliği
+ve sabit alıcı ayar bağı ister. Eski eğitim kanıtı için tarihsel üç-açı profili
+ayrı tutulur.
 
 ## Neden çok ölçüm gerekir?
 
@@ -74,9 +77,12 @@ Uygulamada `YÖN BULMA` sekmesine gidip eğitim düğmesine basılabilir. Saha
 akışında `ANTEN AÇISI (MANUEL)` fiziksel olarak elle konumlanan antenin operatör
 girdisidir. Sıfır referansı açıkça `KUZEY / 0° COĞRAFİ` veya `MANUEL COĞRAFİ
 BAŞ` seçilmedikçe bu açı coğrafi bearing'e dönüştürülmez. Pusula, IMU, enkoder
-veya tahmini baş bilgisi yoktur. `GÜÇ ÖLÇ` yalnız seçili IQ kaynağından gelen
-işlenmiş bounded karedeki ortalama lineer gücü kullanır; kaynak yoksa kayıt
-oluşturmaz. Elle girilen değerler `MANUEL GİRİŞ` etiketiyle ayrı tutulur.
+veya tahmini baş bilgisi yoktur. `Kanal Gücünü Kaydet` yalnız seçili ve
+doğrulanmış hedefin FFT hücrelerini kullanır; kaynak yoksa kayıt oluşturmaz.
+Canlı 24 açı tamamlanınca sonuç CRC korumalı protokolle kart ARM'ına
+doğrulatılır. Açı başına çoklu-kare PL gücü henüz ürün yoluna bağlanmadığından
+mevcut canlı ölçüm fiziksel kabul değildir. Elle girilen değerler `MANUEL GİRİŞ`
+etiketiyle ayrı tutulur.
 
 ## Daha sonraki fiziksel deney
 
@@ -85,8 +91,9 @@ Fiziksel PASS ancak şu kontrollü deneyden sonra verilebilir:
 1. Bilinen konum/yönde izinli kaynak kurulur.
 2. Alıcı ve yönlü anten sabit noktaya yerleştirilir.
 3. Kanal ve angular step seçilir; motor zorunlu değildir.
-4. Anten elle her açıya döndürülür.
-5. HackRF/alıcıdan bounded IQ alınır ve ortalama `|z|²` hesaplanır.
+4. Anten elle 0°–345° arasında 15° adımlarla her açıya döndürülür.
+5. HackRF/alıcıdan bounded IQ alınır ve yalnız seçili hedef kanalının doğrusal
+   gücü hesaplanır.
 6. `θ/P` çifti kaydedilir ve bütün açıların grafiği çizilir.
 7. Maksimum yön ile bilinen gerçek bearing karşılaştırılır.
 8. Dairesel açı hatası ve çevresel koşullar raporlanır.

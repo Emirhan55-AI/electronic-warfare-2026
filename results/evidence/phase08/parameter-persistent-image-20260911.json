@@ -1,0 +1,103 @@
+{
+  "schema": "parameter-persistent-image-v1",
+  "recorded_at": "2026-09-11T05:04:08.097211+00:00",
+  "status": "passed",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0",
+    "KTR-4.2"
+  ],
+  "petalinux": {
+    "version": "2025.2",
+    "build_tasks": "6090/6090",
+    "build_status": "passed",
+    "xsa_sha256": "7277934095ec1e4b3e1bf4c6fab414205320dec1c7db8426139b42b8f44f13f8"
+  },
+  "sd_boot_files": {
+    "BOOT.BIN": "de0d333ad4b5b87b17a9c675018cf079a8e4c37e1e899c92c68b8c4337e4f61c",
+    "image.ub": "4f6586d01d782796a12883a66e010795d7878e5998895b9925d0ae3134658745",
+    "system.bit": "43df4eb46f21fddeca814b162c8d866fc601c39522d9e444f666f72832f55b83",
+    "card_hashes_matched": true
+  },
+  "installed_products": {
+    "p0-ed-service": "8a6b2a7fabe031c5cfd2835c69c7c01c12fa8d3f61c07bfc64d208db79ef214d",
+    "p0-ed-network-bridge": "6a63cb59d8fa3c0d1e7533d459114bc5a960bc36d701efbb7adf63dd6abc677f",
+    "p0_dma_client.ko": "d316f8a3cc608d905ac2f84c567558d6e61126a9ed0e3b09b136a9e99568ceeb"
+  },
+  "cold_boot": {
+    "count": 4,
+    "fpga_state": "operating",
+    "p0_ed_service_autostart": true,
+    "p0_ed_network_bridge_autostart": true,
+    "device_tree_control_node": "/sys/firmware/devicetree/base/detection-control@43c00000",
+    "dma_control_property": "/sys/firmware/devicetree/base/pl-bus/dma@40400000/teknofest,detection-control",
+    "default_profile": {
+      "generation": 0,
+      "fft_size": 4096,
+      "runtime_fft_supported": true
+    },
+    "fat_filesystem_check": {
+      "tool": "fsck.vfat 4.2",
+      "dirty_bit_repaired": true,
+      "boot_file_hashes_unchanged": true,
+      "subsequent_boot_dirty_warning": false
+    }
+  },
+  "physical_parameter_evidence": "parameter-board-persistent-20260911.json",
+  "physical_parameter_cases": 6,
+  "maximum_board_vs_python_error": {
+    "emission_center_frequency": 0.006908029317855835,
+    "carrier_line_frequency": 0.0009285658597946167,
+    "lower_band_edge": 0.010066226124763489,
+    "upper_band_edge": 0.02056853473186493,
+    "occupied_bandwidth": 0.020423781554200104,
+    "channel_power_dbfs": 4.835630555888315e-05,
+    "snr_estimate_db": 9.908464499375214e-05
+  },
+  "runtime_fft_downshift_guard": {
+    "recorded_at": "2026-09-11T04:53:24.164783+00:00",
+    "status": "passed",
+    "initial": {
+      "generation": 0,
+      "alpha_q32": 36851433755,
+      "weak_alpha_q32": 17098572778,
+      "fft_size": 4096,
+      "runtime_fft_supported": true
+    },
+    "increased": {
+      "generation": 1,
+      "alpha_q32": 36851433755,
+      "weak_alpha_q32": 17098572778,
+      "fft_size": 8192,
+      "runtime_fft_supported": true
+    },
+    "downshift_error": "Kartın mevcut imajı çalışma sırasında ayar değiştirmeyi desteklemiyor.",
+    "after_rejection": {
+      "generation": 1,
+      "alpha_q32": 36851433755,
+      "weak_alpha_q32": 17098572778,
+      "fft_size": 8192,
+      "runtime_fft_supported": true
+    },
+    "service_alive": true,
+    "expected_recovery": "cold reboot restores 4096",
+    "parameter_request_at_fft_8192": {
+      "status": "rejected_before_dma",
+      "message": "Parametre ölçümü için FPGA FFT boyutu 4096 olmalıdır.",
+      "profile_after_rejection": 8192,
+      "reboot_profile": 4096
+    }
+  },
+  "limitations": [
+    "Live HackRF RF accuracy is not verified by this image test",
+    "dBm calibration is unavailable",
+    "analog/digital classification is deferred",
+    "controlled field Pd/Pfa is open",
+    "FFT may increase from 4096 to 8192/16384 within one boot; decreasing requires reboot"
+  ],
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_dma_client.c": "1462c9816e719c492908542949953f7e27e593cba6704f699db51e483870e28b",
+    "platforms/embedded/p0/petalinux/st06-runtime-control.dtsi": "6997166525159aa970daa57002a35d0b4b4bc24c4f9fcf41bed848247dedbc26",
+    "scripts/verify_p0_parameter_board.py": "335ce442b25b384b33424788788a50ded3e35abccab376ec1d8910f5250eab0c"
+  }
+}

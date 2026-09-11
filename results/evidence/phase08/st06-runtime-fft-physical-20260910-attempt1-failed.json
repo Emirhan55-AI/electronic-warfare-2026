@@ -1,0 +1,157 @@
+{
+  "schema": "phase08-st06-runtime-fft-physical-v1",
+  "generated_at_utc": "2026-09-10T19:22:12.242937+00:00",
+  "status": "failed",
+  "scope": "ZedBoard dynamic FPGA FFT profile plus bounded digital Ethernet/ARM/DMA/PL processing",
+  "host": "192.168.7.2",
+  "port": 47007,
+  "initial_profile": {
+    "generation": 1,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "final_profile": {
+    "generation": 5,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "frame_count_per_size": 4096,
+  "cases": [
+    {
+      "fft_size": 4096,
+      "iq_bytes_per_frame": 8192,
+      "frames": 4096,
+      "elapsed_seconds": 8.57749200006947,
+      "frames_per_second": 477.5288627452904,
+      "required_frames_per_second": 488.28125,
+      "realtime_margin": 0.9779791109023547,
+      "raw_candidate_total": 36864,
+      "maximum_active_events": 8,
+      "stimulus_sha256": "24f99b543c7fe5dddd8bc9ec31c545b355edfd3f0b142834e886f6a04e11e773",
+      "responses_sha256": "c0352580e8b0ebd5480f94afb99e3fa7ed953f69f7271f05aca801c899ab3b94",
+      "transport": {
+        "state": "DISCONNECTED",
+        "frames_sent": 4096,
+        "frames_received": 4096,
+        "bytes_sent": 33751040,
+        "bytes_received": 2590300,
+        "crc_errors": 0,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "last_error": null
+      },
+      "checks": {
+        "all_frames_returned": true,
+        "frame_ids_match": true,
+        "dma_status_valid": true,
+        "transport_integrity": true,
+        "network_rate_meets_realtime": false,
+        "exact_profile_readback": true
+      },
+      "profile": {
+        "generation": 2,
+        "alpha_q32": 36851433755,
+        "weak_alpha_q32": 17098572778,
+        "fft_size": 4096,
+        "runtime_fft_supported": true
+      }
+    },
+    {
+      "fft_size": 8192,
+      "iq_bytes_per_frame": 16384,
+      "frames": 4096,
+      "elapsed_seconds": 16.905568999703974,
+      "frames_per_second": 242.2870238837701,
+      "required_frames_per_second": 244.140625,
+      "realtime_margin": 0.9924076498279224,
+      "raw_candidate_total": 45056,
+      "maximum_active_events": 11,
+      "stimulus_sha256": "7b84efc41ed73e37433176ba11425ef665fa76b905f231f2fd9b512876c78c63",
+      "responses_sha256": "30c68228eb983df22193c5ff7a80bab7b94af5e69eca828ef90dad644e0be2a8",
+      "transport": {
+        "state": "DISCONNECTED",
+        "frames_sent": 4096,
+        "frames_received": 4096,
+        "bytes_sent": 67305472,
+        "bytes_received": 3423776,
+        "crc_errors": 0,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "last_error": null
+      },
+      "checks": {
+        "all_frames_returned": true,
+        "frame_ids_match": true,
+        "dma_status_valid": true,
+        "transport_integrity": true,
+        "network_rate_meets_realtime": false,
+        "exact_profile_readback": true
+      },
+      "profile": {
+        "generation": 3,
+        "alpha_q32": 36851433755,
+        "weak_alpha_q32": 17098572778,
+        "fft_size": 8192,
+        "runtime_fft_supported": true
+      }
+    },
+    {
+      "fft_size": 16384,
+      "iq_bytes_per_frame": 32768,
+      "frames": 4096,
+      "elapsed_seconds": 30.60878979973495,
+      "frames_per_second": 133.81777021564793,
+      "required_frames_per_second": 122.0703125,
+      "realtime_margin": 1.0962351736065878,
+      "raw_candidate_total": 53248,
+      "maximum_active_events": 13,
+      "stimulus_sha256": "db7935d369994fb7202fbb94db40403c8aa2e637e068520270df2ac353bd2f38",
+      "responses_sha256": "f194b03cb65d0a355cc1a2e5238e6606c304326705ea73c429a955ab71889ce4",
+      "transport": {
+        "state": "DISCONNECTED",
+        "frames_sent": 4096,
+        "frames_received": 4096,
+        "bytes_sent": 134414336,
+        "bytes_received": 3980832,
+        "crc_errors": 0,
+        "sequence_errors": 0,
+        "queue_drops": 0,
+        "last_error": null
+      },
+      "checks": {
+        "all_frames_returned": true,
+        "frame_ids_match": true,
+        "dma_status_valid": true,
+        "transport_integrity": true,
+        "network_rate_meets_realtime": true,
+        "exact_profile_readback": true
+      },
+      "profile": {
+        "generation": 4,
+        "alpha_q32": 36851433755,
+        "weak_alpha_q32": 17098572778,
+        "fft_size": 16384,
+        "runtime_fft_supported": true
+      }
+    }
+  ],
+  "checks": {
+    "all_fft_sizes_exercised": true,
+    "all_case_checks_passed": false,
+    "initial_profile_restored": true,
+    "profile_generation_advanced": true,
+    "restore_error_absent": true
+  },
+  "restore_error": null,
+  "claim_boundary": {
+    "hackrf_used": false,
+    "rf_input_used": false,
+    "pd_pfa_acceptance": false,
+    "cold_boot_acceptance": false,
+    "persistent_boot_files_changed": false
+  }
+}

@@ -19,7 +19,8 @@ def _wsl_path(path: Path) -> str:
     return f"/mnt/{drive}/" + "/".join(resolved.parts[1:])
 
 
-def test_st06_product_pipeline_unifies_narrow_and_wideband(tmp_path: Path) -> None:
+@pytest.mark.parametrize("runner", ["p0_st06_product_pipeline_run.c", "p0_weak_power_run.c", "p0_weak_checkpoint_run.c"])
+def test_st06_product_pipeline_unifies_narrow_and_wideband(tmp_path: Path, runner: str) -> None:
     compiler = shutil.which("gcc") or shutil.which("cc")
     using_wsl = False
     if compiler is None:
@@ -34,7 +35,7 @@ def test_st06_product_pipeline_unifies_narrow_and_wideband(tmp_path: Path) -> No
 
     output = tmp_path / "p0-st06-product-pipeline-run"
     sources = [
-        ROOT / "tests/p0/p0_st06_product_pipeline_run.c",
+        ROOT / "tests/p0" / runner,
         P0 / "src/p0_parameter_runtime.c",
         P0 / "src/p0_ed_pipeline.c",
         P0 / "src/p0_os_cfar.c",
@@ -83,4 +84,4 @@ def test_st06_product_pipeline_unifies_narrow_and_wideband(tmp_path: Path) -> No
         text=True,
     )
 
-    assert completed.stdout.strip() == "ST06_PRODUCT_PIPELINE=PASS"
+    assert completed.stdout.strip().splitlines()[-1] == "ST06_PRODUCT_PIPELINE=PASS"

@@ -1,0 +1,12 @@
+/* Include only with the matching configurable ST-06 hardware export. */
+/ {
+    p0_detection_control: detection-control@43c00000 {
+        compatible = "teknofest,st06-detection-control-1.0";
+        reg = <0x43c00000 0x10000>;
+        status = "okay";
+    };
+};
+
+&axi_dma_0 {
+    teknofest,detection-control = <&p0_detection_control>;
+};

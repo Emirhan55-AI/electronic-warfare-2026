@@ -1,0 +1,88 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "nfm_content_observed_candidate_abstained",
+  "operator_report": "02_NFM.C16 hazır; TX gain 8, amp kapalı ve loop kapalı olarak hazırlanmıştı.",
+  "operator_play_confirmation": null,
+  "source_evidence": {
+    "expected_duration_s": 6,
+    "activity_first_s": 21.5,
+    "activity_last_s": 27.25,
+    "sampled_activity_span_s": 5.75,
+    "expected_discriminator_tone_hz": 1700,
+    "observed_discriminator_peak_hz": 1702.8808593749998,
+    "absolute_tone_error_hz": 2.8808593749997726
+  },
+  "receiver": {
+    "serial": "0000000000000000a32868dc35138247",
+    "center_frequency_hz": 825300000,
+    "sample_rate_hz": 8000000,
+    "lna_gain_db": 24,
+    "vga_gain_db": 24,
+    "amp_enabled": false
+  },
+  "transmitter": {
+    "file": "02_NFM.C16",
+    "nominal_frequency_hz": 825000000,
+    "sample_rate_hz": 500000,
+    "reported_tx_gain_db": 8,
+    "amp_enabled": false,
+    "loop_enabled": false
+  },
+  "transport": {
+    "complete": true,
+    "usb_overruns": 0,
+    "settled_rail_components": 0,
+    "raw_sha256": "e7d54711a000944fc02f3224a976709b85b9a990c3be1c204a0518fa53bc0e06"
+  },
+  "candidate": {
+    "summary": {
+      "Belirsiz": 10
+    },
+    "reasons": {
+      "low_snr": 10
+    },
+    "snr_db": [
+      -1.9385579017330565,
+      0.9876351757975287,
+      -0.3459464962546145,
+      -2.318367023516386,
+      0.21391537891612372,
+      0.4238163324481736,
+      0.3389807649877552,
+      -2.3310919232587284,
+      -1.6718267399103701,
+      -1.855390477146854
+    ],
+    "model_sha256": "afa2872c6363d25e5322b6c382db32a0b9ec3d85260ef4b6ce37d9606ebc67c9",
+    "analysis_source_sha256": "e849cc2cee1a425c32a377ac524debf6d78cdf1baa17811d940da4fa52e4876c"
+  },
+  "decision": "Fiziksel kayıtta beklenen NFM mesaj tonu görülmüştür. Aday sınıflandırıcı düşük SNR nedeniyle 10/10 Belirsiz üretmiştir; analog/sayısal fiziksel kabul geçmemiştir.",
+  "product_acceptance": false,
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "algorithms/parameters/refined_candidate.py": "14558ef199e20a96d1c4310b5b27f5e3e68ada84eaa6237f2928b45f10a02bc6",
+    "capture/activity.json": "21887e83f923021310244c6fb42ade90d802a6f7f8b99c1b51142f12df1cec82",
+    "capture/capture.json": "52616701fd43a683df2d24acd401c2ac51912c6caff9e6087e56219ab3343293",
+    "capture/nfm-analysis.json": "697c90ac5ec95bff76124655bb11271501fec491cfc6b35d63b22c7284bd7583",
+    "capture/rx.ci8": "e7d54711a000944fc02f3224a976709b85b9a990c3be1c204a0518fa53bc0e06",
+    "capture/transfer.log": "fb18968eb7e1e01014ef07a295f36f4628c58f0696df2648e2ba0945bb4d6281",
+    "docs/plans/PARAMETER_REPLAY_LAB_GUIDE.md": "e5bc3111fdebaf1dfb29f7d68cbabe7cb8220da27eed5388728894fef3253191",
+    "replay/02_NFM.C16": "4575bb06c1d052d6b585b3dcd07418e5de701d3e869eadde21cd2c62e20666ef",
+    "replay/02_NFM.TXT": "6370675c6cafc6c5028a0db719bed765de8056fcc21c5f400c5d3e54c3a3ddb3",
+    "replay/manifest.json": "07c22a08f30f10547e77a438b1e411a2c7dcf98b1f0a8768acb486039abec15e",
+    "scripts/analyze_replay_nfm.py": "e849cc2cee1a425c32a377ac524debf6d78cdf1baa17811d940da4fa52e4876c",
+    "scripts/capture_replay_rx.py": "4efb3a353296231275e52c8407fa59ae2d91d21ccaad2550bb1afef1ce833774"
+  },
+  "limits": [
+    "Tek RF koşusunun on penceresi bağımsız koşu değildir.",
+    "Operatör dosyanın hazır olduğunu bildirdi; ayrı Play teyidi alınmadı.",
+    "Kaba zaman seçimi NFM için uygun olmayan çizgi etkinliği işaretlerinden yalnız zaman aralığı bulmak amacıyla kullanıldı.",
+    "Frekans merkezi önceki temiz CW koşusundan, analiz aralığı RF öncesi replay manifestinden alınmıştır.",
+    "PC adayıdır; ürün F5, ARM ve FPGA kullanılmadı.",
+    "dBFS, dBm kalibrasyonu değildir."
+  ]
+}

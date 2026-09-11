@@ -1,0 +1,50 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "status": "cw_not_observed",
+  "receiver_serial": "0000000000000000a32868dc35138247",
+  "receiver_firmware": "v2.4.0",
+  "transmitter_serial": null,
+  "transmitter_firmware": null,
+  "operator_report": "Verici sürümü alıcıyla aynı; ilk dosya 2 saniyede kendiliğinden durdu; ikinci denemede Play basıldı.",
+  "runs": [
+    "replay-cw-off-20260909",
+    "replay-cw-window-20260909",
+    "replay-cw-window2-20260909"
+  ],
+  "rx_complete": true,
+  "settled_rail_components": 0,
+  "cw_active_windows": [
+    0,
+    0
+  ],
+  "cw_total_windows": [
+    598,
+    598
+  ],
+  "limitations": [
+    "Play anı cihaz zaman damgasıyla bilinmiyor.",
+    "825 MHz çevresindeki tanı negatif; RF hiç üretilmedi sonucu çıkarılmaz.",
+    "Ekran ayarı/sürüm/kimlik bağımsız doğrulanmadı."
+  ],
+  "physical_acceptance": false,
+  "dbm_calibrated": false,
+  "files": {
+    "scripts/capture_replay_rx.py": "cfd2a5779dfb06e5a354ff0811a2699f8a2ecdcbca19939c208447f8f4ebc9a2",
+    "scripts/analyze_replay_cw.py": "4f3ad3b34866137804de8a0dbca88a35eaa4f1075685f707f123c2db8db5afb7",
+    "build/acceptance/replay-cw-off-20260909/capture.json": "91ff8dd3e5f812324742f66b0f3482f11a5e5a3addcca81483ba4ae5eec53120",
+    "build/acceptance/replay-cw-off-20260909/rx.ci8": "d4461f56d30e83a309c2a93b8dba5fe039864465397fde715b694d52a0c2071f",
+    "build/acceptance/replay-cw-off-20260909/transfer.log": "13b587b032e2da4d1adecf0a6ae06eaf76f64781c300d734acaa09d279254437",
+    "build/acceptance/replay-cw-window-20260909/capture.json": "27bbb1f2590dcc912119179ed71b0b5a80f57b56621179c2556a5f6ea3ec0147",
+    "build/acceptance/replay-cw-window-20260909/cw-analysis.json": "94294af03c674894b5c60ec325cf2916a396d624f3269928acd82bd265ab4b81",
+    "build/acceptance/replay-cw-window-20260909/rx.ci8": "99b16551ccf10d9394fd761fddcd58dcded61eccf6612a97188afd97c8ccc15e",
+    "build/acceptance/replay-cw-window-20260909/transfer.log": "84a6dc88bfe7911114e5cf752a535495752864ee7d9772598763666b2e9edbba",
+    "build/acceptance/replay-cw-window2-20260909/capture.json": "9f34b07b819f7e5a9463227642a35764cd4205f2084c93656ad081c4656ce6c7",
+    "build/acceptance/replay-cw-window2-20260909/cw-analysis.json": "c9f98e92d74f771466f9e50e91a5ce7a81987b0a9487977e7f24b1fc7812f972",
+    "build/acceptance/replay-cw-window2-20260909/rx.ci8": "786785f025bbd4d1ef3268f0d57c021e32d12d33a279d32169733bcf8362f98b",
+    "build/acceptance/replay-cw-window2-20260909/transfer.log": "2f95369433d8d8f9f986e3dd59a4256825697ad7ad8adeef1cfe0c1effa8089e"
+  },
+  "archive_sha256": "ac7a7e16e2ece38ce47d55d03e87ac2e11045a8d7cecadb28a2c8d479e155b8b"
+}

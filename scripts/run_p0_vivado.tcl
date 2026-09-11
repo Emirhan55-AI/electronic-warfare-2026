@@ -28,6 +28,7 @@ if {![file isfile $project_file]} {
 }
 file mkdir $report_root
 open_project $project_file
+set_property board_part $zedboard_part [current_project]
 set_property strategy Flow_PerfOptimized_high [get_runs synth_1]
 set_property strategy Performance_Explore [get_runs impl_1]
 

@@ -28,7 +28,15 @@ from .detection import (
     P0_WIDEBAND_RECOVERY_PROFILE,
     WidebandRecoveryConfig,
 )
-from .df import DFEstimate, DFMeasurement, ManualAmplitudeDF
+from .df import (
+    DFEstimate,
+    DFMeasurement,
+    DFProfile,
+    FIELD_AMPLITUDE_DF_PROFILE,
+    LEGACY_AMPLITUDE_DF_PROFILE,
+    ManualAmplitudeDF,
+)
+from .direction_client import BoardDFEstimate, decode_df_response, encode_df_request, estimate_on_board
 from .two_point_df import REAL_TWO_POINT_SOURCE, TwoPointDFResult, TwoPointPower, analyze_two_point_hackrf_df
 from .field_df import AntennaReference, LocationFix, PositionSource, geographic_bearing_from_manual_reference
 from .recorded_df import (
@@ -96,6 +104,9 @@ __all__ = [
     "CoarseSpectrumDetector",
     "DFEstimate",
     "DFMeasurement",
+    "DFProfile",
+    "FIELD_AMPLITUDE_DF_PROFILE",
+    "LEGACY_AMPLITUDE_DF_PROFILE",
     "LocationFix",
     "DirectionPresentation",
     "GeographicLOB",
@@ -109,6 +120,10 @@ __all__ = [
     "LocalEDResponse",
     "LoopbackIQTransport",
     "ManualAmplitudeDF",
+    "BoardDFEstimate",
+    "decode_df_response",
+    "encode_df_request",
+    "estimate_on_board",
     "REAL_TWO_POINT_SOURCE",
     "TwoPointDFResult",
     "TwoPointPower",

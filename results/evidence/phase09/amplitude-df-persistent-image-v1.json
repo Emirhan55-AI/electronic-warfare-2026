@@ -1,0 +1,123 @@
+{
+  "schema": "phase09-amplitude-df-persistent-image-v1",
+  "generated_at_utc": "2026-09-11T11:39:14.074925Z",
+  "status": "passed",
+  "requirements": [
+    "KTR-4.4"
+  ],
+  "board": {
+    "host": "192.168.7.2",
+    "architecture": "armv7l",
+    "persistent_port": 47007,
+    "ssh_host_key_verified_over_serial": "SHA256:L5TcuL6rMitEExXA0l4wCGltBBnKc3/izKDIf6b8O3c"
+  },
+  "persistent_boot_hashes": {
+    "image.ub": "1f7899b537e765d3f77e040221a26553b5abb54ca8d2d87908f3e8a0d94e8705",
+    "BOOT.BIN": "de0d333ad4b5b87b17a9c675018cf079a8e4c37e1e899c92c68b8c4337e4f61c",
+    "rootfs.manifest": "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3"
+  },
+  "runtime_observation": [
+    "armv7l",
+    "189.56 355.41",
+    "b474df7eccd899b0c35f039a49da1b145dda936c56a369d914e792dd39e4e354  /usr/sbin/p0-ed-service",
+    "1ed16f72a39158c5fc4758743f0320f71504ecea4c9f3b8a55590d0d93f90a04  /usr/sbin/p0-ed-network-bridge",
+    "e50362f526cfff6d9a1cac9e73924456b7854fbc7edb94a26fcfc7d3cfab3cab  /usr/bin/p0-amplitude-df-run",
+    "626 /usr/sbin/p0-ed-service",
+    "633 /usr/sbin/p0-ed-network-bridge"
+  ],
+  "boot_observation": [
+    "1f7899b537e765d3f77e040221a26553b5abb54ca8d2d87908f3e8a0d94e8705  /run/media/ZEDBOOT-mmcblk0p1/image.ub",
+    "de0d333ad4b5b87b17a9c675018cf079a8e4c37e1e899c92c68b8c4337e4f61c  /run/media/ZEDBOOT-mmcblk0p1/BOOT.BIN",
+    "f02ef225c0c84a1487ec49ee361f7b0a853e0024e2ccf9a268d454ce5f1bf3d3  /run/media/ZEDBOOT-mmcblk0p1/rootfs.manifest",
+    "kernel-module-p0-dma-client-6.12.40-xilinx-g31626ef92ff1 zynq_generic_7z020 1.0",
+    "p0-dma zynq_generic_7z020 1.0"
+  ],
+  "cases": [
+    {
+      "case": "lob-ready",
+      "status": "LOB HAZIR",
+      "angle_deg": 45.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 10.9375,
+      "front_to_back_db": 22.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "coverage-gate",
+      "status": "YETERSİZ AÇI KAPSAMI",
+      "angle_deg": 40.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 245.0,
+      "prominence_db": 5.0,
+      "front_to_back_db": null,
+      "sampling_rms_deg": null
+    },
+    {
+      "case": "front-back-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 0.5,
+      "front_to_back_db": 0.5,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "receiver-gate",
+      "status": "ALICI AYARI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "target-gate",
+      "status": "HEDEF FREKANSI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "prominence-gate",
+      "status": "BELİRSİZ MAKSİMUM",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.0,
+      "front_to_back_db": 10.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "linear-repeat-average",
+      "status": "YETERSİZ AÇI",
+      "angle_deg": 0.0,
+      "measurement_count": 2,
+      "distinct_angle_count": 1,
+      "maximum_gap_deg": 360.0,
+      "prominence_db": 0.0,
+      "front_to_back_db": 0.0,
+      "sampling_rms_deg": 103.92304845413264
+    }
+  ],
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_amplitude_df.h": "2606861817b2a435cb878bdb99df59afef28b2cc09fe103e4b4adac59e396f47",
+    "platforms/embedded/p0/src/p0_amplitude_df.c": "aa55d988331c857177def8db4c0e793c5a03c0cf043525ba2d0eaabd83529747",
+    "platforms/embedded/p0/src/p0_ed_service.c": "b4699c90f5b29a0f3b3f6b45179de5d90a204ab2e8056434ef6ec37714cf58a9",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "9f6d86fe7c9c2313822fdf2eabb585db434a7f62981c894614b5aa78a6b9453b",
+    "algorithms/p0/direction_client.py": "a5dfdaacade969341963a0ff12db5b4ed40cb8e59c974544e3402dfb341cffd8",
+    "scripts/verify_phase09_persistent_image.py": "f9c98ca79f0e6eed13f97ae492416844508914b8feeab46f791f15e911e38bb8"
+  },
+  "claim_boundary": "The SD image booted, persistent ARM services started, and seven deterministic P0DF-v1 cases passed on the ZedBoard. No HackRF, antenna pattern, live RF, known-bearing source, field multipath, or degree-RMS accuracy acceptance was performed."
+}
