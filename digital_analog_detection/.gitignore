@@ -1,0 +1,18 @@
+# Uretilen TX IQ dosyalari (buyuk binary, tekrar uretilebilir)
+*.iq
+panel_tx_out.iq
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# GNU Radio Companion tarafindan otomatik uretilen python dosyalari
+# (istersen bunlari da versiyonlamak icin bu satiri silebilirsin)
+# *.py.bak
+
+# Editor/OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

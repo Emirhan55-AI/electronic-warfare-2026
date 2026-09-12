@@ -1,0 +1,7 @@
+# panel.py / gen_signal.py / classifier_model.py / feature_extractor_v1.py icin:
+numpy
+scipy
+pyzmq
+
+# sadece train_classifier.py'yi yeniden calistirmak icin gerekli:
+scikit-learn
