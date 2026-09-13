@@ -12,8 +12,6 @@ from algorithms.monitoring import AnalogMonitorResult
 from algorithms.p0.df import FIELD_AMPLITUDE_DF_PROFILE
 from algorithms.p0.direction_client import BoardDFEstimate
 from algorithms.pipeline import RuntimeFrameResult
-from platforms.transmission import TxRunResult
-
 from .fixed_band_verification import FixedBandVerification
 from .live_ed import LIVE_AUDIO_WINDOW_SECONDS
 from .measurement_record import RecordedMeasurement
@@ -98,16 +96,20 @@ class QuickTaskCompletionMixin:
             if not isinstance(result, RecordedMeasurement) or self._parameter_capability is None:
                 self._show_error("measurement_failed", "Parametre sonucu sözleşmeyle eşleşmedi.")
                 return
+            if (
+                result.persistent_payload_limit <= 0
+                or result.result.persistent_payload_bytes > result.persistent_payload_limit
+            ):
+                self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
+                return
             self._measurement_record_path = str(result.path)
             self._measurement_info = {"completedUtc": result.completed_utc, "durationMs": result.observation_duration_s * 1000.0}
             self._add_log("Parametre kaydı", f"{result.path} · SHA-256 {result.sha256}")
             result = result.result
-            if result.persistent_payload_bytes > self._parameter_capability.maximum_persistent_payload_bytes:
-                self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
-                return
             pending_direction = self._pending_direction_measurement
             if pending_direction is not None:
                 self._pending_direction_measurement = None
+                self._df_capture_message = ""
                 power_field = result.channel_power_dbfs
                 resume = pending_direction["resume_settings"]
                 if (
@@ -136,6 +138,7 @@ class QuickTaskCompletionMixin:
                         )
                 else:
                     self._df_status = "Kart kanal gücü bu açıda geçerli ölçülemedi."
+                    self._df_capture_message = self._df_status
                     self._df_relative = "—"
                     self._df_bearing = "—"
                     self._status_message = self._df_status
@@ -270,28 +273,6 @@ class QuickTaskCompletionMixin:
             self._listening_state = self._status_message
             self._add_log("Dinleme", self._status_message)
             self.listeningChanged.emit()
-        elif kind == "et_tx":
-            self._et_transmitting = False
-            if not isinstance(result, TxRunResult):
-                self._et_status = "HATA"
-                self._et_result_title = "Gönderim sonucu geçersiz"
-                self._et_result_detail = "HackRF süreç sonucu sözleşmeyle eşleşmedi."
-            else:
-                self._et_status = result.status
-                self._et_result_title = (
-                    "Tekli görev tamamlandı"
-                    if result.status == "TAMAMLANDI"
-                    else "Tekli görev durduruldu"
-                )
-                self._et_result_detail = f"{result.stop_reason} · süreç kodu {result.return_code}"
-                self._et_metric_rows = [
-                    {"label": "Başlangıç UTC", "value": result.started_at_utc},
-                    {"label": "Bitiş UTC", "value": result.finished_at_utc},
-                    {"label": "Örnek sayısı", "value": str(result.sample_count)},
-                    {"label": "Durdurma nedeni", "value": result.stop_reason},
-                ]
-                self._add_log("ET Tekli Görev", self._et_result_detail)
-            self.etChanged.emit()
         if kind != "frame":
             self.pipelineChanged.emit()
         self.stateChanged.emit()
@@ -302,20 +283,6 @@ class QuickTaskCompletionMixin:
         task_kind = self._active_task_kind
         self._active_task_kind = ""
         if generation == self._generation:
-            if task_kind == "et_tx":
-                from .quick_et_actions import ET_ERROR_TEXT
-
-                self._et_transmitting = False
-                self._et_status = "HATA"
-                self._et_result_title = "Tekli görev tamamlanamadı"
-                self._et_result_detail = ET_ERROR_TEXT.get(
-                    code, f"Gönderim süreci başarısız oldu ({code})."
-                )
-                self._add_log("ET Tekli Görev", self._et_result_detail)
-                self.etChanged.emit()
-                self.pipelineChanged.emit()
-                self.stateChanged.emit()
-                return
             if task_kind == "fixed_verify":
                 candidate = self._fixed_verification_candidate
                 resume = self._fixed_resume_settings
@@ -356,6 +323,7 @@ class QuickTaskCompletionMixin:
                 if pending_direction is not None:
                     resume = pending_direction.get("resume_settings")
                     self._df_status = "Kart kanal gücü ölçümü tamamlanamadı; bu açı kaydedilmedi."
+                    self._df_capture_message = self._df_status
                     self._df_relative = "—"
                     self._df_bearing = "—"
                     self.directionChanged.emit()

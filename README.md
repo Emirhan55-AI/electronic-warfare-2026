@@ -1,5 +1,76 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+13 Eylül 2026 ürün kapsamı: uygulama yalnız Elektronik Destek (ED) sistemiyle
+devam eder. Elektronik Taarruz çalışma alanı, görev/TX kodu, yapılandırması ve
+ET'ye özel testler kaldırılmıştır. Önceki tarihli ADR ve ölçüm dosyaları yalnız
+geçmiş kayıt olarak korunur; güncel ürün yeteneği değildir.
+
+13 Eylül otomatik canlı parametre ve kayıt bakımı: iki HackRF seri numarası
+birincil/ikincil RX rolü olarak ayrı izlenir. Birincil canlı yol korunur;
+ikincinin eşzamanlı işlenmesi fiziksel kanıt bulunmadan çalışıyor gösterilmez.
+Destekleyen kart köprüsünde confirmed sinyaller tespit sürerken güç sırasıyla
+dört-kare PL/ARM parametre gözlemine girer. Eski köprü yetenek sorgusunu
+yanıtlamazsa tespit kesilmeden otomasyon kapanır. Sonuçlar SQLite kataloğunda
+dBFS'e göre sıralı görünür ve CSV çıkarılabilir. dBm yalnız tam eşleşen,
+süresi geçmemiş ölçülmüş alıcı profiliyle açılır; varsayılan profil boştur.
+Yazılım/C/loopback testleri geçti, fakat bu değişiklik güncel kart imajı veya
+iki HackRF fiziksel kabulü değildir.
+
+Güncel kaynakla yapılan sınırlı 820 MHz tanısında yalnız birincil HackRF
+göründü ve kartın kalıcı köprüsü yeni canlı parametre yeteneğini bildirmedi.
+16/16 dB giriş kırpılmasında güvenli durdu; daha düşük kazanç koşularında
+kalıcı confirmed hedef oluşmadı. 8.192 karelik koşu gerekli gerçek-zaman hızının
+biraz altında kaldı. Başarı iddiası üretilmedi; tamamlanan koşulardaki sıfır
+USB/taşıma hatası ve açık kabul sınırları
+[tanı kaydındadır](results/evidence/phase08/automatic-inline-parameter-diagnostic-20260913.json).
+
+13 Eylül parametre sonuç görünürlüğü: ölçüm tamamlandığında dört ana alanın
+değeri ve geçerlilik durumu Parametre ekranında birlikte gösterilir. Teknik
+doğrulama yeni sonuçta otomatik açılır; kaynağa göre kart veya kayıtlı I/Q kalite kapısı, gürültü referans
+farkı, tespit anlamlılığı, merkez kararsızlığı ve zamansal OBW kenar değişimi
+artık kayıt dosyasına gitmeden okunabilir. Arayüz bu alan geçerliliğinin
+fiziksel doğruluk kabulü olmadığını açıkça belirtir. İlgili 94 regresyon geçti.
+
+13 Eylül 820 MHz canlı ürün koşusu: bildirilen NFM ton yayını kaynak
+arayüzünde tespit edildi, iki P0PM-v2 parametre tekrarı alındı ve beş saniyelik
+NFM ses hazırlandı; oynat ve durdur işlemleri geçti. Dinleme tamponunu
+gözlenmeyen eski olay kaydını eşzamanlı ikinci yayın sanarak sıfırlayan sorun
+düzeltildi. Seçili kanal olay kimliği değişirken korunuyor ve operatörün
+dinleme alanları canlı yenilemede ezilmiyor. İlgili 182 test geçti.
+[Kanıt ve sınırlar](results/evidence/phase08/live-820mhz-e2e-product-20260913.json).
+Bu önceden bildirilen tek açık koşudur; PHASE-08/ST-06, eşleştirilmiş negatif,
+kör tekrar, gerçek konuşma ve genel Pd/Pfa kabulü açıktır.
+
+12 Eylül geniş aralık düzeltmesi: canlı analiz taslağı artık geniş FPGA adayını
+512 hücreye kesmez. P0PM-v2 kart yolu 8–3984 hücreyi destekler; sayısal hesap
+PL/ARM'da kalır. Kart hizmeti ve ağ köprüsü doğrulanmış ZedBoard'un SD açılış
+imajına yüklenmiş; kontrollü yeniden başlatmada doğru özetlerle otomatik
+açılmıştır. Altı dar regresyon sahnesi ve gerçek kayıtlı geniş P0PM-v2 ölçümü
+fiziksel PL/ARM yolunda geçmiştir. OBW kararsızlık kapısı ve genel RF doğruluğu açıktır.
+[Durum ve sınırlar](docs/interfaces/P0_ARM_PARAMETER_RUNTIME_CONTRACT.md).
+
+Canlı parametre akışı tek tıklamadır: `Aralığı Onayla ve Parametreleri Çıkar`.
+Aday sınırı kareler arasında değişirse dört ardışık FPGA gözleminin birleşimi
+kart sınırları içinde otomatik kullanılır; geçici eksik karede istek kaybolmaz
+ve sahiplik denetimi alım durdurulmadan önce tamamlanır.
+
+12 Eylül Analog/Sayısal entegrasyonu: `Parametreleri Çıkar` işlemi ilk üç
+teknik parametreyi mevcut PL/ARM yolunda hesaplamayı sürdürür; aynı dört CI8
+kare ayrıca PC'deki `digital_analog_detection` sınıflandırıcısına otomatik
+verilir. Sonuç ana ölçüm kartında `Analog`, `Sayısal` veya güven yetersizse
+`Belirsiz` olarak gösterilir. Modelin sentetik başarısı canlı RF kabulü
+değildir; ürün bağlantısı `%90` güven kapısıyla deneysel ve fail-closed tutulur.
+FPGA/ARM sınıflandırma kodu değişmedi.
+
+13 Eylül yön ölçümü güncellemesi: hedef kanal bir kez seçilir. Tek ölçüm düğmesi
+operatörün belirlediği başlangıç yönünü `0°` sayar; her başarılı ölçümden sonra
+sıradaki hedefi otomatik olarak saat yönünde 15° ilerletir. Ürün ekranı yalnız
+bağıl yön gösterir; serbest açı ve coğrafi kerteriz girişleri kaldırılmıştır.
+Beş saniyede sonuç alınamazsa neden gösterilir ve açı ilerlemez. Kaynak
+arayüzünü yeniden başlatmak gerekir; aşağıdaki 11 Eylül standalone paketi bu
+düzeltmeyi içermez.
+[Güncel akış ve kabul sınırı](docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
+
 Genlik tabanlı yön bulma alan profili 15° adımlı 24 açı, 3 dB tepe ve ön/arka
 kapıları, sabit hedef/alıcı bağı ve dairesel RMS hesabıyla uygulanmıştır.
 Portable C/ARM çekirdeği Python referansıyla sıfır fark verdi; CRC korumalı
@@ -7,7 +78,7 @@ Portable C/ARM çekirdeği Python referansıyla sıfır fark verdi; CRC korumal�
 Canlı ürün her açıda dört ardışık FPGA karesini kartın PL/ARM kanal gücü yolunda
 ölçer ve 24 açı sonunda ARM sonucunu ister. Yön hizmeti kalıcı PetaLinux imajına
 alınmış, yeniden başlatma ve yedi protokol sahnesi gerçek ZedBoard'da geçmiştir.
-HackRF/yönlü anten ve bilinen kerterizle fiziksel derece RMS kabulü açık olduğundan
+HackRF/yönlü anten ve bilinen bağıl açıyla fiziksel derece RMS kabulü açık olduğundan
 henüz fiziksel yön doğruluğu iddia edilmez.
 [Güncel yön bulma durumu](docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
 
@@ -1042,25 +1113,18 @@ bulma başarısı veya saha kabulü değildir.
 | FPGA tespit, gruplama ve aday paketleme blokları | Bit-doğru alt blok doğrulamalarına ek olarak tam kart tasarımında 27.453 LUT, 81,5 BRAM tile ve 71 DSP ile route edildi; setup WNS +0,423 ns, hold WHS +0,021 ns |
 | ZedBoard üzerinde DMA ve tespit zinciri | Değişken 64–54.144 bayt aday paketi, S2MM gerçek uzunluk sürücüsü ve yerel Linux hizmeti kalıcı PetaLinux imajında doğrulandı. Soğuk açılış, bit-doğru 54 aday yaşam döngüsü ve tekrarlı 2 MS/s hız kapıları geçti |
 | AM/NFM izleme zinciri | Kayıtlı I/Q ve QML ürün akışında doğrulandı; canlı HackRF/ses saha kabulü bekliyor |
-| ET işlevleri | Ürün yalnız PHASE-10 Tekli Görev'i sunar: bant sınırlı CI8 ve seri/izin/zayıflatma/süre/kazanç kilitli HackRF TX süreç sınırı uygulanmıştır. Ayrı C++17 I/Q üreteci çevrimdışı/loopback referansıdır. Faraday `CABLED_LAB` ortamı onaylıdır; profil kapalı, cihaz bağlı değil ve fiziksel RF kabulü henüz yoktur |
+| Ürün kapsamı | Yalnız RX tabanlı ED işlevleri bulunur; ET arayüzü, görev/TX kodu ve yapılandırması kaldırılmıştır |
 
 Parametre sonuçları kalibrasyonsuz `dBFS` ölçeğindedir; `dBm` ölçümü değildir.
 Faz uyumlu çok kanallı DoA, menzil veya otomatik hedef konumu üretilmez.
 
 ## Operatör uygulaması
 
-Uygulama ED ve ET görevlerini aynı ürün kabuğunda açıkça ayırır. ED alanı; veri
-kaynağı, bağlı spektrum/spektrogram görünümü, tespitler, üç adımlı sinyal ölçümü,
-AM/NFM dinleme, manuel yön bulma, sistem sağlığı ve salt okunur olay konsolunu
-birleştirir. ET alanı yalnız Tekli Görev için frekans aralığı, süre, iletimsiz
-spektrum doğrulaması ve güvenlik kapılı HackRF sürecini sunar. Üst durumdaki
-`FARADAY LAB` ADR-0043 ortam onayını gösterir; gönderim ancak seri bağlı cihaz,
-izinli bant, ölçülmüş kapalı düzen ve tarihli fiziksel kapı profili birlikte
-sağlandığında açılır. Güncel profil kapalıdır ve bağlı cihaz gözlenmemiştir.
-Çevrimdışı çoklu/arabakışlı/analog/GNSS referansları ürün dışındadır. Yayın
-çalışma zamanı gerçek SigMF/HackRF RX kaynaklarını ve Tekli Görev bileşenlerini
-içerir; mock kaynaklar, gösterim verileri ve eski laboratuvar
-arayüzleri ürün paketine girmez.
+Uygulama yalnız ED görevlerini sunar: veri kaynağı, bağlı spektrum/spektrogram
+görünümü, tespitler, üç adımlı sinyal ölçümü, AM/NFM dinleme, manuel yön bulma,
+sistem sağlığı ve salt okunur olay konsolu aynı ürün kabuğundadır. Çalışma
+zamanı yalnız gerçek SigMF/HackRF RX kaynaklarını içerir; mock kaynaklar,
+gösterim verileri ve eski laboratuvar arayüzleri ürün paketine girmez.
 
 `HackRF Canlı RX` görünümü izleme merkezini, LNA/VGA kazançlarını ve sınırlı
 canlı ED oturumunu yönetir. Gösterilen geniş spektrum aynı alımın ham 8 MS/s
@@ -1151,9 +1215,8 @@ Klavye kısayolları:
 
 - `Ctrl+O`: SigMF kaydı açar.
 - `Boşluk`: Spektrum alanında taramayı başlatır veya duraklatır.
-- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`: çalışma alanları arasında geçer ve
+- `Ctrl+1`, `Ctrl+2`, `Ctrl+3`, `Ctrl+4`, `Ctrl+5`: ED çalışma alanları arasında geçer ve
   klavye odağını seçilen alana taşır.
-- `Ctrl+5`: ET görev doğrulama alanını açar.
 - `Ctrl+B`: Spektrum alanında veri kaynağı panelini açar veya kapatır.
 - `Alt+Sol`, `Alt+Sağ`: frekans görünümü geçmişinde geri veya ileri gider.
 - `Ctrl+0`: spektrum ve spektrogramı tam banda döndürür.
@@ -1167,9 +1230,8 @@ Tam yazılım regresyonu:
 python -m pytest tests
 ```
 
-Operatör arayüzü; ED için 1280×720, 1366×768, 1920×1080 ve %150 ölçek
-koşullarında; ET için 1180×680, 1280×720 ve 1440×900 koşullarında aşağıdaki
-doğrulayıcıyla yeniden üretilebilir:
+Operatör arayüzü 1280×720, 1366×768, 1920×1080 ve %150 ölçek koşullarında
+aşağıdaki doğrulayıcıyla yeniden üretilebilir:
 
 ```powershell
 python -B scripts\verify_app_f_release_ui.py
@@ -1188,8 +1250,8 @@ altında tutulur.
 ## Depo düzeni
 
 - `app/`: Qt Quick operatör uygulaması ve sunum katmanı.
-- `app/operator_console/quick_*_actions.py`: tarama, ölçüm, dinleme, yön bulma
-  ve çevrimdışı ET kullanıcı eylemlerini ayıran sunum denetleyicileri.
+- `app/operator_console/quick_*_actions.py`: tarama, ölçüm, dinleme ve yön bulma
+  kullanıcı eylemlerini ayıran sunum denetleyicileri.
 - `app/operator_console/qml/`: ana kabuk, görev çalışma alanları ve ortak görsel
   bileşenler; QML dosyaları tek bir dev ekran tanımı olarak tutulmaz.
 - `algorithms/`: host referans DSP, tespit, parametre, izleme ve FPGA RTL kaynakları.
@@ -1200,9 +1262,6 @@ altında tutulur.
 
 ## RF güvenliği
 
-Depoda henüz doğrulanmış bir RF yayın yolu yoktur. Kullanıcının 8 Eylül
-2026 onayıyla ET için `CABLED_LAB` yalnız Faraday kabini içinde yetkilidir;
-genel/açık alan donanım TX kilitli kalır. Fiziksel TX; seri bağlı cihaz,
-sınırlı süre ve kazanç, otomatik/acil durdurma ve bağımsız ölçüm kayıtlarıyla
-fail-closed uygulanacaktır. Ayrıntı `docs/safety/RF_TEST_BOUNDARIES.md` ve
-ADR-0043'tedir.
+Depoda RF yayın yolu veya TX çalışma zamanı yoktur. Güncel ürün yalnız alım
+tabanlı ED işlemleri yapar. Tarihsel güvenlik kararları geçmiş kayıt olarak
+korunur; güncel üründe yayın yeteneği bulunduğu anlamına gelmez.

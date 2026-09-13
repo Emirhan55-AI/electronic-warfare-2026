@@ -40,6 +40,21 @@ bunun dar bir alt kümesidir: tek chunk, `2.000.000` örnek/s, `4.096` kompleks
 örnek ve tam `8.192` bayt payload. Ağ köprüsü bu alanlardan herhangi biri
 uyuşmazsa isteği DMA'ya göndermeden bağlantıyı kapatır.
 
+### İsteğe bağlı canlı parametre uzantısı
+
+Host önce ayrı bağlantıda sabit 48 baytlık `P0CQ` sorgusu gönderir. Köprü
+`P0CR` yanıtında canlı parametre bayrağı, azami `512` hücre ve tek bağlam
+bildirmedikçe normal 48 baytlık akıştan sapılmaz. Böylece eski köprüye uzatılmış
+paket gönderilmez.
+
+Destekli durumda başlık boyu `80` olur. Ortak ilk 44 baytı sırasıyla parametre
+istek/ilk-kare bayrakları (4), sıfır ayrılmış alan (4), niyet kimliği (8), olay
+kimliği (8), alt/üst shifted bin (2+2), sıfır ayrılmış alan (4) ve ilk 76
+baytın CRC32 değeri (4) izler. Bu biçim yalnız `2 MS/s`, `4096` kompleks CI8,
+tek chunk ve 56–4039 içindeki 8–512 hücre için geçerlidir. Köprü bunu yerel ED
+ABI v2 80 bayt isteğine çevirir; parametre taşımayan kareler ABI v4 olarak
+kalır.
+
 ## ZedBoard→PC yanıt paketi
 
 Kartın sürümlü yerel ED hizmet yanıtı değiştirilmeden `P0RS` zarfına alınır.
@@ -57,7 +72,8 @@ boruhatlar. Daha büyük batch reddedilir. TCP akış kontrolü yavaş tüketici
 Linux köprüsü yalnız yapılandırılmış IPv4 adresine bind eder, `0.0.0.0` kabul
 etmez, backlog değerini `1` tutar ve yalnız yapılandırılmış PC IPv4 adresini
 kabul eder. TCP çerçevelerini doğruladıktan sonra mevcut
-`AF_UNIX/SOCK_SEQPACKET` kart hizmetine sürüm 3 kompakt istek olarak iletir.
+`AF_UNIX/SOCK_SEQPACKET` kart hizmetine normal kareyi sürüm 4 kompakt istek,
+canlı parametreli kareyi sürüm 2 tam istek olarak iletir.
 Her yeni ağ oturumunun ilk karesi temporal reset taşır. Ağ süreci DMA aygıtını
 doğrudan açmaz.
 

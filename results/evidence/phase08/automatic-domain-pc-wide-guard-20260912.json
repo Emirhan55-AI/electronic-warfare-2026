@@ -1,0 +1,120 @@
+{
+  "schema": "automatic-domain-pc-integration-v1",
+  "status": "development_passed_physical_rf_open",
+  "seed": 20260912,
+  "trials_per_family": 400,
+  "input": {
+    "sample_rate_hz": 2000000.0,
+    "frames": 4,
+    "samples_per_frame": 4096,
+    "snr_db_range": [
+      4.0,
+      30.0
+    ],
+    "analysis_span": [
+      1792,
+      2303
+    ],
+    "wide_analysis_span": [
+      1045,
+      3458
+    ]
+  },
+  "families": [
+    {
+      "family": "AM",
+      "truth": "Analog",
+      "trials": 400,
+      "correct": 382,
+      "wrong": 4,
+      "uncertain": 14,
+      "coverage": 0.965,
+      "definite_accuracy": 0.9896373056994818
+    },
+    {
+      "family": "FM",
+      "truth": "Analog",
+      "trials": 400,
+      "correct": 400,
+      "wrong": 0,
+      "uncertain": 0,
+      "coverage": 1.0,
+      "definite_accuracy": 1.0
+    },
+    {
+      "family": "BPSK",
+      "truth": "Sayısal",
+      "trials": 400,
+      "correct": 331,
+      "wrong": 0,
+      "uncertain": 69,
+      "coverage": 0.8275,
+      "definite_accuracy": 1.0
+    },
+    {
+      "family": "QPSK",
+      "truth": "Sayısal",
+      "trials": 400,
+      "correct": 350,
+      "wrong": 0,
+      "uncertain": 50,
+      "coverage": 0.875,
+      "definite_accuracy": 1.0
+    }
+  ],
+  "wide_families": [
+    {
+      "family": "AM",
+      "truth": "Analog",
+      "trials": 400,
+      "correct": 383,
+      "wrong": 5,
+      "uncertain": 12,
+      "coverage": 0.97,
+      "definite_accuracy": 0.9871134020618557
+    },
+    {
+      "family": "FM",
+      "truth": "Analog",
+      "trials": 400,
+      "correct": 400,
+      "wrong": 0,
+      "uncertain": 0,
+      "coverage": 1.0,
+      "definite_accuracy": 1.0
+    },
+    {
+      "family": "BPSK",
+      "truth": "Sayısal",
+      "trials": 400,
+      "correct": 334,
+      "wrong": 0,
+      "uncertain": 66,
+      "coverage": 0.835,
+      "definite_accuracy": 1.0
+    },
+    {
+      "family": "QPSK",
+      "truth": "Sayısal",
+      "trials": 400,
+      "correct": 348,
+      "wrong": 0,
+      "uncertain": 52,
+      "coverage": 0.87,
+      "definite_accuracy": 1.0
+    }
+  ],
+  "gates": {
+    "maximum_wrong_definite_per_family": 5,
+    "minimum_definite_accuracy": 0.98,
+    "passed": true
+  },
+  "source_sha256": {
+    "digital_analog_detection/classifier_model.py": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+    "digital_analog_detection/feature_extractor_v1.py": "a014ab354b1a8dd1af923ce871f2505c6eb2444eb75c5e5792807189d0062653",
+    "digital_analog_detection/integration.py": "dd9ce25ad2e3af075e2e09b0687708950f0c09bd813875c298426ada116b664c",
+    "digital_analog_detection/train_classifier.py": "dd0cd0592e0fdf59fcba2bfd6cd508625bcc852f882a1cc448e31fa308892ffc",
+    "scripts/verify_automatic_domain_integration.py": "d3f9f422683eeac3379dc87b522ea56c2b163cbe15d5f12fcce67cb259575ce5"
+  },
+  "claim_boundary": "Aynı sentetik üretici alanındaki geliştirme doğrulamasıdır. Canlı HackRF, bağımsız RF, saha doğruluğu veya ürün kabulü değildir."
+}

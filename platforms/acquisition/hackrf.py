@@ -178,18 +178,22 @@ class RealHackRFBackend:
             return DeviceStatus("DEVICE_ERROR", reason_code=exc.code)
         payload = result.stdout + b"\n" + result.stderr
         output = payload.decode("utf-8", errors="replace").casefold()
-        if "no hackrf boards found" in output or "hackrf_open() failed" in output:
-            return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
-        if result.returncode != 0:
-            return DeviceStatus("DEVICE_ERROR", reason_code="device_probe_failed")
         try:
             devices = parse_hackrf_info(payload)
         except AcquisitionError as exc:
             return DeviceStatus("DEVICE_ERROR", reason_code=exc.code)
-        if not devices:
-            return DeviceStatus("DEVICE_ERROR", reason_code="device_output_unrecognized")
-        state = "ONE_DEVICE" if len(devices) == 1 else "MULTIPLE_DEVICES"
-        return DeviceStatus(state, len(devices), devices=devices)
+        # `hackrf_info` probes every enumerated board.  A board already owned by
+        # another process can make the command fail even though a different,
+        # serial-identified board was opened and reported successfully.  Keep
+        # those proven identities usable; all RX commands remain serial-bound.
+        if devices:
+            state = "ONE_DEVICE" if len(devices) == 1 else "MULTIPLE_DEVICES"
+            return DeviceStatus(state, len(devices), devices=devices)
+        if "no hackrf boards found" in output or "hackrf_open() failed" in output:
+            return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+        if result.returncode != 0:
+            return DeviceStatus("DEVICE_ERROR", reason_code="device_probe_failed")
+        return DeviceStatus("DEVICE_ERROR", reason_code="device_output_unrecognized")
 
     def capture(self, config: RXConfig, cancellation: threading.Event | None = None) -> CaptureResult:
         inventory = self._inventory or self.discover_tools(inspect_help=True)

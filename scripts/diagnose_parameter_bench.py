@@ -1,4 +1,4 @@
-"""KTR-4.2 / PÇ-02: kayıtlı F5 karar kapılarını değiştirmeden incele."""
+"""KTR-4.2 / PÇ-02–03: kayıtlı karar kapılarını değiştirmeden incele."""
 from __future__ import annotations
 
 import argparse
@@ -57,13 +57,21 @@ def diagnose(path):
                     evidence.spectral_entropy >= estimator.CARRIER_ARTIFACT_SPECTRAL_ENTROPY_MINIMUM_V4
                     and evidence.envelope_skewness <= estimator.CARRIER_ARTIFACT_ENVELOPE_SKEWNESS_MAXIMUM_V4),
             }
-    decision = asdict(domain)
-    domain_gates = {"snr": snr is not None and snr >= model["thresholds"]["minimum_snr_db"]}
+    legacy_decision = asdict(domain)
+    legacy_domain_gates = {"snr": snr is not None and snr >= model["thresholds"]["minimum_snr_db"]}
     if domain.nearest_family is not None:
-        domain_gates.update({
+        legacy_domain_gates.update({
             "distance": domain.distance <= model["thresholds"]["maximum_distance"],
             "margin": domain.margin >= minimum_margin_for_family(model, domain.nearest_family),
         })
+    automatic = document.get("automatic_signal_domain", {})
+    confidence = automatic.get("confidence")
+    confidence_threshold = automatic.get("confidence_threshold", 0.90)
+    domain_gates = {
+        "snr": snr is not None and snr >= 4.0,
+        "confidence": confidence is not None and confidence >= confidence_threshold,
+    }
+    product_domain = asdict(result.signal_domain)
     return {
         "record_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         "source": document["source"],
@@ -71,10 +79,18 @@ def diagnose(path):
         "carrier_reason": result.carrier_line_frequency.reason,
         "carrier_evidence": carrier,
         "carrier_gates": {key: bool(value) for key, value in gates.items()},
-        "domain": decision,
+        "domain": product_domain,
         "domain_gates": {key: bool(value) for key, value in domain_gates.items()},
-        "domain_thresholds": model["thresholds"],
-        "product_domain": asdict(result.signal_domain),
+        "domain_thresholds": {
+            "minimum_snr_db": 4.0,
+            "confidence_threshold": confidence_threshold,
+        },
+        "product_domain": product_domain,
+        "legacy_domain_diagnostic": legacy_decision,
+        "legacy_domain_gates": {
+            key: bool(value) for key, value in legacy_domain_gates.items()
+        },
+        "legacy_domain_thresholds": model["thresholds"],
     }
 
 
@@ -98,7 +114,7 @@ def run(bench, output):
             "domain_failed_gates": dict(Counter(key for row in subset for key, passed in row["domain_gates"].items() if not passed)),
         }
     report = {"schema": "parameter-gate-diagnostic-v1", "created_utc": utc_now(),
-        "requirements": ["KTR-4.2", "KTR-4.2-F1"], "acceptance": "not_evaluated",
+        "requirements": ["KTR-4.2", "KTR-4.2-F1", "PÇ-03"], "acceptance": "not_evaluated",
         "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "input_report_sha256": hashlib.sha256((bench / "report.json").read_bytes()).hexdigest(),
         "summary": summary, "measurements": rows}

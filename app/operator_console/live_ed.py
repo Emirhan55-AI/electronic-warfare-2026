@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, is_dataclass
+from dataclasses import asdict, dataclass, is_dataclass, replace
 from collections import OrderedDict, deque
 import hashlib
 import math
@@ -16,13 +16,19 @@ import numpy as np
 
 from algorithms.p0.native_channelizer import create_realtime_channelizer
 from algorithms.p0.channelizer import P0ChannelizerProfile
+from algorithms.p0.parameter_client import MAXIMUM_BOARD_SPAN_BINS
 from algorithms.p0.transport import (
     IQFrame,
     IQResponse,
+    InlineParameterResult,
     TCPClientIQTransport,
     TransportError,
     TransportStats,
     decode_local_ed_response,
+)
+from .automatic_parameter import (
+    AutomaticParameterOutcome,
+    AutomaticParameterScheduler,
 )
 
 from platforms.acquisition.continuous import (
@@ -67,6 +73,7 @@ LIVE_AUDIO_WINDOW_FRAMES = math.ceil(
 )
 LIVE_AUDIO_MIN_OBSERVED_FRACTION = 0.95
 LIVE_AUDIO_MAX_CONSECUTIVE_MISSES = 8
+LIVE_AUDIO_TARGET_MARGIN_HZ = 50_000.0
 
 
 @dataclass(frozen=True)
@@ -84,6 +91,7 @@ class LiveEDConfiguration:
     assess_receive_level: bool = False
     display_fft_size: int = 16384
     fpga_fft_size: int = 4096
+    automatic_parameters_enabled: bool = True
 
     def __post_init__(self) -> None:
         if (isinstance(self.fpga_fft_size, bool) or not isinstance(self.fpga_fft_size, int)
@@ -96,6 +104,10 @@ class LiveEDConfiguration:
             raise AcquisitionError("invalid_rx_config", "Alım seviyesi denetim modu geçersizdir.")
         if not isinstance(self.fpga_enabled, bool):
             raise AcquisitionError("invalid_rx_config", "FPGA alım modu geçersizdir.")
+        if not isinstance(self.automatic_parameters_enabled, bool):
+            raise AcquisitionError(
+                "invalid_rx_config", "Otomatik parametre çıkarımı ayarı geçersizdir."
+            )
         if isinstance(self.output_center_frequency_hz, bool) or not isinstance(
             self.output_center_frequency_hz, int
         ):
@@ -196,6 +208,7 @@ class LiveEDResponse:
     active: tuple[LiveEDEvent, ...]
     ended: tuple[LiveEDEvent, ...]
     response_bytes: int
+    parameter: InlineParameterResult | None = None
 
 
 @dataclass(frozen=True)
@@ -203,6 +216,7 @@ class LiveEDSnapshot:
     sequence_number: int
     output_frame: IQFrame
     response: LiveEDResponse
+    automatic_parameter_outcomes: tuple[AutomaticParameterOutcome, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -284,9 +298,9 @@ def _decode_event(payload: bytes, offset: int, *, ended: bool) -> LiveEDEvent:
 
 
 def decode_live_ed_response(payload: bytes, expected_frame_id: int) -> LiveEDResponse:
-    """Decode and validate all compact ABI-v3 event records for live presentation."""
+    """Decode compact detection responses and full inline-parameter responses."""
     summary = decode_local_ed_response(payload, expected_frame_id)
-    result = payload[LOCAL_RESPONSE_HEADER_BYTES:]
+    result = payload[summary.result_offset : summary.result_offset + summary.result_bytes]
     active_count, ended_count = struct.unpack_from("<HH", result, 4)
     if active_count > LOCAL_MAX_EVENTS or ended_count > LOCAL_MAX_EVENTS:
         raise TransportError("local_response_result", "Yerel kart olay sayısı güvenli sınırı aşıyor.")
@@ -295,7 +309,11 @@ def decode_live_ed_response(payload: bytes, expected_frame_id: int) -> LiveEDRes
         _decode_event(result, offset + index * LOCAL_EVENT_BYTES, ended=False)
         for index in range(active_count)
     )
-    offset += active_count * LOCAL_EVENT_BYTES
+    offset = (
+        LOCAL_RESULT_HEADER_BYTES + LOCAL_MAX_EVENTS * LOCAL_EVENT_BYTES
+        if not summary.compact_result
+        else offset + active_count * LOCAL_EVENT_BYTES
+    )
     ended_events = tuple(
         _decode_event(result, offset + index * LOCAL_EVENT_BYTES, ended=True)
         for index in range(ended_count)
@@ -310,6 +328,7 @@ def decode_live_ed_response(payload: bytes, expected_frame_id: int) -> LiveEDRes
         active=active,
         ended=ended_events,
         response_bytes=summary.response_bytes,
+        parameter=summary.parameter,
     )
 
 
@@ -345,12 +364,26 @@ class LiveEDSession:
         self._measurement_lock = threading.Lock()
         self._measurement_histories: dict[int, list[LiveEDSnapshot]] = {}
         self._measurement_windows: OrderedDict[int, tuple[LiveEDSnapshot, ...]] = OrderedDict()
+        self._parameter_span: tuple[int, int] | None = None
+        self._parameter_frames: list[LiveEDSnapshot] = []
+        self._parameter_reason = ""
+        self._parameter_after_sequence = -1
+        self._direction_span: tuple[int, int] | None = None
+        self._direction_frames: list[LiveEDSnapshot] = []
+        self._direction_reason = ""
+        self._latest_capture_sequence = -1
+        self._latest_response_sequence = -1
+        self._direction_after_sequence = -1
         self._audio_lock = threading.RLock()
         self._audio_frames: deque[IQFrame] = deque(maxlen=LIVE_AUDIO_WINDOW_FRAMES)
         self._audio_event_observations: dict[int, deque[bool]] = {}
+        self._audio_snapshots: deque[LiveEDSnapshot | None] = deque(
+            maxlen=LIVE_AUDIO_WINDOW_FRAMES
+        )
         self._preview_handler: Callable[[LiveEDPreview], None] | None = None
         self.last_diagnostics: dict = {}
         self.measurement_channelizer: dict | None = None
+        self.automatic_parameter_status = "Henüz denetlenmedi"
 
     def set_preview_handler(self, handler: Callable[[LiveEDPreview], None] | None) -> None:
         """Install before run; the callback runs outside the GUI and TCP loops."""
@@ -375,12 +408,264 @@ class LiveEDSession:
             history = self._measurement_histories.get(int(event_id), ())
             return tuple(history) if len(history) == LIVE_MEASUREMENT_WINDOW_FRAMES else ()
 
+    def begin_parameter_capture(self, lower: int, upper: int) -> None:
+        """Collect a fresh four-frame window for one operator-selected channel."""
+        if (
+            self.configuration.fpga_fft_size != 4096
+            or not 56 <= lower <= upper <= 4039
+            or not 8 <= upper - lower + 1 <= MAXIMUM_BOARD_SPAN_BINS
+        ):
+            raise ValueError("Parametre ölçümü için 4096 FFT ve geçerli hedef kanalı gerekir.")
+        with self._measurement_lock:
+            span = (int(lower), int(upper))
+            if self._parameter_span == span:
+                return
+            self._parameter_span = span
+            # Exclude queued host work and the capture already in flight.
+            self._parameter_after_sequence = max(
+                self._latest_capture_sequence, self._latest_response_sequence
+            ) + 1
+            self._parameter_frames = []
+            self._parameter_reason = "Seçili kanalda sinyal bekleniyor."
+
+    def cancel_parameter_capture(self) -> None:
+        with self._measurement_lock:
+            self._parameter_span = None
+            self._parameter_frames = []
+
+    def parameter_capture(self) -> tuple[tuple[LiveEDSnapshot, ...], str]:
+        with self._measurement_lock:
+            return tuple(self._parameter_frames), self._parameter_reason
+
+    def begin_direction_capture(self, lower: int, upper: int) -> None:
+        """Collect only responses processed after the operator's angle request."""
+        if (
+            self.configuration.fpga_fft_size != 4096
+            or not 56 <= lower <= upper <= 4039
+            or not 8 <= upper - lower + 1 <= MAXIMUM_BOARD_SPAN_BINS
+        ):
+            raise ValueError("Yön ölçümü için 4096 FFT ve geçerli hedef kanalı gerekir.")
+        with self._measurement_lock:
+            self._direction_span = (lower, upper)
+            # Exclude the host queues and the read already in flight.
+            self._direction_after_sequence = max(self._latest_capture_sequence, self._latest_response_sequence) + 1
+            self._direction_frames = []
+            self._direction_reason = "Seçili kanalda sinyal bekleniyor."
+
+    def cancel_direction_capture(self) -> None:
+        with self._measurement_lock:
+            self._direction_span = None
+            self._direction_frames = []
+
+    def direction_capture(self) -> tuple[tuple[LiveEDSnapshot, ...], str]:
+        with self._measurement_lock:
+            return tuple(self._direction_frames), self._direction_reason
+
+    @staticmethod
+    def direction_channel_owner(snapshot: LiveEDSnapshot, lower: int, upper: int):
+        # A nearby second candidate is ambiguous, even if only one is confirmed.
+        matches = [event for event in snapshot.response.active
+                   if event.observed_this_frame
+                   and event.end_shifted_bin >= lower - 4
+                   and event.start_shifted_bin <= upper + 4]
+        if len(matches) != 1:
+            return None
+        event = matches[0]
+        return event if (event.state == "confirmed"
+                         and lower <= event.start_shifted_bin <= event.peak_shifted_bin
+                         <= event.end_shifted_bin <= upper) else None
+
+    def _record_direction_snapshot(self, snapshot: LiveEDSnapshot) -> None:
+        # Caller holds _measurement_lock. Latch the first complete fresh window
+        # so GUI pacing cannot make the operator miss its availability.
+        if self._direction_span is None or len(self._direction_frames) == 4:
+            return
+        if snapshot.sequence_number <= self._direction_after_sequence:
+            return
+        lower, upper = self._direction_span
+        if self.direction_channel_owner(snapshot, lower, upper) is None:
+            self._direction_frames.clear()
+            self._direction_reason = "Hedef kanalda tek ve doğrulanmış sinyal bekleniyor; sinyal zayıf, kesintili veya komşu sinyal var."
+            return
+        if self._direction_frames and snapshot.sequence_number != self._direction_frames[-1].sequence_number + 1:
+            self._direction_frames.clear()
+        self._direction_frames.append(snapshot)
+        self._direction_reason = f"Yeni ölçüm verisi toplanıyor: {len(self._direction_frames)}/4 kare."
+
+    def _record_parameter_snapshot(self, snapshot: LiveEDSnapshot) -> None:
+        # Caller holds _measurement_lock. Event IDs may change while the one
+        # operator-selected, isolated channel remains continuous.
+        if self._parameter_span is None or len(self._parameter_frames) == 4:
+            return
+        if snapshot.sequence_number <= self._parameter_after_sequence:
+            return
+        lower, upper = self._parameter_span
+        if self.direction_channel_owner(snapshot, lower, upper) is None:
+            self._parameter_frames.clear()
+            self._parameter_reason = (
+                "Hedef kanalda tek ve doğrulanmış sinyal bekleniyor; "
+                "sinyal zayıf, kesintili veya komşu sinyal var."
+            )
+            return
+        if (
+            self._parameter_frames
+            and snapshot.sequence_number != self._parameter_frames[-1].sequence_number + 1
+        ):
+            self._parameter_frames.clear()
+        self._parameter_frames.append(snapshot)
+        self._parameter_reason = (
+            f"Yeni kanal gözlemi toplanıyor: {len(self._parameter_frames)}/4 kare."
+        )
+
     def audio_window_frame_count(self, event_id: int | None = None) -> int:
         with self._audio_lock:
             if event_id is None:
                 return len(self._audio_frames)
             observations = self._audio_event_observations.get(event_id)
             return min(len(self._audio_frames), len(observations) if observations is not None else 0)
+
+    def _audio_channel_evidence(
+        self, snapshot: LiveEDSnapshot, target_frequency_hz: float
+    ) -> tuple[object | None, bool, bool]:
+        """Resolve the one *currently observed* confirmed FPGA event at a channel.
+
+        ``response.active`` is a lifecycle table, not only the detections seen in
+        the current frame.  Ended-soon confirmed records can overlap a new event
+        after an event-ID handoff.  Counting those retained records as concurrent
+        emitters made a continuous RF channel look ambiguous and reset the audio
+        buffer.  Only simultaneous observations are ambiguous; retained records
+        are continuity evidence for a brief detector miss.
+        """
+        spacing_hz = LIVE_OUTPUT_SAMPLE_RATE_HZ / self.configuration.fpga_fft_size
+        center_hz = float(self.configuration.output_center_frequency_hz)
+        matches = []
+        for event in snapshot.response.active:
+            lower_hz = center_hz + (event.start_shifted_bin - 2048.0) * spacing_hz
+            upper_hz = center_hz + (event.end_shifted_bin - 2048.0) * spacing_hz
+            if (
+                lower_hz - LIVE_AUDIO_TARGET_MARGIN_HZ
+                <= target_frequency_hz
+                <= upper_hz + LIVE_AUDIO_TARGET_MARGIN_HZ
+            ):
+                if event.state == "confirmed":
+                    matches.append(event)
+        observed_matches = [event for event in matches if event.observed_this_frame]
+        if len(observed_matches) > 1:
+            return None, False, False
+        if observed_matches:
+            return observed_matches[0], True, True
+        if matches:
+            event = max(matches, key=lambda item: int(item.last_seen_frame_id))
+            return event, False, True
+        # Channel-bound continuity already applies a bounded missed-frame gate.
+        # A momentary absence is therefore a miss, not structural ambiguity.
+        return None, False, True
+
+    def _audio_channel_observations(
+        self, target_frequency_hz: float
+    ) -> tuple[tuple[bool, ...], tuple[int, ...], tuple[bool, ...]]:
+        observations: list[bool] = []
+        owner_ids: list[int] = []
+        validities: list[bool] = []
+        for snapshot in self._audio_snapshots:
+            owner, observed, valid = (
+                (None, False, False)
+                if snapshot is None
+                else self._audio_channel_evidence(snapshot, target_frequency_hz)
+            )
+            observations.append(observed)
+            validities.append(valid)
+            if owner is not None:
+                owner_ids.append(int(owner.event_id))
+        return tuple(observations), tuple(owner_ids), tuple(validities)
+
+    @staticmethod
+    def _audio_continuity(
+        observations: tuple[bool, ...], *, complete: bool
+    ) -> dict[str, int | float | bool]:
+        total_frames = len(observations)
+        observed_frames = sum(observations)
+        maximum_misses = 0
+        current_misses = 0
+        for observed in observations:
+            if observed:
+                current_misses = 0
+            else:
+                current_misses += 1
+                maximum_misses = max(maximum_misses, current_misses)
+        fraction = observed_frames / total_frames if total_frames else 0.0
+        return {
+            "total_frames": total_frames,
+            "observed_frames": observed_frames,
+            "observed_fraction": fraction,
+            "max_consecutive_misses": maximum_misses,
+            "acceptable": bool(
+                complete
+                and total_frames == LIVE_AUDIO_WINDOW_FRAMES
+                and fraction >= LIVE_AUDIO_MIN_OBSERVED_FRACTION
+                and maximum_misses <= LIVE_AUDIO_MAX_CONSECUTIVE_MISSES
+            ),
+        }
+
+    def audio_channel_frame_count(self, target_frequency_hz: float) -> int:
+        """Report the current continuous channel-bound buffer length."""
+        with self._audio_lock:
+            observations, _, validities = self._audio_channel_observations(
+                float(target_frequency_hz)
+            )
+            start = 1 + max(
+                (index for index, valid in enumerate(validities) if not valid),
+                default=-1,
+            )
+            current_misses = 0
+            for index, observed in enumerate(observations[start:], start=start):
+                if observed:
+                    current_misses = 0
+                else:
+                    current_misses += 1
+                    if current_misses > LIVE_AUDIO_MAX_CONSECUTIVE_MISSES:
+                        start = index + 1
+                        current_misses = 0
+            return len(observations) - start
+
+    def audio_channel_quality(
+        self, target_frequency_hz: float
+    ) -> dict[str, int | float | bool]:
+        """Report continuity without binding the operator channel to an event ID."""
+        with self._audio_lock:
+            observations, owner_ids, validities = self._audio_channel_observations(
+                float(target_frequency_hz)
+            )
+            quality = self._audio_continuity(
+                observations,
+                complete=(
+                    len(self._audio_frames) == LIVE_AUDIO_WINDOW_FRAMES
+                    and len(self._audio_snapshots) == LIVE_AUDIO_WINDOW_FRAMES
+                    and all(validities)
+                ),
+            )
+            quality["invalid_frames"] = sum(not valid for valid in validities)
+            quality["distinct_event_ids"] = len(set(owner_ids))
+            quality["event_id_changes"] = sum(
+                current != previous
+                for previous, current in zip(owner_ids, owner_ids[1:])
+            )
+            return quality
+
+    def audio_channel_ready(self, target_frequency_hz: float) -> bool:
+        return bool(
+            self.audio_channel_quality(target_frequency_hz).get("acceptable", False)
+        )
+
+    def audio_channel_window_snapshot(
+        self, target_frequency_hz: float
+    ) -> tuple[tuple[IQFrame, ...], dict[str, int | float | bool]]:
+        """Atomically snapshot I/Q for one stable RF channel across event-ID churn."""
+        with self._audio_lock:
+            quality = self.audio_channel_quality(float(target_frequency_hz))
+            if not quality.get("acceptable", False):
+                return (), quality
+            return tuple(self._audio_frames), quality
 
     def audio_window_ready(self, event_id: int | None = None) -> bool:
         if event_id is None:
@@ -437,6 +722,7 @@ class LiveEDSession:
         frame: IQFrame,
         observed_ids: tuple[int, ...] = (),
         active_confirmed_ids: tuple[int, ...] | None = None,
+        snapshot: LiveEDSnapshot | None = None,
     ) -> None:
         observed = set(observed_ids)
         active = observed if active_confirmed_ids is None else set(active_confirmed_ids)
@@ -444,7 +730,9 @@ class LiveEDSession:
             if self._audio_frames and frame.sequence_number != self._audio_frames[-1].sequence_number + 1:
                 self._audio_frames.clear()
                 self._audio_event_observations.clear()
+                self._audio_snapshots.clear()
             self._audio_frames.append(frame)
+            self._audio_snapshots.append(snapshot)
             for event_id in tuple(self._audio_event_observations):
                 if event_id not in active:
                     del self._audio_event_observations[event_id]
@@ -457,6 +745,9 @@ class LiveEDSession:
     def _record_measurement_snapshot(self, snapshot: LiveEDSnapshot) -> None:
         observed_ids: set[int] = set()
         with self._measurement_lock:
+            self._latest_response_sequence = snapshot.sequence_number
+            self._record_parameter_snapshot(snapshot)
+            self._record_direction_snapshot(snapshot)
             for event in snapshot.response.active:
                 if event.state != "confirmed" or not event.observed_this_frame:
                     continue
@@ -517,18 +808,25 @@ class LiveEDSession:
         raw_candidate_total = 0
         maximum_active = 0
         completed = 0
+        first_response_at: float | None = None
+        last_response_at: float | None = None
+        automatic_parameter_outcome_count = 0
+        automatic_scheduler: AutomaticParameterScheduler | None = None
+        latest_snapshot: LiveEDSnapshot | None = None
         # Queue occupancy and stage timings are diagnostics; sampling them on
         # every 2 ms frame adds avoidable lock/clock work to the real-time
         # path. Keep exact per-frame diagnostics for short test sessions, and
         # use a bounded stride for production-length captures.
         diagnostic_stride = 1 if config.frame_count <= 128 else 16
         stream_statistics: HackRFStreamStatistics | None = None
-        started = time.perf_counter()
+        run_started = time.perf_counter()
+        stream_started: float | None = None
 
         def capture(stream: _ContinuousStream) -> None:
             nonlocal capture_queue_high_watermark, stream_statistics
             try:
                 for index, payload in enumerate(stream):
+                    self._latest_capture_sequence = index
                     preview_needed = self._preview_handler is not None and (
                         index == 0
                         or index + 1 == config.frame_count
@@ -670,18 +968,39 @@ class LiveEDSession:
                     if channel_error:
                         raise channel_error[0]
                     raise AcquisitionError("short_stream", "Kanal seçici akışı erken bitti.")
-                pending_frames[frame.sequence_number] = frame
-                yield frame
+                submitted_frame = (
+                    automatic_scheduler.decorate(frame)
+                    if automatic_scheduler is not None
+                    else frame
+                )
+                pending_frames[frame.sequence_number] = submitted_frame
+                yield submitted_frame
 
         def handle_response(response: IQResponse) -> None:
             nonlocal completed, raw_candidate_total, maximum_active
+            nonlocal automatic_parameter_outcome_count, latest_snapshot
+            nonlocal first_response_at, last_response_at
+            response_at = time.perf_counter()
+            if first_response_at is None:
+                first_response_at = response_at
+            last_response_at = response_at
             decoded = decode_live_ed_response(response.payload, response.sequence_number)
             if decoded.dma_status_flags != 7:
                 raise TransportError("dma_status", "Canlı FPGA DMA durumu geçersizdir.")
             if decoded.dropped_candidates != 0:
                 raise TransportError("candidate_drop", "Canlı FPGA olay zincirinde aday düşürüldü.")
             output_frame = pending_frames.pop(response.sequence_number)
-            snapshot = LiveEDSnapshot(response.sequence_number, output_frame, decoded)
+            outcomes: tuple[AutomaticParameterOutcome, ...] = ()
+            if automatic_scheduler is not None:
+                outcomes = automatic_scheduler.observe_response(
+                    response.sequence_number, decoded.parameter
+                )
+                automatic_scheduler.observe_events(decoded.active, decoded.ended)
+                automatic_parameter_outcome_count += len(outcomes)
+            snapshot = LiveEDSnapshot(
+                response.sequence_number, output_frame, decoded, outcomes
+            )
+            latest_snapshot = snapshot
             if output_frame.complex_sample_count == 4096:
                 confirmed_ids = tuple(
                     event.event_id for event in decoded.active if event.state == "confirmed"
@@ -693,12 +1012,13 @@ class LiveEDSession:
                         if event.state == "confirmed" and event.observed_this_frame
                     ),
                     confirmed_ids,
+                    snapshot,
                 )
                 self._record_measurement_snapshot(snapshot)
             completed += 1
             raw_candidate_total += decoded.raw_candidate_count
             maximum_active = max(maximum_active, len(decoded.active))
-            if snapshot_handler is not None and (
+            if snapshot_handler is not None and (outcomes or
                 completed == 1
                 or completed == config.frame_count
                 or completed % config.display_interval_frames == 0
@@ -709,7 +1029,38 @@ class LiveEDSession:
         channel_worker: threading.Thread | None = None
         try:
             if config.fpga_enabled:
+                capabilities = None
+                probe = getattr(self._transport, "probe_capabilities", None)
+                if callable(probe):
+                    capabilities = probe(
+                        config.board_host, config.board_port, timeout_seconds=2.0
+                    )
+                else:
+                    capabilities = getattr(self._transport, "capabilities", None)
+                if (
+                    config.automatic_parameters_enabled
+                    and config.fpga_fft_size == 4096
+                    and capabilities is not None
+                    and bool(getattr(capabilities, "inline_parameter_observation", False))
+                    and int(getattr(capabilities, "maximum_parameter_span_bins", 0)) >= 512
+                    and int(getattr(capabilities, "parameter_contexts", 0)) == 1
+                ):
+                    automatic_scheduler = AutomaticParameterScheduler(
+                        center_frequency_hz=config.output_center_frequency_hz,
+                        fft_size=config.fpga_fft_size,
+                    )
+                    self.automatic_parameter_status = (
+                        "Etkin · tespit sürerken tek bağlamlı dört kare PL/ARM ölçümü"
+                    )
+                elif config.automatic_parameters_enabled:
+                    self.automatic_parameter_status = (
+                        "Kapalı · kart ağ köprüsü canlı parametre yeteneğini doğrulamadı"
+                    )
+                else:
+                    self.automatic_parameter_status = "Operatör ayarıyla kapalı"
                 self._transport.connect(config.board_host, config.board_port, timeout_seconds=3.0)
+            else:
+                self.automatic_parameter_status = "Kapalı · FPGA tespiti kullanılmıyor"
             stream = self._stream_factory(
                 self.executable,
                 config.rx_config,
@@ -719,6 +1070,7 @@ class LiveEDSession:
             with self._lock:
                 self._active_stream = stream
             with stream:
+                stream_started = time.perf_counter()
                 producer = threading.Thread(target=capture, args=(stream,), daemon=True)
                 channel_worker = threading.Thread(target=channelize, daemon=True)
                 producer.start()
@@ -743,6 +1095,16 @@ class LiveEDSession:
                     raise channel_error[0]
                 if exchanged != config.frame_count or completed != config.frame_count:
                     raise AcquisitionError("short_stream", "Canlı ED oturumu tam kare sayısına ulaşmadı.")
+                if automatic_scheduler is not None:
+                    final_outcomes = automatic_scheduler.finish()
+                    automatic_parameter_outcome_count += len(final_outcomes)
+                    if final_outcomes and latest_snapshot is not None and snapshot_handler is not None:
+                        snapshot_handler(
+                            replace(
+                                latest_snapshot,
+                                automatic_parameter_outcomes=final_outcomes,
+                            )
+                        )
                 stream_statistics = stream.statistics
         except Exception as exc:
             if self._cancellation.is_set():
@@ -763,6 +1125,17 @@ class LiveEDSession:
                 "capture_queue_high_watermark": capture_queue_high_watermark,
                 "channel_queue_high_watermark": channel_queue_high_watermark,
                 "channelizer_backend": channelizer_backend,
+                "automatic_parameter_status": self.automatic_parameter_status,
+                "automatic_parameter_outcomes": automatic_parameter_outcome_count,
+                "setup_seconds": (
+                    stream_started - run_started
+                    if stream_started is not None else time.perf_counter() - run_started
+                ),
+                "response_interval_seconds": (
+                    last_response_at - first_response_at
+                    if first_response_at is not None and last_response_at is not None
+                    else 0.0
+                ),
                 "hackrf_statistics": asdict(stream_statistics) if stream_statistics is not None else None,
                 "timing_scope": "most_recent_at_most_4096_observations_per_stage",
                 "timing_ms": {name: {"samples": len(values),
@@ -792,8 +1165,27 @@ class LiveEDSession:
             or transport_statistics.queue_drops != 0
         ):
             raise AcquisitionError("transport_integrity", "Canlı ZedBoard taşıma bütünlüğü doğrulanamadı.")
-        elapsed = time.perf_counter() - started
-        frames_per_second = completed / elapsed
+        if stream_started is None:
+            raise AcquisitionError(
+                "stream_timing_missing", "Canlı veri akışı süre başlangıcı oluşmadı."
+            )
+        elapsed = time.perf_counter() - stream_started
+        response_interval = (
+            last_response_at - first_response_at
+            if first_response_at is not None and last_response_at is not None
+            else 0.0
+        )
+        frames_per_second = (
+            (completed - 1) / response_interval
+            if completed > 1 and response_interval > 0.0
+            else completed / elapsed
+        )
+        self.last_diagnostics["stream_elapsed_seconds"] = elapsed
+        self.last_diagnostics["frames_per_second_scope"] = (
+            "first_to_last_fpga_response_interval"
+            if completed > 1 and response_interval > 0.0
+            else "complete_stream_interval"
+        )
         return LiveEDSessionResult(
             completed_frames=completed,
             elapsed_seconds=elapsed,
@@ -811,6 +1203,9 @@ class LiveEDSession:
             preview_frames=preview_frames,
             processing_timings={
                 "scope": "most_recent_at_most_4096_observations_per_stage",
+                "frames_per_second_scope": self.last_diagnostics[
+                    "frames_per_second_scope"
+                ],
                 "stages": {name: {"samples": len(values),
                     "p50_ms": float(np.percentile(values, 50)) if values else 0.0,
                     "p95_ms": float(np.percentile(values, 95)) if values else 0.0,

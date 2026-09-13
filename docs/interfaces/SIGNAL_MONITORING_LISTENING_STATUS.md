@@ -1,5 +1,47 @@
 # Sinyal izleme ve dinleme: güncel durum
 
+## 820 MHz canlı NFM ürün koşusu — 13 Eylül 2026
+
+Kullanıcının kontrollü laboratuvarda açık olduğunu bildirdiği `820 MHz`,
+`50 kHz` azami sapmalı ve `1 kHz` tonlu NFM yayını, kaynak arayüzü üzerinden
+HackRF → kanal seçici → FPGA/ARM tespit → PC dinleme zincirinde işlendi.
+RX `16/16 dB`, otomatik kazanç açık ve FPGA çıkışı `2 MS/s` idi. Canlı aday
+seçim anında `819,9863 MHz`, FPGA + RX spektrumu uyumlu ve `35,3 dB` tepe/gürültü
+olarak sunuldu; bu değer yayıncı kimliği değildir.
+
+İlk denemede beş saniyelik tampon sık sık sıfırlanıyordu. Kök neden, ARM
+yanıtındaki `active` yaşam döngüsü tablosunda tutulan fakat o karede gözlenmeyen
+eski confirmed kayıtların eşzamanlı ikinci sinyal sayılmasıydı. Kanal kapısı
+artık yalnız aynı karede gerçekten gözlenen birden fazla eşleşmeyi belirsizlik
+olarak reddeder. Gözlenmeyen yaşam döngüsü kayıtları ve kısa olay-kimliği
+boşlukları mevcut `%95`/en çok sekiz ardışık eksik kare kapısından geçer;
+uzun kayıp yine tamponu sıfırlar. Operatör kanal frekansı olay kimliği
+değişirken sabit tutulur. Ayrıca canlı öneriler operatörün yazdığı ofset veya
+bant genişliğini her arayüz yenilemesinde ezmez.
+
+Düzeltme sonrası `120 kHz`, `0 kHz` ofsetli NFM hazırlığı `5,001 s` canlı
+girdiden `5,000 s`, `48 kHz` mono PCM16 ses üretti. `2.442` karenin `2.422`'si
+gözlendi; en uzun boşluk üç kareydi ve süreklilik doğrulandı. Baskın ses
+bileşeni `1,02301 kHz`, kanal gücü `−31,69…−28,58 dBFS`, artık merkez değişimi
+`−667,8…+303,0 Hz` oldu. Oynat ve durdur işlemleri gerçek arayüzde geçti.
+
+Aynı bildirilen yayında iki canlı parametre kaydı emisyon merkezini
+`819,985633 / 819,962533 MHz`, OBW'yi `422,087 / 451,932 kHz`, kanal gücünü
+`−31,340 / −28,193 dBFS` verdi. PC sınıflandırıcısı ikisini de yüksek güvenle
+`Analog` gösterdi; kayıtların `accuracy_proven` ve sınıflandırma
+`product_acceptance` bayrakları yine `false` kaldı. Parametre ile dinleme aynı
+RF bağlamında kanıt paketine bağlandı, ancak doğrudan parametre-sonucu
+`Dinleme İçin Yeniden Al` arayüz devri bu düzeltmeden sonra yeniden
+tekrarlanmadı.
+
+Kaynak bağı, iki kayıt SHA-256 özeti, ayrıntılı sonuçlar ve sınırlar
+[`live-820mhz-e2e-product-20260913.json`](../../results/evidence/phase08/live-820mhz-e2e-product-20260913.json)
+içindedir. İlgili 182 yazılım/QML testi geçti. Bu tek, dalga biçimi önceden
+bildirilmiş açık koşudur; eşleştirilmiş kapalı/yanlış-kanal negatifi, kör tekrar,
+gerçek konuşma anlaşılabilirliği, telsiz pre-emphasis profili, yayıncı kimliği
+ve genel Pd/Pfa kabulü değildir. PHASE-08/ST-06 ile tam KTR-4.3 fiziksel kabulü
+açık kalır.
+
 ## Şartname ve KTR eşlemesi
 
 Şartnamenin `5.1.3 Sinyal İzleme/Dinleme` maddesi depoda `KTR-4.3` ile
@@ -24,11 +66,14 @@ protokol varsayılmaz.
 - Canlı ürün yolu, HackRF'ten alınmış, karta gönderilmiş ve kart yanıtıyla
   eşleşmiş `2 MS/s` CI8 karelerin son `5,001216` saniyesini kullanır. Tampon
   `2.442` kare ve yaklaşık `19,1 MiB` ile sınırlıdır. Bir sıra boşluğu tamponu
-  sıfırlar. Seçili olay pencere boyunca ARM'da `confirmed` kalır; karelerin en
+  sıfırlar. Seçili RF kanalı pencere boyunca ARM'da `confirmed` kanıt ister;
+  olay kimliği değişebilir. Aynı karede kanala uyan birden fazla gözlenen olay
+  belirsizliktir. Yaşam döngüsü tablosunda tutulan fakat o karede gözlenmeyen
+  kayıtlar ikinci yayın sayılmaz. Karelerin en
   az `%95`'inde yeniden gözlenmesi ve ardışık gözlenmeme boşluğunun en çok `8`
   kare (`16,384 ms`) olması gerekir. Böylece tek karelik CFAR salınımı sesi
-  bütünüyle düşürmez; olayın kaybolması yine kapıyı hemen kapatır. Arayüz gözlenen
-  kare sayısını ve en uzun boşluğu bildirir.
+  bütünüyle düşürmez; sekiz kareyi aşan kanal kaybı kapıyı kapatır. Arayüz
+  gözlenen kare sayısını ve en uzun boşluğu bildirir.
 - Kanal gücü ve artık merkez frekansı 250 ms pencerelerle izlenir. Güç
   `10 log10(mean(|x|²)) dBFS`; artık frekans
   `angle(sum(x[n]·conj(x[n−1]))) Fs/(2π)` ile hesaplanır. Arayüz güç aralığını,
@@ -73,6 +118,10 @@ sözleşmesi gerekir.
   `results/evidence/phase05/monitoring-observation-v1.json`. Canlı veri boyutu
   host gözlemi `results/evidence/phase05/monitoring-live-scale-host-20260911.json`
   içindedir.
+- 820 MHz canlı tespit, iki parametre tekrarı ve NFM hazırlama/oynatma sonucu
+  `results/evidence/phase08/live-820mhz-e2e-product-20260913.json` içindedir.
+  Kaynak bağına karşı 182 yazılım/QML testi geçmiştir; bu tek açık koşu fiziksel
+  kabul paydası değildir.
 - Korunmuş fiziksel HackRF NFM tekrar kaydının `5,001216` saniyesi güncel yerel
   8→2 MS/s kanal seçici ve dinleme DSP'sinden geçirilmiştir. Çıkışta `1.700 Hz`
   referansa karşı `1.699,951172 Hz` baskın ses (`0,048828 Hz` hata), 20 kanal

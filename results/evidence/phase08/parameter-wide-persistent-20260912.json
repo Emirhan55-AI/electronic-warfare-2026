@@ -1,0 +1,126 @@
+{
+  "schema": "parameter-wide-persistent-v1",
+  "recorded_at": "2026-09-12T15:36:17.8920957Z",
+  "status": "passed_with_open_rf_accuracy_gates",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.1-OPS-B0",
+    "KTR-4.2",
+    "PÇ-02",
+    "PÇ-04"
+  ],
+  "scope": "P0PM-v2 wide analysis span, persistent ZedBoard ARM service image, protocol compatibility and one unchanged recorded RF replay",
+  "board_identity": {
+    "hostname": "electronic-warfare-zedboard",
+    "model": "Zynq Zed Development Board",
+    "architecture": "ARMv7",
+    "address": "192.168.7.2",
+    "service_port": 47007,
+    "usb_interface_mac": "7e:9c:74:46:7d:a2",
+    "post_reboot_boot_id": "df204e1f-d0f9-47c2-8696-10c7c307b6dc",
+    "fpga_state": "operating"
+  },
+  "protocol": {
+    "request_magic": "P0PM",
+    "response_magic": "P0PR",
+    "legacy_version": 1,
+    "wide_version": 2,
+    "legacy_maximum_span_bins": 512,
+    "wide_maximum_span_bins": 3984,
+    "wide_persistent_payload_bytes": 389376,
+    "host_f5_contract_changed": false,
+    "host_numeric_fallback_for_wide_request": false
+  },
+  "installed_products": {
+    "p0-ed-service": {
+      "sha256": "20c151ea1291c0653432573595a7f3f20a08720a8330472642bd1d843f6822d7",
+      "size_bytes": 110152,
+      "autostart_pid_after_reboot": 625,
+      "card_path": "/usr/sbin/p0-ed-service"
+    },
+    "p0-ed-network-bridge": {
+      "sha256": "e0ae46d545d69b773d78f4b631ca0afa71970182e0b7f4443909fa56a0815d93",
+      "size_bytes": 44244,
+      "autostart_pid_after_reboot": 632,
+      "card_path": "/usr/sbin/p0-ed-network-bridge"
+    }
+  },
+  "persistent_image": {
+    "installed_image_ub_sha256": "6bcbdcbe4c68e463274162aa5c7faf145c584a384d7237d5e6fada99a9d4406e",
+    "installed_image_ub_size_bytes": 24228387,
+    "previous_image_ub_sha256": "1f7899b537e765d3f77e040221a26553b5abb54ca8d2d87908f3e8a0d94e8705",
+    "previous_image_ub_size_bytes": 24151571,
+    "recoverable_card_backup": "/run/media/ZEDBOOT-mmcblk0p1/image.ub.pre-p0pm-v2-20260912",
+    "boot_bin_sha256": "de0d333ad4b5b87b17a9c675018cf079a8e4c37e1e899c92c68b8c4337e4f61c",
+    "kernel_sha256": "5eaa8867f7daa729e3944821ffe6e270efdbc5ab7fbfd2a72d93e58709885bb1",
+    "device_tree_sha256": "3949ab718dab2aec2b1491900afbee68ee2802bc58d0c1b728b41d914ba30c58",
+    "previous_rootfs_sha256": "8d0f52bc0a2832ecd4f8880f319d6992fba227d4d0a1d288911f69de38b28ca8",
+    "installed_rootfs_sha256": "07f6edc20c5d9418af6461ad7d7e7ac472465b9ff3107c74e4e9ea24e0c7f27c",
+    "kernel_unchanged": true,
+    "device_tree_unchanged": true,
+    "boot_bin_unchanged": true,
+    "post_reboot_product_hashes_matched": true,
+    "persistent_cold_boot_checks": 1
+  },
+  "physical_narrow_regression": {
+    "artifact_sha256": "48e53c5ae8d319f0e86720d8aa64d7879e20818e7312aae471b7d997f02555ff",
+    "status": "passed",
+    "passed_cases": 6,
+    "total_cases": 6,
+    "elapsed_us": [77886, 77297, 77429, 77434, 33260, 14967]
+  },
+  "physical_wide_record_replay": {
+    "artifact_sha256": "cfc47f78013c2671cb94e339eb8bace39132e4d606be71e6790a4846d3839dcd",
+    "status": "passed",
+    "input_sha256": "0cba28625a224adcaddbea88bed98a135d5adf953c61e25445a09aba1baeb55c",
+    "analysis_span_bins": [1045, 3458],
+    "analysis_span_width_bins": 2414,
+    "response_protocol_version": 2,
+    "response_sha256": "a8de41e846d3c7e7f45d204abd5fbd5777d9d505496eaf78b37491274bbf62ef",
+    "elapsed_us": 40651,
+    "emission_center_frequency_hz": 820002879.2619671,
+    "channel_power_dbfs": -29.275815960111487,
+    "snr_estimate_db": 14.457889492014926,
+    "reference_difference_db": 0.6462918687338916,
+    "carrier_line_state": "not_observed",
+    "carrier_line_reason": "carrier_line_below_threshold",
+    "occupied_bandwidth_state": "uncertain",
+    "occupied_bandwidth_reason": "obw_temporal_instability",
+    "temporal_edge_range_bins": 12.07515354658426,
+    "temporal_edge_gate_bins": 7.0,
+    "board_and_portable_c_states_matched": true,
+    "board_values_within_tolerance": true
+  },
+  "development_checks": {
+    "portable_c_python_cases": 49,
+    "portable_c_python_status": "passed",
+    "service_protocol_status": "passed",
+    "automatic_domain_wide_synthetic_gate": "passed",
+    "automatic_domain_evidence": "automatic-domain-pc-wide-guard-20260912.json"
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "f7ff210ae104af749fa0502723f5fc41fb17f36eb22ee44afb2a34cb6b302e9d",
+    "platforms/embedded/p0/src/p0_ed_service.c": "b4699c90f5b29a0f3b3f6b45179de5d90a204ab2e8056434ef6ec37714cf58a9",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c": "704e29c40738f284e5b51397557f46a4dbad7c89d54ce9385a7101ee14a737e0",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "9f6d86fe7c9c2313822fdf2eabb585db434a7f62981c894614b5aa78a6b9453b",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h": "d3d6d7267ee1b300063432a40e975fe813ed2238a74f604813197062c77b7395",
+    "algorithms/p0/parameter_client.py": "84a8c1f4349a978798c1aae308a803f6f1ae1f136b8ced1bee14ef9c2cead4af",
+    "scripts/verify_p0_wide_parameter_record.py": "95b479482645b922cc7abb9c133548d9e26b42c81a7116e16e47617d905252ae"
+  },
+  "claim_boundary": {
+    "verified": [
+      "P0PM-v2 2414-bin request executed on the physical ZedBoard PL/ARM path",
+      "legacy six-scene narrow parameter regression passed after the image update",
+      "updated service and bridge survived one controlled reboot and autostarted",
+      "full-span replay removes the prior reference-mismatch rejection for center, power and SNR"
+    ],
+    "not_verified": [
+      "general live HackRF RF accuracy",
+      "occupied-bandwidth validity for this temporally unstable recording",
+      "dBm calibration",
+      "independent physical analog/digital classification accuracy",
+      "field Pd/Pfa acceptance",
+      "multi-cycle cold-boot endurance"
+    ]
+  }
+}

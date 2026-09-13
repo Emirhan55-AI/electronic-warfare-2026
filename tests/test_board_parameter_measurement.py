@@ -7,7 +7,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from algorithms.p0.parameter_client import encode_request, decode_response
+from algorithms.p0.parameter_client import encode_request, decode_response, BoardAnalysisSpan, BOARD_PERSISTENT_PAYLOAD_BYTES
 from algorithms.parameters.f1_development import _intent
 from algorithms.spectrum import SpectrumConfig
 from app.operator_console import measurement_record as records
@@ -63,13 +63,70 @@ def test_live_record_uses_board_and_never_host_fallback(tmp_path):
          patch.object(records.F5ParameterEstimator, 'measure', side_effect=AssertionError('host estimator called')):
         saved=records.measure_and_record(intent,samples,**kwargs)
         document,_=records.read_measurement(saved.path)
-    assert document['processing_location']=='zedboard_arm'
+    assert document['processing_location']=='hybrid_zedboard_arm_host'
     assert document['spectrum_origin']=='physical_pl_replay_of_recorded_ci8'
     assert document['calibration']['dbm_available'] is False
-    assert document['fields']['signal_domain']['method_id'] is None
+    assert document['fields']['signal_domain']['method_id']=='domain.digital-analog-logreg-pc-v1'
+    assert document['fields']['signal_domain']['state']=='uncertain'
+    assert document['automatic_signal_domain']['physical_acceptance'] is False
+    assert document['automatic_signal_domain']['product_acceptance'] is False
+    assert records.replay_measurement(saved.path).signal_domain.state == 'uncertain'
     assert document['board_measurement']['input_ci8_sha256']==records.digest(iq)
     with patch.object(records,'measure_on_board',side_effect=RuntimeError('kart kapalı')), \
          patch.object(records.F5ParameterEstimator,'measure',side_effect=AssertionError('fallback')):
         with pytest.raises(RuntimeError,match='kart kapalı'):
             records.measure_and_record(intent,samples,**kwargs)
     assert len(list(tmp_path.glob('*.zip')))==1
+
+
+def test_wide_span_is_versioned_and_does_not_change_frozen_host_span():
+    from algorithms.parameters import AnalysisSpan
+    with pytest.raises(ValueError):
+        AnalysisSpan(1000, 3400, "auto_suggested")
+    for bounds in ((55, 4039), (56, 4040), (56, 62)):
+        with pytest.raises(ValueError):
+            BoardAnalysisSpan(*bounds, "auto_suggested")
+    intent = replace(_intent((2180, 2238), 1, 1), span=BoardAnalysisSpan(56, 4039, "auto_suggested"))
+    iq = bytes(32768)
+    request = encode_request(intent, iq, 2_000_000, 100_000_000, 7)
+    assert struct.unpack_from('<H', request, 4)[0] == 2
+    with pytest.raises(ValueError):
+        decode_response(response(intent, iq), intent, iq, 7)
+    payload = bytearray(response(intent, iq))
+    struct.pack_into('<H', payload, 4, 2)
+    struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
+    assert decode_response(bytes(payload), intent, iq, 7).result.persistent_payload_bytes == BOARD_PERSISTENT_PAYLOAD_BYTES
+
+
+def test_wide_board_record_roundtrip_never_uses_host_numeric_estimator(tmp_path):
+    intent = replace(_intent((2180, 2238), 1, 1), span=BoardAnalysisSpan(1000, 3400, "auto_suggested"))
+    iq = bytes(32768)
+    payload = bytearray(response(intent, iq))
+    struct.pack_into('<H', payload, 4, 2)
+    struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
+    board = decode_response(bytes(payload), intent, iq, 7)
+    with patch.object(records, 'measure_on_board', return_value=board), \
+         patch.object(records.F5ParameterEstimator, 'measure', side_effect=AssertionError('host numerical fallback')):
+        saved = records.measure_and_record(intent, tuple(np.zeros(4096, complex) for _ in range(4)),
+            sample_rate_hz=2_000_000, center_frequency_hz=100_000_000, spectrum_config=SpectrumConfig(),
+            source={'kind': 'hackrf'}, requested_utc='2026-09-12T00:00:00Z', directory=tmp_path,
+            board_endpoint=('127.0.0.1', 47007))
+        assert saved.persistent_payload_limit == BOARD_PERSISTENT_PAYLOAD_BYTES
+        assert records.replay_measurement(saved.path).channel_power_dbfs.value == -30
+        document, _ = records.read_measurement(saved.path)
+        assert document['board_measurement']['protocol'] == 'P0PM-v2'
+        assert document['board_measurement']['persistent_payload_bytes'] == 389376
+        assert document['fields']['signal_domain']['state'] == 'uncertain'
+
+
+def test_truncated_owner_is_rejected_before_card_measurement(tmp_path):
+    intent = _intent((2180, 2238), 1, 1)
+    owner = replace(intent.context.candidates[0], lower_shifted_bin=1109, upper_shifted_bin=3394)
+    intent = replace(intent, context=replace(intent.context, candidates=(owner,)))
+    with patch.object(records, 'measure_on_board', side_effect=AssertionError('must reject before board')):
+        with pytest.raises(ValueError, match='tamamını kapsamıyor'):
+            records.measure_and_record(intent, tuple(np.zeros(4096, complex) for _ in range(4)),
+                sample_rate_hz=2_000_000, center_frequency_hz=100_000_000, spectrum_config=SpectrumConfig(),
+                source={'kind': 'hackrf'}, requested_utc='2026-09-12T00:00:00Z', directory=tmp_path,
+                board_endpoint=('127.0.0.1', 47007))
+    assert not list(tmp_path.glob('*.zip'))

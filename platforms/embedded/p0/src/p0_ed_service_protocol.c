@@ -653,7 +653,8 @@ int p0_parameter_batch_decode(const uint8_t *bytes, size_t size,
 {
     unsigned int width;
     if (bytes == NULL || request == NULL || size != P0_PARAMETER_BATCH_REQUEST_BYTES ||
-        memcmp(bytes, "P0PM", 4U) != 0 || load_le16(bytes + 4U) != 1U ||
+        memcmp(bytes, "P0PM", 4U) != 0 ||
+        (load_le16(bytes + 4U) != 1U && load_le16(bytes + 4U) != 2U) ||
         load_le16(bytes + 6U) != P0_PARAMETER_BATCH_HEADER_BYTES ||
         load_le32(bytes + 44U) != 0U || load_le32(bytes + 48U) != 0U ||
         load_le32(bytes + 52U) != 0U || load_le32(bytes + 56U) != 0U ||
@@ -673,7 +674,8 @@ int p0_parameter_batch_decode(const uint8_t *bytes, size_t size,
     if (request->token == 0U || request->event_id == 0U || request->sample_rate_hz == 0U ||
         request->sample_rate_hz > 20000000U || request->first_frame_id > UINT32_MAX - 3U ||
         request->lower_bin < 56U || request->upper_bin > 4039U ||
-        request->lower_bin > request->upper_bin || width < 8U || width > 512U) return -1;
+        request->lower_bin > request->upper_bin || width < 8U ||
+        width > (load_le16(bytes + 4U) == 1U ? 512U : P0_PARAMETER_MAXIMUM_SPAN_BINS)) return -1;
     return 0;
 }
 
@@ -692,7 +694,7 @@ int p0_parameter_batch_response_encode(const p0_parameter_batch_request_t *reque
          result->carrier_line_frequency_hz.reason != P0_PARAMETER_REASON_NONE))) return -1;
     memset(bytes, 0, P0_PARAMETER_BATCH_RESPONSE_BYTES);
     memcpy(bytes, "P0PR", 4U);
-    store_le16(bytes + 4U, 1U);
+    store_le16(bytes + 4U, 2U);
     store_le16(bytes + 6U, P0_PARAMETER_BATCH_RESPONSE_BYTES);
     store_le32(bytes + 8U, request->token);
     store_le32(bytes + 12U, status);
@@ -711,7 +713,8 @@ int p0_parameter_batch_response_encode(const p0_parameter_batch_request_t *reque
 int p0_parameter_batch_response_check(const uint8_t *bytes, size_t size, uint32_t token)
 {
     return bytes != NULL && size == P0_PARAMETER_BATCH_RESPONSE_BYTES &&
-        memcmp(bytes, "P0PR", 4U) == 0 && load_le16(bytes + 4U) == 1U &&
+        memcmp(bytes, "P0PR", 4U) == 0 &&
+        (load_le16(bytes + 4U) == 1U || load_le16(bytes + 4U) == 2U) &&
         load_le16(bytes + 6U) == size && load_le32(bytes + 8U) == token &&
         load_le32(bytes + 12U) <= 5U &&
         load_le32(bytes + 172U) == p0_ed_crc32(bytes, 172U) ? 0 : -1;
@@ -1009,7 +1012,7 @@ int p0_ed_request_decode(const uint8_t *message, size_t message_bytes,
                 request->parameter_event_id == 0U ||
                 request->parameter_lower_shifted_bin > request->parameter_upper_shifted_bin ||
                 width < P0_PARAMETER_MINIMUM_SPAN_BINS ||
-                width > P0_PARAMETER_MAXIMUM_SPAN_BINS ||
+                width > 512U || /* Legacy per-frame ABI retains its original contract. */
                 request->parameter_lower_shifted_bin <
                     20U + P0_PARAMETER_LOCAL_PADDING ||
                 request->parameter_upper_shifted_bin >

@@ -183,7 +183,6 @@ TEXT = {
     "direction_line_showing": "Kerteriz hattı (LOB) gösteriliyor",
     "synthetic_direction_notice": "YAZILIM REFERANS VERİSİ · fiziksel yön ölçümü değildir",
     "system_status_workspace": "Sistem",
-    "et_workspace": "Elektronik Taarruz",
     "calibration_pending": "KALİBRE EDİLMEMİŞ · dBFS",
     # Operatör araç ipuçları
     "snr_tooltip": "Sinyalin gürültüye göre bağıl seviyesini (dB) gösterir.",

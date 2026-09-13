@@ -1,5 +1,12 @@
 # RF Test Sınırları
 
+## Güncel ürün kapsamı — 13 Eylül 2026
+
+ADR-0044 ile ET/TX uygulama, yapılandırma ve test yolları üründen kaldırılmıştır.
+Depoda RF yayın çalışma zamanı yoktur; iki HackRF yalnız ED/RX rolleri için
+değerlendirilir. Aşağıdaki kayıtlar önceki geliştirme döneminin tarihsel güvenlik
+sınırlarıdır ve güncel üründe TX yetkisi veya yeteneği oluşturmaz.
+
 ## Güncel ET laboratuvar sınırı — 8 Eylül 2026
 
 Kullanıcı, fiziksel ET-TX çalışmalarının yalnız hazır korumaları bulunan Faraday

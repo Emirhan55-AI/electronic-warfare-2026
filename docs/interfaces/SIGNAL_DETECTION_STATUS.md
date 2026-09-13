@@ -1,5 +1,157 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## Yalnız ED ürün kapsamı — 13 Eylül 2026
+
+Kullanıcı kararıyla ET arayüzü, görev/TX kaynakları, yapılandırması,
+doğrulayıcıları ve özel testleri kaldırıldı. Güncel ürün yalnız ED tespit,
+parametre, dinleme ve yön bulma akışlarını içerir. Aşağıdaki tarihli ET
+bölümleri geçmiş durum kaydıdır; güncel yetenek veya yeniden açılmış faz
+değildir. Bu kaldırma ST-06 ve diğer açık ED kabul kapılarını kapatmaz.
+
+## Güncel kaynakla 820 MHz tanısı — 13 Eylül 2026
+
+Güncel çalışma ağacında birincil `…36877e47` HackRF görüldü; yapılandırılmış
+ikincil `…35138247` aynı `hackrf_info` gözleminde görünmedi. Kartın
+`192.168.7.2:47007` normal IQ bağlantısı kurulabildi, ancak çalışan ağ köprüsü
+P0CQ canlı parametre yeteneğini doğrulamadı. Bu nedenle uygulama otomatik
+parametre paketini göndermeden normal tespiti sürdürdü; karttaki ikili bu yeni
+kaynakla eşleştirilmiş veya güncellenmiş sayılmaz.
+
+820 MHz merkezli güncel tanıda 16/16 dB koşusu giriş I/Q kırpılmasıyla güvenli
+biçimde durdu. 8/8, 8/16 ve 16/8 dB koşuları kalıcı confirmed olay üretmedi.
+16/14 dB olay-kimliği tekrarında 820,000 MHz hücresi de görüldü, fakat en uzun
+confirmed olay yalnız üç gözlem karesinde kaldı; kalıcı hedef bağı kurulmadı.
+Tamamlanan koşularda USB overrun ile taşıma CRC/sıra/kuyruk hatası sıfırdı.
+Hazırlık/kapanıştan ayrılan ilk-son kart yanıt aralığıyla son 4.096 karelik koşu
+`487,431 kare/s` ile gerekli `488,28125 kare/s` sınırının altında kaldığından
+güncel kaynak performans kabulü de açıktır. Harici verici durumu ve dalga biçimi
+bağımsız doğrulanmadığından bu
+sonuç ne yayın yokluğu ne de algılama başarısıdır. Ayrıntı
+[`automatic-inline-parameter-diagnostic-20260913.json`](../../results/evidence/phase08/automatic-inline-parameter-diagnostic-20260913.json)
+içindedir. Güncel kart ikilisi yüklenip iki alıcı boş ve görünür olmadan canlı
+otomatik katalog, çift RX ve RF doğruluk kabulü açık kalır.
+
+## Çoklu alıcı kimliği ve canlı otomatik parametre yolu — 13 Eylül 2026
+
+İki HackRF, `config/p0/hackrf_ed_rx.json` içinde benzersiz
+`ED_RX_PRIMARY`/`ED_RX_SECONDARY` rolleriyle tanımlıdır. Donanım denetimi her
+rolü ayrı raporlar. Birincil seri mevcut tespit/parametre/yön yoluna bağlıdır;
+ikincil seri tanınsa bile eşzamanlı ikinci örnek akışı ve zaman hizası fiziksel
+kanıt olmadan çalışıyor gösterilmez.
+
+Kart köprüsü P0CQ sorgusuyla canlı parametre yeteneğini bildirirse confirmed
+olaylar güç sırasıyla tek bağlamlı dört-kare PL/ARM ölçümüne alınır. Tespit
+yanıtları aynı karelerde kesilmez. Yetenek yoksa normal 48 baytlık P0IQ akışı
+değişmeden sürer ve otomasyon kapalı görünür. 512 hücreyi aşan, referans bandı
+FFT dışında kalan veya komşu sinyal içeren olaylar gerekçeli olarak kaydedilir.
+Bu kaynak, C11 ve loopback doğrulamasıdır; güncel fiziksel kart imajı/iki HackRF
+kabulü henüz yapılmamıştır. Güncel Qt görünüm modeli iki rolün birlikte
+tanınmasını ve yeniden başlayan canlı oturumlarda olay kimliği çakışmadan kalıcı
+kayıt oluşmasını ayrıca sınar. İlgili Python ve gerçek Qt/QML paketi son
+kaynakta `186/186` geçti.
+
+## Parametre doğrulama sonuçlarının görünürlüğü — 13 Eylül 2026
+
+Tespitten başlatılan parametre ölçümünün sayısal sonucu artık yalnız kayıt ve
+durum mesajında kalmaz. Dört ana alanın değeri/durumu, kaynağa bağlı ölçüm kalite kapısı ve
+dört kalite metriği Parametre ekranında görünür; teknik doğrulama yeni sonuçta
+otomatik açılır. Başarısız veya belirsiz alanın Türkçe nedeni aynı ekranda
+verilir. Görünür özet kart/profil geçerliliği ile fiziksel doğruluk kabulünü
+ayırır. İlgili 94 regresyon geçti; bu arayüz değişikliği açık RF kabul
+kapılarından hiçbirini kapatmaz.
+
+## 820 MHz canlı tespit, parametre ve dinleme bağı — 13 Eylül 2026
+
+Kontrollü laboratuvarda kullanıcı tarafından bildirilen `820 MHz` NFM ton
+yayını kaynak arayüzünde canlı olarak bulundu. Seçim anındaki aday
+`819,9863 MHz`, FPGA + RX spektrumu uyumlu ve `35,3 dB` tepe/gürültü olarak
+gösterildi. Olay kimliği değişimleri sırasında operatörün seçtiği RF kanalı
+artık sabit kalır; eski fakat o karede gözlenmeyen ARM yaşam döngüsü kayıtları
+dinlemede eşzamanlı ikinci yayın sayılmaz. Aynı karede gerçekten gözlenen iki
+eşleşme ise güvenli biçimde belirsizlik olarak kalır.
+
+İki P0PM-v2 canlı parametre tekrarı merkez, OBW ve güç için geçerli sonuç
+üretti; ardından `5,001 s` canlı pencere NFM sesine çevrilip oynatıldı ve
+durduruldu. Ayrıntılı değerler, arşiv özetleri, 182 geçen regresyon ve açık
+kabul sınırları
+[`live-820mhz-e2e-product-20260913.json`](../../results/evidence/phase08/live-820mhz-e2e-product-20260913.json)
+içindedir. Dalga biçimi önceden bildirildi; kapalı/yanlış-kanal negatifleri ve
+kör tekrar yapılmadı. Bu nedenle PHASE-08/ST-06, genel Pd/Pfa, yayıncı kimliği
+ve parametre doğruluk kabulü kapanmaz.
+
+## Otomatik Analog/Sayısal ürün bağlantısı — 12 Eylül 2026
+
+Analiz aralığı arayüzündeki boş-taslak çıkmazının ardından kullanılan tepe
+merkezli 512 hücreye kesme yaklaşımı hatalıydı ve kaldırıldı. Kullanıcının
+2286 hücrelik aday kaydında iki referansın farkı 12,98 dB idi; güç/SNR de
+reddediliyordu. Tam aday + kenar payıyla C yazılım tekrarında fark 0,65 dB,
+güç -29,276 dBFS ve SNR 14,459 dB oldu. OBW, zamansal kenar değişimi 12,075
+hücre olup mevcut 7 hücre kapısını aştığı için hâlâ belirsizdir. Eşik gevşetilmedi.
+
+Kullanıcı sayısal hesapların PL/ARM'da kalmasını ve kartın genişletilmesini
+onayladı. P0PM-v2 kaynak yolu 8–3984 hücre, 389.376 bayt kalıcı ARM yüküyle
+uygulandı. Kilitli host F5 profilinin 512 hücre/64 KiB sınırı değiştirilmedi.
+49 portable C↔Python kontrolü ve protokol testi geçti. Kart kimliği seri
+konsolda ZedBoard modeli, FPGA `operating`, USB MAC ve SSH parmak iziyle
+doğrulandı. Yeni hizmet ve ağ köprüsü yedekli olarak `/usr/sbin` yoluna
+yüklendi ve SD `image.ub` içine işlendi. Kontrollü yeniden başlatma sonrasında
+iki süreç aynı yeni özetlerle otomatik açıldı; FPGA `operating` kaldı. Altı dar
+kart regresyonu geçti. Değişmemiş gerçek kayıt 2414 hücrelik
+P0PM-v2 yolunda kartla işlendi: merkez 820,002879 MHz, güç -29,276 dBFS,
+SNR 14,458 dB ve referans farkı 0,646 dB oldu. Kart ve portable C alan durumları
+ve değerleri tolerans içinde eşleşti. OBW 12,075 hücre zamansal kenar değişimi
+nedeniyle 7 hücrelik kapıda belirsiz kaldı. Bu tek kayıt genel RF doğruluğu
+değildir. Kalıcı fiziksel kanıt
+`results/evidence/phase08/parameter-wide-persistent-20260912.json` içindedir.
+[Sözleşme ve tekrar komutları](P0_ARM_PARAMETER_RUNTIME_CONTRACT.md).
+
+Taslak üretilemiyorsa onay düğmesi boş değerle çalışmaz;
+`Aralığı Düzenle` alt/üst MHz alanlarını gerçekten düzenlenebilir açar ve ret
+nedenini aynı panelde gösterir. Gerçek QML testi virgüllü MHz girişiyle boş
+taslaktan geçerli onaya ilerlemeyi doğrular.
+
+19:12 canlı tekrarında aday sınırı onay ile dört kareyi sabitleme arasında
+değişti; sahiplik kapısı doğru biçimde reddetti fakat alım önceden durduğu için
+panel sonuçsuz `Alım durdu` görünümünde kaldı. Akış tek düğmeye indirildi:
+`Aralığı Onayla ve Parametreleri Çıkar`. İstek geçici eksik karede korunur,
+sonraki dört ardışık FPGA karesi otomatik beklenir. Onaylı aralık bu dört
+karedeki aynı olayın birleşik sınırını kesiyorsa 8–3984 kart sözleşmesi içinde
+otomatik genişletilir; sahiplik denetimi RX iptalinden önce yapılır. Genişleme
+ve iki ölçümlü canlı tekrar senaryosu hedefli testte geçmiştir. Bu arayüz yarışı
+düzeltmesi RF doğruluk kabulü değildir.
+
+Tüm alanları geçersiz kayıt artık yeşil `SONUÇ HAZIR` değildir; `ÖLÇÜM
+DOĞRULANAMADI` veya `KISMİ SONUÇ` ve alan retleri görünür. PC modelinin 512
+hücre üzerindeki aralık aynı sentetik 4 × 400 geliştirme kümesinde sınandı;
+canlı RF sınıf kararı hâlâ deneysel ve fiziksel kabul dışıdır.
+
+Kullanıcının PÇ-03 devam onayıyla `digital_analog_detection` PC sınıflandırıcısı
+mevcut `Parametreleri Çıkar` işçisine bağlandı. İlk üç parametre P0PM PL/ARM
+yolunda kalır; aynı dört CI8 kare, seçili aralık ve kart SNR sonucu PC'deki altı
+özellikli lojistik modele otomatik verilir. `%90` güven altında `Belirsiz`
+sonucu üretilir. Model/source hash'i, özellikler, olasılık ve kabul bayrakları
+ölçüm arşivinde saklanır ve tekrar okunurken yeniden hesaplanır.
+
+40.000 örnekli özgün sentetik iddia doğrudan ürüne aktarılmadı. Tam ürün
+adaptörü, 16.384 örnekli ve aile başına 400 kontrollü sentetik geliştirme
+örneğinde sınandı. `%90` güvenli kesin karar doğruluğu AM için `%98,96`,
+FM/BPSK/QPSK için `%100`; karar kapsamı sırasıyla `%96,5 / %100 / %82,75 / %87,5`
+gözlendi. Bu aynı üretici alanındaki geliştirme kontrolüdür; bağımsız RF, canlı
+HackRF veya saha kabulü değildir. FPGA/ARM sınıflandırması uygulanmadı.
+[Tekrarlanabilir geliştirme kanıtı](../../results/evidence/phase08/automatic-domain-pc-integration-20260912.json)
+ve [doğrulayıcısı](../../scripts/verify_automatic_domain_integration.py) kaynak
+özetleriyle birlikte saklanır.
+İlk kanıt tarihsel olarak korunur. Geniş aralığı açıklamalı reddeden adaptörün
+güncel kaynak bağı [yeniden üretilen geliştirme kaydındadır](../../results/evidence/phase08/automatic-domain-pc-wide-guard-20260912.json);
+doğrulayıcının `--check` komutu bu yeni kaydı denetler.
+
+## Yön ölçümüne seçim aktarımı — 12 Eylül 2026
+
+Yön bulma tek kanal seçimiyle, açı isteğinden sonra yeni dört kare toplayan
+sınırlı ölçüm akışına geçirildi. Listedeki `Alınıyor` etiketi anlık dört
+ölçüm karesi hazır anlamına gelmez. Tespit algoritması ve ST-06 kabulü
+değişmedi. [Güncel yön ölçümü](SIGNAL_DIRECTION_FINDING_STATUS.md).
+
 5.1.3 sinyal izleme/dinleme çalışması kullanıcı onayıyla başlatılmıştır;
 tespit durumundan ayrı güncel kayıt
 [`SIGNAL_MONITORING_LISTENING_STATUS.md`](SIGNAL_MONITORING_LISTENING_STATUS.md)
@@ -58,7 +210,8 @@ devam; analog/sayısal ayrımını erteleme talebi uygulanmıştır. Canlı ür�
 kareleri ZedBoard'a gönderir. Kart, her kareyi fiziksel PL Hann→4096 FFT→güç
 yolundan yeniden geçirir; ARM taşıyıcı çizgisi, emisyon merkezi, OBW %99,
 kanal gücü dBFS ve SNR'yi hesaplar. Bağlantı veya kart işlemi başarısızsa PC
-F5'e geri dönüş yapılmaz. Sinyal türü bu yolda `uygulanmaz` durumundadır.
+F5'e geri dönüş yapılmaz. Sinyal türü aynı dört karede ayrı deneysel PC
+sınıflandırıcısıyla hesaplanır; FPGA/ARM parametre yanıtının parçası değildir.
 
 Taşıyıcı yöntemi bastırılmış veya yeterince belirgin olmayan çizgilerde merkez
 frekansını taşıyıcı diye kopyalamaz; `gözlenmedi` döndürür. 33 sentetik host C

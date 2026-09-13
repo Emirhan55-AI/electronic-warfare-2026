@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from decimal import Decimal, InvalidOperation, ROUND_HALF_EVEN
 import os
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import time
@@ -12,12 +13,13 @@ from collections import deque
 from typing import Callable, Literal
 
 import numpy as np
-from PySide6.QtCore import QObject, Property, QThreadPool, QTimer, QUrl, Signal, Slot
+from PySide6.QtCore import QObject, Property, QStandardPaths, QThreadPool, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QDesktopServices
 
 from .rx_survey import RXSurvey
 from .survey_controller import SurveyController
 from .measurement_record import RecordedMeasurement
+from .parameter_catalog import ParameterCatalog
 
 from algorithms.monitoring import (
     AnalogMonitorResult,
@@ -29,7 +31,6 @@ from algorithms.parameters import (
     AnalysisSpan,
     F1ParameterResult,
     F5ParameterEstimator,
-    suggest_analysis_span,
 )
 from algorithms.pipeline import (
     RuntimeFrameResult,
@@ -49,8 +50,6 @@ from platforms.acquisition import (
     ToolInventory,
     load_ed_rx_config,
 )
-from platforms.transmission import HackRFTxRunner, TxRunResult, load_tx_safety_profile
-
 from .audio_playback import AudioPlayback
 from .detection_model import DetectionListModel
 from .fixed_band_verification import (
@@ -88,7 +87,6 @@ from .quick_detection_state import (
     QuickDetectionStateMixin,
 )
 from .quick_direction_actions import QuickDirectionActionsMixin
-from .quick_et_actions import QuickETActionsMixin
 from .quick_listening_actions import QuickListeningActionsMixin
 from .quick_measurement_actions import QuickMeasurementActionsMixin
 from .quick_scan_actions import QuickScanActionsMixin
@@ -142,7 +140,6 @@ class OperatorViewModel(
     QuickDetectionStateMixin,
     QuickTaskCompletionMixin,
     QuickDirectionActionsMixin,
-    QuickETActionsMixin,
     QuickListeningActionsMixin,
     QuickMeasurementActionsMixin,
     QuickScanActionsMixin,
@@ -162,6 +159,7 @@ class OperatorViewModel(
     liveReceiveSettingsChanged = Signal()
     detectionSettingsChanged = Signal()
     detectionProfileChanged = Signal()
+    parameterCatalogChanged = Signal()
 
     def __init__(
         self,
@@ -175,6 +173,7 @@ class OperatorViewModel(
         fixed_verifier_factory=FixedBandVerifier,
         developer_mode: bool | None = None,
         measurement_record_directory: Path | None = None,
+        parameter_catalog_path: Path | None = None,
     ) -> None:
         super().__init__(parent)
         resolved = resolve_default_operation_profile()
@@ -184,12 +183,36 @@ class OperatorViewModel(
         self._parameter_capability = load_phase04f5_capability()
         self._parameter_estimator = F5ParameterEstimator() if self._parameter_capability is not None else None
         self._initialize_measurement_recording(measurement_record_directory)
+        self._live_catalog_session_id = ""
         self._source_factory = source_factory
         self._live_session_factory = live_session_factory
         self._fpga_transport_factory = fpga_transport_factory
         self._fixed_verifier_factory = fixed_verifier_factory
         self._backend = acquisition_backend or RealHackRFBackend()
         self._device_config = load_ed_rx_config()
+        catalog_path = parameter_catalog_path or (
+            (Path(measurement_record_directory).parent if measurement_record_directory is not None else
+             Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)))
+            / "parameter-catalog.sqlite3"
+        )
+        self._parameter_catalog = ParameterCatalog(
+            catalog_path,
+            Path(__file__).resolve().parents[2] / "config" / "p0" / "rx_calibration.json",
+        )
+        self._automatic_parameter_rows = self._parameter_catalog.rows()
+        self._automatic_parameter_status = "Kart canlı parametre yeteneği henüz denetlenmedi."
+        self._receiver_rows = [
+            {
+                "role": receiver.role,
+                "roleLabel": "Birincil alıcı" if receiver.role == "ED_RX_PRIMARY" else "İkinci alıcı",
+                "serial": receiver.serial,
+                "serialShort": f"…{receiver.serial[-8:]}",
+                "purpose": receiver.purpose,
+                "state": "Denetlenmedi",
+                "stateKey": "unverified",
+            }
+            for receiver in self._device_config.configured_receivers
+        ]
         self._known_spurs_hz = load_known_spurs(self._device_config.serial)
         self._live_spur_guard_binding: tuple[float, float, int] | None = None
         self._live_spur_guard_power: deque[np.ndarray] = deque(maxlen=LIVE_SPUR_GUARD_WINDOW)
@@ -289,6 +312,7 @@ class OperatorViewModel(
         self._survey_controller.finished.connect(self._survey_finished)
         self._pending_survey_parameter_frequency_hz: int | None = None
         self._pending_listening_frequency_hz: int | None = None
+        self._listening_live_target_hz: float | None = None
         self._pending_live_measurement: Callable[[], RecordedMeasurement] | None = None
         self._pending_live_listening: Callable[
             [], tuple[AnalogMonitorResult, str, float, float, float, dict | None]
@@ -330,30 +354,11 @@ class OperatorViewModel(
         self._direction_receiver_binding = ""
         self._direction_frame_id: int | None = None
         self._pending_direction_measurement: dict[str, object] | None = None
+        self._df_capture_binding = None
+        self._df_capture_message = ""
         self._df_channel_span: tuple[int, int] | None = None
         self._df_target_frequency_hz: float | None = None
 
-        self._et_task = "continuous"
-        self._et_status = "TX KİLİTLİ"
-        self._et_result_title = "Tekli Görev"
-        self._et_result_detail = "Önce seçilen bandı iletimsiz doğrulayın."
-        self._et_metric_rows: list[dict[str, str]] = []
-        self._et_primary_values: list[float | None] = []
-        self._et_secondary_values: list[float] = []
-        self._et_timeline: list[dict[str, str]] = []
-        self._et_primary_title = "Zaman Alanı"
-        self._et_secondary_title = "Spektrum"
-        self._et_tx_profile_path = Path(__file__).resolve().parents[2] / "config" / "p0" / "hackrf_et_tx.json"
-        self._et_tx_runner = HackRFTxRunner(
-            audit_path=Path(__file__).resolve().parents[2] / "build" / "operations" / "et-single.jsonl"
-        )
-        self._et_transmitting = False
-        try:
-            self._et_tx_profile = load_tx_safety_profile(self._et_tx_profile_path)
-            self._et_tx_profile_error = ""
-        except Exception as exc:
-            self._et_tx_profile = None
-            self._et_tx_profile_error = str(exc)
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
             self._add_log("İşleme", "Parametre profili doğrulanamadı; güvenli tespit profili kullanılıyor")
@@ -470,6 +475,7 @@ class OperatorViewModel(
 
     @Slot()
     def _refresh_live_health(self):
+        self._poll_direction_capture()
         if self.liveSessionActive:
             # Stale detections must not remain marked as current during a stall.
             if self._live_response_at and time.perf_counter() - self._live_response_at > .25:
@@ -842,12 +848,17 @@ class OperatorViewModel(
             session is None
             or self._live_fpga_fft_size() != 4096
             or selected is None
-            or not self.selectedDetectionCurrent
             or not bool(selected.get("confirmed", selected["stateKey"] == "confirmed"))
-            or not hasattr(session, "current_measurement_window")
+            or not hasattr(session, "measurement_window")
         ):
             return False
-        return len(session.current_measurement_window(self._selected_detection_id)) == 4
+        # Range setup is based on the last immutable four-frame FPGA window.
+        # The actual measurement still uses current_measurement_window() and
+        # remains armed until a fresh four-frame window passes ownership checks.
+        # Requiring the setup UI to coincide with that sub-10 ms window made a
+        # valid survey handoff fall back to "Tespit bekliyor" before an operator
+        # could confirm the range.
+        return len(self._live_measurement_window()) == 4
 
     @Property(str, notify=detectionsChanged)
     def selectedDetectionTitle(self) -> str:
@@ -901,13 +912,72 @@ class OperatorViewModel(
     def parameterRows(self) -> list[dict[str, str]]:
         return self._parameter_rows
 
+    @Property("QVariantList", notify=parameterCatalogChanged)
+    def parameterHistory(self) -> list[dict[str, object]]:
+        return self._automatic_parameter_rows
+
+    @Property(str, notify=parameterCatalogChanged)
+    def parameterCatalogSummary(self) -> str:
+        count = len(self._automatic_parameter_rows)
+        return (
+            f"{count} kayıt · geçerli dBFS gücüne göre sıralı"
+            if count else "Henüz otomatik parametre kaydı yok"
+        )
+
+    @Property(str, notify=parameterCatalogChanged)
+    def parameterCatalogPath(self) -> str:
+        return str(self._parameter_catalog.path)
+
+    @Property(str, notify=parameterCatalogChanged)
+    def automaticParameterStatus(self) -> str:
+        return self._automatic_parameter_status
+
+    @Property("QVariantList", notify=stateChanged)
+    def receiverRows(self) -> list[dict[str, str]]:
+        return self._receiver_rows
+
+    @Property(str, notify=stateChanged)
+    def receiverSummary(self) -> str:
+        found = sum(row["stateKey"] == "found" for row in self._receiver_rows)
+        return f"{found}/{len(self._receiver_rows)} yapılandırılmış HackRF tanındı"
+
+    @Slot()
+    def refreshParameterCatalog(self) -> None:
+        self._automatic_parameter_rows = self._parameter_catalog.rows()
+        self.parameterCatalogChanged.emit()
+
+    @Slot(result=bool)
+    def openParameterCatalogFolder(self) -> bool:
+        opened = bool(
+            QDesktopServices.openUrl(
+                QUrl.fromLocalFile(str(self._parameter_catalog.path.parent))
+            )
+        )
+        if opened:
+            self._add_log("Parametre kataloğu", "Kayıt klasörü açıldı")
+        return opened
+
+    @Slot(result=str)
+    def exportParameterCatalog(self) -> str:
+        try:
+            path = self._parameter_catalog.export_csv()
+        except (OSError, ValueError) as exc:
+            self._add_log("Parametre kataloğu", f"CSV dışa aktarılamadı: {exc}")
+            return ""
+        self._add_log("Parametre kataloğu", f"CSV dışa aktarıldı: {path}")
+        return str(path)
+
     @Property("QVariantMap", notify=stateChanged)
     def measurementInfo(self):
         return self._measurement_info if self._parameter_rows else {}
 
     @Property(bool, notify=stateChanged)
     def parameterMeasurementActive(self):
-        return self._measurement_requested and (self._pending_live_measurement is not None or self._active_task_kind == "measurement")
+        return self._measurement_requested and (
+            self._pending_live_measurement is not None
+            or self._active_task_kind == "measurement"
+            or (self._source_mode == "hackrf" and self._live_session is not None)
+        )
 
     @Property(str, notify=stateChanged)
     def measurementRecordPath(self) -> str:
@@ -920,6 +990,18 @@ class OperatorViewModel(
     @Property(bool, notify=detectionsChanged)
     def analysisSpanConfirmed(self) -> bool:
         return self._analysis_span is not None
+
+    @Property(bool, notify=detectionsChanged)
+    def analysisSpanLimited(self) -> bool:
+        bins = self._analysis_span_bins()
+        start = self._selected_detection_bin("startBin")
+        end = self._selected_detection_bin("endBin")
+        return bool(
+            bins is not None
+            and start is not None
+            and end is not None
+            and not (bins[0] <= min(start, end) and max(start, end) <= bins[1])
+        )
 
     @Property(str, notify=detectionsChanged)
     def analysisLowerMHzText(self) -> str:
@@ -1055,7 +1137,7 @@ class OperatorViewModel(
     @Property(str, notify=directionChanged)
     def directionStatusText(self) -> str:
         return {
-            "LOB HAZIR": "Tek istasyon radyo kerterizi hazır",
+            "LOB HAZIR": "Bağıl tepe yönü hazır",
             "YETERSİZ AÇI": "15° adımlı 24 anten açısı gerekli",
             "YETERSİZ AÇI KAPSAMI": "Açı ölçümleri 360° çevreyi kapsamıyor",
             "YETERSİZ TEKRAR": "Her açı için ek güç ölçümü gerekli",
@@ -1080,6 +1162,25 @@ class OperatorViewModel(
     @Property(float, notify=directionChanged)
     def directionProgress(self) -> float:
         return min(1.0, self.directionDistinctAngleCount / 24.0)
+
+    @Property(float, notify=directionChanged)
+    def directionNextAngleDeg(self) -> float:
+        angle = self._next_clockwise_direction_angle()
+        return -1.0 if angle is None else angle
+
+    @Property(str, notify=directionChanged)
+    def directionNextAngleText(self) -> str:
+        angle = self._next_clockwise_direction_angle()
+        return "TUR TAMAMLANDI" if angle is None else f"{angle:.0f}°"
+
+    @Property(str, notify=directionChanged)
+    def directionStepInstructionText(self) -> str:
+        angle = self._next_clockwise_direction_angle()
+        if angle is None:
+            return "360° saat yönü taraması tamamlandı."
+        if angle == 0.0:
+            return "Antenin başlangıç yönünü 0° kabul edin ve ilk ölçümü alın."
+        return f"Anteni saat yönünde {angle:.0f}° konumuna çevirin ve ölçümü alın."
 
     @Property(str, notify=directionChanged)
     def directionRequirementText(self) -> str:
@@ -1108,18 +1209,14 @@ class OperatorViewModel(
     @Property(str, notify=spectrumChanged)
     def directionFramePowerText(self) -> str:
         if self._source_mode == "hackrf" and self.selectedDetectionReady:
-            return "4 FPGA karesi"
+            return "Ölçümle alınır"
         power = self._direction_frame_power_dbfs
         return "—" if power is None else f"{power:.2f} dBFS"
 
     @Property(bool, notify=stateChanged)
     def directionMeasurementReady(self) -> bool:
         if self._source_mode == "hackrf":
-            return bool(
-                self.measurementSelectionReady
-                and self._analysis_span_draft is not None
-                and self._live_session is not None
-            )
+            return not self._direction_unavailable_reason()
         return bool(
             self.selectedDetectionReady
             and self._direction_frame_power_dbfs is not None
@@ -1127,13 +1224,38 @@ class OperatorViewModel(
             and self._direction_frame_bandwidth_hz is not None
         )
 
+    @Property(str, notify=stateChanged)
+    def directionCaptureText(self) -> str:
+        if self._source_mode != "hackrf":
+            return self.directionTargetText
+        reason = self._direction_unavailable_reason()
+        if self._pending_direction_measurement is None and reason:
+            return reason
+        return self._df_capture_message or reason or self.directionStepInstructionText
+
+    @Property(bool, notify=stateChanged)
+    def directionCapturePending(self) -> bool:
+        return self._pending_direction_measurement is not None
+
+    @Property(bool, notify=stateChanged)
+    def directionChannelLocked(self) -> bool:
+        return self._df_channel_span is not None
+
+    @Property(bool, notify=stateChanged)
+    def directionCaptureCancellable(self) -> bool:
+        return bool(self._pending_direction_measurement is not None
+                    and "deadline" in self._pending_direction_measurement)
+
     @Property(str, notify=spectrumChanged)
     def directionTargetText(self) -> str:
         frequency_hz = self._direction_frame_frequency_hz
         bandwidth_hz = self._direction_frame_bandwidth_hz
         if self._source_mode == "hackrf":
             selected = self._selected_detection_item()
-            if selected is not None:
+            if self._df_channel_span is not None:
+                frequency_hz = self._df_target_frequency_hz
+                bandwidth_hz = (self._df_channel_span[1] - self._df_channel_span[0] + 1) * self.sampleRateHz / 4096.0
+            elif selected is not None:
                 frequency_hz = self._df_target_frequency_hz or float(selected["frequencyHz"])
                 span = self._df_channel_span or self._analysis_span_draft
                 if span is not None:
@@ -1178,6 +1300,19 @@ class OperatorViewModel(
             f"OBW {self._format_rate(self._listening_parameter_bandwidth_khz * 1_000.0)}"
         )
 
+    def _listening_channel_target_hz(self) -> float | None:
+        target = self._listening_parameter_target_hz
+        if target is not None and math.isfinite(float(target)):
+            return float(target)
+        target = self._listening_live_target_hz
+        if target is not None and math.isfinite(float(target)):
+            return float(target)
+        selected = self._selected_detection_item()
+        if selected is None:
+            return None
+        value = selected.get("frequencyHz")
+        return float(value) if isinstance(value, (int, float)) and math.isfinite(float(value)) else None
+
     @Property(bool, notify=listeningChanged)
     def listeningReady(self) -> bool:
         return self._listening_result is not None
@@ -1188,14 +1323,26 @@ class OperatorViewModel(
             return self.selectedDetectionReady
         session = self._live_session
         selected = self._selected_detection_item()
+        target_hz = self._listening_channel_target_hz()
+        if (
+            session is not None
+            and target_hz is not None
+            and hasattr(session, "audio_channel_ready")
+        ):
+            buffer_ready = session.audio_channel_ready(target_hz)
+        else:
+            buffer_ready = bool(
+                session is not None
+                and hasattr(session, "audio_window_ready")
+                and session.audio_window_ready(self._selected_detection_id)
+            )
         return bool(
             session is not None
             and selected is not None
             and self.selectedDetectionReady
             and self._pending_live_listening is None
             and self._pending_live_measurement is None
-            and hasattr(session, "audio_window_ready")
-            and session.audio_window_ready(self._selected_detection_id)
+            and buffer_ready
         )
 
     @Property(str, notify=stateChanged)
@@ -1205,7 +1352,12 @@ class OperatorViewModel(
         session = self._live_session
         if session is None or not hasattr(session, "audio_window_frame_count"):
             return "Canlı I/Q tamponu hazır değil"
-        frames = min(LIVE_AUDIO_WINDOW_FRAMES, int(session.audio_window_frame_count(self._selected_detection_id)))
+        target_hz = self._listening_channel_target_hz()
+        if target_hz is not None and hasattr(session, "audio_channel_frame_count"):
+            count = session.audio_channel_frame_count(target_hz)
+        else:
+            count = session.audio_window_frame_count(self._selected_detection_id)
+        frames = min(LIVE_AUDIO_WINDOW_FRAMES, int(count))
         seconds = frames * 4096.0 / self.sampleRateHz if self.sampleRateHz > 0.0 else 0.0
         return f"Canlı I/Q tamponu {seconds:.1f} / {LIVE_AUDIO_WINDOW_SECONDS:.1f} s"
 
@@ -1357,6 +1509,9 @@ class OperatorViewModel(
 
     @Slot(int)
     def selectDetection(self, event_id: int) -> None:
+        if self._pending_direction_measurement is not None:
+            return
+        self._df_capture_message = ""
         if self._pending_live_listening is not None or self._pending_live_measurement is not None or (
             self._busy and self._active_task_kind in {"listening", "measurement"}
         ):
@@ -1368,17 +1523,24 @@ class OperatorViewModel(
             return
         if event_id != self._selected_detection_id:
             target_hz = self._pending_listening_frequency_hz
-            preserves_handoff = bool(
-                target_hz is not None
-                and float(selected_row.get("lowerFrequencyHz", selected_row["frequencyHz"])) - 50_000.0
-                <= target_hz
-                <= float(selected_row.get("upperFrequencyHz", selected_row["frequencyHz"])) + 50_000.0
-            )
+            preserves_handoff = False
+            if target_hz is not None and self._source_mode == "hackrf":
+                row_frequency_hz = float(selected_row["frequencyHz"])
+                preserves_handoff = bool(
+                    float(selected_row.get("lowerFrequencyHz", row_frequency_hz)) - 50_000.0
+                    <= target_hz
+                    <= float(selected_row.get("upperFrequencyHz", row_frequency_hz)) + 50_000.0
+                )
             if not preserves_handoff:
                 self._pending_listening_frequency_hz = None
                 self._clear_listening_parameter_basis()
         if event_id != self._selected_detection_id:
             self._clear_listening("Seçili kanal değişti; dinlemeyi yeniden hazırlayın.")
+            self._listening_live_target_hz = (
+                float(selected_row["frequencyHz"])
+                if self._source_mode == "hackrf"
+                else None
+            )
         self._selected_detection_id = event_id
         if self._source_mode == "hackrf":
             self._selected_live_detection = dict(next(row for row in self._detections if row["eventId"] == event_id))
@@ -1412,6 +1574,7 @@ class OperatorViewModel(
         if self._pending_listening_frequency_hz is None:
             self._clear_listening_parameter_basis()
         self._selected_detection_id = -1
+        self._listening_live_target_hz = None
         self._selected_live_detection = None
         self._selected_live_measurement_window = ()
         self._analysis_span = None
@@ -1443,7 +1606,6 @@ class OperatorViewModel(
         if self._closed:
             return
         self._closed = True
-        self._et_tx_runner.request_stop()
         self.stop()
         self._probe_error_timer.stop()
         self._playback_timer.stop()
@@ -1535,9 +1697,60 @@ class OperatorViewModel(
         first_response = not self._live_response_at
         self._live_response_at = response_at
         self._update_live_detections(snapshot.response)
+        session = self._live_session
+        automatic_status = str(
+            getattr(session, "automatic_parameter_status", self._automatic_parameter_status)
+        )
+        if automatic_status != self._automatic_parameter_status:
+            self._automatic_parameter_status = automatic_status
+            self.parameterCatalogChanged.emit()
+        if snapshot.automatic_parameter_outcomes:
+            configuration = getattr(session, "configuration", None)
+            channelizer = getattr(session, "measurement_channelizer", None) or {}
+            profile = channelizer.get("profile", {}) if isinstance(channelizer, dict) else {}
+            scale = float(profile.get("output_amplitude_scale", 1.0))
+            inserted = 0
+            try:
+                if configuration is None:
+                    raise ValueError("live_configuration_unavailable")
+                for outcome in snapshot.automatic_parameter_outcomes:
+                    inserted += int(
+                        self._parameter_catalog.add(
+                            outcome,
+                            session_id=(
+                                self._live_catalog_session_id
+                                or f"{self._measurement_namespace}:{generation}"
+                            ),
+                            receiver_role="ED_RX_PRIMARY",
+                            receiver_serial=str(configuration.device_serial),
+                            sample_rate_hz=2_000_000,
+                            lna_gain_db=int(configuration.lna_gain_db),
+                            vga_gain_db=int(configuration.vga_gain_db),
+                            output_amplitude_scale=scale,
+                        )
+                    )
+            except (OSError, ValueError, sqlite3.Error) as exc:
+                self._automatic_parameter_status = (
+                    f"Kayıt hatası · sonuç kataloğa yazılamadı: {exc}"
+                )
+                self._add_log("Parametre kataloğu", self._automatic_parameter_status)
+            else:
+                if inserted:
+                    self._automatic_parameter_rows = self._parameter_catalog.rows()
+                    self._add_log(
+                        "Otomatik parametre",
+                        f"{inserted} sonuç kalıcı kataloğa eklendi.",
+                    )
+            self.parameterCatalogChanged.emit()
         self._status_message = (
             f"Canlı FPGA karesi {snapshot.sequence_number + 1}/{self._frame_count} doğrulandı."
         )
+        if (
+            self._measurement_requested
+            and self._pending_live_measurement is None
+            and self._active_task_kind == "live"
+        ):
+            self._request_live_measurement()
         if first_response:
             self.pipelineChanged.emit()
             self.stateChanged.emit()
@@ -1547,10 +1760,19 @@ class OperatorViewModel(
         del elapsed
         if generation != self._generation or not isinstance(result, LiveEDSessionResult):
             return
+        self.cancelDirectionMeasurement()
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
             self._live_failed(generation, *self._live_presentation_error)
             return
+        self._automatic_parameter_status = str(
+            getattr(
+                self._live_session,
+                "automatic_parameter_status",
+                self._automatic_parameter_status,
+            )
+        )
+        self.parameterCatalogChanged.emit()
         self._live_session = None
         self._busy = False
         self._playing = False
@@ -1578,6 +1800,7 @@ class OperatorViewModel(
     def _live_failed(self, generation: int, code: str, detail: str) -> None:
         if generation != self._generation:
             return
+        self.cancelDirectionMeasurement()
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
             code, detail = self._live_presentation_error
@@ -1706,6 +1929,35 @@ class OperatorViewModel(
     ) -> None:
         serial = self._device_config.serial
         transfer = inventory.get("hackrf_transfer")
+        discovered_serials = {
+            item.serial.casefold() for item in device.devices
+        } if device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} else set()
+        receiver_rows: list[dict[str, str]] = []
+        for receiver in self._device_config.configured_receivers:
+            found = receiver.serial.casefold() in discovered_serials
+            if found and inventory.receive_available:
+                state = (
+                    "Tanındı · ana canlı RX yolu"
+                    if receiver.role == "ED_RX_PRIMARY"
+                    else "Tanındı · eşzamanlı ikinci akış henüz fiziksel doğrulanmadı"
+                )
+                state_key = "found"
+            elif found:
+                state, state_key = "Tanındı · RX aracı hazır değil", "unavailable"
+            else:
+                state, state_key = "Bulunamadı", "missing"
+            receiver_rows.append(
+                {
+                    "role": receiver.role,
+                    "roleLabel": "Birincil alıcı" if receiver.role == "ED_RX_PRIMARY" else "İkinci alıcı",
+                    "serial": receiver.serial,
+                    "serialShort": f"…{receiver.serial[-8:]}",
+                    "purpose": receiver.purpose,
+                    "state": state,
+                    "stateKey": state_key,
+                }
+            )
+        self._receiver_rows = receiver_rows
         self._hackrf_transfer_executable = ""
         self._error_title = ""
         self._error_message = ""
@@ -1748,7 +2000,11 @@ class OperatorViewModel(
 
         self._hackrf_ready = True
         self._source_state = "Hazır"
-        self._source_name = f"Alıcı ve FPGA bağlı · …{serial[-8:]}"
+        found_receivers = sum(row["stateKey"] == "found" for row in self._receiver_rows)
+        self._source_name = (
+            f"Birincil alıcı ve FPGA bağlı · {found_receivers}/"
+            f"{len(self._receiver_rows)} HackRF tanındı"
+        )
         self._status_message = "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
         self._add_log("Alıcı", self._status_message)
         self.pipelineChanged.emit()
@@ -1865,59 +2121,6 @@ class OperatorViewModel(
             "uncertain": "Belirsiz",
         }.get(state, "Ölçülemedi")
 
-    def _prepare_analysis_span_draft(self, event_id: int) -> None:
-        if self._source_mode == "hackrf":
-            selected = next(
-                (row for row in self._live_detection_rows if int(row["eventId"]) == event_id),
-                None,
-            )
-            if (
-                selected is None
-                and self._selected_live_detection is not None
-                and int(self._selected_live_detection["eventId"]) == event_id
-            ):
-                selected = self._selected_live_detection
-            if selected is None:
-                self._analysis_span_draft = None
-                return
-            start = int(selected["startBin"])
-            end = int(selected["endBin"])
-            peak = int(selected["peakBin"])
-            margin = max(8, min(64, math.ceil((end - start + 1) / 2.0)))
-            lower = max(56, start - margin)
-            upper = min(4039, end + margin)
-            for neighbor in self._live_detection_rows:
-                if int(neighbor["eventId"]) == event_id or neighbor["stateKey"] != "confirmed":
-                    continue
-                neighbor_start = int(neighbor["startBin"])
-                neighbor_end = int(neighbor["endBin"])
-                if neighbor_end < peak:
-                    lower = max(lower, neighbor_end + 5, math.ceil((neighbor_end + start) / 2.0))
-                elif neighbor_start > peak:
-                    upper = min(upper, neighbor_start - 5, math.floor((end + neighbor_start) / 2.0))
-            self._analysis_span_draft = (
-                (lower, upper)
-                if lower <= peak <= upper and 8 <= upper - lower + 1 <= 512
-                else None
-            )
-            return
-        if self._last_result is None:
-            self._analysis_span_draft = None
-            return
-        event = next(
-            (item for item in self._last_result.detection.active_events if item.event_id == event_id),
-            None,
-        )
-        if event is None:
-            self._analysis_span_draft = None
-            return
-        suggested = suggest_analysis_span(event, self._last_result.detection.active_events)
-        if suggested is None:
-            self._analysis_span_draft = None
-            return
-        lower = max(56, suggested.lower_shifted_bin)
-        upper = min(4039, suggested.upper_shifted_bin)
-        self._analysis_span_draft = (lower, upper) if upper - lower + 1 >= 8 else None
 
     def _analysis_frequency_text(self, index: int) -> str:
         bins = self._analysis_span_bins()

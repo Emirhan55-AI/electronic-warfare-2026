@@ -22,6 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from algorithms.parameters.f1_development import _intent, _truth
+from algorithms.p0.parameter_client import BoardAnalysisSpan, BOARD_PERSISTENT_PAYLOAD_BYTES
 from algorithms.parameters.f5_estimator import F5ParameterEstimator
 from algorithms.parameters.scenes import generate_parameter_scene, load_parameter_catalog
 from algorithms.spectrum import SpectrumProcessor
@@ -154,9 +155,10 @@ def _case(
         power_path.write_bytes(quantized.tobytes())
         paths.extend((iq_path, power_path))
 
-    expected = F5ParameterEstimator().measure(
-        _intent(span, 1, 1), tuple(samples), tuple(spectra)
-    )
+    intent = _intent(span if span[1] - span[0] < 512 else (span[0], span[0] + 511), 1, 1)
+    if span[1] - span[0] >= 512:
+        intent = replace(intent, span=BoardAnalysisSpan(*span, "auto_suggested"))
+    expected = F5ParameterEstimator().measure(intent, tuple(samples), tuple(spectra))
     output = directory / f"{scene_id}-result.json"
     command = [
         str(executable), str(SAMPLE_RATE_HZ), str(CENTER_FREQUENCY_HZ),
@@ -206,7 +208,7 @@ def _case(
     }
 
 
-def verify(*, extended: bool = False) -> dict[str, object]:
+def verify(*, extended: bool = False, wide: bool = False) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="p0-parameter-runtime-") as raw:
         directory = Path(raw)
         executable, state_executable, compiler = _build(directory)
@@ -233,13 +235,19 @@ def verify(*, extended: bool = False) -> dict[str, object]:
                 for index, scene in enumerate(scenes):
                     cases.append(_case(directory, executable, scene,
                                        3502604761305544000 + index, snr_db=snr))
+        if wide:
+            for span in ((56, 4039), (600, 3500), (1400, 2800), (1600, 2200)):
+                for scene in ("am-carrier", "qpsk", "wideband-noise-like", "noise-only"):
+                    cases.append(_case(directory, executable, scene, 3502604761305543594,
+                                       span_override=span, snr_db=12.0))
     if not any(int(case["span_width_bins"]) >= 100 for case in cases):
         raise AssertionError("broad-span FFT path was not exercised")
     return {
         "status": "passed",
         "compiler": compiler,
         "state_machine_test": state_run.stdout.strip(),
-        "persistent_payload_bytes": 56064,
+        "persistent_payload_bytes": BOARD_PERSISTENT_PAYLOAD_BYTES,
+        "span_contract": "board-full-span-v2",
         "carrier_peak_heap_workspace_bytes": 327680,
         "profile": "phase04f5-operator-assisted-parameters-v6",
         "ported_fields": [
@@ -259,9 +267,10 @@ def verify(*, extended: bool = False) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--extended", action="store_true")
+    parser.add_argument("--wide", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    result = verify(extended=args.extended)
+    result = verify(extended=args.extended, wide=args.wide)
     payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

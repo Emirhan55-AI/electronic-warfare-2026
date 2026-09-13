@@ -11,7 +11,7 @@
 1. `Tespit`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
 2. `Parametre`: seçili sinyalin analiz aralığı, ölçüm durumu ve sonuçları.
 3. `Dinleme`: seçili doğrulanmış tespit, AM/NFM kanal ayarları, ses sonucu ve WAV.
-4. `Yön Bulma`: anten açısı–güç ölçümü, bağıl geliş açısı ve kerteriz.
+4. `Yön Bulma`: saat yönünde otomatik 15° adımlı güç ölçümü ve bağıl tepe yönü.
 5. `Sistem`: bileşen sağlığı, performans ve son olaylar.
 
 Üst görev çubuğundaki `BÂZ` logosu; `Tespit`, `Parametre`, `Dinleme`, `Yön Bulma`
@@ -21,8 +21,8 @@ görev şeridindeki `Tespit` dalga sembolü, ED/Tespit sabit-frekans yüzeyindek
 `Alıcı Ayarları` seçenek menüsünü açıp kapatır. Menü başlangıçta kapalıdır;
 sembol başka bir görevde kullanılırsa ED/Tespit yüzeyine dönerek açılır. Bu
 geçiş çalışan alım veya taramaya başlatma/durdurma komutu göndermez. Üst görev
-çubuğunda bağlantı veya hata mesajı gösterilmez; ED/ET görev seçimi sağ kenarda
-ve ayırıcı çizgisiz yer alır. `BÂZ` işareti koyu zeminde beyaz ön plan ve arka
+çubuğunda bağlantı veya hata mesajı ve alan seçici gösterilmez; uygulama yalnız
+ED görevlerini sunar. `BÂZ` işareti koyu zeminde beyaz ön plan ve arka
 hale katmanıyla sunulur.
 Spektrum ve spektrogram başlıkları grafik alanında ortalanır; boş bağlantı uyarısı
 tespit listesini doldurmaz. Sabit bant çalışma alanında dış marj kullanılmaz; alıcı
@@ -196,21 +196,21 @@ başarısı olarak sunulmaz.
 
 ## Akış 5 — Yön bulma
 
-1. Sabit kaynak kartı kaynak kimliğini, merkez frekansını, etkin kareyi ve
-   kalibrasyonsuz geniş bant kare gücünü gösterir.
-2. Operatör anten dönüş açısını ve antenin 0° yön referansını belirler. İlk kayıt
-   bu referansı ölçüm oturumu için sabitler; değiştirmek için ölçümler temizlenir.
-3. Her saha ölçümü anten açısı, dBFS kare gücü, frekans, zaman, anten azimutu ve
-   kaynak kimliğiyle kaydedilir. Kaynak değiştiğinde eski oturum otomatik temizlenir.
-4. En az üç farklı açı yoksa veya güç maksimumu yeterince ayrışmıyorsa sonuç
-   üretilmez ve eksik koşul gösterilir.
-5. Geçerli sonuç önce antenin 0° eksenine göre `Bağıl Geliş Yönü` olarak sunulur.
-6. Anten 0° yönü gerçek kuzeye bağlanmışsa `Gerçek Kerteriz` ayrıca gösterilir.
-7. Faz uyumlu çok kanallı DoA, hedef konumu veya menzil sonucu üretilmez.
-
-`Radyo kerterizi` terminolojisi ITU-R yön bulma kullanımını; bağıl ve gerçek yön
-ayrımı ise açının anten eksenine mi gerçek kuzeye mi bağlı olduğunu izler. Tek
-istasyon kerterizi bir konum kestirimi değildir.
+1. Sabit kaynak kartı kaynak kimliğini, hedef kanalını ve canlı alım durumunu
+   gösterir.
+2. Operatör anteni kendi belirlediği başlangıç yönüne getirir. Tek düğmenin ilk
+   başarılı ölçümü bu fiziksel yönü bağıl `0°` olarak sabitler.
+3. Uygulama sonraki hedef açıyı otomatik olarak saat yönünde 15° artırır.
+   Operatör anteni gösterilen konuma getirip sabitledikten sonra aynı düğmeye basar.
+4. Her başarılı saha ölçümü bağıl açı, dört kareli PL/ARM kanal dBFS gücü,
+   frekans, zaman ve kaynak kimliğiyle kaydedilir. Süre aşımı veya iptal açıyı
+   ilerletmez; kaynak değişimi oturumu temizler.
+5. Tam 24 farklı açı, 15° azami boşluk, 3 dB tepe ve ön/arka ayrımı olmadan sonuç
+   üretilmez; eksik koşul gösterilir.
+6. Geçerli sonuç yalnız antenin bağıl `0°` ekseninden saat yönündeki `Bağıl Tepe
+   Yönü` olarak sunulur. Gerçek kuzey, hedef konumu veya menzil üretilmez.
+7. Uygulama fiziksel dönüşü ya da hızı ölçmez. Sürekli motor dönüşünden zamanla
+   açı üretmek için enkoder/IMU bağı ve yeni fiziksel kabul gerekir.
 
 ## Akış 6 — Sistem denetimi ve kurtarma
 
@@ -241,7 +241,7 @@ kaynak seçmek donanımın çalıştığı anlamına gelmez. Geliştirici görü
   panellerinde bağımsız kaydırılır; dinleme hazırlama eylemi ile oynatma
   kontrolleri görünür kalır. Bütün çalışma alanını hareket ettiren ortak sayfa
   kaydırması kullanılmaz.
-- Kerteriz ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
+- Bağıl yön ibresi yalnız yeni geçerli ölçüme geçerken hareket eder; seçili adayın
   spektrum vurgusu kısa bir odak geçişi kullanır.
 - Yön Bulma kaynak bağlamı, kayıt eylemi ve sonuç geçmişi sabit kalır; yalnız
   ölçüm ayarları kendi panelinde kaydırılır.

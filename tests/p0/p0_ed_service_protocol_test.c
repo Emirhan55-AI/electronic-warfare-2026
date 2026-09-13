@@ -8,6 +8,57 @@
 #define REQUIRE(condition) do { if (!(condition)) { \
     fprintf(stderr, "test failure at line %d\n", __LINE__); return 1; } } while (0)
 
+static void put32(uint8_t *bytes, uint32_t value)
+{
+    unsigned int i;
+    for (i = 0; i < 4U; ++i) bytes[i] = (uint8_t)(value >> (8U * i));
+}
+
+static int test_wide_batch(void)
+{
+    uint8_t bytes[P0_PARAMETER_BATCH_REQUEST_BYTES] = {0};
+    uint8_t reply[P0_PARAMETER_BATCH_RESPONSE_BYTES];
+    p0_parameter_batch_request_t request;
+    memcpy(bytes, "P0PM", 4U);
+    bytes[4] = 2U;
+    bytes[6] = 64U;
+    bytes[8] = 7U;
+    put32(bytes + 16U, 2000000U);
+    bytes[28] = 1U;
+    bytes[36] = 56U;
+    bytes[38] = 199U; bytes[39] = 15U; /* 4039 */
+    put32(bytes + 40U, p0_ed_crc32(bytes + 64U, 32768U));
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == 0);
+    REQUIRE(request.lower_bin == 56U && request.upper_bin == 4039U);
+    REQUIRE(p0_parameter_batch_response_encode(&request, 1U, 0U, 0U, NULL, reply) == 0);
+    REQUIRE(reply[4] == 2U);
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token) == 0);
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token + 1U) == -1);
+    reply[4] = 3U;
+    put32(reply + 172U, p0_ed_crc32(reply, 172U));
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token) == -1);
+    bytes[4] = 1U;
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    bytes[38] = 55U; bytes[39] = 2U; /* 567: legacy width 512 */
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == 0);
+    bytes[4] = 2U;
+    bytes[36] = 55U;
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    bytes[36] = 56U;
+    bytes[38] = 200U; bytes[39] = 15U; /* 4040: no reference room */
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    bytes[38] = 199U;
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    bytes[70] ^= 1U;
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    return 0;
+}
+
 int main(void)
 {
     uint8_t iq[P0_ED_IQ_FRAME_BYTES];
@@ -21,6 +72,8 @@ int main(void)
     p0_ed_response_t decoded;
     size_t reply_bytes = 0U;
     size_t index;
+
+    REQUIRE(test_wide_batch() == 0);
 
     REQUIRE(p0_ed_crc32((const uint8_t *)"123456789", 9U) ==
             UINT32_C(0xCBF43926));

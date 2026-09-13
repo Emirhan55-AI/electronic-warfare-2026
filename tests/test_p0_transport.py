@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
@@ -11,12 +12,16 @@ import zlib
 
 from algorithms.p0 import (
     IQFrame,
+    IQCapabilityCodec,
     IQFrameCodec,
     IQResponse,
     IQResponseCodec,
     LoopbackIQTransport,
+    ParameterObservationRequest,
     TCPClientIQTransport,
     TransportError,
+    TransportCapabilities,
+    TransportStats,
     decode_local_ed_response,
 )
 
@@ -103,6 +108,65 @@ class P0TransportTests(unittest.TestCase):
         damaged[44] ^= 1
         with self.assertRaisesRegex(TransportError, "başlığı"):
             decode_local_ed_response(bytes(damaged), frame_id)
+
+    def test_local_service_response_decoder_validates_inline_abi_v2_parameter(self) -> None:
+        frame_id = 23
+        result = bytearray(8_724)
+        struct.pack_into("<IHHHBBQ", result, 0, frame_id, 0, 0, 0, 0, 0, 0)
+        parameter = bytearray(128)
+        struct.pack_into("<QQIB", parameter, 0, 91, 77, frame_id, 4)
+        values = (820_000_000.0, 819_990_000.0, 820_010_000.0, 20_000.0, -31.5, 18.0)
+        for offset, value in zip(range(24, 96, 12), values):
+            struct.pack_into("<BBHd", parameter, offset, 1, 0, 0, value)
+        struct.pack_into("<dddd", parameter, 96, 1.0, 12.0, 0.1, 0.2)
+        header = bytearray(64)
+        total = len(header) + len(result) + len(parameter)
+        struct.pack_into(
+            "<IHHIIIIIIIII",
+            header,
+            0,
+            0x31534550,
+            2,
+            64,
+            total,
+            frame_id,
+            0,
+            len(result),
+            2,
+            7,
+            zlib.crc32(result) & 0xFFFFFFFF,
+            len(parameter),
+            zlib.crc32(parameter) & 0xFFFFFFFF,
+        )
+        struct.pack_into("<I", header, 44, 1)
+        struct.pack_into("<I", header, 60, zlib.crc32(header[:60]) & 0xFFFFFFFF)
+        decoded = decode_local_ed_response(bytes(header + result + parameter), frame_id)
+        self.assertEqual(decoded.abi_version, 2)
+        self.assertFalse(decoded.compact_result)
+        self.assertIsNotNone(decoded.parameter)
+        self.assertEqual(decoded.parameter.event_id, 77)  # type: ignore[union-attr]
+        self.assertEqual(decoded.parameter.channel_power_dbfs.value, -31.5)  # type: ignore[union-attr]
+
+    def test_parameter_frame_and_capability_contract_round_trip(self) -> None:
+        observation = ParameterObservationRequest(11, 12, 100, 180, True)
+        frame = IQFrame(
+            4,
+            2_000_000,
+            820_000_000,
+            b"\x01\x02" * 4096,
+            frame_id=4,
+            parameter_request=observation,
+        )
+        packet = IQFrameCodec.encode(frame)
+        self.assertEqual(len(packet) - len(frame.payload), 80)
+        self.assertEqual(IQFrameCodec.decode(packet), frame)
+        capability_packet = IQCapabilityCodec.encode_response(
+            TransportCapabilities(True, 512, 1)
+        )
+        self.assertEqual(
+            IQCapabilityCodec.decode_response(capability_packet),
+            TransportCapabilities(True, 512, 1),
+        )
 
     def test_network_bridge_boot_configuration_does_not_pin_a_volatile_mac_name(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -284,6 +348,54 @@ class P0TransportTests(unittest.TestCase):
             worker.join(timeout=2.0)
         self.assertFalse(server_error)
 
+    def test_tcp_capability_probe_is_separate_and_fail_closed(self) -> None:
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(1)
+        port = listener.getsockname()[1]
+
+        def server() -> None:
+            connection, _ = listener.accept()
+            with connection:
+                query = bytearray()
+                while len(query) < 48:
+                    query.extend(connection.recv(48 - len(query)))
+                self.assertEqual(bytes(query[:4]), b"P0CQ")
+                connection.sendall(
+                    IQCapabilityCodec.encode_response(
+                        TransportCapabilities(True, 512, 1)
+                    )
+                )
+            listener.close()
+
+        worker = threading.Thread(target=server, daemon=True)
+        worker.start()
+        client = TCPClientIQTransport()
+        capabilities = client.probe_capabilities(
+            "127.0.0.1", port, timeout_seconds=1.0
+        )
+        worker.join(timeout=2.0)
+        self.assertTrue(capabilities.inline_parameter_observation)
+        self.assertEqual(client.stats.frames_sent, 0)
+
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(1)
+        port = listener.getsockname()[1]
+
+        def legacy_server() -> None:
+            connection, _ = listener.accept()
+            connection.close()
+            listener.close()
+
+        worker = threading.Thread(target=legacy_server, daemon=True)
+        worker.start()
+        capabilities = client.probe_capabilities(
+            "127.0.0.1", port, timeout_seconds=1.0
+        )
+        worker.join(timeout=2.0)
+        self.assertFalse(capabilities.inline_parameter_observation)
+
     def test_tcp_client_keeps_continuous_stream_bounded_to_four_frames(self) -> None:
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listener.bind(("127.0.0.1", 0))
@@ -346,6 +458,38 @@ class P0TransportTests(unittest.TestCase):
             worker.join(timeout=2.0)
         self.assertEqual(observed_sequences, list(range(12)))
         self.assertFalse(server_error)
+
+    def test_stream_refills_pipeline_before_running_response_handler(self) -> None:
+        class OrderingTransport(TCPClientIQTransport):
+            def __init__(self) -> None:
+                super().__init__()
+                self._stats = TransportStats(state="CONNECTED")
+                self.sent_sequences: list[int] = []
+
+            def send(self, frame: IQFrame) -> bool:
+                self.sent_sequences.append(frame.sequence_number)
+                self._stats = replace(
+                    self._stats, frames_sent=self._stats.frames_sent + 1
+                )
+                return True
+
+            def _receive_response(self, expected_sequence: int) -> IQResponse:
+                self._stats = replace(
+                    self._stats, frames_received=self._stats.frames_received + 1
+                )
+                return IQResponse(expected_sequence, b"result")
+
+        transport = OrderingTransport()
+        frames = tuple(
+            IQFrame(index, 2_000_000, 101_500_000, b"\x01\x02" * 4096, frame_id=index)
+            for index in range(6)
+        )
+        sent_when_handled: list[int] = []
+        assert transport.exchange_stream(
+            frames,
+            lambda response: sent_when_handled.append(len(transport.sent_sequences)),
+        ) == 6
+        assert sent_when_handled[:2] == [5, 6]
 
 
 if __name__ == "__main__":

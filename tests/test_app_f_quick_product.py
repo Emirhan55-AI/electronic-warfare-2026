@@ -76,7 +76,7 @@ print(json.dumps(payload))
             payload["signal_title_parent_center"], payload["signal_title_center"], delta=0.5
         )
 
-    def test_header_places_domain_switch_on_right_without_connection_messages(self) -> None:
+    def test_header_keeps_runtime_values_without_connection_messages(self) -> None:
         source = QML.read_text(encoding="utf-8")
         header_start = source.index("    header: Rectangle {")
         content_start = source.index(
@@ -87,12 +87,30 @@ print(json.dumps(payload))
         self.assertNotIn('objectName: "receiverHeaderBadge"', header)
         self.assertNotIn('text: "Alıcı ve FPGA"', header)
         self.assertNotIn("operatorViewModel.sourceMessage", header)
-        self.assertLess(
-            header.index(
-                'text: root.operatingDomain === "ET" ? "GÖREV" : "MERKEZ FREKANSI"'
-            ),
-            header.index('model: ["ED", "ET"]'),
-        )
+        self.assertIn('text: "MERKEZ FREKANSI"', header)
+        self.assertIn('text: "ÖRNEKLEME HIZI"', header)
+
+    def test_canvas_font_family_with_spaces_is_quoted(self) -> None:
+        source = QML.read_text(encoding="utf-8")
+
+        self.assertNotIn('ctx.font = "8px Segoe UI"', source)
+        self.assertIn('ctx.font = "8px \'Segoe UI\'"', source)
+
+    def test_listening_channel_fields_do_not_bind_directly_to_live_suggestions(self) -> None:
+        source = QML.read_text(encoding="utf-8")
+        offset_start = source.index('objectName: "listeningOffset"')
+        bandwidth_start = source.index('objectName: "listeningBandwidth"')
+        offset_block = source[offset_start:bandwidth_start]
+        bandwidth_block = source[bandwidth_start:source.index('Label {', bandwidth_start)]
+
+        self.assertIn('text: ""', offset_block)
+        self.assertIn('onTextEdited: operatorEdited = true', offset_block)
+        self.assertIn('onSuggestionBasisChanged: applySuggestion(false)', offset_block)
+        self.assertNotIn('text: operatorViewModel.listeningSuggestedOffsetKHz', offset_block)
+        self.assertIn('text: ""', bandwidth_block)
+        self.assertIn('onTextEdited: operatorEdited = true', bandwidth_block)
+        self.assertIn('onSuggestionBasisChanged: applySuggestion()', bandwidth_block)
+        self.assertNotIn('text: operatorViewModel.listeningSuggestedBandwidthKHz', bandwidth_block)
 
     def test_fpga_error_revokes_ready_controls_without_header_error_status(self) -> None:
         payload = self.run_qml(
@@ -195,8 +213,7 @@ deadline = time.perf_counter() + .4
 while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
 opened = {"open": root.property("sourcePanelOpen"), "visible": panel.property("visible"),
           "workspace": root.property("workspace"), "task": root.property("spectrumTaskTab"),
-          "domain": root.property("operatingDomain"), "busy": view_model.busy,
-          "playing": view_model.playing}
+          "busy": view_model.busy, "playing": view_model.playing}
 assert QMetaObject.invokeMethod(button, "clicked")
 deadline = time.perf_counter() + .4
 while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
@@ -206,7 +223,7 @@ assert QMetaObject.invokeMethod(button, "clicked")
 deadline = time.perf_counter() + .4
 while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
 returned = {"open": root.property("sourcePanelOpen"), "workspace": root.property("workspace"),
-            "task": root.property("spectrumTaskTab"), "domain": root.property("operatingDomain")}
+            "task": root.property("spectrumTaskTab")}
 payload = {"initial": initial, "opened": opened, "closed": closed, "returned": returned}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
@@ -214,11 +231,11 @@ print(json.dumps(payload))
         )
         self.assertEqual({"open": False, "visible": False, "busy": False, "playing": False}, payload["initial"])
         self.assertEqual(
-            {"open": True, "visible": True, "workspace": 0, "task": 0, "domain": "ED", "busy": False, "playing": False},
+            {"open": True, "visible": True, "workspace": 0, "task": 0, "busy": False, "playing": False},
             payload["opened"],
         )
         self.assertEqual({"open": False, "visible": False}, payload["closed"])
-        self.assertEqual({"open": True, "workspace": 0, "task": 0, "domain": "ED"}, payload["returned"])
+        self.assertEqual({"open": True, "workspace": 0, "task": 0}, payload["returned"])
 
     def test_application_starts_waiting_without_automatic_receiver_probe(self) -> None:
         payload = self.run_qml(
@@ -346,6 +363,55 @@ print(json.dumps(payload))
         )
         self.assertEqual(0, process.returncode, process.stdout + process.stderr)
         return json.loads(process.stdout.strip().splitlines()[-1])
+
+    def test_direction_ui_explains_missing_target_and_capture_state(self):
+        payload = self.run_qml("""
+from app.operator_console.live_ed import LiveEDSession, LiveEDConfiguration
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900); root.setProperty("workspace", 2)
+view_model.setSourceMode("hackrf")
+session = LiveEDSession("unused", LiveEDConfiguration(104650000, "0" * 32))
+view_model._live_session = session
+view_model._live_sample_rate_hz = 2000000
+view_model._live_output_center_frequency_hz = 104650000
+view_model.stateChanged.emit()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+button = root.findChild(QObject, "directionStartMeasurement")
+reason = root.findChild(QObject, "directionCaptureReason")
+next_angle = root.findChild(QObject, "directionNextAngle")
+instruction = root.findChild(QObject, "directionStepInstruction")
+missing = {"enabled": button.property("enabled"), "reason": reason.property("text"),
+           "next": next_angle.property("text"), "instruction": instruction.property("text")}
+view_model._selected_live_detection = {"eventId": 17, "confirmed": True,
+    "frequencyHz": 104750000, "stateKey": "stale", "observed": False}
+view_model._analysis_span_draft = (2200, 2220)
+view_model.stateChanged.emit(); view_model.spectrumChanged.emit()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+ready = button.property("enabled")
+button.clicked.emit()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+pending = {"enabled": button.property("enabled"), "text": button.property("text"),
+           "reason": reason.property("text"), "cancellable": view_model.directionCaptureCancellable}
+image_path = Path("build/acceptance/phase09-channel-capture-ui.png")
+image_path.parent.mkdir(parents=True, exist_ok=True)
+root.grabWindow().save(str(image_path))
+view_model.cancelDirectionMeasurement()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+cancelled = {"enabled": button.property("enabled"), "reason": reason.property("text")}
+view_model.shutdown(); root.close()
+print(json.dumps({"missing": missing, "ready": ready, "pending": pending, "cancelled": cancelled}))
+""")
+        self.assertFalse(payload["missing"]["enabled"])
+        self.assertIn("sinyali seçin", payload["missing"]["reason"])
+        self.assertEqual("0°", payload["missing"]["next"])
+        self.assertIn("başlangıç", payload["missing"]["instruction"])
+        self.assertTrue(payload["ready"])
+        self.assertFalse(payload["pending"]["enabled"])
+        self.assertTrue(payload["pending"]["cancellable"])
+        self.assertIn("Ölçüm alınıyor", payload["pending"]["text"])
+        self.assertIn("anteni sabit", payload["pending"]["reason"])
+        self.assertTrue(payload["cancelled"]["enabled"])
+        self.assertIn("iptal", payload["cancelled"]["reason"])
 
     def test_detection_settings_dialog_applies_and_rejects_invalid_values(self):
         payload = self.run_qml("""
@@ -640,39 +706,6 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertFalse(payload["restored"]["measurement"])
         self.assertGreater(payload["parameter"]["width"], payload["detection"]["width"])
 
-    def test_et_domain_exposes_only_single_task_and_keeps_hardware_gate_closed(self) -> None:
-        payload = self.run_qml(
-            """
-import sys
-root = engine.rootObjects()[0]
-root.setWidth(1180); root.setHeight(680); root.setProperty("operatingDomain", "ET"); app.processEvents()
-start=root.findChild(QObject,"etSingleStart")
-stop=root.findChild(QObject,"etSingleEmergencyStop")
-gate=root.findChild(QObject,"etTxGateState")
-view_model.previewETSingle("853.500", "854.500", "0.1"); app.processEvents()
-preview={"status":view_model.etStatus,"primary":len(view_model.etPrimaryValues),"secondary":len(view_model.etSecondaryValues),"metrics":len(view_model.etMetricRows),"timeline":len(view_model.etTimeline),"transmitting":view_model.etTransmitting}
-view_model.startETSingle("853.500", "854.500", "0.1"); app.processEvents()
-payload={"domain":root.property("operatingDomain"),"workspace":root.property("workspace"),"workspace_item":root.findChild(QObject,"etWorkspace") is not None,"task_cards":list(view_model.etTaskCards),"preview_control":root.findChild(QObject,"etSinglePreview") is not None,"start_enabled":start.property("enabled"),"stop_enabled":stop.property("enabled"),"gate":gate.property("text"),"synthetic_api":any(hasattr(view_model,name) for name in ("runETTask","validateETGNSS")),"tx_api":hasattr(view_model,"startETSingle"),"generic_transmit":hasattr(view_model,"transmit"),"models_loaded":any(name == "algorithms.et" or name.startswith("algorithms.et.") for name in sys.modules),"preview":preview,"blocked_status":view_model.etStatus,"blocked_detail":view_model.etResultDetail}
-view_model.shutdown(); root.close()
-print(json.dumps(payload,ensure_ascii=False))
-"""
-        )
-        self.assertEqual("ET", payload["domain"])
-        self.assertEqual(4, payload["workspace"])
-        self.assertTrue(payload["workspace_item"])
-        self.assertEqual(["continuous"], [card["id"] for card in payload["task_cards"]])
-        self.assertTrue(payload["preview_control"])
-        self.assertTrue(payload["tx_api"])
-        for key in ("start_enabled", "stop_enabled", "synthetic_api", "generic_transmit", "models_loaded"):
-            self.assertFalse(payload[key], key)
-        self.assertEqual("Fiziksel güvenlik kapısı kapalı", payload["gate"])
-        self.assertEqual("İLETİMSİZ DOĞRULANDI", payload["preview"]["status"])
-        self.assertEqual(512, payload["preview"]["secondary"])
-        self.assertEqual(7, payload["preview"]["metrics"])
-        self.assertFalse(payload["preview"]["transmitting"])
-        self.assertEqual("TX KİLİTLİ", payload["blocked_status"])
-        self.assertIn("güvenlik kapısı", payload["blocked_detail"])
-
     def test_system_diagnostics_use_real_runtime_state_and_safe_release_boundary(self) -> None:
         payload = self.run_qml(
             """
@@ -740,7 +773,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("known-tone-ci8.sigmf-meta", payload["name"])
         self.assertEqual("100 MHz", payload["center"])
         self.assertLessEqual(payload["points"], 1600)
-        self.assertTrue(payload["confirmed"])
+        self.assertTrue(payload["confirmed"], payload)
         self.assertTrue(payload["performance"].startswith("İşleme p95"))
 
     def test_parameter_values_require_explicit_operator_action(self) -> None:
@@ -773,9 +806,12 @@ payload={"before":before,"after":view_model.parameterRows,"span_confirmed":view_
 app.processEvents()
 payload["primary_rows"] = panel.property("primaryRows").toVariant()
 payload["detail_rows"] = panel.property("detailRows").toVariant()
-payload["details_initially_hidden"] = not root.findChild(QObject, "parameterDetails").property("visible")
+payload["validation_summary_visible"] = root.findChild(QObject, "parameterValidationSummary").property("visible")
+payload["catalog_visible"] = root.findChild(QObject, "automaticParameterCatalog").property("visible")
+payload["catalog_summary"] = view_model.parameterCatalogSummary
+payload["details_initially_visible"] = root.findChild(QObject, "parameterDetails").property("visible")
 QMetaObject.invokeMethod(root.findChild(QObject, "parameterDetailsToggle"), "clicked", Qt.DirectConnection)
-payload["details_visible_after_click"] = root.findChild(QObject, "parameterDetails").property("visible")
+payload["details_hidden_after_click"] = not root.findChild(QObject, "parameterDetails").property("visible")
 payload["measurement_info"] = view_model.measurementInfo
 view_model.startScan()
 app.processEvents()
@@ -785,13 +821,17 @@ view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
-        self.assertEqual(3, len(payload["primary_rows"]))
-        self.assertEqual(5, len(payload["detail_rows"]))
-        self.assertEqual("Taşıyıcı frekansı", payload["primary_rows"][0]["label"])
+        self.assertEqual(4, len(payload["primary_rows"]))
+        self.assertEqual(10, len(payload["detail_rows"]))
+        self.assertEqual("Emisyon merkez frekansı", payload["primary_rows"][0]["label"])
         self.assertEqual("İşgal edilen bant genişliği (OBW %99)", payload["primary_rows"][1]["label"])
         self.assertEqual("Kanal gücü (dBFS)", payload["primary_rows"][2]["label"])
-        self.assertTrue(payload["details_initially_hidden"])
-        self.assertTrue(payload["details_visible_after_click"])
+        self.assertEqual("Sinyal türü (PC, deneysel)", payload["primary_rows"][3]["label"])
+        self.assertTrue(payload["validation_summary_visible"])
+        self.assertTrue(payload["catalog_visible"])
+        self.assertIn("otomatik parametre", payload["catalog_summary"].lower())
+        self.assertTrue(payload["details_initially_visible"])
+        self.assertTrue(payload["details_hidden_after_click"])
         self.assertGreater(payload["measurement_info"]["durationMs"], 0)
         self.assertTrue(payload["measurement_info"]["completedUtc"])
         self.assertTrue(all(row["value"] == "—" for row in payload["cleared_rows"]))
@@ -817,11 +857,55 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertIn("Bant içi SNR kestirimi", labels)
         self.assertIn("Sinyal türü", labels)
         self.assertIn("Güç referansı", labels)
+        self.assertIn("Kayıtlı I/Q kalite kapısı", labels)
+        self.assertIn("Gürültü referans farkı", labels)
+        self.assertIn("Tespit anlamlılığı", labels)
+        self.assertIn("Merkez kararsızlığı", labels)
+        self.assertIn("OBW kenar değişimi", labels)
+
+    def test_empty_automatic_span_can_be_entered_and_confirmed_manually(self) -> None:
+        payload = self.run_qml(
+            """
+view_model.openSigmf(str(fixture))
+deadline=time.perf_counter()+6
+while time.perf_counter()<deadline and (view_model.busy or not view_model.sourceReady): app.processEvents(); time.sleep(.002)
+view_model.startScan()
+while time.perf_counter()<deadline and not any(x["stateKey"]=="confirmed" for x in view_model.detections): app.processEvents(); time.sleep(.002)
+view_model.pause()
+confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
+view_model.selectDetection(int(confirmed["eventId"]))
+peak_mhz=(view_model.centerFrequencyHz+(view_model.selectedRegionPeakNormalized-.5)*view_model.sampleRateHz)/1e6
+view_model._analysis_span=None; view_model._analysis_span_draft=None; view_model.detectionsChanged.emit()
+from PySide6.QtCore import QMetaObject, Qt
+root=engine.rootObjects()[0]; root.setProperty("spectrumTaskTab",1); app.processEvents()
+confirm=root.findChild(QObject,"parameterConfirmRange")
+before={"visible":confirm.property("visible"),"enabled":confirm.property("enabled")}
+QMetaObject.invokeMethod(root.findChild(QObject,"parameterEditRange"),"clicked",Qt.DirectConnection)
+lower=root.findChild(QObject,"parameterLowerMHz"); upper=root.findChild(QObject,"parameterUpperMHz")
+lower.setProperty("text",f"{peak_mhz-.010:.6f}".replace(".",","))
+upper.setProperty("text",f"{peak_mhz+.010:.6f}".replace(".",","))
+app.processEvents()
+during={"visible":confirm.property("visible"),"enabled":confirm.property("enabled"),
+        "lower":lower.property("text"),"upper":upper.property("text")}
+QMetaObject.invokeMethod(confirm,"clicked",Qt.DirectConnection); app.processEvents()
+payload={"before":before,"during":during,"confirmed":view_model.analysisSpanConfirmed,
+         "status":view_model.statusMessage}
+view_model.shutdown(); root.close(); print(json.dumps(payload,ensure_ascii=False))
+"""
+        )
+        self.assertFalse(payload["before"]["visible"])
+        self.assertFalse(payload["before"]["enabled"])
+        self.assertTrue(payload["during"]["visible"])
+        self.assertTrue(payload["during"]["enabled"])
+        self.assertIn(",", payload["during"]["lower"])
+        self.assertIn(",", payload["during"]["upper"])
+        self.assertTrue(payload["confirmed"], payload)
+        self.assertIn("onaylandı", payload["status"])
 
     def test_direction_result_is_blocked_without_real_source(self) -> None:
         payload = self.run_qml(
             """
-view_model.addDirectionMeasurement(90.0,"north",0.0)
+view_model.addNextClockwiseDirectionMeasurement()
 payload={"points":view_model.directionPoints,"relative":view_model.relativeArrivalText,"status":view_model.statusMessage}
 view_model.shutdown(); engine.rootObjects()[0].close()
 print(json.dumps(payload,ensure_ascii=False))
@@ -942,14 +1026,21 @@ print(json.dumps(payload,ensure_ascii=False))
             "operatorViewModel.detectionModel",
             "paintDetectionGuides",
             'objectName: "measurementScroll"',
+            "DOĞRULAMA ÖZETİ",
+            "Teknik Doğrulamayı Gizle",
             'objectName: "listeningSettingsScroll"',
             'objectName: "listeningTransport"',
             'objectName: "listeningResultList"',
             "Oynatma konumu, salt okunur",
-            'objectName: "directionSettingsScroll"',
+            'objectName: "directionClockwiseGuide"',
+            'objectName: "directionNextAngle"',
+            'objectName: "directionStepInstruction"',
             'objectName: "directionCompass"',
             'objectName: "directionMeasurementList"',
-            "Kanal Gücünü Kaydet",
+            "directionStartMeasurement",
+            "addNextClockwiseDirectionMeasurement",
+            "SAAT YÖNÜNDE OTOMATİK ADIM",
+            "BAĞIL TEPE YÖNÜ",
             'objectName: "pipelineList"',
             'objectName: "systemLog"',
             "SALT OKUNUR",
@@ -963,6 +1054,15 @@ print(json.dumps(payload,ensure_ascii=False))
             self.assertIn(required, text)
         self.assertNotIn("Listeyi tut", text)
         self.assertNotIn("detectionHoldButton", text)
+        for removed_direction_control in (
+            "Anten dönüş açısı (°)",
+            "Gerçek kuzey (0°)",
+            "Elle girilen gerçek kerteriz",
+            "Anten 0° gerçek kerterizi",
+            "GERÇEK KERTERİZ",
+            "ANTEN AZİMUTU",
+        ):
+            self.assertNotIn(removed_direction_control, text)
         for removed_operator_control in (
             "SigMF Kaydı",
             "HackRF Canlı RX",

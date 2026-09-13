@@ -1,6 +1,18 @@
 {
+  "schema_version": 2,
   "role": "ED_RX",
   "device_type": "HackRF One",
-  "serial": "0000000000000000a32868dc36877e47",
+  "receivers": [
+    {
+      "role": "ED_RX_PRIMARY",
+      "serial": "0000000000000000a32868dc36877e47",
+      "purpose": "Tespit, otomatik parametre çıkarımı ve yön ölçümü"
+    },
+    {
+      "role": "ED_RX_SECONDARY",
+      "serial": "0000000000000000a32868dc35138247",
+      "purpose": "Eşzamanlı ikinci alıcı ve izleme/dinleme hazırlığı"
+    }
+  ],
   "search_ranges_hz": []
 }

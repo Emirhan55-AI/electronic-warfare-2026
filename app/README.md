@@ -1,5 +1,89 @@
 # Operatör Uygulaması
 
+## Yalnız ED ürün kapsamı — 13 Eylül 2026
+
+Arayüzde Elektronik Taarruz alanı veya alan seçimi yoktur. ET görev/TX
+denetleyicileri, yapılandırması, paket girdileri ve ET'ye özel testler depodan
+kaldırılmıştır. Uygulama yalnız ED tespit, parametre, dinleme, yön bulma ve
+sistem görevlerini sunar. Aşağıdaki eski ET bölümleri tarihsel kayıttır.
+
+## Otomatik parametre kataloğu ve iki alıcı görünümü — 13 Eylül 2026
+
+Alıcı paneli yapılandırılmış birincil ve ikincil HackRF seri kimliklerini ayrı
+gösterir. Birincil cihaz canlı tespit yoludur; ikinci cihaz için yalnız tanınma
+durumu gösterilir, eşzamanlı ikinci işleme fiziksel olarak doğrulanmış sayılmaz.
+
+Parametre ekranındaki kalıcı katalog, kart yeteneği varsa tespit sürerken
+tamamlanan dört-kare PL/ARM sonuçlarının merkezini, alt/üst bant kenarını,
+OBW, dBFS ve SNR değerini geçerli dBFS azalan sırada gösterir.
+Yenileme, CSV dışa aktarma ve klasörü açma eylemleri vardır. dBm sütunu seri,
+örnekleme, kazanç, kanal seçici ölçeği, frekans kapsamı ve süre tam eşleşen
+ölçülmüş bir profil bulunmadıkça `Kalibre değil` kalır. Geniş/kenar/komşu
+nedeniyle ölçülemeyen sinyaller sayı yerine gerekçeyle listelenir.
+
+## Parametre doğrulamasının sonuç ekranı — 13 Eylül 2026
+
+Parametre ölçümü tamamlandığında emisyon merkezi, OBW, kanal gücü ve deneysel
+Analog/Sayısal sonucu değerleriyle birlikte `GEÇERLİ`, `BELİRSİZ`,
+`KALİTE YETERSİZ` veya `GÖZLENMEDİ` durumunu gösterir. Teknik doğrulama ilk
+sonuçta açıktır; taşıyıcı ve bant kenarlarına ek olarak kaynağa göre kart veya kayıtlı I/Q kalite kapısı,
+gürültü referans farkı, tespit anlamlılığı, merkez kararsızlığı ve OBW kenar
+değişimi görünür. Ret nedenleri Türkçe olarak ilgili alanın altında kalır.
+`DOĞRULAMA ÖZETİ` kart/profil kapılarını özetler ve fiziksel doğruluk kabulü
+olmadığını belirtir. İlgili QML ve görünüm modeli regresyonlarında 94 test geçti.
+
+## 820 MHz canlı ürün koşusu — 13 Eylül 2026
+
+Kontrollü laboratuvarda bildirilen NFM ton yayını kaynak arayüzünde tespit
+edildi, iki P0PM-v2 parametre tekrarı alındı ve beş saniyelik NFM ses
+hazırlanarak oynatıldı/durduruldu. Baskın ses bileşeni `1,02301 kHz` oldu.
+
+Dinleme kanalı artık değişken FPGA olay kimliğine değil operatörün seçtiği RF
+frekansına bağlıdır. ARM yaşam döngüsü tablosundaki o karede gözlenmeyen kayıt
+eşzamanlı ikinci yayın sayılmaz; gerçekten eşzamanlı iki gözlem ve uzun kanal
+kaybı yine hazırlamayı engeller. Ofset ve bant genişliği alanları canlı öneri
+yenilemelerinde operatör değerini korur. Dosya kaynağı canlıya özel frekans
+alanından ayrılmış, Canvas yazı tipi uyarısı giderilmiştir. İlgili 182 test
+geçti. [Kanıt ve kabul sınırı](../results/evidence/phase08/live-820mhz-e2e-product-20260913.json).
+Bu tek açık koşu kör/negatif/gerçek konuşma veya genel Pd/Pfa kabulü değildir.
+
+## Otomatik Analog/Sayısal ayrımı — 12 Eylül 2026
+
+`Parametreleri Çıkar` eylemi seçili dört ölçüm karesini otomatik olarak PC
+sınıflandırıcısına da verir. Taşıyıcı, OBW ve güç PL/ARM yolunda kalır; sınıf
+hesabı FPGA veya ARM'da çalışmaz. Ana sonuçlar `Analog`, `Sayısal` ya da `%90`
+güven kapısı geçmezse `Belirsiz` gösterir. Kayda model ve kaynak özeti,
+özellikler, olasılık ve kabul sınırı eklenir; tekrar okuma aynı sonucu yeniden
+üretir. Sentetik geliştirme başarısı canlı RF doğruluğu sayılmaz.
+Otomatik analiz aralığı üretilemezse `Aralığı Düzenle` ile alt/üst MHz değerleri
+elle girilir; boş değerle onay kapalıdır ve geçersiz aralığın nedeni panelde
+gösterilir.
+Canlı kullanımda `Aralığı Onayla ve Parametreleri Çıkar` tek işlemdir. Seçili
+adayın sınırı onay ile yakalama arasında değişirse aralık dört ardışık FPGA
+karesinin birleşimine otomatik genişletilir. Karelerden biri geçici eksikse
+tıklama kaybolmaz; alım açık kalır ve sonraki tam pencere beklenir. Sahiplik
+kontrolü alım durdurulmadan önce yapılır, böylece ret halinde boş `Alım durdu`
+ekranı bırakılmaz.
+Geniş FPGA adayının tamamı korunur; kart P0PM-v2 yolu 8–3984 hücreyi destekler.
+Eski 512 hücreye kesme yaklaşımı kaldırıldı: bu kesme gürültü referanslarını
+kirletip güç ve SNR'yi de geçersiz yapabiliyordu. Kaynak arayüzü yanında kart
+hizmeti ve ağ köprüsü de güncellenip kartın SD açılış imajına kalıcı olarak
+yerleştirilmiştir. Kısmi/başarısız ölçüm ayrı durumla ve alan bazında ret
+nedeniyle gösterilir. PC sınıflandırması geniş aralıkta aynı
+sentetik kapıları geçmiştir; canlı kesin karar deneysel kalır ve fiziksel ürün
+kabulü sayılmaz.
+
+## Yön ölçümü akışı — 13 Eylül 2026
+
+Kaynak arayüzünde hedefi seçin ve anteni kendi belirlediğiniz başlangıç yönüne
+getirin. Tek ölçüm düğmesi ilk başarılı kaydı `0°` sayar; sonraki başarılı
+kayıtlarda gösterilen açı saat yönünde otomatik 15° ilerler. Ürün yalnız bağıl
+tepe yönünü gösterir; açı, kuzey veya coğrafi kerteriz girişi yoktur. Beş
+saniyelik veri toplama sınırı, iptal ve açıklamalı FFT/kanal/ayar retleri
+korunur; başarısız ölçüm açıyı ilerletmez. Güncelleme için kaynak arayüzünü
+yeniden başlatın: `python -m app.operator_console`. Eski standalone paket bu
+düzeltmeyi içermez. [Durum](../docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
+
 ## Sinyal izleme ve dinleme — 11 Eylül 2026
 
 Parametre sonucu hazır olduğunda `Dinleme İçin Yeniden Al` akışı ölçülen
@@ -21,8 +105,8 @@ Güncel standalone ürün paketi
 HackRF parametre ölçümü seçili dört CI8 kareyi durdurulmuş oturumda ZedBoard'a
 gönderir ve yalnız doğrulanmış PL/ARM yanıtını gösterir. Kart hatasında PC F5
 hesabı devreye girmez. Kayıt, kart yanıtını ve giriş CRC'sini saklar; tekrar
-okuma bunları yeniden doğrular. Sinyal türü bu yolda ertelenmiş ve ana
-sonuçlardan çıkarılmıştır. Ana alanlar literatürdeki adlarıyla taşıyıcı
+okuma bunları yeniden doğrular. Sinyal türü aynı karelerde PC'de deneysel
+olarak hesaplanır ve ana sonuçlarda gösterilir. Ana alanlar literatürdeki adlarıyla taşıyıcı
 frekansı, işgal edilen bant genişliği (OBW %99) ve kanal gücü (dBFS) olarak
 gösterilir. Fiziksel kalibrasyon bulunana kadar dBm gösterilmez.
 
@@ -923,18 +1007,14 @@ Uygulamanın mevcut çalışma alanları:
 - `Dinleme`: sabit doğrulanmış tespit bağlamından operatör seçimli AM/NFM kanal
   hazırlama, demodüle ses dalga biçimi, gerçek oynatma konumu, fiziksel ses
   çıkışı durumu ve WAV dışa aktarma.
-- `Yön Bulma`: gerçek I/Q karesinin geniş bant dBFS gücünü elle girilen anten
-  açısıyla kaydetme, kaynak ve anten referansı kilitli ölçüm oturumu, bağıl geliş
-  yönü ve geçerli gerçek kuzey referansı varsa gerçek kerteriz.
+- `Yön Bulma`: operatörün belirlediği `0°` başlangıcından saat yönünde 15°
+  adımları tek ölçüm düğmesiyle ilerletme, her açıda seçili kanalın gerçek dört
+  I/Q karesinden PL/ARM dBFS gücü ve yalnız bağıl tepe yönü. Uygulama fiziksel
+  dönüşü algılamaz; serbest açı veya coğrafi kerteriz üretmez.
 - `Sistem`: gerçek çalışma durumundan beslenen yedi aşamalı işlem zinciri,
   seçili bileşenin yürütme/donanım sınırı, ölçülen host işlem süresi ve
   filtrelenebilir salt-okunur olay günlüğü. Yayın görünümü komut kabuğu veya
   dosya sistemi denetimi sunmaz.
-- `ET Görevleri`: ürün yalnız Tekli Görev için seçilen frekans aralığı, süre,
-  iletimsiz spektrum doğrulaması ve güvenlik kapılı HackRF TX sürecini sunar.
-  Faraday `CABLED_LAB` ortamı onaylıdır; fiziksel profil kapalı, cihaz bağlı
-  değil ve RF kabulü açıktır. Çoklu/arabakışlı/analog/GNSS ile C++17 I/Q
-  üreteci çevrimdışı referans olarak korunur ve ürün akışına girmez.
 
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS
@@ -951,16 +1031,16 @@ açılır. Dinleme alanında seçili sinyal, hazırlama eylemi ve sonuç kontrol
 sabit kalır; yalnız kanal ayarları kendi panelinde kaydırılır. Oynatma zaman
 çizelgesi salt okunurdur ve ses çıkışının işlediği PCM süresinden beslenir.
 
-Klavye kullanımı çalışma alanına bağlıdır. `Ctrl+1`–`Ctrl+4` ED çalışma alanını,
-`Ctrl+5` ET görevlerini açar ve odağı seçilen alana taşır. `Boşluk`, `Ctrl+B`, `Alt+Sol`,
+Klavye kullanımı çalışma alanına bağlıdır. `Ctrl+1`–`Ctrl+5` ED çalışma alanları
+arasında geçer ve odağı seçilen alana taşır. `Boşluk`, `Ctrl+B`, `Alt+Sol`,
 `Alt+Sağ` ve `Ctrl+0` yalnız Spektrum alanında tarama, kaynak paneli ve ortak
 frekans görünümünü yönetir. `Esc` açık olay konsolunu kapatır. Durum rozetleri,
 seçim kutuları ve görev kontrolleri erişilebilir ad taşır.
 
-Yön Bulma ölçümleri kaynak değişiminde temizlenir. İlk kayıt antenin 0° yön
-referansını oturum için sabitler; referans ancak ölçümler temizlendikten sonra
-değiştirilebilir. Üç farklı açı tek başına sonuç garantisi değildir: belirgin bir
-güç maksimumu yoksa uygulama kerteriz üretmez.
+Yön Bulma ölçümleri kaynak değişiminde temizlenir. İlk kayıt antenin bağıl 0°
+yönünü oturum için sabitler; sonraki hedef yalnız başarılı ölçümden sonra saat
+yönünde 15° artar. Tam 24 farklı açı ve belirgin bir güç maksimumu yoksa uygulama
+bağıl tepe yönü üretmez.
 
 Çalıştırma:
 

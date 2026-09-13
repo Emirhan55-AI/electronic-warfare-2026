@@ -37,6 +37,61 @@ def record(directory, *, frames=None, intent=None):
     )
 
 
+@pytest.mark.parametrize("mutation", [None, "stale", "mask", "outside", "generation", "ids"])
+def test_direction_record_preserves_real_observation_ownership(mutation):
+    intent, _ = inputs()
+    events = [dict(event_id=event_id, seen_count=4, state="confirmed", observed_this_frame=True,
+                   start_shifted_bin=2205, peak_shifted_bin=2208, end_shifted_bin=2211)
+              for event_id in (28, 29, 30, 31)]
+    intent = replace(intent, context=replace(intent.context, owner_observed_frames=(False, False, False, True)))
+    source = {"sequence_numbers": [0, 1, 2, 3], "owner_observations": events,
+              "direction_capture": {"binding": "operator_selected_channel_v1", "span": [2180, 2238],
+                                    "emitter_identity_verified": False, "fresh_after_operator_request": True,
+                                    "host_capture_sequence_floor": -1, "event_ids": [28, 29, 30, 31]}}
+    if mutation == "stale":
+        source["direction_capture"]["host_capture_sequence_floor"] = 0
+    elif mutation == "mask":
+        intent = replace(intent, context=replace(intent.context, owner_observed_frames=(True,) * 4))
+    elif mutation == "outside":
+        events[0]["start_shifted_bin"] = 2000
+    elif mutation == "generation":
+        intent = replace(intent, source_generation=99)
+    elif mutation == "ids":
+        source["direction_capture"]["event_ids"] = [31] * 4
+    if mutation is None:
+        records.validate_measurement_ownership(intent, source)
+    else:
+        with pytest.raises(ValueError):
+            records.validate_measurement_ownership(intent, source)
+
+
+def test_parameter_record_accepts_changed_ids_only_with_fresh_channel_binding():
+    intent, _ = inputs()
+    events = [dict(event_id=event_id, seen_count=4, state="confirmed", observed_this_frame=True,
+                   start_shifted_bin=2205, peak_shifted_bin=2208, end_shifted_bin=2211)
+              for event_id in (28, 29, 30, 31)]
+    intent = replace(
+        intent,
+        context=replace(intent.context, owner_observed_frames=(False, False, False, True)),
+    )
+    source = {
+        "sequence_numbers": [0, 1, 2, 3],
+        "owner_observations": events,
+        "channel_capture": {
+            "binding": "operator_selected_channel_v1",
+            "span": [2180, 2238],
+            "emitter_identity_verified": False,
+            "fresh_after_operator_request": True,
+            "host_capture_sequence_floor": -1,
+            "event_ids": [28, 29, 30, 31],
+        },
+    }
+    records.validate_measurement_ownership(intent, source)
+    source["direction_capture"] = dict(source["channel_capture"])
+    with pytest.raises(ValueError, match="birden fazla"):
+        records.validate_measurement_ownership(intent, source)
+
+
 def rewrite(source, target, *, alter_document=None, alter_iq=None):
     with zipfile.ZipFile(source) as archive:
         document = json.loads(archive.read("measurement.json"))

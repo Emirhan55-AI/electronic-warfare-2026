@@ -30,7 +30,6 @@ from ._mixin_df import DFWorkspaceMixin, load_laboratory_df_dependencies
 from ._mixin_map import MapWorkspaceMixin
 from ._mixin_controls import ControlsMixin
 from ._mixin_state import StateMixin
-from ._mixin_et import ETWorkspaceMixin, load_laboratory_et_dependencies
 
 
 LOGGER = logging.getLogger(__name__)
@@ -46,7 +45,6 @@ def _source_display_name(value: str) -> str:
 def _load_laboratory_dependencies() -> None:
     """Load validation-only models only for the explicit laboratory entry point."""
 
-    load_laboratory_et_dependencies()
     load_laboratory_df_dependencies()
 
 
@@ -56,7 +54,6 @@ class MainWindow(
     ListeningWorkspaceMixin,
     DFWorkspaceMixin,
     MapWorkspaceMixin,
-    ETWorkspaceMixin,
     ControlsMixin,
     StateMixin,
     NavigationMixin,
@@ -162,10 +159,6 @@ class MainWindow(
         # 4: Sistem
         self.system_workspace = self._build_system_workspace()
         self.workspace_tabs.addTab(self.system_workspace, TEXT["system_status_workspace"])
-
-        if self.laboratory_mode:
-            self.et_workspace = self._build_et_workspace()
-            self.workspace_tabs.addTab(self.et_workspace, "ET — Offline Laboratuvar")
 
         self.workspace_tabs.currentChanged.connect(self._on_workspace_tab_changed)
 

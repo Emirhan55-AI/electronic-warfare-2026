@@ -72,7 +72,7 @@ int main(void)
     }
 
     REQUIRE(payload_bytes == P0_PARAMETER_PERSISTENT_PAYLOAD_BYTES);
-    REQUIRE(payload_bytes <= 65536U);
+    REQUIRE(payload_bytes <= 393216U);
     REQUIRE(iq != NULL && power != NULL);
     for (index = 0U; index < P0_PARAMETER_FFT_SIZE; ++index)
         power[index] = UINT64_C(1) << 30;

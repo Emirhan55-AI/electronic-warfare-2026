@@ -122,11 +122,36 @@ class HackRFAcquisitionTests(unittest.TestCase):
         runner.run = lambda *args, **kwargs: ProcessResult(0, b"unexpected", b"", False, False)  # type: ignore[method-assign]
         self.assertEqual("DEVICE_ERROR", backend.discover_device().state)
 
+    def test_device_discovery_keeps_accessible_identity_when_another_board_is_busy(self) -> None:
+        paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}
+        runner = FakeRunner()
+        backend = RealHackRFBackend(runner=runner, which=paths.get)
+        backend.discover_tools(inspect_help=True)
+        payload = (
+            f"Found HackRF\nIndex: 0\n\nFound HackRF\nIndex: 1\nSerial number: {SERIAL}\n"
+            "Board ID Number: 2 (HackRF One)\nFirmware Version: v2.4.0 (API:1.11)"
+        ).encode()
+        runner.run = lambda *args, **kwargs: ProcessResult(1, payload, b"hackrf_open() failed: Access denied", False, False)  # type: ignore[method-assign]
+        discovered = backend.discover_device()
+        self.assertEqual("ONE_DEVICE", discovered.state)
+        self.assertEqual((SERIAL,), tuple(item.serial for item in discovered.devices))
+
     def test_ed_rx_config_is_serial_bound_and_receive_argv_is_rx_only(self) -> None:
         identity = load_ed_rx_config()
         self.assertEqual("ED_RX", identity.role)
         self.assertEqual("HackRF One", identity.device_type)
-        self.assertEqual("0000000000000000a32868dc35138247", identity.serial)
+        self.assertEqual("0000000000000000a32868dc36877e47", identity.serial)
+        self.assertEqual(
+            ("ED_RX_PRIMARY", "ED_RX_SECONDARY"),
+            tuple(receiver.role for receiver in identity.configured_receivers),
+        )
+        self.assertEqual(
+            (
+                "0000000000000000a32868dc36877e47",
+                "0000000000000000a32868dc35138247",
+            ),
+            identity.serials,
+        )
         with self.assertRaisesRegex(AcquisitionError, "atanmadı"):
             build_receive_argv("hackrf_transfer", RXConfig(), Path("capture.ci8"))
         argv = build_receive_argv(
@@ -138,6 +163,36 @@ class HackRFAcquisitionTests(unittest.TestCase):
         self.assertIn("-r", argv)
         for prohibited in ("-t", "-x", "-c", "-R"):
             self.assertNotIn(prohibited, argv)
+
+    def test_ed_rx_role_config_rejects_duplicate_or_unknown_receivers(self) -> None:
+        documents = (
+            {
+                "schema_version": 2,
+                "role": "ED_RX",
+                "device_type": "HackRF One",
+                "receivers": [
+                    {"role": "ED_RX_PRIMARY", "serial": SERIAL, "purpose": "Birincil"},
+                    {"role": "ED_RX_SECONDARY", "serial": SERIAL, "purpose": "İkincil"},
+                ],
+                "search_ranges_hz": [],
+            },
+            {
+                "schema_version": 2,
+                "role": "ED_RX",
+                "device_type": "HackRF One",
+                "receivers": [
+                    {"role": "ED_RX_UNKNOWN", "serial": SERIAL, "purpose": "Bilinmeyen"},
+                ],
+                "search_ranges_hz": [],
+            },
+        )
+        for document in documents:
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "rx.json"
+                import json
+                path.write_text(json.dumps(document), encoding="utf-8")
+                with self.assertRaises(AcquisitionError):
+                    load_ed_rx_config(path)
 
     def test_malformed_help_and_unexpected_exit_do_not_enable_capture(self) -> None:
         paths = {name: name for name in ("hackrf_info", "hackrf_transfer", "hackrf_sweep")}

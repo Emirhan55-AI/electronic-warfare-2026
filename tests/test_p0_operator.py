@@ -8,7 +8,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication
 
 from app.operator_console.main_window import MainWindow
-from algorithms.et import SafetyMode
 from algorithms.p0 import SearchMode
 from scripts.run_p0_demo import populate
 from qt_test_support import isolate_qt_module
@@ -31,7 +30,7 @@ class P0OperatorTests(unittest.TestCase):
     def test_required_ed_areas_and_real_result_binding(self) -> None:
         labels = [self.window.workspace_tabs.tabText(index) for index in range(self.window.workspace_tabs.count())]
         combined = " ".join(labels)
-        for required in ("Arama", "Parametre", "Dinleme", "Yön", "Sistem", "ET"):
+        for required in ("Arama", "Parametre", "Dinleme", "Yön", "Sistem"):
             self.assertIn(required, combined)
         self.assertEqual("deterministic_test", self.window.source_kind)
         self.assertIn("DOĞRULAMA VERİSİ", self.window.source_value.text())
@@ -43,15 +42,9 @@ class P0OperatorTests(unittest.TestCase):
         self.assertIn("RTL / VIVADO DOĞRULAMA", self.window.system_status_values["fpga"].text())
         self.assertIn("FİZİKSEL ZEDBOARD TESTİ", self.window.system_status_values["zedboard"].text())
 
-    def test_df_and_et_controls_use_models_and_fail_closed(self) -> None:
+    def test_df_controls_use_models(self) -> None:
         self.assertEqual("75°", self.window.df_result_values["relative"].text())
         self.assertEqual(24, self.window.df_curve.xData.size)
-        self.assertGreater(self.window.et_waveform_curve.xData.size, 0)
-        self.window._stop_et_mission()
-        index = self.window.et_mode_combo.findData(SafetyMode.HARDWARE_TX_LOCKED)
-        self.window.et_mode_combo.setCurrentIndex(index)
-        self.window._start_jamming_preview()
-        self.assertIn("GÜVENLİK KİLİDİ", self.window.et_state_label.text())
 
     def test_df_training_fixture_is_independent_and_truthfully_labelled(self) -> None:
         self.window.df_training_button.click()

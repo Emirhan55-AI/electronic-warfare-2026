@@ -1,5 +1,109 @@
 # Uygulama Yol Haritası
 
+## Yalnız ED kapsamına geçiş — 13 Eylül 2026
+
+Kullanıcı kararıyla ET arayüzü, görev/TX kaynakları, yapılandırması,
+doğrulayıcıları ve özel testleri kaldırıldı. PHASE-10–12 etkin geliştirme
+planından çıkarıldı; PHASE-13 yalnız ED bütünleştirme ve demo kapsamındadır.
+KTR-5.1–5.4 kimlikleri izlenebilirlik için korunur fakat uygulanmıyor ve ürün
+kapsamı dışındadır. Tarihli eski ET kayıtları güncel yetenek değildir. Açık ED
+kabul kapıları ve kullanıcı onayı olmadan sonraki faza geçmeme kuralı korunur.
+
+## PHASE-08 / KTR-4.1–4.3 paralel alım ve otomatik kayıt bakımı — 13 Eylül 2026
+
+Kullanıcı mevcut açık kabul işleri içinde iki HackRF'nin seri numarasına bağlı
+alıcı rolleri, tespit sürerken otomatik parametre çıkarımı, dBFS sıralı kalıcı
+kayıt ve fail-closed kalibrasyon kapısını onayladı. `ED_RX_PRIMARY` güncel canlı
+tespit yolunun sahibidir; `ED_RX_SECONDARY` ayrı seriyle tanınır fakat eşzamanlı
+ikinci fiziksel akış henüz uygulanmış/doğrulanmış gösterilmez.
+
+PC↔kart P0IQ v2 sözleşmesi, yalnız 4096 örneklik ve en çok 512 hücrelik canlı
+parametre isteği için 80 baytlık CRC korumalı başlıkla genişletildi. Ayrı P0CQ
+yetenek sorgusu eski kart imajını bozmadan destek denetler. Destek varsa en güçlü
+confirmed olaydan başlayarak tek ARM bağlamında dört ardışık kare işlenir; tespit
+her karede devam eder. Geniş, FFT kenarındaki veya komşu referanslı olay sayı
+uydurulmadan ret nedeniyle kaydedilir.
+
+Sonuçlar sınırlı SQLite kataloğunda saklanır, geçerli dBFS'e göre sıralanır ve
+CSV çıkarılabilir. dBm yalnız seri, örnekleme hızı, kazançlar, genlik ölçeği,
+frekans aralığı ve geçerlilik süresi tam eşleşen ölçülmüş profil varsa üretilir;
+başlangıç kalibrasyon dosyası bilinçli olarak boştur. C taşıma ve Linux köprü
+loopback testleri geçti. Güncel fiziksel tanıda yalnız birincil HackRF görünür,
+kalıcı kart köprüsü ise yeni canlı parametre yeteneğini bildirmedi; bu nedenle
+gerçek iki HackRF ve güncellenmiş kart imajı kabul kapıları açıktır. 820 MHz
+kazanç tanısı da kalıcı confirmed olay üretmedi ve 8.192 karelik koşu nominal
+gerçek-zaman hızının biraz altında kaldı; ikisi de başarıya çevrilmedi. Sonraki
+faz açılmamıştır.
+
+## PHASE-09 saat yönünde bağıl ölçüm arayüzü — 13 Eylül 2026
+
+Kullanıcının mevcut PHASE-09 içindeki açık yönlendirmesiyle ürün akışı tek
+ölçüm düğmesine indirildi. İlk başarılı ölçüm operatörün fiziksel olarak
+belirlediği `0°` yönüdür; sonraki başarılı ölçümler saat yönünde 15° artarak
+`345°` değerine kadar ilerler. Serbest açı, kuzey ve coğrafi kerteriz alanları
+ürün ekranından kaldırıldı; sonuç yalnız bağıl tepe yönüdür. Zaman veya dönüş
+hızından açı çıkarılmaz ve başarısız/iptal edilmiş ölçüm adımı ilerletmez.
+
+Bu bakım mevcut 24 açı, 3 dB tepe/ön-arka ve ARM karar profilini değiştirmez.
+Enkoder/IMU tabanlı sürekli dönüş ayrı bir donanım ve kabul işidir. Fiziksel
+HackRF/yönlü anten derece RMS kapısı açık kalır; sonraki faza geçiş onayı
+oluşturulmaz.
+
+## PHASE-08 / KTR-4.2 parametre sonuç görünürlüğü — 13 Eylül 2026
+
+Mevcut faz içinde parametre alanı durumları ve kart kalite tanıları sonuç
+ekranına bağlandı. Yeni sonuç teknik doğrulamayı otomatik açar; kullanıcı
+değerleri, geçerlilikleri ve Türkçe ret nedenlerini kayıt paketini açmadan
+görür. 94 ilgili regresyon geçti. Bu yalnız ürün görünürlüğü düzeltmesidir;
+parametre fiziksel doğruluk kabulünü kapatmaz ve sonraki faza geçiş onayı
+oluşturmaz.
+
+## PHASE-08 / KTR-4.3 820 MHz sınırlı canlı ürün koşusu — 13 Eylül 2026
+
+Kullanıcının mevcut faz içinde istediği canlı tespit → parametre → dinleme
+deneyi, kontrollü laboratuvarda bildirilen `820 MHz` NFM ton yayınıyla yapıldı.
+İki P0PM-v2 parametre tekrarı geçerli merkez/OBW/güç sonuçları verdi. Dinleme
+zinciri `5,001 s` gerçek canlı I/Q'dan `5,000 s` NFM ses üretti; baskın bileşen
+`1,02301 kHz` oldu ve oynat/durdur geçti.
+
+Dinleme tamponunu sıfırlayan yaşam döngüsü/eski olay belirsizliği düzeltildi;
+seçili kanal olay kimliğinden ayrıldı ve operatörün dinleme alanları canlı
+yenilemede korunuyor. Dosya kaynağı sınırı ve Canvas yazı tipi uyarısı da
+düzeltildi. İlgili 182 test geçti. Kanıt
+`results/evidence/phase08/live-820mhz-e2e-product-20260913.json` içindedir.
+Bu yalnız önceden bildirilen tek açık koşudur; eşleştirilmiş kapalı/yanlış kanal,
+kör tekrar, gerçek konuşma ve genel Pd/Pfa yapılmadı. PHASE-08/ST-06 ve tam
+KTR-4.3 kabulü açık kalır; sonraki faza geçiş onayı oluşturmaz.
+
+## PÇ-02/PÇ-04 geniş aralık düzeltmesi — 12 Eylül 2026
+
+Kullanıcı sayısal parametrelerin FPGA/ARM'da kalmasını ve kart desteğinin
+geliştirilmesini açıkça onayladı. P0PM-v2 8–3984 hücre desteği, tam aday
+taslağı ve ret nedenleri uygulandı; host F5 profili değiştirilmedi. Portable
+49 eşdeğerlik kontrolü geçti; hizmet/ağ köprüsü ARM için derlenip kimliği seri
+konsolla doğrulanan karta yüklendi. Altı dar regresyon ve bir değişmemiş gerçek
+kayıtlı geniş P0PM-v2 kart ölçümü geçti. Tek kayıt genel geniş bant veya RF
+doğruluk kabulü değildir. Bu düzeltme sonraki faza geçiş onayı oluşturmaz.
+
+## PÇ-03 otomatik PC sınıflandırma bağlantısı — 12 Eylül 2026
+
+Kullanıcı analog/sayısal ayrımını FPGA/ARM yerine kolay çalışan otomatik PC
+işlevi olarak `Parametreleri Çıkar` akışına bağlamayı açıkça istedi. Mevcut dört
+karelik ürün girdisi, operatör analiz aralığı ve kart SNR kapısı kullanılarak
+`digital_analog_detection` modeli sınırlı işçiye alındı. `%90` güven altında
+`Belirsiz` verilir; sonuç ve yöntem bağı ölçüm arşivinde yeniden üretilebilir.
+Bu geliştirme PÇ-03 ürün bağlantısını açar, fakat bağımsız canlı RF doğruluk
+kabulünü kapatmaz ve sonraki faza geçiş onayı oluşturmaz.
+
+## PHASE-09 kanal ölçümü düzeltmesi — 12 Eylül 2026
+
+Kullanıcının onayıyla yön bulma ölçüm akışı tek kanal seçimi ve açı başına
+istekten sonra yeni dört kare toplama biçimine geçirildi. Beş saniye sınırı,
+iptal ve açıklamalı retler eklendi. Olay numarası değişikliği kanal seçimini
+düşürmez; tek aday ve alıcı bağlamı koşulları korunur. Yeni faz açılmadı;
+fiziksel RF/RMS kabulü açıktır.
+[Ayrıntı ve doğrulama](../interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
+
 ## 5.1.4 genlik tabanlı yön bulma başlangıcı — 11 Eylül 2026
 
 Kullanıcı KTR §5.1.4 için genlik tabanlı yöntemi seçerek PHASE-09 çalışmasını
@@ -1181,19 +1285,16 @@ tespit kabulü açık olduğundan sinyal tespiti aşaması kapatılmamıştır.
 | PHASE-07 | PC–ZedBoard veri aktarımı | Kayıtlı I/Q verisi PC'den Ethernet, ZedBoard PS, DDR/AXI DMA ve PL yoluyla bütünlük ve hız kanıtıyla aktarılır. |
 | PHASE-08 | HackRF-1 canlı I/Q ve ED entegrasyonu | HackRF-1 canlı kaynak bloğu uçtan uca ED zincirine ulaşır ve kontrollü alma senaryolarında beklenen adayları üretir. |
 | PHASE-09 | Genlik tabanlı yön bulma ve yaklaşık konum | Manuel açı/göreli güç ölçümlerinden yön ve iki bilinen ölçüm noktasından yaklaşık konum, bilinen hedeflerle hata raporu üretecek şekilde doğrulanır. |
-| PHASE-10 | ET simülasyonu ve kapalı RF test altyapısı | İletimsiz dalga şekli simülasyonları doğrulanır; kablolu, zayıflatıcılı ve RF olarak kapalı test düzeni güvenlik kontrolünden geçmeden RF TX etkinleştirilmez. |
-| PHASE-11 | Sürekli ve arabakışlı karıştırma | Sürekli ve arabakışlı dalga şekilleri önce simülasyonda, ardından yalnız onaylı kapalı RF düzeneğinde güç, spektrum ve görev çevrimi ölçümleriyle doğrulanır. |
-| PHASE-12 | Analog telsiz ve GPS L1 aldatma | Analog telsiz ve GPS L1 senaryoları önce iletimsiz simülasyonda, ardından yalnız izinli kablolu/zayıflatıcılı kapalı düzende izole test alıcılarıyla doğrulanır. |
-| PHASE-13 | Arayüz, sistem entegrasyonu ve yarışma demosu | Doğrulanmış profil kilidiyle Operasyon ekranında ED görev akışı ve yalnız izin verilen ET gösterimleri uçtan uca çalışır; demo provası, güvenlik kontrol listesi ve kanıt paketi tamamlanır. |
+| PHASE-10 | Kapsamdan çıkarıldı | ADR-0044 uyarınca ET simülasyonu, görev kodu ve TX altyapısı geliştirilmez. |
+| PHASE-11 | Kapsamdan çıkarıldı | ADR-0044 uyarınca sürekli ve arabakışlı karıştırma geliştirilmez. |
+| PHASE-12 | Kapsamdan çıkarıldı | ADR-0044 uyarınca aldatma işlevleri geliştirilmez. |
+| PHASE-13 | ED arayüzü, sistem entegrasyonu ve yarışma demosu | Doğrulanmış profil kilidiyle ED görev akışı uçtan uca çalışır; demo provası ve kanıt paketi tamamlanır. |
 
-## ET güvenlik kapıları
+## Kapsam dışı fazlar
 
-ET geliştirmesi önce iletimsiz simülasyon ve dalga şekli doğrulamasıyla başlar;
-ardından kullanıcı tarafından onaylanan `CABLED_LAB` kapsamında Faraday kabini
-içindeki kablolu/zayıflatıcılı veya tamamen kapalı düzene geçer. Ortam onayı
-kayıtlıdır; gerçek TX yine cihaz, süre/kazanç, acil durdurma ve ölçüm
-interlocklarının birlikte geçmesini gerektirir. Açık ortam RF testi bu proje
-kapsamında etkin değildir.
+PHASE-10–12 sıralama ve gereksinim geçmişini korumak için tabloda tutulur; etkin
+geliştirme fazları değildir. Ürün ET/TX kodu, arayüzü, yapılandırması veya test
+akışı içermez. Tarihsel laboratuvar kararları güncel yetenek sağlamaz.
 
 KTR yarışma görevlerinin kaynağı olarak korunur; eski donanımın teknik performans hedefleri bağlayıcı değildir. Referans mimari 2× HackRF One, ZedBoard ve laptoptur.
 
@@ -1758,8 +1859,8 @@ tarama, FPGA/ARM karar zinciri ve donanım denetimi durumu değiştirilmez.
 
 Hazır-durum bakımında canlı FPGA hizmet/taşıma erişim hatası önceki birleşik
 `Hazır` yetkisini düşürür ve yeni denetim olmadan tarama başlatılamaz. ED/Tespit
-yüzeyindeki tekrarlı üst sağ rozet kaldırılmış; Parametre, Dinleme, Yön Bulma,
-Sistem ve ET görevlerinde korunmuştur. DSP/RTL/ARM işleyişi değiştirilmez.
+yüzeyindeki tekrarlı üst sağ rozet kaldırılmış; Parametre, Dinleme, Yön Bulma ve
+Sistem görevlerinde korunmuştur. DSP/RTL/ARM işleyişi değiştirilmez.
 
 Aynı bakımın fiziksel hata incelemesinde alıcı probe'u ve 8 MS/s kısa I/Q alımı
 başarılıyken 32/32 dB kazançta oluşan I/Q kırpılmasının beş saniye sonra genel

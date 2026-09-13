@@ -1,5 +1,13 @@
 # Sistem Temel Çizgisi
 
+## Yalnız ED ürün kapsamı — 13 Eylül 2026
+
+Güncel ürün yalnız alıcı tabanlı Elektronik Destek (ED) sistemidir. İkinci
+HackRF gerektiğinde bağımsız bir ED alıcısı olarak kullanılabilir. ET/TX görevi,
+uygulama katmanı, yapılandırması veya planlanan ürün yeteneği yoktur. Eski ET
+kayıtları yalnız tarihsel karar ve kanıt niteliğindedir; ADR-0044 güncel kapsamı
+belirler.
+
 ## Son ST-06 ürün güncellemesi — 5 Eylül 2026
 
 Paketlenmiş hizmette CPU0 DMA sonrası güç çözme/doğrulamayı, CPU1 dar/geniş
@@ -47,11 +55,11 @@ ARM tespit iş parçacığı darboğazdır. Bu nedenle fiziksel ürün kabulü k
 | Bileşen | Planlanan görev |
 |---|---|
 | HackRF-1 + PortaPack H2 | ED/RX, kayıt ve canlı I/Q kaynağı |
-| HackRF-2 + PortaPack H2 | Yalnız ileride kontrollü, izinli ET/TX ve aldatma test kaynağı |
+| HackRF-2 + PortaPack H2 | İkinci bağımsız ED/RX kaynağı (`ED_RX_SECONDARY`) |
 | Laptop | HackRF USB erişimi, kayıt, veri aktarımı ve kullanıcı arayüzü |
 | ZedBoard PS | Gigabit Ethernet, kontrol, DDR ve PL veri aktarımı |
 | ZedBoard PL | Gerçek zamanlı FPGA DSP işlemleri |
-| Antenler ve RF kabloları | Banda ve göreve uygun alma; ileride kontrollü test düzeneği |
+| Antenler ve RF kabloları | Banda ve ED alma görevine uygun bağlantılar |
 
 Referans donanım; geniş bant omni antenleri, alt/orta bant teleskobik anteni, FOX 727 dual-band Yagi'yi, üst bant yönlü UWB antenleri ve GPS L1 aktif antenini içerir.
 
@@ -65,10 +73,16 @@ sonuçlarını PC'ye gönderir. Önceki seyrek aday-paket mimarisi tarihsel P0
 tasarımıdır. Host alım, kanal seçimi ve görsel FFT de çalıştırır; ürün tespit
 kararı doğrulanmış kart yanıtına bağlıdır.
 
-ED işlevleri sinyal tespitinden başlayarak parametre çıkarımı, yön bulma, konum ve dinlemeye doğru sıralı geliştirilecektir. ET işlevleri ancak ED aşamaları doğrulandıktan ve güvenli, kontrollü, izinli RF test düzeni sağlandıktan sonra ele alınacaktır.
+ED işlevleri sinyal tespitinden başlayarak parametre çıkarımı, yön bulma, konum
+ve dinlemeye doğru sıralı geliştirilecektir. ET/TX işlevleri ürün kapsamı
+dışındadır.
 
 Yön bulma; yönlü antenin elle döndürülmesi ve her açı için göreli güç/PSD ölçümüyle planlanır. Açı ve ölçüm konumu kullanıcı tarafından elle girilecektir. Yaklaşık konum, bilinen iki ölçüm noktasından elde edilen LOB doğrularının birleştirilmesine dayanacaktır.
 
 ## KTR'ye göre mimari değişiklikler ve sınırlar
 
-KTR 4.1 sinyal tespit zinciri korunur. Buna karşılık bladeRF, KrakenSDR, faz uyumlu çok kanallı alıcı, motorlu anten, PA, kuplör ve yüksek güçlü RF çıkış zinciri referans sistemde yoktur. Bu nedenle MUSIC veya faz karşılaştırmalı DF uygulanamaz; otomatik anten taraması ve yüksek güçlü ET yeteneği iddia edilemez. Tüm bunlar plan veya sınırlamadır, doğrulanmış yetenek değildir.
+KTR 4.1 sinyal tespit zinciri korunur. Buna karşılık bladeRF, KrakenSDR, faz
+uyumlu çok kanallı alıcı, motorlu anten, PA, kuplör ve RF çıkış zinciri referans
+sistemde yoktur. Bu nedenle MUSIC veya faz karşılaştırmalı DF uygulanamaz ve
+otomatik anten taraması iddia edilmez. ET ise bir sınırlama veya gelecek planı
+değil, kullanıcı kararıyla ürün kapsamı dışıdır.

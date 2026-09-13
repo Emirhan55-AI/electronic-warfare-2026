@@ -1,5 +1,11 @@
 # Referans Modeller
 
+## Yalnız ED kaynak kapsamı — 13 Eylül 2026
+
+ET dalga biçimi, görev ve iletim algoritmaları kaldırılmıştır. Bu dizin yalnız
+ED tespit, parametre, dinleme, yön bulma ve bunları destekleyen FPGA/PS
+algoritmalarını taşır. Aşağıdaki eski ET bölümleri tarihsel kayıttır.
+
 ## PÇ-02/PÇ-04 sayısal eşdeğerlik — 11 Eylül 2026
 
 F5'in taşıyıcı çizgisi dahil ilk üç teknik parametre yolu C11'e taşındı. 33

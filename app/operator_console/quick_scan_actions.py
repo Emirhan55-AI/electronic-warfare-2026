@@ -271,6 +271,7 @@ class QuickScanActionsMixin:
             self._fixed_preserved_history = []
         self._generation += 1
         generation = self._generation
+        self._live_catalog_session_id = f"{self._measurement_namespace}:{generation}"
         self._close_source()
         self._clear_results(keep_spectrum=same_fixed_settings, keep_direction=preserve_direction)
         if retained_history:
@@ -330,6 +331,7 @@ class QuickScanActionsMixin:
 
     @Slot()
     def stopLiveEDSession(self) -> None:
+        self.cancelDirectionMeasurement()
         self._managed_gain = None
         if self._live_session is None and self._fixed_verifier is None:
             return
@@ -388,6 +390,7 @@ class QuickScanActionsMixin:
 
     @Slot()
     def stop(self) -> None:
+        self.cancelDirectionMeasurement()
         self._survey_controller.cancel()
         if self._live_session is not None:
             self._live_session.cancel()

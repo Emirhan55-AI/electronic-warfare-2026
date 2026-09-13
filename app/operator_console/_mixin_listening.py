@@ -44,11 +44,6 @@ class ListeningWorkspaceMixin:
             ("transport", "Taşıma", "Bağlı Değil"),
             ("petalinux", "PetaLinux / ARM", "Çalıştırılmadı"),
             ("calibration", "RF Kalibrasyonu", TEXT["calibration_pending"]),
-            (
-                "et",
-                "ET / TX",
-                "Offline laboratuvar · RF TX yok" if self.laboratory_mode else "Uygulanmadı · RF TX yok",
-            ),
         )
         grid = QGridLayout()
         grid.setHorizontalSpacing(16)

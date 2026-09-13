@@ -1,7 +1,7 @@
-# panel.py / gen_signal.py / classifier_model.py / feature_extractor_v1.py icin:
+# ED sınıflandırma ve RX özellik çıkarımı için:
 numpy
 scipy
 pyzmq
 
-# sadece train_classifier.py'yi yeniden calistirmak icin gerekli:
+# Yalnız train_classifier.py yeniden çalıştırılırken gereklidir:
 scikit-learn

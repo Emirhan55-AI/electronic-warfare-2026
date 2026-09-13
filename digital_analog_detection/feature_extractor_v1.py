@@ -1,4 +1,3 @@
-import zmq
 import numpy as np
 from scipy.signal import firwin, lfilter
 
@@ -109,6 +108,10 @@ def extract_features(x, fs):
 
 
 def main():
+    # Ürün adaptörü yalnız özellik fonksiyonlarını içe aktarır. ZMQ, ancak bu
+    # bağımsız dinleyici doğrudan çalıştırıldığında gerekli olsun.
+    import zmq
+
     ctx = zmq.Context()
     sock = ctx.socket(zmq.SUB)
     sock.connect(ZMQ_ADDR)
@@ -146,10 +149,6 @@ def main():
                   f"std_amp={feats['std_amp']:.3f}  kurt_amp={feats['kurt_amp']:.2f}  "
                   f"std_freq={feats['std_freq']:.1f}  kurt_freq={feats['kurt_freq']:.2f}  "
                   f"gamma_max={feats['gamma_max']:.3f}  abs_C42={feats['abs_C42']:.3f}")
-
-
-if __name__ == "__main__":
-    main()
 
 
 if __name__ == "__main__":

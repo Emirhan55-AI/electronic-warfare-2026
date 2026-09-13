@@ -178,7 +178,17 @@ class QuickListeningActionsMixin:
             self.listeningChanged.emit()
             return
 
-        if hasattr(session, "audio_window_snapshot"):
+        channel_target_hz = self._listening_channel_target_hz()
+        if (
+            channel_target_hz is not None
+            and hasattr(session, "audio_channel_window_snapshot")
+        ):
+            window_value, continuity_value = session.audio_channel_window_snapshot(
+                channel_target_hz
+            )
+            window = tuple(window_value)
+            continuity = dict(continuity_value or {})
+        elif hasattr(session, "audio_window_snapshot"):
             window_value, continuity_value = session.audio_window_snapshot(self._selected_detection_id)
             window = tuple(window_value)
             continuity = dict(continuity_value or {})

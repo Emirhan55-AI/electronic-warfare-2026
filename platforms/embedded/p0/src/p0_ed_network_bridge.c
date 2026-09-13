@@ -29,7 +29,7 @@
 
 typedef struct {
     uint8_t network_request[P0_PARAMETER_BATCH_REQUEST_BYTES];
-    uint8_t local_request_header[P0_ED_REQUEST_HEADER_BYTES_V4];
+    uint8_t local_request_header[P0_ED_REQUEST_HEADER_BYTES_V2];
     uint8_t local_response[P0_ED_RESPONSE_BYTES];
     uint8_t network_response[P0_IQ_RESPONSE_HEADER_BYTES + P0_ED_RESPONSE_BYTES];
     p0_iq_frame_view_t frame;
@@ -41,6 +41,11 @@ static uint32_t load_le32(const uint8_t *data)
 {
     return (uint32_t)data[0] | ((uint32_t)data[1] << 8U) |
            ((uint32_t)data[2] << 16U) | ((uint32_t)data[3] << 24U);
+}
+
+static uint16_t load_le16(const uint8_t *data)
+{
+    return (uint16_t)data[0] | (uint16_t)((uint16_t)data[1] << 8U);
 }
 
 static void store_le16(uint8_t *data, uint16_t value)
@@ -55,6 +60,12 @@ static void store_le32(uint8_t *data, uint32_t value)
     data[1] = (uint8_t)(value >> 8U);
     data[2] = (uint8_t)(value >> 16U);
     data[3] = (uint8_t)(value >> 24U);
+}
+
+static void store_le64(uint8_t *data, uint64_t value)
+{
+    store_le32(data, (uint32_t)value);
+    store_le32(data + 4U, (uint32_t)(value >> 32U));
 }
 
 static void handle_signal(int signal_number)
@@ -168,12 +179,15 @@ static int write_exact(int descriptor, const uint8_t *buffer, size_t bytes)
 static int read_processing_frame(int client, bridge_slot_t *slot,
                                  int allow_clean_eof)
 {
+    uint16_t header_bytes;
     uint32_t payload_bytes;
     int status = read_exact(client, slot->network_request, P0_IQ_HEADER_BYTES,
                             allow_clean_eof);
 
     if (status != 0)
         return status;
+    if (memcmp(slot->network_request, "P0CQ", 4U) == 0)
+        return p0_iq_capability_query_check(slot->network_request) == 0 ? 5 : -1;
     if (memcmp(slot->network_request, "P0PM", 4U) == 0) {
         p0_parameter_batch_request_t batch;
         if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
@@ -195,21 +209,26 @@ static int read_processing_frame(int client, bridge_slot_t *slot,
         return p0_detection_message_decode(slot->network_request, P0_IQ_HEADER_BYTES,
                                             0, &message) == 0 ? 2 : -1;
     }
+    header_bytes = load_le16(slot->network_request + 6U);
     if (memcmp(slot->network_request, "P0IQ", 4U) != 0 ||
         slot->network_request[4] != P0_IQ_TRANSPORT_VERSION ||
         slot->network_request[5] != P0_IQ_SAMPLE_FORMAT_CI8 ||
-        slot->network_request[6] != P0_IQ_HEADER_BYTES ||
-        slot->network_request[7] != 0U)
+        (header_bytes != P0_IQ_HEADER_BYTES &&
+         header_bytes != P0_IQ_PARAMETER_HEADER_BYTES))
+        return -1;
+    if (header_bytes > P0_IQ_HEADER_BYTES &&
+        read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
+                   header_bytes - P0_IQ_HEADER_BYTES, 0) != 0)
         return -1;
     payload_bytes = load_le32(slot->network_request + 36U);
     if (payload_bytes != 8192U && payload_bytes != 16384U &&
         payload_bytes != P0_IQ_PROCESSING_MAX_PAYLOAD_BYTES)
         return -1;
-    if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
+    if (read_exact(client, slot->network_request + header_bytes,
                    payload_bytes, 0) != 0)
         return -1;
     return p0_iq_processing_frame_decode(slot->network_request,
-                                         P0_IQ_HEADER_BYTES + payload_bytes,
+                                         header_bytes + payload_bytes,
                                          &slot->frame);
 }
 
@@ -247,6 +266,7 @@ static int submit_local_request(int local, bridge_slot_t *slot,
                                 int *sequence_bound, int *first_request)
 {
     uint32_t flags = *first_request ? P0_ED_REQUEST_FLAG_RESET : 0U;
+    size_t header_bytes = P0_ED_REQUEST_HEADER_BYTES_V4;
     struct iovec vectors[2];
     struct msghdr message;
     ssize_t sent;
@@ -255,21 +275,47 @@ static int submit_local_request(int local, bridge_slot_t *slot,
         return -1;
     *expected_sequence = slot->frame.sequence_number + 1U;
     *sequence_bound = 1;
-    if ((flags & ~P0_ED_REQUEST_FLAGS_V3_ALLOWED) != 0U)
-        return -1;
+    if (slot->frame.parameter_flags != 0U) {
+        flags |= P0_ED_REQUEST_FLAG_PARAMETER;
+        if ((slot->frame.parameter_flags & P0_IQ_PARAMETER_FLAG_START) != 0U)
+            flags |= P0_ED_REQUEST_FLAG_PARAMETER_START;
+        header_bytes = P0_ED_REQUEST_HEADER_BYTES_V2;
+    }
     memset(slot->local_request_header, 0, sizeof(slot->local_request_header));
     store_le32(slot->local_request_header + 0U, P0_ED_REQUEST_MAGIC);
-    store_le16(slot->local_request_header + 4U, P0_ED_SERVICE_ABI_VERSION_V4);
-    store_le16(slot->local_request_header + 6U, P0_ED_REQUEST_HEADER_BYTES_V4);
-    store_le32(slot->local_request_header + 8U,
-               P0_ED_REQUEST_HEADER_BYTES_V4 + slot->frame.payload_bytes);
+    store_le16(slot->local_request_header + 4U,
+               header_bytes == P0_ED_REQUEST_HEADER_BYTES_V2
+                   ? P0_ED_SERVICE_ABI_VERSION_V2
+                   : P0_ED_SERVICE_ABI_VERSION_V4);
+    store_le16(slot->local_request_header + 6U, (uint16_t)header_bytes);
+    store_le32(slot->local_request_header + 8U, (uint32_t)header_bytes +
+                                                   slot->frame.payload_bytes);
     store_le32(slot->local_request_header + 12U, slot->frame.frame_id);
     store_le32(slot->local_request_header + 16U, slot->frame.payload_bytes);
     store_le32(slot->local_request_header + 20U, flags);
-    store_le32(slot->local_request_header + 28U,
-               p0_ed_crc32(slot->local_request_header, 28U));
+    if (header_bytes == P0_ED_REQUEST_HEADER_BYTES_V2) {
+        store_le32(slot->local_request_header + 24U,
+                   p0_ed_crc32(slot->frame.payload, slot->frame.payload_bytes));
+        store_le64(slot->local_request_header + 32U,
+                   slot->frame.sample_rate_hz);
+        store_le64(slot->local_request_header + 40U,
+                   slot->frame.center_frequency_hz);
+        store_le64(slot->local_request_header + 48U,
+                   slot->frame.parameter_intent_id);
+        store_le64(slot->local_request_header + 56U,
+                   slot->frame.parameter_event_id);
+        store_le16(slot->local_request_header + 64U,
+                   slot->frame.parameter_lower_shifted_bin);
+        store_le16(slot->local_request_header + 66U,
+                   slot->frame.parameter_upper_shifted_bin);
+        store_le32(slot->local_request_header + 76U,
+                   p0_ed_crc32(slot->local_request_header, 76U));
+    } else {
+        store_le32(slot->local_request_header + 28U,
+                   p0_ed_crc32(slot->local_request_header, 28U));
+    }
     vectors[0].iov_base = slot->local_request_header;
-    vectors[0].iov_len = sizeof(slot->local_request_header);
+    vectors[0].iov_len = header_bytes;
     vectors[1].iov_base = (void *)slot->frame.payload;
     vectors[1].iov_len = slot->frame.payload_bytes;
     memset(&message, 0, sizeof(message));
@@ -278,8 +324,7 @@ static int submit_local_request(int local, bridge_slot_t *slot,
     do {
         sent = sendmsg(local, &message, MSG_NOSIGNAL);
     } while (sent < 0 && errno == EINTR);
-    if (sent != (ssize_t)(P0_ED_REQUEST_HEADER_BYTES_V4 +
-                          slot->frame.payload_bytes))
+    if (sent != (ssize_t)(header_bytes + slot->frame.payload_bytes))
         return -1;
     *first_request = 0;
     return 0;
@@ -358,7 +403,15 @@ static int serve_peer(int client, const char *local_socket)
             (descriptors[0].revents & (POLLIN | POLLHUP)) != 0) {
             int read_status = read_processing_frame(client, &slots[tail], 1);
 
-            if (read_status == 3) {
+            if (read_status == 5) {
+                uint8_t response[P0_IQ_CAPABILITY_BYTES];
+                if (!first_request || outstanding != 0U ||
+                    p0_iq_capability_response_encode(response) != 0 ||
+                    write_exact(client, response, sizeof(response)) != 0)
+                    goto done;
+                result = 0;
+                goto done;
+            } else if (read_status == 3) {
                 p0_parameter_batch_request_t batch;
                 ssize_t count;
                 if (!first_request || outstanding != 0U ||

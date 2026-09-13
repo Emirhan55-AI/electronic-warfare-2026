@@ -39,8 +39,6 @@ class NavigationMixin:
             ("Konum", 4),
             ("Sistem", 5),
         ]
-        if self.laboratory_mode:
-            nav_items.append(("ET Laboratuvarı", 6))
         for text, index in nav_items:
             btn = QPushButton(text)
             btn.setProperty("class", "navButton")
@@ -66,8 +64,6 @@ class NavigationMixin:
             self.direction_workspace.setCurrentIndex(1)
         elif nav_id == 5:  # Sistem
             self.workspace_tabs.setCurrentWidget(self.system_workspace)
-        elif nav_id == 6 and self.laboratory_mode:
-            self.workspace_tabs.setCurrentWidget(self.et_workspace)
         else:
             self.workspace_tabs.setCurrentIndex(nav_id)
 
@@ -79,8 +75,6 @@ class NavigationMixin:
             active_nav_id = 4 if self.direction_workspace.currentIndex() == 1 else 3
         elif current_widget == self.system_workspace:
             active_nav_id = 5
-        elif self.laboratory_mode and current_widget == self.et_workspace:
-            active_nav_id = 6
 
         for idx, btn in enumerate(self.nav_buttons):
             is_active = (idx == active_nav_id)
@@ -169,7 +163,6 @@ class NavigationMixin:
             ("Yön", 3),
             ("Konum", 4),
             ("Sistem", 5),
-            ("Elektronik Taarruz", 6),
         )
         for label, nav_id in tasks:
             act = self.menu_task.addAction(label)
@@ -188,13 +181,8 @@ class NavigationMixin:
         self.status_state_label = QLabel("Durum: " + TEXT["empty"])
         self.status_state_label.setWordWrap(True)
 
-        self.status_tx_lock_label = QLabel("TX KİLİTLİ · FARADAY LAB ONAYLI · RF TX YOK")
-        self.status_tx_lock_label.setObjectName("statusTxLock")
-        self.status_tx_lock_label.setWordWrap(True)
-
         status.addWidget(self.status_source_label, 2)
         status.addWidget(self.status_state_label, 1)
-        status.addPermanentWidget(self.status_tx_lock_label)
         status.hide()
 
     def _save_layout_state(self) -> None:
@@ -227,7 +215,7 @@ class NavigationMixin:
             "Hakkında · TEKNOFEST 2026",
             "TEKNOFEST 2026 Elektronik Harp Operatör Konsolu\n\n"
             "SDR spektrum inceleme, tespit, parametre çıkarımı, "
-            "yön bulma ve offline elektronik taarruz arayüzü.",
+            "sinyal dinleme ve yön bulma arayüzü.",
         )
 
     def restore_default_layout(self) -> None:

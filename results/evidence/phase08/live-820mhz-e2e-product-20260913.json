@@ -1,0 +1,177 @@
+{
+  "schema": "phase08-live-e2e-product-v1",
+  "captured_at_local": "2026-09-13T00:06:55+03:00",
+  "decision": "limited_live_pass_acceptance_gates_remain_open",
+  "scope": {
+    "requirements": [
+      "KTR-4.1",
+      "KTR-4.1-OPS-B0",
+      "KTR-4.2",
+      "KTR-4.2-F1",
+      "KTR-4.3"
+    ],
+    "product_flow": "live_detection_to_parameter_measurement_to_nfm_monitoring",
+    "rf_environment": "approved_faraday_lab",
+    "transmit_control": "external_operator_started_process_left_unchanged"
+  },
+  "source": {
+    "head_commit": "a9b43d6ac59de3a2fb681565b5ebfead8a52cc11",
+    "working_tree_clean": false,
+    "file_sha256": {
+      "app/operator_console/live_ed.py": "ecc88a4abc64d57dd57a8db383e2e73111ce7fac2b7ef989d47855e83548f5c5",
+      "app/operator_console/quick_view_model.py": "8a105675ba062d71dd7fe956c1cfd4181fe32016caf94343d8a7a14beb0d04e3",
+      "app/operator_console/quick_detection_state.py": "71bc3d85ea099b134f541b7c6db3aa9841fc6a0a646e9063bb91c18bbe64b1b9",
+      "app/operator_console/quick_listening_actions.py": "8fed34ba4017d31e737bffa4392aa87abcb48e33cb14753860a53788c92afb36",
+      "app/operator_console/qml/Main.qml": "9349d41b3284db1eef3fc543d86431dce4523c669c0223f8031c69d80cd995c6",
+      "scripts/verify_phase00.py": "42ebd61958f6698986d299a6240ea4b930a414b5ea3f5bf987576c867a487ad6",
+      "tests/test_repository_contract.py": "35ee964f6039bf2ddb5d4f72c5010c17d1409d15f07788970943749e10a3da1e"
+    }
+  },
+  "hardware_and_signal": {
+    "transmitter": {
+      "device_serial_suffix": "35138247",
+      "center_frequency_hz": 820000000,
+      "sample_rate_hz": 2000000,
+      "modulation": "NFM",
+      "audio_tone_hz": 1000,
+      "maximum_deviation_hz": 50000,
+      "rf_amplifier": true,
+      "vga_gain_db": 47
+    },
+    "receiver": {
+      "device_serial_suffix": "36877e47",
+      "display_center_frequency_hz": 820000000,
+      "physical_tuning_frequency_hz": 818500000,
+      "input_sample_rate_hz": 8000000,
+      "fpga_sample_rate_hz": 2000000,
+      "lna_gain_db": 16,
+      "vga_gain_db": 16,
+      "automatic_gain_enabled": true,
+      "rf_amplifier": false
+    }
+  },
+  "live_detection": {
+    "selected_candidate_frequency_hz": 819986300,
+    "later_selected_channel_observation_hz": 819971200,
+    "peak_to_noise_db": 35.3,
+    "fpga_observation_count_at_selection": 340,
+    "receiver_spectrum_support": true,
+    "event_id_stability_claimed": false,
+    "emitter_identity_verified": false
+  },
+  "parameter_measurements": [
+    {
+      "record_id": "1012a43160b9444d8f3cb3d5a3a1b564",
+      "archive_sha256": "577fecc9adc0b0f3b54ddb155cfce82c8a3838950bc9ad117fd6b6b9cabf8012",
+      "completed_at_local": "2026-09-12T23:08:55.856869+03:00",
+      "protocol": "P0PM-v2",
+      "event_ids": [22079, 22079, 22079, 22079],
+      "sequence_numbers": [54617, 54618, 54619, 54620],
+      "emission_center_frequency_hz": 819985632.8102912,
+      "occupied_bandwidth_hz": 422087.1796614297,
+      "channel_power_dbfs": -31.339567453579974,
+      "snr_estimate_db": 19.538139952632324,
+      "signal_domain": "Analog",
+      "signal_domain_confidence": 0.9985263857031603,
+      "quality_state": "valid",
+      "accuracy_proven": false,
+      "signal_domain_product_acceptance": false
+    },
+    {
+      "record_id": "9e854290c4034c629c5b0e9bd7d05a0c",
+      "archive_sha256": "d89ca793e077a5f276826c314bc10ff16bf10dd9eeabb0c19d648c93bc10677a",
+      "completed_at_local": "2026-09-12T23:24:14.404736+03:00",
+      "protocol": "P0PM-v2",
+      "event_ids": [3603, 3603, 3603, 3603],
+      "sequence_numbers": [37845, 37846, 37847, 37848],
+      "emission_center_frequency_hz": 819962533.438651,
+      "occupied_bandwidth_hz": 451932.14282421255,
+      "channel_power_dbfs": -28.193010753199186,
+      "snr_estimate_db": 23.43059520005955,
+      "signal_domain": "Analog",
+      "signal_domain_confidence": 0.9989758325343187,
+      "quality_state": "valid",
+      "accuracy_proven": false,
+      "signal_domain_product_acceptance": false
+    }
+  ],
+  "parameter_repeat_spread": {
+    "emission_center_frequency_hz": 23099.371640205383,
+    "occupied_bandwidth_hz": 29844.963162782835,
+    "channel_power_db": 3.146556700379212
+  },
+  "live_monitoring_and_listening": {
+    "demodulation": "NFM",
+    "channel_center_frequency_hz": 820000000,
+    "operator_offset_khz": 0.0,
+    "operator_bandwidth_khz": 120.0,
+    "input_scope": "live_continuous_receive",
+    "input_duration_s": 5.001,
+    "output_duration_s": 5.0,
+    "output_sample_rate_hz": 48000,
+    "output_channels": 1,
+    "output_format": "PCM16",
+    "de_emphasis_us": 750,
+    "dominant_audio_frequency_hz": 1023.01,
+    "channel_power_dbfs_range": [-31.69, -28.58],
+    "residual_center_frequency_hz_range": [-667.8, 303.0],
+    "temporal_observation_points": 20,
+    "temporal_observation_interval_ms": 250,
+    "fpga_window_frames": 2442,
+    "fpga_observed_frames": 2422,
+    "maximum_consecutive_missed_frames": 3,
+    "continuity_state": "verified",
+    "playback_started": true,
+    "playback_stopped": true,
+    "output_state": "audio_output_ready"
+  },
+  "corrected_failures": [
+    {
+      "area": "live_listening_algorithm",
+      "before": "Retained unobserved FPGA lifecycle records were counted as simultaneous emitters and reset the five-second buffer.",
+      "after": "Only multiple events observed in the same frame are ambiguous; retained channel records and bounded detector misses preserve continuity."
+    },
+    {
+      "area": "live_channel_selection",
+      "before": "The listening target followed changing event peaks and event identifiers.",
+      "after": "The operator-selected RF channel frequency is latched while a unique same-channel successor may replace the event identifier."
+    },
+    {
+      "area": "listening_settings_ui",
+      "before": "Live suggestion refreshes could overwrite an operator-entered offset or bandwidth.",
+      "after": "Suggestions are applied on initial or explicit basis changes; operator edits remain stable during live updates."
+    },
+    {
+      "area": "source_mode_boundary",
+      "before": "A live-only frequency field was read while selecting a recorded-file detection.",
+      "after": "Live channel latching is restricted to the HackRF source mode."
+    },
+    {
+      "area": "qml_canvas_font",
+      "before": "An unquoted multi-word Canvas font family generated repeated runtime warnings.",
+      "after": "The Canvas font family is quoted."
+    }
+  ],
+  "verification": {
+    "command": "python -m pytest tests/test_live_ed_session.py tests/test_live_ed_view_model.py tests/test_phase05_monitoring.py tests/test_measurement_record.py tests/test_board_parameter_measurement.py tests/test_hackrf_acquisition.py tests/test_operator_product_boundary.py tests/test_app_f_quick_product.py -q",
+    "passed": 182,
+    "failed": 0,
+    "duration_s": 141.12,
+    "repository_contract": {
+      "command": "python -m pytest tests/test_repository_contract.py -q",
+      "passed": 20,
+      "failed": 0,
+      "duration_s": 41.72
+    }
+  },
+  "acceptance_limits": [
+    "This was one operator-declared NFM tone transmission, not a blind waveform trial.",
+    "No matched transmitter-off or wrong-channel negative run was captured in this record.",
+    "The detected RF source was not identified as an emitter.",
+    "Parameter archives explicitly retain accuracy_proven=false.",
+    "The Analog classifier result remains experimental with product_acceptance=false.",
+    "The running service binary hash and board image identity were not exposed in the parameter record protocol.",
+    "The source tree was modified relative to HEAD and is bound by per-file hashes above.",
+    "PHASE-08/ST-06 and full KTR-4.3 physical acceptance remain open."
+  ]
+}

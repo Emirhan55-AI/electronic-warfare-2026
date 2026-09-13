@@ -24,7 +24,6 @@ LISTENING_FIXTURE = ROOT / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.si
 OUTPUT = ROOT / "results" / "evidence" / "app-f"
 SUMMARY = OUTPUT / "release-ui-verification.json"
 QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
-ET_QML = ROOT / "app" / "operator_console" / "qml" / "ETWorkspace.qml"
 
 
 CONFIGURATIONS = (
@@ -34,13 +33,6 @@ CONFIGURATIONS = (
     ("fullhd-1920x1080", 1920, 1080, 1.0, 3, 0, False, False),
     ("scale-150-percent", 1280, 720, 1.5, 2, 0, False, True),
 )
-
-ET_CONFIGURATIONS = (
-    ("et-single-1280x720", 1280, 720, 1.0, "continuous", ""),
-    ("et-single-1440x900", 1440, 900, 1.0, "continuous", ""),
-    ("et-single-1180x680", 1180, 680, 1.0, "continuous", ""),
-)
-
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -77,49 +69,6 @@ def _child_run(args: argparse.Namespace) -> int:
             "source_ready": view_model.sourceReady,
             "status": view_model.statusMessage,
             "settled": not view_model.busy,
-        }
-        view_model.shutdown()
-        root.close()
-        print(json.dumps(payload, ensure_ascii=False))
-        return 0
-    if args.et_task:
-        root.setProperty("operatingDomain", "ET")
-        root.setProperty("workspace", 4)
-        view_model.selectETTask(args.et_task)
-        view_model.previewETSingle("853.500", "854.500", "0.1")
-        visual_deadline = time.perf_counter() + 0.35
-        while time.perf_counter() < visual_deadline:
-            app.processEvents()
-            time.sleep(0.002)
-        image = QQuickWindow.grabWindow(root)
-        screenshot = Path(args.screenshot)
-        screenshot.parent.mkdir(parents=True, exist_ok=True)
-        if image.isNull() or not image.save(str(screenshot)):
-            raise RuntimeError("ET QML screenshot could not be saved")
-        payload = {
-            "name": args.name,
-            "logical_width": int(root.width()),
-            "logical_height": int(root.height()),
-            "scale_factor": args.scale,
-            "captured_width": image.width(),
-            "captured_height": image.height(),
-            "domain": root.property("operatingDomain"),
-            "workspace": root.property("workspace"),
-            "task": view_model.etTask,
-            "status": view_model.etStatus,
-            "result_title": view_model.etResultTitle,
-            "metric_count": len(view_model.etMetricRows),
-            "primary_points": len(view_model.etPrimaryValues),
-            "secondary_points": len(view_model.etSecondaryValues),
-            "timeline_count": len(view_model.etTimeline),
-            "has_measurement_gap": any(value is None for value in view_model.etPrimaryValues),
-            "transmit_api_present": hasattr(view_model, "transmit"),
-            "single_tx_api_present": hasattr(view_model, "startETSingle"),
-            "tx_gate_open": view_model.etCanTransmit,
-            "synthetic_api_present": hasattr(view_model, "runETTask") or hasattr(view_model, "validateETGNSS"),
-            "offline_et_loaded": "algorithms.et" in sys.modules,
-            "screenshot": (OUTPUT / f"{args.name}.png").relative_to(ROOT).as_posix(),
-            "screenshot_sha256": _sha256(screenshot),
         }
         view_model.shutdown()
         root.close()
@@ -213,7 +162,13 @@ def _child_run(args: argparse.Namespace) -> int:
             time.sleep(0.002)
 
     if args.prepare_direction:
-        for angle in (0.0, 120.0, 240.0):
+        confirmed = next(
+            (item for item in view_model.detections if item["stateKey"] == "confirmed"),
+            None,
+        )
+        if confirmed is not None:
+            view_model.selectDetection(int(confirmed["eventId"]))
+        for angle in (0.0, 15.0, 30.0):
             view_model.addDirectionMeasurement(angle, "north", 0.0)
         direction_visual_deadline = time.perf_counter() + 0.35
         while time.perf_counter() < direction_visual_deadline:
@@ -395,57 +350,10 @@ def _parent_run() -> int:
         return empty_process.returncode
     empty_run = json.loads(empty_process.stdout.strip().splitlines()[-1])
 
-    et_runs: list[dict[str, object]] = []
-    for name, width, height, scale, task, option in ET_CONFIGURATIONS:
-        screenshot = temporary_output / f"{name}.png"
-        environment = os.environ.copy()
-        environment["QT_QPA_PLATFORM"] = "offscreen"
-        environment["QT_QUICK_BACKEND"] = "software"
-        environment["QT_SCALE_FACTOR"] = str(scale)
-        environment["PYTHONIOENCODING"] = "utf-8"
-        environment["EH_CONSOLE_DEVELOPER_MODE"] = "0"
-        process = subprocess.run(
-            [
-                sys.executable,
-                "-B",
-                str(Path(__file__).resolve()),
-                "--child",
-                "--name",
-                name,
-                "--width",
-                str(width),
-                "--height",
-                str(height),
-                "--scale",
-                str(scale),
-                "--et-task",
-                task,
-                "--et-option",
-                option,
-                "--screenshot",
-                str(screenshot),
-            ],
-            cwd=ROOT,
-            env=environment,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            check=False,
-        )
-        if process.returncode:
-            print(process.stdout)
-            print(process.stderr, file=sys.stderr)
-            temporary_output_handle.cleanup()
-            return process.returncode
-        et_runs.append(json.loads(process.stdout.strip().splitlines()[-1]))
-
     for run in runs:
         name = str(run["name"])
         shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
     shutil.copyfile(empty_screenshot, OUTPUT / f"{empty_name}.png")
-    for run in et_runs:
-        name = str(run["name"])
-        shutil.copyfile(temporary_output / f"{name}.png", OUTPUT / f"{name}.png")
     temporary_output_handle.cleanup()
 
     probe_environment = os.environ.copy()
@@ -491,50 +399,6 @@ def _parent_run() -> int:
             )
         ),
         "workspace_coverage": {int(run["workspace"]) for run in runs} == {0, 1, 2, 3},
-        "et_workspace_coverage": all(
-            run["domain"] == "ET" and int(run["workspace"]) == 4
-            for run in et_runs
-        )
-        and {str(run["task"]) for run in et_runs} == {"continuous"},
-        "et_minimum_screen": all(
-            int(run["logical_width"]) >= 1180 and int(run["logical_height"]) >= 680
-            for run in et_runs
-        ),
-        "et_single_offline_validation": bool(et_runs) and all(
-            run["status"] == "İLETİMSİZ DOĞRULANDI"
-            and int(run["metric_count"]) == 7
-            and int(run["primary_points"]) == 0
-            and int(run["secondary_points"]) == 512
-            and int(run["timeline_count"]) == 0
-            and bool(run["single_tx_api_present"])
-            and not any(bool(run[key]) for key in ("transmit_api_present", "synthetic_api_present", "offline_et_loaded", "tx_gate_open"))
-            for run in et_runs
-        ),
-        "et_safety_surface": all(
-            marker in qml_text
-            for marker in (
-                'text: root.operatingDomain === "ET" ? "ET ORTAMI"',
-                'text: root.operatingDomain === "ET" ? "FARADAY LAB"',
-                'objectName: "etSingleEmergencyStop"',
-                'objectName: "etTxGateState"',
-            )
-        ),
-        "et_operator_language": all(
-            marker not in qml_text
-            for marker in (
-                "OFFLINE",
-                "RF TX YOK",
-                "host modeli",
-                "fiziksel RF sonucu",
-            )
-        ),
-        "et_motion_feedback": all(
-            marker in qml_text
-            for marker in (
-                "scale: control.down ? 0.985 : 1.0",
-                "Behavior on scale",
-            )
-        ),
         "bounded_spectrum": all(1 < int(run["spectrum_points"]) <= 1600 for run in runs),
         "selection_bound_to_fft": all(
             int(run["selected_detection_id"]) >= 0
@@ -586,10 +450,10 @@ def _parent_run() -> int:
         ),
         "direction_task_guarded": any(
             bool(run["prepare_direction"])
-            and int(run["direction_measurement_count"]) == 3
-            and int(run["direction_distinct_angle_count"]) == 3
+            and int(run["direction_measurement_count"]) == 1
+            and int(run["direction_distinct_angle_count"]) == 1
             and not bool(run["direction_ready"])
-            and run["direction_status"] == "Güç maksimumu ayrıştırılamadı"
+            and run["direction_status"] == "15° adımlı 24 anten açısı gerekli"
             and run["direction_reference"] == "Gerçek kuzey · anten 0°"
             and bool(run["direction_source_bound"])
             for run in runs
@@ -597,10 +461,10 @@ def _parent_run() -> int:
         and all(
             marker in qml_text
             for marker in (
-                'objectName: "directionSettingsScroll"',
+                'objectName: "directionClockwiseGuide"',
                 'objectName: "directionCompass"',
                 'objectName: "directionMeasurementList"',
-                "Kanal Gücünü Kaydet",
+                'objectName: "directionStartMeasurement"',
             )
         ),
         "system_diagnostics": all(
@@ -643,7 +507,7 @@ def _parent_run() -> int:
                 'sequence: "Space"',
                 "operatorViewModel.sourceReady && !operatorViewModel.busy",
                 'sequence: "Ctrl+4"',
-                'sequence: "Ctrl+6"',
+                'sequence: "Ctrl+5"',
                 'objectName: "workspaceNavigation" + index',
             )
         ),
@@ -684,7 +548,6 @@ def _parent_run() -> int:
         },
         "runs": runs,
         "empty_run": empty_run,
-        "et_runs": et_runs,
         "hackrf_probe": hackrf_probe,
         "gates": gates,
         "overall": "passed" if all(gates.values()) else "failed",
@@ -711,8 +574,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--spectrum-task-tab", type=int, choices=(0, 1), default=0)
     parser.add_argument("--prepare-listening", action="store_true")
     parser.add_argument("--prepare-direction", action="store_true")
-    parser.add_argument("--et-task", choices=("", "continuous", "interleaved", "analog", "gnss"), default="")
-    parser.add_argument("--et-option", default="")
     parser.add_argument("--screenshot", default="")
     parser.add_argument("--probe-only", action="store_true")
     parser.add_argument("--empty-source", action="store_true")

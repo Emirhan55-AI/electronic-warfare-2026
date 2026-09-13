@@ -1183,10 +1183,6 @@ APPROVED_P0_FILES = (
     "platforms/embedded/p0/src/p0_dma_run.c",
     "platforms/embedded/p0/src/p0_os_cfar.c",
     "platforms/embedded/p0/src/p0_os_cfar_run.c",
-    "algorithms/et/__init__.py",
-    "algorithms/et/deception.py",
-    "algorithms/et/mission.py",
-    "algorithms/et/waveforms.py",
     "algorithms/p0/__init__.py",
     "algorithms/p0/bandwidth.py",
     "algorithms/p0/detection.py",
@@ -1205,7 +1201,6 @@ APPROVED_P0_FILES = (
     "results/evidence/p0/closure.json",
     "results/evidence/p0/detector-profile.json",
     "results/evidence/p0/df-golden.json",
-    "results/evidence/p0/et-golden.json",
     "results/evidence/p0/judge-workflow.json",
     "results/evidence/p0/hackrf-b0-readiness.json",
     "results/evidence/p0/parameter-golden.json",
@@ -1223,14 +1218,12 @@ APPROVED_P0_FILES = (
     "scripts/verify_p0_bandwidth.py",
     "scripts/verify_p0_detector_profile.py",
     "scripts/verify_p0_df.py",
-    "scripts/verify_p0_et.py",
     "scripts/verify_p0_judge_workflow.py",
     "scripts/verify_p0_os_cfar.py",
     "scripts/verify_p0_training_acceptance.py",
     "tests/test_p0_detection_parameters.py",
     "tests/test_p0_df.py",
     "tests/test_p0_field_df.py",
-    "tests/test_p0_et.py",
     "tests/test_p0_hackrf_search.py",
     "tests/test_p0_map_direction.py",
     "tests/test_operator_map_direction.py",
@@ -1242,22 +1235,27 @@ APPROVED_P0_FILES = (
     "tests/test_p0_training_acceptance.py",
 )
 
-# The ET console extension is explicitly limited to deterministic local models
-# and validation metadata.  It is not a phase-completion or RF-TX approval.
-APPROVED_ET_OFFLINE_FILES = (
+# Kaldırılan ET uygulamasının tarihli karar ve ölçüm kayıtları değiştirilmeden
+# korunur; bunlar güncel kaynak, ürün yeteneği veya yeniden çalıştırılabilir test değildir.
+RETIRED_ET_RECORDS = (
     "docs/decisions/ADR-0023-ET-OFFLINE-TASK-CONSOLE.md",
+    "docs/decisions/ADR-0041-PHASE10-SINGLE-ET-SAFETY.md",
+    "docs/decisions/ADR-0043-ET-FARADAY-LAB-AUTHORIZATION.md",
+    "docs/decisions/ADR-0044-ED-ONLY-PRODUCT-SCOPE.md",
     "docs/reviews/ET_OFFLINE_ACCEPTANCE_AUDIT.md",
-    "algorithms/et/gnss.py",
-    "algorithms/et/interleaved.py",
-    "algorithms/et/results.py",
     "results/evidence/et-offline/analog-nfm-loopback-1920x1080.png",
     "results/evidence/et-offline/continuous-barrage-1920x1080.png",
     "results/evidence/et-offline/continuous-multiple-1920x1080.png",
     "results/evidence/et-offline/gnss-validation-1920x1080.png",
     "results/evidence/et-offline/interleaved-timeline-1920x1080.png",
-    "tests/test_et_offline_models.py",
-    "tests/test_operator_et.py",
-    "tests/test_p0_et_verifier.py",
+    "results/evidence/p0/et-golden.json",
+    "results/evidence/phase10/single-et-software-v1.json",
+    "results/evidence/app-f/et-continuous-1280x720.png",
+    "results/evidence/app-f/et-gnss-1180x680.png",
+    "results/evidence/app-f/et-interleaved-1440x900.png",
+    "results/evidence/app-f/et-single-1180x680.png",
+    "results/evidence/app-f/et-single-1280x720.png",
+    "results/evidence/app-f/et-single-1440x900.png",
 )
 
 # Kullanıcı onaylı PÇ-02 tanı paketi PHASE-04/08 açık durumunu değiştirmez.
@@ -1270,37 +1268,6 @@ APPROVED_PARAMETER_DIAGNOSTIC_FILES = (
     "scripts/diagnose_parameter_bench.py",
     "scripts/validate_parameter_bench.py",
     "tests/test_parameter_bench_diagnostics.py",
-)
-
-# ADR-0041 ile açılan PHASE-10 Tekli Görev öncelik istisnası. Fiziksel profil
-# varsayılanında kapalıdır; bu allowlist RF kabulü veya PHASE-11 onayı değildir.
-APPROVED_PHASE10_SINGLE_ET_FILES = (
-    "algorithms/transmission/__init__.py",
-    "algorithms/transmission/single_band_noise.py",
-    "platforms/transmission/__init__.py",
-    "platforms/transmission/hackrf_tx.py",
-    "config/p0/hackrf_et_tx.json",
-    "docs/interfaces/ET_SINGLE_TASK_CONTRACT.md",
-    "docs/decisions/ADR-0041-PHASE10-SINGLE-ET-SAFETY.md",
-    "scripts/verify_phase10_single_et.py",
-    "tests/test_phase10_single_et.py",
-    "results/evidence/phase10/single-et-software-v1.json",
-    "results/evidence/app-f/et-single-1180x680.png",
-    "results/evidence/app-f/et-single-1280x720.png",
-    "results/evidence/app-f/et-single-1440x900.png",
-)
-
-# The native ET generator and Faraday-lab authorization are an approved
-# preparation extension. They add no device or RF transmit backend.
-APPROVED_ET_SIGNAL_GENERATOR_FILES = (
-    "algorithms/et/README.md",
-    "algorithms/et/native/CMakeLists.txt",
-    "algorithms/et/native/signal_generator.cpp",
-    "algorithms/et/native/signal_generator.hpp",
-    "algorithms/et/native_generator.py",
-    "docs/decisions/ADR-0043-ET-FARADAY-LAB-AUTHORIZATION.md",
-    "docs/interfaces/ET_SIGNAL_GENERATOR_CONTRACT.md",
-    "tests/test_et_native_signal_generator.py",
 )
 
 # APP sağlamlaştırma çalışması mevcut PHASE sırasını ilerletmez.  Bu dosyalar
@@ -1329,7 +1296,6 @@ APPROVED_APP_HARDENING_FILES = (
     "app/operator_console/_mixin_analysis.py",
     "app/operator_console/_mixin_controls.py",
     "app/operator_console/_mixin_df.py",
-    "app/operator_console/_mixin_et.py",
     "app/operator_console/_mixin_listening.py",
     "app/operator_console/_mixin_map.py",
     "app/operator_console/_mixin_navigation.py",
@@ -1341,8 +1307,6 @@ APPROVED_APP_HARDENING_FILES = (
     "app/operator_console/qml/AppCombo.qml",
     "app/operator_console/qml/AppField.qml",
     "app/operator_console/qml/BazTheme.qml",
-    "app/operator_console/qml/ETWorkspace.qml",
-    "app/operator_console/qml/EtChart.qml",
     "app/operator_console/qml/HackRFControls.qml",
     "app/operator_console/qml/NavIcon.qml",
     "app/operator_console/qml/Panel.qml",
@@ -1359,7 +1323,6 @@ APPROVED_APP_HARDENING_FILES = (
     "app/operator_console/quick_application.py",
     "app/operator_console/quick_direction_actions.py",
     "app/operator_console/quick_detection_state.py",
-    "app/operator_console/quick_et_actions.py",
     "app/operator_console/quick_listening_actions.py",
     "app/operator_console/quick_measurement_actions.py",
     "app/operator_console/quick_runtime.py",
@@ -1384,9 +1347,6 @@ APPROVED_APP_HARDENING_FILES = (
     "results/evidence/app-f/release-ui-verification.json",
     "results/evidence/app-f/scale-150-percent.png",
     "results/evidence/app-f/standard-1366x768.png",
-    "results/evidence/app-f/et-continuous-1280x720.png",
-    "results/evidence/app-f/et-gnss-1180x680.png",
-    "results/evidence/app-f/et-interleaved-1440x900.png",
     "results/evidence/app-f/empty-1280x720.png",
 )
 
@@ -1547,6 +1507,7 @@ APPROVED_P0_PLATFORM_AND_RECORDED_FILES = (
     "scripts/verify_p0_ed_service_linux.py",
     "scripts/verify_p0_ed_service_physical.py",
     "scripts/verify_p0_parameter_runtime.py",
+    "scripts/verify_p0_wide_parameter_record.py",
     "scripts/verify_p0_parameter_runtime_physical.py",
     "scripts/verify_p0_temporal_runtime.py",
     "scripts/verify_p0_multiscale_detection.py",
@@ -1749,6 +1710,19 @@ APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES = (
     "algorithms/parameters/refined_candidate.py",
     "algorithms/parameters/rf_channel_classifier.py",
     "algorithms/parameters/rf_observation.py",
+    "app/operator_console/automatic_parameter.py",
+    "app/operator_console/parameter_catalog.py",
+    "config/p0/rx_calibration.json",
+    "digital_analog_detection/.gitignore",
+    "digital_analog_detection/README.md",
+    "digital_analog_detection/__init__.py",
+    "digital_analog_detection/classifier_model.py",
+    "digital_analog_detection/feature_extractor_v1.py",
+    "digital_analog_detection/hackrf_inspector.grc",
+    "digital_analog_detection/integration.py",
+    "digital_analog_detection/requirements.txt",
+    "digital_analog_detection/signal_channelizer_v1.py",
+    "digital_analog_detection/train_classifier.py",
     "docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md",
     "docs/plans/PARAMETER_REFINEMENT_PROTOCOL.md",
     "docs/plans/PARAMETER_REPLAY_LAB_GUIDE.md",
@@ -1805,12 +1779,18 @@ APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES = (
     "results/evidence/phase08/replay-usb-comparison-20260909.zip",
     "results/evidence/phase08/rf-observation-records-20260909.json",
     "results/evidence/phase08/rf-observation-records-20260909.zip",
+    "results/evidence/phase08/automatic-domain-pc-integration-20260912.json",
+    "results/evidence/phase08/automatic-domain-pc-wide-guard-20260912.json",
+    "results/evidence/phase08/automatic-inline-parameter-diagnostic-20260913.json",
+    "results/evidence/phase08/live-820mhz-e2e-product-20260913.json",
+    "results/evidence/phase08/parameter-wide-persistent-20260912.json",
     "results/evidence/phase09/amplitude-df-arm-equivalence-v1.json",
     "results/evidence/phase09/amplitude-df-board-protocol-v1.json",
     "results/evidence/phase09/amplitude-df-numeric-v1.json",
     "results/evidence/phase09/amplitude-df-persistent-image-v1.json",
     "scripts/analyze_parameter_link_capture.py",
     "scripts/analyze_parameter_rf_readiness.py",
+    "scripts/verify_automatic_domain_integration.py",
     "scripts/analyze_replay_am.py",
     "scripts/analyze_replay_bpsk.py",
     "scripts/analyze_replay_cw.py",
@@ -1834,6 +1814,9 @@ APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES = (
     "scripts/verify_phase09_persistent_image.py",
     "tests/p0/p0_df_protocol_run.c",
     "tests/test_candidate_classification_validation.py",
+    "tests/test_automatic_parameter.py",
+    "tests/test_digital_analog_integration.py",
+    "tests/test_parameter_catalog.py",
     "tests/test_parameter_replay_pack.py",
     "tests/test_phase09_amplitude_df.py",
     "tests/test_phase09_amplitude_df_arm.py",
@@ -1915,10 +1898,8 @@ def check_allowed_tree() -> dict[str, object]:
         | set(APPROVED_TEST_INFRASTRUCTURE_FILES)
         | set(APPROVED_PHASE06J_FILES)
         | set(APPROVED_P0_FILES)
-        | set(APPROVED_ET_OFFLINE_FILES)
+        | set(RETIRED_ET_RECORDS)
         | set(APPROVED_PARAMETER_DIAGNOSTIC_FILES)
-        | set(APPROVED_PHASE10_SINGLE_ET_FILES)
-        | set(APPROVED_ET_SIGNAL_GENERATOR_FILES)
         | set(APPROVED_APP_HARDENING_FILES)
         | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES)
         | set(APPROVED_ST06_RUNTIME_CONFIG_FILES)
@@ -2026,7 +2007,7 @@ def check_readme_truthfulness() -> dict[str, object]:
         "am/nfm izleme zinciri",
         "qml ürün akışında doğrulandı",
         "canlı hackrf/ses saha kabulü bekliyor",
-        "rf yayın yolu yok",
+        "depoda rf yayın yolu veya tx çalışma zamanı yoktur",
         "kalibrasyonsuz `dbfs`",
     )
     missing = [value for value in required if value not in text]
@@ -2061,7 +2042,7 @@ def check_rf_boundaries() -> dict[str, object]:
 
 def check_no_future_sources() -> dict[str, object]:
     implementation_directories = ("algorithms", "app", "verification", "datasets", "platforms")
-    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(APPROVED_ET_OFFLINE_FILES) | set(APPROVED_PARAMETER_DIAGNOSTIC_FILES) | set(APPROVED_PHASE10_SINGLE_ET_FILES) | set(APPROVED_ET_SIGNAL_GENERATOR_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | set(APPROVED_ST06_RUNTIME_CONFIG_FILES) | set(APPROVED_PARAMETER_ARM_FILES) | set(APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES) | {
+    allowed = set(APPROVED_PHASE01_FILES) | set(APPROVED_PHASE02_FILES) | set(APPROVED_PHASE03_FILES) | set(APPROVED_PHASE04_FILES) | set(APPROVED_PHASE08A_FILES) | set(APPROVED_PHASE08_FILES) | set(APPROVED_PHASE05_FILES) | set(APPROVED_PHASE06A_FILES) | set(APPROVED_PHASE06B_FILES) | set(APPROVED_PHASE06C_FILES) | set(APPROVED_PHASE06D_FILES) | set(APPROVED_PHASE06E_FILES) | set(APPROVED_PHASE06F_FILES) | set(APPROVED_PHASE06G_FILES) | set(APPROVED_PHASE06H_FILES) | set(APPROVED_PHASE06I_FILES) | set(APPROVED_TEST_INFRASTRUCTURE_FILES) | set(APPROVED_PHASE06J_FILES) | set(APPROVED_P0_FILES) | set(RETIRED_ET_RECORDS) | set(APPROVED_PARAMETER_DIAGNOSTIC_FILES) | set(APPROVED_APP_HARDENING_FILES) | set(APPROVED_P0_PLATFORM_AND_RECORDED_FILES) | set(APPROVED_ST06_RUNTIME_CONFIG_FILES) | set(APPROVED_PARAMETER_ARM_FILES) | set(APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES) | {
         "algorithms/fpga/README.md",
         "algorithms/README.md",
         "verification/README.md",

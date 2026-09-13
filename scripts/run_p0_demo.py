@@ -103,7 +103,6 @@ def populate(window: object, controller: object | None = None) -> None:
     window.df_mode_combo.setCurrentIndex(window.df_mode_combo.findData("training"))
     window._load_df_training_fixture()
     window._load_map_training_scenario()
-    window._start_jamming_preview()
     window.system_status_values["source"].setText("DOĞRULAMA · SİGMF KAYDI")
     window.system_status_values["processing"].setText("YAZILIM REFERANSI · OS-CFAR + Parametre")
     window.system_status_values["fpga"].setText("RTL / VIVADO DOĞRULAMA · 50 MHz timing PASS")

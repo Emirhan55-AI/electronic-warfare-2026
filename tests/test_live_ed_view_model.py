@@ -21,7 +21,7 @@ from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtTest import QSignalSpy
 
 from algorithms.p0 import CoarseDetection, CoarseDetectionFrame, IQFrame, TransportStats
-from algorithms.p0.transport import TransportError
+from algorithms.p0.transport import InlineParameterField, InlineParameterResult, TransportError
 from algorithms.p0.parameter_client import decode_response as decode_board_parameter_response
 from algorithms.monitoring import AnalogMonitorResult
 from app.operator_console.fixed_band_verification import FixedBandCandidate
@@ -34,6 +34,7 @@ from app.operator_console.live_ed import (
     LiveEDSnapshot,
 )
 from app.operator_console.quick_view_model import MISSING_RECEIVER_ERROR_DISPLAY_MS, OperatorViewModel
+from app.operator_console.automatic_parameter import AutomaticParameterOutcome
 from app.operator_console.detection_model import DetectionListModel
 from platforms.acquisition import (
     AcquisitionError,
@@ -54,7 +55,8 @@ def _fake_board_parameter_measurement(host, port, intent, iq, *, sample_rate_hz,
     del host, port, sample_rate_hz
     token = 7
     payload = bytearray(176)
-    struct.pack_into('<4sHHIIQQIB', payload, 0, b'P0PR', 1, 176, token, 0,
+    version = 2 if intent.span.width_bins > 512 else 1
+    struct.pack_into('<4sHHIIQQIB', payload, 0, b'P0PR', version, 176, token, 0,
                      token, intent.event_id, intent.start_frame + 3, 4)
     values = (center_frequency_hz, center_frequency_hz - 5_000,
               center_frequency_hz + 5_000, 10_000, -30, 12)
@@ -93,6 +95,16 @@ class _Backend:
 
     def close(self):
         pass
+
+
+class _TwoReceiverBackend(_Backend):
+    def discover_device(self, cancellation=None):
+        del cancellation
+        devices = tuple(
+            DeviceIdentity(receiver.serial)
+            for receiver in load_ed_rx_config().configured_receivers
+        )
+        return DeviceStatus("MULTIPLE_DEVICES", len(devices), devices=devices)
 
 
 class _DisconnectedBackend(_Backend):
@@ -276,6 +288,17 @@ class _LiveListeningSession(_BlockingSession):
             "acceptable": event_id == 31,
         }
 
+    def audio_channel_frame_count(self, target_frequency_hz):
+        return len(self.window) if np.isfinite(target_frequency_hz) else 0
+
+    def audio_channel_ready(self, target_frequency_hz):
+        return self.audio_channel_frame_count(target_frequency_hz) == LIVE_AUDIO_WINDOW_FRAMES
+
+    def audio_channel_window_snapshot(self, target_frequency_hz):
+        quality = self.audio_window_quality(31)
+        quality.update(distinct_event_ids=2, event_id_changes=1, invalid_frames=0)
+        return (self.window, quality) if self.audio_channel_ready(target_frequency_hz) else ((), quality)
+
     def run(self, snapshot_handler):
         event = LiveEDEvent(
             event_id=31,
@@ -407,6 +430,106 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     assert blocks["temporal"]["runtime"] == "ZYNQ PS"
     assert view_model.performanceText == "Canlı yol 500.00 kare/s"
     view_model.shutdown()
+
+
+def test_probe_reports_both_serial_bound_receiver_roles() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["dual-receiver-probe-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_TwoReceiverBackend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.setSourceMode("hackrf")
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert view_model.hackrfReady
+        assert view_model.receiverSummary == "2/2 yapılandırılmış HackRF tanındı"
+        assert [row["role"] for row in view_model.receiverRows] == [
+            "ED_RX_PRIMARY",
+            "ED_RX_SECONDARY",
+        ]
+        assert all(row["stateKey"] == "found" for row in view_model.receiverRows)
+        assert "ana canlı RX yolu" in view_model.receiverRows[0]["state"]
+        assert "henüz fiziksel doğrulanmadı" in view_model.receiverRows[1]["state"]
+    finally:
+        view_model.shutdown()
+
+
+def test_automatic_parameter_outcomes_persist_across_restarted_live_sessions(tmp_path) -> None:
+    def valid(value: float) -> InlineParameterField:
+        return InlineParameterField("valid", value, None)
+
+    parameter_result = InlineParameterResult(
+        intent_id=7,
+        event_id=31,
+        frame_id=3,
+        observation_count=4,
+        emission_center_frequency_hz=valid(104_726_500.0),
+        lower_occupied_edge_hz=valid(104_716_500.0),
+        upper_occupied_edge_hz=valid(104_736_500.0),
+        occupied_bandwidth_hz=valid(20_000.0),
+        channel_power_dbfs=valid(-31.5),
+        snr_estimate_db=valid(18.0),
+        reference_difference_db=0.2,
+        detection_significance=12.0,
+        center_uncertainty_bins=0.1,
+        temporal_edge_range_bins=0.2,
+    )
+    outcome = AutomaticParameterOutcome(
+        event_id=31,
+        intent_id=7,
+        detected_frequency_hz=104_726_500.0,
+        detected_peak_power=100.0,
+        lower_shifted_bin=2200,
+        upper_shifted_bin=2210,
+        status="valid",
+        reason=None,
+        result=parameter_result,
+    )
+
+    class AutomaticSession(_Session):
+        automatic_parameter_status = "Etkin · en güçlü doğrulanmış olaylar sırada"
+        measurement_channelizer = {"profile": {"output_amplitude_scale": 1.0}}
+
+        def run(self, snapshot_handler):
+            return super().run(
+                lambda snapshot: snapshot_handler(
+                    replace(snapshot, automatic_parameter_outcomes=(outcome,))
+                )
+            )
+
+    app = QGuiApplication.instance() or QGuiApplication(["automatic-catalog-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=AutomaticSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        parameter_catalog_path=tmp_path / "automatic-parameters.sqlite3",
+    )
+    try:
+        view_model.setSourceMode("hackrf")
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        _drain(app, lambda: view_model.busy)
+        assert len(view_model.parameterHistory) == 1
+        assert view_model.parameterHistory[0]["dbfs"] == "-31.50 dBFS"
+        assert view_model.parameterHistory[0]["dbm"] == "Kalibre değil"
+        assert view_model.parameterHistory[0]["lowerEdge"] == "104.716500 MHz"
+        assert view_model.parameterHistory[0]["upperEdge"] == "104.736500 MHz"
+        assert view_model.parameterHistory[0]["snr"] == "18.00 dB"
+        assert view_model.parameterHistory[0]["receiver"].startswith("Birincil alıcı")
+        assert view_model.automaticParameterStatus.startswith("Etkin")
+
+        # Kart olay kimlikleri yeni canlı koşuda yeniden başlayabilir. Katalog
+        # oturum kimliği bu ikinci sonucu ilk koşuyla çakıştırmamalıdır.
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        _drain(app, lambda: view_model.busy)
+        assert len(view_model.parameterHistory) == 2
+        assert view_model.parameterCatalogSummary == "2 kayıt · geçerli dBFS gücüne göre sıralı"
+    finally:
+        view_model.shutdown()
 
 
 def test_missing_receiver_probe_reports_an_actionable_error() -> None:
@@ -594,6 +717,48 @@ def test_live_list_orders_new_confirmed_signals_by_contrast(live_presentation):
     assert view.detections[0]["title"] == "FPGA adayı"
 
 
+def test_wide_supported_live_candidate_keeps_a_bounded_analysis_draft(live_presentation):
+    view = live_presentation
+    event = replace(
+        _event(71, peak=2045),
+        start_shifted_bin=1800,
+        end_shifted_bin=2290,
+        coarse_span_bins=491,
+    )
+    _present(view, 0, event)
+    view.selectDetection(71)
+
+    assert view._analysis_span_draft is not None
+    lower, upper = view._analysis_span_draft
+    assert upper - lower + 1 == 619
+    assert lower <= event.start_shifted_bin <= event.peak_shifted_bin
+    assert event.peak_shifted_bin <= event.end_shifted_bin <= upper
+    assert not view.analysisSpanLimited
+
+
+def test_oversized_live_candidate_gets_direct_bounded_confirmation(live_presentation):
+    view = live_presentation
+    event = replace(
+        _event(72, peak=2280),
+        start_shifted_bin=1500,
+        end_shifted_bin=3000,
+        coarse_span_bins=1501,
+    )
+    _present(view, 0, event)
+    view.selectDetection(72)
+
+    assert view._analysis_span_draft is not None
+    lower, upper = view._analysis_span_draft
+    assert upper - lower + 1 == 1629
+    assert lower <= event.peak_shifted_bin <= upper
+    assert lower <= event.start_shifted_bin <= event.end_shifted_bin <= upper
+    assert not view.analysisSpanLimited
+    view._live_session.measurement_window = lambda event_id: (None,) * 4
+    view.confirmAnalysisSpan(float(view.analysisLowerMHzText), float(view.analysisUpperMHzText))
+    assert view.analysisSpanConfirmed, view.statusMessage
+    assert view._analysis_span.width_bins == 1629
+
+
 def test_live_presentation_excludes_channelizer_transition_band(live_presentation):
     view = live_presentation
     _present(
@@ -606,27 +771,26 @@ def test_live_presentation_excludes_channelizer_transition_band(live_presentatio
     assert [row["eventId"] for row in view.detections] == [1]
 
 
-def test_selected_row_drops_from_live_list_without_extending_detector_lifetime(live_presentation):
+def test_selected_row_migrates_by_channel_without_extending_detector_lifetime(live_presentation):
     view = live_presentation
     _present(view, 0, _event(4430))
     view.selectDetection(4430)
     coordinate = view.selectedRegionPeakNormalized
     assert view.selectedDetectionCurrent
-    # A new ID at the same frequency is not proof of the same emitter.
+    # The UI follows the unique same-channel successor while the detector keeps
+    # its independent event identity and lifetime.
     _present(view, 16, _event(4431))
-    assert view.selectedDetectionId == 4430
+    assert view.selectedDetectionId == 4431
     assert view.selectedRegionPeakNormalized == coordinate
-    assert view.selectedDetectionStateText == "Sinyal yok"
-    assert not view.selectedDetectionCurrent
-    assert not view.selectedDetectionReady
+    assert view.selectedDetectionCurrent
+    assert view.selectedDetectionReady
     assert [row["eventId"] for row in view.detectionMarkers] == [4431]
     assert [row["eventId"] for row in view.detections] == [4431]
-    _present(view, 128, _event(4431))
+    _present(view, 256)
     assert [row["eventId"] for row in view.detections] == [4431]
-    assert view.selectedDetectionId == 4430
-    view.clearDetectionSelection()
-    assert view.selectedDetectionId == -1
-    assert view.selectedRegionPeakNormalized == -1
+    assert view.selectedDetectionId == 4431
+    assert not view.selectedDetectionCurrent
+    assert not view.selectedDetectionReady
 
 
 def test_presentation_pacing_and_same_event_selection_follow_observations(live_presentation):
@@ -635,7 +799,8 @@ def test_presentation_pacing_and_same_event_selection_follow_observations(live_p
     view.selectDetection(1)
     _present(view, 16, _event(2))
     assert [row["eventId"] for row in view.detections] == [2]
-    assert not view.selectedDetectionCurrent
+    assert view.selectedDetectionId == 2
+    assert view.selectedDetectionCurrent
     _present(view, 32, _event(1, peak=2210))
     assert view.selectedDetectionCurrent
     assert view.selectedRegionPeakNormalized == pytest.approx(2210 / 4096)
@@ -644,8 +809,8 @@ def test_presentation_pacing_and_same_event_selection_follow_observations(live_p
     assert mapped_hz == pytest.approx(expected_hz)
     _present(view, 112, _event(2))
     assert [row["eventId"] for row in view.detections] == [2]
-    assert view.selectedDetectionId == 1
-    assert not view.selectedDetectionCurrent
+    assert view.selectedDetectionId == 2
+    assert view.selectedDetectionCurrent
     assert not view._event_observation_history
 
 
@@ -679,6 +844,18 @@ def test_same_frequency_is_retained_once_across_new_fpga_event_ids(live_presenta
     assert view.detections[0]["state"] == "Son görüldü"
     _present(view, 48, _event(103, peak=2505))
     assert len(view.detections) == 2
+
+
+def test_live_listening_target_stays_latched_across_event_id_migration(live_presentation):
+    view = live_presentation
+    _present(view, 0, _event(201, peak=2205))
+    view.selectDetection(201)
+    target_hz = view._listening_channel_target_hz()
+
+    _present(view, 16, _event(202, peak=2300))
+
+    assert view.selectedDetectionId == 202
+    assert view._listening_channel_target_hz() == target_hz
 
 
 def test_peak_wander_is_one_operator_visible_emission(live_presentation):
@@ -1045,14 +1222,17 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         )
         view_model.selectDetection(31)
         assert view_model.selectedDetectionReady
-        _present(view_model, 50, _event(99))
+        current_measurement_window = view_model._live_session.current_measurement_window
+        _present(view_model, 200, _event(99, peak=2800))
+        view_model._live_session.current_measurement_window = lambda event_id: ()
         assert not view_model.selectedDetectionCurrent
         assert not view_model.selectedDetectionReady
-        assert not view_model.measurementSelectionReady
+        assert view_model.measurementSelectionReady
         view_model.requestMeasurement()
         assert view_model._pending_live_measurement is None
         assert not view_model.parameterRows
-        _present(view_model, 51, _event(31))
+        view_model._live_session.current_measurement_window = current_measurement_window
+        _present(view_model, 201, _event(31))
         assert view_model.measurementSelectionReady
         original_configuration = view_model._live_session.configuration
         view_model._live_session.configuration = replace(
@@ -1070,9 +1250,22 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
 
         session = view_model._live_session
         # The selected cache remains at 0..3; a new measurement must use 10..13.
+        previous_span = (
+            view_model._analysis_span.lower_shifted_bin,
+            view_model._analysis_span.upper_shifted_bin,
+        )
         session.window = tuple(replace(item, sequence_number=index + 10,
             output_frame=replace(item.output_frame, sequence_number=index + 10, frame_id=index + 10),
-            response=replace(item.response, frame_id=index + 10))
+            response=replace(
+                item.response,
+                frame_id=index + 10,
+                active=(replace(
+                    item.response.active[0],
+                    start_shifted_bin=previous_span[0] - 12,
+                    end_shifted_bin=previous_span[1] + 9,
+                    last_seen_frame_id=index + 10,
+                ),),
+            ))
             for index, item in enumerate(session.window))
         view_model.requestMeasurement()
         _drain(app, lambda: not view_model.parameterRows and not view_model.errorMessage)
@@ -1080,12 +1273,22 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert not view_model.liveSessionActive
         assert not view_model.busy
         assert view_model.errorMessage == ""
-        assert len(view_model.parameterRows) == 9
+        assert len(view_model.parameterRows) == 14
+        quality_rows = {row["key"]: row for row in view_model.parameterRows}
+        assert quality_rows["measurement_quality"]["label"] == "Kart ölçüm kalite kapısı"
+        assert quality_rows["measurement_quality"]["value"] == "Geçti · 4/4 kare"
+        assert quality_rows["measurement_quality"]["state"] == "valid"
+        assert quality_rows["reference_difference_db"]["value"].endswith(" dB")
+        assert quality_rows["center_uncertainty_bins"]["value"].endswith(" hücre")
+        assert quality_rows["temporal_edge_range_bins"]["value"].endswith(" hücre")
         assert "parametre ölçümü tamamlandı" in view_model.statusMessage
         from app.operator_console.measurement_record import read_measurement, replay_measurement
         path = Path(view_model.measurementRecordPath)
         assert path.parent == tmp_path
         document, _ = read_measurement(path)
+        assert document["intent"]["span"]["provenance"] == "automatic_live_expansion"
+        assert document["intent"]["span"]["lower_shifted_bin"] == previous_span[0] - 12
+        assert document["intent"]["span"]["upper_shifted_bin"] == previous_span[1] + 9
         assert document["source"]["receiver_settings"]["lna_gain_db"] == 0
         assert document["source"]["sequence_numbers"] == [10, 11, 12, 13]
         assert document["source"]["board_identity"] is None
@@ -1151,11 +1354,149 @@ def test_parameter_handoff_reacquires_and_revalidates_listening_target() -> None
         view_model.shutdown()
 
 
+class _DirectionSession(_MeasurementSession):
+    """Use the production collector with post-request responses and changing IDs."""
+
+    def __init__(self, executable, configuration):
+        super().__init__(executable, configuration)
+        from app.operator_console.live_ed import LiveEDSession
+        self.collector = LiveEDSession(executable, configuration)
+        self._direction_after_sequence = -1
+
+    def begin_direction_capture(self, lower, upper):
+        self.collector.begin_direction_capture(lower, upper)
+        self._direction_after_sequence = self.collector._direction_after_sequence
+
+    def current_measurement_window(self, event_id):
+        return ()  # The operator must not need to catch an instantaneous window.
+
+    def direction_capture(self):
+        for index, snapshot in enumerate(self.window, start=10):
+            event = replace(snapshot.response.active[0], event_id=100 + index,
+                            last_seen_frame_id=index)
+            self.collector._record_measurement_snapshot(replace(
+                snapshot, sequence_number=index,
+                output_frame=replace(snapshot.output_frame, sequence_number=index, frame_id=index),
+                response=replace(snapshot.response, frame_id=index, active=(event,))))
+        return self.collector.direction_capture()
+
+    def cancel_direction_capture(self):
+        self.collector.cancel_direction_capture()
+
+    @staticmethod
+    def direction_channel_owner(snapshot, lower, upper):
+        from app.operator_console.live_ed import LiveEDSession
+        return LiveEDSession.direction_channel_owner(snapshot, lower, upper)
+
+
+class _ParameterChannelSession(_MeasurementSession):
+    """Return a fresh channel-bound window whose FPGA event ID changes."""
+
+    def __init__(self, executable, configuration):
+        super().__init__(executable, configuration)
+        from app.operator_console.live_ed import LiveEDSession
+        self.collector = LiveEDSession(executable, configuration)
+        self._parameter_after_sequence = -1
+
+    def begin_parameter_capture(self, lower, upper):
+        self.collector.begin_parameter_capture(lower, upper)
+        self._parameter_after_sequence = self.collector._parameter_after_sequence
+
+    def current_measurement_window(self, event_id):
+        return ()
+
+    def parameter_capture(self):
+        for index, snapshot in enumerate(self.window, start=10):
+            event = replace(
+                snapshot.response.active[0],
+                event_id=100 + index,
+                last_seen_frame_id=index,
+            )
+            self.collector._record_measurement_snapshot(replace(
+                snapshot,
+                sequence_number=index,
+                output_frame=replace(
+                    snapshot.output_frame, sequence_number=index, frame_id=index
+                ),
+                response=replace(snapshot.response, frame_id=index, active=(event,)),
+            ))
+        return self.collector.parameter_capture()
+
+    def cancel_parameter_capture(self):
+        self.collector.cancel_parameter_capture()
+
+    @staticmethod
+    def direction_channel_owner(snapshot, lower, upper):
+        from app.operator_console.live_ed import LiveEDSession
+        return LiveEDSession.direction_channel_owner(snapshot, lower, upper)
+
+
+def test_live_parameter_measurement_survives_fpga_event_id_churn(tmp_path) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["parameter-channel-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_ParameterChannelSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
+    )
+    board_patch = patch(
+        "app.operator_console.measurement_record.measure_on_board",
+        side_effect=_fake_board_parameter_measurement,
+    )
+    board_patch.start()
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            view_model.startLiveEDSession(104_650_000, 8, 16, 4_096)
+            _drain(app, lambda: not view_model.detections)
+        view_model.selectDetection(31)
+        view_model.confirmAnalysisSpan(
+            float(view_model.analysisLowerMHzText),
+            float(view_model.analysisUpperMHzText),
+        )
+        previous_span = (
+            view_model._analysis_span.lower_shifted_bin,
+            view_model._analysis_span.upper_shifted_bin,
+        )
+        _present(
+            view_model,
+            50,
+            replace(
+                _event(31),
+                start_shifted_bin=previous_span[0] - 12,
+                end_shifted_bin=previous_span[1] + 9,
+            ),
+        )
+        assert view_model.analysisSpanLimited
+        view_model.requestMeasurement()
+        _drain(app, lambda: not view_model.parameterRows and not view_model.errorMessage)
+
+        assert view_model.parameterRows
+        assert not view_model.errorMessage
+        import json
+        import zipfile
+        from app.operator_console.measurement_record import replay_measurement
+        path = Path(view_model.measurementRecordPath)
+        with zipfile.ZipFile(path) as archive:
+            document = json.loads(archive.read("measurement.json"))
+        assert document["intent"]["span"]["provenance"] == "automatic_live_expansion"
+        assert document["intent"]["span"]["lower_shifted_bin"] == previous_span[0] - 12
+        assert document["intent"]["span"]["upper_shifted_bin"] == previous_span[1] + 9
+        assert document["source"]["channel_capture"]["event_ids"] == [110, 111, 112, 113]
+        assert document["intent"]["context"]["owner_observed_frames"] == [False, False, False, True]
+        assert "KTR-4.4" not in document["requirements"]
+        replay_measurement(path)
+    finally:
+        board_patch.stop()
+        view_model.shutdown()
+
+
 def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> None:
     app = QGuiApplication.instance() or QGuiApplication(["live-direction-power-test"])
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
-        live_session_factory=_MeasurementSession,
+        live_session_factory=_DirectionSession,
         fpga_transport_factory=_FPGAReadyTransport,
         measurement_record_directory=tmp_path,
     )
@@ -1175,8 +1516,13 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         view_model.selectDetection(31)
         assert view_model.selectedDetectionReady
         assert view_model._analysis_span_draft is not None
+        assert view_model.measurementSelectionReady
+        assert view_model.directionMeasurementReady
+        assert view_model.directionNextAngleDeg == 0.0
+        assert view_model.directionNextAngleText == "0°"
+        assert "başlangıç" in view_model.directionStepInstructionText
 
-        view_model.addDirectionMeasurement(0.0, "north", 0.0)
+        view_model.addNextClockwiseDirectionMeasurement()
         _drain(
             app,
             lambda: view_model.directionMeasurementCount != 1 or not view_model.liveSessionActive,
@@ -1191,6 +1537,10 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         )
         assert view_model.directionPoints[0]["power"] == "-30.00 dBFS"
         assert view_model.directionPoints[0]["angle"] == "0.0°"
+        assert view_model.directionPoints[0]["bearing"] == "—"
+        assert view_model.directionNextAngleDeg == 15.0
+        assert view_model.directionNextAngleText == "15°"
+        assert view_model.directionReferenceText == "Coğrafi referans yok · yalnız bağıl yön"
         assert view_model.liveSessionActive
         assert view_model._live_session.configuration.lna_gain_db == 8
         assert view_model._live_session.configuration.vga_gain_db == 16
@@ -1205,8 +1555,8 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
                 for row in view_model.detections
             ),
         )
-        view_model.selectDetection(31)
-        _drain(app, lambda: not view_model.selectedDetectionCurrent)
+        # A new RX session has no selected event. The locked channel survives.
+        assert view_model.selectedDetectionId == -1
         assert view_model.directionMeasurementReady, (
             view_model.measurementSelectionReady,
             view_model.selectedDetectionReady,
@@ -1216,7 +1566,7 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
             view_model._coarse_detection_sequence,
             view_model._frame_index,
         )
-        view_model.addDirectionMeasurement(15.0, "north", 0.0)
+        view_model.addNextClockwiseDirectionMeasurement()
         _drain(
             app,
             lambda: view_model.directionMeasurementCount != 2 or not view_model.liveSessionActive,
@@ -1226,10 +1576,140 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         assert [row["angle"] for row in view_model.directionPoints] == ["0.0°", "15.0°"]
         assert len({item.frame_id for item in view_model._df.measurements}) == 2
         assert list(tmp_path.glob("*.zip"))
+        import json
+        import zipfile
+        from app.operator_console.measurement_record import replay_measurement
+        for path in tmp_path.glob("*.zip"):
+            with zipfile.ZipFile(path) as archive:
+                document = json.loads(archive.read("measurement.json"))
+            assert document["source"]["direction_capture"]["event_ids"] == [110, 111, 112, 113]
+            assert document["intent"]["context"]["owner_observed_frames"] == [False, False, False, True]
+            assert "KTR-4.4" in document["requirements"]
+            replay_measurement(path)
     finally:
         coarse_patch.stop()
         board_patch.stop()
         view_model.shutdown()
+
+
+def test_live_direction_accepts_wide_p0pm_v2_channel(tmp_path) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["live-direction-wide-channel-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_DirectionSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
+    )
+    board_patch = patch(
+        "app.operator_console.measurement_record.measure_on_board",
+        side_effect=_fake_board_parameter_measurement,
+    )
+    board_patch.start()
+    coarse_patch = patch.object(view_model, "_coarse_supports_fpga_region", return_value=True)
+    coarse_patch.start()
+    try:
+        view_model.setSourceMode("hackrf")
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model.startLiveEDSession(104_650_000, 8, 16, 4_096)
+        _drain(app, lambda: not view_model.detections)
+        view_model.selectDetection(31)
+        view_model._analysis_span_draft = (1_200, 2_788)
+        assert view_model._analysis_span_draft[1] - view_model._analysis_span_draft[0] + 1 == 1_589
+        assert view_model.directionMeasurementReady
+
+        view_model.addNextClockwiseDirectionMeasurement()
+        _drain(
+            app,
+            lambda: view_model.directionMeasurementCount != 1 or not view_model.liveSessionActive,
+            timeout=8.0,
+        )
+
+        assert view_model.directionMeasurementCount == 1, view_model.directionCaptureText
+        assert view_model._df_channel_span == (1_200, 2_788)
+        assert view_model.directionPoints[0]["angle"] == "0.0°"
+    finally:
+        coarse_patch.stop()
+        board_patch.stop()
+        view_model.shutdown()
+
+
+def test_live_direction_start_failure_does_not_lock_channel(tmp_path) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["live-direction-start-failure-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_DirectionSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
+    )
+    coarse_patch = patch.object(view_model, "_coarse_supports_fpga_region", return_value=True)
+    coarse_patch.start()
+    try:
+        view_model.setSourceMode("hackrf")
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model.startLiveEDSession(104_650_000, 8, 16, 4_096)
+        _drain(app, lambda: not view_model.detections)
+        view_model.selectDetection(31)
+        view_model._live_session.begin_direction_capture = lambda lower, upper: (_ for _ in ()).throw(
+            ValueError("geçersiz kanal")
+        )
+
+        view_model.addNextClockwiseDirectionMeasurement()
+
+        assert view_model.directionMeasurementCount == 0
+        assert view_model._df_channel_span is None
+        assert view_model._pending_direction_measurement is None
+        assert "başlatılamadı" in view_model.directionCaptureText
+    finally:
+        coarse_patch.stop()
+        view_model.shutdown()
+
+
+@pytest.mark.parametrize("action", ["timeout", "cancel", "stop", "settings", "fft", "no_span"])
+def test_direction_capture_reports_blocks_and_discards_cancelled_angles(tmp_path, action):
+    app = QGuiApplication.instance() or QGuiApplication(["direction-lifecycle"])
+    view = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=_DirectionSession,
+                             fpga_transport_factory=_FPGAReadyTransport,
+                             measurement_record_directory=tmp_path)
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        with patch.object(view, "_coarse_supports_fpga_region", return_value=True):
+            view.startLiveEDSession(104_650_000, 8, 16, 4096)
+            _drain(app, lambda: not view.detections)
+        view.selectDetection(31)
+        if action == "fft":
+            view._live_session.configuration = replace(view._live_session.configuration, fpga_fft_size=8192)
+            assert not view.directionMeasurementReady
+            assert "4096" in view.directionCaptureText
+            return
+        if action == "no_span":
+            view._analysis_span_draft = None
+            assert not view.directionMeasurementReady
+            assert "kanal aralığı" in view.directionCaptureText
+            return
+        view.addDirectionMeasurement(0, "north", 0)
+        assert view.directionCaptureCancellable
+        if action == "timeout":
+            view._pending_direction_measurement["deadline"] = time.monotonic() - 1
+            view._poll_direction_capture()
+            assert "5 saniyede" in view.directionCaptureText
+        elif action == "cancel":
+            view.cancelDirectionMeasurement()
+            assert "iptal" in view.directionCaptureText
+        elif action == "stop":
+            view.stopLiveEDSession()
+        else:
+            view._live_session.configuration = replace(view._live_session.configuration, lna_gain_db=16)
+            view._poll_direction_capture()
+            assert not view.directionMeasurementReady
+        assert not view.directionCapturePending
+        assert view.directionMeasurementCount == 0
+        assert not list(tmp_path.glob("*.zip"))
+    finally:
+        view.shutdown()
 
 
 @pytest.mark.parametrize("stage", ["stopping_rx", "worker"])
@@ -1330,8 +1810,15 @@ def test_live_measurement_record_write_failure_keeps_results_empty(tmp_path):
         vm.selectDetection(31)
         vm.confirmAnalysisSpan(float(vm.analysisLowerMHzText), float(vm.analysisUpperMHzText))
         vm.requestMeasurement()
-        _drain(app, lambda: not vm.errorMessage)
-        assert vm.errorMessage
+        _drain(app, lambda: not vm.errorMessage, timeout=12.0)
+        assert vm.errorMessage, (
+            vm.statusMessage,
+            vm.analysisLowerMHzText,
+            vm.analysisUpperMHzText,
+            vm.analysisSpanConfirmed,
+            vm.measurementSelectionReady,
+            vm.parameterMeasurementActive,
+        )
         assert not vm.parameterRows
         assert not vm.measurementRecordPath
         assert blocked.read_text(encoding="utf-8") == "preserve"
@@ -1578,6 +2065,46 @@ def test_survey_parameter_action_reacquires_and_selects_matching_live_detection(
         assert view.selectedDetectionId == 31
         assert view.measurementSelectionReady
         assert view.selectedDetectionFrequencyText != "—"
+    finally:
+        view.shutdown()
+
+
+def test_live_parameter_setup_keeps_latched_window_during_brief_detection_gap():
+    app = QGuiApplication.instance() or QGuiApplication(["parameter-latched-window-test"])
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        with patch.object(view, "_coarse_supports_fpga_region", return_value=True):
+            view.startLiveEDSession(1_200_000, 16, 16, 4096)
+            _drain(app, lambda: not view.detections)
+
+        view.selectDetection(31)
+        assert view.measurementSelectionReady
+        assert len(view._selected_live_measurement_window) == 4
+
+        view._live_session.current_measurement_window = lambda event_id: ()
+        view._selected_live_detection = dict(
+            view._selected_live_detection,
+            observed=False,
+            state="Sinyal yok",
+            stateKey="stale",
+        )
+
+        assert view.measurementSelectionReady
+        view.confirmAnalysisSpan(
+            float(view.analysisLowerMHzText),
+            float(view.analysisUpperMHzText),
+        )
+        assert view.analysisSpanConfirmed
+        view.requestMeasurement()
+        assert view.parameterMeasurementActive
+        assert "dört ardışık FPGA karesi" in view.statusMessage
     finally:
         view.shutdown()
 

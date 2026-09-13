@@ -27,7 +27,6 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             {
                 "mock_backend": False,
                 "training_mode": False,
-                "offline_et_console": False,
                 "embedded_demo_data": False,
                 "hardcoded_recording_paths": False,
             },
@@ -44,18 +43,12 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "tests",
         ):
             self.assertIn(required, excluded)
-        self.assertNotIn("algorithms/et", document["allowed_source_roots"])
-        self.assertIn("algorithms/et", excluded)
-        self.assertIn("algorithms/transmission", document["allowed_source_roots"])
-        self.assertIn("platforms/transmission", document["allowed_source_roots"])
-        self.assertIn("app/operator_console/_mixin_et.py", excluded)
         self.assertEqual(
             {
                 "profiles/phase03/operation-default.json",
                 "profiles/phase04f5/operation-default.json",
                 "config/p0/hackrf_ed_rx.json",
                 "config/p0/hackrf_spurs.json",
-                "config/p0/hackrf_et_tx.json",
                 "datasets/fixtures/phase04f1/domain-model.json",
                 "datasets/fixtures/phase04f2/domain-model-v3.json",
                 "datasets/fixtures/phase04f4/domain-model-v5.json",
@@ -79,13 +72,11 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "algorithms.p0.df_fixtures",
         ):
             self.assertIn(f"--nofollow-import-to={module}", spec)
-        self.assertIn("--nofollow-import-to=algorithms.et", spec)
         for asset in (
             "profiles/phase03/operation-default.json",
             "profiles/phase04f5/operation-default.json",
             "config/p0/hackrf_ed_rx.json",
             "config/p0/hackrf_spurs.json",
-            "config/p0/hackrf_et_tx.json",
             "datasets/fixtures/phase04f1/domain-model.json",
             "datasets/fixtures/phase04f2/domain-model-v3.json",
             "datasets/fixtures/phase04f4/domain-model-v5.json",
@@ -110,7 +101,6 @@ payload = {
     "source_mode": view_model.sourceMode,
     "workspace": root.property("workspace"),
     "root_type": root.metaObject().className(),
-    "offline_et_loaded": "algorithms.et" in sys.modules,
     "forbidden_modules": sorted(name for name in sys.modules if name in {"platforms.acquisition.mock", "algorithms.p0.df_fixtures", "app.operator_console.main_window", "app.operator_console.controller"}),
 }
 view_model.shutdown()
@@ -134,7 +124,6 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertEqual("hackrf", payload["source_mode"])
         self.assertEqual(0, payload["workspace"])
         self.assertIn("QMLTYPE", payload["root_type"])
-        self.assertFalse(payload["offline_et_loaded"])
         self.assertEqual([], payload["forbidden_modules"])
 
     def test_startup_intro_is_optional_and_isolated_from_runtime_control(self) -> None:

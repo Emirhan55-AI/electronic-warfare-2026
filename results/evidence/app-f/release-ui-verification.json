@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "work_package": "APP-F",
-  "recorded_at": "2026-09-09T07:30:29Z",
+  "recorded_at": "2026-09-13T19:29:58Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.199017176803295,
-      "processing_median_ms": 2.4582003243267536,
-      "processing_p95_ms": 2.632200252264738,
-      "maximum_heartbeat_gap_ms": 24.859400000423193,
+      "observed_update_hz": 9.200455974642681,
+      "processing_median_ms": 2.3939000093378127,
+      "processing_p95_ms": 2.4587000079918653,
+      "maximum_heartbeat_gap_ms": 45.9073000238277,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -147,11 +147,11 @@
       "direction_measurement_count": 0,
       "direction_distinct_angle_count": 0,
       "direction_ready": false,
-      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_status": "15° adımlı 24 farklı anten açısında kanal gücü gerekir.",
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "0ce3060aabeaf6698422fe7c8438af56d4afe47c8ebfc6c01405564e5a43b14a"
+      "screenshot_sha256": "d8c1a084551ac07d12b29e813c50cf8d75c42bc3b6cbd0d17bf92e39b3fb2c4b"
     },
     {
       "name": "measurement-1280x720",
@@ -183,10 +183,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.198011389786322,
-      "processing_median_ms": 2.4399999529123306,
-      "processing_p95_ms": 2.7119996957480907,
-      "maximum_heartbeat_gap_ms": 23.475599940866232,
+      "observed_update_hz": 9.173338974538819,
+      "processing_median_ms": 2.4357999791391194,
+      "processing_p95_ms": 2.5025999930221587,
+      "maximum_heartbeat_gap_ms": 46.81599998730235,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -282,11 +282,11 @@
       "direction_measurement_count": 0,
       "direction_distinct_angle_count": 0,
       "direction_ready": false,
-      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_status": "15° adımlı 24 farklı anten açısında kanal gücü gerekir.",
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "2ba6f0485d8ff23b35ebc56875630a3652972c82feffa0fea758334b245740bc"
+      "screenshot_sha256": "8990c22f0d98a6be11ef8a34a7107ebab58c97d2ef30a712c1823b4136e5eacc"
     },
     {
       "name": "standard-1366x768",
@@ -318,10 +318,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.197114681910273,
-      "processing_median_ms": 2.4026003666222095,
-      "processing_p95_ms": 2.601499669253826,
-      "maximum_heartbeat_gap_ms": 23.247600067406893,
+      "observed_update_hz": 9.2075682528684,
+      "processing_median_ms": 2.3822000075597316,
+      "processing_p95_ms": 2.4329999869223684,
+      "maximum_heartbeat_gap_ms": 46.217900002375245,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -417,11 +417,11 @@
       "direction_measurement_count": 0,
       "direction_distinct_angle_count": 0,
       "direction_ready": false,
-      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_status": "15° adımlı 24 farklı anten açısında kanal gücü gerekir.",
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "575902d62150e29b4f2fa3aa1e5308f618ca5c5ba0320ea6abf27045f211df02"
+      "screenshot_sha256": "d0bb751673605ab04b7647e9ad63bd7c8a996ff19688627b72c80eafb122cd7b"
     },
     {
       "name": "fullhd-1920x1080",
@@ -453,10 +453,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.196385085260543,
-      "processing_median_ms": 2.436799928545952,
-      "processing_p95_ms": 2.6817000471055508,
-      "maximum_heartbeat_gap_ms": 21.512699779123068,
+      "observed_update_hz": 9.15581950852251,
+      "processing_median_ms": 2.3882999958004802,
+      "processing_p95_ms": 2.521600021282211,
+      "maximum_heartbeat_gap_ms": 44.411700015189126,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -552,11 +552,11 @@
       "direction_measurement_count": 0,
       "direction_distinct_angle_count": 0,
       "direction_ready": false,
-      "direction_status": "En az üç farklı anten açısında gerçek güç ölçümü gerekir.",
+      "direction_status": "15° adımlı 24 farklı anten açısında kanal gücü gerekir.",
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "98da9af28afad5c3c532a43b682d6838f0b8b686d94c63d59c41d6a94b3c8167"
+      "screenshot_sha256": "555c46afeaa794c08eb2e9a13c4a5dd561d3de0816a4782b49c99dc3906a2af6"
     },
     {
       "name": "scale-150-percent",
@@ -573,25 +573,25 @@
       "source_state": "Hazır",
       "spectrum_points": 1150,
       "visible_detections": 12,
-      "selected_detection_id": -1,
+      "selected_detection_id": 1,
       "selected_region": [
-        -1.0,
-        -1.0,
-        -1.0
+        0.560546875,
+        0.5625,
+        0.564453125
       ],
       "analysis_span": [
-        -1.0,
-        -1.0
+        0.558349609375,
+        0.566650390625
       ],
       "spectrum_view": [
         0.0,
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.19580524037193,
-      "processing_median_ms": 2.4163001216948032,
-      "processing_p95_ms": 2.7103996835649014,
-      "maximum_heartbeat_gap_ms": 23.971399758011103,
+      "observed_update_hz": 9.187421684667777,
+      "processing_median_ms": 2.39129998954013,
+      "processing_p95_ms": 2.44609999936074,
+      "maximum_heartbeat_gap_ms": 45.22259999066591,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -684,14 +684,14 @@
       "listening_waveform_points": 0,
       "listening_playback_state": "Ses hazırlanmadı",
       "listening_playback_duration": "00:00.0",
-      "direction_measurement_count": 3,
-      "direction_distinct_angle_count": 3,
+      "direction_measurement_count": 1,
+      "direction_distinct_angle_count": 1,
       "direction_ready": false,
-      "direction_status": "Güç maksimumu ayrıştırılamadı",
+      "direction_status": "15° adımlı 24 anten açısı gerekli",
       "direction_reference": "Gerçek kuzey · anten 0°",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/scale-150-percent.png",
-      "screenshot_sha256": "c2312cc0c66ad29d473a4d4f9887c04c73206537053d280cedc8e7e31d3f4631"
+      "screenshot_sha256": "754ed1d53d97032bb1ecd67aa7551c6c0648948e696c148fe73f42873c2935ae"
     }
   ],
   "empty_run": {
@@ -704,90 +704,13 @@
     "source_state": "Kullanılmıyor",
     "visible_detections": 0,
     "screenshot": "results/evidence/app-f/empty-1280x720.png",
-    "screenshot_sha256": "c1e83554f112a935b1712f377a0eda5ba71e7fd10429ef89a432e634ebb2d209"
+    "screenshot_sha256": "f03cda7a3f509cc8385c3e4de1ae99bc013d0657cae3e28607b538e351832bae"
   },
-  "et_runs": [
-    {
-      "name": "et-single-1280x720",
-      "logical_width": 1280,
-      "logical_height": 720,
-      "scale_factor": 1.0,
-      "captured_width": 1280,
-      "captured_height": 720,
-      "domain": "ET",
-      "workspace": 4,
-      "task": "continuous",
-      "status": "İLETİMSİZ DOĞRULANDI",
-      "result_title": "Tekli bant hazır",
-      "metric_count": 7,
-      "primary_points": 0,
-      "secondary_points": 512,
-      "timeline_count": 0,
-      "has_measurement_gap": false,
-      "transmit_api_present": false,
-      "single_tx_api_present": true,
-      "tx_gate_open": false,
-      "synthetic_api_present": false,
-      "offline_et_loaded": false,
-      "screenshot": "results/evidence/app-f/et-single-1280x720.png",
-      "screenshot_sha256": "391a3bedd9914e81b337374bd99934c95aade5ae18e38392be484dbb6e4e6121"
-    },
-    {
-      "name": "et-single-1440x900",
-      "logical_width": 1440,
-      "logical_height": 900,
-      "scale_factor": 1.0,
-      "captured_width": 1440,
-      "captured_height": 900,
-      "domain": "ET",
-      "workspace": 4,
-      "task": "continuous",
-      "status": "İLETİMSİZ DOĞRULANDI",
-      "result_title": "Tekli bant hazır",
-      "metric_count": 7,
-      "primary_points": 0,
-      "secondary_points": 512,
-      "timeline_count": 0,
-      "has_measurement_gap": false,
-      "transmit_api_present": false,
-      "single_tx_api_present": true,
-      "tx_gate_open": false,
-      "synthetic_api_present": false,
-      "offline_et_loaded": false,
-      "screenshot": "results/evidence/app-f/et-single-1440x900.png",
-      "screenshot_sha256": "72ad402be49716a047ecbd8ed77ab2c130de420355fc87b618744f44e7029a21"
-    },
-    {
-      "name": "et-single-1180x680",
-      "logical_width": 1180,
-      "logical_height": 680,
-      "scale_factor": 1.0,
-      "captured_width": 1180,
-      "captured_height": 680,
-      "domain": "ET",
-      "workspace": 4,
-      "task": "continuous",
-      "status": "İLETİMSİZ DOĞRULANDI",
-      "result_title": "Tekli bant hazır",
-      "metric_count": 7,
-      "primary_points": 0,
-      "secondary_points": 512,
-      "timeline_count": 0,
-      "has_measurement_gap": false,
-      "transmit_api_present": false,
-      "single_tx_api_present": true,
-      "tx_gate_open": false,
-      "synthetic_api_present": false,
-      "offline_et_loaded": false,
-      "screenshot": "results/evidence/app-f/et-single-1180x680.png",
-      "screenshot_sha256": "5ceed8181de0193f2d73289d50a33519eb5beed1d9735384f455bd4eb2a735d6"
-    }
-  ],
   "hackrf_probe": {
     "source_mode": "hackrf",
     "source_state": "Hata",
     "source_ready": false,
-    "status": "Alıcı ve FPGA bağlantısı kurulamadı. USB ve FPGA ağ bağlantılarını denetleyin.",
+    "status": "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin.",
     "settled": true
   },
   "gates": {
@@ -795,12 +718,6 @@
     "minimum_screen": true,
     "empty_source_surface": true,
     "workspace_coverage": true,
-    "et_workspace_coverage": true,
-    "et_minimum_screen": true,
-    "et_single_offline_validation": true,
-    "et_safety_surface": true,
-    "et_operator_language": true,
-    "et_motion_feedback": true,
     "bounded_spectrum": true,
     "selection_bound_to_fft": true,
     "linked_frequency_view": true,

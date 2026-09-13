@@ -254,6 +254,8 @@ class QuickDetectionStateMixin:
     def _queue_fixed_verification(self, candidate: FixedBandCandidate) -> None:
         if (
             self._live_session is None
+            or self._df_channel_span is not None
+            or self._pending_direction_measurement is not None
             or self._live_fpga_fft_size() != 4096
             or self._fixed_verification_candidate is not None
             or self._fixed_verifier is not None
@@ -502,6 +504,16 @@ class QuickDetectionStateMixin:
         self._live_detection_rows = detections
         self._update_live_detection_history(detections)
         selected = next((row for row in detections if row["eventId"] == self._selected_detection_id and row["observed"]), None)
+        if selected is None and self._selected_live_detection is not None:
+            successors = [
+                row for row in detections
+                if row.get("stateKey") == "confirmed"
+                and bool(row.get("observed", True))
+                and self._same_live_channel(self._selected_live_detection, row)
+            ]
+            if len(successors) == 1:
+                selected = successors[0]
+                self._selected_detection_id = int(selected["eventId"])
         if selected is not None:
             self._selected_live_detection = dict(selected)
         elif self._selected_live_detection is not None:
@@ -511,6 +523,24 @@ class QuickDetectionStateMixin:
     @staticmethod
     def _last_observation(row: dict[str, object]) -> dict[str, object]:
         return dict(row, state="Sinyal yok", stateKey="stale", observed=False)
+
+    @staticmethod
+    def _same_live_channel(
+        previous: dict[str, object], current: dict[str, object]
+    ) -> bool:
+        previous_frequency = float(previous["frequencyHz"])
+        current_frequency = float(current["frequencyHz"])
+        previous_lower = float(previous.get("lowerFrequencyHz", previous_frequency))
+        previous_upper = float(previous.get("upperFrequencyHz", previous_frequency))
+        current_lower = float(current.get("lowerFrequencyHz", current_frequency))
+        current_upper = float(current.get("upperFrequencyHz", current_frequency))
+        return (
+            not (
+                current_upper < previous_lower - FIXED_VERIFY_MATCH_HZ
+                or current_lower > previous_upper + FIXED_VERIFY_MATCH_HZ
+            )
+            or abs(current_frequency - previous_frequency) <= LIVE_PRESENTATION_CLUSTER_HZ
+        )
 
     def _cluster_live_detection_rows(
         self, detections: list[dict[str, object]]
@@ -721,6 +751,7 @@ class QuickDetectionStateMixin:
         self._selected_live_measurement_window = ()
         self._live_list_frame = -1
         self._selected_detection_id = -1
+        self._listening_live_target_hz = None
         self._measurement_requested = False
         self._pending_live_measurement = None
         self._pending_live_listening = None

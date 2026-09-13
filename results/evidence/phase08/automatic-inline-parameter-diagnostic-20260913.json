@@ -1,0 +1,164 @@
+{
+  "schema": "phase08-automatic-inline-parameter-diagnostic-v1",
+  "recorded_at_utc": "2026-09-13T08:18:58.3756889Z",
+  "status": "limited_software_pass_physical_acceptance_open",
+  "requirements": ["KTR-4.1", "KTR-4.2", "KTR-4.3"],
+  "source": {
+    "head_commit": "a9b43d6ac59de3a2fb681565b5ebfead8a52cc11",
+    "working_tree_clean": false,
+    "binding": "Current working tree; rerun the listed tests before using this record."
+  },
+  "software_verification": [
+    {
+      "scope": "transport, live session, scheduler, catalog and acquisition",
+      "result": "70 passed"
+    },
+    {
+      "scope": "Qt view model including dual receiver roles and restarted-session catalog identity",
+      "result": "65 passed"
+    },
+    {
+      "scope": "full Qt/QML product",
+      "result": "31 passed"
+    },
+    {
+      "scope": "repository phase and traceability contract",
+      "result": "20 passed"
+    },
+    {
+      "scope": "combined related Python and Qt/QML regression suite",
+      "result": "186 passed in 103.94 seconds"
+    },
+    {
+      "scope": "portable C parameter runtime equivalence, extended and wide",
+      "result": "49 cases passed"
+    },
+    {
+      "scope": "MSVC C11 local ED service protocol harness",
+      "result": "P0_ED_SERVICE_PROTOCOL_TEST=PASS"
+    },
+    {
+      "scope": "MSVC C11 transport harness",
+      "result": "P0_IQ_TRANSPORT_TEST=PASS"
+    },
+    {
+      "scope": "GCC C11 Linux network bridge loopback",
+      "result": "P0_IQ_BRIDGE_LOOPBACK_TEST=PASS"
+    }
+  ],
+  "connected_hardware_observation": {
+    "configured_primary_serial_suffix": "36877e47",
+    "configured_secondary_serial_suffix": "35138247",
+    "hackrf_info_visible_serial_suffixes": ["36877e47"],
+    "both_receivers_physically_accepted": false,
+    "board_endpoint": "192.168.7.2:47007",
+    "normal_iq_connection": "passed",
+    "inline_parameter_capability": false,
+    "running_service_identity_verified_for_this_source": false
+  },
+  "live_receive_diagnostics": [
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 16,
+      "vga_gain_db": 16,
+      "status": "failed_closed",
+      "reason": "input_iq_clipping"
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 8,
+      "vga_gain_db": 8,
+      "frames": 2048,
+      "frames_per_second": 461.55970535104063,
+      "confirmed_events": 0,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 8,
+      "vga_gain_db": 16,
+      "frames": 4096,
+      "frames_per_second": 482.1325229990207,
+      "confirmed_events": 0,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 8,
+      "vga_gain_db": 20,
+      "frames": 4096,
+      "frames_per_second": 469.9404905732435,
+      "confirmed_events": 1,
+      "maximum_observed_frames_for_one_bin": 1,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 16,
+      "vga_gain_db": 8,
+      "frames": 4096,
+      "frames_per_second": 481.3051830907468,
+      "confirmed_events": 0,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 16,
+      "vga_gain_db": 12,
+      "frames": 4096,
+      "frames_per_second": 464.3387447273139,
+      "confirmed_events": 9,
+      "maximum_observed_frames_for_one_bin": 1,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 16,
+      "vga_gain_db": 14,
+      "frames": 4096,
+      "frames_per_second": 437.93641751327334,
+      "confirmed_event_ids": 33,
+      "maximum_event_observed_frames": 3,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 8,
+      "vga_gain_db": 16,
+      "frames": 8192,
+      "frames_per_second": 485.4385127212608,
+      "real_time_margin": 0.9941780740531421,
+      "external_snapshot_handler": false,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    },
+    {
+      "center_frequency_hz": 820000000,
+      "lna_gain_db": 8,
+      "vga_gain_db": 16,
+      "frames": 4096,
+      "stream_elapsed_seconds": 8.432943899999373,
+      "frames_per_second": 487.4308892625192,
+      "real_time_margin": 0.9982584612096393,
+      "frames_per_second_scope": "first_to_last_fpga_response_interval",
+      "setup_seconds": 0.08329480001702905,
+      "response_interval_seconds": 8.40119100001175,
+      "transport_errors": 0,
+      "usb_overruns": 0
+    }
+  ],
+  "claim_boundary": [
+    "No persistent 820 MHz event was established in these current-source diagnostics.",
+    "The 8192-frame no-callback run remained below the 488.28125 frame/s real-time threshold, so current-source performance acceptance remains open.",
+    "The external transmitter state and waveform were not independently verified.",
+    "Automatic inline parameter extraction was not exercised because the running bridge did not advertise the capability.",
+    "No dBm value is produced because the calibration registry has no measured profile.",
+    "These observations do not close RF accuracy, Pd/Pfa, two-receiver concurrency or current-image acceptance."
+  ]
+}

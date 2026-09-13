@@ -1,5 +1,86 @@
 # P0 Gerçek Sistem Mimarisi
 
+## Yalnız ED mimarisi — 13 Eylül 2026
+
+Güncel ürün mimarisi yalnız RX tabanlı ED işlevlerini içerir. ET görev alanı,
+dalga biçimi üretimi, HackRF TX platform katmanı ve ET çalışma zamanı
+kaldırılmıştır. İkinci HackRF yalnız ED alıcı rolüyle tanımlanabilir; TX rolü
+yoktur. Tarihli eski ET mimari bölümleri geçmiş kayıt niteliğindedir.
+
+## İki alıcı rolü ve canlı parametre kayıt yolu — 13 Eylül 2026
+
+Bilgisayar-1 iki HackRF seri kimliğini `ED_RX_PRIMARY` ve `ED_RX_SECONDARY`
+olarak ayrı izler. Birincil rol mevcut 8 MS/s RX → 2 MS/s kanal seçici →
+ZedBoard tespit yolunu besler. İkincil rol envanterde tanınır; ikinci eşzamanlı
+capture, iki akışın zaman/frekans hizası ve bunun performansı henüz fiziksel
+kanıtlanmadığı için işlem sahibi olarak gösterilmez.
+
+Kart P0CQ ile destek bildirirse host confirmed olayları güç sırasına koyar ve
+bir seferde bir olay için dört P0IQ karesine parametre bağlamı ekler. Ağ köprüsü
+bunu yerel ABI v2'ye çevirir; PL tespit/güç işlemi ve ARM temporal karar her
+karede çalışmayı sürdürürken aynı güç/CI8 verisi parametre çekirdeğine verilir.
+PC sonucu doğrular ve SQLite kataloğuna yazar; sayısal kestirim yapmaz. Eski
+köprüde otomasyon kapalı kalır, normal tespit trafiği korunur.
+
+dBFS dijital tam ölçeğe göredir. PC yalnız seri, 2 MS/s çıkış bağlamı, LNA/VGA,
+kanal seçici genlik ölçeği, frekans aralığı ve süre tam eşleşen bir ölçülmüş
+kalibrasyon profilinden dBm türetir. Boş/geçersiz/eskimiş profil `Kalibre değil`
+sonucudur; varsayılan ofset veya extrapolasyon yoktur.
+
+## Saat yönünde bağıl yön arayüzü — 13 Eylül 2026
+
+PC ürün arayüzü anten yönü sensörü gibi davranmaz. Operatörün belirlediği ilk
+fiziksel eksen `0°` sayılır; tek ölçüm eylemi yalnız başarılı dört kareli ölçüm
+sonrasında hedef etiketi saat yönünde 15° artırır. QML serbest açı veya coğrafi
+referans almaz ve yalnız bağıl tepe yönünü gösterir. PC, PL ve ARM arasında
+zaman tabanlı açı üretimi eklenmemiştir.
+
+PL/ARM P0PM kanal gücü ve P0DF tam tur hesabı değişmedi. Düşük seviye manuel
+coğrafi referans veri sözleşmesi tarihsel kayıt uyumluluğu için korunur; güncel
+ürün iş akışının girdisi veya çıktısı değildir. Fiziksel dönüş doğruluğu halen
+operatör/mekanik düzen sorumluluğundadır; otomatik sürekli dönüş için ölçülmüş
+enkoder/IMU bağı ve yeni kabul kanıtı gerekir.
+
+## Parametre sonuç sunumu — 13 Eylül 2026
+
+PL/ARM hesap paylaşımı değişmedi. PC görünüm modeli doğrulanmış P0PR alanlarını
+ve `F1Quality` tanılarını kullanıcıya yönelik satırlara dönüştürür; QML yalnız
+bu durumları ve Türkçe ret nedenlerini sunar. Ana parametre hesabı PC'ye
+taşınmaz ve kart hatasında sayısal geri dönüş eklenmez. Sonuç ekranındaki alan
+geçerliliği fiziksel doğruluk kabulünden açıkça ayrılır.
+
+## Geniş aralık ölçüm sürümü — 12 Eylül 2026
+
+P0PM-v2, PL 4096 FFT/güç ve ARM sayısal hesap paylaşımını korur. ARM yerel
+spektrum kapasitesi 3984 analiz + iki yanda 36 hücreye genişletildi; dört
+gözlemin kalıcı sayısal yükü 389.376 bayttır. Eski 64 KiB host profiline
+ait bellek iddiası bu kart sürümüne aktarılmaz. Yeni kart P0PR-v2 döndürür;
+eski 512 hücrelik P0PM-v1 istekleri kabul edilir fakat eski yanıt okuyucuları
+yeni sürümü reddeder. Arayüz ve kart hizmeti/ağ köprüsü birlikte güncellenir.
+Derleme ve portable eşdeğerlik geçti; yeni ikililer doğrulanmış ZedBoard'a
+yüklendi. Altı dar sahne ile bir gerçek kayıtlı geniş ölçüm kartta geçti.
+Genel RF doğruluğu ve geniş bant OBW kabulü açıktır.
+
+## Analog/Sayısal sınıflandırma görev paylaşımı — 12 Eylül 2026
+
+PÇ-03 ürün bağlantısında sınıflandırma PC'dedir. Mevcut ölçüm işçisi dört
+ardışık CI8 kareyi sabitledikten sonra taşıyıcı, OBW, güç ve SNR için P0PM ile
+PL/ARM yolunu çalıştırır. Aynı kareler ve operatörce onaylanan analiz aralığı
+PC'deki sınırlı kanal seçme, altı özellik ve lojistik regresyon zincirine girer.
+Kart sınıflandırma yapmaz; kart hatasında ilk üç parametre için host geri dönüşü
+yoktur. PC sınıflandırma kaydı model/source hash'i, özellikler, olasılık ve
+`%90` güven kapısını taşır. Güven geçmezse `Belirsiz` yayımlanır. Sentetik
+model sonucu canlı RF veya ürün doğruluk kabulü değildir.
+
+## Yön ölçümünün kanal bağı — 12 Eylül 2026
+
+PC operatörün seçtiği kanalı ve alıcı bağlamını sabitler; her açı isteğinden
+sonra host kuyruğundaki eski kareleri dışlayarak dört ardışık, tek confirmed
+kanal gözlemini toplar. Olay numaraları değişebilir ve ayrı kaydedilir; verici
+özdeşliği çıkarılmaz. Beş saniyelik toplama sınırı ve iptal vardır. PL/ARM P0PM
+güç hesabı ve 24 açı sonundaki ARM P0DF kararı değişmedi. Fiziksel RF/RMS kabulü
+açıktır. [Güncel sözleşme](../interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
+
 ## Genlik tabanlı yön bulma görev paylaşımı — 11 Eylül 2026
 
 PL/ARM tespiti hedefin `confirmed` olduğunu ve spektral sınırlarını sağlar.
@@ -16,7 +97,7 @@ göstermez.
 Geçici 47008 ve yeniden başlatılmış kalıcı 47007 hizmetleri gerçek kartta yedi
 sayısal hazır/ret sahnesini geçti. `image.ub` ve kök dosya sistemi hash ile
 bağlandı. Saha öncesi görev paylaşımı tamamlandı; HackRF, yönlü anten, bilinen
-kerteriz ve gerçek ortam derece RMS kabulü henüz tamamlanmamıştır.
+bağıl açı ve gerçek ortam derece RMS kabulü henüz tamamlanmamıştır.
 
 ## İlk üç parametrenin ürün görev paylaşımı — 11 Eylül 2026
 
@@ -25,11 +106,12 @@ kare PC'de yalnız sabitlenir ve kaydedilir. Ölçüm sırasında aynı baytlar 
 geri gönderilir; PL Hann, 4096 FFT ve doğrusal gücü üretir. ARM emisyon merkezi,
 gözlenen taşıyıcı çizgisi, OBW %99, dBFS kanal gücü ve SNR'yi hesaplar. PC
 yanıtı doğrular, kaydeder ve gösterir; sayısal parametre kestirimi yapmaz.
-Kart başarısızsa PC hesabına geri dönüş yoktur.
+Kart başarısızsa ilk üç parametre için PC hesabına geri dönüş yoktur.
 
 Bu ölçüm komutu yeni canlı tespit iddiası üretmez; daha önce dört kare boyunca
 doğrulanıp sabitlenmiş operatör seçimini yeniden işler. Ölçüm yalnız FPGA FFT
-4096 iken çalışır. Sinyal sınıflandırması bu akışta çalıştırılmaz. dBm için ARM
+4096 iken çalışır. Sinyal sınıflandırması aynı karelerde ayrı PC işlevi olarak
+çalışır ve ARM sonucuyla karıştırılmaz. dBm için ARM
 kalibrasyon kapısı vardır; fiziksel alıcı kalibrasyonu bulunmadığından ürün
 şimdilik dBFS gösterir.
 
@@ -943,19 +1025,13 @@ kesintisiz ürün kabulü başarısızdır. ARM tespit iş parçacığı bir çe
 yaklaşık doldurur; alt adım maliyetleri henüz ölçülmemiştir. SD soğuk açılışı
 değişmemiştir. Kanıt: `results/evidence/phase08/st06-product-board-diagnostic-v1.json`.
 
-## Bilgisayar-2 — ET
+## Bilgisayar-2 — ED alıcı rolü
 
-Bilgisayar-2, HackRF-2 rolünden ve ET kontrolünden sorumludur. P0 yazılım kabulü
-`OFFLINE` ve `LOOPBACK` modlarında tamamlanmıştır; bağımsız C++17 üreteç bu
-referans kapsamındadır. Kullanıcının 8 Eylül 2026 Faraday kabini beyanı ve
-onayıyla `CABLED_LAB` ortamı onaylanmış, genel/açık alan yolu kapalı kalmıştır.
-Güncel ürün PHASE-10 Tekli Görev için sonlu, seri ve profil bağlı HackRF süreç
-sınırını içerir. Depo profili kapalıdır; cihaz serisi, izinli bant, ölçülmüş
-zayıflatma, sınırlı süre/kazanç, acil durdurma ve bağımsız ölçüm birlikte
-doğrulanmadan fiziksel TX başlatılmaz veya kabul edilmiş sayılmaz.
-
-İki bilgisayar Python belleği veya süreç durumu paylaşmaz. Gelecekte görev verisi
-aktarılması gerekirse sürümlü ağ veya dosya sözleşmesi kullanılır.
+Bilgisayar-2 için ET veya TX sorumluluğu yoktur. İkinci HackRF yalnız
+`ED_RX_SECONDARY` alıcı rolüyle envantere alınabilir. Eşzamanlı ikinci RX akışı
+ve iki alıcının zaman/frekans hizası fiziksel kanıt tamamlanmadan çalışıyor
+gösterilmez. Bilgisayarlar Python belleği veya süreç durumu paylaşmaz; ileride
+ED görev verisi aktarılacaksa sürümlü ağ veya dosya sözleşmesi kullanılır.
 
 ## Anten ve DF
 

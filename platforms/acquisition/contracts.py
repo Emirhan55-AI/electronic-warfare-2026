@@ -69,22 +69,93 @@ class DeviceStatus:
 
 
 @dataclass(frozen=True)
+class EDRXReceiverConfig:
+    role: Literal["ED_RX_PRIMARY", "ED_RX_SECONDARY"]
+    serial: str
+    purpose: str
+
+    def __post_init__(self) -> None:
+        if self.role not in {"ED_RX_PRIMARY", "ED_RX_SECONDARY"}:
+            raise AcquisitionError(
+                "device_config_invalid",
+                "HackRF alıcı rolü ED_RX_PRIMARY veya ED_RX_SECONDARY olmalıdır.",
+            )
+        if not isinstance(self.serial, str) or not isinstance(self.purpose, str):
+            raise AcquisitionError(
+                "device_config_invalid", "HackRF seri kimliği ve görev açıklaması metin olmalıdır."
+            )
+        serial = self.serial.strip()
+        if not 8 <= len(serial) <= 64 or any(
+            character not in "0123456789abcdefABCDEF" for character in serial
+        ):
+            raise AcquisitionError(
+                "invalid_device_serial",
+                "HackRF seri kimliği geçerli onaltılık biçimde olmalıdır.",
+            )
+        if not self.purpose.strip() or len(self.purpose) > 120:
+            raise AcquisitionError(
+                "device_config_invalid", "HackRF alıcı görevi açıklanmalıdır."
+            )
+
+
+@dataclass(frozen=True)
 class EDRXDeviceConfig:
     role: Literal["ED_RX"] = "ED_RX"
     device_type: Literal["HackRF One"] = "HackRF One"
     serial: str | None = None
     search_ranges_hz: tuple[tuple[int, int], ...] = ()
+    receivers: tuple[EDRXReceiverConfig, ...] = ()
 
     def __post_init__(self) -> None:
         if self.role != "ED_RX" or self.device_type != "HackRF One":
             raise AcquisitionError("device_config_invalid", "HackRF rolü ED_RX ve cihaz türü HackRF One olmalıdır.")
         if self.serial is not None:
+            if not isinstance(self.serial, str):
+                raise AcquisitionError(
+                    "invalid_device_serial", "HackRF seri kimliği metin olmalıdır."
+                )
             serial = self.serial.strip()
             if not 8 <= len(serial) <= 64 or any(character not in "0123456789abcdefABCDEF" for character in serial):
                 raise AcquisitionError("invalid_device_serial", "HackRF seri kimliği geçerli onaltılık biçimde olmalıdır.")
+        if self.receivers:
+            roles = tuple(item.role for item in self.receivers)
+            serials = tuple(item.serial.casefold() for item in self.receivers)
+            if (
+                roles.count("ED_RX_PRIMARY") != 1
+                or roles.count("ED_RX_SECONDARY") > 1
+                or len(roles) != len(set(roles))
+                or len(serials) != len(set(serials))
+                or self.serial is None
+                or self.serial.casefold()
+                != next(
+                    item.serial.casefold()
+                    for item in self.receivers
+                    if item.role == "ED_RX_PRIMARY"
+                )
+            ):
+                raise AcquisitionError(
+                    "device_config_invalid",
+                    "ED_RX alıcı rolleri ve seri kimlikleri benzersiz olmalıdır.",
+                )
         for lower, upper in self.search_ranges_hz:
             if not 1_000_000 <= lower < upper <= 6_000_000_000:
                 raise AcquisitionError("invalid_search_range", "HackRF arama aralığı alıcı sınırlarının dışındadır.")
+
+    @property
+    def configured_receivers(self) -> tuple[EDRXReceiverConfig, ...]:
+        if self.receivers:
+            return self.receivers
+        if self.serial is None:
+            return ()
+        return (
+            EDRXReceiverConfig(
+                "ED_RX_PRIMARY", self.serial, "Tespit ve ölçüm alıcısı"
+            ),
+        )
+
+    @property
+    def serials(self) -> tuple[str, ...]:
+        return tuple(item.serial for item in self.configured_receivers)
 
 
 def load_ed_rx_config(path: Path | None = None) -> EDRXDeviceConfig:
@@ -95,6 +166,11 @@ def load_ed_rx_config(path: Path | None = None) -> EDRXDeviceConfig:
         raise AcquisitionError("device_config_unreadable", "ED_RX HackRF yapılandırması okunamadı.") from exc
     if not isinstance(document, dict):
         raise AcquisitionError("device_config_invalid", "ED_RX HackRF yapılandırması nesne olmalıdır.")
+    schema_version = document.get("schema_version", 1)
+    if isinstance(schema_version, bool) or schema_version not in {1, 2}:
+        raise AcquisitionError(
+            "device_config_invalid", "ED_RX yapılandırma şeması desteklenmiyor."
+        )
     ranges = document.get("search_ranges_hz", [])
     if not isinstance(ranges, list):
         raise AcquisitionError("device_config_invalid", "HackRF arama aralıkları liste olmalıdır.")
@@ -106,11 +182,50 @@ def load_ed_rx_config(path: Path | None = None) -> EDRXDeviceConfig:
         if isinstance(lower, bool) or isinstance(upper, bool) or not isinstance(lower, int) or not isinstance(upper, int):
             raise AcquisitionError("device_config_invalid", "HackRF arama sınırları tam sayı Hz olmalıdır.")
         parsed_ranges.append((lower, upper))
+    receiver_items = document.get("receivers", [])
+    if not isinstance(receiver_items, list):
+        raise AcquisitionError(
+            "device_config_invalid", "HackRF alıcı rolleri liste olmalıdır."
+        )
+    receivers: list[EDRXReceiverConfig] = []
+    for item in receiver_items:
+        if not isinstance(item, dict) or set(item) != {"role", "serial", "purpose"}:
+            raise AcquisitionError(
+                "device_config_invalid",
+                "Her HackRF alıcısı rol, seri kimliği ve görev açıklaması gerektirir.",
+            )
+        try:
+            receivers.append(
+                EDRXReceiverConfig(
+                    role=item["role"],
+                    serial=item["serial"],
+                    purpose=item["purpose"],
+                )
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionError(
+                "device_config_invalid", "HackRF alıcı rolü geçersizdir."
+            ) from exc
+    primary_serial = document.get("serial")
+    if receivers:
+        primary = next(
+            (item for item in receivers if item.role == "ED_RX_PRIMARY"), None
+        )
+        if primary is None:
+            raise AcquisitionError(
+                "device_config_invalid", "Birincil ED_RX alıcısı tanımlanmalıdır."
+            )
+        if primary_serial is not None and str(primary_serial).casefold() != primary.serial.casefold():
+            raise AcquisitionError(
+                "device_config_invalid", "Birincil HackRF seri kimlikleri uyuşmuyor."
+            )
+        primary_serial = primary.serial
     return EDRXDeviceConfig(
         role=document.get("role"),
         device_type=document.get("device_type"),
-        serial=document.get("serial"),
+        serial=primary_serial,
         search_ranges_hz=tuple(parsed_ranges),
+        receivers=tuple(receivers),
     )
 
 

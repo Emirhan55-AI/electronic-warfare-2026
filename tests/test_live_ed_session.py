@@ -9,17 +9,105 @@ import zlib
 import pytest
 
 from algorithms.p0 import IQFrame, IQResponse, P0Channelizer, TransportError, TransportStats
+from algorithms.p0.parameter_client import MAXIMUM_BOARD_SPAN_BINS
 from app.operator_console.live_ed import (
     LIVE_AUDIO_MAX_CONSECUTIVE_MISSES,
     LIVE_AUDIO_WINDOW_FRAMES,
     LiveEDConfiguration,
     LiveEDSession,
+    LiveEDSnapshot,
     decode_live_ed_response,
 )
 from platforms.acquisition import AcquisitionError, HackRFContinuousRX, HackRFStreamStatistics
 
 
 SERIAL = "0000000000000000a32868dc35138247"
+
+
+def _direction_snapshot(index, *, event_id=17, observed=True):
+    response = decode_live_ed_response(_response(index), index)
+    event = replace(response.active[0], event_id=event_id, observed_this_frame=observed)
+    return LiveEDSnapshot(index, IQFrame(index, 2_000_000, 104_650_000, bytes(8192), frame_id=index),
+                          replace(response, active=(event,)))
+
+
+def test_direction_capture_excludes_host_backlog_and_latches_changed_ids():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session._latest_capture_sequence = 20
+    session.begin_direction_capture(2290, 2320)
+    for index in range(30):
+        session._record_measurement_snapshot(_direction_snapshot(index, event_id=100 + index))
+    frames, _ = session.direction_capture()
+    assert [frame.sequence_number for frame in frames] == [22, 23, 24, 25]
+    assert [frame.response.active[0].event_id for frame in frames] == [122, 123, 124, 125]
+    session._record_measurement_snapshot(_direction_snapshot(30, observed=False))
+    assert session.direction_capture()[0] == frames
+    session.begin_direction_capture(2290, 2320)
+    assert session.direction_capture()[0] == ()
+    session.cancel_direction_capture()
+    for index in range(32, 40):
+        session._record_measurement_snapshot(_direction_snapshot(index))
+    assert session.direction_capture()[0] == ()
+
+
+def test_parameter_capture_binds_fresh_channel_when_event_ids_change():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session._latest_capture_sequence = 20
+    session.begin_parameter_capture(2290, 2320)
+    for index in range(30):
+        session._record_measurement_snapshot(
+            _direction_snapshot(index, event_id=100 + index)
+        )
+        # The GUI polls after every response; the same request must not reset
+        # the partially collected channel-bound window.
+        session.begin_parameter_capture(2290, 2320)
+    frames, reason = session.parameter_capture()
+    assert [frame.sequence_number for frame in frames] == [22, 23, 24, 25]
+    assert [frame.response.active[0].event_id for frame in frames] == [122, 123, 124, 125]
+    assert "4/4" in reason
+    session.cancel_parameter_capture()
+    assert session.parameter_capture()[0] == ()
+
+
+@pytest.mark.parametrize("problem", ["missing", "neighbour", "outside", "tentative", "gap"])
+def test_direction_capture_rejects_ambiguous_or_discontinuous_windows(problem):
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session.begin_direction_capture(2290, 2320)
+    for index in (2, 3):
+        session._record_measurement_snapshot(_direction_snapshot(index))
+    snapshot = _direction_snapshot(4)
+    event = snapshot.response.active[0]
+    if problem == "missing":
+        snapshot = _direction_snapshot(4, observed=False)
+    elif problem == "neighbour":
+        snapshot = replace(snapshot, response=replace(snapshot.response, active=(event, replace(event, event_id=99))))
+    elif problem == "outside":
+        snapshot = replace(snapshot, response=replace(snapshot.response, active=(replace(event, end_shifted_bin=2330),)))
+    elif problem == "tentative":
+        snapshot = replace(snapshot, response=replace(snapshot.response, active=(replace(event, state="tentative"),)))
+    else:
+        snapshot = _direction_snapshot(5)
+    session._record_measurement_snapshot(snapshot)
+    assert len(session.direction_capture()[0]) < 4
+    for index in range(6, 10):
+        session._record_measurement_snapshot(_direction_snapshot(index))
+    assert len(session.direction_capture()[0]) == 4
+
+
+def test_direction_capture_rejects_unsupported_fft():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL, fpga_fft_size=8192))
+    with pytest.raises(ValueError, match="4096"):
+        session.begin_direction_capture(2290, 2320)
+
+
+def test_direction_capture_accepts_full_p0pm_v2_span():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session.begin_direction_capture(56, 4039)
+    assert session._direction_span == (56, 4039)
+    assert session._direction_span[1] - session._direction_span[0] + 1 == MAXIMUM_BOARD_SPAN_BINS
+    session.cancel_direction_capture()
+    with pytest.raises(ValueError, match="geçerli hedef kanalı"):
+        session.begin_direction_capture(55, 4039)
 
 
 def _response(frame_id: int, *, event_state: int = 2, event_flags: int = 1) -> bytes:
@@ -46,6 +134,54 @@ def _response(frame_id: int, *, event_state: int = 2, event_flags: int = 1) -> b
     )
     struct.pack_into("<I", header, 44, zlib.crc32(header[:44]) & 0xFFFFFFFF)
     return bytes(header + result)
+
+
+def _response_v2(frame_id: int) -> bytes:
+    event = bytearray(68)
+    struct.pack_into("<QIIQBB", event, 0, 17, frame_id - 2, frame_id, 3, 2, 1)
+    struct.pack_into("<HHHHBB", event, 28, 2299, 2308, 2304, 10, 1, 1)
+    struct.pack_into("<QQQ", event, 40, 300 << 30, 3 << 30, 20 << 30)
+    result = bytearray(8_724)
+    struct.pack_into("<IHHHBBQ", result, 0, frame_id, 1, 0, 0, 0, 0, 9)
+    result[20:88] = event
+    parameter = bytearray(128)
+    struct.pack_into("<QQIB", parameter, 0, 91, 17, frame_id, 4)
+    for offset, value in zip(
+        range(24, 96, 12),
+        (104_775_000.0, 104_770_000.0, 104_780_000.0, 10_000.0, -31.0, 18.0),
+    ):
+        struct.pack_into("<BBHd", parameter, offset, 1, 0, 0, value)
+    struct.pack_into("<dddd", parameter, 96, 1.0, 10.0, 0.1, 0.2)
+    header = bytearray(64)
+    struct.pack_into(
+        "<IHHIIIIIIIII",
+        header,
+        0,
+        0x31534550,
+        2,
+        64,
+        64 + len(result) + len(parameter),
+        frame_id,
+        0,
+        len(result),
+        5,
+        7,
+        zlib.crc32(result) & 0xFFFFFFFF,
+        len(parameter),
+        zlib.crc32(parameter) & 0xFFFFFFFF,
+    )
+    struct.pack_into("<I", header, 44, 1)
+    struct.pack_into("<I", header, 60, zlib.crc32(header[:60]) & 0xFFFFFFFF)
+    return bytes(header + result + parameter)
+
+
+def test_full_abi_v2_response_keeps_detection_and_parameter_together():
+    decoded = decode_live_ed_response(_response_v2(42), 42)
+    assert [event.event_id for event in decoded.active] == [17]
+    assert decoded.ended == ()
+    assert decoded.parameter is not None
+    assert decoded.parameter.intent_id == 91
+    assert decoded.parameter.channel_power_dbfs.value == -31.0
 
 
 class _FakeStream:
@@ -511,6 +647,85 @@ def test_live_audio_allows_only_bounded_detector_misses_for_confirmed_event() ->
         (),
     )
     assert session.audio_window_frame_count(17) == 0
+
+
+def test_live_audio_channel_survives_event_id_churn_and_rejects_ambiguity() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
+        stream_factory=_FakeStream, transport_factory=_FakeTransport,
+    )
+    target_frequency_hz = 104_775_000.0
+    for sequence in range(LIVE_AUDIO_WINDOW_FRAMES):
+        snapshot = _direction_snapshot(sequence, event_id=17 + sequence // 250)
+        event_id = int(snapshot.response.active[0].event_id)
+        session._record_audio_frame(
+            snapshot.output_frame,
+            (event_id,),
+            (event_id,),
+            snapshot,
+        )
+
+    assert not session.audio_window_ready(event_id)
+    assert session.audio_channel_ready(target_frequency_hz)
+    assert session.audio_channel_frame_count(target_frequency_hz) == LIVE_AUDIO_WINDOW_FRAMES
+    window, quality = session.audio_channel_window_snapshot(target_frequency_hz)
+    assert len(window) == LIVE_AUDIO_WINDOW_FRAMES
+    assert quality["distinct_event_ids"] > 1
+    assert quality["event_id_changes"] > 0
+    assert quality["invalid_frames"] == 0
+
+    ambiguous = _direction_snapshot(LIVE_AUDIO_WINDOW_FRAMES, event_id=999)
+    event = ambiguous.response.active[0]
+    ambiguous = replace(
+        ambiguous,
+        response=replace(
+            ambiguous.response,
+            active=(event, replace(event, event_id=1_000)),
+        ),
+    )
+    session._record_audio_frame(
+        ambiguous.output_frame,
+        (999, 1_000),
+        (999, 1_000),
+        ambiguous,
+    )
+    assert session.audio_channel_frame_count(target_frequency_hz) == 0
+    assert not session.audio_channel_ready(target_frequency_hz)
+
+
+def test_live_audio_channel_ignores_retained_overlapping_event_and_tolerates_brief_gap() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
+        stream_factory=_FakeStream, transport_factory=_FakeTransport,
+    )
+    target_frequency_hz = 104_775_000.0
+    for sequence in range(LIVE_AUDIO_WINDOW_FRAMES):
+        snapshot = _direction_snapshot(sequence, event_id=17)
+        observed = snapshot.response.active[0]
+        retained = replace(
+            observed,
+            event_id=16,
+            observed_this_frame=False,
+            last_seen_frame_id=max(0, sequence - 1),
+        )
+        active = (retained,) if sequence == 10 else (retained, observed)
+        snapshot = replace(
+            snapshot,
+            response=replace(snapshot.response, active=active),
+        )
+        session._record_audio_frame(
+            snapshot.output_frame,
+            tuple(event.event_id for event in active if event.observed_this_frame),
+            tuple(event.event_id for event in active),
+            snapshot,
+        )
+
+    assert session.audio_channel_ready(target_frequency_hz)
+    window, quality = session.audio_channel_window_snapshot(target_frequency_hz)
+    assert len(window) == LIVE_AUDIO_WINDOW_FRAMES
+    assert quality["observed_frames"] == LIVE_AUDIO_WINDOW_FRAMES - 1
+    assert quality["max_consecutive_misses"] == 1
+    assert quality["invalid_frames"] == 0
 
 
 def test_live_audio_rejects_low_observation_coverage_even_without_long_gap() -> None:

@@ -67,60 +67,22 @@ Bu kip taşıyıcıyı doğrudan sonuç olarak yazmaz; bildirilen frekans çevre
 dBFS, SNR, Analog/Sayısal sonucu, backend ve kaynak görünür. Güç alanı
 `KALİBRE EDİLMEMİŞ · dBFS` yazar.
 
-`YÖN` sekmesindeki `Ölçüm` görünümünde açı–güç eğrisi ve ham maksimum LOB görünür. Saha akışında
-operatör önce `KUZEY / 0° COĞRAFİ`, `MANUEL COĞRAFİ BAŞ` veya `REFERANS YOK`
-seçer; sonra fiziksel antenin elle döndürüldüğü `ANTEN AÇISI (MANUEL)` değerini
-girer. Uygulama pusula, IMU veya enkoderden anten yönü çıkarmaz. `GÜÇ ÖLÇ` ancak
-seçili ve işlenmiş IQ kaynağından bounded ortalama güç varsa kayıt oluşturur;
-kaynak yoksa başarısızlık açıkça yazılır. Elle yazılan güç ise `MANUEL GÜÇ
-GİRDİSİNİ KAYDET` ile ayrı kaynak etiketiyle saklanır.
+`Yön Bulma` çalışma alanında operatör anteni kendi seçtiği başlangıç yönüne
+getirir. Tek düğmenin ilk başarılı ölçümü bu konumu bağıl `0°` sayar. Uygulama
+sonraki hedefi otomatik olarak saat yönünde `15°`, `30°`, …, `345°` biçiminde
+gösterir; operatör anteni gösterilen konuma getirip sabitledikten sonra aynı
+düğmeye basar. Her başarılı kayıt seçili kanalın dört gerçek I/Q karesinden
+üretilmiş PL/ARM dBFS gücünü taşır. Süre aşımı veya iptal açıyı ilerletmez.
 
-`YÖN` sekmesindeki `Harita` görünümü hedef konumu hesaplamaz. `Eğitim Senaryosu
-Yükle` ile `Baş 0° + bağıl 75° = coğrafi 75°` veya `Baş 300° + bağıl 75° =
-coğrafi 15°` senaryosunu seçin. Çizgi yalnız tahmini geliş doğrultusunu gösterir;
-uçta hedef işareti yoktur. Baş/yön referansı kutusu kapalıysa uygulama yalnız
-`Bağıl geliş açısı — anten referans yönü yok` durumunu gösterir ve gerçek kuzey referanslı LOB çizmez.
-Varsayılan `Harita (internet)` sağlayıcısı anahtarsız OpenFreeMap stilini açar.
-İnternet yoksa uygulama doğru biçimde çevrimdışı/yedek görünüme düşer. Farklı,
-meşru bir MapLibre stili gerekiyorsa aşağıdaki ortam değişkeniyle değiştirilebilir:
+Ürün serbest açı, gerçek kuzey, harita, hedef konumu veya coğrafi kerteriz
+sunmaz. Uygulama pusula, IMU veya enkoderden anten yönü çıkarmaz ve dönüş hızını
+açıya çevirmeye çalışmaz. 24 açılık tur sonunda yalnız bağıl tepe yönü; tepe ve
+ön/arka kalite kapıları geçerse gösterilir. Fiziksel derece doğruluğu ancak
+bilinen bağıl açılı kontrollü anten deneyiyle kabul edilebilir.
 
-```powershell
-$env:TEKNOFEST_MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
-python -B -m app.operator_console
-```
-
-Google uydu görünümü yalnız kullanıcının `TEKNOFEST_GOOGLE_MAPS_API_KEY` ortam
-değişkeniyle etkinleşir; anahtar repoya yazılmaz. Yarışma alanı çevrimdışı
-çalışacaksa `app/operator_console/map_assets/README.md` içindeki PMTiles ve
-stil yerleştirme yönergesini uygulayın. QWebEngine, harita verisi veya yapılandırma
-bulunmazsa konsol çalışmaya devam eder ve Türkçe metinsel fallback gösterir.
-
-### Saha konumu ve manuel anten kabulü
-
-1. `KONUMUMU AL` yalnız operatör düğmeye bastıktan sonra Qt/işletim sistemi
-   konum sağlayıcısından tek seferlik fix ister. Başarı varsa kaynak `BİLGİSAYAR`
-   ve varsa doğruluk metre cinsinden görünür.
-2. Bu bilgisayarda sağlayıcı fix döndürmez veya izin vermezse uygulama
-   `Bilgisayar konumu alınamadı. Manuel konum girebilirsiniz.` yazar; koordinat
-   uydurmaz.
-3. Enlem/boylamı girip `MANUEL KONUMU KULLAN` seçin. Kaynak `MANUEL`, doğruluk
-   `bilinmiyor` olur; bu durum LIVE GNSS değildir.
-4. `LIVE GNSS (rezerve — bağlı değil)` yalnız görünür bir geleceğe ayrılmış
-   durumdur, seçilemez ve canlı konum iddia etmez.
-5. Anteni kontrollü ve izinli alıcı düzeninde elle seçilen açıya çevirin,
-   `ANTEN AÇISI (MANUEL)` alanına o açıyı girin ve `GÜÇ ÖLÇ` ile kaydedin.
-   Her satır açı, gerçek kuzeye göre kerteriz (varsa), güç ve kaynak gösterir.
-6. Coğrafi LOB yalnız geçerli konum ve açıkça girilmiş sıfır referansı varsa
-   çizilir. Çizginin sonu hedef ya da konum kestirimi değildir.
-
-Ana ürün kabuğundaki `ET` alanı yalnız doğrulanmış çevrimdışı görev sonuçlarını
-sunar. Sürekli ve arabakışlı görevler ile AM/FM/NFM loopback ve GPS L1 C/A
-metadata denetimleri Python host modellerinden gelir. QML gösterimlik sonuç
-üretmez; SystemVerilog ET çekirdeği veya RF TX arka ucu yoktur. Donanım ve yayın
-işlevi henüz uygulanmamıştır. Üst durumdaki `FARADAY LAB`, kullanıcının
-ADR-0043'te kayıtlı kontrollü laboratuvar ortamı onayını gösterir; mevcut
-düğmelerin fiziksel RF yayın yaptığı anlamına gelmez. Genel/açık alan donanım TX
-kilitlidir.
+Ana ürün kabuğu yalnız ED görevlerini sunar. ET alanı, ET görev modelleri ve RF
+TX arka ucu ADR-0044 kapsam kararıyla kaldırılmıştır. Tarihsel ET kanıtları bu
+demo akışında yüklenmez ve güncel ürün yeteneği sayılmaz.
 
 ## Vivado görsel inceleme
 
