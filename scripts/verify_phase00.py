@@ -1721,7 +1721,6 @@ APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES = (
     "digital_analog_detection/hackrf_inspector.grc",
     "digital_analog_detection/integration.py",
     "digital_analog_detection/requirements.txt",
-    "digital_analog_detection/signal_channelizer_v1.py",
     "digital_analog_detection/train_classifier.py",
     "docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md",
     "docs/plans/PARAMETER_REFINEMENT_PROTOCOL.md",
