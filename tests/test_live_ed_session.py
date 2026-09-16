@@ -8,11 +8,15 @@ import zlib
 
 import pytest
 
-from algorithms.p0 import IQFrame, IQResponse, P0Channelizer, TransportError, TransportStats
+from algorithms.p0 import (
+    IQFrame, IQResponse, P0Channelizer, TransportCapabilities, TransportError,
+    TransportStats,
+)
 from algorithms.p0.parameter_client import MAXIMUM_BOARD_SPAN_BINS
 from app.operator_console.live_ed import (
     LIVE_AUDIO_MAX_CONSECUTIVE_MISSES,
     LIVE_AUDIO_WINDOW_FRAMES,
+    LIVE_STARTUP_SETTLING_FRAMES,
     LiveEDConfiguration,
     LiveEDSession,
     LiveEDSnapshot,
@@ -110,13 +114,21 @@ def test_direction_capture_accepts_full_p0pm_v2_span():
         session.begin_direction_capture(55, 4039)
 
 
-def _response(frame_id: int, *, event_state: int = 2, event_flags: int = 1) -> bytes:
+def _response(
+    frame_id: int,
+    *,
+    event_state: int = 2,
+    event_flags: int = 1,
+    dropped_candidates: int = 0,
+) -> bytes:
     event = bytearray(68)
     struct.pack_into("<QIIQBB", event, 0, 17, max(0, frame_id - 2), frame_id, 3, event_state, 1)
     struct.pack_into("<HHHHBB", event, 28, 2299, 2308, 2304, 10, 1, event_flags)
     struct.pack_into("<QQQ", event, 40, 300 << 30, 3 << 30, 20 << 30)
     result = bytearray(20) + event
-    struct.pack_into("<IHHHBBQ", result, 0, frame_id, 1, 0, 0, 0, 0, 9)
+    struct.pack_into(
+        "<IHHHBBQ", result, 0, frame_id, 1, 0, dropped_candidates, 0, 0, 9
+    )
     header = bytearray(48)
     struct.pack_into(
         "<IHHIIIIII",
@@ -232,6 +244,7 @@ class _ProfileSizedFakeStream(_FakeStream):
 class _FakeTransport:
     def __init__(self):
         self.stats = TransportStats()
+        self.capabilities = TransportCapabilities(wideband_burst=True)
 
     def connect(self, host, port, *, timeout_seconds):
         del host, port, timeout_seconds
@@ -254,6 +267,25 @@ class _FakeTransport:
         self.stats = replace(self.stats, state="DISCONNECTED")
 
 
+class _IncompleteExchangeTransport(_FakeTransport):
+    def exchange_stream(self, frames, response_handler):
+        completed = super().exchange_stream(frames, response_handler)
+        return completed - 1
+
+
+class _CandidateDropTransport(_FakeTransport):
+    def exchange_stream(self, frames, response_handler):
+        frame = next(iter(frames))
+        self.stats = replace(self.stats, frames_sent=1, frames_received=1)
+        response_handler(
+            IQResponse(
+                frame.sequence_number,
+                _response(frame.frame_id, dropped_candidates=3),
+            )
+        )
+        return 1
+
+
 class _SaturatedStream(_FakeStream):
     def __iter__(self):
         payload = bytes([127, 127]) * 16_384
@@ -262,6 +294,40 @@ class _SaturatedStream(_FakeStream):
         self.statistics = HackRFStreamStatistics(
             self.frame_count,
             self.frame_count * len(payload),
+            0.01,
+            0,
+            0,
+            0,
+            "0 overruns, longest 0 bytes",
+        )
+
+
+class _StartupTransientStream(_FakeStream):
+    def __iter__(self):
+        saturated = bytes([127, 127]) * 16_384
+        clean = bytes(16_384 * 2)
+        for index in range(self.frame_count):
+            yield saturated if index < LIVE_STARTUP_SETTLING_FRAMES else clean
+        self.statistics = HackRFStreamStatistics(
+            self.frame_count,
+            self.frame_count * len(clean),
+            0.01,
+            0,
+            0,
+            0,
+            "0 overruns, longest 0 bytes",
+        )
+
+
+class _PostSettlingSaturatedStream(_FakeStream):
+    def __iter__(self):
+        saturated = bytes([127, 127]) * 16_384
+        clean = bytes(16_384 * 2)
+        for index in range(self.frame_count):
+            yield clean if index < LIVE_STARTUP_SETTLING_FRAMES else saturated
+        self.statistics = HackRFStreamStatistics(
+            self.frame_count,
+            self.frame_count * len(clean),
             0.01,
             0,
             0,
@@ -436,6 +502,85 @@ def test_runtime_fpga_fft_sizes_drive_capture_channelizer_and_transport(fft_size
         assert session.audio_window_frame_count() == 0
 
 
+def test_buffered_10msps_burst_reaches_fpga_without_host_decimation() -> None:
+    configuration = LiveEDConfiguration(
+        820_000_000,
+        SERIAL,
+        frame_count=4,
+        direct_fpga_input=True,
+        automatic_parameters_enabled=False,
+    )
+    assert configuration.input_center_frequency_hz == 820_000_000
+    assert configuration.rx_config.sample_rate_hz == 10_000_000
+    assert configuration.rx_config.sample_count == 4096
+    session = LiveEDSession(
+        "hackrf_transfer",
+        configuration,
+        stream_factory=_ProfileSizedFakeStream,
+        transport_factory=_FakeTransport,
+    )
+    snapshots = []
+
+    result = session.run(snapshots.append)
+
+    assert result.completed_frames == 4
+    assert result.hackrf_statistics.bytes_received == 4 * 4096 * 2
+    assert result.transport_statistics.frames_received == 4
+    assert all(item.output_frame.sample_rate_hz == 10_000_000 for item in snapshots)
+    assert all(item.output_frame.center_frequency_hz == 820_000_000 for item in snapshots)
+    assert session.measurement_channelizer["backend"] == "direct-ci8"
+    assert session.audio_window_frame_count() == 0
+
+
+def test_direct_10msps_burst_disables_unvalidated_parameter_path() -> None:
+    with pytest.raises(AcquisitionError, match="parametre"):
+        LiveEDConfiguration(820_000_000, SERIAL, direct_fpga_input=True)
+    with pytest.raises(AcquisitionError, match="aynı"):
+        LiveEDConfiguration(
+            820_000_000,
+            SERIAL,
+            frame_count=4,
+            direct_fpga_input=True,
+            automatic_parameters_enabled=False,
+            input_center_frequency_hz_override=819_000_000,
+        )
+
+
+def test_direct_10msps_burst_requires_explicit_board_capability() -> None:
+    class LegacyTransport(_FakeTransport):
+        def __init__(self):
+            super().__init__()
+            self.capabilities = TransportCapabilities()
+
+    session = LiveEDSession(
+        "hackrf_transfer",
+        LiveEDConfiguration(
+            820_000_000,
+            SERIAL,
+            frame_count=4,
+            direct_fpga_input=True,
+            automatic_parameters_enabled=False,
+        ),
+        stream_factory=_ProfileSizedFakeStream,
+        transport_factory=LegacyTransport,
+    )
+
+    with pytest.raises(AcquisitionError, match="geniş bant burst") as failure:
+        session.run()
+
+    assert failure.value.code == "wideband_profile_unavailable"
+    assert session._transport.stats.frames_sent == 0
+
+    with pytest.raises(AcquisitionError, match="en fazla 256"):
+        LiveEDConfiguration(
+            820_000_000,
+            SERIAL,
+            frame_count=257,
+            direct_fpga_input=True,
+            automatic_parameters_enabled=False,
+        )
+
+
 def test_live_session_rejects_clipped_iq_instead_of_presenting_it_as_valid() -> None:
     configuration = LiveEDConfiguration(
         output_center_frequency_hz=104_650_000,
@@ -459,19 +604,84 @@ def test_live_session_rejects_clipped_iq_instead_of_presenting_it_as_valid() -> 
     assert session.last_diagnostics["hackrf_statistics"]["frames_received"] == 2
 
 
-def test_optional_receive_level_assessment_uses_consecutive_startup_window() -> None:
+def test_incomplete_fpga_exchange_is_not_reported_as_usb_short_stream() -> None:
     session = LiveEDSession(
         "hackrf_transfer",
-        LiveEDConfiguration(104_650_000, SERIAL, frame_count=64, assess_receive_level=True),
+        LiveEDConfiguration(104_650_000, SERIAL, frame_count=4),
         stream_factory=_FakeStream,
-        transport_factory=_FakeTransport,
+        transport_factory=_IncompleteExchangeTransport,
     )
+
     with pytest.raises(AcquisitionError) as failure:
         session.run()
-    assert failure.value.code == "rx_level_low"
-    # The rejected decision frame and remaining frames cannot be sent as
-    # if they belonged to a completed, correctly levelled capture.
-    assert session._transport.stats.frames_sent <= 47
+
+    assert failure.value.code == "fpga_short_stream"
+    assert "istenen=4" in str(failure.value)
+
+
+def test_candidate_capacity_error_preserves_frame_and_drop_counts() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer",
+        LiveEDConfiguration(104_650_000, SERIAL, frame_count=1),
+        stream_factory=_FakeStream,
+        transport_factory=_CandidateDropTransport,
+    )
+
+    with pytest.raises(TransportError) as failure:
+        session.run()
+
+    assert failure.value.code == "candidate_drop"
+    assert "kare 1" in str(failure.value)
+    assert "ham aday 5" in str(failure.value)
+    assert "izlemeye alınamayan aday 3" in str(failure.value)
+    assert "bağlantı hatası değildir" in str(failure.value)
+
+
+def test_startup_transient_is_discarded_before_strict_saturation_check() -> None:
+    configuration = LiveEDConfiguration(
+        output_center_frequency_hz=104_650_000,
+        frame_count=2,
+        device_serial=SERIAL,
+        startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
+    )
+    session = LiveEDSession(
+        "hackrf_transfer",
+        configuration,
+        stream_factory=_StartupTransientStream,
+        transport_factory=_FakeTransport,
+    )
+    snapshots = []
+
+    result = session.run(snapshots.append)
+
+    assert result.completed_frames == 2
+    assert result.hackrf_statistics.frames_received == 2 + LIVE_STARTUP_SETTLING_FRAMES
+    assert result.transport_statistics.frames_sent == 2
+    assert result.input_saturated_components == 0
+    assert result.output_saturated_components == 0
+    assert [snapshot.sequence_number for snapshot in snapshots] == [0, 1]
+    assert session.last_diagnostics["startup_settling_frames"] == LIVE_STARTUP_SETTLING_FRAMES
+    assert session.last_diagnostics["startup_input_saturated_components"] > 0
+
+
+def test_saturation_after_startup_settling_still_fails_closed() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer",
+        LiveEDConfiguration(
+            104_650_000,
+            SERIAL,
+            frame_count=2,
+            startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
+        ),
+        stream_factory=_PostSettlingSaturatedStream,
+        transport_factory=_FakeTransport,
+    )
+
+    with pytest.raises(AcquisitionError) as failure:
+        session.run()
+
+    assert failure.value.code == "iq_saturation"
+    assert session._transport.stats.frames_sent == 0
 
 
 def test_saturation_is_reported_before_a_long_capture_can_mask_it_as_queue_timeout() -> None:

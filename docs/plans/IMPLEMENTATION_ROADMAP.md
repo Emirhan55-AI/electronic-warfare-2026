@@ -1,5 +1,267 @@
 # Uygulama Yol Haritası
 
+## PHASE-08 ürün arayüzü sadeleştirmesi — 16 Eylül 2026
+
+Kullanıcı onayıyla APP-F kabuğundaki `Sistem` çalışma alanı, menü girişi ve
+kısayolu kaldırıldı. Alımın güvenli yeniden denetimi için görev ekranlarındaki
+`Sistemi Denetle` eylemi korunur. İşleme veya donanım kabul davranışı değişmedi;
+PHASE-08/ST-06 sürer ve sonraki faz açılmadı.
+
+## Durdurulan tam bant turu — 16 Eylül 2026
+
+Kullanıcı isteğiyle 1–6000 MHz turu 1963/2400 pencerede durduruldu; tamamlanan
+kapsam 1–4908,5 MHz, liste 161 geçmiş gözlemdir. 60 kayıt 40 MHz katlarına
+±10 kHz yakındır; bu ortak kaynak şüphesidir, kesin parazit/verici sayısı
+sınıflaması değildir. İki kare sayacı ve sekiz geniş/dar eşleşme incelemesi
+açıktır. İki kazanç ve bir USB taşma tekrarı vardır; başarısız kalan pencere
+sayısı sıfırdır. Son tekrar kontrolü yapılmadı. Özgün kayıt, hash ve ayrıntılar
+`output/rx-wideband-20260916/RAPOR.md` içindedir. KTR-4.1 / KTR-4.1-OPS-B0,
+PHASE-08/ST-06 fiziksel kabulü açık kalır; yeni faz açılmadı.
+
+## Tam bant taraması ve liste gözlemi — 16 Eylül 2026
+
+Kullanıcı isteğiyle PHASE-08 içinde 1 MHz–6 GHz alıcı taraması ve liste
+okunabilirliği inceleniyor. Tur henüz sürüyor; sayaç ve geniş/dar doğrulama
+eşleşmesi bulguları açık. Sonraki faza geçilmedi. Ayrıntı
+`output/rx-wideband-20260916/RAPOR.md` içindedir.
+
+PHASE-08/ST-06 açık; bu kayıt yeni fiziksel kabul oluşturmaz.
+
+## PHASE-08 tespit sunumu — 16 Eylül 2026
+
+Kullanıcı onayıyla tarama ekseni gerçek spektrum kapsamına bağlandı; tespit,
+ek doğrulama ve geçmiş kayıt durumları ayrıldı. Aday genişliği ölçüm sonucu
+olarak sunulmaz. Önceki çalışan uygulamanın 1766 MHz kapalı–açık–kapalı gözlemi
+ve yeni kaynağın sınırları `docs/interfaces/SIGNAL_DETECTION_STATUS.md` içindedir.
+ST-06, kör RF ve yeni kaynak fiziksel kabulü açık; sonraki faz açılmadı.
+
+## PHASE-08 bağımsız GNU Radio RX gözlemi — 15 Eylül 2026
+
+Kullanıcı isteğiyle kayıtlı `ED_RX_PRIMARY` HackRF için yalnız RX çalışan,
+spektrum, spektrogram ve I/Q zaman alanını birlikte gösteren bağımsız bir GRC
+akışı eklendi. Başlangıç profili 2 MS/s, 1900 MHz, LNA/VGA 16/16 dB ve AMP
+kapalıdır; merkez frekansı ile kazançlar operatörce değiştirilebilir. Akışta TX
+sink, dalga biçimi üretimi veya ürün tespit sonucu yoktur. GNU Radio 3.10.12
+derlemesi geçti ve canlı pencere açıldı; belirli yayın için açık/kapalı ölçüm
+henüz kaydedilmedi. Bu PHASE-08 / KTR-4.1-OPS-B0 tanısıdır, yeni faz açmaz ve
+ST-06 kabulünü kapatmaz.
+
+## Mevcut alıcı/tespit/dinleme ayarları — 15 Eylül 2026
+
+Onaylanan arayüz tamamlama kapsamında LNA/VGA taşınmadan AMP, sınırlı CFAR
+girişleri ve mevcut AM/NFM dinleme kontrolleri bağlandı. Oturum ve kalibrasyon
+bağlamları korundu. Kaynak/QML ve sentetik DSP doğrulaması fiziksel RF kabulü
+yerine geçmez. Filtre/CFAR hazır profilleri gerçek karşılaştırma bekler;
+Bias-T donanım envanteri gelene kadar kapsam dışıdır. WFM, susturma ve PPM
+etkinleştirilmedi. PHASE-08/ST-06 ve faz geçiş kapıları açık kalır.
+
+Sabit frekans tespit penceresi `Ayarlar` adıyla görev odaklı bırakıldı. Büyük
+FFT'den 4096 varsayılanına dönüş için istenen kontrollü kart yeniden başlatması,
+tam güç kesmeli cold-start kabul koşulundan arayüzde ayrılır. Bu metin/akış
+düzeltmesi yeni faz açmaz ve fiziksel kabul yerine geçmez.
+
+Pencerenin sabit açıklama/başlangıç önerisi kaldırıldı; görünür FFT etiketi
+kısaltıldı ve işlem düğmeleri eşitlendi. CFAR için doğrulanmış alternatif hazır
+profil bulunmadığından seçim listesi açılmadı; sınırlı elle giriş, karttan tam
+okuma ve tek doğrulanmış varsayılana dönüş korundu. AMP'nin iki durumlu olduğu
+AMP sade etiketi ve ortalı açık/kapalı seçimiyle netleştirildi. Bunlar PHASE-08 içi arayüz bakım
+değişiklikleridir; ilgili regresyonda 123 test geçmiştir. Yeni faz veya fiziksel
+kabul oluşturmaz.
+
+FFT/eşik alanları iki sütunlu hizalı forma alınmış, eşiklerin gösterimi iki
+ondalığa kısaltılmış ve operatör değiştirmedikçe kartın tam katsayısı korunmuştur.
+Bu okunabilirlik bakımı tespit matematiğini veya faz kapısını değiştirmez.
+
+Bant taraması alıcı etiketlerinden `Azami` ve AMP açıklama eki, ayar
+penceresinden sabit açıklama ile 10 MS/s süre hesabı kaldırılmıştır. Pencere
+yalnız tespiti etkileyen gözlem ve yerleşme karelerini taşır; örnekleme hızı ve
+algoritma değiştirilmemiştir.
+
+Tarama adayından parametre çıkarımına geçişte görünümün tarama ekranında kalması
+giderilmiştir. Akış önce 8 MS/s sabit frekans yeniden alımını görünür kılar,
+eşleşen aday ölçüme hazır olunca Parametre sekmesini açar; başlatma reddinde
+korunmuş taramaya döner. Bu, 10 MS/s bant taraması profilini değiştirmez ve yeni
+faz açmaz.
+
+8192/16384 FPGA FFT profillerinde ham önizlemenin sabit 16.384 örnekli görüntü
+yolundan uzun olması nedeniyle oluşan `long_capture` giderilmiştir. Görüntü yolu
+ilk 16.384 gerçek örneği kullanır; FPGA tespiti ve güç hesabı değişmez. Bağıl
+P/N ile FPGA gözlem sayısı parametre sonucu olmadığından kullanıcıya gösterilen
+üzerine-gelme metninden kaldırılmış, iç tespit kanıtında korunmuştur. Bu
+PHASE-08 içi düzeltmenin kaynak testleri geçmiştir; güncel kaynakla fiziksel
+8192 RX tekrarı hâlâ açık kabul işidir ve yeni faz açmaz.
+
+Kart yeniden başlatılıp 4096'a döndüğünde açık uygulamadaki eski 8192 profilinin
+yanlış küçültme reddi üretmesi giderilmiştir. Ayar uygulama yolu, yalnız bu
+şüpheli küçültme durumunda kart profilini yeniden okuyup güncel kuşakla uzlaşır.
+Kartın doğrulanmış hata başlığı içindeki DMA durumu da ham
+`local_response_header` olarak sunulmaz. Bu PHASE-08 bakım düzeltmesidir; faz
+geçişi veya fiziksel kabul oluşturmaz.
+
+## PHASE-08 örnekleme hızı sunumu ve değerlendirmesi — 15 Eylül 2026
+
+Kullanıcı isteğiyle üst bilgide tek fiziksel alıcı örnekleme değeri gösterilir:
+sabit izlemede 8 MS/s, geniş bant taramasında 10 MS/s. İşleme ayarları değişmedi.
+Tarama/FPGA performansı kaynak ve geçmiş ölçümlerle değerlendirildi; uygulanmamış
+iyileştirmeler mimari belgesinde seçenek olarak tutulur. Yeni faz açılmadı.
+
+## PHASE-08 sağlık denetimi eylem kararlılığı — 15 Eylül 2026
+
+Kullanıcının gözlediği hızlı düğme durum değişimi giderildi. Boşta USB sağlık
+denetimi sürer fakat eylem görünümünü değiştirmez; eşzamanlı tıklama denetim
+sonuna ertelenir ve bağlantı kaybolmuşsa başlatılmaz. Bu mevcut PHASE-08 arayüz
+ve yarış düzeltmesidir; yeni faz açmaz.
+
+## PHASE-08 alıcı bağlantı kaybı durumu — 15 Eylül 2026
+
+Kullanıcı kararıyla birleşik hazır durumuna boşta etkin-seri sağlık denetimi
+eklendi. Etkin HackRF USB modundan çıkınca hazır durumu fail-closed iptal edilir,
+`Sistemi Denetle` geri gelir ve ham `binary_pipe_failed` yerine Türkçe bağlantı
+kaybı sunulur. Kaynak ve QML regresyonları geçti; fiziksel tak-çıkar tekrarı açık
+PHASE-08 kabul işidir ve yeni faz açmaz.
+
+## PHASE-08 PortaPack USB hazırlığı ve veri hızı sunumu — 15 Eylül 2026
+
+Kullanıcı kararıyla iki kayıtlı HackRF arasında güvenli fallback açıldı.
+Birincil görünürse seçilir; yalnız ikincil görünürse aynı ürün RX yollarına etkin
+seri olarak bağlanır. COM numarası, keşif sırası veya yapılandırılmamış cihaz
+seçim nedeni olamaz. Seri bağı ve alıcıya özgü spur profili bütün alt işlemlerde
+korunur. Kaynak/QML regresyonları geçti; ikincil fiziksel fallback tekrarı açık
+PHASE-08 kabul işidir ve yeni faz açmaz.
+
+Kullanıcı kararıyla ortak `Sistemi Denetle` akışı, FPGA hizmeti hazır olduğunda
+PortaPack'in doğrulanmış USB-seri arayüzü üzerinden HackRF moduna geçişi de
+üstlenir. Geçiş sonrası yapılandırılmış alıcı seri numarası yeniden doğrulanmadan
+birleşik `Hazır` durumu verilmez. Rastgele COM seçimi, FPGA hatasında geçiş ve
+sessiz başarı yasaktır. Üst veri hızı metni `ALICI → FPGA`, `8 MS/s → 2 MS/s`
+olarak sadeleştirilir. Bu mevcut PHASE-08 hazırlık/arayüz işidir; yeni faz açmaz,
+RF kazancı veya tespit başarımı değiştirmez. İlk fiziksel geçişte komut sonrası
+port erken kapandığı için yeniden bağlanma olmadı; 500 ms teslim aralığı
+eklendikten sonra tek `1D50:6018 → 1D50:6089` koşusu seri numarasıyla geçti.
+Tekrarlı gerçek QML kabulü tamamlanmadığından fiziksel kabul iddiası yoktur.
+
+## PHASE-08 FPGA tespit kapasitesi tanısı — 15 Eylül 2026
+
+Uzun koşuda `candidate_drop` bağlantı arızasından ayrıldı. Hata artık sayısal
+kare/aday/etkin olay/düşürme bağlamını taşır ve birleşik donanım hazırlığını
+iptal etmez; eksik tespiti kabul etmemek için yalnız ilgili oturum durur. Bu
+mevcut PHASE-08 tanı düzeltmesidir; kapasite artırımı, yeni faz veya fiziksel
+uzun-koşu kabulü değildir.
+
+## PHASE-08 normal spektrum başlangıcı — 15 Eylül 2026
+
+Sabit frekans taraması artık tespit alt bandına otomatik yakınlaştırma yapmadan
+tam alım görünümünde başlar. Tespit kılavuzu ve işleme sözleşmesi korunur;
+yakınlaştırma operatör denetimindedir. Bu mevcut PHASE-08 arayüz düzeltmesidir,
+yeni faz açmaz veya kabul kapılarını değiştirmez.
+
+## PHASE-08 eksik canlı akış tanıları — 15 Eylül 2026
+
+Ham alım, PC işleme zinciri ve FPGA yanıt eksikliği ayrı hata kodlarına
+bölündü; `short_stream` artık fiziksel USB kopması iddia etmez. Erken EOF
+yolunda süreç tanısı ve alınan kare sayısı korunur; eksik alım sessiz otomatik
+tekrarla geçerli sonuç yapılmaz. Bu mevcut PHASE-08 tanı ve fail-closed davranış
+düzeltmesidir; yeni faz açmaz veya ST-06 kabulü iddia etmez.
+
+## PHASE-08 sabit tarama eylemi yerleşimi — 15 Eylül 2026
+
+Sabit frekans başlatma ve durdurma eylemleri aynı yerleşim yuvasında
+birleştirildi; oturum durumunda düğmeler ve ayarlar eylemi artık düşey yönde
+yer değiştirmez. Bu mevcut PHASE-08 arayüz düzeltmesidir; yeni faz açmaz ve
+ST-06 kabul kapılarını değiştirmez.
+
+## PHASE-08 başlangıç kırpılma ayrımı — 15 Eylül 2026
+
+Kullanıcının ilk/ikinci başlatma gözlemi üzerine canlı HackRF yoluna sekiz
+karelik, sonuçtan dışlanan başlangıç yerleşmesi eklendi. Yerleşme kareleri
+kanal seçici durumunu hazırlar ancak FPGA'ya ulaşmaz; sonraki ölçüm kareleri
+sıfırdan numaralanır ve kırpılmada koşuyu durdurur. Ürün oturum süresi korunur,
+iç alım yerleşme payıyla birlikte ayrıca sınırlıdır. Yazılım regresyonu yeni
+faz açmaz; fiziksel tekrar ve ST-06 kapıları açık kalır.
+
+## PHASE-08 sistem denetimi metinleri — 15 Eylül 2026
+
+Ortak HackRF/FPGA denetim eylemi `Sistemi Denetle` olarak adlandırıldı ve iki
+bileşenin birlikte bulunamaması `FPGA ve Alıcı algılanamadı` mesajına bağlandı.
+Kırpılma reddi korunur. Bu yalnız mevcut PHASE-08 arayüz sözleşmesidir; yeni
+faz açmaz veya fiziksel kabul kapılarını değiştirmez.
+
+## PHASE-08 otomatik kazanç kaldırma — 15 Eylül 2026
+
+Kullanıcının isteğiyle sabit frekans otomatik kazanç arayüzü, alım seviyesi
+değerlendirmesi ve kazanç değiştirerek yeniden başlatma akışı kaldırıldı.
+Operatör LNA/VGA değerlerini doğrudan seçer ve tek canlı oturum bu değerlerle
+çalışır. Kırpılma fail-closed hata olarak korunur. Bu mevcut PHASE-08 kapsam
+daraltmasıdır; yeni faz açmaz ve ST-06 kabul kapılarını kapatmaz.
+
+## PHASE-08 alıcı kazancı listesi erişimi — 15 Eylül 2026
+
+Sabit frekans VGA açılır listesinin pencere altında kırpılması mevcut PHASE-08
+kapsamında giderildi. Liste sınırlı yükseklikte kaydırılır ve açıldığında seçili
+değeri görünür tutar. Yeni işlev veya faz açılmadı; fiziksel kabul kapıları
+değişmedi.
+
+## PHASE-08 sabit frekans ve otomatik parametre kararlılığı — 14 Eylül 2026
+
+Kullanıcının sabit frekans donması ve canlı parametre sorunu isteği mevcut
+PHASE-08 / KTR-4.1–4.2 kapsamında işlendi. Qt işçi yaşam döngüsü yarışı,
+GUI iş parçacığındaki SQLite yazımı ve ölçülmemiş olayların katalog seli
+giderildi. Katalog teslimleri 500 ms pencerelerde birleştirildi; güçlü geniş
+adayda otomatik kazanç aralığı kesmek yerine kademeli azaltılır, düşük seviyede
+yalnız ince VGA adımı kullanılır. İlgili 161 regresyon geçti. Gerçek 820 MHz açık koşuda 4.096 karelik
+16/14 dB tekrar sıfır USB taşması ve `43,38 ms` azami GUI heartbeat ile
+tamamlandı; kart yanıt hızı nominal sürekli gereksinimin altında kaldığından
+ST-06 kapanmadı. Nihai otomatik 16/14 → 8/6 → 0/0 dB koşusu da 4.096/4.096
+kare, sıfır USB taşması, `48,68 ms` azami heartbeat ve 9 geçerli parametre
+sonucuyla tamamlandı. Ayrı 0/0 dB tanıda 10 geçerli merkez/OBW/güç/SNR sonucu alındı;
+bu tek kaynak/genlik koşulu genel fiziksel doğruluk kabulü değildir. Inline
+512 hücre sınırı geniş adayı yanlış sonuç verecek biçimde kırpmaz; geniş
+P0PM-v2 ölçümü operatör onayıyla kalır. Sonraki faz açılmadı.
+
+## PHASE-08 arayüz sadeleştirmesi — 14 Eylül 2026
+
+Kullanıcının isteğiyle alıcı seri/envanter bloğu ve bant taramasındaki üç teknik
+açıklama kaldırıldı. Donanım hataları yalnız `Alıcı algılanmadı` ve/veya
+`FPGA algılanmadı` biçiminde gösterilir. Gerçek donanımla tarama, durdurma,
+yeniden başlatma ve kapanış kararlılık koşusu geçti. Bu çalışma PHASE-08
+kapsamındadır; yeni faz açmaz ve uzun süreli GUI dayanıklılık kapısını kapatmaz.
+
+## KTR-4.1 tarama hızı — 14 Eylül 2026
+
+Kullanıcı mevcut sinyal tespitindeki tarama hızı ve arayüz sorunlarının
+çözümünü PHASE-08 içinde onayladı. 128/64 kare tam tarama ve iki turlu kaba
+sweep fiziksel olarak karşılaştırıldı. Kaba profil tüm pencereleri seçtiği için
+hız kazandırmadı ve ürün arayüzünden çıkarıldı. 64 kare daha kısa sürdü, ancak
+kontrollü sinyal olmadan Pd/Pfa davranışı ölçülmediği için varsayılan yapılmadı.
+
+8 ve 10 MS/s kısa RX tekrarları kayıpsız; 20 MS/s tekrarları overrun ile
+sonuçlandı. İlk hız koşularında `…35138247` kullanıldı. Sonraki kör RF koşusunda
+bağlı `…36877e47` alıcı güncel `ED_RX_PRIMARY` rolüne alındı; `…35138247`
+ikincil rolde korunur. 10 MS/s sınırlı algılama burst'ü, doğrudan
+CI8 adaptörü, P0IQ kabulü, C11 sözleşmesi ve ARM köprü derlemesi tamamlandı.
+Köprü yeteneği ayrı bit ile fail-closed denetlenir ve burst 256 kareyle
+sınırlıdır. Kimliği seri porttan doğrulanan karta geçici yüklemede üç 64 karelik
+koşu sıfır USB/CRC/sıra/kuyruk hatasıyla geçti; kalıcı köprü geri yüklendi.
+Sayısal gürültü + dört ton eşlemesi sıfır hücre hatası verdi. DC/kenar güvenli
+2,5 MHz sorumluluk planıyla 800–840 MHz fiziksel RX taraması 16/16 pencereyi
+`3,817 s` içinde geçti; 64-kare tam taramaya göre `4,28×` hızlandı. Sonraki
+adım kapsamında iki kör RF tekrarı, 800/820 MHz hedeflerinin `±1/±3,25 MHz`
+yerleşimleri, kalıcı SD imajı ve gerçek QML düğmesiyle 256-kare koşu tamamlandı.
+Aday doğrulamasındaki çift son-kare bildirimi giderildi. Güncel kaynakla son QML
+koşusu 16/16 pencereyi `8,00 s` içinde sıfır hatayla bitirdi. Aynı ayarlı TX-kapalı negatif,
+genel Pd/Pfa, 1 MHz–6 GHz tam tur ve elektrik kesip açılan soğuk başlangıç sıradaki
+PHASE-08 kabul işleridir. Mevcut 2 MS/s doğrulama yolunun kabul iddiası korunur.
+Yeni faz açılmadı. Ayrıntı SIGNAL_DETECTION_STATUS.md içindedir.
+
+## Mevcut ED kapsamının sürüm incelemesi — 13 Eylül 2026
+
+Kullanıcının yalnız ED final sürüm incelemesi talebi kapsamında sonuç teslimi,
+katalog kaynak ömrü, bozuk dosya davranışı ve ürün paketleme bakımı yapıldı.
+Yeni işlev veya faz açılmadı; eski fiziksel kanıtlar güncellenmedi.
+[İnceleme ve doğrulama sınırları](../reviews/ED_RELEASE_REVIEW_20260913.md).
+Güncel kaynakla donanım, kör RF ve standalone kabulü tamamlanmadan yarışma/saha
+hazırlığı tamamlandı sayılmaz.
+
 ## Yalnız ED kapsamına geçiş — 13 Eylül 2026
 
 Kullanıcı kararıyla ET arayüzü, görev/TX kaynakları, yapılandırması,
@@ -1835,7 +2097,7 @@ canlı RF kabulü hâlâ açıktır; PHASE-08 tamamlanmış sayılmaz.
 
 Yarışma tespit yüzeyi sabit frekans ve bant taraması olarak sadeleştirilmiştir.
 Canlı alıcı için otomatik açılış denetimi sonraki bağlantı bakımında kaldırılmış;
-ürün `Bekliyor` durumunda açılır ve denetim operatörün `Alıcıyı Denetle` eylemiyle
+ürün `Bekliyor` durumunda açılır ve denetim operatörün `Sistemi Denetle` eylemiyle
 başlar. Bu eylem HackRF keşfi ile FPGA hizmet erişimini paralel denetler ve yalnız
 ikisi de erişilebilirse `Hazır` olur. Tekil veya birleşik bağlantı hatası 10 saniye
 sonra yeniden bekleme durumuna döner.

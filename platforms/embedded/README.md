@@ -1,5 +1,17 @@
 # Zynq PS
 
+## PHASE-08 10 MS/s burst köprüsü — 14 Eylül 2026
+
+P0IQ v2 ağ köprüsü 10 MS/s, 4096 kompleks CI8 algılama burst'ünü ayrı P0CQ
+yetenek bitiyle kabul eder; parametre istekleri bu profilde kapalıdır. ARM
+ikilisi `beb168b6…` hash'iyle gerçek kartta geçici yükleme, kontrollü RF ve
+iki taraflı ofset koşularını geçti. Doğrulanmış önceki FIT kök dosya sistemi
+yalnız bu köprü değiştirilerek yeniden paketlendi; `image.ub` `32245791…`
+hash'iyle SD'den kontrollü yeniden başlatıldı. FPGA `operating`, hizmet
+`20c151ea…`, köprü ve 47007 yetenek sorgusu açılıştan sonra geçti. Önceki imaj
+SD'de hash bağlı yedektir. Tam PetaLinux yeniden derlemesi ve elektrik kesip
+açılan soğuk başlangıç yapılmadı.
+
 ## PHASE-09 genlik tabanlı yön bulma — 11 Eylül 2026
 
 `p0_amplitude_df.c`, 15° adımlı 24 açılık alan profilini, doğrusal güç

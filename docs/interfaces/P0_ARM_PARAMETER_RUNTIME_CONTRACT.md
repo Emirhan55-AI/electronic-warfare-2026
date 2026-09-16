@@ -1,5 +1,13 @@
 # P0 ARM Parametre Çıkarım Sözleşmesi
 
+## RF yükselteci kalibrasyon bağı — 15 Eylül 2026
+
+Otomatik parametre kataloğu `rf_amplifier` durumunu kalibrasyon eşlemesine
+ve kayıt ayrıntılarına dahil eder. Eski profilde alan yoksa yalnız AMP kapalı
+olarak yorumlanır; AMP açık güç dBm'e aynı profille çevrilmez. AMP alanı açıkça
+boolean olmalıdır. Manuel ölçüm arşivinde RX yapılandırması zaten aynı alanı
+taşır. Yeni kalibrasyon profili veya fiziksel güç doğruluğu kabulü oluşturulmadı.
+
 ## Tespit sürerken canlı ölçüm sözleşmesi — 13 Eylül 2026
 
 P0IQ v2 normal 48 baytlık başlığı değiştirmeden, yalnız P0CQ yetenek sorgusu

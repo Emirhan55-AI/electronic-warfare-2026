@@ -31,7 +31,7 @@ class AnalogMonitorConfig:
     center_offset_hz: float
     channel_bandwidth_hz: float
     output_sample_rate_hz: int = 48_000
-    nfm_deemphasis_us: float = 750.0
+    nfm_deemphasis_us: float = 0.0
 
     def __post_init__(self) -> None:
         if self.mode not in ("am", "nfm"):
@@ -46,8 +46,11 @@ class AnalogMonitorConfig:
             raise MonitoringError("invalid_sample_rate", "Dinleme ayarları sonlu olmalıdır.")
         if self.sample_rate_hz <= 0.0 or self.output_sample_rate_hz != 48_000:
             raise MonitoringError("invalid_sample_rate", "Çıkış örnekleme hızı 48 kHz olmalıdır.")
-        if not 2_000.0 <= self.channel_bandwidth_hz <= min(200_000.0, self.sample_rate_hz):
-            raise MonitoringError("invalid_channel_bandwidth", "Kanal bant genişliği desteklenen sınırın dışındadır.")
+        if not 2_000.0 <= self.channel_bandwidth_hz <= min(25_000.0, self.sample_rate_hz):
+            raise MonitoringError(
+                "invalid_channel_bandwidth",
+                "Analog ses için kanal bant genişliği 2–25 kHz arasında olmalıdır.",
+            )
         if abs(self.center_offset_hz) + self.channel_bandwidth_hz / 2.0 > self.sample_rate_hz / 2.0:
             raise MonitoringError("nyquist_limit", "Seçilen kanal kaynak Nyquist sınırını aşıyor.")
         if not 0.0 <= self.nfm_deemphasis_us <= 2_000.0:
@@ -103,6 +106,7 @@ class AnalogMonitorResult:
     observation_times_s: tuple[float, ...] = ()
     channel_power_dbfs_trace: tuple[float, ...] = ()
     residual_frequency_hz_trace: tuple[float, ...] = ()
+    nfm_deemphasis_us: float = 0.0
 
     def __post_init__(self) -> None:
         if self.sample_rate_hz != 48_000:

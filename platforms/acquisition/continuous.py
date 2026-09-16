@@ -18,6 +18,10 @@ from .contracts import AcquisitionError, RXConfig
 # 16,384 complex samples per frame. The process remains bounded by frame count,
 # watchdog time and the fixed-size stdout/stderr consumers.
 MAX_STREAM_FRAMES = 878_906
+# A product session may capture a small, discarded tuner-settling prefix while
+# still delivering MAX_STREAM_FRAMES usable frames. The total process remains
+# explicitly bounded; this allowance cannot extend the presented session.
+MAX_CAPTURE_FRAMES = MAX_STREAM_FRAMES + 64
 STDERR_LIMIT_BYTES = 262_144
 
 
@@ -112,7 +116,7 @@ def build_continuous_receive_argv(
         raise AcquisitionError("command_not_allowed", "Canlı RX yalnız hackrf_transfer kullanabilir.")
     if config.device_serial is None:
         raise AcquisitionError("device_serial_unassigned", "ED_RX HackRF seri kimliği atanmamış.")
-    if not 1 <= frame_count <= MAX_STREAM_FRAMES:
+    if not 1 <= frame_count <= MAX_CAPTURE_FRAMES:
         raise AcquisitionError("invalid_stream_length", "Canlı RX kare sayısı güvenli sınırın dışındadır.")
     total_samples = config.sample_count * frame_count
     return [
@@ -280,9 +284,34 @@ class HackRFContinuousRX:
             if not block:
                 if self._timed_out:
                     raise AcquisitionError("stream_timeout", "HackRF canlı RX zaman aşımına uğradı.")
-                raise AcquisitionError("short_stream", "HackRF canlı RX beklenenden kısa bitti.")
+                raise self._short_stream_error()
             payload.extend(block)
         return bytes(payload)
+
+    def _short_stream_error(self) -> AcquisitionError:
+        """Preserve the child diagnostic when its RX pipe closes early."""
+        assert self._process is not None
+        self._cancel_watchdog()
+        try:
+            returncode = self._process.wait(timeout=1.0)
+        except subprocess.TimeoutExpired:
+            # EOF makes this stream unusable even if the child has not fully
+            # exited. End the bounded RX child so its stderr collector can
+            # finish and the actual transfer failure is not discarded.
+            self._terminate()
+            returncode = self._process.poll()
+        stderr_text = ""
+        if self._stderr is not None:
+            self._stderr.join(timeout=1.0)
+            stderr_text = bytes(self._stderr.data).decode("utf-8", errors="replace")
+        diagnostic_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
+        diagnostic = diagnostic_lines[-1][:500] if diagnostic_lines else "HackRF tanı çıktısı yok."
+        return AcquisitionError(
+            "short_stream",
+            "HackRF USB akışı erken kesildi: "
+            f"{self._frames_received}/{self.frame_count} kare alındı, "
+            f"süreç kodu {returncode}; son tanı: {diagnostic}",
+        )
 
     def _finish(self) -> None:
         if self._finished:

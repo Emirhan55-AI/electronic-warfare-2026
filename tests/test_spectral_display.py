@@ -176,10 +176,11 @@ def test_wide_coarse_detection_runs_after_spectrum_publish_and_is_throttled():
 
     task._process_preview(LiveEDPreview(17, frame, time.perf_counter(), frame))
 
-    preview, spectrum, processing_ms = task.preview_mailbox.take()
+    preview, spectrum, display_spectrum, processing_ms = task.preview_mailbox.take()
     sequence_number, coarse = task.coarse_mailbox.take()
     assert preview.sequence_number == sequence_number == 17
     assert coarse is not None
+    assert spectrum.frame_length == display_spectrum.frame_length == 16_384
     assert processing_ms >= 0
 
     task._process_preview(LiveEDPreview(33, frame, time.perf_counter(), frame))

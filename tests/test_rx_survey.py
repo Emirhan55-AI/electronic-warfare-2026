@@ -17,7 +17,11 @@ from app.operator_console.rx_survey import (
     RXSurvey,
     SURVEY_CHANNELIZER_PASSBAND_HALF_HZ,
     SURVEY_MAX_FULL_SUPPORT_HZ,
+    SURVEY_WIDEBAND_PASSBAND_HALF_HZ,
+    SURVEY_WIDEBAND_RESPONSIBILITY_WIDTH_HZ,
+    SURVEY_WIDEBAND_TUNING_OFFSET_HZ,
     SurveyConfig,
+    _event_frequency_geometry,
     survey_gain_profiles,
 )
 from platforms.acquisition.contracts import AcquisitionError
@@ -84,6 +88,121 @@ def test_overlapping_tunings_keep_one_mhz_support_inside_validated_passband():
             final_bin = 2048 + (frequency_hz + half_support - item.center_hz) * 4096 / 2_000_000
             assert first_bin >= 256
             assert final_bin < 3840
+
+
+def test_wideband_burst_plan_owns_gap_free_dc_and_edge_safe_intervals():
+    windows = SurveyConfig(
+        800_000_000,
+        840_000_000,
+        mode="wideband_burst",
+    ).windows()
+
+    assert len(windows) == 16
+    assert windows[0].lower_hz == 800_000_000
+    assert windows[-1].upper_hz == 840_000_000
+    assert all(not item.include_upper for item in windows[:-1])
+    assert windows[-1].include_upper
+    half_support = SURVEY_MAX_FULL_SUPPORT_HZ / 2
+    for previous, current in zip(windows, windows[1:]):
+        assert previous.upper_hz == current.lower_hz
+    for item in windows:
+        relative_lower = item.lower_hz - item.center_hz
+        relative_upper = item.upper_hz - item.center_hz
+        assert (
+            SURVEY_WIDEBAND_TUNING_OFFSET_HZ <= relative_lower <= relative_upper
+            or relative_lower <= relative_upper <= -SURVEY_WIDEBAND_TUNING_OFFSET_HZ
+        )
+        assert max(abs(relative_lower), abs(relative_upper)) + half_support <= (
+            SURVEY_WIDEBAND_PASSBAND_HALF_HZ
+        )
+        assert item.upper_hz - item.lower_hz <= SURVEY_WIDEBAND_RESPONSIBILITY_WIDTH_HZ
+
+
+def test_wideband_event_geometry_uses_10msps_bin_spacing():
+    event = LiveEDEvent(
+        17, 0, 2, 3, "confirmed", True,
+        2458, 2458, 2458, 1, 1, 0, 100.0, 1.0, 10.0,
+    )
+    lower, upper, center, peak = _event_frequency_geometry(
+        820_000_000,
+        event,
+        sample_rate_hz=10_000_000,
+        fft_size=4096,
+    )
+    assert peak == pytest.approx(821_000_976.5625)
+    assert center == pytest.approx(peak)
+    assert upper - lower == pytest.approx(10_000_000 / 4096)
+
+
+@pytest.mark.parametrize("amplifier", [False, True])
+def test_wideband_survey_uses_bounded_direct_fpga_sessions(tmp_path, amplifier):
+    seen = []
+
+    class WidebandSession:
+        def __init__(self, executable, config):
+            del executable
+            self.config = config
+            seen.append(config)
+
+        def cancel(self):
+            pass
+
+        def run(self, callback):
+            for index in range(self.config.frame_count):
+                frame = IQFrame(
+                    index,
+                    10_000_000,
+                    self.config.output_center_frequency_hz,
+                    bytes(8192),
+                    frame_id=index,
+                )
+                callback(LiveEDSnapshot(
+                    index,
+                    frame,
+                    LiveEDResponse(index, 0, 7, 0, False, 0, (), (), 68),
+                ))
+            return _Result(self.config.frame_count)
+
+    path = tmp_path / "wideband.jsonl"
+    result = RXSurvey(
+        "hackrf_transfer",
+        SERIAL,
+        SurveyConfig(
+            800_000_000,
+            805_000_000,
+            frames_per_window=16,
+            guard_frames=8,
+            mode="wideband_burst",
+            rf_amplifier=amplifier,
+        ),
+        path,
+        session_factory=WidebandSession,
+    ).run()
+
+    assert result.state == "completed"
+    assert result.completed_windows == 2
+    assert all(config.direct_fpga_input for config in seen)
+    assert all(config.rx_config.rf_amplifier is amplifier for config in seen)
+    assert all(not config.automatic_parameters_enabled for config in seen)
+    assert all(config.frame_count == 16 for config in seen)
+    completed = [row for row in _records(path) if row["type"] == "window_complete"]
+    assert [row["window_metrics"]["sample_rate_hz"] for row in completed] == [
+        10_000_000,
+        10_000_000,
+    ]
+    assert all(
+        row["timing"]["sample_observation_seconds"] == pytest.approx(0.0065536)
+        for row in completed
+    )
+
+    with pytest.raises(ValueError, match="en fazla 256"):
+        SurveyConfig(
+            800_000_000,
+            805_000_000,
+            frames_per_window=257,
+            guard_frames=8,
+            mode="wideband_burst",
+        )
 
 
 @pytest.mark.parametrize("center,expected", [(1_000_000, 2_500_000), (1_700_000, 3_200_000),
@@ -364,6 +483,24 @@ def test_survey_rejects_candidate_that_moves_after_independent_retune(tmp_path):
     assert completed.observations == ()
 
 
+@pytest.mark.parametrize("amplifier", [False, True])
+def test_independent_retune_uses_detection_only_session(tmp_path, amplifier):
+    class DetectionOnlyVerification(_Session):
+        def run(self, callback):
+            assert self.config.rx_config.rf_amplifier is amplifier
+            if self.config.input_center_frequency_hz_override is not None:
+                assert self.config.display_interval_frames == 1
+                assert self.config.automatic_parameters_enabled is False
+            return super().run(callback)
+
+    result = RXSurvey(
+        "hackrf_transfer", SERIAL, SurveyConfig(1_000_000, 1_600_000, rf_amplifier=amplifier),
+        tmp_path / "detection-only-verification.jsonl",
+        session_factory=DetectionOnlyVerification,
+    ).run()
+    assert result.state == "completed"
+
+
 def test_narrow_primary_is_not_verified_by_distant_peak_in_broad_support():
     from app.operator_console.rx_survey import _verification_matches
     observation = {"lower_frequency_hz": 825_999_000,
@@ -373,6 +510,36 @@ def test_narrow_primary_is_not_verified_by_distant_peak_in_broad_support():
         observation, 825_800_000, 826_400_000, 826_100_000, 826_300_000)
     assert _verification_matches(
         observation, 825_800_000, 826_400_000, 826_100_000, 826_000_400)
+
+
+def test_broad_primary_cannot_be_verified_by_tiny_embedded_line():
+    from app.operator_console.rx_survey import _verification_matches
+    observation = dict(lower_frequency_hz=1499.5e6, upper_frequency_hz=1500.5e6,
+                       frequency_hz=1500e6, peak_frequency_hz=1500e6)
+    assert not _verification_matches(observation, 1500e6-500, 1500e6+500, 1500e6, 1500e6)
+    assert _verification_matches(observation, 1499.6e6, 1500.4e6, 1500e6, 1500e6+40000)
+
+
+def test_separated_groups_matching_one_old_span_count_each_frame_once(tmp_path):
+    class SplitAfterBroad(_Session):
+        def run(self, callback):
+            def split(snapshot):
+                event = snapshot.response.active[0]
+                # Most frames establish a broad historical support; the final
+                # frame splits into distant groups still inside that support.
+                spans = [(1800, 2296)] if snapshot.sequence_number < self.config.frame_count - 1 else [(1800,1804),(2292,2296)]
+                events = tuple(replace(event, event_id=i, start_shifted_bin=a,
+                                      end_shifted_bin=b, peak_shifted_bin=(a+b)//2,
+                                      coarse_span_bins=b-a+1) for i,(a,b) in enumerate(spans))
+                callback(replace(snapshot, response=replace(snapshot.response, active=events)))
+            return super().run(split)
+    path = tmp_path / 'unique-frames.jsonl'
+    RXSurvey('hackrf_transfer', SERIAL, SurveyConfig(1_000_000, 1_600_000),
+             path, session_factory=SplitAfterBroad).run()
+    record = next(r for r in _records(path) if r['type']=='window_complete')
+    item = record['observations'][0]
+    assert item['observed_frames'] == 120
+    assert item['group_observations'] == 121
 
 
 def test_broad_observation_is_verified_by_absolute_support_when_peak_moves(tmp_path):

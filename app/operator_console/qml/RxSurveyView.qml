@@ -8,12 +8,16 @@ Item {
     required property var theme
     readonly property var survey: operatorViewModel.survey
     signal fixedBandRequested()
+    signal surveyRequested()
     signal parameterRequested()
     DetectionSettings { id: detectionSettings; theme: view.theme; surveyMode: true }
 
     Connections {
         target: operatorViewModel
         function onSurveyParameterReady() { view.parameterRequested() }
+        function onDetectionSettingsChanged() {
+            amp.currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
+        }
     }
 
     component Caption: Label {
@@ -41,6 +45,12 @@ Item {
         color: view.theme.surface
         border.color: view.theme.border
         radius: 6
+    }
+    function groupTitle(index) {
+        var groups = survey.observationGroups
+        if (groups.length <= index) return ""
+        var group = groups[index]
+        return (group.expanded ? "▾  " : "▸  ") + group.groupTitle + " (" + group.groupCount + ")"
     }
     component FrequencyField: TextField {
         id: field
@@ -106,35 +116,80 @@ Item {
                     Layout.fillWidth: true
                     spacing: 10
                     ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.minimumWidth: 120
+                        Layout.maximumWidth: 120
                         spacing: 3
                         Caption { text: "Alt sınır (MHz)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                         FrequencyField { id: lower; objectName: "surveyLowerMHz"; Layout.preferredWidth: 120; Layout.fillWidth: true; text: "1"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama alt sınırı megahertz" }
                     }
                     ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.minimumWidth: 120
+                        Layout.maximumWidth: 120
                         spacing: 3
                         Caption { text: "Üst sınır (MHz)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                         FrequencyField { id: upper; objectName: "surveyUpperMHz"; Layout.preferredWidth: 120; Layout.fillWidth: true; text: "6000"; enabled: !operatorViewModel.busy; validator: DoubleValidator { bottom: 1; top: 6000; locale: "C" } Accessible.name: "Tarama üst sınırı megahertz" }
                     }
                     ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.minimumWidth: 120
+                        Layout.maximumWidth: 120
                         spacing: 3
-                        Caption { text: "Azami LNA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-                        GainChoice { id: lna; objectName: "surveyLnaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami LNA kazancı" }
+                        Caption { objectName: "surveyLnaLabel"; text: "LNA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        GainChoice { id: lna; objectName: "surveyLnaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: 2; enabled: !operatorViewModel.busy; Accessible.name: "Tarama LNA kazancı" }
                     }
                     ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.minimumWidth: 120
+                        Layout.maximumWidth: 120
                         spacing: 3
-                        Caption { text: "Azami VGA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-                        GainChoice { id: vga; objectName: "surveyVgaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(16); enabled: !operatorViewModel.busy; Accessible.name: "Tarama azami VGA kazancı" }
+                        Caption { objectName: "surveyVgaLabel"; text: "VGA (dB)"; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                        GainChoice { id: vga; objectName: "surveyVgaInput"; Layout.preferredWidth: 120; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(16); enabled: !operatorViewModel.busy; Accessible.name: "Tarama VGA kazancı" }
+                    }
+                    ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.minimumWidth: 120
+                        Layout.maximumWidth: 120
+                        spacing: 3
+                        Caption {
+                            objectName: "surveyAmplifierLabel"
+                            text: "AMP"
+                            Layout.fillWidth: true
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        GainChoice {
+                            id: amp
+                            objectName: "surveyAmplifierInput"
+                            Layout.preferredWidth: 120
+                            Layout.fillWidth: true
+                            model: ["Kapalı", "Açık"]
+                            currentIndex: operatorViewModel.receiverRFAmplifier ? 1 : 0
+                            enabled: !operatorViewModel.busy
+                            Accessible.name: "Tarama RF yükselteci"
+                            onActivated: {
+                                if (!operatorViewModel.setReceiverAndAudioSettings(
+                                        currentIndex === 1, operatorViewModel.listeningDeemphasisUs))
+                                    currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
+                            }
+                        }
                     }
                     Item { Layout.fillWidth: true }
-                    Action { visible: !operatorViewModel.hackrfReady; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+                    Action { visible: !operatorViewModel.hackrfReady; text: "Sistemi Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
                     Action {
                         objectName: "surveyStart"
                         visible: !survey.running
                         text: "Taramayı Başlat"
                         enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && lower.acceptableInput && upper.acceptableInput && Number(lower.text) < Number(upper.text)
-                        onClicked: operatorViewModel.startFrequencySurvey(Number(lower.text), Number(upper.text), Number(lna.currentText), Number(vga.currentText))
+                        onClicked: operatorViewModel.startSurveyProfile(Number(lower.text), Number(upper.text), Number(lna.currentText), Number(vga.currentText), "wideband_burst")
                     }
-                    Action { objectName: "surveyStop"; visible: survey.running; text: "Taramayı Durdur"; enabled: survey.running && survey.state !== "Durduruluyor"; onClicked: survey.cancel() }
+                    Action {
+                        objectName: "surveyStop"
+                        visible: survey.running
+                        text: survey.rechecking ? "Son Kontrolü Durdur" : "Taramayı Durdur"
+                        enabled: survey.running && survey.state !== "Durduruluyor"
+                        onClicked: survey.cancel()
+                    }
                 }
                 RowLayout {
                     visible: false
@@ -210,9 +265,9 @@ Item {
                                 for (var x = 0; x < Math.ceil(width); x++) {
                                     var a = Math.floor(x * states.length / width)
                                     var b = Math.min(states.length, Math.max(a + 1, Math.ceil((x + 1) * states.length / width)))
-                                    var pending = false, failed = false
-                                    for (var i = a; i < b; i++) { pending = pending || states[i] === 0; failed = failed || states[i] === 2 }
-                                    ctx.fillStyle = failed ? view.theme.warning : pending ? view.theme.surfaceAlt : view.theme.accent
+                                    var pending = false, failed = false, coarse = false
+                                    for (var i = a; i < b; i++) { pending = pending || states[i] === 0; failed = failed || states[i] === 2; coarse = coarse || states[i] === 3 }
+                                    ctx.fillStyle = failed ? view.theme.warning : pending ? view.theme.surfaceAlt : coarse ? view.theme.textMuted : view.theme.accent
                                     ctx.fillRect(x,0,1,height)
                                 }
                                 if (survey.running && survey.currentIndex >= 0) {
@@ -226,6 +281,7 @@ Item {
                             Caption { text: survey.state; Layout.fillWidth: true }
                             Caption { text: Math.round(survey.progress * 100) + " %" }
                         }
+                        Caption { text: survey.coverageText; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     }
                 }
                 Card {
@@ -273,9 +329,9 @@ Item {
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Caption { text: operatorViewModel.sourceReady ? ((operatorViewModel.centerFrequencyHz-1e6)/1e6).toFixed(3)+" MHz" : "—" }
+                            Caption { objectName: "surveySpectrumLower"; text: operatorViewModel.sourceReady ? ((operatorViewModel.spectrumCenterFrequencyHz-operatorViewModel.spectrumSampleRateHz/2)/1e6).toFixed(3)+" MHz" : "—" }
                             Item { Layout.fillWidth: true }
-                            Caption { text: operatorViewModel.sourceReady ? ((operatorViewModel.centerFrequencyHz+1e6)/1e6).toFixed(3)+" MHz" : "—" }
+                            Caption { objectName: "surveySpectrumUpper"; text: operatorViewModel.sourceReady ? ((operatorViewModel.spectrumCenterFrequencyHz+operatorViewModel.spectrumSampleRateHz/2)/1e6).toFixed(3)+" MHz" : "—" }
                         }
                     }
                 }
@@ -287,8 +343,11 @@ Item {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 8
-                    Label { text: "BULUNAN SİNYALLER"; color: view.theme.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
-                    Caption { visible: observationList.count === 0; text: survey.running ? "Sinyal aranıyor" : survey.progress > 0 ? "Sinyal bulunamadı" : "Taramayı başlatın"; color: view.theme.accent; Layout.fillWidth: true }
+                    Label { text: "SİNYAL TESPİTİ"; color: view.theme.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold }
+                    Action { objectName: "surveyGroup_verified"; Layout.fillWidth: true; implicitHeight: 32; visible: survey.observationCount > 0; text: view.groupTitle(0); onClicked: survey.toggleObservationGroup("verified") }
+                    Action { objectName: "surveyGroup_candidate"; Layout.fillWidth: true; implicitHeight: 32; visible: survey.observationCount > 0; text: view.groupTitle(1); onClicked: survey.toggleObservationGroup("candidate") }
+                    Action { objectName: "surveyGroup_suspect"; Layout.fillWidth: true; implicitHeight: 32; visible: survey.observationCount > 0; text: view.groupTitle(2); onClicked: survey.toggleObservationGroup("suspect") }
+                    Caption { visible: survey.observationCount === 0; text: survey.running ? "Sinyal aranıyor" : survey.progress > 0 ? "Sinyal bulunamadı" : "Taramayı başlatın"; color: view.theme.accent; Layout.fillWidth: true }
                     ListView {
                         id: observationList
                         objectName: "surveyObservations"
@@ -296,33 +355,33 @@ Item {
                         Layout.fillHeight: true
                         clip: true
                         spacing: 4
-                        model: survey.observationModel
+                        model: survey.groupedObservationModel
                         reuseItems: true
-                        onCountChanged: if (count > 0) positionViewAtBeginning()
-                        ScrollBar.vertical: ScrollBar {}
+                        ScrollBar.vertical: ScrollBar {
+                            width: 5
+                            contentItem: Rectangle { implicitWidth: 5; radius: 2; color: view.theme.textMuted; opacity: 0.6 }
+                            background: Item {}
+                        }
                         delegate: Button {
                             required property var modelData
                             width: observationList.width
-                            height: (modelData.rangeText ? 70 : 50) + (modelData.recheckStatus ? 18 : 0)
-                            Accessible.name: modelData.frequency + ", " + (modelData.signalDetected ? "Sinyal tespit edildi" : "Doğrulama bekliyor")
+                            height: 96
+                            Accessible.name: modelData.frequency + ", " + modelData.statusText
                             ToolTip.visible: hovered
-                            ToolTip.text: modelData.detail + "\n" + modelData.evidenceDetail + (modelData.checkedAt ? "\nSon kontrol: " + modelData.checkedAt : "")
+                            ToolTip.text: [modelData.reviewReason, modelData.evidenceDetail].filter(Boolean).join("\n")
                             onClicked: survey.selectObservation(modelData.eventId)
                             background: Rectangle {
                                 radius: 4
-                                color: survey.selectedKey === modelData.eventId || modelData.latestWindow ? view.theme.accentSoft : view.theme.surfaceAlt
-                                border.color: survey.selectedKey === modelData.eventId || modelData.latestWindow ? view.theme.accent : view.theme.border
+                                color: survey.selectedKey === modelData.eventId ? view.theme.accentSoft : view.theme.surfaceAlt
+                                border.color: survey.selectedKey === modelData.eventId ? view.theme.accent : view.theme.border
                             }
                             contentItem: Column {
                                 spacing: 3
-                                Row {
-                                    width: parent.width
-                                    spacing: 8
-                                    Label { text: modelData.frequency; color: view.theme.textPrimary; font.family: "Consolas"; font.pixelSize: 14 }
-                                }
-                                Caption { visible: !modelData.signalDetected; text: "Doğrulama bekliyor"; color: view.theme.warning; font.pixelSize: 10 }
-                                Caption { visible: !!modelData.rangeText; text: modelData.rangeText || ""; color: view.theme.textSecondary; width: parent.width; elide: Text.ElideRight }
-                                Caption { visible: !!modelData.recheckStatus; text: modelData.recheckStatus || ""; color: view.theme.textSecondary; font.pixelSize: 10 }
+                                Label { text: (modelData.frequencyHz / 1e6).toFixed(3).replace(".", ",") + " MHz"; color: view.theme.textPrimary; font.family: "Consolas"; font.pixelSize: 14 }
+                                Caption { visible: !!modelData.statusText; text: modelData.statusText || ""; color: modelData.groupKey === "verified" ? view.theme.accent : view.theme.textSecondary; font.pixelSize: 10; width: parent.width; wrapMode: Text.WordWrap }
+                                Caption { visible: !!modelData.signalDifferenceText; text: modelData.signalDifferenceText || ""; color: view.theme.textSecondary; font.pixelSize: 10; width: parent.width; wrapMode: Text.WordWrap }
+                                Caption { visible: !!modelData.rangeText; text: modelData.rangeText ? "Tespit aralığı: " + modelData.rangeText : ""; color: view.theme.textSecondary; width: parent.width; wrapMode: Text.WordWrap }
+                                Caption { visible: modelData.groupKey === "verified" && !!modelData.recheckStatus; text: modelData.recheckStatus || ""; color: view.theme.textSecondary; font.pixelSize: 10 }
                             }
                         }
                     }
@@ -331,7 +390,14 @@ Item {
                         Layout.fillWidth: true
                         text: "Parametre Çıkarımına Git"
                         enabled: !operatorViewModel.busy && survey.selectedFrequency > 0
-                        onClicked: if (operatorViewModel.openSurveyObservationParameters()) view.fixedBandRequested()
+                        onClicked: {
+                            // Show the fixed-frequency reacquisition immediately. If the
+                            // backend rejects the start because state changed meanwhile,
+                            // return to the preserved survey instead of leaving a blank task.
+                            view.fixedBandRequested()
+                            if (!operatorViewModel.openSurveyObservationParameters())
+                                view.surveyRequested()
+                        }
                     }
                     Action {
                         objectName: "surveyMonitor"

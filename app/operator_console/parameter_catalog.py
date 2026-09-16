@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
@@ -57,11 +58,12 @@ def _parse_utc(value: object) -> datetime | None:
 
 
 def _finite_number(value: object) -> bool:
-    return (
-        not isinstance(value, bool)
-        and isinstance(value, (int, float))
-        and math.isfinite(float(value))
-    )
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except OverflowError:
+        return False
 
 
 @dataclass(frozen=True)
@@ -81,9 +83,12 @@ class PowerCalibrationRegistry:
         try:
             document = json.loads(self.path.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError):
-            document = {"schema": CALIBRATION_SCHEMA, "profiles": []}
+            document = None
         profiles = document.get("profiles", []) if isinstance(document, dict) else []
-        self._profiles = tuple(item for item in profiles if isinstance(item, dict))
+        self._profiles = (
+            tuple(item for item in profiles if isinstance(item, dict))
+            if isinstance(profiles, list) else ()
+        )
         self.valid_document = (
             isinstance(document, dict)
             and document.get("schema") == CALIBRATION_SCHEMA
@@ -101,22 +106,30 @@ class PowerCalibrationRegistry:
         output_amplitude_scale: float,
         frequency_hz: float,
         now: datetime | None = None,
+        rf_amplifier: bool = False,
     ) -> CalibrationApplication:
-        if power_dbfs is None or not math.isfinite(power_dbfs):
+        if not _finite_number(power_dbfs):
             return CalibrationApplication("unavailable", reason="dbfs_not_valid")
         if not self.valid_document:
             return CalibrationApplication("unavailable", reason="calibration_file_invalid")
         now = now or datetime.now(timezone.utc)
+        matches: list[CalibrationApplication] = []
         for profile in self._profiles:
             measured = _parse_utc(profile.get("measured_utc"))
             valid_until = _parse_utc(profile.get("valid_until_utc"))
             exact = (
                 isinstance(profile.get("profile_id"), str)
+                and bool(profile["profile_id"].strip())
                 and isinstance(profile.get("receiver_serial"), str)
                 and profile["receiver_serial"].casefold() == receiver_serial.casefold()
+                and all(_finite_number(profile.get(key)) for key in (
+                    "sample_rate_hz", "lna_gain_db", "vga_gain_db", "output_amplitude_scale"
+                ))
                 and profile.get("sample_rate_hz") == sample_rate_hz
                 and profile.get("lna_gain_db") == lna_gain_db
                 and profile.get("vga_gain_db") == vga_gain_db
+                and type(rf_amplifier) is bool
+                and profile.get("rf_amplifier", False) is rf_amplifier
                 and profile.get("output_amplitude_scale") == output_amplitude_scale
                 and _finite_number(profile.get("minimum_frequency_hz"))
                 and _finite_number(profile.get("maximum_frequency_hz"))
@@ -129,12 +142,19 @@ class PowerCalibrationRegistry:
                 and float(profile["uncertainty_db"]) >= 0
             )
             if exact:
-                return CalibrationApplication(
+                calibrated_power = power_dbfs + float(profile["dbm_minus_dbfs"])
+                if not math.isfinite(calibrated_power):
+                    continue
+                matches.append(CalibrationApplication(
                     "calibrated",
                     str(profile["profile_id"]),
-                    power_dbfs + float(profile["dbm_minus_dbfs"]),
+                    calibrated_power,
                     float(profile["uncertainty_db"]),
-                )
+                ))
+        if len(matches) == 1:
+            return matches[0]
+        if matches:
+            return CalibrationApplication("unavailable", reason="ambiguous_matching_profiles")
         return CalibrationApplication("unavailable", reason="no_exact_matching_profile")
 
 
@@ -189,10 +209,16 @@ class ParameterCatalog:
                         f"ALTER TABLE parameter_observations ADD COLUMN {name} REAL"
                     )
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self):
         connection = sqlite3.connect(self.path, timeout=2.0)
-        connection.execute("PRAGMA busy_timeout=2000")
-        return connection
+        try:
+            connection.execute("PRAGMA busy_timeout=2000")
+            with connection:
+                yield connection
+        finally:
+            # sqlite3's transaction context commits/rolls back but does not close.
+            connection.close()
 
     def add(
         self,
@@ -205,7 +231,91 @@ class ParameterCatalog:
         lna_gain_db: int,
         vga_gain_db: int,
         output_amplitude_scale: float,
+        rf_amplifier: bool = False,
     ) -> bool:
+        return self.add_many(
+            (outcome,),
+            session_id=session_id,
+            receiver_role=receiver_role,
+            receiver_serial=receiver_serial,
+            sample_rate_hz=sample_rate_hz,
+            lna_gain_db=lna_gain_db,
+            vga_gain_db=vga_gain_db,
+            output_amplitude_scale=output_amplitude_scale,
+            rf_amplifier=rf_amplifier,
+        ) == 1
+
+    def add_many(
+        self,
+        outcomes: tuple[AutomaticParameterOutcome, ...],
+        *,
+        session_id: str,
+        receiver_role: str,
+        receiver_serial: str,
+        sample_rate_hz: int,
+        lna_gain_db: int,
+        vga_gain_db: int,
+        output_amplitude_scale: float,
+        rf_amplifier: bool = False,
+    ) -> int:
+        """Persist one GUI delivery as a single durable SQLite transaction."""
+        if not outcomes:
+            return 0
+        records = [
+            self._record_values(
+                outcome,
+                session_id=session_id,
+                receiver_role=receiver_role,
+                receiver_serial=receiver_serial,
+                sample_rate_hz=sample_rate_hz,
+                lna_gain_db=lna_gain_db,
+                vga_gain_db=vga_gain_db,
+                output_amplitude_scale=output_amplitude_scale,
+                rf_amplifier=rf_amplifier,
+            )
+            for outcome in outcomes
+        ]
+        with self._connect() as connection:
+            before = connection.total_changes
+            connection.executemany(
+                """
+                INSERT OR IGNORE INTO parameter_observations (
+                    schema_name, session_id, receiver_role, receiver_serial,
+                    completed_utc, intent_id, event_id, detected_frequency_hz,
+                    center_frequency_hz, lower_occupied_edge_hz,
+                    upper_occupied_edge_hz, occupied_bandwidth_hz,
+                    channel_power_dbfs, channel_power_dbm, snr_db, status, reason,
+                    calibration_status, calibration_profile_id,
+                    calibration_uncertainty_db, details_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                records,
+            )
+            inserted = connection.total_changes - before
+            connection.execute(
+                """
+                DELETE FROM parameter_observations
+                WHERE id NOT IN (
+                    SELECT id FROM parameter_observations ORDER BY id DESC LIMIT ?
+                )
+                """,
+                (MAXIMUM_CATALOG_ROWS,),
+            )
+        return inserted
+
+    def _record_values(
+        self,
+        outcome: AutomaticParameterOutcome,
+        *,
+        session_id: str,
+        receiver_role: str,
+        receiver_serial: str,
+        sample_rate_hz: int,
+        lna_gain_db: int,
+        vga_gain_db: int,
+        output_amplitude_scale: float,
+        rf_amplifier: bool = False,
+    ) -> tuple[object, ...]:
         result = outcome.result
         power_dbfs = outcome.channel_power_dbfs
         frequency = (
@@ -241,6 +351,7 @@ class ParameterCatalog:
             vga_gain_db=vga_gain_db,
             output_amplitude_scale=output_amplitude_scale,
             frequency_hz=float(frequency),
+            rf_amplifier=rf_amplifier,
         )
         details = json.dumps(
             {
@@ -249,6 +360,7 @@ class ParameterCatalog:
                     "result": asdict(result) if result is not None else None,
                 },
                 "calibration_reason": calibration.reason,
+                "receiver_rf_amplifier": rf_amplifier,
             },
             ensure_ascii=False,
             allow_nan=False,
@@ -257,55 +369,29 @@ class ParameterCatalog:
         )
         if len(details.encode("utf-8")) > MAXIMUM_DETAILS_BYTES:
             raise ValueError("Otomatik parametre kayıt ayrıntısı boyut sınırını aştı.")
-        with self._connect() as connection:
-            before = connection.total_changes
-            connection.execute(
-                """
-                INSERT OR IGNORE INTO parameter_observations (
-                    schema_name, session_id, receiver_role, receiver_serial,
-                    completed_utc, intent_id, event_id, detected_frequency_hz,
-                    center_frequency_hz, lower_occupied_edge_hz,
-                    upper_occupied_edge_hz, occupied_bandwidth_hz,
-                    channel_power_dbfs, channel_power_dbm, snr_db, status, reason,
-                    calibration_status, calibration_profile_id,
-                    calibration_uncertainty_db, details_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    CATALOG_SCHEMA,
-                    session_id[:128],
-                    receiver_role,
-                    receiver_serial,
-                    _utc_now(),
-                    str(outcome.intent_id),
-                    str(outcome.event_id),
-                    float(outcome.detected_frequency_hz),
-                    float(frequency) if frequency is not None else None,
-                    float(lower_edge) if lower_edge is not None else None,
-                    float(upper_edge) if upper_edge is not None else None,
-                    float(bandwidth) if bandwidth is not None else None,
-                    float(power_dbfs) if power_dbfs is not None else None,
-                    calibration.power_dbm,
-                    float(snr) if snr is not None else None,
-                    outcome.status,
-                    outcome.reason,
-                    calibration.status,
-                    calibration.profile_id,
-                    calibration.uncertainty_db,
-                    details,
-                ),
-            )
-            inserted = connection.total_changes > before
-            connection.execute(
-                """
-                DELETE FROM parameter_observations
-                WHERE id NOT IN (
-                    SELECT id FROM parameter_observations ORDER BY id DESC LIMIT ?
-                )
-                """,
-                (MAXIMUM_CATALOG_ROWS,),
-            )
-        return inserted
+        return (
+            CATALOG_SCHEMA,
+            session_id[:128],
+            receiver_role,
+            receiver_serial,
+            _utc_now(),
+            str(outcome.intent_id),
+            str(outcome.event_id),
+            float(outcome.detected_frequency_hz),
+            float(frequency) if frequency is not None else None,
+            float(lower_edge) if lower_edge is not None else None,
+            float(upper_edge) if upper_edge is not None else None,
+            float(bandwidth) if bandwidth is not None else None,
+            float(power_dbfs) if power_dbfs is not None else None,
+            calibration.power_dbm,
+            float(snr) if snr is not None else None,
+            outcome.status,
+            outcome.reason,
+            calibration.status,
+            calibration.profile_id,
+            calibration.uncertainty_db,
+            details,
+        )
 
     def rows(self, limit: int = 128) -> list[dict[str, object]]:
         limit = max(1, min(int(limit), MAXIMUM_DISPLAY_ROWS))

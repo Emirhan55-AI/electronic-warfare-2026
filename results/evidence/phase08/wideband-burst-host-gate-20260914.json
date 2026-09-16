@@ -1,0 +1,88 @@
+{
+  "schema": "wideband-burst-host-gate-v1",
+  "recorded_at": "2026-09-14T01:01:00+03:00",
+  "status": "host_and_physical_burst_transport_verified",
+  "receive_only": true,
+  "profile": {
+    "sample_rate_hz": 10000000,
+    "complex_samples_per_frame": 4096,
+    "frame_count": 64,
+    "center_frequency_hz": 820000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "rf_amplifier": false,
+    "automatic_parameters_enabled": false,
+    "host_decimation": false,
+    "maximum_burst_frames": 256
+  },
+  "host_and_contract_checks": {
+    "python_tests": "56 passed",
+    "c11_transport": "P0_IQ_TRANSPORT_TEST=PASS",
+    "linux_bridge_loopback_10msps": "P0_IQ_BRIDGE_LOOPBACK_TEST=PASS",
+    "arm_cross_compile": {
+      "compiler": "arm-linux-gnueabihf-gcc 11.4.0",
+      "format": "ELF 32-bit LSB PIE, ARM EABI5, hard-float",
+      "path": "build/p0/wideband-burst-20260914/software/p0-ed-network-bridge",
+      "sha256": "beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c"
+    }
+  },
+  "physical_attempt": {
+    "device_serial": "0000000000000000a32868dc35138247",
+    "board_endpoint": "192.168.7.2:47007",
+    "elapsed_seconds": 0.1161988000094425,
+    "completed_frames": 0,
+    "state": "failed_closed",
+    "error_code": "receive_failed",
+    "reason": "Çalışan kart ağ köprüsü 10 MS/s işleme çerçevesini kabul etmeden bağlantıyı kapattı.",
+    "channelizer_backend": "direct-ci8",
+    "capture_queue_high_watermark": 11,
+    "channel_queue_high_watermark": 28,
+    "usb_statistics_complete": false
+  },
+  "source_sha256": {
+    "algorithms/p0/direct_frame.py": "440656eca50bd2edd328df16217a445b5c52f6f680e604db009f89278beda2ea",
+    "algorithms/p0/transport.py": "bf2ff52e62f272e9a659fc7a47987b8c3f28ee354e0ab26f8ad9d80483d293ed",
+    "app/operator_console/live_ed.py": "d07d1f39c5aecba4e5794cc675305a65ece8e503acccc9a9650a06c9f2e57123",
+    "platforms/embedded/p0/include/p0_iq_transport.h": "86b019410a67b4ddf00246beffef482acf7eaa2306d2ba6e71a6bf346742b536",
+    "platforms/embedded/p0/src/p0_iq_transport.c": "4384a8df7d61f2eee774e0bb18e64e09d015029474860f1076b86f5bcc689098",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "56513909e4f292fc64384807e80d8a06f7dc1bea190ec4a71c9fbf252db7ac3f",
+    "tests/test_direct_p0_frame.py": "c9ca04abd566ed525f662719e06dafb0888e48c213a8f837fb0115101d596e32",
+    "tests/test_live_ed_session.py": "1089ebfc0bf0e7a8b48888c6ea48ac83a5b1ce64502f976db953a308fd078796",
+    "tests/test_p0_transport.py": "1dd68a2022562a95c1f55a64c4031d126fa23bb34d9054f552c548e6d26b0a3c",
+    "tests/p0/p0_iq_transport_test.c": "73b13ce9575cd00ffe3206d693bc2cc6683d38dcffaec11c49fdd2f4292f7c20",
+    "tests/p0/p0_iq_bridge_loopback_test.py": "e9133ea8288c96dd14022e3291ab909991396437aa019d43985b6a6b60aaa9b7"
+  },
+  "acceptance_limits": [
+    "Üç fiziksel 64 karelik burst taşıma bütünlüğünü geçti; kontrollü RF kaynağıyla algılama doğruluğu ölçülmedi.",
+    "DC merkez deliği, kenar koruması ve frekans eşleme kontrollü RF ile ölçülmedi.",
+    "10 MS/s giriş kartın ölçülen işlem hızından hızlıdır; yalnız en fazla 256 karelik sınırlı burst kapsamında kullanılabilir.",
+    "Geçici köprü kaldırıldı; ürün arayüzü ve kalıcı kart imajı bu profili henüz açmaz.",
+    "Bu kayıt yarışma veya ST-06 kabulü değildir."
+  ],
+  "physical_burst_verification": {
+    "evidence": "results/evidence/phase08/wideband-burst-physical-20260914.json",
+    "repeats": 3,
+    "completed_frames_each": [
+      64,
+      64,
+      64
+    ],
+    "frames_per_second_range": [
+      498.7440358930394,
+      505.71904018109876
+    ],
+    "total_usb_overruns": 0,
+    "total_crc_errors": 0,
+    "total_sequence_errors": 0,
+    "total_queue_drops": 0,
+    "temporary_bridge_removed": true
+  },
+  "legacy_bridge_guard": {
+    "state": "failed_closed_before_rx",
+    "error_code": "wideband_profile_unavailable",
+    "completed_frames": 0,
+    "hackrf_started": false,
+    "persistent_bridge_sha256": "e0ae46d545d69b773d78f4b631ca0afa71970182e0b7f4443909fa56a0815d93",
+    "listener": "192.168.7.2:47007"
+  }
+}

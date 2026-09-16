@@ -4,6 +4,19 @@ import QtQuick.Layouts
 
 Button {
     id: control
+    property string helpText: ""
+    hoverEnabled: true
+    Accessible.description: helpText
+    ToolTip {
+        visible: control.helpText.length > 0 && control.hovered
+        delay: 500
+        timeout: 12000
+        width: 320
+        text: control.helpText
+        contentItem: Text { text: control.helpText; wrapMode: Text.WordWrap; color: "#EEEEEE"; font.pixelSize: 12 }
+        background: Rectangle { color: "#303030"; border.color: "#737373"; radius: 4 }
+    }
+    property int textAlignment: Text.AlignHCenter
     implicitHeight: 38
     font.pixelSize: 13
     Accessible.name: text
@@ -21,7 +34,7 @@ Button {
         text: control.text
         color: control.enabled ? BazTheme.textPrimary : "#868686"
         font: control.font
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: control.textAlignment
         verticalAlignment: Text.AlignVCenter
     }
 }

@@ -7,8 +7,8 @@ ColumnLayout {
     width: parent ? parent.width : 240
     spacing: 7
     DetectionSettings { id: detectionSettings; theme: shell }
-    QuietButton { Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
-    QuietButton { visible: !operatorViewModel.hackrfReady; Layout.fillWidth: true; text: "Alıcıyı Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+    QuietButton { objectName: "bandSurveyButton"; Layout.fillWidth: true; text: "Bant Taraması ›"; enabled: !operatorViewModel.busy; onClicked: shell.rfSearchMode = true }
+    QuietButton { objectName: "systemCheckButton"; visible: !operatorViewModel.hackrfReady; Layout.fillWidth: true; text: "Sistemi Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
     Label { text: "Merkez frekansı (MHz)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
     AppField {
         font.pixelSize: 13
@@ -34,7 +34,9 @@ ColumnLayout {
             centerInput.text = String(operatorViewModel.liveReceiveSettings.center_hz / 1000000)
             lnaInput.currentIndex = lnaInput.model.indexOf(operatorViewModel.liveReceiveSettings.lna_db)
             vgaInput.currentIndex = vgaInput.model.indexOf(operatorViewModel.liveReceiveSettings.vga_db)
-            shell.setSpectrumView(operatorViewModel.liveDetectionStartNormalized, operatorViewModel.liveDetectionEndNormalized)
+        }
+        function onDetectionSettingsChanged() {
+            amplifierInput.currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
         }
     }
     RowLayout {
@@ -42,45 +44,59 @@ ColumnLayout {
         ColumnLayout {
             Layout.fillWidth: true
             Label { text: "LNA (dB)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-            AppCombo { id: lnaInput; objectName: "liveLnaInput"; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.lna_db); enabled: !operatorViewModel.busy }
+            AppCombo { id: lnaInput; objectName: "liveLnaInput"; helpText: "16 dB başlangıç olabilir. 8 dB adımlarla deneyin; kırpılma veya yeni sahte tepeler oluşursa azaltın. Harici LNA varsa daha düşük kazanç gerekebilir."; Layout.fillWidth: true; model: [0,8,16,24,32,40]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.lna_db); enabled: !operatorViewModel.busy }
         }
         ColumnLayout {
             Layout.fillWidth: true
             Label { text: "VGA (dB)"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-            AppCombo { id: vgaInput; objectName: "liveVgaInput"; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
+            AppCombo { id: vgaInput; objectName: "liveVgaInput"; helpText: "16 dB başlangıç olabilir. 2 dB adımlarla ince ayar yapın. En yüksek değer en iyi alım demek değildir."; Layout.fillWidth: true; model: [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62]; currentIndex: model.indexOf(operatorViewModel.liveReceiveSettings.vga_db); enabled: !operatorViewModel.busy }
         }
     }
-    CheckBox {
-        id: automaticGain
-        objectName: "liveAutomaticGain"
-        text: "Kazancı otomatik ayarla"
-        checked: true
-        enabled: !operatorViewModel.busy
-        Accessible.name: text
+    ColumnLayout {
         Layout.fillWidth: true
-        implicitHeight: 30
-        indicator: Rectangle {
-            x: 0; y: (parent.height - height) / 2
-            width: 16; height: 16; radius: 3
-            color: automaticGain.checked ? "#0078D4" : "#313131"
-            border.color: automaticGain.activeFocus ? "#FFFFFF" : "#868686"
-            Rectangle { anchors.centerIn: parent; width: 8; height: 8; radius: 1; visible: automaticGain.checked; color: "#FFFFFF" }
-        }
-        contentItem: Text {
-            text: automaticGain.text; leftPadding: 23
-            verticalAlignment: Text.AlignVCenter
-            color: shell.textSecondary; font.pixelSize: 11
+        Label { objectName: "liveAmplifierLabel"; text: "AMP"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+        AppCombo {
+            id: amplifierInput
+            objectName: "liveAmplifierInput"
+            helpText: "Kapalı başlayın. Çok zayıf sinyalde Açık ile karşılaştırın; kırpılma veya bozulma artarsa kapatın."
+            Layout.fillWidth: true
+            leftPadding: 28
+            model: ["Kapalı", "Açık"]
+            currentIndex: operatorViewModel.receiverRFAmplifier ? 1 : 0
+            enabled: !operatorViewModel.busy
+            onActivated: {
+                if (!operatorViewModel.setReceiverAndAudioSettings(
+                        currentIndex === 1, operatorViewModel.listeningDeemphasisUs))
+                    currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
+            }
         }
     }
-    PrimaryButton {
-        objectName: "liveStartButton"
+    Item {
+        id: liveSessionActionSlot
+        objectName: "liveSessionActionSlot"
         Layout.fillWidth: true
-        text: "Taramayı Başlat"
-        visible: !operatorViewModel.liveSessionActive
-        enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && centerInput.frequencyValid
-        onClicked: operatorViewModel.startManagedLiveEDSession(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit, automaticGain.checked)
+        Layout.preferredHeight: 40
+        PrimaryButton {
+            objectName: "liveStartButton"
+            anchors.fill: parent
+            text: "Taramayı Başlat"
+            visible: !operatorViewModel.liveSessionActive
+            enabled: operatorViewModel.hackrfReady && !operatorViewModel.busy && centerInput.frequencyValid
+            onClicked: {
+                shell.clearSpectrumViewHistory()
+                operatorViewModel.startLiveEDSession(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit)
+            }
+        }
+        QuietButton {
+            objectName: "liveStopButton"
+            anchors.fill: parent
+            text: "Taramayı Durdur"
+            visible: operatorViewModel.liveSessionActive
+            enabled: operatorViewModel.liveSessionActive
+            onClicked: operatorViewModel.stopLiveEDSession()
+        }
     }
-    QuietButton { objectName: "liveDetectionSettingsButton"; Layout.fillWidth: true; text: "Tespit ve Görüntü Ayarları"; onClicked: detectionSettings.open() }
+    QuietButton { objectName: "liveDetectionSettingsButton"; Layout.fillWidth: true; text: "Ayarlar"; onClicked: detectionSettings.open() }
     QuietButton {
         Layout.fillWidth: true
         text: "Yalnız RX Önizleme"
@@ -89,12 +105,5 @@ ColumnLayout {
         ToolTip.visible: hovered
         ToolTip.text: "Kart bağlantısı olmadan gerçek alımı gösterir; FPGA tespiti üretmez."
         onClicked: operatorViewModel.startRXPreview(centerInput.frequencyHz, Number(lnaInput.currentText), Number(vgaInput.currentText), shell.liveSessionFrameLimit)
-    }
-    QuietButton {
-        Layout.fillWidth: true
-        text: "Taramayı Durdur"
-        visible: operatorViewModel.liveSessionActive
-        enabled: operatorViewModel.liveSessionActive
-        onClicked: operatorViewModel.stopLiveEDSession()
     }
 }

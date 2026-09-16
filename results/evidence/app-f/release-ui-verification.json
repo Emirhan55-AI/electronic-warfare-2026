@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "work_package": "APP-F",
-  "recorded_at": "2026-09-13T19:29:58Z",
+  "recorded_at": "2026-09-16T09:59:14Z",
   "environment": {
     "platform": "win32",
     "python": "3.13.7",
@@ -48,10 +48,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.200455974642681,
-      "processing_median_ms": 2.3939000093378127,
-      "processing_p95_ms": 2.4587000079918653,
-      "maximum_heartbeat_gap_ms": 45.9073000238277,
+      "observed_update_hz": 9.199256700061348,
+      "processing_median_ms": 2.772499999991851,
+      "processing_p95_ms": 3.8687000014760997,
+      "maximum_heartbeat_gap_ms": 26.164899998548208,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -151,7 +151,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/minimum-1280x720.png",
-      "screenshot_sha256": "d8c1a084551ac07d12b29e813c50cf8d75c42bc3b6cbd0d17bf92e39b3fb2c4b"
+      "screenshot_sha256": "de72b7d824fc9786940d7f544658d1bc0c7e72aa7f2f16f1890d05b1d35644e6"
     },
     {
       "name": "measurement-1280x720",
@@ -183,10 +183,10 @@
         0.625
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.173338974538819,
-      "processing_median_ms": 2.4357999791391194,
-      "processing_p95_ms": 2.5025999930221587,
-      "maximum_heartbeat_gap_ms": 46.81599998730235,
+      "observed_update_hz": 9.22977747728499,
+      "processing_median_ms": 2.858399999240646,
+      "processing_p95_ms": 3.795399999944493,
+      "maximum_heartbeat_gap_ms": 27.27020000020275,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -286,7 +286,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/measurement-1280x720.png",
-      "screenshot_sha256": "8990c22f0d98a6be11ef8a34a7107ebab58c97d2ef30a712c1823b4136e5eacc"
+      "screenshot_sha256": "0eead30aace084da76f0227e8f94b859423d0dd48a2b2133bfe13e1af6a3b43d"
     },
     {
       "name": "standard-1366x768",
@@ -318,10 +318,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.2075682528684,
-      "processing_median_ms": 2.3822000075597316,
-      "processing_p95_ms": 2.4329999869223684,
-      "maximum_heartbeat_gap_ms": 46.217900002375245,
+      "observed_update_hz": 9.221753008739535,
+      "processing_median_ms": 2.731700002186699,
+      "processing_p95_ms": 3.4933999995701015,
+      "maximum_heartbeat_gap_ms": 21.20669999931124,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -421,7 +421,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/standard-1366x768.png",
-      "screenshot_sha256": "d0bb751673605ab04b7647e9ad63bd7c8a996ff19688627b72c80eafb122cd7b"
+      "screenshot_sha256": "1e667dd3fc56a59596d3d4d7d62c388c17b2c6771af9bb601e5f9637e9eef4cc"
     },
     {
       "name": "fullhd-1920x1080",
@@ -453,10 +453,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.15581950852251,
-      "processing_median_ms": 2.3882999958004802,
-      "processing_p95_ms": 2.521600021282211,
-      "maximum_heartbeat_gap_ms": 44.411700015189126,
+      "observed_update_hz": 9.224664169076966,
+      "processing_median_ms": 2.8309000008448493,
+      "processing_p95_ms": 3.6447000020416453,
+      "maximum_heartbeat_gap_ms": 21.977399999741465,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -556,7 +556,7 @@
       "direction_reference": "İlk ölçümde sabitlenir",
       "direction_source_bound": true,
       "screenshot": "results/evidence/app-f/fullhd-1920x1080.png",
-      "screenshot_sha256": "555c46afeaa794c08eb2e9a13c4a5dd561d3de0816a4782b49c99dc3906a2af6"
+      "screenshot_sha256": "06c20f2f983143240a9fd81b8402516bfe6dfbdec816c9789462540eb42ab653"
     },
     {
       "name": "scale-150-percent",
@@ -588,10 +588,10 @@
         1.0
       ],
       "processed_frames": 23,
-      "observed_update_hz": 9.187421684667777,
-      "processing_median_ms": 2.39129998954013,
-      "processing_p95_ms": 2.44609999936074,
-      "maximum_heartbeat_gap_ms": 45.22259999066591,
+      "observed_update_hz": 9.153629179162799,
+      "processing_median_ms": 2.861600001779152,
+      "processing_p95_ms": 3.8055000004533213,
+      "maximum_heartbeat_gap_ms": 24.808200003462844,
       "developer_mode": false,
       "pipeline_blocks": [
         {
@@ -710,7 +710,7 @@
     "source_mode": "hackrf",
     "source_state": "Hata",
     "source_ready": false,
-    "status": "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin.",
+    "status": "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim bağlantısına erişilemedi.",
     "settled": true
   },
   "gates": {
@@ -725,7 +725,7 @@
     "spectrum_task_views": true,
     "listening_task_ready": true,
     "direction_task_guarded": true,
-    "system_diagnostics": true,
+    "system_workspace_removed": true,
     "release_source_navigation_disabled": true,
     "structured_operation_log": true,
     "spectrum_interaction_model": true,

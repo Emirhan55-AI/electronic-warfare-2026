@@ -26,6 +26,7 @@ from .live_ed import (
     LIVE_DEFAULT_VGA_GAIN_DB,
     LIVE_OUTPUT_SAMPLE_RATE_HZ,
     LIVE_OUTPUT_SAMPLES_PER_FRAME,
+    LIVE_STARTUP_SETTLING_FRAMES,
     LiveEDConfiguration,
     LiveEDSession,
     LiveEDSnapshot,
@@ -42,6 +43,17 @@ SURVEY_CHANNELIZER_PASSBAND_HALF_HZ = P0ChannelizerProfile().passband_edge_hz
 SURVEY_RESPONSIBILITY_WIDTH_HZ = 2 * (
     SURVEY_CHANNELIZER_PASSBAND_HALF_HZ - SURVEY_MAX_FULL_SUPPORT_HZ // 2
 )
+# The buffered 10 MS/s screen owns only one side of each tuning. A 1 MHz-wide
+# signal then remains outside the central +/-500 kHz region and inside the
+# conservative +/-4 MHz edge on every responsibility interval.
+SURVEY_WIDEBAND_SAMPLE_RATE_HZ = 10_000_000
+SURVEY_WIDEBAND_PASSBAND_HALF_HZ = 4_000_000
+SURVEY_WIDEBAND_TUNING_OFFSET_HZ = 1_000_000
+SURVEY_WIDEBAND_RESPONSIBILITY_WIDTH_HZ = (
+    SURVEY_WIDEBAND_PASSBAND_HALF_HZ
+    - SURVEY_MAX_FULL_SUPPORT_HZ // 2
+    - SURVEY_WIDEBAND_TUNING_OFFSET_HZ
+)
 SURVEY_CLUSTER_HZ = 50_000
 SURVEY_BROAD_MINIMUM_SPAN_BINS = 257
 SURVEY_MIN_OBSERVED_FRAMES = 8
@@ -52,14 +64,20 @@ SURVEY_VERIFY_TUNING_OFFSET_HZ = 2_500_000
 SURVEY_MONITOR_CENTER_OFFSET_HZ = 100_000
 MAX_WINDOW_OBSERVATIONS = 128
 SURVEY_TRANSPORT_ATTEMPTS = 3
-SURVEY_RETRYABLE_TRANSPORT_ERRORS = frozenset({"usb_overrun", "short_stream"})
+SURVEY_RETRYABLE_TRANSPORT_ERRORS = frozenset(
+    {"usb_overrun", "short_stream", "live_pipeline_short_stream", "fpga_short_stream"}
+)
 ROOT = Path(__file__).resolve().parents[2]
 SURVEY_SOURCES = (
+    "platforms/acquisition/sweep.py", "platforms/acquisition/hackrf.py",
+    "platforms/acquisition/process.py", "platforms/acquisition/contracts.py",
+    "app/operator_console/quick_scan_actions.py",
     "app/operator_console/survey_recheck.py",
     "algorithms/spectrum/dsp.py",
     "app/operator_console/survey_presentation.py",
     "app/operator_console/rx_survey.py", "app/operator_console/live_ed.py",
-    "algorithms/p0/channelizer.py", "algorithms/p0/transport.py",
+    "algorithms/p0/channelizer.py", "algorithms/p0/direct_frame.py",
+    "algorithms/p0/transport.py",
     "platforms/acquisition/continuous.py",
     "platforms/acquisition/windows_pipe.py", "app/operator_console/survey_controller.py",
     "app/operator_console/quick_view_model.py", "app/operator_console/qml/RxSurveyView.qml",
@@ -69,6 +87,8 @@ SURVEY_SOURCES = (
     "app/operator_console/integrated_spectrum.py", "app/operator_console/known_spurs.py",
     "config/p0/hackrf_spurs.json",
     "algorithms/p0/native_channelizer.py", "algorithms/p0/native/channelizer_native.cpp",
+    "platforms/embedded/p0/include/p0_iq_transport.h",
+    "platforms/embedded/p0/src/p0_iq_transport.c",
 )
 
 
@@ -105,6 +125,8 @@ class SurveyConfig:
     frames_per_window: int = 128
     guard_frames: int = 8
     operator_condition: str = "unspecified"
+    mode: str = "full"
+    rf_amplifier: bool = False
 
     def __post_init__(self):
         if any(isinstance(value, bool) or not isinstance(value, int) for value in (
@@ -117,10 +139,34 @@ class SurveyConfig:
             raise ValueError("Tarama gözlem süresi güvenli sınırların dışında.")
         if self.operator_condition not in {"unspecified", "tx_off_reference", "tx_on_comparison"}:
             raise ValueError("Tarama deney koşulu geçerli değil.")
+        if self.mode not in {"full", "fast", "wideband_burst"}:
+            raise ValueError("Tarama profili geçersiz.")
+        if self.mode in {"fast", "wideband_burst"} and self.operator_condition != "unspecified":
+            raise ValueError("Referans karşılaştırması tam tarama profili gerektirir.")
+        if self.mode == "wideband_burst" and self.frames_per_window > 256:
+            raise ValueError("10 MS/s tarama penceresi en fazla 256 kare olabilir.")
         # Reuse the actual receive configuration's gain validation.
-        LiveEDConfiguration(self.lower_hz, "0" * 32, self.lna_gain_db, self.vga_gain_db)
+        LiveEDConfiguration(self.lower_hz, "0" * 32, self.lna_gain_db, self.vga_gain_db,
+                            rf_amplifier=self.rf_amplifier)
 
     def windows(self) -> tuple[SurveyWindow, ...]:
+        if self.mode == "wideband_burst":
+            result = []
+            for index, lower in enumerate(
+                range(self.lower_hz, self.upper_hz, SURVEY_WIDEBAND_RESPONSIBILITY_WIDTH_HZ)
+            ):
+                upper = min(
+                    lower + SURVEY_WIDEBAND_RESPONSIBILITY_WIDTH_HZ,
+                    self.upper_hz,
+                )
+                if lower - SURVEY_WIDEBAND_TUNING_OFFSET_HZ >= MIN_FREQUENCY_HZ:
+                    center = lower - SURVEY_WIDEBAND_TUNING_OFFSET_HZ
+                else:
+                    center = upper + SURVEY_WIDEBAND_TUNING_OFFSET_HZ
+                result.append(SurveyWindow(
+                    index, lower, upper, center, upper == self.upper_hz
+                ))
+            return tuple(result)
         return tuple(
             SurveyWindow(
                 index,
@@ -135,10 +181,16 @@ class SurveyConfig:
         )
 
 
-def _event_frequency_geometry(center_hz: int, event) -> tuple[float, float, float, float]:
+def _event_frequency_geometry(
+    center_hz: int,
+    event,
+    *,
+    sample_rate_hz: int = LIVE_OUTPUT_SAMPLE_RATE_HZ,
+    fft_size: int = LIVE_OUTPUT_SAMPLES_PER_FRAME,
+) -> tuple[float, float, float, float]:
     """Return half-bin support bounds, support center and peak in absolute Hz."""
-    spacing = LIVE_OUTPUT_SAMPLE_RATE_HZ / LIVE_OUTPUT_SAMPLES_PER_FRAME
-    shifted_origin = LIVE_OUTPUT_SAMPLES_PER_FRAME // 2
+    spacing = sample_rate_hz / fft_size
+    shifted_origin = fft_size // 2
     lower = center_hz + (event.start_shifted_bin - shifted_origin - 0.5) * spacing
     upper = center_hz + (event.end_shifted_bin - shifted_origin + 0.5) * spacing
     support_center = 0.5 * (lower + upper)
@@ -168,8 +220,8 @@ def _verification_matches(observation: dict, lower: float, upper: float,
     if observed_width < broad_minimum_hz:
         return abs(peak - float(observation["peak_frequency_hz"])) <= SURVEY_CLUSTER_HZ
     overlap = max(0.0, min(observed_upper, upper) - max(observed_lower, lower))
-    smaller_width = min(observed_width, candidate_width)
-    if smaller_width <= 0.0 or overlap / smaller_width < 0.5:
+    larger_width = max(observed_width, candidate_width)
+    if min(observed_width, candidate_width) <= 0.0 or overlap / larger_width < 0.25:
         return False
     return abs(support_center - float(observation["frequency_hz"])) <= max(
         SURVEY_CLUSTER_HZ, 0.5 * max(observed_width, candidate_width)
@@ -188,6 +240,8 @@ class SurveyUpdate:
     prepared_spectrum: object | None = None
     window_metrics: dict | None = None
     screened_observations: tuple[dict, ...] = ()
+    timing: dict | None = None
+    selected_windows: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -210,12 +264,13 @@ class RXSurvey:
     """
 
     def __init__(self, executable: str, serial: str, config: SurveyConfig, audit_path: Path,
-                 *, session_factory=LiveEDSession):
+                 *, session_factory=LiveEDSession, screen_factory=None):
         self.executable = executable
         self.serial = serial
         self.config = config
         self.audit_path = Path(audit_path)
         self._session_factory = session_factory
+        self._screen_factory = screen_factory
         self._known_spurs_hz = load_known_spurs(serial)
         self._cancel = threading.Event()
         self._lock = threading.Lock()
@@ -250,7 +305,9 @@ class RXSurvey:
                 latest_iq_sha256 = ""
                 receiver_power_rows = []
                 receiver_frequencies_hz = None
-                receiver_processor = SpectrumProcessor(SpectrumConfig(frame_length=16_384))
+                receiver_processor = SpectrumProcessor(
+                    SpectrumConfig(frame_length=16_384)
+                )
 
                 def accept(snapshot):
                     nonlocal snapshot_count, latest_event, latest_iq_sha256
@@ -305,7 +362,10 @@ class RXSurvey:
                     vga_gain_db,
                     frame_count=SURVEY_VERIFY_FRAMES,
                     display_interval_frames=1,
+                    startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
+                    automatic_parameters_enabled=False,
                     input_center_frequency_hz_override=input_center_hz,
+                    rf_amplifier=self.config.rf_amplifier,
                 )
                 session = self._session_factory(self.executable, config)
                 if hasattr(session, "set_preview_handler"):
@@ -370,6 +430,11 @@ class RXSurvey:
                 if guarded_spur is not None and not spur_guard_passed:
                     return None
                 if len(observed_centers) < SURVEY_VERIFY_MIN_OBSERVED_FRAMES and integrated is None:
+                    return None
+                if len(observed_centers) < SURVEY_VERIFY_MIN_OBSERVED_FRAMES and not _verification_matches(
+                    observation, integrated.lower_frequency_hz, integrated.upper_frequency_hz,
+                    integrated.frequency_hz, integrated.peak_frequency_hz,
+                ):
                     return None
                 verified = dict(observation)
                 if len(observed_centers) >= SURVEY_VERIFY_MIN_OBSERVED_FRAMES:
@@ -438,6 +503,43 @@ class RXSurvey:
                     "total_windows": len(windows), "source_sha256": {
                         name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in SURVEY_SOURCES
                     }})
+            if self.config.mode == "fast":
+                from platforms.acquisition.sweep import HackRFSweepScreen
+
+                screen = (self._screen_factory or HackRFSweepScreen)(self.executable)
+                with self._lock:
+                    self._active = screen
+                coarse_started = time.monotonic()
+                if callback:
+                    callback(SurveyUpdate(windows[0], "coarse_running", 0.))
+                def coarse_progress(end_hz, row):
+                    record({"type": "coarse_chunk", **row})
+                    if callback:
+                        callback(SurveyUpdate(windows[0], "coarse_running", time.monotonic() - started,
+                                              timing={"coarse_end_hz": end_hz}))
+                try:
+                    selected, _ = screen.run(self.config, self.serial, self._cancel, coarse_progress)
+                    if self._cancel.is_set():
+                        raise AcquisitionError("operation_cancelled", "Tarama iptal edildi.")
+                    record({"type": "coarse_complete", "selected_windows": selected,
+                            "elapsed_seconds": time.monotonic() - coarse_started,
+                            "detection_confirmed": False, "sample_rate_hz": 20_000_000,
+                            "baseband_filter_hz": 15_000_000,
+                            "settings_basis": "upstream_sweep_profile_not_device_readback"})
+                    if callback:
+                        callback(SurveyUpdate(windows[0], "coarse_complete", time.monotonic() - started,
+                                              selected_windows=selected))
+                    windows = tuple(windows[i] for i in selected)
+                except Exception as exc:
+                    code = str(getattr(exc, "code", "sweep_failed"))
+                    state = "cancelled" if self._cancel.is_set() or code == "operation_cancelled" else "failed"
+                    summary = SurveyResult(state, len(windows), 0, 0, time.monotonic() - started,
+                                           str(self.audit_path.resolve()), code)
+                    record({"type": "end", **asdict(summary)})
+                    return summary
+                finally:
+                    with self._lock:
+                        self._active = None
             for window in windows:
                 if self._cancel.is_set():
                     final_state = "cancelled"
@@ -452,12 +554,16 @@ class RXSurvey:
                 receiver_processor = SpectrumProcessor(SpectrumConfig(frame_length=16_384))
                 latest_display_iq_sha256 = ""
                 window_started = time.monotonic()
+                first_response_at = None
+                primary_finished_at = None
                 record({"type": "window_start", "window": asdict(window)})
                 if callback:
                     callback(SurveyUpdate(window, "running", time.monotonic() - started))
 
                 def accept(snapshot):
-                    nonlocal latest, snapshot_count, channel_power_sum, channel_power_components
+                    nonlocal latest, snapshot_count, channel_power_sum, channel_power_components, first_response_at
+                    if first_response_at is None:
+                        first_response_at = time.monotonic()
                     if snapshot.sequence_number != snapshot_count:
                         raise AcquisitionError("survey_sequence", "Tarama kare sırası bozuldu.")
                     if snapshot.output_frame.center_frequency_hz != window.center_hz:
@@ -477,7 +583,12 @@ class RXSurvey:
                     for event in snapshot.response.active:
                         if event.state != "confirmed" or not event.observed_this_frame:
                             continue
-                        lower, upper, center, peak = _event_frequency_geometry(window.center_hz, event)
+                        lower, upper, center, peak = _event_frequency_geometry(
+                            window.center_hz,
+                            event,
+                            sample_rate_hz=snapshot.output_frame.sample_rate_hz,
+                            fft_size=snapshot.output_frame.complex_sample_count,
+                        )
                         if center < window.lower_hz or center > window.upper_hz or (
                             center == window.upper_hz and not window.include_upper
                         ):
@@ -530,7 +641,10 @@ class RXSurvey:
                                 "first_frame": snapshot.sequence_number, "observed_frames": 0,
                             }
                         row = observations[key]
-                        count = row["observed_frames"]
+                        # Geometry is weighted by groups; occupancy counts unique frames.
+                        count = row.get("group_observations", 0)
+                        if row.get("last_frame") != snapshot.sequence_number:
+                            row["observed_frames"] += 1
                         lower_average = (row["lower_frequency_hz"] * count + group_lower) / (count + 1)
                         upper_average = (row["upper_frequency_hz"] * count + group_upper) / (count + 1)
                         row.update(
@@ -545,15 +659,21 @@ class RXSurvey:
                             event=asdict(representative),
                             iq_sha256=hashlib.sha256(snapshot.output_frame.payload).hexdigest(),
                         )
-                        row["observed_frames"] = count + 1
+                        row["group_observations"] = count + 1
 
                 def accept_preview(preview):
-                    nonlocal receiver_frequencies_hz, latest_display_iq_sha256
+                    nonlocal receiver_frequencies_hz, latest_display_iq_sha256, receiver_processor
                     if preview.sequence_number < self.config.guard_frames or preview.display_frame is None:
                         return
                     frame = preview.display_frame
-                    samples = decode_ci8(frame.payload, expected_complex_samples=16_384)
+                    complex_samples = len(frame.payload) // 2
+                    samples = decode_ci8(
+                        frame.payload, expected_complex_samples=complex_samples
+                    )
                     if receiver_frequencies_hz is None:
+                        receiver_processor = SpectrumProcessor(
+                            SpectrumConfig(frame_length=complex_samples)
+                        )
                         spectrum = receiver_processor.process(
                             samples, sample_rate_hz=frame.sample_rate_hz,
                             center_frequency_hz=frame.center_frequency_hz,
@@ -561,6 +681,7 @@ class RXSurvey:
                         receiver_frequencies_hz = spectrum.display.frequency_absolute_hz
                         receiver_power_rows.append(spectrum.display.bin_power_fs2)
                     else:
+                        assert receiver_processor is not None
                         receiver_power_rows.append(receiver_processor.detection_power(samples))
                     latest_display_iq_sha256 = hashlib.sha256(frame.payload).hexdigest()
 
@@ -579,13 +700,19 @@ class RXSurvey:
                             channel_power_components = 0
                             receiver_power_rows.clear()
                             receiver_frequencies_hz = None
+                            receiver_processor = None
                             latest_display_iq_sha256 = ""
                             display_snapshots = []
                             if callback and (gain_attempt > 1 or transport_attempt > 1):
                                 callback(SurveyUpdate(window, "running", time.monotonic() - started))
+                            wideband_burst = self.config.mode == "wideband_burst"
                             config = LiveEDConfiguration(window.center_hz, self.serial,
                                 lna_gain_db, vga_gain_db,
-                                frame_count=self.config.frames_per_window, display_interval_frames=1)
+                                frame_count=self.config.frames_per_window, display_interval_frames=1,
+                                startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
+                                automatic_parameters_enabled=not wideband_burst,
+                                direct_fpga_input=wideband_burst,
+                                rf_amplifier=self.config.rf_amplifier)
                             session = self._session_factory(self.executable, config)
                             if hasattr(session, "set_preview_handler"):
                                 session.set_preview_handler(accept_preview)
@@ -620,6 +747,7 @@ class RXSurvey:
                         raise AcquisitionError("survey_incomplete_window", "Tarama penceresi eksik işlendi.")
                     if self._cancel.is_set():
                         raise AcquisitionError("operation_cancelled", "Tarama durduruldu.")
+                    primary_finished_at = time.monotonic()
                     if receiver_frequencies_hz is not None and receiver_power_rows:
                         receiver_stack = np.stack(receiver_power_rows)
                         integrated_candidates = integrated_spectrum_candidates(
@@ -686,6 +814,7 @@ class RXSurvey:
                         ),
                         key=lambda item: (-item["observed_frames"], item["frequency_hz"]),
                     ))
+                    verification_started = time.monotonic()
                     items = tuple(
                         verified
                         for item in screened
@@ -693,6 +822,18 @@ class RXSurvey:
                         for verified in (self._verify_observation(item),)
                         if verified is not None
                     )
+                    verification_finished = time.monotonic()
+                    timing = {
+                        "sample_observation_seconds": (
+                            self.config.frames_per_window * 4096
+                            / config.processing_sample_rate_hz
+                        ),
+                        "first_response_seconds": first_response_at - window_started if first_response_at else None,
+                        "primary_seconds": primary_finished_at - window_started,
+                        "screening_seconds": verification_started - primary_finished_at,
+                        "verification_seconds": verification_finished - verification_started,
+                        "processing_seconds": verification_finished - window_started,
+                    }
                     channel_power_dbfs = (
                         10.0 * math.log10(
                             2.0 * channel_power_sum / channel_power_components / (128.0 * 128.0)
@@ -707,7 +848,7 @@ class RXSurvey:
                         "vga_gain_db": selected_vga,
                         "input_center_hz": config.input_center_frequency_hz,
                         "output_center_hz": window.center_hz,
-                        "sample_rate_hz": LIVE_OUTPUT_SAMPLE_RATE_HZ,
+                        "sample_rate_hz": config.processing_sample_rate_hz,
                         "power_reference": "mean_abs_iq_squared_ci8_div128",
                     }
                     # Persist before advertising coverage or observations to the UI.
@@ -716,12 +857,14 @@ class RXSurvey:
                             "gain": {"lna_gain_db": selected_lna, "vga_gain_db": selected_vga},
                             "observations": items, "screened_observations": screened,
                             "window_metrics": window_metrics,
+                            "timing": timing,
                             "result": asdict(result)})
                     good += 1
                     if callback:
                         callback(SurveyUpdate(window, "complete", time.monotonic() - started, items, latest,
                                               display_snapshots=tuple(display_snapshots),
                                               window_metrics=window_metrics,
+                                              timing=timing,
                                               screened_observations=screened))
                 except Exception as exc:
                     code = str(getattr(exc, "code", "survey_failed"))

@@ -27,6 +27,8 @@ CAPABILITY_MESSAGE = struct.Struct("<4sBBHIIIIII12sI")
 MAX_PAYLOAD_BYTES = 131_072
 MAX_RESPONSE_BYTES = 16_384
 P0_SAMPLE_RATE_HZ = 2_000_000
+P0_WIDEBAND_SAMPLE_RATE_HZ = 10_000_000
+P0_SUPPORTED_SAMPLE_RATES_HZ = (P0_SAMPLE_RATE_HZ, P0_WIDEBAND_SAMPLE_RATE_HZ)
 P0_COMPLEX_SAMPLES = 4_096
 P0_SUPPORTED_COMPLEX_SAMPLES = (4_096, 8_192, 16_384)
 P0_PAYLOAD_BYTES = P0_COMPLEX_SAMPLES * 2
@@ -44,6 +46,7 @@ CAPABILITY_MAGIC_RESPONSE = b"P0CR"
 CAPABILITY_TYPE_QUERY = 1
 CAPABILITY_TYPE_RESPONSE = 2
 CAPABILITY_INLINE_PARAMETER = 0x00000001
+CAPABILITY_WIDEBAND_BURST = 0x00000002
 
 
 class TransportError(RuntimeError):
@@ -66,6 +69,7 @@ class TransportCapabilities:
     inline_parameter_observation: bool = False
     maximum_parameter_span_bins: int = 0
     parameter_contexts: int = 0
+    wideband_burst: bool = False
 
 
 @dataclass(frozen=True)
@@ -243,12 +247,23 @@ def decode_local_ed_response(payload: bytes, expected_frame_id: int) -> LocalEDR
         header_bytes != expected_header_bytes
         or total_bytes != len(payload)
         or frame_id != expected_frame_id
-        or status != 0
         or header_crc != zlib.crc32(payload[: expected_header_bytes - 4]) & 0xFFFFFFFF
         or not reserved_valid
         or not parameter_contract
     ):
         raise TransportError("local_response_header", "Yerel kart hizmeti kompakt yanıt başlığı doğrulanamadı.")
+    if status != 0:
+        errors = {
+            1: ("local_invalid_request", "FPGA hizmeti örnek boyutu veya istek biçimini reddetti."),
+            2: ("local_dma_failure", "FPGA DMA işlemi tamamlanamadı."),
+            3: ("local_pipeline_failure", "FPGA tespit işleme hattı sonucu tamamlayamadı."),
+            4: ("local_internal_failure", "FPGA hizmetinde iç işlem hatası oluştu."),
+        }
+        code, message = errors.get(
+            status,
+            ("local_service_failure", "FPGA hizmeti tanımsız bir hata durumu döndürdü."),
+        )
+        raise TransportError(code, message)
     result_offset = expected_header_bytes
     result = payload[result_offset : result_offset + result_bytes]
     if len(result) != result_bytes or result_bytes < 20 or len(payload) != result_offset + result_bytes + parameter_bytes:
@@ -427,15 +442,19 @@ class IQFrameCodec:
     def validate_processing_frame(frame: IQFrame) -> None:
         if (
             frame.sample_format != "ci8"
-            or frame.sample_rate_hz != P0_SAMPLE_RATE_HZ
+            or frame.sample_rate_hz not in P0_SUPPORTED_SAMPLE_RATES_HZ
             or frame.complex_sample_count not in P0_SUPPORTED_COMPLEX_SAMPLES
             or len(frame.payload) != frame.complex_sample_count * 2
             or frame.chunk_index != 0
             or frame.chunk_count != 1
+            or (
+                frame.parameter_request is not None
+                and frame.sample_rate_hz != P0_SAMPLE_RATE_HZ
+            )
         ):
             raise TransportError(
                 "processing_profile_mismatch",
-                "FPGA işleme yolu 2 MS/s, 4096 örnek ile 8192/16384 seçeneklerinden birini ve tek parça ci8 çerçeveyi gerektirir.",
+                "FPGA işleme yolu 2 veya 10 MS/s, 4096 örnek ile 8192/16384 seçeneklerinden birini ve tek parça ci8 çerçeveyi gerektirir; parametre isteği yalnız 2 MS/s'dir.",
             )
 
 
@@ -481,6 +500,8 @@ class IQCapabilityCodec:
     @staticmethod
     def _encode(magic: bytes, message_type: int, capabilities: TransportCapabilities) -> bytes:
         flags = CAPABILITY_INLINE_PARAMETER if capabilities.inline_parameter_observation else 0
+        if capabilities.wideband_burst:
+            flags |= CAPABILITY_WIDEBAND_BURST
         prefix = CAPABILITY_PREFIX.pack(
             magic,
             VERSION,
@@ -520,7 +541,7 @@ class IQCapabilityCodec:
             or version != VERSION
             or message_type != CAPABILITY_TYPE_RESPONSE
             or header_size != CAPABILITY_MESSAGE.size
-            or (flags & ~CAPABILITY_INLINE_PARAMETER) != 0
+            or (flags & ~(CAPABILITY_INLINE_PARAMETER | CAPABILITY_WIDEBAND_BURST)) != 0
             or reserved_a != 0
             or reserved_b != 0
             or reserved_c != 0
@@ -534,7 +555,10 @@ class IQCapabilityCodec:
             and (not 8 <= maximum_span <= 512 or contexts != 1)
         ) or (not inline and (maximum_span != 0 or contexts != 0)):
             raise TransportError("capability_contract", "Kart yetenek sınırları geçersizdir.")
-        return TransportCapabilities(inline, maximum_span, contexts)
+        return TransportCapabilities(
+            inline, maximum_span, contexts,
+            bool(flags & CAPABILITY_WIDEBAND_BURST),
+        )
 
 
 class BoundedIQQueue:

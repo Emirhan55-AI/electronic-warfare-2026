@@ -34,7 +34,7 @@ def iq_packet(sequence: int, frame_id: int) -> bytes:
         0,
         1,
         101_500_000,
-        2_000_000,
+        10_000_000,
         4096,
         PAYLOAD_BYTES,
         zlib.crc32(payload) & 0xFFFFFFFF,

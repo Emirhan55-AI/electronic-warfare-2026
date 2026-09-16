@@ -41,7 +41,11 @@ class DetectionListModel(QAbstractListModel):
                 self.endInsertRows()
             else:
                 if existing != index:
-                    self.beginMoveRows(QModelIndex(), existing, existing, QModelIndex(), index)
+                    destination = index if existing > index else index + 1
+                    if not self.beginMoveRows(
+                        QModelIndex(), existing, existing, QModelIndex(), destination
+                    ):
+                        raise RuntimeError("Qt satır taşıma işlemini reddetti")
                     self._rows.insert(index, self._rows.pop(existing))
                     self.endMoveRows()
                 if self._rows[index] != row:

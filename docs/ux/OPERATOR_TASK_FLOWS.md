@@ -1,22 +1,34 @@
 # Operatör Görev Akışları
 
+## Tespit durumları — 16 Eylül 2026
+
+`Tespit edildi` (mavi) alıcı spektrumuyla desteklenen tespittir; `Doğrulandı`
+(yeşil) iki alıcı ayarında görülmeyi belirtir. `Aday` (sarı) alt satırda verilen
+doğrulama durumuyla okunur. `Artık alınmıyor` geçmiş kayıttır. Ek doğrulama
+sırasında kısa durum satırı gösterilir. Tarama adayının frekans sınırları
+`Tespit aralığı` olarak sunulur; parametre ölçümüyle karıştırılmaz.
+
+Hazır sistem boşta etkin HackRF seri kimliğini izler. Alıcı USB modundan çıkar
+veya bağlantısı kesilirse `Hazır` durumu kaldırılır, `Taramayı Başlat` kapanır,
+`Sistemi Denetle` görünür ve hata `Alıcı bağlantısı koptu` olarak açıklanır.
+Operatör cihazı bağladıktan veya PortaPack'i hazırladıktan sonra bu eylemi yeniden
+kullanır.
+
 - Sürüm: 1.8
 - Güncelleme tarihi: 2026-09-01
 - Kapsam: APP-F için ürün bilgi mimarisi
 
 ## Genel yerleşim
 
-Ürün arayüzü beş kalıcı ED görev girişinden oluşur:
+Ürün arayüzü dört kalıcı ED görev girişinden oluşur:
 
 1. `Tespit`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
 2. `Parametre`: seçili sinyalin analiz aralığı, ölçüm durumu ve sonuçları.
 3. `Dinleme`: seçili doğrulanmış tespit, AM/NFM kanal ayarları, ses sonucu ve WAV.
 4. `Yön Bulma`: saat yönünde otomatik 15° adımlı güç ölçümü ve bağıl tepe yönü.
-5. `Sistem`: bileşen sağlığı, performans ve son olaylar.
-
 Üst görev çubuğundaki `BÂZ` logosu; `Tespit`, `Parametre`, `Dinleme`, `Yön Bulma`
-ve `Sistem` girişlerini taşıyan ana görev menüsünü açıp kapatır. Menü başlangıçta
-kapalıdır ve bu görünüm değişikliği çalışan görevlere komut göndermez. Açılan sol
+girişlerini taşıyan ana görev menüsünü açıp kapatır. Menü başlangıçta kapalıdır
+ve bu görünüm değişikliği çalışan görevlere komut göndermez. Açılan sol
 görev şeridindeki `Tespit` dalga sembolü, ED/Tespit sabit-frekans yüzeyindeki
 `Alıcı Ayarları` seçenek menüsünü açıp kapatır. Menü başlangıçta kapalıdır;
 sembol başka bir görevde kullanılırsa ED/Tespit yüzeyine dönerek açılır. Bu
@@ -40,16 +52,23 @@ tespit kimliği her adımda korunur.
 ## Akış 1 — Kaynağı hazırlama
 
 1. Uygulama alıcıyı otomatik denetlemeden `Alıcı bekleniyor` durumunda açılır.
-2. Operatör `Alıcıyı Denetle` ile HackRF ve FPGA hizmet denetimini birlikte
+2. Operatör `Sistemi Denetle` ile HackRF ve FPGA hizmet denetimini birlikte
    başlatır. `Hazır` için iki bağlantı da zorunludur. HackRF, FPGA veya ikisi
    birden kullanılamıyorsa uygun hata 10 saniye gösterilir; ardından bağlantı
    kurulmadıysa görünüm yeniden bekleme durumuna döner.
-3. Başarılıysa alıcı `Hazır` olur; tarama başladıktan sonra merkez frekansı ve
-   örnekleme hızı üst durum alanında görünür.
+   FPGA hazır ve yapılandırılmış HackRF henüz görünür değilse uygulama, yalnız
+   tekil ve doğrulanmış PortaPack USB-seri arayüzüne HackRF modu komutu gönderir;
+   komut tesliminden sonra portu 500 ms açık tutar ve yeniden bağlanan alıcı seri
+   numarası doğrulanmadan `Hazır` verilmez.
+   Kayıtlı birincil görünürse seçilir; yalnız kayıtlı ikincil görünürse yedek
+   alıcı olarak kullanılır. İki cihazda birincil önceliklidir; COM numarası ve
+   keşif sırası seçim ölçütü değildir.
+3. Başarılıysa alıcı `Hazır` olur; tarama başladıktan sonra merkez frekansı ile
+   `ALICI → FPGA` veri hızı (`8 MS/s → 2 MS/s`) üst durum alanında görünür.
 4. Başarısızsa hata yalnız `Alıcı Ayarları` alanında, kısa bir neden ve
    uygulanabilir kurtarma eylemiyle gösterilir; aynı hata başlıkta tekrarlanmaz.
    FPGA hizmet/taşıma erişim hatası birleşik `Hazır` yetkisini iptal eder ve
-   taramadan önce yeniden `Alıcıyı Denetle` gerekir.
+   taramadan önce yeniden `Sistemi Denetle` gerekir.
 
 Bağlantı ve alım durumu, görevden bağımsız olarak yalnız operatörün işlem yaptığı
 `Alıcı Ayarları` alanında gösterilir; üst görev çubuğunda durum rozeti bulunmaz.
@@ -98,10 +117,20 @@ hassas taşıyıcı ölçümü değildir. Kısa yayınlar tarama sırasında ka�
 [Veri Kaynağı] → [Ön İşleme] → [FFT / Güç] → [Bölgesel Eşik] → [Zamansal Doğrulama]
 ```
 
-1. Operatör izleme merkez frekansını ve gerekirse LNA/VGA değerlerini girer.
+1. Operatör izleme merkez frekansını ve gerekirse LNA/VGA/AMP değerlerini
+   doğrudan alıcı kartından seçer. Ayrı `Ayarlar` penceresi yalnız
+   FFT ile normal/zayıf CFAR eşiklerini içerir; dinleme ve görüntü
+   kontrollerini içermez.
 2. `Taramayı Başlat` canlı alımı ve FPGA tespitini birlikte başlatır;
-   `Taramayı Durdur` oturumu güvenli biçimde sonlandırır.
+   `Taramayı Durdur` aynı düğme konumunda görünür ve oturumu güvenli biçimde
+   sonlandırır. Bu durum geçişi alttaki ayarlar eylemini hareket ettirmez.
+   Yeni oturum spektrumun tam alım genişliğiyle açılır; tespit bandına otomatik
+   yakınlaştırma yapılmaz.
 3. Spektrum ve spektrogram merkez çalışma alanında güncellenir.
+   FPGA tespit kapasitesi aşılırsa bağlantılar hazır kalır ancak eksik tespit
+   geçerli sonuç sayılmaz; oturum kare ve aday sayılarını göstererek durur.
+   Operatör LNA/VGA değerlerini azaltıp, gerekirse AMP'yi kapatıp yeniden
+   başlatabilir.
 4. Canlı FPGA/ARM sonucu veya geniş RX spektrumundaki kararlı kaba sonuç önce
    sarı aday olarak gösterilir. En az 8 FPGA gözleminden sonra ya da kararlı
    kaba aday oluştuğunda alıcı otomatik olarak iki farklı fiziksel LO ayarında
@@ -128,7 +157,8 @@ hassas taşıyıcı ölçümü değildir. Kısa yayınlar tarama sırasında ka�
    `Shift+sürükle` ile seçili tepeyi içeren 8–512 FFT hücrelik analiz aralığı
    taslağı oluşturabilir; taslak ayrıca açıkça onaylanmadan ölçüm başlamaz.
 
-Ürün grafikleri yaklaşık 9,77 Hz'de (50 DSP karesinde bir) yenilenir; RX ve FPGA
+Ürün grafikleri nominal yaklaşık 32,6 Hz'de (15 DSP karesinde bir) yenilenir;
+gerçek sunum hızı bilgisayar yüküne bağlıdır. RX ve FPGA
 2 MS/s veri yolundaki bütün kareleri işlemeye devam eder. Canlı listedeki satır
 üyeliği yaklaşık 5 Hz örnek-zamanıyla yenilenir; frekans geçmişinin Qt satırları
 her yanıtta yeniden kurulmaz. Ölçüme uygun son dört ardışık FPGA karesi güncel
@@ -177,7 +207,9 @@ Kart bağlantısı yoksa ürün oturumu başlamaz ve sonuç alanları boş kalı
 1. Operatör Spektrum alanında doğrulanmış bir tespit seçer.
 2. `Dinleme` alanı tespit kimliğini, frekansını ve kaynak I/Q süresini kaydırılan
    ayarlardan bağımsız sabit bir kanal kartında tutar.
-3. AM veya NFM, kanal ofseti, bant genişliği ve ses seviyesi açıkça belirlenir.
+3. AM veya NFM, frekans düzeltmesi, 2–25 kHz alım bant genişliği ve ses seviyesi
+   açıkça belirlenir. NFM'de `Net ses` varsayılandır; 750 µs telsiz düzeltmesi
+   yalnız eşleşen verici profili biliniyorsa seçilir.
 4. Sabit `Kanal Sesini Hazırla` eylemi, kaynaktaki I/Q'yu GUI iş parçacığı dışında
    işler.
 5. SigMF kaynağında en az beş saniyelik uygun kayıt kesintisiz sonuç; daha kısa
@@ -188,6 +220,12 @@ Kart bağlantısı yoksa ürün oturumu başlamaz ve sonuç alanları boş kalı
    Salt-okunur zaman çizelgesi hazırlanan PCM süresini ve ses çıkışının gerçekten
    işlediği oynatma konumunu gösterir; fiziksel ses çıkışı yoksa WAV kullanılabilirliği
    bundan ayrı bildirilir.
+7. Sonuç alanında yayın türü, frekans, bant, ses profili, dBFS alım seviyesi ve
+   frekans sapması gösterilir. Dalga biçimi ile beş saniyelik seviye/frekans
+   kararlılığı grafiği izleme görevini sürdürür.
+8. Parametre ekranındaki `Dinleme İçin Yeniden Al`, Dinleme ekranını hemen açar.
+   Ölçülen frekans yeniden doğrulanırken başka bir otomatik iki-LO koşusu ses
+   tamponunu kesmez; başlangıç yapılamazsa neden Dinleme ekranında gösterilir.
 
 Canlı kanalı hazırlama komutu I/Q penceresini sabitler, RX oturumunu güvenli
 biçimde durdurur ve demodülasyonu arka planda yürütür. Kontrollü AM/NFM kaynağı
@@ -212,22 +250,12 @@ başarısı olarak sunulmaz.
 7. Uygulama fiziksel dönüşü ya da hızı ölçmez. Sürekli motor dönüşünden zamanla
    açı üretmek için enkoder/IMU bağı ve yeni fiziksel kabul gerekir.
 
-## Akış 6 — Sistem denetimi ve kurtarma
+## Akış 6 — Donanım denetimi ve kurtarma
 
-Sistem görünümü düzenlenebilir veya dekoratif bir DSP blok grafiği sunmaz.
-Kaynak, ön işleme, FFT/güç, tespit ve operatör görevleri soldaki sıralı işlem
-zincirinde `Kullanılmıyor`, `Bekliyor`, `Hazır`, `Çalışıyor` veya `Hata` olarak
-gösterilir. Seçili bileşenin gerçekten çalışan katmanı, doğrulanmış kaynak
-karşılığı ve donanım kabul sınırı sağdaki denetçide açıklanır. Sistem olayları
-sıra numarası, zaman, seviye, bileşen ve kısa nedenle Sistem görünümünde
-filtrelenebilir salt-okunur günlükte tutulur. Bu alan komut çalıştırmaz; ana
-tespit ekranında ikinci bir olay konsolu bulunmaz.
-
-Canlı HackRF kaynağında alım/kanal seçimi bilgisayarda; Hann, FFT/güç,
-OS-CFAR ve geniş bant aday paketleme FPGA'da; zamansal doğrulama Zynq PS'de
-gösterilir. Kart yanıtı bilgisi bu oturumun gerçek verisine bağlıdır; yalnız
-kaynak seçmek donanımın çalıştığı anlamına gelmez. Geliştirici görünümündeki
-çift tıklama etkin katmana ait host veya RTL/PS kaynak konumunu açar.
+Ayrı bir Sistem çalışma alanı yoktur. HackRF veya FPGA hizmeti hazır değilse
+ilgili alıcı görevinde `Sistemi Denetle` eylemi gösterilir. Bu eylem bağlantı
+durumunu yeniden denetler; donanım kabulü, RF doğruluğu veya kesintisiz çalışma
+kanıtı üretmez.
 
 ## Geçiş ve hareket kuralları
 

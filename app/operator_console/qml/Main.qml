@@ -30,8 +30,6 @@ ApplicationWindow {
     property bool spectrumCursorVisible: false
     property real analysisDragStart: -1
     property real analysisDragEnd: -1
-    property int selectedSystemBlock: 0
-    property string systemLogFilter: "Tümü"
     property int spectrumTaskTab: 0
     property color appBackground: "#181818"
     property color surface: "#1F1F1F"
@@ -180,21 +178,6 @@ ApplicationWindow {
         navigationOpen = !navigationOpen
     }
 
-    function systemLogMatches(item) {
-        if (systemLogFilter === "Tümü") return true
-        if (systemLogFilter === "Hata") return item.level === "HATA"
-        if (systemLogFilter === "Kaynak") return item.component === "Kaynak" || item.component === "Alıcı"
-        return item.component !== "Kaynak" && item.component !== "Alıcı" && item.level !== "HATA"
-    }
-
-    function systemLogMatchCount() {
-        var count = 0
-        for (var index = 0; index < operatorViewModel.eventLog.length; ++index) {
-            if (systemLogMatches(operatorViewModel.eventLog[index])) ++count
-        }
-        return count
-    }
-
     onSpectrumViewStartChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
@@ -220,8 +203,6 @@ ApplicationWindow {
             if (root.spectrumHistorySource !== operatorViewModel.sourceName) {
                 root.spectrumHistorySource = operatorViewModel.sourceName
                 root.clearSpectrumViewHistory()
-                if (operatorViewModel.sourceMode === "hackrf" && operatorViewModel.liveSessionActive && operatorViewModel.liveDetectionEnabled)
-                    root.setSpectrumView(operatorViewModel.liveDetectionStartNormalized, operatorViewModel.liveDetectionEndNormalized)
             }
         }
     }
@@ -244,7 +225,6 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+2"; onActivated: { root.workspace = 0; root.spectrumTaskTab = 1 } }
     Shortcut { sequence: "Ctrl+3"; onActivated: root.workspace = 1 }
     Shortcut { sequence: "Ctrl+4"; onActivated: root.workspace = 2 }
-    Shortcut { sequence: "Ctrl+5"; onActivated: root.workspace = 3 }
 
     header: Rectangle {
         height: 76
@@ -334,7 +314,7 @@ ApplicationWindow {
             ColumnLayout {
                 visible: operatorViewModel.sourceReady || operatorViewModel.liveSessionActive
                 spacing: 2
-                Label { text: "ÖRNEKLEME HIZI"; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
+                Label { text: operatorViewModel.sampleRateTitle; color: root.textMuted; font.pixelSize: 9; font.weight: Font.DemiBold }
                 Label { text: operatorViewModel.sampleRateText; color: root.textPrimary; font.pixelSize: 13; font.family: "Consolas" }
             }
         }
@@ -374,8 +354,7 @@ ApplicationWindow {
                         {"label": "Tespit", "title": "Sinyal Tespiti", "icon": "spectrum", "workspace": 0, "task": 0, "shortcut": 1},
                         {"label": "Parametre", "title": "Parametre Çıkarımı", "icon": "measurement", "workspace": 0, "task": 1, "shortcut": 2},
                         {"label": "Dinleme", "title": "Sinyal Dinleme", "icon": "listening", "workspace": 1, "task": -1, "shortcut": 3},
-                        {"label": "Yön Bulma", "title": "Yön Bulma", "icon": "direction", "workspace": 2, "task": -1, "shortcut": 4},
-                        {"label": "Sistem", "title": "Sistem", "icon": "system", "workspace": 3, "task": -1, "shortcut": 5}
+                        {"label": "Yön Bulma", "title": "Yön Bulma", "icon": "direction", "workspace": 2, "task": -1, "shortcut": 4}
                     ]
                     delegate: Button {
                         id: navControl
@@ -432,6 +411,7 @@ ApplicationWindow {
                     theme: root
                     visible: operatorViewModel.sourceMode === "hackrf" && root.rfSearchMode && root.spectrumTaskTab === 0
                     onFixedBandRequested: root.rfSearchMode = false
+                    onSurveyRequested: root.rfSearchMode = true
                     onParameterRequested: {
                         root.rfSearchMode = false
                         root.spectrumTaskTab = 1
@@ -485,39 +465,8 @@ ApplicationWindow {
                                 sourceComponent: hackrfControls
                             }
 
-                            Label {
-                                visible: operatorViewModel.sourceMode === "hackrf"
-                                Layout.fillWidth: true
-                                text: operatorViewModel.receiverSummary
-                                color: root.textSecondary
-                                font.pixelSize: 10
-                                wrapMode: Text.WordWrap
-                            }
-                            Repeater {
-                                model: operatorViewModel.sourceMode === "hackrf" ? operatorViewModel.receiverRows : []
-                                delegate: ColumnLayout {
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    spacing: 2
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: modelData.roleLabel + " " + modelData.serialShort
-                                        color: root.textPrimary
-                                        font.pixelSize: 10
-                                        font.weight: Font.DemiBold
-                                    }
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: modelData.state
-                                        color: modelData.stateKey === "found" ? root.success
-                                              : modelData.stateKey === "missing" ? root.danger : root.warning
-                                        font.pixelSize: 9
-                                        wrapMode: Text.WordWrap
-                                    }
-                                }
-                            }
-
                             Rectangle {
+                                objectName: "receiverError"
                                 visible: !!operatorViewModel.errorMessage
                                 Layout.fillWidth: true
                                 implicitHeight: receiverErrorContent.implicitHeight + 18
@@ -528,9 +477,7 @@ ApplicationWindow {
                                     id: receiverErrorContent
                                     anchors.fill: parent
                                     anchors.margins: 9
-                                    spacing: 3
-                                    Label { text: operatorViewModel.errorTitle; color: root.danger; font.pixelSize: 10; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.errorMessage; color: root.textSecondary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                    Label { objectName: "receiverErrorText"; text: operatorViewModel.errorMessage; color: root.danger; font.pixelSize: 10; font.weight: Font.DemiBold; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                 }
                             }
 
@@ -957,21 +904,13 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 id: signalSummaryCard
-                                readonly property var leadingFpga: operatorViewModel.detectionMarkers.length > 0
-                                                                           ? operatorViewModel.detectionMarkers[0] : null
-                                readonly property var leadingCoarse: operatorViewModel.coarseDetectionMarkers.length > 0
-                                                                             ? operatorViewModel.coarseDetectionMarkers[0] : null
-                                readonly property var leadingMarker: leadingFpga !== null ? leadingFpga : leadingCoarse
-                                readonly property bool stableCandidate: leadingMarker !== null
-                                                                               && leadingMarker.verificationKey === "verified_two_lo"
+                                objectName: "signalSummaryCard"
                                 visible: root.spectrumTaskTab !== 0
-                                         || (operatorViewModel.hasCoarseCandidateAwaitingFpga && operatorViewModel.detectionMarkers.length === 0)
                                 Layout.fillWidth: true
                                 implicitHeight: 64
                                 radius: 3
-                                color: root.spectrumTaskTab === 0 ? "#202020" : root.surfaceAlt
-                                border.color: root.spectrumTaskTab !== 0 ? root.border
-                                            : signalSummaryCard.stableCandidate ? root.success : root.warning
+                                color: root.surfaceAlt
+                                border.color: root.border
                                 RowLayout {
                                     anchors.fill: parent
                                     anchors.margins: 10
@@ -980,13 +919,8 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         spacing: 2
                                         Label {
-                                            text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
-                                                  ? (signalSummaryCard.leadingFpga !== null || signalSummaryCard.stableCandidate
-                                                     ? "SİNYAL TESPİT EDİLDİ" : "SİNYAL KONTROL EDİLİYOR")
-                                                  : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
-                                            color: root.spectrumTaskTab === 0
-                                                   ? (signalSummaryCard.stableCandidate ? root.success : root.warning)
-                                                   : root.textPrimary
+                                            text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionTitle : "Tespit için kaynak seçin"
+                                            color: root.textPrimary
                                             font.pixelSize: 12
                                             font.weight: Font.DemiBold
                                             Layout.fillWidth: true
@@ -995,29 +929,12 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label {
-                                                text: root.spectrumTaskTab === 0 && operatorViewModel.sourceMode === "hackrf"
-                                                      ? (signalSummaryCard.leadingMarker === null ? ""
-                                                         : signalSummaryCard.leadingMarker.frequency)
-                                                      : operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""
+                                                text: operatorViewModel.sourceReady ? operatorViewModel.selectedDetectionFrequencyText : ""
                                                 color: root.textPrimary
                                                 font.pixelSize: 12
                                                 font.family: "Consolas"
                                                 Layout.fillWidth: true
                                                 elide: Text.ElideRight
-                                            }
-                                            Label {
-                                                readonly property var leadingDetection: signalSummaryCard.leadingMarker
-                                                visible: false
-                                                text: leadingDetection !== null
-                                                      ? "P/N " + (signalSummaryCard.leadingFpga !== null
-                                                                  ? leadingDetection.snr : leadingDetection.contrast) : ""
-                                                color: root.textSecondary
-                                                font.pixelSize: 8
-                                                Accessible.name: leadingDetection !== null
-                                                                 ? "Tepe gürültü oranı "
-                                                                   + (signalSummaryCard.leadingFpga !== null
-                                                                      ? leadingDetection.snr : leadingDetection.contrast)
-                                                                 : ""
                                             }
                                         }
                                     }
@@ -1047,6 +964,15 @@ ApplicationWindow {
                                         onClicked: root.spectrumTaskTab = 0
                                     }
                                 }
+                            }
+                            Label {
+                                objectName: "activeDetectionVerification"
+                                visible: root.spectrumTaskTab === 0 && operatorViewModel.fixedVerificationActive
+                                text: "Ek doğrulama sürüyor"
+                                color: root.warning
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
                             }
                             ListView {
                                 id: detectionList
@@ -1093,11 +1019,11 @@ ApplicationWindow {
                                     bottomPadding: 6
                                     required property var modelData
                                     width: ListView.view.width
-                                    height: operatorViewModel.sourceMode === "hackrf" ? (modelData.historyBoundary ? 64 : 42) : (modelData.historyBoundary ? 82 : 58)
+                                    height: 62
                                     enabled: modelData.observed
                                     Accessible.name: modelData.frequency + ", " + modelData.state + ", " + modelData.title
-                                    ToolTip.visible: hovered
-                                    ToolTip.text: modelData.state + " · " + modelData.observationCount + " FPGA gözlemi · P/N " + modelData.snr
+                                    ToolTip.visible: hovered && !!modelData.verificationLabel
+                                    ToolTip.text: modelData.verificationLabel || ""
                                     onPressed: operatorViewModel.selectDetection(modelData.eventId)
                                     background: Rectangle {
                                         radius: 0
@@ -1117,21 +1043,17 @@ ApplicationWindow {
                                     }
                                     contentItem: ColumnLayout {
                                         spacing: 3
-                                        Label {
-                                            visible: modelData.historyBoundary
-                                            text: "DAHA ÖNCE ALINAN SİNYALLER"
-                                            color: root.textMuted
-                                            font.pixelSize: 8
-                                            font.weight: Font.DemiBold
-                                            Layout.fillWidth: true
-                                        }
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label { text: operatorViewModel.sourceMode === "hackrf" ? modelData.frequency : modelData.title; color: root.textPrimary; font.pixelSize: 12; font.weight: Font.DemiBold; Layout.fillWidth: true }
                                             Label {
-                                                text: modelData.observed ? "Alınıyor" : "Artık alınmıyor"
+                                                text: !modelData.observed ? "Artık alınmıyor"
+                                                      : operatorViewModel.sourceMode !== "hackrf" ? (modelData.stateKey === "confirmed" ? "Tespit edildi" : "Aday")
+                                                      : modelData.verificationKey === "verified_two_lo" ? "Doğrulandı"
+                                                      : modelData.verificationKey === "rx_supported" ? "Tespit edildi" : "Aday"
                                                 color: !modelData.observed ? root.textMuted
-                                                     : modelData.verificationKey === "verified_two_lo" ? root.success : root.warning
+                                                     : modelData.verificationKey === "verified_two_lo" ? root.success
+                                                     : modelData.verificationKey === "rx_supported" ? root.accent : root.warning
                                                 font.pixelSize: 10
                                                 font.weight: Font.DemiBold
                                             }
@@ -1139,14 +1061,16 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label {
-                                                visible: operatorViewModel.sourceMode !== "hackrf"
+                                                visible: operatorViewModel.sourceMode !== "hackrf" || (modelData.observed && modelData.verificationKey !== "rx_supported")
                                                 text: operatorViewModel.sourceMode !== "hackrf" ? modelData.frequency
-                                                      : modelData.observed ? "Sinyal tespit edildi" : "Bu taramada daha önce tespit edildi"
+                                                      : modelData.verificationKey === "pending" ? "Kontrol ediliyor; biraz bekleyin."
+                                                      : modelData.verificationKey === "verified_two_lo" ? "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+                                                      : modelData.verificationLabel || "Doğrulama bekliyor"
+                                                wrapMode: Text.WordWrap
                                                 color: root.textMuted
                                                 font.pixelSize: 10
                                                 Layout.fillWidth: true
                                             }
-                                            Label { visible: false; text: "P/N " + modelData.snr; color: root.textSecondary; font.pixelSize: 8; Accessible.name: "Tepe gürültü oranı " + modelData.snr }
                                         }
                                     }
                                 }
@@ -1256,15 +1180,17 @@ ApplicationWindow {
                                 ColumnLayout {
                                     width: listeningSettingsScroll.availableWidth
                                     spacing: 10
-                                    Label { text: "Demodülasyon"; color: root.textSecondary; font.pixelSize: 10 }
+                                    Label { text: "Yayın türü"; color: root.textSecondary; font.pixelSize: 10 }
                                     AppCombo {
                                         id: listeningMode
+                                        objectName: "listeningMode"; helpText: "Yayının türüne göre AM veya dar bant FM seçin. Geniş bant FM radyo yayını (WFM) bu seçenek değildir."
                                         Layout.fillWidth: true
                                         model: [{text: "Genlik Modülasyonu (AM)", value: "am"}, {text: "Dar Bant FM (NFM)", value: "nfm"}]
                                         textRole: "text"
                                         Accessible.name: "Dinleme modu"
+                                        onActivated: listeningBandwidth.applySuggestion()
                                     }
-                                    Label { text: "Merkez frekans ofseti (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    Label { text: "Frekans düzeltmesi (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
                                     RowLayout {
                                         Layout.fillWidth: true
                                         TextField {
@@ -1285,16 +1211,44 @@ ApplicationWindow {
                                             Component.onCompleted: applySuggestion(false)
                                             onSuggestionBasisChanged: applySuggestion(false)
                                             onTextEdited: operatorEdited = true
+                                            function nudge(delta) {
+                                                var value = Number(text.replace(",", "."))
+                                                if (!isFinite(value) || text.length === 0) return
+                                                text = (value + delta).toFixed(3)
+                                                operatorEdited = true
+                                            }
                                         }
                                         QuietButton {
-                                            text: "Tespiti Kullan"
+                                            text: "Tespit Frekansını Kullan"
                                             implicitHeight: 36
                                             font.pixelSize: 10
                                             enabled: operatorViewModel.selectedDetectionReady
                                             onClicked: listeningOffset.applySuggestion(true)
                                         }
                                     }
-                                    Label { text: "Kanal bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        QuietButton { text: "−0,1 kHz"; objectName: "listeningTuneDown"; Layout.fillWidth: true; onClicked: listeningOffset.nudge(-0.1) }
+                                        QuietButton { text: "+0,1 kHz"; objectName: "listeningTuneUp"; Layout.fillWidth: true; onClicked: listeningOffset.nudge(0.1) }
+                                    }
+                                    AppCombo {
+                                        id: listeningBandwidthPreset
+                                        objectName: "listeningBandwidthPreset"; helpText: "Önce tespit önerisini deneyin. Sinyali kesmeyecek kadar geniş tutun; gereksiz genişlik komşu sinyalleri ve gürültüyü içeri alabilir."
+                                        Layout.fillWidth: true
+                                        textRole: "text"
+                                        model: listeningMode.currentIndex === 0
+                                            ? [{text: "Tespit önerisi", value: 0}, {text: "6 kHz", value: 6}, {text: "9 kHz", value: 9}, {text: "12 kHz", value: 12}, {text: "Özel", value: -1}]
+                                            : [{text: "Tespit önerisi", value: 0}, {text: "8 kHz", value: 8}, {text: "12,5 kHz", value: 12.5}, {text: "16 kHz", value: 16}, {text: "25 kHz", value: 25}, {text: "Özel", value: -1}]
+                                        onActivated: {
+                                            var value = model[currentIndex].value
+                                            if (value === 0) listeningBandwidth.applySuggestion()
+                                            else if (value > 0) {
+                                                listeningBandwidth.text = value.toFixed(1)
+                                                listeningBandwidth.operatorEdited = true
+                                            }
+                                        }
+                                    }
+                                    Label { text: "Alım bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
                                     TextField {
                                         id: listeningBandwidth
                                         objectName: "listeningBandwidth"
@@ -1303,24 +1257,44 @@ ApplicationWindow {
                                         property bool operatorEdited: false
                                         text: ""
                                         color: root.textPrimary
-                                        validator: DoubleValidator { bottom: 2; top: 200; decimals: 1; notation: DoubleValidator.StandardNotation }
+                                        validator: DoubleValidator { bottom: 2; top: 25; decimals: 1; notation: DoubleValidator.StandardNotation }
                                         Accessible.name: "Dinleme kanal bant genişliği kilohertz"
                                         background: Rectangle { color: "#313131"; border.color: listeningBandwidth.activeFocus ? root.accent : root.border; radius: 4 }
                                         function applySuggestion() {
-                                            text = operatorViewModel.listeningSuggestedBandwidthKHz.toFixed(1)
+                                            var suggested = Math.max(2, Math.min(25, operatorViewModel.listeningSuggestedBandwidthKHz))
+                                            text = suggested.toFixed(1)
                                             operatorEdited = false
+                                            listeningBandwidthPreset.currentIndex = 0
                                         }
                                         Component.onCompleted: applySuggestion()
                                         onSuggestionBasisChanged: applySuggestion()
-                                        onTextEdited: operatorEdited = true
+                                        onTextEdited: { operatorEdited = true; listeningBandwidthPreset.currentIndex = listeningBandwidthPreset.count - 1 }
                                     }
                                     Label {
-                                        visible: operatorViewModel.listeningParameterBasisText.length > 0
+                                        visible: listeningMode.currentIndex === 1
+                                        text: "Ses profili"
+                                        color: root.textSecondary
+                                        font.pixelSize: 10
+                                    }
+                                    AppCombo {
+                                        id: listeningDeemphasis
+                                        objectName: "listeningDeemphasis"
+                                        visible: listeningMode.currentIndex === 1
+                                        helpText: "Önce Net ses profilini kullanın. Yalnız eşleşen bir telsiz profili gerekiyorsa 750 µs düzeltmeyi seçin."
                                         Layout.fillWidth: true
-                                        text: operatorViewModel.listeningParameterBasisText
-                                        color: root.accent
-                                        font.pixelSize: 9
-                                        wrapMode: Text.Wrap
+                                        textRole: "text"
+                                        model: [
+                                            {text: "Net ses", value: 0},
+                                            {text: "Telsiz düzeltmesi · 750 µs", value: 750}
+                                        ]
+                                        currentIndex: operatorViewModel.listeningDeemphasisUs === 0 ? 0 : 1
+                                        enabled: !operatorViewModel.busy
+                                        onActivated: {
+                                            if (!operatorViewModel.setReceiverAndAudioSettings(
+                                                    operatorViewModel.receiverRFAmplifier,
+                                                    model[currentIndex].value))
+                                                currentIndex = operatorViewModel.listeningDeemphasisUs === 0 ? 0 : 1
+                                        }
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
@@ -1373,16 +1347,6 @@ ApplicationWindow {
                                     listeningVolume.value
                                 )
                             }
-                            Label {
-                                visible: operatorViewModel.sourceMode === "hackrf"
-                                Layout.fillWidth: true
-                                text: operatorViewModel.listeningSelectionReady
-                                      ? "Beş saniyelik kesintisiz I/Q hazır. Kanal hazırlanırken canlı alım güvenli biçimde durdurulur."
-                                      : "Aynı doğrulanmış sinyalin beş saniyelik kesintisiz gözlemi bekleniyor."
-                                color: operatorViewModel.listeningSelectionReady ? root.success : root.textSecondary
-                                font.pixelSize: 9
-                                wrapMode: Text.Wrap
-                            }
                         }
                     }
 
@@ -1399,7 +1363,7 @@ ApplicationWindow {
                                 spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "DEMODÜLE SES DALGA BİÇİMİ"; Layout.fillWidth: true }
+                                    SectionTitle { text: "SES DALGA BİÇİMİ"; Layout.fillWidth: true }
                                     Label { text: operatorViewModel.listeningPlaybackDurationText; color: root.textMuted; font.pixelSize: 9; font.family: "Consolas" }
                                     StateBadge { state: operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.busy ? "Çalışıyor" : "Kullanılmıyor" }
                                 }
@@ -1432,8 +1396,8 @@ ApplicationWindow {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "KANAL DAVRANIŞI"; Layout.fillWidth: true }
-                                    Label { text: "GÜÇ"; color: root.accent; font.pixelSize: 8; font.weight: Font.Bold }
+                                    SectionTitle { text: "SİNYAL KARARLILIĞI"; Layout.fillWidth: true }
+                                    Label { text: "SEVİYE"; color: root.accent; font.pixelSize: 8; font.weight: Font.Bold }
                                     Label { text: "FREKANS"; color: root.warning; font.pixelSize: 8; font.weight: Font.Bold }
                                 }
                                 Canvas {
@@ -1471,14 +1435,6 @@ ApplicationWindow {
                                         drawSeries("frequency", root.warning)
                                     }
                                 }
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Label { text: "00:00.0"; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
-                                    Item { Layout.fillWidth: true }
-                                    Label { text: "GENLİK · NORMALİZE"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
-                                    Item { Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.listeningPlaybackDurationText; color: root.textMuted; font.pixelSize: 8; font.family: "Consolas" }
-                                }
                             }
                         }
                         Panel {
@@ -1490,9 +1446,9 @@ ApplicationWindow {
                                 spacing: 8
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "KANAL ÇIKIŞI"; Layout.fillWidth: true }
+                                    SectionTitle { text: "SES ÇIKIŞI"; Layout.fillWidth: true }
                                     Label {
-                                        text: operatorViewModel.listeningShortPreview ? "KISA ÖNİZLEME" : operatorViewModel.listeningReady ? "KESİNTİSİZ" : "BEKLENİYOR"
+                                        text: operatorViewModel.listeningShortPreview ? "KISA ÖNİZLEME" : operatorViewModel.listeningReady ? "HAZIR" : "BEKLENİYOR"
                                         color: operatorViewModel.listeningShortPreview ? root.warning : operatorViewModel.listeningReady ? root.success : root.textMuted
                                         font.pixelSize: 9
                                         font.weight: Font.Bold
@@ -1841,275 +1797,8 @@ ApplicationWindow {
                 }
             }
 
-            // SİSTEM
-            Item {
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 14
-                    spacing: 10
-                    RowLayout {
-                        Layout.fillWidth: true
-                        SectionTitle { text: "SİSTEM DURUMU"; Layout.fillWidth: true }
-                        Label { text: "SALT OKUNUR"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
-                        StateBadge { state: operatorViewModel.sourceReady ? "Hazır" : "Bekliyor" }
-                    }
-                    Panel {
-                        id: systemMetricsPanel
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: root.height < 780 ? 88 : 108
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 8
-                            Repeater {
-                                model: [
-                                    {"label": "KAYNAK", "value": operatorViewModel.sourceState, "detail": operatorViewModel.sourceName},
-                                    {"label": "TARAMA", "value": operatorViewModel.frameIndex + " / " + operatorViewModel.frameCount, "detail": operatorViewModel.playing ? "Çalışıyor" : "Duraklatıldı"},
-                                    {"label": "İŞLEME GECİKMESİ", "value": operatorViewModel.performanceText, "detail": "Arka plan işleme"},
-                                    {"label": "ÖLÇÜM PROFİLİ", "value": operatorViewModel.parameterCapabilityReady ? "Hazır" : "Kullanılamıyor", "detail": "Bütünlük doğrulandı"}
-                                ]
-                                delegate: Rectangle {
-                                    required property var modelData
-                                    required property int index
-                                    Layout.fillWidth: true
-                                    Layout.minimumWidth: 0
-                                    Layout.fillHeight: true
-                                    radius: 4
-                                    color: index === 0 && operatorViewModel.sourceReady ? "#202020" : root.surfaceAlt
-                                    border.color: index === 0 && operatorViewModel.sourceReady ? "#2EA043" : root.border
-                                    ColumnLayout {
-                                        anchors.fill: parent
-                                        anchors.margins: 10
-                                        spacing: 2
-                                        Label { text: modelData.label; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.weight: Font.Bold; font.letterSpacing: 0.8 }
-                                        Label { text: modelData.value; color: index === 0 ? root.stateColor(operatorViewModel.sourceState) : root.textPrimary; font.pixelSize: root.height < 780 ? 10 : 12; font.family: index === 1 || index === 2 ? "Consolas" : "Segoe UI"; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                        Label { visible: root.height >= 780; text: modelData.detail; color: root.textSecondary; font.pixelSize: root.uiDenseMetaTextSize; elide: Text.ElideMiddle; Layout.fillWidth: true }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    RowLayout {
-                        id: systemWorkspace
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        spacing: 10
-                        Panel {
-                            id: pipelinePanel
-                            Layout.preferredWidth: root.width < 1400 ? 330 : 390
-                            Layout.fillHeight: true
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 12
-                                spacing: 8
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    SectionTitle { text: "İŞLEME DURUMU"; Layout.fillWidth: true }
-                                    Label { text: operatorViewModel.pipelineBlocks.length + " bileşen"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
-                                }
-                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                ListView {
-                                    id: pipelineList
-                                    objectName: "pipelineList"
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    clip: true
-                                    spacing: 4
-                                    model: operatorViewModel.pipelineBlocks
-                                    delegate: Rectangle {
-                                        required property var modelData
-                                        required property int index
-                                        Accessible.name: modelData.name + ", " + modelData.runtime + ", " + modelData.state
-                                        Accessible.role: Accessible.ListItem
-                                        width: ListView.view.width
-                                        height: root.height < 780 ? 48 : 64
-                                        radius: 4
-                                        color: root.selectedSystemBlock === index ? root.accentSoft : root.surfaceAlt
-                                        border.color: root.selectedSystemBlock === index ? root.accent : root.border
-                                        Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: 2; visible: root.selectedSystemBlock === index; color: root.accent }
-                                        RowLayout {
-                                            anchors.fill: parent
-                                            anchors.leftMargin: 10
-                                            anchors.rightMargin: 10
-                                            spacing: 9
-                                            Label { text: (index < 9 ? "0" : "") + (index + 1); color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
-                                            Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(modelData.state) }
-                                            ColumnLayout {
-                                                Layout.fillWidth: true
-                                                spacing: 1
-                                                Label { text: modelData.name; color: root.textPrimary; font.pixelSize: root.uiBodyTextSize; font.weight: Font.DemiBold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                                Label { text: modelData.runtime + "  ·  " + modelData.state; color: root.textSecondary; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas" }
-                                            }
-                                        }
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            cursorShape: Qt.PointingHandCursor
-                                            onClicked: root.selectedSystemBlock = index
-                                            onDoubleClicked: {
-                                                root.selectedSystemBlock = index
-                                                if (operatorViewModel.developerMode) operatorViewModel.openImplementationLocation(modelData.id, modelData.runtime === "FPGA" || modelData.runtime === "ZYNQ PS" ? "rtl" : "host")
-                                            }
-                                        }
-                                    }
-                                }
-                                Label { visible: operatorViewModel.developerMode; text: "Çift tıklama host kaynak konumunu açar."; color: root.accent; font.pixelSize: root.uiDenseMetaTextSize; Layout.fillWidth: true }
-                            }
-                        }
-                        ColumnLayout {
-                            id: systemDetailColumn
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            spacing: 10
-                            Panel {
-                                id: componentInspector
-                                property var block: operatorViewModel.pipelineBlocks.length > root.selectedSystemBlock ? operatorViewModel.pipelineBlocks[root.selectedSystemBlock] : ({})
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: root.height < 780 ? 160 : 210
-                                ColumnLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 14
-                                    spacing: 8
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        SectionTitle { text: "BİLEŞEN AYRINTISI"; Layout.fillWidth: true }
-                                        Rectangle { width: 8; height: 8; radius: 4; color: root.stateColor(componentInspector.block.state || "") }
-                                        Label { text: componentInspector.block.state || "—"; color: root.stateColor(componentInspector.block.state || ""); font.pixelSize: root.uiMetaTextSize; font.weight: Font.Bold }
-                                    }
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 3
-                                            Label { text: componentInspector.block.name || "Bileşen seçilmedi"; color: root.textPrimary; font.pixelSize: root.height < 780 ? 15 : 18; font.weight: Font.DemiBold }
-                                            Label { text: componentInspector.block.description || ""; color: root.textSecondary; font.pixelSize: root.uiBodyTextSize; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                                        }
-                                        Rectangle {
-                                            implicitWidth: runtimeText.implicitWidth + 20
-                                            implicitHeight: 30
-                                            radius: 4
-                                            color: root.accentSoft
-                                            border.color: "#0078D4"
-                                            Label { id: runtimeText; anchors.centerIn: parent; text: componentInspector.block.runtime || "—"; color: root.accent; font.pixelSize: root.uiBodyTextSize; font.family: "Consolas"; font.weight: Font.Bold }
-                                        }
-                                    }
-                                    Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                    GridLayout {
-                                        columns: 2
-                                        Layout.fillWidth: true
-                                        columnSpacing: 16
-                                        rowSpacing: 4
-                                        Label { text: "Yürütme katmanı"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
-                                        Label { text: componentInspector.block.runtime || "—"; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
-                                        Label { text: "Uygulama"; visible: operatorViewModel.developerMode; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
-                                        Label { text: componentInspector.block.implementation || "—"; visible: operatorViewModel.developerMode; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true }
-                                        Label { text: "Donanım durumu"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize }
-                                        Label { text: componentInspector.block.hardwareStatus || "—"; color: root.textSecondary; font.pixelSize: root.uiMetaTextSize; Layout.fillWidth: true; wrapMode: Text.WordWrap }
-                                    }
-                                    RowLayout {
-                                        visible: operatorViewModel.developerMode
-                                        Layout.fillWidth: true
-                                        Item { Layout.fillWidth: true }
-                                        QuietButton { text: "Host Kaynağını Aç"; implicitHeight: 30; enabled: !!componentInspector.block.hostPath; onClicked: operatorViewModel.openImplementationLocation(componentInspector.block.id, "host") }
-                                        QuietButton { text: "RTL / PS Kaynağını Aç"; implicitHeight: 30; enabled: !!componentInspector.block.rtlPath; onClicked: operatorViewModel.openImplementationLocation(componentInspector.block.id, "rtl") }
-                                    }
-                                }
-                            }
-                            Panel {
-                                id: systemLogPanel
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                ColumnLayout {
-                                    anchors.fill: parent
-                                    anchors.margins: 12
-                                    spacing: 7
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        SectionTitle { text: "OPERASYON GÜNLÜĞÜ"; Layout.fillWidth: true }
-                                        Repeater {
-                                            model: ["Tümü", "Hata", "Kaynak", "Görev"]
-                                            delegate: QuietButton {
-                                                required property string modelData
-                                                text: modelData
-                                                implicitWidth: 58
-                                                implicitHeight: 26
-                                                font.pixelSize: 9
-                                                checked: root.systemLogFilter === modelData
-                                                onClicked: root.systemLogFilter = modelData
-                                            }
-                                        }
-                                        Label { text: root.systemLogMatchCount() + " kayıt"; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas" }
-                                    }
-                                    Rectangle {
-                                        Layout.fillWidth: true
-                                        Layout.fillHeight: true
-                                        color: "#1F1F1F"
-                                        border.color: root.border
-                                        radius: 4
-                                        ColumnLayout {
-                                            anchors.fill: parent
-                                            anchors.margins: 8
-                                            spacing: 0
-                                            RowLayout {
-                                                Layout.fillWidth: true
-                                                Layout.preferredHeight: 24
-                                                spacing: 10
-                                                Label { text: "NO"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 34 }
-                                                Label { text: "ZAMAN"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 62 }
-                                                Label { text: "SEVİYE"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 52 }
-                                                Label { text: "BİLEŞEN"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 86 }
-                                                Label { text: "OLAY"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true }
-                                            }
-                                            Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                            ListView {
-                                                id: systemLog
-                                                objectName: "systemLog"
-                                                Layout.fillWidth: true
-                                                Layout.fillHeight: true
-                                                clip: true
-                                                model: operatorViewModel.eventLog
-                                                delegate: Rectangle {
-                                                    required property var modelData
-                                                    required property int index
-                                                    property bool matches: root.systemLogMatches(modelData)
-                                                    width: ListView.view.width
-                                                    height: matches ? 30 : 0
-                                                    visible: matches
-                                                    color: matches && index % 2 ? "#202020" : "transparent"
-                                                    RowLayout {
-                                                        anchors.fill: parent
-                                                        spacing: 10
-                                                        Label { text: modelData.sequence; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 34 }
-                                                        Label { text: modelData.time; color: root.textMuted; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.preferredWidth: 62 }
-                                                        Label { text: modelData.level; color: modelData.level === "HATA" ? root.danger : modelData.level === "UYARI" ? root.warning : root.success; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 52 }
-                                                        Label { text: modelData.component.toUpperCase(); color: root.accent; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; font.weight: Font.Bold; Layout.preferredWidth: 86; elide: Text.ElideRight }
-                                                        Label { text: modelData.message; color: root.textPrimary; font.pixelSize: root.uiMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true; elide: Text.ElideRight }
-                                                    }
-                                                }
-                                            }
-                                            RowLayout {
-                                                Layout.fillWidth: true
-                                                Layout.preferredHeight: 20
-                                                Label { text: "●"; color: root.success; font.pixelSize: root.uiDenseMetaTextSize }
-                                                Label { text: "Canlı olay akışı"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas"; Layout.fillWidth: true }
-                                                Label { text: "Salt okunur · komut çalıştırmaz"; color: root.textMuted; font.pixelSize: root.uiDenseMetaTextSize; font.family: "Consolas" }
-                                            }
-                                        }
-                                        Label {
-                                            anchors.centerIn: parent
-                                            visible: root.systemLogMatchCount() === 0
-                                            text: "Bu filtreyle eşleşen olay yok"
-                                            color: root.textSecondary
-                                            font.pixelSize: root.uiBodyTextSize
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
 
-        }
+       }
     }
 
     Component {

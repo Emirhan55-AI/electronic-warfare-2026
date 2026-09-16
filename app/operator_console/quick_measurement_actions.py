@@ -592,7 +592,10 @@ class QuickMeasurementActionsMixin:
             "reference_mismatch": "İki gürültü referansı uyuşmuyor; referans bölgesinde sinyal veya girişim olabilir.",
             "reference_power_unavailable": "Gürültü referansı hesaplanamadı.",
             "span_edge_clipping": "Sinyal analiz aralığının dışına taşıyor; aralığı genişletin.",
-            "obw_temporal_instability": "Bant kenarları dört kare arasında kararlı değil.",
+            "obw_temporal_instability": (
+                "Dört ardışık ölçümde bant sınırları aynı kalmadı. "
+                "Analiz aralığını sinyalin tamamını kapsayacak şekilde genişletip tekrar ölçün."
+            ),
             "carrier_line_below_threshold": "Ayrı bir taşıyıcı çizgisi yeterince belirgin değil.",
             "quality_below_carrier_threshold": "Taşıyıcı tespiti için SNR yetersiz.",
             "excess_power_not_significant": "Gürültü üzerindeki sinyal gücü yeterince belirgin değil.",

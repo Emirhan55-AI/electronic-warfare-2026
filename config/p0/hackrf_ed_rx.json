@@ -11,7 +11,7 @@
     {
       "role": "ED_RX_SECONDARY",
       "serial": "0000000000000000a32868dc35138247",
-      "purpose": "Eşzamanlı ikinci alıcı ve izleme/dinleme hazırlığı"
+      "purpose": "Birincil yoksa yedek tespit alıcısı; eşzamanlı ikinci alıcı hazırlığı"
     }
   ],
   "search_ranges_hz": []

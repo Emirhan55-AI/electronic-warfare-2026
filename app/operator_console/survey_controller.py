@@ -12,7 +12,7 @@ import threading
 from PySide6.QtCore import QObject, Property, QRunnable, QTimer, Signal, Slot
 
 from .detection_model import DetectionListModel
-from .survey_presentation import signal_fields, merge_signal_rows
+from .survey_presentation import signal_fields, merge_signal_rows, grouped_signal_rows
 from .survey_recheck import recheck_signals
 from .rx_survey import (
     ROOT,
@@ -152,12 +152,18 @@ class SurveyController(QObject):
         self._recheck_active = False
         self._executable = ""
         self._survey = None
-        self._config = SurveyConfig()
+        # The product button starts the bounded 10 MS/s profile. Keep the idle
+        # coverage map on the same plan so the first rendered count is truthful.
+        self._config = SurveyConfig(mode="wideband_burst")
+        self._verification_total = None
+        self._coarse_end_hz = None
+        self._last_timing = {}
         self._windows = self._config.windows()
         self._states = [0] * len(self._windows)
         self._current = -1
         self._good = self._bad = self._observed = 0
         self._rows = []
+        self._next_display_order = 0
         self._current_observations = []
         self._current_window_metrics = {}
         self._current_observation_count = 0
@@ -168,6 +174,9 @@ class SurveyController(QObject):
         self._tx_correlated = 0
         self._background = 0
         self._model = DetectionListModel(self)
+        self._grouped_model = DetectionListModel(self)
+        self._expanded_groups = {"verified"}
+        self._group_summaries = []
         self._selected = ""
         self._state = "Hazır"
         self._detail = "Frekansı bilinmeyen yayın için sırayla alım."
@@ -204,11 +213,38 @@ class SurveyController(QObject):
 
     @Property(str, notify=changed)
     def coverageText(self):
+        if self._config.mode == "fast":
+            if self._verification_total is None:
+                covered = max(0, (self._coarse_end_hz or self._config.lower_hz) - self._config.lower_hz)
+                return f"Kaba arama: {covered / 1e6:g} MHz tamamlandı · kart doğrulaması bekleniyor"
+            return (f"Kaba arama tamamlandı · {self._good}/{self._verification_total} aday penceresi "
+                    f"kartta işlendi · {self._bad} hata · diğer bölgeler doğrulanmadı")
         return f"{self._good} / {len(self._states)} pencere tarandı · {self._bad} hata"
 
     @Property(float, notify=changed)
     def progress(self):
+        if self._config.mode == "fast":
+            if self._verification_total is None:
+                return 0.
+            return self._good / self._verification_total if self._verification_total else 1.
         return self._good / max(1, len(self._states))
+
+    @Property(str, notify=changed)
+    def receiverText(self):
+        if self._config.mode == "fast" and self._verification_total is None:
+            return "Kaba arama profili: RX 20 MS/s · filtre 15 MHz · RF AMP/Bias-Tee kapalı"
+        if self._config.mode == "wideband_burst":
+            return "Hızlı tarama profili: RX 10 MS/s → FPGA/ARM · RF AMP/Bias-Tee kapalı"
+        return "Kart doğrulama profili: RX 8 MS/s → FPGA/ARM 2 MS/s · RF AMP kapalı"
+
+    @Property(str, notify=changed)
+    def timingText(self):
+        row = self._last_timing
+        if not row:
+            return "İlk tamamlanan pencerede süre dökümü gösterilecek."
+        return (f"Son pencere: alım/kart {row['primary_seconds'] * 1000:.0f} ms · "
+                f"aday kontrolü {row['verification_seconds'] * 1000:.0f} ms · "
+                f"örnek süresi {row['sample_observation_seconds'] * 1000:.0f} ms")
 
     @Property("QVariantList", notify=changed)
     def coverage(self):
@@ -229,7 +265,7 @@ class SurveyController(QObject):
     def timeText(self):
         elapsed = f"{int(self._elapsed) // 60:02d}:{int(self._elapsed) % 60:02d}"
         count = self._good + self._bad
-        if not self.running or self._recheck_active or count < 3:
+        if not self.running or self._recheck_active or count < 3 or self._config.mode == "fast":
             return f"Geçen Süre {elapsed}"
         remaining = self._elapsed / count * (len(self._states) - count)
         return f"Geçen Süre {elapsed} · kalan yaklaşık {remaining / 60:.0f} dk"
@@ -299,6 +335,29 @@ class SurveyController(QObject):
     def observationModel(self):
         return self._model
 
+    @Property(QObject, constant=True)
+    def groupedObservationModel(self):
+        return self._grouped_model
+
+    @Property(int, notify=changed)
+    def observationCount(self):
+        return len(self._rows)
+
+    @Property("QVariantList", notify=changed)
+    def observationGroups(self):
+        return self._group_summaries
+
+    @Slot(str)
+    def toggleObservationGroup(self, key):
+        if key not in {"verified", "candidate", "suspect"}:
+            return
+        if key in self._expanded_groups:
+            self._expanded_groups.remove(key)
+        else:
+            self._expanded_groups = {key}
+        self._publish_rows(clear_hidden_selection=True)
+        self.changed.emit()
+
     @Property(str, notify=changed)
     def selectedKey(self):
         return self._selected
@@ -317,7 +376,7 @@ class SurveyController(QObject):
     def _config_key(config):
         return (
             config.lower_hz, config.upper_hz, config.lna_gain_db, config.vga_gain_db,
-            config.frames_per_window, config.guard_frames,
+            config.frames_per_window, config.guard_frames, config.rf_amplifier,
         )
 
     def reference_matches(self, config, serial=None):
@@ -349,11 +408,15 @@ class SurveyController(QObject):
         self._recheck_pool = pool
         self._recheck_active = False
         self._config = config
+        self._verification_total = None
+        self._coarse_end_hz = None
+        self._last_timing = {}
         self._windows = config.windows()
         self._states = [0] * len(self._windows)
         self._current = -1
         self._good = self._bad = self._observed = 0
         self._rows = []
+        self._next_display_order = 0
         self._current_observations = []
         self._current_window_metrics = {}
         self._current_observation_count = 0
@@ -362,6 +425,9 @@ class SurveyController(QObject):
         self._completed_window_records = []
         self._tx_correlated = self._background = 0
         self._model.set_rows([])
+        self._expanded_groups = {"verified"}
+        self._grouped_model.set_rows([])
+        self._group_summaries = []
         self._selected = ""
         self._elapsed = 0.0
         self._run_condition = config.operator_condition
@@ -401,6 +467,19 @@ class SurveyController(QObject):
             for item in update.take():
                 self._update(item)
             return
+        if update.state in {"coarse_running", "coarse_complete"}:
+            self._elapsed = update.elapsed_seconds
+            self.preview.emit(None)
+            if update.state == "coarse_complete":
+                self._verification_total = len(update.selected_windows)
+                selected = set(update.selected_windows)
+                self._states = [0 if i in selected else 3 for i in range(len(self._states))]
+                self._detail = "Kaba adaylar kartta doğrulanacak; diğer bölgelerde yayın yokluğu kanıtlanmadı."
+            else:
+                self._coarse_end_hz = (update.timing or {}).get("coarse_end_hz", self._coarse_end_hz)
+                self._detail = "Geniş bant kaba arama sürüyor; henüz FPGA/ARM tespiti değil."
+            self.changed.emit()
+            return
         self._current = update.window.index
         self._elapsed = update.elapsed_seconds
         if update.state == "preview":
@@ -411,6 +490,7 @@ class SurveyController(QObject):
             self.preview.emit(None)
             self._detail = "Alım önizlemesi · pencere bütünlüğü henüz doğrulanmadı."
         if update.state == "complete":
+            self._last_timing = update.timing or {}
             self._states[self._current] = 1
             self._good += 1
             newest = []
@@ -514,7 +594,7 @@ class SurveyController(QObject):
                         evidence_detail = "TX kapalı turda da görüldü; test vericisine bağlanmadı"
                         self._background += 1
                 newest.append({
-                    **signal_fields(item, self._current),
+                    **signal_fields(item, self._current, primary_possible),
                     "eventId": item["key"], "frequencyHz": item["frequency_hz"],
                     "frequency": f"{item['frequency_hz'] / 1e6:.6f} MHz",
                     "detail": " · ".join(details),
@@ -556,7 +636,12 @@ class SurveyController(QObject):
                 # The list is a bounded engineering ranking, not arrival order.
                 # A weak recent fluctuation must not bury a repeatable strong RF
                 # candidate found earlier in a long scan.
-                self._rows = _rank_observation_rows(merge_signal_rows(newest, self._rows))
+                merged = merge_signal_rows(newest, self._rows)
+                for row in merged:
+                    if "displayOrder" not in row:
+                        row["displayOrder"] = self._next_display_order
+                        self._next_display_order += 1
+                self._rows = _rank_observation_rows(merged)
             self._publish_rows()
             self._detail = "Pencere ve ikinci LO kontrolü tamamlandı; sonuç geçmiş RF gözlemidir."
         elif update.state == "failed":
@@ -576,7 +661,13 @@ class SurveyController(QObject):
         self._state = {"completed": "Tur tamamlandı", "cancelled": "Durduruldu",
                        "partial": "Eksik kapsam", "failed": "Tarama hatası"}[result.state]
         if result.error_code:
-            self._detail = f"Tarama durdu: {result.error_code}"
+            self._detail = {
+                "sweep_unavailable": "Hızlı tarama aracı veya gerekli seçenekleri bulunamadı. Tam tarama profilini seçebilirsiniz.",
+                "sweep_failed": "Kaba tarama çıktısı eksik veya alıcı işlemi başarısız. Kapsam doğrulanmadı.",
+                "sweep_malformed": "Kaba taramada iki tam tur doğrulanamadı. Eksik bölgeler boş kabul edilmedi.",
+                "operation_timeout": "Alıcı yanıtı zaman aşımına uğradı; tarama durduruldu.",
+                "operation_cancelled": "Tarama durduruldu; yalnız tamamlanan gözlemler korundu.",
+            }.get(result.error_code, f"Tarama durdu: {result.error_code}")
             self._invalidate_comparison()
         elif result.state == "completed" and self._run_condition == "tx_off_reference":
             try:
@@ -611,7 +702,7 @@ class SurveyController(QObject):
                 self._detail = f"Tarama tamamlandı; A/B kanıt dosyası üretilemedi: {exc}"
         else:
             self._invalidate_comparison()
-            if result.state == "completed" and self._run_condition == "unspecified":
+            if result.state == "completed" and self._run_condition == "unspecified" and self._config.mode == "full":
                 regions = single_survey_energy_regions(self._completed_window_records)
                 energy_rows = []
                 for index, region in enumerate(regions):
@@ -640,12 +731,16 @@ class SurveyController(QObject):
                     })
                 self._single_survey_energy_count = len(energy_rows)
                 if energy_rows:
+                    for row in energy_rows:
+                        row["displayOrder"] = self._next_display_order
+                        self._next_display_order += 1
                     existing_ids = {row["eventId"] for row in energy_rows}
                     self._rows = _rank_observation_rows(energy_rows + [
                         row for row in self._rows if row["eventId"] not in existing_ids
                     ])
                     self._publish_rows()
             self._detail = "Bu turdaki geçmiş gözlemler; şu anda yayın yapıldığını göstermez."
+        self._publish_rows()
         self.changed.emit()
         if (result.state == "completed" and self._run_condition == "unspecified"
                 and self._recheck_pool is not None and self._current_observations):
@@ -653,10 +748,21 @@ class SurveyController(QObject):
             return
         self.finished.emit(result.state)
 
-    def _publish_rows(self):
+    def _publish_rows(self, *, clear_hidden_selection=False):
         if self._run_condition == "unspecified":
             self._rows.sort(key=lambda row: (not bool(row.get("signalDetected")), row["frequencyHz"]))
         self._model.set_rows(self._rows)
+        visible = grouped_signal_rows(
+            self._rows,
+            self._expanded_groups,
+            preserve_order=self.running,
+        )
+        self._group_summaries = [row for row in visible if row["isHeader"]]
+        self._grouped_model.set_rows([row for row in visible if not row["isHeader"]])
+        if clear_hidden_selection and self._selected and not any(
+            row["eventId"] == self._selected for row in visible
+        ):
+            self._selected = ""
 
     def _start_recheck(self):
         by_key = {item["key"]: item for item in self._current_observations}
@@ -684,6 +790,7 @@ class SurveyController(QObject):
         for row in self._rows:
             if row["eventId"] == update["key"]:
                 row["recheckStatus"] = labels[update["state"]]
+                row["recheckState"] = update["state"]
                 row["checkedAt"] = update["checked_at"]
                 break
         self._publish_rows()
@@ -708,7 +815,7 @@ class SurveyController(QObject):
         for row in self._rows:
             row.update(evidenceKey="uncertain", evidence="A/B: TAMAMLANMADI",
                        evidenceDetail="Tam tur bütünlüğü doğrulanamadı; bu satır A/B sonucu sayılamaz.")
-        self._model.set_rows(self._rows)
+        self._publish_rows()
 
     @Slot(str)
     def _failed(self, code):

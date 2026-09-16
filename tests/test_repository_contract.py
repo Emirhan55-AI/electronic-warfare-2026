@@ -121,7 +121,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(52, len(VERIFY.APPROVED_PHASE04_F5_FILES))
         self.assertEqual(346, len(VERIFY.APPROVED_PHASE04_FILES))
         self.assertEqual(19, len(VERIFY.APPROVED_PHASE08A_FILES))
-        self.assertEqual(259, len(VERIFY.APPROVED_PHASE08_FILES))
+        self.assertEqual(284, len(VERIFY.APPROVED_PHASE08_FILES))
         self.assertEqual(42, len(VERIFY.APPROVED_PHASE05_FILES))
         self.assertEqual(24, len(VERIFY.APPROVED_PHASE06A_FILES))
         self.assertEqual(25, len(VERIFY.APPROVED_PHASE06B_FILES))
@@ -142,7 +142,7 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertEqual(238, len(VERIFY.APPROVED_P0_PLATFORM_AND_RECORDED_FILES))
         self.assertEqual(82, len(VERIFY.APPROVED_ST06_RUNTIME_CONFIG_FILES))
         self.assertEqual(14, len(VERIFY.APPROVED_PARAMETER_ARM_FILES))
-        self.assertEqual(116, len(VERIFY.APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES))
+        self.assertEqual(120, len(VERIFY.APPROVED_PARAMETER_AND_DIRECTION_CONTINUATION_FILES))
         self.assertEqual(set(), VERIFY._repository_files() - allowed)
 
     def test_phase04_frozen_catalog_is_byte_stable(self) -> None:

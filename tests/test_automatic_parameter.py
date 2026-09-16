@@ -105,6 +105,14 @@ class AutomaticParameterSchedulerTests(unittest.TestCase):
         self.assertEqual(outcomes[0].status, "not_observed")
         self.assertIsNone(self.scheduler.decorate(self.frame(4)).parameter_request)
 
+    def test_unscheduled_ended_events_are_telemetry_not_catalog_outcomes(self) -> None:
+        ended = tuple(event(index, float(index), 1000, 1010) for index in range(1, 65))
+        self.scheduler.observe_events((), ended)
+
+        self.assertEqual(self.scheduler.drain_outcomes(), ())
+        self.assertEqual(self.scheduler.expired_before_measurement_count, 64)
+        self.assertEqual(self.scheduler.completed_event_count, 64)
+
 
 if __name__ == "__main__":
     unittest.main()

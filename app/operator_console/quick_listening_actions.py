@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-from PySide6.QtCore import QUrl, Slot
+from PySide6.QtCore import QTimer, QUrl, Slot
 
 from algorithms.monitoring import (
     AnalogMonitor,
@@ -50,11 +50,28 @@ class QuickListeningActionsMixin:
     def continueToListening(self) -> bool:
         """Continue the measured signal into listening without trusting stale RF state."""
         target_hz = self._listening_parameter_target_hz
-        if target_hz is None or self._busy:
+        if target_hz is None:
+            self._clear_listening("Ölçüm sonucunda dinleme frekansı bulunamadı.")
+            self._status_message = self._listening_state
+            self.stateChanged.emit()
             return False
+        if self._busy:
+            self._clear_listening("Devam eden işlem tamamlandığında yeniden deneyin.")
+            self._status_message = self._listening_state
+            self.stateChanged.emit()
+            return False
+        if self._receiver_health_in_flight:
+            self._clear_listening("Alıcı denetimi tamamlanıyor; dinleme alımı otomatik başlayacak.")
+            self._status_message = self._listening_state
+            self.stateChanged.emit()
+            QTimer.singleShot(50, self.continueToListening)
+            return True
         if self._source_mode != "hackrf":
             return self.selectedDetectionReady
         if self._live_session is not None:
+            self._clear_listening("Canlı alım zaten çalışıyor; önce alımı durdurun.")
+            self._status_message = self._listening_state
+            self.stateChanged.emit()
             return False
         self._pending_listening_frequency_hz = round(target_hz)
         self.clearDetectionSelection()
@@ -64,6 +81,9 @@ class QuickListeningActionsMixin:
         )
         if not self.liveSessionActive:
             self._pending_listening_frequency_hz = None
+            self._clear_listening("Dinleme için yeni alım başlatılamadı. Sistem durumunu denetleyin.")
+            self._status_message = self._listening_state
+            self.stateChanged.emit()
             return False
         self._status_message = "Ölçülen sinyal dinleme için yeniden doğrulanıyor."
         self._add_log("Dinleme", self._status_message)
@@ -96,6 +116,7 @@ class QuickListeningActionsMixin:
                 self.sampleRateHz,
                 center_offset_khz * 1_000.0,
                 bandwidth_khz * 1_000.0,
+                nfm_deemphasis_us=self._listening_deemphasis_us,
             )
             if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
                 raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")
@@ -169,6 +190,7 @@ class QuickListeningActionsMixin:
                 self.sampleRateHz,
                 center_offset_khz * 1_000.0,
                 bandwidth_khz * 1_000.0,
+                nfm_deemphasis_us=self._listening_deemphasis_us,
             )
             if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
                 raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")

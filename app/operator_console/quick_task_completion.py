@@ -18,6 +18,10 @@ from .measurement_record import RecordedMeasurement
 from .quick_runtime import ERROR_TEXT
 
 
+def _analog_voice_bandwidth_khz(occupied_bandwidth_hz: float) -> float:
+    return max(6.0, min(25.0, 1.2 * float(occupied_bandwidth_hz) / 1_000.0))
+
+
 class QuickTaskCompletionMixin:
     """Publish bounded worker results on the GUI thread."""
 
@@ -76,8 +80,8 @@ class QuickTaskCompletionMixin:
         if kind == "open":
             self._install_source(result, Path(getattr(result, "metadata_path")).name)
         elif kind == "probe":
-            inventory, device, fpga_ready, fpga_reason = result  # type: ignore[misc]
-            self._apply_probe(inventory, device, fpga_ready, fpga_reason)
+            inventory, device, fpga_ready, fpga_reason, portapack_error = result  # type: ignore[misc]
+            self._apply_probe(inventory, device, fpga_ready, fpga_reason, portapack_error)
         elif kind == "frame":
             if not isinstance(result, RuntimeFrameResult):
                 self._show_error("processing_failed", "İşleme sonucu sözleşmeyle eşleşmedi.")
@@ -168,8 +172,9 @@ class QuickTaskCompletionMixin:
                         and isinstance(bandwidth_field.value, (int, float))
                         and math.isfinite(float(bandwidth_field.value))
                     ):
-                        suggested_khz = 1.2 * float(bandwidth_field.value) / 1_000.0
-                        self._listening_parameter_bandwidth_khz = max(2.0, min(200.0, suggested_khz))
+                        self._listening_parameter_bandwidth_khz = _analog_voice_bandwidth_khz(
+                            float(bandwidth_field.value)
+                        )
                     else:
                         self._listening_parameter_bandwidth_khz = 16.0
                     self._listening_parameter_record_path = self._measurement_record_path
@@ -190,7 +195,7 @@ class QuickTaskCompletionMixin:
             if not isinstance(result, tuple) or len(result) != 6 or not isinstance(result[0], AnalogMonitorResult):
                 self._show_error("insufficient_audio", "Dinleme sonucu sözleşmeyle eşleşmedi.")
                 return
-            listening, scope, input_duration, offset_hz, bandwidth_hz, continuity = result
+            listening, _scope, input_duration, offset_hz, bandwidth_hz, _continuity = result
             self._listening_result = listening
             self._audio_playback.load(listening.pcm16)
             self._playback_timer.stop()
@@ -198,17 +203,15 @@ class QuickTaskCompletionMixin:
             self._listening_playback_duration_s = self._audio_playback.duration_seconds
             self._listening_playback_state = "Oynatmaya hazır"
             self._listening_short_preview = float(input_duration) < LIVE_AUDIO_WINDOW_SECONDS
-            audio_duration = listening.audio.size / listening.sample_rate_hz
             channel_frequency = self.centerFrequencyHz + float(offset_hz)
             self._listening_rows = [
-                {"label": "Demodülasyon", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
-                {"label": "NFM de-emphasis", "value": "750 µs" if listening.mode == "nfm" else "Uygulanmaz"},
-                {"label": "Kanal merkez frekansı", "value": self._format_frequency(channel_frequency)},
-                {"label": "Kanal bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
-                {"label": "Giriş kapsamı", "value": f"{scope} · {float(input_duration):.3f} s"},
-                {"label": "Ses çıkışı", "value": "48 kHz · mono PCM16"},
-                {"label": "Üretilen ses süresi", "value": f"{audio_duration:.3f} s"},
-                {"label": "Baskın ses bileşeni", "value": self._format_rate(listening.dominant_tone_hz)},
+                {"label": "Yayın türü", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
+                {"label": "Frekans", "value": self._format_frequency(channel_frequency)},
+                {"label": "Alım bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
+                {"label": "Ses profili", "value": (
+                    f"Telsiz düzeltmesi ({listening.nfm_deemphasis_us:g} µs)"
+                    if listening.mode == "nfm" and listening.nfm_deemphasis_us > 0
+                    else "Net ses")},
             ]
             if listening.channel_power_dbfs_trace:
                 power_low = min(listening.channel_power_dbfs_trace)
@@ -218,36 +221,15 @@ class QuickTaskCompletionMixin:
                 self._listening_rows.extend(
                     [
                         {
-                            "label": "Kanal gücü aralığı",
+                            "label": "Alım seviyesi",
                             "value": f"{power_low:.2f}…{power_high:.2f} dBFS",
                         },
                         {
-                            "label": "Merkez frekans değişimi",
+                            "label": "Frekans sapması",
                             "value": f"{frequency_low:+.1f}…{frequency_high:+.1f} Hz",
-                        },
-                        {
-                            "label": "Zamansal gözlem",
-                            "value": (
-                                f"{len(listening.observation_times_s)} nokta · "
-                                f"{listening.observation_interval_s * 1_000.0:.0f} ms"
-                            ),
                         },
                     ]
                 )
-            self._listening_rows.append(
-                {
-                    "label": "Tespit sürekliliği",
-                    "value": (
-                        (
-                            f"Doğrulandı · {int(continuity['observed_frames'])}/"
-                            f"{int(continuity['total_frames'])} kare gözlendi · "
-                            f"en uzun boşluk {int(continuity['max_consecutive_misses'])} kare"
-                        )
-                        if scope == "Canlı kesintisiz alım" and continuity is not None
-                        else "Canlı olay sürekliliği doğrulanmadı"
-                    ),
-                }
-            )
             self._listening_observation_points = [
                 {"time": float(time_s), "power": float(power_dbfs), "frequency": float(frequency_hz)}
                 for time_s, power_dbfs, frequency_hz in zip(
@@ -262,7 +244,7 @@ class QuickTaskCompletionMixin:
             self._listening_state = (
                 "Kısa önizleme hazır; kesintisiz dinleme kabulü için en az 5 saniyelik kayıt gerekir."
                 if self._listening_short_preview
-                else "Kesintisiz kanal sesi hazır."
+                else "Ses hazır."
             )
             self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
             self._add_log("Dinleme", self._status_message)

@@ -1,5 +1,31 @@
 # Sinyal izleme ve dinleme: güncel durum
 
+## Analog ses profili ve sade izleme görünümü — 16 Eylül 2026
+
+Dinleme zinciri gerçek I/Q üzerinde AM zarfı veya NFM faz farkını çözerek
+48 kHz mono PCM16/WAV üretir. Kullanıcının duyduğu fakat boğuk bulduğu canlı
+ses, işlevin çalıştığını gösterir; konuşma anlaşılabilirliği için fiziksel kabul
+kanıtı değildir. İncelemede NFM kanalına parametre ölçümündeki 200 kHz'e kadar
+çıkan OBW önerisinin taşındığı ve eşleşen verici profili kanıtlanmadan 750 µs
+de-emphasis uygulandığı görüldü.
+
+Analog konuşma dinlemesi artık 2–25 kHz kanal sınırında çalışır; parametre
+önerisi 6–25 kHz'e alınır. NFM varsayılanı `Net ses` profilidir ve de-emphasis
+uygulamaz. `Telsiz düzeltmesi · 750 µs` yalnız vericinin pre-emphasis profili
+biliniyorsa operatörce seçilir. Demodüle konuşma, 48 kHz'e çevrilmeden önce
+257 tap alçak geçiren süzgeçle bant sınırlandırılır; böylece örnek azaltmada
+yüksek frekanslı ayrıştırıcı gürültüsünün ses bandına katlanması bastırılır.
+
+Arayüzde yayın türü, frekans düzeltmesi, alım bant genişliği, ses profili ve
+ses seviyesi kalır. Sonuç özeti yayın türü, frekans, bant, ses profili, alım
+seviyesi ve frekans sapmasıyla sınırlıdır. Ses dalga biçimi ile beş saniyelik
+seviye/frekans kararlılığı grafiği korunur; teknik süreklilik sayaçları arayüzde
+gösterilmez fakat canlı kabul kapısında uygulanmaya devam eder.
+
+Bu değişiklik sentetik AM/NFM, 20 dB SNR, blok sürekliliği, de-emphasis ve
+yüksek frekans alias reddi regresyonlarıyla doğrulanır. Yeni kaynakla gerçek
+telsiz konuşması tekrarlanmadığından KTR-4.3 fiziksel kabulü açık kalır.
+
 ## 820 MHz canlı NFM ürün koşusu — 13 Eylül 2026
 
 Kullanıcının kontrollü laboratuvarda açık olduğunu bildirdiği `820 MHz`,
@@ -55,14 +81,16 @@ protokol varsayılmaz.
 - Seçili doğrulanmış olay için AM zarf demodülasyonu ve NFM ardışık faz farkı
   demodülasyonu gerçek kompleks I/Q örneklerini işler. Üretilen ses 48 kHz,
   mono PCM16'dır; oynatılabilir ve WAV olarak dışa aktarılabilir.
-- DDC, 129 tap anti-alias ve kanal FIR'ı, durum korumalı örnek azaltma, 65 tap
-  ses filtresi, DC giderimi ve sınırlı normalizasyon çalışır. Beş ile yirmi
+- DDC, 129 tap anti-alias ve kanal FIR'ı, 257 tap örnekleme öncesi konuşma
+  filtresi, durum korumalı örnek azaltma, 65 tap çıkış ses filtresi, DC giderimi
+  ve sınırlı normalizasyon çalışır. Beş ile yirmi
   saniye arasındaki kesintisiz kayıtlar blok sınırlarında NCO, FIR, decimator
   ve NFM ayrıştırıcı durumunu korur.
-- NFM sesine birinci derece `750 µs` de-emphasis uygulanır; bu, 6 dB/oktav
-  telsiz konuşma karakteristiğinin yazılım karşılığıdır. NFM ses bandı 12,5 kHz
-  kanalda 2,55 kHz, daha geniş kanalda 3 kHz ile sınırlandırılır. Gerçek telsiz
-  profilinin bu varsayımla eşleşmesi fiziksel kabulte kaydedilecektir.
+- NFM varsayılanı de-emphasis uygulamayan `Net ses` profilidir. Birinci derece
+  `750 µs` düzeltme yalnız operatörün seçtiği isteğe bağlı telsiz profilidir.
+  NFM ses bandı 12,5 kHz kanalda 2,55 kHz, daha geniş kanalda 3 kHz ile
+  sınırlandırılır. Gerçek telsiz profilinin bu seçimle eşleşmesi fiziksel
+  kabulde kaydedilecektir.
 - Canlı ürün yolu, HackRF'ten alınmış, karta gönderilmiş ve kart yanıtıyla
   eşleşmiş `2 MS/s` CI8 karelerin son `5,001216` saniyesini kullanır. Tampon
   `2.442` kare ve yaklaşık `19,1 MiB` ile sınırlıdır. Bir sıra boşluğu tamponu
@@ -73,15 +101,19 @@ protokol varsayılmaz.
   az `%95`'inde yeniden gözlenmesi ve ardışık gözlenmeme boşluğunun en çok `8`
   kare (`16,384 ms`) olması gerekir. Böylece tek karelik CFAR salınımı sesi
   bütünüyle düşürmez; sekiz kareyi aşan kanal kaybı kapıyı kapatır. Arayüz
-  gözlenen kare sayısını ve en uzun boşluğu bildirir.
+  süreklilik kapısını arka planda uygular.
+- Dinleme kartındaki süre yalnız ardışık I/Q veri birikimini gösterir. FPGA
+  hedef kanalı kısa süre kaybettiğinde süre başa dönmez; beş saniye dolduktan
+  sonra `hedef sinyal kesiliyor` durumu ayrı gösterilir. Böylece alıcı veri
+  kesintisi ile sinyal doğrulama kararsızlığı birbirine karıştırılmaz.
 - Kanal gücü ve artık merkez frekansı 250 ms pencerelerle izlenir. Güç
   `10 log10(mean(|x|²)) dBFS`; artık frekans
   `angle(sum(x[n]·conj(x[n−1]))) Fs/(2π)` ile hesaplanır. Arayüz güç aralığını,
-  frekans değişimini, gözlem noktası sayısını ve canlı tespit sürekliliğini
-  gösterir.
+  frekans değişimini sade sonuç alanında ve kararlılık grafiğinde gösterir.
 - Parametre ölçümünden gelen emisyon merkezi ve OBW %99 dinleme aşamasına
-  devredilir. Önerilen kanal genişliği OBW'nin `1,2` katıdır ve desteklenen
-  `2–200 kHz` sınırına alınır. Canlı kaynakta eski olay kimliği taşınmaz; aynı
+  devredilir. Önerilen kanal genişliği OBW'nin `1,2` katıdır ve analog konuşma
+  için `6–25 kHz` öneri sınırına alınır; DSP sözleşmesi `2–25 kHz` kabul eder.
+  Canlı kaynakta eski olay kimliği taşınmaz; aynı
   frekanstaki yayın yeni FPGA oturumunda yeniden doğrulandıktan sonra seçilir.
 
 Bu işlemler boş veya sabit arayüz değeri üretmez. DSP gerçek I/Q dizisini

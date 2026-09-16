@@ -24,9 +24,45 @@ from algorithms.monitoring import (
     wav_bytes,
     write_wav,
 )
+from algorithms.monitoring.dsp import _resample_linear, _resample_voice
 
 
 class Phase05MonitoringTests(unittest.TestCase):
+    def test_voice_defaults_are_clear_and_bandwidth_is_bounded(self) -> None:
+        config = AnalogMonitorConfig("nfm", 192_000.0, 24_000.0, 16_000.0)
+        self.assertEqual(0.0, config.nfm_deemphasis_us)
+        with self.assertRaisesRegex(MonitoringError, "2–25 kHz"):
+            AnalogMonitorConfig("nfm", 192_000.0, 0.0, 200_000.0)
+
+    def test_voice_resampling_rejects_high_frequency_alias(self) -> None:
+        source_rate = 192_000.0
+        time_axis = np.arange(int(source_rate), dtype=np.float64) / source_rate
+        high_frequency = np.sin(2.0 * np.pi * 47_000.0 * time_axis)
+        unfiltered = _resample_linear(high_frequency, source_rate)
+        filtered = _resample_voice(high_frequency, source_rate, 3_000.0)
+        self.assertGreater(float(np.sqrt(np.mean(unfiltered**2))), 0.6)
+        self.assertLess(float(np.sqrt(np.mean(filtered**2))), 0.01)
+
+    def test_deemphasis_selection_is_applied_and_recorded_in_both_paths(self):
+        spec = next(item for item in FIXTURE_SPECS if item.mode == "nfm")
+        iq = generate_iq(spec)
+        frames = tuple(iq[index:index + 4096] for index in range(0, 16384, 4096))
+        t = np.arange(5 * 192000, dtype=np.float64) / 192000
+        continuous_iq = 0.7 * np.exp(2j * np.pi * spec.carrier_offset_hz * t
+                                    - 1j * spec.modulation_index * np.cos(2 * np.pi * spec.audio_tone_hz * t))
+        monitor = AnalogMonitor()
+        for continuous in (False, True):
+            results = []
+            for tau in (0.0, 750.0):
+                config = AnalogMonitorConfig("nfm", 192000.0, spec.carrier_offset_hz,
+                                             spec.channel_bandwidth_hz, nfm_deemphasis_us=tau)
+                result = (monitor.process_continuous(continuous_iq, config) if continuous
+                          else monitor.process(frames, config))
+                self.assertEqual(tau, result.nfm_deemphasis_us)
+                self.assertEqual(0, result.clipping_count)
+                results.append(result.audio)
+            self.assertFalse(np.allclose(results[0], results[1]))
+
     def _result(self, mode: str, snr_db: float | None = None):
         spec = next(item for item in FIXTURE_SPECS if item.mode == mode)
         iq = generate_iq(spec, snr_db=snr_db)

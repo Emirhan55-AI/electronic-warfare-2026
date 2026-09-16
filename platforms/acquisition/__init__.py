@@ -22,6 +22,12 @@ from .hackrf import (
     parse_sweep_fixture,
 )
 from .process import ProcessResult, SafeProcessRunner
+from .portapack import (
+    PORTAPACK_HACKRF_COMMAND,
+    PORTAPACK_USB_SERIAL_PID,
+    PORTAPACK_USB_SERIAL_VID,
+    switch_portapack_to_hackrf_mode,
+)
 from .source import BoundedCI8FrameSource, decode_ci8
 from .search import HackRFSearchBackend
 from .continuous import (
@@ -45,6 +51,9 @@ __all__ = [
     "RXConfig",
     "RealHackRFBackend",
     "SafeProcessRunner",
+    "PORTAPACK_HACKRF_COMMAND",
+    "PORTAPACK_USB_SERIAL_PID",
+    "PORTAPACK_USB_SERIAL_VID",
     "SweepBin",
     "SweepResult",
     "ToolInventory",
@@ -52,6 +61,7 @@ __all__ = [
     "build_receive_argv",
     "load_ed_rx_config",
     "parse_hackrf_info",
+    "switch_portapack_to_hackrf_mode",
     "decode_ci8",
     "parse_sweep_fixture",
 ]

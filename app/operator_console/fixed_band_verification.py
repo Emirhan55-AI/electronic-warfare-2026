@@ -24,6 +24,7 @@ from .live_ed import (
     LIVE_MIN_TUNING_OFFSET_HZ,
     LIVE_OUTPUT_SAMPLE_RATE_HZ,
     LIVE_OUTPUT_SAMPLES_PER_FRAME,
+    LIVE_STARTUP_SETTLING_FRAMES,
     LiveEDConfiguration,
     LiveEDSession,
 )
@@ -387,11 +388,13 @@ class FixedBandVerifier:
         *,
         session_factory: Callable = LiveEDSession,
         known_spurs_hz: tuple[int, ...] = (),
+        rf_amplifier: bool = False,
     ) -> None:
         self.executable = executable
         self.serial = serial
         self.lna_gain_db = int(lna_gain_db)
         self.vga_gain_db = int(vga_gain_db)
+        self.rf_amplifier = rf_amplifier
         self._session_factory = session_factory
         self.known_spurs_hz = tuple(int(value) for value in known_spurs_hz)
         self._cancelled = threading.Event()
@@ -498,7 +501,9 @@ class FixedBandVerifier:
             self.vga_gain_db,
             frame_count=FIXED_VERIFY_FRAMES,
             display_interval_frames=1,
+            startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
             input_center_frequency_hz_override=input_center_hz,
+            rf_amplifier=self.rf_amplifier,
         )
         session = self._session_factory(self.executable, config)
         if hasattr(session, "set_preview_handler"):

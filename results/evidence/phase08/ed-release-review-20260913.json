@@ -1,0 +1,370 @@
+{
+  "schema": "ed-release-review-v1",
+  "review_date": "2026-09-13",
+  "generated_utc": "2026-09-13T20:29:06.456677+00:00",
+  "status": "software_fixes_verified_release_gates_open",
+  "requirements": [
+    "KTR-4.1",
+    "KTR-4.2",
+    "KTR-4.3",
+    "KTR-4.4"
+  ],
+  "out_of_scope": [
+    "KTR-5.1",
+    "KTR-5.2",
+    "KTR-5.3",
+    "KTR-5.4"
+  ],
+  "review": "docs/reviews/ED_RELEASE_REVIEW_20260913.md",
+  "inventory": {
+    "tracked_files_at_start": 1657,
+    "python_ast_files": 641,
+    "syntax_errors": 0
+  },
+  "source_sha256": {
+    "app/operator_console/parameter_catalog.py": "5a3f5457ecb2c92297a9131b7d66c9ed0429e364ebf85b628e059a502ceb347d",
+    "app/operator_console/pysidedeploy.spec": "caab62b1d80f2823b1204a8123d515bffcdf1acc0762b5aa9f8bce6b004ab632",
+    "app/operator_console/quick_runtime.py": "afe4aa7a9a727ff9e2de6d23a9fbb24dcd51d7a700fbbf3bfc1f73548b64f384",
+    "app/operator_console/quick_view_model.py": "920f17c1bf5d45aa9f685e2c76b914a6a99269e06009bbe998915c95e3e89528",
+    "config/app/product-package.json": "c70f8db65dc36405bdd40f35cda1b725ce8b51d9a4e23bbf947f41b0733c1d7d",
+    "requirements/product.txt": "ae5f474b5f58ecadb4615c9585cef53e3e6eebbbdce21cc1a64321c370536198",
+    "scripts/verify_phase00.py": "4bc99dac353b975ea83c0e96b050bf497ec862ffc509731cfa2d92049062b6ba",
+    "tests/test_live_ed_view_model.py": "d1d95c86049d60f7f9bbcb5930a5fdc8f6a9063e56e7f6a98ef51a865f8f1d0f",
+    "tests/test_operator_hackrf.py": "f1ae7958583de2a4b84e66b8c0121748975bae57f7466e52dcb23ee29f2a649d",
+    "tests/test_operator_product_boundary.py": "7a8d81fb8a738d7791366753f15184bc4d994eca6fb653c2c69a86f622163ea2",
+    "tests/test_parameter_catalog.py": "eb92e63816231d38f23d2ecda538224ded9b16f760e52219a427cb2eb43715ed",
+    "tests/test_repository_contract.py": "23fc5feb54aa3dcf3eceba5cc3926418be9b6d93157256ed8800d2ca9f60459f",
+    "tests/test_spectral_display.py": "3917a64b877cd1235b4114c94f3c7c43ee95d7f0b3839af0c32f1b661ba39206",
+    "tests/test_st06_power_vivado.py": "805d2373fbcfd4f09e002fc92f9b8cd244b838ae50b9699e7b21ee5281d3d3a2"
+  },
+  "targeted_changes": {
+    "tests": 110,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 59.737,
+    "failed_tests": [],
+    "local_xml": "build/ed-review-changes.xml",
+    "xml_sha256": "f2b8145739bbf685da844765f2c979b82d440acf93e0ed98ceee3ea5989ec8e6"
+  },
+  "widget_separate_process": {
+    "command": "python -m pytest tests/test_operator_hackrf.py -q",
+    "passed": 7,
+    "failed": 0,
+    "log_sha256": "0e2240efdcd6e09997d4b31f73a040c1c085cd146dba87f3501dfd766285635c"
+  },
+  "display_catalog_repository_vivado_followup": {
+    "tests": 41,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 34.873,
+    "failed_tests": [
+      {
+        "test": "tests.test_st06_power_vivado.test_st06_power_vivado_evidence_is_source_bound",
+        "message": "AssertionError: ST-06 Vivado kanıtı güncel kaynak ve çıktılarla eşleşmiyor.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\emirhan55\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe', '-X', 'utf8', ...ivado.py', '--check'], returncode=1, stdout='ST-06 Vivado kanıtı güncel kaynak ve çıktılarla eşleşmiyor.\\n', stderr='').returncode"
+      }
+    ],
+    "local_xml": "build/ed-review-followup.xml",
+    "xml_sha256": "6d42910f5c6a306612277a96e5c51cbce04efcd43bced745136e26e75e2e8e3d"
+  },
+  "broad_tests": {
+    "tests": 1025,
+    "failures": 22,
+    "errors": 0,
+    "skipped": 1,
+    "seconds": 582.256,
+    "failed_tests": [
+      {
+        "test": "tests.test_live_rx_display_evidence.test_current_physical_rx_display_evidence_preserves_the_open_usb_gate",
+        "message": "AssertionError: assert {'algorithms/...e_ed.py', ...} == {'app/operato...rvey.py', ...}\n  \n  Extra items in the left set:\n  'algorithms/p0/transport.py'\n  'algorithms/spectrum/dsp.py'\n  'algorithms/p0/native/channelizer_native.cpp'\n  'algorithms/p0/channelizer.py'\n  'algorithms/p0/native_channelizer.py'\n  Use -v to get more diff"
+      },
+      {
+        "test": "tests.test_operator_hackrf.OperatorHackRFTests.test_ready_tools_without_device_preserve_configured_serial_and_remain_disconnected",
+        "message": "AssertionError: '0000000000000000a32868dc35138247' != '0000000000000000a32868dc36877e47'\n- 0000000000000000a32868dc35138247\n?                          ^^^ ^\n+ 0000000000000000a32868dc36877e47\n?                          ^ ^^^"
+      },
+      {
+        "test": "tests.test_p0_hackrf_search.HackRFSearchPlanTests.test_physical_hackrf_acceptance_is_repeatable_and_source_bound",
+        "message": "AssertionError: Items in the second set but not the first:\n'hackrf_ed_rx.json'\n'acquisition_hackrf.py'"
+      },
+      {
+        "test": "tests.test_phase04f2_protocol.Phase04F2ProtocolTests.test_historical_protocol_lock_remains_current_after_v3",
+        "message": "AssertionError: '5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d' != '8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475'\n- 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n+ 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_phase04f3_protocol.Phase04F3ProtocolTests.test_protocol_lock_and_summary_are_current_before_v4",
+        "message": "AssertionError: '5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d' != '8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475'\n- 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n+ 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_phase04f4_protocol.Phase04F4ProtocolTests.test_protocol_lock_and_summary_are_current_before_v5",
+        "message": "AssertionError: {'sch[1622 chars]y': '5d909c44e03b47c14bd90f58d83a50b7252adf4f1[2164 chars]70c'} != {'sch[1622 chars]y': '8c7401055a8252ca377f2968c737e51596662bbe8[2164 chars]b60'}\nDiff is 4956 characters long. Set self.maxDiff to None to see it."
+      },
+      {
+        "test": "tests.test_phase04f5_product_profile.Phase04F5ProductProfileTests.test_product_integration_evidence_is_reproducible",
+        "message": "AssertionError: 'passed' != 'failed'\n- passed\n+ failed"
+      },
+      {
+        "test": "tests.test_phase04f5_protocol.Phase04F5ProtocolTests.test_protocol_lock_and_historical_summary_preserve_the_pre_v6_state",
+        "message": "AssertionError: {'sch[1743 chars]y': '5d909c44e03b47c14bd90f58d83a50b7252adf4f1[2276 chars]095'} != {'sch[1743 chars]y': '8c7401055a8252ca377f2968c737e51596662bbe8[2276 chars]d6a'}\nDiff is 5275 characters long. Set self.maxDiff to None to see it."
+      },
+      {
+        "test": "tests.test_phase05_observation_verifier.test_monitoring_observation_evidence_is_current_and_passed",
+        "message": "assert False\n +  where False = <function check at 0x000002B2F0BA9F80>()\n +    where <function check at 0x000002B2F0BA9F80> = MODULE.check"
+      },
+      {
+        "test": "tests.test_phase06i_verifier.Phase06IVerifierTests.test_evidence_is_current_and_machine_neutral",
+        "message": "AssertionError: False is not true"
+      },
+      {
+        "test": "tests.test_phase06j_verifier.Phase06JVerifierTests.test_evidence_is_current_and_machine_neutral",
+        "message": "AssertionError: False is not true"
+      },
+      {
+        "test": "tests.test_phase08_live_parameter_evidence.test_archived_live_parameter_run_reproduces_the_summary",
+        "message": "ValueError: Ürün parametre alanları eksik veya sırası değişmiş."
+      },
+      {
+        "test": "tests.test_phase08_native_channelizer_evidence.test_native_channelizer_evidence_preserves_historical_measurement",
+        "message": "AssertionError: assert '60514f3b75e8...8f39215d67204' == '7b595c012876...db2d76e9655e0'\n  \n  - 7b595c01287662c34c9d594a5047ebf2a5e2fe98b498296f549db2d76e9655e0\n  + 60514f3b75e8ad2a2d3dc2f93bc0723440ef4073d8881145f7d8f39215d67204"
+      },
+      {
+        "test": "tests.test_phase08_survey_overlap_evidence.test_survey_overlap_evidence_is_current_and_bounded",
+        "message": "AssertionError: assert '7c13c51607da...3205722c7fb62' == '867188414b30...37e411ca43c2c'\n  \n  - 867188414b30b2226bb6992412e186014e5666bc3aba73e7e8f37e411ca43c2c\n  + 7c13c51607da33eb94cb740e77985c2a198485752756eb059b43205722c7fb62"
+      },
+      {
+        "test": "tests.test_repository_contract.RepositoryContractTests.test_only_approved_later_phase_paths_extend_the_baseline",
+        "message": "AssertionError: 116 != 118"
+      },
+      {
+        "test": "tests.test_spectral_display.test_wide_coarse_detection_runs_after_spectrum_publish_and_is_throttled",
+        "message": "ValueError: too many values to unpack (expected 3)"
+      },
+      {
+        "test": "tests.test_st04_same_iq_resolution.test_physical_same_iq_evidence_preserves_claim_boundary",
+        "message": "AssertionError: assert '8c7401055a82...d241e62807475' == '5d909c44e03b...1d8e58f7cf29d'\n  \n  - 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n  + 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_st04_search_profile_measurement.test_physical_baseline_is_source_bound_and_contiguous",
+        "message": "AssertionError: assert '2c2910122c40...357c5d50f20eb' == 'c60e6cb46a10...31af380b0bf28'\n  \n  - c60e6cb46a108a6c29f4619f76bc21180e465b2139273651e4e31af380b0bf28\n  + 2c2910122c404e4fcb5fbd2751e58d3980433b469fa57ae5d63357c5d50f20eb"
+      },
+      {
+        "test": "tests.test_st06_parallel_product.test_historical_parallel_product_evidence_and_separate_rf_gate",
+        "message": "AssertionError: scripts/verify_st06_wideband_stream.py"
+      },
+      {
+        "test": "tests.test_st06_pipelined_dma_profile.test_st06_pipelined_dma_profile_retains_historical_source_binding",
+        "message": "AssertionError: platforms/embedded/p0/include/p0_dma_runtime.h"
+      },
+      {
+        "test": "tests.test_st06_power_vivado.test_st06_power_vivado_evidence_is_source_bound",
+        "message": "TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'"
+      },
+      {
+        "test": "tests.test_st06_product_optimization.test_historical_product_optimization_evidence_and_open_speed_gate",
+        "message": "AssertionError: scripts/verify_st06_wideband_stream.py"
+      }
+    ],
+    "local_xml": "build/ed-review-final.xml",
+    "xml_sha256": "d44325864a788bc686b1c5a8ac233f6684c99db65ded59276343081a2f5e6b05",
+    "command": "python -u -m pytest tests --ignore=tests/p0 -q --junitxml=build/ed-review-final.xml",
+    "scope": "Started before the last test expectation fixes; inspect targeted follow-ups. Not a clean before/after baseline."
+  },
+  "remaining_root_gate_recheck": {
+    "tests": 19,
+    "failures": 19,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 12.382,
+    "failed_tests": [
+      {
+        "test": "tests.test_live_rx_display_evidence.test_current_physical_rx_display_evidence_preserves_the_open_usb_gate",
+        "message": "AssertionError: assert {'algorithms/...e_ed.py', ...} == {'app/operato...rvey.py', ...}\n  \n  Extra items in the left set:\n  'algorithms/p0/native/channelizer_native.cpp'\n  'algorithms/p0/transport.py'\n  'algorithms/p0/channelizer.py'\n  'algorithms/p0/native_channelizer.py'\n  'algorithms/spectrum/dsp.py'\n  Use -v to get more diff"
+      },
+      {
+        "test": "tests.test_p0_hackrf_search.HackRFSearchPlanTests.test_physical_hackrf_acceptance_is_repeatable_and_source_bound",
+        "message": "AssertionError: Items in the second set but not the first:\n'acquisition_hackrf.py'\n'hackrf_ed_rx.json'"
+      },
+      {
+        "test": "tests.test_phase04f2_protocol.Phase04F2ProtocolTests.test_historical_protocol_lock_remains_current_after_v3",
+        "message": "AssertionError: '5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d' != '8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475'\n- 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n+ 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_phase04f3_protocol.Phase04F3ProtocolTests.test_protocol_lock_and_summary_are_current_before_v4",
+        "message": "AssertionError: '5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d' != '8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475'\n- 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n+ 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_phase04f4_protocol.Phase04F4ProtocolTests.test_protocol_lock_and_summary_are_current_before_v5",
+        "message": "AssertionError: {'sch[1622 chars]y': '5d909c44e03b47c14bd90f58d83a50b7252adf4f1[2164 chars]70c'} != {'sch[1622 chars]y': '8c7401055a8252ca377f2968c737e51596662bbe8[2164 chars]b60'}\nDiff is 4956 characters long. Set self.maxDiff to None to see it."
+      },
+      {
+        "test": "tests.test_phase04f5_product_profile.Phase04F5ProductProfileTests.test_product_integration_evidence_is_reproducible",
+        "message": "AssertionError: 'passed' != 'failed'\n- passed\n+ failed"
+      },
+      {
+        "test": "tests.test_phase04f5_protocol.Phase04F5ProtocolTests.test_protocol_lock_and_historical_summary_preserve_the_pre_v6_state",
+        "message": "AssertionError: {'sch[1743 chars]y': '5d909c44e03b47c14bd90f58d83a50b7252adf4f1[2276 chars]095'} != {'sch[1743 chars]y': '8c7401055a8252ca377f2968c737e51596662bbe8[2276 chars]d6a'}\nDiff is 5275 characters long. Set self.maxDiff to None to see it."
+      },
+      {
+        "test": "tests.test_phase05_observation_verifier.test_monitoring_observation_evidence_is_current_and_passed",
+        "message": "assert False\n +  where False = <function check at 0x000002B5D9CABE20>()\n +    where <function check at 0x000002B5D9CABE20> = MODULE.check"
+      },
+      {
+        "test": "tests.test_phase06i_verifier.Phase06IVerifierTests.test_evidence_is_current_and_machine_neutral",
+        "message": "AssertionError: False is not true"
+      },
+      {
+        "test": "tests.test_phase06j_verifier.Phase06JVerifierTests.test_evidence_is_current_and_machine_neutral",
+        "message": "AssertionError: False is not true"
+      },
+      {
+        "test": "tests.test_phase08_live_parameter_evidence.test_archived_live_parameter_run_reproduces_the_summary",
+        "message": "ValueError: Ürün parametre alanları eksik veya sırası değişmiş."
+      },
+      {
+        "test": "tests.test_phase08_native_channelizer_evidence.test_native_channelizer_evidence_preserves_historical_measurement",
+        "message": "AssertionError: assert '60514f3b75e8...8f39215d67204' == '7b595c012876...db2d76e9655e0'\n  \n  - 7b595c01287662c34c9d594a5047ebf2a5e2fe98b498296f549db2d76e9655e0\n  + 60514f3b75e8ad2a2d3dc2f93bc0723440ef4073d8881145f7d8f39215d67204"
+      },
+      {
+        "test": "tests.test_phase08_survey_overlap_evidence.test_survey_overlap_evidence_is_current_and_bounded",
+        "message": "AssertionError: assert '7c13c51607da...3205722c7fb62' == '867188414b30...37e411ca43c2c'\n  \n  - 867188414b30b2226bb6992412e186014e5666bc3aba73e7e8f37e411ca43c2c\n  + 7c13c51607da33eb94cb740e77985c2a198485752756eb059b43205722c7fb62"
+      },
+      {
+        "test": "tests.test_st04_same_iq_resolution.test_physical_same_iq_evidence_preserves_claim_boundary",
+        "message": "AssertionError: assert '8c7401055a82...d241e62807475' == '5d909c44e03b...1d8e58f7cf29d'\n  \n  - 5d909c44e03b47c14bd90f58d83a50b7252adf4f1c45ef2d7051d8e58f7cf29d\n  + 8c7401055a8252ca377f2968c737e51596662bbe800d8f22ad3d241e62807475"
+      },
+      {
+        "test": "tests.test_st04_search_profile_measurement.test_physical_baseline_is_source_bound_and_contiguous",
+        "message": "AssertionError: assert '2c2910122c40...357c5d50f20eb' == 'c60e6cb46a10...31af380b0bf28'\n  \n  - c60e6cb46a108a6c29f4619f76bc21180e465b2139273651e4e31af380b0bf28\n  + 2c2910122c404e4fcb5fbd2751e58d3980433b469fa57ae5d63357c5d50f20eb"
+      },
+      {
+        "test": "tests.test_st06_parallel_product.test_historical_parallel_product_evidence_and_separate_rf_gate",
+        "message": "AssertionError: scripts/verify_st06_wideband_stream.py"
+      },
+      {
+        "test": "tests.test_st06_pipelined_dma_profile.test_st06_pipelined_dma_profile_retains_historical_source_binding",
+        "message": "AssertionError: platforms/embedded/p0/include/p0_dma_runtime.h"
+      },
+      {
+        "test": "tests.test_st06_power_vivado.test_st06_power_vivado_evidence_is_source_bound",
+        "message": "AssertionError: ST-06 Vivado kanıtı güncel kaynak ve çıktılarla eşleşmiyor.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\emirhan55\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe', '-X', 'utf8', ...ivado.py', '--check'], returncode=1, stdout='ST-06 Vivado kanıtı güncel kaynak ve çıktılarla eşleşmiyor.\\n', stderr='').returncode"
+      },
+      {
+        "test": "tests.test_st06_product_optimization.test_historical_product_optimization_evidence_and_open_speed_gate",
+        "message": "AssertionError: scripts/verify_st06_wideband_stream.py"
+      }
+    ],
+    "local_xml": "build/ed-review-open-checks.xml",
+    "xml_sha256": "4622a1c96c3acaaf8df2c5c247c2dda6e20a567f38a202466c7e64bd4f5b84f9",
+    "selection": [
+      "tests/test_live_rx_display_evidence.py::test_current_physical_rx_display_evidence_preserves_the_open_usb_gate",
+      "tests/test_p0_hackrf_search.py::HackRFSearchPlanTests::test_physical_hackrf_acceptance_is_repeatable_and_source_bound",
+      "tests/test_phase04f2_protocol.py::Phase04F2ProtocolTests::test_historical_protocol_lock_remains_current_after_v3",
+      "tests/test_phase04f3_protocol.py::Phase04F3ProtocolTests::test_protocol_lock_and_summary_are_current_before_v4",
+      "tests/test_phase04f4_protocol.py::Phase04F4ProtocolTests::test_protocol_lock_and_summary_are_current_before_v5",
+      "tests/test_phase04f5_product_profile.py::Phase04F5ProductProfileTests::test_product_integration_evidence_is_reproducible",
+      "tests/test_phase04f5_protocol.py::Phase04F5ProtocolTests::test_protocol_lock_and_historical_summary_preserve_the_pre_v6_state",
+      "tests/test_phase05_observation_verifier.py::test_monitoring_observation_evidence_is_current_and_passed",
+      "tests/test_phase06i_verifier.py::Phase06IVerifierTests::test_evidence_is_current_and_machine_neutral",
+      "tests/test_phase06j_verifier.py::Phase06JVerifierTests::test_evidence_is_current_and_machine_neutral",
+      "tests/test_phase08_live_parameter_evidence.py::test_archived_live_parameter_run_reproduces_the_summary",
+      "tests/test_phase08_native_channelizer_evidence.py::test_native_channelizer_evidence_preserves_historical_measurement",
+      "tests/test_phase08_survey_overlap_evidence.py::test_survey_overlap_evidence_is_current_and_bounded",
+      "tests/test_st04_same_iq_resolution.py::test_physical_same_iq_evidence_preserves_claim_boundary",
+      "tests/test_st04_search_profile_measurement.py::test_physical_baseline_is_source_bound_and_contiguous",
+      "tests/test_st06_parallel_product.py::test_historical_parallel_product_evidence_and_separate_rf_gate",
+      "tests/test_st06_pipelined_dma_profile.py::test_st06_pipelined_dma_profile_retains_historical_source_binding",
+      "tests/test_st06_power_vivado.py::test_st06_power_vivado_evidence_is_source_bound",
+      "tests/test_st06_product_optimization.py::test_historical_product_optimization_evidence_and_open_speed_gate"
+    ]
+  },
+  "p0_initial_gate_failures": {
+    "tests": [
+      "tests/p0/test_p0_adr0040_physical_evidence.py::test_adr0040_physical_evidence_is_current_and_keeps_rf_claim_open",
+      "tests/p0/test_p0_candidate_dsp_runtime.py::test_complete_candidate_runtime_compile_boundary_is_current",
+      "tests/p0/test_p0_ed_service.py::test_candidate_packet_dma_runtime_contract_is_variable_length_and_fail_closed",
+      "tests/p0/test_p0_ed_service.py::test_linux_host_acceptance_evidence_matches_sources",
+      "tests/p0/test_p0_ed_service.py::test_vivado_build_evidence_is_preserved_and_current_rtl_delta_is_explicit",
+      "tests/p0/test_p0_ed_service.py::test_parameter_host_evidence_matches_sources",
+      "tests/p0/test_p0_ed_service.py::test_physical_throughput_evidence_is_repeatable_and_traceable",
+      "tests/p0/test_p0_ed_service.py::test_persistent_service_image_cold_boot_evidence_is_traceable",
+      "tests/p0/test_p0_final_candidate_rtl.py::test_final_candidate_reducer_is_bit_true_and_within_functional_budget",
+      "tests/p0/test_p0_os_cfar_pl_runtime.py::test_pl_runtime_integration_evidence_is_current",
+      "tests/p0/test_p0_os_cfar_pl_runtime.py::test_pipeline_selects_pl_path_only_after_format_decode",
+      "tests/p0/test_p0_os_cfar_pl_verifier.py::P0OSCFARPLVerifierTests::test_evidence_is_current_and_machine_neutral",
+      "tests/p0/test_p0_persistent_weak_integration_evidence.py::test_current_persistent_weak_source_gate_records_digital_physical_acceptance"
+    ],
+    "log_sha256": "a349a65dbe3ba919265ae5b8ee2636ba75cd66ccd18573beb4ea29210ec1ac83",
+    "scope": "P0 subtree exercised in first broad run; no source or evidence acceptance inferred from historical records."
+  },
+  "clean_environment": {
+    "requirements": "requirements/product.txt",
+    "checks": [
+      {
+        "name": "dependencies",
+        "args": [
+          "-m",
+          "pip",
+          "check"
+        ],
+        "exit_code": 0,
+        "stdout": "No broken requirements found.\n",
+        "stderr": ""
+      },
+      {
+        "name": "startup",
+        "args": [
+          "-m",
+          "app.operator_console",
+          "--smoke-test",
+          "--no-intro"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "measurement_binding",
+        "args": [
+          "-c",
+          "from app.operator_console.measurement_record import runtime_binding; from algorithms.p0.native_channelizer import create_realtime_channelizer; print('sources',len(runtime_binding()['sources_sha256'])); print(create_realtime_channelizer().backend_name)"
+        ],
+        "exit_code": 0,
+        "stdout": "sources 37\nnative-cpp\n",
+        "stderr": ""
+      }
+    ],
+    "physical_rf_started": false,
+    "standalone_binary_built": false
+  },
+  "c_python_parameter_equivalence": {
+    "command": "python scripts/verify_p0_parameter_runtime.py --extended --wide --output build/ed-review-parameter-runtime.json",
+    "status": "passed",
+    "cases": 49,
+    "source_sha256": {
+      "platforms/embedded/p0/src/p0_parameter_runtime.c": "f7ff210ae104af749fa0502723f5fc41fb17f36eb22ee44afb2a34cb6b302e9d",
+      "platforms/embedded/p0/src/p0_parameter_run.c": "2aa6c6550a98c79fa0019f5f8eea60b51f2899d8175b29aae39a31c39b53cd7e",
+      "tests/p0/p0_parameter_runtime_test.c": "78dba35350224425d6f40ed064ba9725c7100433dccf120d5977e3f053737c0b",
+      "platforms/embedded/p0/include/p0_parameter_runtime.h": "d3d6d7267ee1b300063432a40e975fe813ed2238a74f604813197062c77b7395",
+      "scripts/verify_p0_parameter_runtime.py": "fefab8137530bdcb138eaac46ea0a2b21c839425f22ce2cc89ea2aa241454fcd"
+    },
+    "output_sha256": "22ce9fc8b53b29b63c5e272803cb42f90b962c1fd8c4e34464c06daad6f212cf",
+    "scope": "software reference equivalence; not RF accuracy or deployed service acceptance"
+  },
+  "claims": {
+    "rf_accuracy_proven": false,
+    "hardware_image_updated": false,
+    "current_standalone_verified": false,
+    "st06_complete": false,
+    "historical_evidence_rewritten": false,
+    "commit_or_push_performed": false
+  },
+  "open_risks": [
+    "current-source physical GUI+RX and blind RF acceptance",
+    "current standalone compile and runtime acceptance",
+    "historical source/archive gate mismatches",
+    "unverified simultaneous second RX",
+    "dBm RF calibration",
+    "long-running worker shutdown ownership",
+    "synchronous GUI catalog writes under disk contention"
+  ]
+}

@@ -4,6 +4,19 @@ import QtQuick.Layouts
 
 ComboBox {
     id: control
+    property string helpText: ""
+    hoverEnabled: true
+    Accessible.description: helpText
+    ToolTip {
+        visible: control.helpText.length > 0 && control.hovered
+        delay: 500
+        timeout: 12000
+        width: 320
+        text: control.helpText
+        contentItem: Text { text: control.helpText; wrapMode: Text.WordWrap; color: "#EEEEEE"; font.pixelSize: 12 }
+        background: Rectangle { color: "#303030"; border.color: "#737373"; radius: 4 }
+    }
+    readonly property int popupMaximumHeight: 280
     implicitHeight: 36
     leftPadding: 10
     rightPadding: 28
@@ -42,16 +55,25 @@ ComboBox {
         }
     }
     popup: Popup {
+        id: comboPopup
+        objectName: control.objectName + "Popup"
         y: control.height + 2
         width: control.width
-        implicitHeight: contentItem.implicitHeight + 8
+        height: Math.min(popupList.contentHeight + 8, control.popupMaximumHeight)
         padding: 4
+        onOpened: Qt.callLater(function() {
+            popupList.positionViewAtIndex(control.currentIndex, ListView.Center)
+        })
         background: Rectangle { color: BazTheme.raised; border.color: BazTheme.border; radius: 4 }
         contentItem: ListView {
+            id: popupList
+            objectName: control.objectName + "PopupList"
             clip: true
             implicitHeight: contentHeight
             model: control.popup.visible ? control.delegateModel : null
             currentIndex: control.highlightedIndex
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollIndicator.vertical: ScrollIndicator { }
         }
     }
 }

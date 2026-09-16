@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import time
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import QTimer, Slot
 
 from algorithms.spectrum import SpectrumConfig, SpectrumProcessor
 
-from .live_ed import LiveEDConfiguration
+from .live_ed import (
+    LIVE_INPUT_SAMPLE_RATE_HZ,
+    LIVE_WIDEBAND_INPUT_SAMPLE_RATE_HZ,
+    LIVE_STARTUP_SETTLING_FRAMES,
+    LiveEDConfiguration,
+)
 from .quick_runtime import _LiveTask
 from .rx_survey import SURVEY_MONITOR_CENTER_OFFSET_HZ, SurveyConfig
 
@@ -21,6 +26,11 @@ class QuickScanActionsMixin:
         self._start_frequency_survey(
             lower_mhz, upper_mhz, lna_gain_db, vga_gain_db, "unspecified"
         )
+
+    @Slot(float, float, int, int, str)
+    def startSurveyProfile(self, lower_mhz, upper_mhz, lna_gain_db, vga_gain_db, profile):
+        self._start_frequency_survey(lower_mhz, upper_mhz, lna_gain_db, vga_gain_db,
+                                     "unspecified", mode=profile)
 
     @Slot(float, float, int, int)
     def startReferenceSurvey(self, lower_mhz, upper_mhz, lna_gain_db, vga_gain_db) -> None:
@@ -35,11 +45,26 @@ class QuickScanActionsMixin:
         )
 
     def _start_frequency_survey(
-        self, lower_mhz, upper_mhz, lna_gain_db, vga_gain_db, operator_condition
+        self, lower_mhz, upper_mhz, lna_gain_db, vga_gain_db, operator_condition, *, mode="full"
     ) -> None:
-        if (self._closed or self._busy or self._source_mode != "hackrf"
+        if self._closed:
+            return
+        if self._receiver_health_in_flight:
+            QTimer.singleShot(
+                50,
+                lambda: self._start_frequency_survey(
+                    lower_mhz,
+                    upper_mhz,
+                    lna_gain_db,
+                    vga_gain_db,
+                    operator_condition,
+                    mode=mode,
+                ),
+            )
+            return
+        if (self._busy or self._source_mode != "hackrf"
                 or not self._hackrf_ready or not self._hackrf_transfer_executable
-                or self._device_config.serial is None):
+                or self._active_receiver_serial is None):
             return
         try:
             config = SurveyConfig(
@@ -47,12 +72,14 @@ class QuickScanActionsMixin:
                 lna_gain_db, vga_gain_db, operator_condition=operator_condition,
                 frames_per_window=self._detection_settings["survey_frames"],
                 guard_frames=self._detection_settings["survey_guard_frames"],
+                mode=mode,
+                rf_amplifier=self._receiver_rf_amplifier,
             )
         except (ValueError, OverflowError) as exc:
             self._show_error("invalid_survey_config", str(exc))
             return
         self._pending_survey_parameter_frequency_hz = None
-        if operator_condition == "tx_on_comparison" and not self._survey_controller.reference_matches(config, self._device_config.serial):
+        if operator_condition == "tx_on_comparison" and not self._survey_controller.reference_matches(config, self._active_receiver_serial):
             self._show_error(
                 "survey_reference_required",
                 "Frekans sınırları, kazançlar ve gözlem süreleri TX kapalı referansla aynı değil.",
@@ -64,7 +91,11 @@ class QuickScanActionsMixin:
         self._clear_results()
         self._live_has_data = False
         self._live_frames_per_second = 0.0
-        self._live_sample_rate_hz = 2_000_000
+        self._live_sample_rate_hz = 10_000_000 if mode == "wideband_burst" else 2_000_000
+        self._receiver_sample_rate_hz = (
+            LIVE_WIDEBAND_INPUT_SAMPLE_RATE_HZ if mode == "wideband_burst"
+            else LIVE_INPUT_SAMPLE_RATE_HZ
+        )
         self._source_name = "Alıcı ve FPGA"
         self._live_fpga_enabled = True
         self._live_response_at = self._live_received_at = 0.0
@@ -74,9 +105,20 @@ class QuickScanActionsMixin:
         condition_text = {
             "tx_off_reference": "TX kapalı referans taraması başlatılıyor.",
             "tx_on_comparison": "TX açık karşılaştırma taraması başlatılıyor.",
-        }.get(operator_condition, "Frekans taraması başlatılıyor.")
+        }.get(
+            operator_condition,
+            "10 MS/s hızlı FPGA/ARM taraması başlatılıyor."
+            if mode == "wideband_burst" else "Frekans taraması başlatılıyor.",
+        )
         self._set_busy(True, condition_text)
-        self._survey_controller.start(self._hackrf_transfer_executable, self._device_config.serial, config, self._pool)
+        try:
+            self._survey_controller.start(self._hackrf_transfer_executable, self._active_receiver_serial, config, self._pool)
+        except Exception as exc:
+            self._playing = False
+            self._active_task_kind = ""
+            self._set_busy(False, "Tarama başlatılamadı.")
+            self._show_error("survey_start_failed", f"Tarama başlatılamadı: {exc}")
+            return
         self._add_log("Tarama", f"{lower_mhz:g}–{upper_mhz:g} MHz · {condition_text}")
 
     @Slot(object)
@@ -123,6 +165,12 @@ class QuickScanActionsMixin:
             return False
         self._pending_survey_parameter_frequency_hz = round(frequency)
         if self._monitor_survey_observation():
+            self._status_message = (
+                "Parametre çıkarımı için seçilen sinyal 8 MS/s sabit alımda "
+                "yeniden doğrulanıyor."
+            )
+            self._add_log("Parametre", self._status_message)
+            self.stateChanged.emit()
             return True
         self._pending_survey_parameter_frequency_hz = None
         return False
@@ -188,13 +236,6 @@ class QuickScanActionsMixin:
         self._add_log("Dinleme", self._status_message)
         self.stateChanged.emit()
 
-    @Slot(float, int, int, int, bool)
-    def startManagedLiveEDSession(self, center_hz, lna_gain_db, vga_gain_db, frame_count, automatic):
-        if self._busy or self._live_session is not None:
-            return
-        self._managed_gain = {"visited": set(), "attempts": 0} if automatic else None
-        self.startLiveEDSession(center_hz, lna_gain_db, vga_gain_db, frame_count, managed_gain=automatic)
-
     @Slot(float, int, int, int)
     def startRXPreview(self, center_hz, lna_gain_db, vga_gain_db, frame_count):
         self.startLiveEDSession(center_hz, lna_gain_db, vga_gain_db, frame_count, fpga_enabled=False)
@@ -210,15 +251,30 @@ class QuickScanActionsMixin:
         fpga_enabled: bool = True,
         preserve_fixed_context: bool = False,
         preserve_direction: bool = False,
-        managed_gain: bool = False,
     ) -> None:
+        if self._closed:
+            return
+        if self._receiver_health_in_flight:
+            QTimer.singleShot(
+                50,
+                lambda: self.startLiveEDSession(
+                    output_center_frequency_hz,
+                    lna_gain_db,
+                    vga_gain_db,
+                    frame_count,
+                    fpga_enabled=fpga_enabled,
+                    preserve_fixed_context=preserve_fixed_context,
+                    preserve_direction=preserve_direction,
+                ),
+            )
+            return
         if (
             self._source_mode != "hackrf"
             or not self._hackrf_ready
             or not self._hackrf_transfer_executable
             or self._busy
             or self._live_session is not None
-            or self._device_config.serial is None
+            or self._active_receiver_serial is None
         ):
             return
         try:
@@ -227,28 +283,25 @@ class QuickScanActionsMixin:
                 lna_gain_db=int(lna_gain_db),
                 vga_gain_db=int(vga_gain_db),
                 frame_count=int(frame_count),
-                device_serial=self._device_config.serial,
+                device_serial=self._active_receiver_serial,
                 # Every DSP frame is processed; only presentation is sampled.
                 # The GUI mailbox bounds queued display work even during a stall.
                 display_interval_frames=self._detection_settings["display_interval_frames"],
+                startup_settling_frames=LIVE_STARTUP_SETTLING_FRAMES,
                 display_fft_size=self._detection_settings["display_fft_size"],
                 fpga_fft_size=(
                     self._card_detection_profile.fft_size
                     if fpga_enabled and self._card_detection_profile is not None and
                     self._card_detection_profile.runtime_fft_supported else 4096),
                 fpga_enabled=fpga_enabled,
-                assess_receive_level=managed_gain,
+                rf_amplifier=self._receiver_rf_amplifier,
             )
         except Exception as exc:
             self._show_error(str(getattr(exc, "code", "invalid_rx_config")), str(exc))
             return
-        if not managed_gain:
-            self._managed_gain = None
-        elif self._managed_gain is not None:
-            self._managed_gain["visited"].add((configuration.lna_gain_db, configuration.vga_gain_db))
-            self._managed_gain["attempts"] += 1
         same_fixed_settings = (
-            int(self._live_receive_settings.get("center_hz", -1))
+            self._live_receive_settings.get("rf_amplifier", False) == configuration.rf_amplifier
+            and int(self._live_receive_settings.get("center_hz", -1))
             == configuration.output_center_frequency_hz
             and int(self._live_receive_settings.get("lna_db", -1))
             == configuration.lna_gain_db
@@ -285,11 +338,13 @@ class QuickScanActionsMixin:
         self._live_spur_guard_passed.clear()
         self._live_has_data = False
         self._live_output_center_frequency_hz = configuration.output_center_frequency_hz
+        self._receiver_sample_rate_hz = configuration.rx_config.sample_rate_hz
         self._spectrum_center_frequency_hz = float(configuration.input_center_frequency_hz)
         self._spectrum_sample_rate_hz = 8_000_000.0
         self._live_receive_settings = {
             "center_hz": configuration.output_center_frequency_hz,
             "lna_db": configuration.lna_gain_db, "vga_db": configuration.vga_gain_db,
+            "rf_amplifier": configuration.rf_amplifier,
         }
         self.liveReceiveSettingsChanged.emit()
         self._live_presentation_error = None
@@ -326,13 +381,12 @@ class QuickScanActionsMixin:
                       if configuration.fpga_enabled else "Yalnız RX önizleme başlatıldı; FPGA tespiti kapalı")
         self.pipelineChanged.emit()
         self.stateChanged.emit()
-        self._pool.start(task)
+        self._start_retained_task(self._pool, task)
         self._live_health_timer.start()
 
     @Slot()
     def stopLiveEDSession(self) -> None:
         self.cancelDirectionMeasurement()
-        self._managed_gain = None
         if self._live_session is None and self._fixed_verifier is None:
             return
         self._fixed_verification_queue.clear()

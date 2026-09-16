@@ -1,5 +1,658 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## Sistem çalışma alanının kaldırılması — 16 Eylül 2026
+
+Kullanıcı kararıyla ürün arayüzündeki `Sistem` görev girişi ve çalışma alanı
+tamamen kaldırıldı. Buna bağlı `Ctrl+5` kısayolu, işlem zinciri denetçisi ve
+olay günlüğü de kullanıcı yüzeyinden çıkarıldı. Tespit ekranındaki `Sistemi
+Denetle` eylemi, HackRF ve FPGA hizmeti için gerekli bağlantı/kurtarma denetimi
+olduğundan korunur. DSP, RTL, ARM, alım ve olay kayıt davranışı değişmedi;
+PHASE-08/ST-06 açık kalır ve yeni faz açılmadı.
+
+## Tarama bitişi, dinleme devri ve kararlı listeler — 16 Eylül 2026
+
+Bant turunun ardından çalışan otomatik tekrar kontrolü artık tarama gibi
+sunulmaz: işlem sırasında düğme `Son Kontrolü Durdur`, tüm iş bittiğinde
+`Taramayı Başlat` gösterir. Tekrar kontrolü ve özgün kanıt kaydı korunur.
+
+Parametre sonucundaki `Dinleme İçin Yeniden Al` her tıklamada Dinleme ekranına
+geçer ve başarısız başlangıç nedenini orada gösterir. Başarılı devirde ölçülen
+frekans yeni canlı oturumda yeniden aranırken otomatik iki-LO doğrulaması geçici
+olarak bekletilir; böylece beş saniyelik ses tamponu başka bir doğrulama koşusu
+tarafından kesilmez.
+
+Sabit frekans tespit kartları ilk görülme sırasını ve ilk kullanıcı frekans
+etiketini korur; her karede güç veya görülme durumuna göre yer değiştirmez.
+Geçmiş ayırıcı satırı kaldırıldı ve tüm kartlar sabit yüksekliktedir. Bant
+taraması kartları da tur sürerken ilk görülme sırasını ve sabit yüksekliği
+korur; aile sınıflaması ile güç/fark sıralaması tur tamamlandığında bir kez
+uygulanır. Ham tespit ve kanıt sıraları değişmez.
+
+OBW `obw_temporal_instability` durumu algoritmik hata veya sıfır bant anlamına
+gelmez. Dört ardışık ölçümde bulunan alt/üst bant sınırları kalite kapısının
+izin verdiğinden fazla değişmiştir. Arayüz bunu `TEKRAR ÖLÇÜLMELİ` olarak ve
+analiz aralığını sinyalin tamamını kapsayacak şekilde genişletme önerisiyle
+gösterir. Eşik gevşetilmedi; doğrulanmamış genişlik sayıya çevrilmez.
+
+## Dinleme sesi ve görünüm sadeleştirmesi — 16 Eylül 2026
+
+KTR-4.3 Dinleme yolu gerçek I/Q'dan AM/NFM ses üretmeye devam eder. Analog
+konuşma kanalı 2–25 kHz ile sınırlandı, parametreden gelen dinleme önerisi
+6–25 kHz'e alındı ve örnek azaltma öncesine 257 tap konuşma filtresi eklendi.
+NFM varsayılanı de-emphasis uygulamayan `Net ses`; 750 µs düzeltme yalnız
+eşleşen telsiz profili için isteğe bağlıdır. Dinleme görünümü temel kanal
+ayarları ile altı sonuç satırına indirildi; dalga biçimi ve sinyal kararlılığı
+grafiği korunur. Sentetik regresyon yeni sınırları ve alias reddini doğrular.
+Yeni kaynakla fiziksel konuşma anlaşılabilirliği tekrarlanmadı; PHASE-08/ST-06
+ve KTR-4.3 kabulü açık kalır. Ayrıntı
+`docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md` içindedir.
+
+## Durdurulan tam bant turu — 16 Eylül 2026
+
+Kullanıcı isteğiyle 1–6000 MHz turu 1963/2400 pencerede durduruldu; tamamlanan
+kapsam 1–4908,5 MHz, liste 161 geçmiş gözlemdir. 60 kayıt 40 MHz katlarına
+±10 kHz yakındır; bu ortak kaynak şüphesidir, kesin parazit/verici sayısı
+sınıflaması değildir. İki kare sayacı ve sekiz geniş/dar eşleşme incelemesi
+açıktır. İki kazanç ve bir USB taşma tekrarı vardır; başarısız kalan pencere
+sayısı sıfırdır. Son tekrar kontrolü yapılmadı. Özgün kayıt, hash ve ayrıntılar
+`output/rx-wideband-20260916/RAPOR.md` içindedir. KTR-4.1 / KTR-4.1-OPS-B0,
+PHASE-08/ST-06 fiziksel kabulü açık kalır; yeni faz açılmadı.
+
+## Tam bant taraması ve liste gözlemi — 16 Eylül 2026
+
+1 MHz–6 GHz canlı tarama başlatıldı; ilk kontrol noktası 366/2400 pencere,
+1–916 MHz ve 82 ham gözlemdir. Tam tur sonucu henüz yoktur. İki kayıtta
+120 mümkün kareyi aşan sayaç ve beş geniş adayda çok dar ikinci ayar eşleşmesi
+görüldü; bunlar açık doğruluk incelemesidir. Ayrıntı ve kaynak sınırları
+`output/rx-wideband-20260916/RAPOR.md` içindedir.
+
+PHASE-08/ST-06 açık; bu kayıt yeni fiziksel kabul oluşturmaz.
+
+## Kullanıcıya açık tarama bölümleri — 16 Eylül 2026
+
+`RxSurveyView.qml`, `SİNYAL TESPİTİ` başlığı altında kayıtları üç sade bölüme
+ayırır: `Tekrar doğrulanan adaylar`, `Tekrar ölçülmesi gerekenler` ve `Alıcı
+etkisi olabilecekler`. Kayıt özeti, `Tarama geçmişi` ve grup düğmeleri arasındaki
+açıklamalar gösterilmez; dikey alan sinyal satırlarına ayrılır. Satır mesajları
+inceleme, yeniden ölçme veya yayın kabul etmeme eylemini söylemeye devam eder.
+1500 MHz gibi doğrulanan bir aday özel kuralla öne alınmaz;
+tekrar gözlemi güven bölümünü, ölçülen sinyal farkı bölüm içi sırayı belirler.
+Bölümleme ham aday kayıtlarını
+silmez. Aralığı ölçülen her kayıt `Tespit aralığı` satırını taşır; 1 kHz'den dar
+çizgilerde kenarların aynı değere yuvarlanmaması için dört ondalık MHz gösterilir.
+Aralık alanı yoksa kullanıcıya tahmini sınır gösterilmez.
+Farklı alıcı ayarında yeniden görülme güven bölümünü belirler; bu ifade güçlü
+sinyal demek değildir. Bölüm içindeki sıra, kalibre edilmiş mutlak güç yerine
+ölçülen tepe/gürültü farkını kullanır. Zayıf ve farkı ölçülemeyen kayıtlar
+listede kalır. Üç veya daha fazla farklı dar çizgi 40 MHz katlarına oturursa
+sunum bunları `Alıcı etkisi olabilecekler` bölümüne ayırır; bu yalnız inceleme
+önceliğidir ve fiziksel verici/parazit kabulü anlamına gelmez.
+
+16 Eylül 2026 tarihli 1750–1950 MHz tamamlanmış turda altı ham gözlem dört
+sunum satırında birleşti. 1800,000, 1880,000 ve 1919,999 MHz çizgileri dar ve
+40 MHz düzenine uyumludur. 1863,029 MHz adayı yaklaşık 1,006 MHz genişlik ve
+31,47 dB tepe/gürültü farkıyla ayrı kaldı. Bu kayıt kontrollü kaynak kimliği
+kanıtı değildir; PHASE-08/ST-06 kabulü açık kalır.
+
+## Parametre kataloğu ve kayıt eylemleri — 16 Eylül 2026
+
+`ParameterMeasurementPanel.qml` içindeki `KAYITLAR` bölümü, canlı alım sırasında
+tamamlanan dört karelik PL/ARM parametre sonuçlarının kalıcı SQLite kayıt
+defteridir; seçili sinyalin `Parametre Çıkar` sonucu ayrı ölçüm kaydına yazılır.
+Başlık altında yalnız kayıt sayısı ve işlemler kalır. Liste başlangıçta
+kapalıdır; `Kayıtları Göster` ile açıldığında ilk sekiz kayıt gösterilir, CSV
+dışa aktarma tüm kayıtları içerir. `Parametre
+Çıkar` düğmesi mevcut analiz aralığını onaylayıp ölçümü başlatır. `Yenile`, `CSV
+Dışa Aktar` ve `Klasörü Aç` sonuçlarını panelde bildirir ve aynı olayı salt
+okunur operasyon günlüğüne ekler. Katalogda frekans, OBW, dBFS, SNR, alıcı ve
+kalite durumu saklanır; dBm yalnız eşleşen geçerli kalibrasyon varsa yazılır.
+Ana ölçüm sunumu `Taşıyıcı Frekans`, `Bant Genişliği` ve `Kanal Gücü (dBFS)`
+alanlarıyla sınırlıdır; sinyal türü, OBW analiz aralığı açıklaması ve parametre
+düğmesi altındaki canlı FPGA kare sayacı gösterilmez.
+
+## Tespit sunumu ve 1766 MHz gözlemi — 16 Eylül 2026
+
+Kaynak doğrulaması: gerçek QML grubunda 39; canlı görünüm modeli, sabit bant
+doğrulama ve tarama sunumu grubunda 105 test geçti (toplam 144).
+
+PHASE-08 / ST-06 açık kalır. Bant taraması eksen uçları artık görüntülenen
+spektrumun gerçek merkezinden ve örnekleme hızının yarısından hesaplanır;
+10 MS/s görüntüye sabit ±1 MHz etiketi verilmez. Sabit tespitte kaba adayın
+belirmesiyle yanıp sönen özet kartı kaldırıldı. `Ek doğrulama sürüyor` satırı
+yalnız gerçek doğrulayıcı ve aday birlikte varken görünür. Spektrumla destekli
+tespit mavi `Tespit edildi`, iki alıcı ayarında doğrulanan aday yeşil
+`Doğrulandı`, diğer adaylar sarı `Aday`, geçmiş kayıt gri `Artık alınmıyor`
+olarak sunulur. Alt satır doğrulama sonucunu açıklar; karar algoritması değişmez.
+
+Bu değişiklikten **önceki çalışan uygulamada** 1740–1780 MHz / 24-24 dB /
+AMP kapalı kapalı–açık–kapalı koşuları 8,0487 / 8,8059 / 7,5234 saniyede,
+her biri 16/16 pencereyle tamamlandı. 1766 MHz hedefi yalnız açık koşuda
+listelendi, 120/120 gözlem karesinde görüldü ve farklı alıcı merkezinde tekrar
+alındı. Ana koşuların taşıma ve sayısal kırpılma sayaçları sıfırdır. 1760 MHz
+çizgisinin kaynağı belirlenmedi. Yerel kayıt paketi
+`output/rx-ui-1766-20260916/` altındadır; `audit-comparison.json` özgün audit
+kopyalarının hashlerini içerir. Çalışan süreç/kart imajı kaynak eşleşmesi bu
+koşuda doğrulanmadığı için sonuç yeni kaynağın fiziksel kabulü değildir.
+
+Açık koşudaki 1,1658 MHz aday aralığı ölçülmüş işgal bant genişliği değildir.
+Son birincil kart olayının 475 hücresi, 10 MS/s ve 4096 FFT ile yaklaşık
+1,1597 MHz kapsar: genişlik yalnız QML eksen hatasıyla açıklanamaz. Tarama,
+kare içi yakın adayları gruplar ve sınırları kareler boyunca ortalar; bunun
+payını ve analog/sayısal kök nedeni ayırmak için aynı ham I/Q gerekir.
+Audit yalnız I/Q hashlerini içerir. Eşikler değiştirilmedi; aralık arayüzde
+`Tespit aralığı` olarak adlandırıldı. dBm ve parametre fazına geçilmedi.
+
+## Bağımsız GNU Radio RX bozulma gözlemi — 15 Eylül 2026
+
+`digital_analog_detection/hackrf_rx_interference_monitor.grc`, kayıtlı
+`ED_RX_PRIMARY …36877e47` cihazına seri numarasıyla bağlanan bağımsız bir RX
+tanı akışıdır. 2 MS/s başlangıç hızında spektrum, spektrogram ve kompleks I/Q
+zaman alanını birlikte gösterir; başlangıç merkezi 1900 MHz, LNA/VGA 16/16 dB,
+AMP kapalıdır. Merkez frekansı ve kazançlar GUI üzerinden değiştirilebilir.
+Akışta TX sink, sinyal üretimi, kayıt veya otomatik “karıştırıldı” kararı yoktur.
+
+GNU Radio Companion 3.10.12 derleyicisi akışı hatasız üretti. HackRF firmware
+`v2.4.0 (API 1.11)` olarak görüldü ve canlı gözlem penceresi yanıt verir durumda
+açıldı. Aynı USB veri yolunda üç başka cihaz bulunduğu için yüksek hız uyarısı
+korunarak 2 MS/s seçildi. Bu yalnız çalışma zamanı RX görünürlüğüdür; yayın
+açık/kapalı karşılaştırması, bozulmanın kaynağı, Pd/Pfa veya ST-06 kabulü olarak
+yorumlanmaz.
+
+## Tespit ayarlarının görev odaklı sadeleştirilmesi — 15 Eylül 2026
+
+Sabit frekans alıcı kartında LNA/VGA aynı satırda, AMP hemen altında doğrudan
+seçimdir; bant taraması da AMP seçimini kendi alıcı satırında gösterir.
+`Ayarlar` penceresinde yalnız tespit kararını değiştiren FPGA FFT,
+normal CFAR ve zayıf CFAR alanları bırakıldı. NFM ses düzeltmesi Dinleme ekranına
+taşındı ve yalnız NFM seçildiğinde `Kapalı` / `Mevcut profil · 750 µs` olarak
+sunulur. Görüntü FFT'si, yenileme aralığı, elle dB ölçeği ve tepe-tut ürün
+arayüzünden çıkarıldı; mevcut sabit/otomatik görüntü davranışı korunur.
+
+Pencerenin sabit açıklama ve başlangıç önerisi satırları kaldırıldı; görünür
+`FPGA FFT` etiketi `FFT` olarak kısaltıldı ve üç işlem düğmesi eşit genişlikte
+hizalandı. Normal/zayıf CFAR katsayıları donanımsal LNA/VGA adımları gibi ayrık
+seçimler değildir. Doğrulanmış tek başlangıç çifti yaklaşık 8,58/3,98 olduğundan
+kanıtsız hassasiyet profilleri eklenmedi; sınırlı elle giriş, tam kart geri
+okuması ve varsayılana dönüş korundu. AMP ayarlanabilir bir dB kademesi değil,
+iki durumlu RF yükselteçtir; bu nedenle yanıltıcı `AMP (dB)` yerine sade `AMP`
+etiketiyle ortalı seçim olarak gösterilir. Açık/kapalı durumu seçim kutusundadır.
+Son sadeleştirme sonrasında gerçek QML, kart profili ve canlı görünüm modeli
+grubunda 123 test geçti.
+
+FFT/normal/zayıf alanları iki sütunlu tek forma alınarak etiket ve kutu
+başlangıçları hizalandı. Katsayılar operatöre `8,58` / `3,98` biçiminde
+gösterilir; alan değiştirilmedikçe karttan okunan tam Q32 karşılığı uygulama
+isteğinde korunur. 4096'dan 8192/16384'e büyütme alım durmuşken `Uygula` ile
+yapılır; büyük FFT'den küçüğe dönüş uygulamayı kapatıp açmakla değil kontrollü
+kart yeniden başlatmasıyla yapılır.
+
+Bant taraması alıcı satırında görünür etiketler `LNA (dB)`, `VGA (dB)` ve
+`AMP` olarak sadeleştirildi. Tarama ayarlarından sabit açıklama ve hesaplanmış
+`10 MS/s yakalama` satırı çıkarıldı; gerçek tespit davranışını değiştiren
+`Gözlem (kare)` ile `Yerleşme (kare)` seçimleri ve varsayılana dönüş korundu.
+Gözlem seçimi pencere başına değerlendirilen kare sayısını, yerleşme seçimi ise
+frekans değişiminden sonra tespit dışı bırakılan başlangıç karelerini belirler.
+
+`Parametre Çıkarımına Git` akışı, tarama adayını doğrudan ölçüm sonucu saymaz.
+Seçilen frekansı parametre ölçümüne hazırlamak için 8 MS/s sabit alımda yeniden
+doğrular; bu nedenle üst hızın 10 MS/s'den 8 MS/s'ye geçmesi tarama profilinin
+değiştiği anlamına gelmez. Önceki akış yeniden alımı başlatabildiği halde bant
+taraması görünümünde kalabiliyordu. Görünüm artık yeniden alımdan önce sabit
+frekansa geçer, başlatma reddedilirse korunmuş taramaya döner ve bekleme durumunu
+açıkça bildirir. Eşleşen canlı tespit ölçüme hazır olduğunda Parametre sekmesi
+otomatik açılır. Tarama/örnekleme algoritması değişmemiştir.
+
+Alım, FPGA profil geri okuması, CFAR sınırları ve AMP'nin bütün RX yollarına
+taşınması değişmedi. Yeni RF hassasiyet profili, algoritma veya donanım kabulü
+eklenmedi. QML/görünüm modeli/spektrum/ürün sınırı grubunda 136; tespit
+ayarları/dinleme/tarama/HackRF grubunda 61 test geçti (ayrı süreçlerde toplam
+197). Bu kaynak doğrulamasıdır; yeni fiziksel RX yapılmadı ve PHASE-08/ST-06
+açık kalır.
+
+`Karttan Oku`, FPGA'da o anda etkin olan FFT ve iki CFAR katsayısını gösterir;
+16384 ve varsayılan yaklaşık 8,58/3,98 değerlerinin görünmesi bu nedenle tek
+başına hata değildir. Çalışma sırasında büyük FFT'den 4096'ya küçültme güvenle
+reddedilir. Arayüz 4096 için kontrollü kart yeniden başlatmasını ister ve bunun
+tam güç kesmeli ST-06 cold-start kabul koşusu olmadığını açıkça ayırır.
+
+4096'dan 8192 FFT'ye geçişte gözlenen `long_capture` hatasının kök nedeni
+bulundu. FPGA 8192 iken ham 8 MS/s önizleme 32.768 kompleks örnek taşıyor,
+görüntü ve kaba aday yolu ise sabit 16.384 kompleks örnek bekliyordu. Canlı yol
+artık büyük FFT önizlemesinin ilk 16.384 gerçek ve bitişik örneğini görüntüleme
+penceresine verir; sıfır doldurma yapılmaz ve FPGA'nın tam kare tespit işlemi
+değişmez. 8192 ve 16384 profilleri için kaynak regresyonu bu sınırı doğrular.
+Eski kullanıcı mesajındaki “FPGA FFT ayarı değildir” yargısı kaldırıldı.
+
+Kart profili 15 Eylül'deki 8192 denemesi sırasında güncel ürün adresi
+`192.168.7.2:47007` üzerinden kuşak 4, FFT 8192 ve normal/zayıf katsayıları
+8,580143040744588/3,9810717054642737 olarak bulundu. Arayüzde 4096 seçmek büyük
+FFT'den küçüğe çalışma zamanı geçişini uygulamaz; kontrollü kart yeniden
+başlatması gerekir. Uygulama yeniden başlatması yalnız yeni masaüstü kaynağını
+yükler, kartın etkin FFT profilini küçültmez. Düzeltme kaynak testlerinden
+geçmiştir; güncel kaynakla fiziksel 8192 RX tekrarı henüz yapılmadığından
+PHASE-08/ST-06 kabulü açık kalır.
+
+Kontrollü kart yeniden başlatmasından sonra kartın kuşak 1 / FFT 4096'a
+döndüğü fiziksel geri okumayla doğrulandı. Açık kalan masaüstü uygulaması önceki
+8192 profilini bellekte tutarsa, elle 4096 seçimi eski ön denetimde küçültme
+isteği sanılıp reddediliyor ve kutu yeniden 8192'ye dönüyordu. `Uygula` artık bu
+durumda önce kartın güncel profilini okur; kart zaten 4096 ise güncel kuşakla
+tek işlemde devam eder, kart gerçekten büyük FFT'deyse güvenli yeniden başlatma
+uyarısını korur. Kartın geçerli ABI-v4 hata yanıtı da başlık hatası olarak
+sunulmaz: fiziksel tanıda 8192 örnek/4096 kart eşleşmezliği `status=2`, sıfır DMA
+bayrağı; 4096 örnek ise `status=0`, DMA bayrağı 7 döndürmüştür. Bu sınırlı tanı
+genel fiziksel kabul değildir.
+
+Tespit kartındaki sayısal `P/N` değeri kalibre edilmiş dBm değildir; tepenin
+yerel gürültüye göre bağıl oranıdır. “FPGA gözlemi” de olayın kaç kez
+gözlendiğini belirten süreklilik kanıtıdır. Bunlar tespit/ranklama içinde
+korunur fakat parametre çıkarımı sonucu gibi yorumlanmaması için sinyal ve bant
+taraması üzerine-gelme metinlerinden kaldırılmıştır. Mutlak dBm ancak eşleşen,
+süresi geçmemiş kalibrasyonla parametre ölçümünde sunulur.
+
+## Alıcı ve dinleme ayarlarının tamamlanması — 15 Eylül 2026
+
+Alanların üzerinde bekleyince Türkçe kısa yardım gösterilir; ayrıntılı
+başlangıç/değişim tablosu `DETECTION_TUNING_AND_SOURCE_GUIDE.md` içindedir.
+İlgili arayüz testi grubu 37, alım/ayar/protokol grubu 125,
+DSP/katalog/tarama/doğrulama grubu 75 ve operatör alım/dinleme grubu 12 test
+geçti (ayrı süreçlerde toplam 249). Bu yazılım doğrulamasıdır; yeni fiziksel
+RX veya TX testi yapılmadı. Genel depo sözleşme kapısı dosya-listesi
+uyumsuzlukları (çıktı/kanıt dosyaları dahil) ve faz kayıt sayısı nedeniyle
+açıktır; bu çalışma o kapıyı başarılı olarak raporlamaz.
+
+LNA/VGA konumları korunarak AMP hemen altlarına doğrudan seçim olarak eklendi;
+NFM ses düzeltmesi Dinleme görevine ayrıldı. AMP varsayılan kapalıdır;
+LiveEDConfiguration, SurveyConfig, sabit iki-LO ve tarama aday doğrulamalarında
+aynı seçim korunur. Oturum sürerken değişmez. AMP değişikliği eski hedef ve
+ölçüm bağlamını temizler. Kalibrasyon eşlemesi AMP durumuna da bağlıdır; eski
+alanı olmayan profiller yalnız AMP kapalı kabul edilir. Manuel ölçüm RX
+yapılandırması ve otomatik katalog ayrıntıları AMP durumunu kaydeder.
+
+CFAR normal `[1,16)`, zayıf `[1,4)` ve zayıf ≤ normal sınırları korunur;
+değerler sade FPGA tespit penceresinde karttan okunur, düzenlenir, uygulanır
+veya varsayılana döndürülür. Bunlar RF ortamına göre kalibre edilmiş yeni
+hassasiyet profilleri değildir. Tespit FFT'sinde 4096 parametre uyumu ve
+küçültmede yeniden başlatma uyarıları görünürdür. Dinleme AM/NFM genişlik
+başlangıç seçimleri, ±100 Hz ve NFM için kapalı/750 µs ses düzeltmesi sunar.
+İç 0–2000 µs sözleşmesi korunur. Kısa önizleme aynı de-emphasis ayarını uygular;
+bu sayısal değişiklik önceki fiziksel ses kanıtına aktarılmaz.
+
+Güncel 10 MS/s tarama süresi sunumu `4096/Fs` ile düzeltilmiş, geniş bant
+menüsü 256 kare sınırına uydurulmuştur. Analog filtre alıcı aracının
+varsayılanında kalır. Bias-T, WFM, susturma, PPM ve fiziksel olarak doğrulanmamış
+filtre/CFAR hazır profilleri etkinleştirilmedi. Yeni fiziksel alım yapılmadı;
+gerçek GUI+RX, AMP açık/kapalı ve ses karşılaştırmaları kabul için açıktır.
+PHASE-08/ST-06 kapanmadı; yeni faz açılmadı.
+
+## Örnekleme hızı sunumu ve hız değerlendirmesi — 15 Eylül 2026
+
+Üst bilgi artık yalnız `ÖRNEKLEME HIZI` ve fiziksel alıcıya verilen örnekleme
+ayarını gösterir: sabit izleme 8 MS/s, geniş bant taraması 10 MS/s. Sabit
+izlemenin 2 MS/s işleme alt bandı değişmedi; `sampleRateHz` hesap/ölçüm bağlamında
+işleme hızını korur. Görüntü hızı veya alıcı ayarı sürekli işleme kapasitesi
+olarak yorumlanmaz. Veri yoksa `—`, kayıt açılmışsa kaydın örnekleme hızı görünür.
+
+Kaynak ve geçmiş kanıt incelemesi: 10 MS/s / 4096 örnek sürekli işleme için
+2441,40625 kare/s gerekir; 14 Eylül kısa kart burst gözlemi 498,744–505,719
+kare/s idi. Bu nedenle mevcut burst sürekli 10 MS/s kabulü değildir.
+`wideband-qml-live-scan-20260914.jsonl` başlangıcı **128 kare/pencere** kaydeder:
+16 pencerede ana aşama toplam 5,608 s, ek doğrulama 1,608 s, ana RF gözlem
+süresi 0,839 s. Önceki metinlerde bu 8 saniyelik QML koşusuna yazılmış 256
+kare ifadesi yanlıştı; ham kanıt korunarak açıklama düzeltildi. Ayrı 256 karelik
+12,33 saniye koşusu kendi kapsamındadır. Tüm 1 MHz–6 GHz turunun 45 dakika
+sürdüğü bu incelemede doğrulanmadı. Mimari seçenekler ve sınırlar
+`docs/architecture/P0_SYSTEM_ARCHITECTURE.md` başındadır; yeni fiziksel ölçüm
+veya hız artışı uygulanmadı.
+
+## Sağlık denetiminde sabit eylem görünümü — 15 Eylül 2026
+
+Periyodik HackRF sağlık denetiminin kısa çalışma aralığı artık `Taramayı Başlat`
+ve `Bant Taraması` eylemlerinin etkin görünümünü değiştirmez. Denetimle aynı ana
+denk gelen tarama isteği kaybedilmez; denetim sonuçlanınca yalnız alıcı hâlâ
+hazırsa başlatılır. 81 görünüm-modeli testi ile iki odaklı gerçek QML testi
+geçti. Bu kaynak/QML doğrulamasıdır; fiziksel kullanıcı tıklama tekrarı değildir.
+
+## Alıcı USB durumunun canlı izlenmesi — 15 Eylül 2026
+
+Birleşik sistem hazırken etkin HackRF seri kimliği boşta yaklaşık 1,5 saniyede
+bir arka planda yeniden denetlenir. Etkin alıcı USB alıcı modundan çıkarsa hazır
+durumu iptal edilir, tarama eylemi kapanır ve `Sistemi Denetle` yeniden görünür.
+Tarama başlangıcındaki `binary_pipe_failed` da teknik kod olarak gösterilmez;
+`Alıcı bağlantısı koptu` başlığı ve yeniden denetleme yönlendirmesi kullanılır.
+Yanlış bir tanı çalışması tek başına bağlantı kaybı sayılmaz. 79 görünüm-modeli
+ve 34 gerçek QML regresyonu geçti. Bu kaynak/QML kanıtıdır; fiziksel tak-çıkar ve
+PortaPack mod değişimi güncel kaynakla henüz tekrarlanmadı.
+
+## Sistem denetiminde PortaPack USB geçişi — 15 Eylül 2026
+
+Kayıtlı alıcı seçimi artık sabit COM veya yalnız birincil seri varsayımına bağlı
+değildir. `ED_RX_PRIMARY …36877e47` görünürse önceliklidir; görünmüyor ve
+`ED_RX_SECONDARY …35138247` görünüyorsa ikincil güvenli yedek olarak seçilir.
+Etkin seri sabit frekans, 10 MS/s bant taraması, aday doğrulama, dinleme ve yön
+ölçümü yollarının tamamına verilir; alıcıya özgü bilinen-spur profili de yeniden
+yüklenir. İki alıcı birlikteyse birincil etkin, ikincil hazır yedektir.
+Yapılandırılmamış HackRF kabul edilmez. 76 görünüm-modeli, 33 gerçek QML ve yedi
+HackRF arka uç regresyonu geçti. İkincil cihazla güncel fiziksel fallback koşusu
+henüz yapılmadı; PHASE-08/ST-06 açık kalır.
+
+`Sistemi Denetle`, HackRF zaten USB alıcı modunda değilse FPGA hizmeti hazır
+olduktan sonra PortaPack Mayhem'in USB-seri arayüzünü kesin `VID/PID` kimliğiyle
+arar. Tam olarak bir eşleşme varsa `hackrf` komutunu gönderir, aygıtın HackRF
+olarak yeniden bağlanmasını bekler ve yapılandırılmış `ED_RX_PRIMARY` seri
+numarasını yeniden doğrular. FPGA hazır değilken, araç zinciri eksikken, denetim
+portu yokken veya birden çok eşleşme varken mod değiştirilmez. Genel COM portu
+tahmin edilmez. İlk fiziksel denemede seri yazma tamamlandıktan hemen sonra port
+kapatıldığı için cihaz yeniden bağlanmadı. Mayhem'in Windows geçiş yordamındaki
+500 ms komut tüketme aralığı ve port temizleme eklendi. Ardından
+`COM4 / 1D50:6018` aygıtı tek fiziksel koşuda `HackRF One / 1D50:6089` olarak
+yeniden bağlandı; `hackrf_info` yapılandırılmış `…36877e47` seri numarasını ve
+`v2.4.0 (API 1.11)` firmware'i doğruladı. Yedi odaklı regresyon geçti. Kanıt
+[`portapack-usb-handoff-20260915.json`](../../results/evidence/phase08/portapack-usb-handoff-20260915.json)
+içindedir. Bu tek geçiş tekrarlı açılış/geçiş veya gerçek QML düğmesi kabulü
+değildir; PHASE-08/ST-06 açık kalır.
+
+Üst durum alanındaki canlı zincir bilgisi `ALICI → FPGA` ve
+`8 MS/s → 2 MS/s` olarak sadeleştirildi. Bu yalnız mevcut 8 MS/s HackRF alımı
+ile 2 MS/s FPGA işleme hızını açıklar; örnekleme ayarını veya DSP'yi değiştirmez.
+
+## Uzun koşuda FPGA tespit kapasitesi — 15 Eylül 2026
+
+Kullanıcının uzun sabit-frekans koşusunda gördüğü `candidate_drop`, HackRF veya
+FPGA bağlantısının kesildiğini değil, FPGA/ARM tespit zincirinin bir karede
+izleyebileceğinden fazla aday oluştuğunu bildirir. Temporal zincir aynı anda en
+fazla 64 etkin olay tutar; protokoldeki `dropped_candidates` ayrıca aday
+birleştirme kapasitesinde dışarıda kalan dar adayları da aynı toplamda taşır.
+Bu nedenle önceki kısa mesaj alt kapasiteyi tek başına ayırmıyordu.
+
+Canlı hata ayrıntısı artık kare numarası, ham aday, etkin olay ve izlemeye
+alınamayan aday sayılarını gösterir. `candidate_drop` birleşik donanım
+hazırlığını iptal etmez; bağlantılar hazır kalır ve operatör LNA/VGA'yı azaltıp
+yeniden başlayabilir. Oturum ise eksik tespiti başarılı/kesintisiz sonuç gibi
+sunmamak için fail-closed durmaya devam eder. Sentetik kaynak ve gerçek QML
+sınır testleri geçmiştir; bu değişiklik fiziksel uzun-koşu kabulü değildir.
+PHASE-08/ST-06 açık kalır.
+
+## Sabit frekans spektrum başlangıcı — 15 Eylül 2026
+
+Canlı sabit frekans oturumu başlarken görünümün FPGA tespit alt bandına
+otomatik daraltılması kaldırıldı. `Taramayı Başlat`, görünüm geçmişini temizler
+ve spektrumu tam alım genişliğinde açar. Tespit alt bandı grafik kılavuzu ve
+işleme sınırı olarak korunur; yalnız görünüm ölçeğini zorlamaz. Gerçek QML
+regresyonu önceden daraltılmış görünümün başlatmada `0..1` tam genişliğe
+döndüğünü doğrular. DSP, alım ayarları ve PHASE-08/ST-06 kabul durumu
+değişmemiştir.
+
+## Eksik canlı akış tanılarının ayrılması — 15 Eylül 2026
+
+Canlı alımın beklenen kare sayısından önce kapanması daha önce bütün katmanlarda
+`short_stream` olarak taşınıyor, arayüz de bunu kesin USB kesintisi gibi
+sunuyordu. Ham HackRF verisinin eksik kalması, PC alım/kanal-seçici zincirinin
+erken bitmesi ve FPGA yanıt sayısının eksik kalması artık ayrı kod ve mesajlara
+sahiptir. Ham alım mesajı fiziksel kablo kopması iddia etmez. EOF yolunda
+alınan/beklenen kare sayısı, süreç dönüş kodu ve son `hackrf_transfer` tanısı
+korunur. Eksik oturum otomatik tekrarla başarıya çevrilmez. Bu oturumdaki
+`hackrf_info` denetimi alıcıyı erişilebilir buldu ancak aynı USB veri yolunda üç
+başka cihaz için yüksek hız uyarısı verdi; bu olası bir yoğunluk göstergesidir,
+kök neden kanıtı değildir. Fiziksel tekrar yapılmadı; PHASE-08/ST-06 açık kalır.
+
+## Sabit frekans başlat/durdur yerleşimi — 15 Eylül 2026
+
+Sabit frekans görünümündeki başlatma ve durdurma eylemleri daha önce ayarlar
+düğmesinin iki yanında ayrı yerleşim öğeleriydi; canlı oturum başladığında
+`Taramayı Durdur` bu nedenle aşağı kayıyordu. İki eylem artık aynı sabit
+yükseklikteki yuvada birbirinin yerini alır. Gerçek QML regresyonu eylem
+yuvasının ve `Ayarlar` düğmesinin düşey konumlarının durum
+geçişinde değişmediğini doğrular. Alım, DSP ve kabul durumu değişmemiştir;
+PHASE-08/ST-06 açık kalır.
+
+## Başlangıç kırpılmasının sürekli kırpılmadan ayrılması — 15 Eylül 2026
+
+İlk başlatmada `iq_saturation`, aynı 16/16 dB ayarıyla ikinci başlatmada temiz
+alım gözlemi yazılımda yeniden incelendi. Canlı oturum daha önce ilk ham karedeki
+tek bir tam ölçek bileşenini bile sürekli koşu kırpılması gibi reddediyordu;
+başlangıç yerleşmesi ile ölçüm bölümü ayrılmamıştı. Ürün yolları artık ilk sekiz
+ham kareyi tuner/kanal-seçici yerleşmesine ayırır, FPGA'ya göndermez ve mantıksal
+kareleri sıfırdan yeniden numaralandırır. Bu bölümdeki giriş/çıkış kırpılmaları
+ayrı tanı sayaçlarında korunur. Yerleşme sonrasındaki herhangi bir kırpılma
+`iq_saturation` ile koşuyu durdurur; koruma veya operatör kazanç seçimi
+gevşetilmemiştir. 30 dakikalık sunulan kare sınırı değişmez; iç alım payı da
+kesin sınırlıdır. Sentetik regresyon geçmiştir, güncel fiziksel HackRF tekrarı
+henüz yapılmadığından donanım kabul iddiası yoktur. PHASE-08/ST-06 açık kalır.
+
+## Sistem denetimi arayüz metni — 15 Eylül 2026
+
+Sabit frekans ve bant taraması görünümlerindeki ortak donanım denetimi
+`Sistemi Denetle` olarak adlandırıldı. HackRF ve FPGA birlikte bulunamadığında
+başlık ve açıklama `FPGA ve Alıcı algılanamadı` mesajını verir. Tekil alıcı ve
+FPGA hata ayrımları korunur. I/Q kırpılma koruması değişmedi; otomatik kazanç
+uygulamadan koşuyu güvenli hata ile durdurur. PHASE-08/ST-06 açık kalır.
+
+## Otomatik kazancın kaldırılması — 15 Eylül 2026
+
+Kullanıcı kararıyla sabit frekans görünümündeki `Kazancı otomatik ayarla`
+seçeneği ve ona bağlı sınırlı yeniden-deneme mantığı kaldırıldı. Canlı alım
+artık yalnız operatörün seçtiği LNA/VGA değerleriyle başlar; düşük seviye,
+kırpılma veya geniş aday sonucunda yazılım kazancı değiştirmez. I/Q kırpılma
+koruması güvenlik ve veri bütünlüğü sınırı olarak korunur ve koşuyu hata ile
+durdurur. Aşağıdaki 14 Eylül otomatik kazanç ölçümleri geçmiş kanıttır; güncel
+kaynak yeteneğine aktarılmaz. PHASE-08/ST-06 açık kalır.
+
+## Alıcı kazancı açılır listesi — 15 Eylül 2026
+
+Sabit frekans görünümündeki uzun VGA listesi pencere yüksekliğini aşarak
+22 dB'den sonraki seçenekleri erişilemez bırakıyordu. Ortak açılır liste 280
+piksel yüksekliğinde kaydırılabilir görünümle sınırlandı; açılışta güncel seçim
+görünür konuma taşınır ve 0–62 dB seçeneklerinin tamamına erişilir. Gerçek QML
+regresyonu 62 dB seçimini, sınırlı görünümü ve aşağı kaydırılmış liste konumunu
+doğrular. Bu yalnız arayüz erişim düzeltmesidir; kazanç aralığını, DSP'yi veya
+fiziksel kabul durumunu değiştirmez. PHASE-08/ST-06 açık kalır.
+
+## Sabit frekans arayüzü ve canlı parametre kararlılığı — 14 Eylül 2026
+
+Sabit frekans görünümündeki donmanın üç yazılım nedeni giderildi. Kısa Qt
+işçileri tamamlanma sinyali GUI kuyruğunda tüketilene kadar canlı tutulur;
+parametre kataloğu tek tek `synchronous=FULL` işlemler yerine toplu işlem
+kullanır; aynı bağlamdaki sonuçlar 500 ms teslim penceresinde birleştirilir ve
+yazma/yeniden okuma ayrı tek işçili havuzda yürür. Ölçüme hiç
+alınmadan sonlanan kısa ömürlü kart olayları artık sonuç/katalog satırı üretmez;
+sayısal `automatic_parameter_expired_before_measurement` tanısı olarak kalır.
+64 satırlık katalog yazımı aynı bilgisayarda `1,393 s` değerinden `0,0407 s`
+değerine indi; bu mikro ölçüm RF veya sürekli çalışma kabulü değildir.
+
+Gerçek QML + `…36877e47` RX + ZedBoard yolunda, kullanıcı tarafından açık
+bırakılmış 820 MHz NFM kaynakla 16/14 dB ve 4.096 karelik tekrar 4.096/4.096
+kare, sıfır USB taşması ve sıfır süreç hatasıyla tamamlandı. 20 ms GUI heartbeat
+ölçümünde p95 `25,37 ms`, en büyük aralık `43,38 ms`, `100 ms` üstü aralık
+`0` oldu. Kart yanıt hızı `460,412 kare/s` olduğundan `488,28125 kare/s`
+sürekli gerçek-zaman kabulü hâlâ geçilmedi; sonlu koşunun sıfır taşması bu açığı
+kapatmaz. Tespit, tepeyi `820,046875 MHz` ve birleşik desteği yaklaşık
+`819,453613–820,514160 MHz` aralığında kararlı/RX-destekli gösterdi. Bu geniş
+birleşik olay, 512 hücrelik canlı inline parametre sınırını aştığı için değer
+uydurulmadan reddedildi.
+
+Ürün varsayılanındaki otomatik kazanç, kırpma sayacı oluşmasa da 512 hücreyi
+aşan güçlü adayı alıcı-seviyesi belirtisi sayar. Aralığı kesmek yerine önce
+16/14 → 8/6 → 0/0 dB ile yeniden dener; düşük seviyede LNA ve VGA'yı birlikte
+sıçratmak yerine yalnız VGA'yı 4 dB artırır. Nihai otomatik fiziksel koşu
+16/14 dB'den 0/0 dB'ye iki güvenli tekrar yaptı; 4.096/4.096 kare ve sıfır USB
+taşmasıyla tamamlandı. GUI heartbeat p95/en büyük `26,71/48,68 ms`, 100 ms üstü
+aralık `0`; 19 katalog sonucunun 9'u geçerliydi. Geçerli merkez
+`819,996190–820,002468 MHz`, OBW `101,05–102,91 kHz`, güç
+`−58,48…−55,77 dBFS`, SNR `3,51–5,00 dB` aralığındaydı. Bu koşudaki kart yanıt
+hızı `444,933 kare/s` olduğundan sürekli gerçek-zaman kapısı açık kalır.
+
+Aynı açık kaynakta 0/0 dB ve 2.048 karelik tanı sıfır USB taşmasıyla tamamlandı;
+GUI p95/en büyük heartbeat `27,42/39,99 ms` oldu. Kartın 21 ölçümünden 10'u
+geçerliydi: merkez `819,997411–820,002380 MHz`, OBW
+`100,76–103,32 kHz`, güç `−59,57…−55,81 dBFS`, SNR `3,15–4,74 dB`.
+Kaynak ayarı 1 kHz ton ve 50 kHz azami sapmadır; sonuç bunun tek kontrollü açık
+koşudaki gözlemidir, genel doğruluk/Pd/Pfa veya kalibre dBm kabulü değildir.
+Geniş gerçek emisyonlarda 512 hücreye otomatik kırpma yapılmaz; operatör onaylı
+8–3984 hücre P0PM-v2 yolu korunur. Tekrarlanabilir koşu ve kaynak özetleri
+[`fixed-frequency-stability-20260914-before.json`](../../results/evidence/phase08/fixed-frequency-stability-20260914-before.json),
+[`fixed-frequency-stability-20260914-after.json`](../../results/evidence/phase08/fixed-frequency-stability-20260914-after.json),
+[`fixed-frequency-stability-20260914-gain-zero.json`](../../results/evidence/phase08/fixed-frequency-stability-20260914-gain-zero.json),
+[`fixed-frequency-stability-20260914-managed-batched.json`](../../results/evidence/phase08/fixed-frequency-stability-20260914-managed-batched.json)
+ve `scripts/verify_fixed_frequency_gui_stability.py` içindedir. PHASE-08/ST-06
+açık kalır; sonraki faza geçilmedi.
+
+## Tarama arayüzü sadeleştirmesi ve kararlılık — 14 Eylül 2026
+
+Alıcı ayarlarında iki cihazın seri numarası ve durumunu gösteren envanter bloğu
+kaldırıldı. Tarama ekranındaki örnekleme zinciri, profil ve pencere süre dökümü
+metinleri de kaldırıldı. Donanım denetimi başarısız olduğunda kullanıcıya yalnız
+`Alıcı algılanmadı` ve/veya `FPGA algılanmadı` gösterilir; ayrıntılı hata kodu
+yerel olay günlüğünde korunur.
+
+Güncel QML ile gerçek HackRF→FPGA taraması 800–840 MHz aralığında 16/16
+pencereyi `8,00 s` içinde sıfır taşıma hatasıyla tamamladı. Ayrı kararlılık
+koşusunda devam eden tarama arayüzden durduruldu, durum `Durduruldu` oldu;
+800–805 MHz taraması yeniden başlatılıp 2/2 pencere ve sıfır hatayla tamamlandı.
+En büyük 20 ms heartbeat aralığı `88,38 ms`, uygulama kapanışı `1,7 ms` oldu;
+donma veya çökme gözlenmedi. Kanıt
+[`ui-simplification-stability-20260914.json`](../../results/evidence/phase08/ui-simplification-stability-20260914.json)
+içindedir. Bu kısa koşu uzun süreli GUI dayanıklılık kabulünün yerine geçmez.
+
+## Kontrollü kör RF ve ürün yolu — 14 Eylül 2026
+
+Fiziksel olarak bağlı `…36877e47` HackRF, `ED_RX_PRIMARY` rolüne alındı;
+`…35138247` ikincil rolde korunur. Yayın açıkken 800–840 MHz aralığındaki iki
+64-kare kör tekrar 16/16 pencereyi `5,06/4,96 s` içinde tamamladı. Her koşuda
+800,000 MHz dar taşıyıcı ile 820 MHz çevresindeki yaklaşık 1 MHz geniş yayın,
+ilk 10 MS/s taramadan sonra bağımsız 2 MS/s yeniden ayarlamada doğrulandı.
+USB overrun, taşıma CRC, sıra ve kuyruk hataları iki koşuda da sıfırdı. Ham
+kayıtlar `wideband-burst-live-rf-run1-20260914.jsonl` ve
+`wideband-burst-live-rf-run2-20260914.jsonl` ile aynı adlı JSON özetlerindedir.
+
+İki RF hedefi alıcı merkezine göre `±1 MHz` ve `±3,25 MHz` noktalarına kondu.
+Sekiz yerleşimin 8/8'i en az sekiz confirmed gözlem karesine ulaştı; toplam
+taşıma hata sayaçları sıfır kaldı. Bu analog HackRF geçiş bandı ve mutlak
+frekans eşlemesinin pozitif kontrollü gözlemidir. Ayrıntı
+[`wideband-burst-rf-placement-20260914.json`](../../results/evidence/phase08/wideband-burst-rf-placement-20260914.json)
+içindedir.
+
+Aday doğrulamasında otomatik parametre oturum sonu aynı son kareyi ikinci kez
+yayımlayarak `survey_sequence` üretiyordu. Doğrulama oturumu tespit-only yapıldı;
+her kare teslimi korunuyor ve regresyon testi eklendi. Köprü, önce çalışma
+zamanında sonra SD imajında sınandı. Yalnız çalışma zamanı kopyasının yeniden
+başlatmada eski imaja döndüğü gözlendi; bunun üzerine doğrulanmış temel FIT'in
+kök dosya sistemi tek köprü değişikliğiyle yeniden paketlendi. Yeni `image.ub`
+SHA-256 değeri `322457912d3bcefa84d3fe36f8751160729e16b02ff6fd3525071bd8b1b98a68`.
+Kontrollü yeniden başlatmada FPGA `operating`, hizmet `20c151ea…`, köprü
+`beb168b6…`, 47007 portu ve geniş bant yetenek biti geçti. Önceki imaj SD'de
+hash bağlı yedektir. Bu tam PetaLinux yeniden derlemesi değildir; FIT kök dosya
+sistemi yeniden paketlenmiştir. Kanıt
+[`wideband-persistent-image-20260914.json`](../../results/evidence/phase08/wideband-persistent-image-20260914.json)
+içindedir.
+
+Ürün ayarı olan 256 kareyle kalıcı imaj üzerinde doğrudan tarama 16/16
+pencereyi `12,33 s` içinde tamamladı. Son gerçek QML koşusunda ekrandaki
+`Taramayı Başlat` düğmesi kullanıldı; `10 MS/s`, 16/16 pencere, sıfır hata ve
+iki sonuç gösterildi. Duvar süresi `8,00 s`, en büyük 20 ms arayüz heartbeat
+aralığı `46,39 ms` oldu. Kanıtlar
+[`wideband-persistent-product-scan-20260914.json`](../../results/evidence/phase08/wideband-persistent-product-scan-20260914.json)
+ve [`wideband-qml-live-scan-20260914.json`](../../results/evidence/phase08/wideband-qml-live-scan-20260914.json)
+içindedir. Aynı ayarlı TX-kapalı negatif, genel Pd/Pfa, tüm 1 MHz–6 GHz turu ve
+elektrik kesip açılan soğuk başlangıç açık kaldığından ST-06 tamamlanmadı.
+
+## Tarama hızı fiziksel tanısı — 14 Eylül 2026
+
+KTR-4.1 / PHASE-08 ilk hız tanısında HackRF `…35138247` fiziksel olarak görüldü
+ve o koşuların alıcısı olarak kullanıldı. Sonraki kör RF çalışmasında bağlı
+`…36877e47` güncel `ED_RX_PRIMARY` rolüne, `…35138247` ise ikincil role alındı.
+Araç/libhackrf sürümü
+`2026.01.2 / 0.9.1`, firmware `v2.4.0 (API 1.11)` olarak okundu. Aynı USB
+veri yolunda bir saniyelik üçer RX tekrarında 8 ve 10 MS/s koşularının her
+birinde sıfır overrun; 20 MS/s koşularında sırasıyla 154, 155 ve 153 overrun
+ölçüldü. Bu bilgisayar ve USB yerleşiminde 20 MS/s temiz canlı giriş kabul
+edilmedi; geniş bant geliştirme hedefi 10 MS/s ile sınırlandı. Ham gözlem ve
+kaynak özetleri
+[`hackrf-rx-rate-observation-20260914.json`](../../results/evidence/phase08/hackrf-rx-rate-observation-20260914.json)
+içindedir.
+
+800–840 MHz fiziksel karşılaştırmasında 128 karelik tam tarama 67 pencereyi
+25,762 saniyede, 64 karelik tam tarama 16,344 saniyede tamamladı. İki turlu
+`hackrf_sweep` kaba aşaması yaklaşık 0,20 saniye sürdü; ortamda 270 kaba hücre
+aday seçtiği için 67 kart penceresinin tamamı yine işlendi ve toplam süre
+25,934 saniye oldu. Bu profil ölçülen durumda hız kazandırmadığından ürün
+arayüzünden çıkarıldı. Sweep kodu yalnız tanı ve kontrollü karşılaştırma için
+kalır; varsayılan ürün yolu bütün pencereleri FPGA/ARM ile doğrular. Ham JSONL
+kayıtları ve karşılaştırma `build/acceptance/rx-scan-profile-comparison-20260914.json`
+içindedir. Koşuda bağımsız kontrol edilen bir RF kaynağı bulunmadığından sonuç
+algılama duyarlılığı veya yayın yokluğu kanıtı değildir.
+
+Güncel canlı zincir `HackRF 8 MS/s → PC 4:1 kanal seçici → 2 MS/s P0IQ →
+kart` düzenindedir. 4.096 karelik fiziksel koşuda USB/CRC/sıra/kuyruk hatası
+oluşmadı; uçtan uca hız `487,125 kare/s` ile gereken `488,28125 kare/s`
+değerinin az altında kaldı. PL veri yolu 50 MHz saatle kararlı durumda saat
+başına bir karmaşık örnek kabul edecek şekilde tasarlanmıştır; 50 MS/s
+aritmetik kapasite, kart hizmetinin ölçülen yaklaşık 500 kare/s işlem hızından
+çok yüksektir. Darboğaz FFT aritmetiği değil, kare başına PC↔kart işlemi,
+DMA ve ARM servis döngüsüdür. Kartta çalışan taşıma köprüsü yalnız 2 MS/s
+işleme örnekleme hızını kabul eder; arayüzde 10/20 MS/s FPGA yolu varmış gibi
+gösterilmez.
+
+Kaynakta 10 MS/s algılama-only P0IQ profili eklendi. CI8 burst PC'de
+değiştirilmeden 4096 örneklik kareler olarak PL/ARM'a gönderilir; otomatik
+parametre yolu bu profilde fail-closed kapalıdır. Köprü geniş bant yeteneğini
+ayrı bir P0CQ bitiyle bildirmek zorundadır; eski köprüde HackRF başlatılmadan
+`wideband_profile_unavailable` üretilir. Burst en fazla 256 kareyle sınırlıdır.
+Python, C11 ve 10 MS/s Linux köprü loopback'i geçti. Cortex-A9 köprüsü
+üretildi; SHA-256
+`beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c`.
+Eski köprüyle yapılan ilk 64 karelik deneme ilk yanıtı almadan kapandı; bu
+başarısız koşu da korunur. Ayrıntı
+[`wideband-burst-host-gate-20260914.json`](../../results/evidence/phase08/wideband-burst-host-gate-20260914.json)
+içindedir.
+
+Kartın güncel SSH anahtarı COM6 seri konsolundan doğrulandı. Yeni köprü kalıcı
+imaja yazılmadan `/tmp` altında çalıştırıldı. Aynı 64 karelik RX-only koşusu üç
+kez 64/64 tamamlandı; USB overrun, taşıma CRC, sıra ve kuyruk hatalarının toplamı
+sıfırdı. Kart tüketimi `498,744–505,719 kare/s`, 10 MS/s sürekli gereksinimi
+`2441,40625 kare/s` ve gerçek zaman marjı `0,2043–0,2071` ölçüldü. Her burst'ün
+RF örnekleme süresi `26,2144 ms`, uçtan uca süresi yaklaşık `149–153 ms` oldu.
+Geçici ikili kaldırıldı ve kalıcı `e0ae46d5…` köprüsü yeniden başlatıldı. Kanıt
+[`wideband-burst-physical-20260914.json`](../../results/evidence/phase08/wideband-burst-physical-20260914.json)
+içindedir.
+
+Kareden kareye değişen kontrollü sayısal gürültü üzerinde gürültü-only durumda
+doğrulanmış olay oluşmadı. `±1,001 MHz` ve `±3,250 MHz` tonları PL/ARM'da
+beklenen dört FFT hücresine sıfır hücre hatasıyla yerleşti; ek kalıcı tepe
+oluşmadı. Bu sonuç sayısal frekans eşlemesini doğrular, HackRF analog bant
+geçişini doğrulamaz. Ayrıntı
+[`wideband-digital-mapping-20260914.json`](../../results/evidence/phase08/wideband-digital-mapping-20260914.json)
+içindedir.
+
+Deneysel burst taraması her pencerenin yalnız DC'den ve kenardan uzaktaki bir
+tarafına `2,5 MHz` sorumluluk verir. Böylece 800–840 MHz aralığı 67 yerine 16
+pencereye indi. Gerçek HackRF→kart koşusu 16/16 pencereyi `3,817 s` içinde,
+sıfır USB/CRC/sıra/kuyruk hatasıyla tamamladı; aynı 64-kare ayarlı tam tarama
+`16,344 s` idi. Gözlenen hızlanma `4,28×` oldu. Ortamda yalnız bir karede bir
+ilk-aşama aday çıktı; sekiz karelik kalıcılık kapısına ulaşmadığı için 2 MS/s
+doğrulama retune'u başlatılmadı. Kontrollü yayın kaynağı bulunmadığından bu
+sonuç kaçırmama, Pd/Pfa veya yayın yokluğu kanıtı değildir. Ham pencere kaydı ve özet
+[`wideband-burst-scan-20260914.json`](../../results/evidence/phase08/wideband-burst-scan-20260914.json)
+içindedir.
+
+Bu yol kısa geniş bant bloklarını daha hızlı toplar; sürekli 10 MS/s değildir.
+DC merkez deliği, örtüşen pencere kenarları ve mutlak frekans eşleme kontrollü
+RF ile ölçülmeden ürün arayüzünde açılmaz. Sürekli 10 MS/s için kare başına
+işlemleri toplulaştıran DMA/servis ve seyrek aday çıktısı ayrıca gerekir. Yeni
+kalıcı kart imajı, gerçek GUI+RX, kontrollü kör RF ve soğuk açılış kabul kapıları
+açıktır.
+
+## ED sürüm kararlılığı incelemesi — 13 Eylül 2026
+
+Arayüz bildirim birleştirmesi otomatik parametre sonuçlarını artık düşürmez;
+1.024 bekleyen sonuç sınırında açık hata ile alım durur. Katalog bağlantıları
+başarı/hata sonunda kapanır; bozuk kalibrasyon ve veritabanı ED başlangıcını
+kesmez, kayıt hatası görünür kalır. Paket tanımı kaynak kimliği dosyaları ve
+SciPy ürün bağımlılığıyla tamamlandı. Sayısal C/Python karşılaştırması 49/49
+geçti; algoritma/RTL değişmedi. Yeni imaj veya standalone kabulü yapılmadı.
+[Ayrıntılı inceleme ve açık kapılar](../reviews/ED_RELEASE_REVIEW_20260913.md).
+ST-06 ve fiziksel doğruluk kabulü açık kalır.
+
 ## Yalnız ED ürün kapsamı — 13 Eylül 2026
 
 Kullanıcı kararıyla ET arayüzü, görev/TX kaynakları, yapılandırması,
@@ -853,7 +1506,7 @@ KTR-4.1 / KTR-4.1-OPS-B0 kapsamında sabit frekans ve bant taraması ekranları
 boşta, çalışırken, bağlantı yokken ve sonuç varken görsel olarak denetlendi.
 Frekans ve kazanç değerleri aynı yükseklik, yazı boyutu ve merkez hizasını
 kullanır. Bağlı durumu düğme olmaktan çıkarıldı; yalnız bağlantı yokken
-`Alıcıyı Denetle` görünür. Başlat/durdur aynı anda gösterilmez. Sonuçlarda
+`Sistemi Denetle` görünür. Başlat/durdur aynı anda gösterilmez. Sonuçlarda
 tekrarlanan tespit cümleleri ve teknik sayaçlar kaldırıldı; frekans ve varsa
 kaba aralık ana bilgidir. Teknik kanıt ipucunda korunur. Algoritma eşikleri,
 RTL ve RF kararları bu son görsel düzenlemede değiştirilmedi. Parametre fazına

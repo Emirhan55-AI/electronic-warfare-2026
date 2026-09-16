@@ -467,14 +467,14 @@ def _parent_run() -> int:
                 'objectName: "directionStartMeasurement"',
             )
         ),
-        "system_diagnostics": all(
-            marker in qml_text
+        "system_workspace_removed": all(
+            marker not in qml_text
             for marker in (
                 'objectName: "pipelineList"',
                 'objectName: "systemLog"',
-                "BİLEŞEN AYRINTISI",
-                "OPERASYON GÜNLÜĞÜ",
-                "Salt okunur · komut çalıştırmaz",
+                '"label": "Sistem"',
+                'sequence: "Ctrl+5"',
+                "SİSTEM DURUMU",
             )
         ),
         "release_source_navigation_disabled": all(
@@ -507,7 +507,6 @@ def _parent_run() -> int:
                 'sequence: "Space"',
                 "operatorViewModel.sourceReady && !operatorViewModel.busy",
                 'sequence: "Ctrl+4"',
-                'sequence: "Ctrl+5"',
                 'objectName: "workspaceNavigation" + index',
             )
         ),
@@ -515,9 +514,10 @@ def _parent_run() -> int:
             marker in qml_text
             for marker in (
                 "property int uiBodyTextSize: width >= 1600 ? 11 : 10",
-                "root.systemLogMatchCount() + \" kayıt\"",
-                "Bu filtreyle eşleşen olay yok",
-                'objectName: "systemLog"',
+                '"title": "Sinyal Tespiti"',
+                '"title": "Parametre Çıkarımı"',
+                '"title": "Sinyal Dinleme"',
+                '"title": "Yön Bulma"',
             )
         ),
         "honest_feature_surface": all(

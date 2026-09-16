@@ -109,6 +109,20 @@ class P0TransportTests(unittest.TestCase):
         with self.assertRaisesRegex(TransportError, "başlığı"):
             decode_local_ed_response(bytes(damaged), frame_id)
 
+    def test_local_service_dma_failure_is_not_reported_as_a_header_error(self) -> None:
+        frame_id = 31
+        header = bytearray(48)
+        struct.pack_into(
+            "<IHHIIIIII", header, 0,
+            0x31534550, 4, 48, 48, frame_id, 2, 0, 0, 0,
+        )
+        struct.pack_into("<I", header, 44, zlib.crc32(header[:44]) & 0xFFFFFFFF)
+
+        with self.assertRaises(TransportError) as raised:
+            decode_local_ed_response(bytes(header), frame_id)
+        self.assertEqual(raised.exception.code, "local_dma_failure")
+        self.assertIn("DMA", str(raised.exception))
+
     def test_local_service_response_decoder_validates_inline_abi_v2_parameter(self) -> None:
         frame_id = 23
         result = bytearray(8_724)
@@ -161,11 +175,11 @@ class P0TransportTests(unittest.TestCase):
         self.assertEqual(len(packet) - len(frame.payload), 80)
         self.assertEqual(IQFrameCodec.decode(packet), frame)
         capability_packet = IQCapabilityCodec.encode_response(
-            TransportCapabilities(True, 512, 1)
+            TransportCapabilities(True, 512, 1, True)
         )
         self.assertEqual(
             IQCapabilityCodec.decode_response(capability_packet),
-            TransportCapabilities(True, 512, 1),
+            TransportCapabilities(True, 512, 1, True),
         )
 
     def test_network_bridge_boot_configuration_does_not_pin_a_volatile_mac_name(self) -> None:
@@ -289,6 +303,19 @@ class P0TransportTests(unittest.TestCase):
             decoded = IQFrameCodec.decode(IQFrameCodec.encode(frame))
             self.assertEqual(decoded.complex_sample_count, samples)
 
+    def test_processing_profile_accepts_detection_only_10msps_burst(self) -> None:
+        frame = IQFrame(9, 10_000_000, 820_000_000, b"\x01\x02" * 4096, frame_id=9)
+        IQFrameCodec.validate_processing_frame(frame)
+        decoded = IQFrameCodec.decode(IQFrameCodec.encode(frame))
+        self.assertEqual(decoded.sample_rate_hz, 10_000_000)
+
+        parameter_frame = replace(
+            frame,
+            parameter_request=ParameterObservationRequest(1, 2, 1000, 1100),
+        )
+        with self.assertRaisesRegex(TransportError, "parametre"):
+            IQFrameCodec.validate_processing_frame(parameter_frame)
+
     def test_response_round_trip_and_crc(self) -> None:
         response = IQResponse(7, bytes(range(128)))
         packet = IQResponseCodec.encode(response)
@@ -363,7 +390,7 @@ class P0TransportTests(unittest.TestCase):
                 self.assertEqual(bytes(query[:4]), b"P0CQ")
                 connection.sendall(
                     IQCapabilityCodec.encode_response(
-                        TransportCapabilities(True, 512, 1)
+                        TransportCapabilities(True, 512, 1, True)
                     )
                 )
             listener.close()
@@ -376,6 +403,7 @@ class P0TransportTests(unittest.TestCase):
         )
         worker.join(timeout=2.0)
         self.assertTrue(capabilities.inline_parameter_observation)
+        self.assertTrue(capabilities.wideband_burst)
         self.assertEqual(client.stats.frames_sent, 0)
 
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

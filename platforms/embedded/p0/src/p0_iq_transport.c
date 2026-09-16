@@ -133,14 +133,16 @@ int p0_iq_processing_frame_decode(const uint8_t *packet, size_t packet_bytes,
     if (p0_iq_frame_decode(packet, packet_bytes, frame) != 0)
         return -1;
     return frame->chunk_index == 0U && frame->chunk_count == 1U &&
-                   frame->sample_rate_hz == P0_IQ_PROCESSING_SAMPLE_RATE_HZ &&
+                   (frame->sample_rate_hz == P0_IQ_PROCESSING_SAMPLE_RATE_HZ ||
+                    frame->sample_rate_hz == P0_IQ_WIDEBAND_SAMPLE_RATE_HZ) &&
                    (frame->complex_sample_count == 4096U ||
                     frame->complex_sample_count == 8192U ||
                     frame->complex_sample_count == 16384U) &&
                    frame->payload_bytes == frame->complex_sample_count * 2U &&
                    (frame->parameter_flags == 0U ||
-                    frame->complex_sample_count ==
-                        P0_IQ_PROCESSING_COMPLEX_SAMPLES)
+                    (frame->sample_rate_hz == P0_IQ_PROCESSING_SAMPLE_RATE_HZ &&
+                     frame->complex_sample_count ==
+                         P0_IQ_PROCESSING_COMPLEX_SAMPLES))
                ? 0 : -1;
 }
 
@@ -204,7 +206,8 @@ int p0_iq_capability_response_encode(
     packet[4] = P0_IQ_TRANSPORT_VERSION;
     packet[5] = 2U;
     store_le16(packet + 6U, P0_IQ_CAPABILITY_BYTES);
-    store_le32(packet + 8U, P0_IQ_CAPABILITY_INLINE_PARAMETER);
+    store_le32(packet + 8U, P0_IQ_CAPABILITY_INLINE_PARAMETER |
+                              P0_IQ_CAPABILITY_WIDEBAND_BURST);
     store_le32(packet + 12U, P0_IQ_CAPABILITY_MAXIMUM_PARAMETER_SPAN);
     store_le32(packet + 16U, P0_IQ_CAPABILITY_PARAMETER_CONTEXTS);
     store_le32(packet + 44U,

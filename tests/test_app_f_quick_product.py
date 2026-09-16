@@ -19,9 +19,243 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "datasets" / "fixtures" / "phase01" / "known-tone-ci8.sigmf-meta"
 LISTENING_FIXTURE = ROOT / "datasets" / "fixtures" / "phase05" / "am-tone-ci8.sigmf-meta"
 QML = ROOT / "app" / "operator_console" / "qml" / "Main.qml"
+APP_COMBO_QML = ROOT / "app" / "operator_console" / "qml" / "AppCombo.qml"
+DETECTION_SETTINGS_QML = ROOT / "app" / "operator_console" / "qml" / "DetectionSettings.qml"
+RX_SURVEY_QML = ROOT / "app" / "operator_console" / "qml" / "RxSurveyView.qml"
+PARAMETER_PANEL_QML = ROOT / "app" / "operator_console" / "qml" / "ParameterMeasurementPanel.qml"
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_parameter_panel_uses_compact_record_and_result_labels(self):
+        source = PARAMETER_PANEL_QML.read_text(encoding="utf-8")
+        for required in ('text: "KAYITLAR"', '"Kayıtları Göster"', '"Taşıyıcı Frekans"',
+                         '"Bant Genişliği"', '"Kanal Gücü (dBFS)"', '"Sinyal Türü"'):
+            self.assertIn(required, source)
+        for removed in ("OTOMATİK PARAMETRE KATALOĞU", "Canlı alımda otomatik tamamlanan",
+                        "automaticParameterStatus +", "Sinyal türü (PC, deneysel)",
+                        "OBW için analiz aralığı",
+                        "visible: panel.viewModel.statusMessage.length > 0"):
+            self.assertNotIn(removed, source)
+
+    def test_survey_result_header_keeps_space_for_signal_rows(self):
+        source = RX_SURVEY_QML.read_text(encoding="utf-8")
+        self.assertIn('text: "SİNYAL TESPİTİ"', source)
+        self.assertNotIn('survey.observationCount + " kayıt', source)
+        self.assertNotIn('text: "Tarama geçmişi"', source)
+        self.assertNotIn("view.groupDescription(", source)
+
+    def test_survey_groups_are_fixed_controls_and_hide_selection(self):
+        payload = self.run_qml('''
+root = engine.rootObjects()[0]
+view_model.setSourceMode("hackrf")
+root.setProperty("rfSearchMode", True)
+survey = view_model.survey
+survey._rows = [dict(eventId="test:1",frequencyHz=855e6,frequency="855 MHz",
+                    signalDetected=True,bandwidthHz=1000,qualityScore=80,continuity=1,
+                    evidenceDetail="İki ayarda görüldü",rangeText="")]
+survey._publish_rows(); survey.changed.emit()
+for _ in range(5): app.processEvents()
+buttons = [root.findChild(QObject, "surveyGroup_" + key) for key in ("verified", "candidate", "suspect")]
+texts = [button.property("text") for button in buttons]
+survey.selectObservation("test:1")
+buttons[1].clicked.emit()
+for _ in range(5): app.processEvents()
+payload = {"texts": texts, "selected": survey.selectedKey,
+           "visible_count": survey.groupedObservationModel.rowCount(),
+           "raw_count": survey.observationCount}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+''')
+        self.assertIn("Tekrar doğrulanan adaylar (1)", payload["texts"][0])
+        self.assertIn("Tekrar ölçülmesi gerekenler (0)", payload["texts"][1])
+        self.assertIn("Alıcı etkisi olabilecekler (0)", payload["texts"][2])
+        self.assertEqual("", payload["selected"])
+        self.assertEqual(0, payload["visible_count"])
+        self.assertEqual(1, payload["raw_count"])
+
+    def test_survey_axis_tracks_actual_spectrum_and_verification_is_real_work(self):
+        payload = self.run_qml('''
+root = engine.rootObjects()[0]
+view_model.setSourceMode("hackrf")
+view_model._live_has_data = True
+view_model._spectrum_center_frequency_hz = 1764000000.0
+view_model._live_output_center_frequency_hz = 1766000000.0
+view_model._spectrum_sample_rate_hz = 10000000.0
+view_model.stateChanged.emit(); view_model.spectrumChanged.emit()
+app.processEvents()
+lower = root.findChild(QObject, "surveySpectrumLower")
+upper = root.findChild(QObject, "surveySpectrumUpper")
+wide = [lower.property("text"), upper.property("text")]
+view_model._spectrum_center_frequency_hz = 1766000000.0
+view_model._spectrum_sample_rate_hz = 2000000.0
+view_model.spectrumChanged.emit(); app.processEvents()
+narrow = [lower.property("text"), upper.property("text")]
+idle = view_model.fixedVerificationActive
+view_model._fixed_verification_candidate = object()
+queued_only = view_model.fixedVerificationActive
+view_model._fixed_verifier = object()
+active = view_model.fixedVerificationActive
+view_model.stateChanged.emit(); app.processEvents()
+card = root.findChild(QObject, "signalSummaryCard")
+payload = {"wide": wide, "narrow": narrow, "idle": idle,
+           "queued_only": queued_only, "active": active, "summary_visible": card.property("visible")}
+view_model._fixed_verification_candidate = None
+view_model._fixed_verifier = None
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+''')
+        self.assertEqual(["1759.000 MHz", "1769.000 MHz"], payload["wide"])
+        self.assertEqual(["1765.000 MHz", "1767.000 MHz"], payload["narrow"])
+        self.assertFalse(payload["idle"])
+        self.assertFalse(payload["queued_only"])
+        self.assertTrue(payload["active"])
+        self.assertFalse(payload["summary_visible"])
+
+    def test_listening_presets_and_fine_tune_are_local_to_listening(self):
+        payload = self.run_qml('''
+from PySide6.QtCore import QMetaObject, Q_ARG
+root = engine.rootObjects()[0]
+offset = root.findChild(QObject, "listeningOffset")
+bandwidth = root.findChild(QObject, "listeningBandwidth")
+mode = root.findChild(QObject, "listeningMode")
+preset = root.findChild(QObject, "listeningBandwidthPreset")
+offset.setProperty("text", "1.000")
+before = view_model.liveReceiveSettings
+QMetaObject.invokeMethod(root.findChild(QObject, "listeningTuneUp"), "clicked")
+up = offset.property("text")
+QMetaObject.invokeMethod(root.findChild(QObject, "listeningTuneDown"), "clicked")
+down = offset.property("text")
+mode.setProperty("currentIndex", 1)
+app.processEvents()
+preset.setProperty("currentIndex", 2)
+QMetaObject.invokeMethod(preset, "activated", Q_ARG(int, 2))
+payload = {"up": up, "down": down, "bandwidth": bandwidth.property("text"),
+           "edited": bandwidth.property("operatorEdited"), "receiver_unchanged": before == view_model.liveReceiveSettings}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+''')
+        self.assertEqual("1.100", payload["up"])
+        self.assertEqual("1.000", payload["down"])
+        self.assertEqual("12.5", payload["bandwidth"])
+        self.assertTrue(payload["edited"])
+        self.assertTrue(payload["receiver_unchanged"])
+
+    def test_detection_controls_are_compact_and_unrelated_settings_are_separated(self):
+        payload = self.run_qml('''
+from PySide6.QtCore import QMetaObject, Q_ARG
+from algorithms.p0.detection_config import DetectionProfile, NORMAL_DEFAULT, WEAK_DEFAULT
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+view_model.setSourceMode("hackrf")
+amplifier = root.findChild(QObject, "liveAmplifierInput")
+amplifier_label = root.findChild(QObject, "liveAmplifierLabel")
+amplifier.setProperty("currentIndex", 1)
+QMetaObject.invokeMethod(amplifier, "activated", Q_ARG(int, 1))
+dialog = root.findChild(QObject, "receiverAdvancedSettings")
+QMetaObject.invokeMethod(dialog, "open")
+view_model._card_detection_profile = DetectionProfile(1, NORMAL_DEFAULT, WEAK_DEFAULT)
+view_model.detectionProfileChanged.emit()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+normal = root.findChild(QObject, "detectionNormalCoefficient")
+weak = root.findChild(QObject, "detectionWeakCoefficient")
+normal_label = root.findChild(QObject, "detectionNormalLabel")
+weak_label = root.findChild(QObject, "detectionWeakLabel")
+apply_cfar = root.findChild(QObject, "applyCfarSettings")
+read_card = root.findChild(QObject, "readCardDetectionSettings")
+restore_card = root.findChild(QObject, "restoreCardDetectionSettings")
+fft_label = root.findChild(QObject, "detectionFftLabel")
+fft_input = root.findChild(QObject, "detectionFpgaFFT")
+formatted_defaults = [normal.property("text"), weak.property("text")]
+assert normal.property("acceptableInput") and weak.property("acceptableInput")
+normal.setProperty("text", "16"); weak.setProperty("text", "4")
+app.processEvents()
+invalid_rejected = not apply_cfar.property("enabled")
+normal.setProperty("text", "8.5801430407"); weak.setProperty("text", "3.9810717055")
+normal.setProperty("text", "8,58"); weak.setProperty("text", "3,98")
+app.processEvents()
+comma_accepted = apply_cfar.property("enabled")
+deemphasis = root.findChild(QObject, "listeningDeemphasis")
+mode = root.findChild(QObject, "listeningMode")
+mode.setProperty("currentIndex", 1)
+deemphasis.setProperty("currentIndex", 0)
+QMetaObject.invokeMethod(deemphasis, "activated", Q_ARG(int, 0))
+app.processEvents()
+help_available = all(root.findChild(QObject, name).property("helpText") for name in [
+    "liveAmplifierInput", "detectionNormalCoefficient", "detectionWeakCoefficient",
+    "detectionFpgaFFT", "detectionSurveyFrames", "listeningBandwidthPreset"])
+payload = {
+    "invalid_rejected": invalid_rejected,
+    "comma_accepted": comma_accepted,
+    "amp_applied": view_model.receiverRFAmplifier,
+    "audio_applied": view_model.listeningDeemphasisUs == 0,
+    "dialog_title": dialog.property("title"),
+    "audio_in_listening": deemphasis is not None,
+    "removed_manual_display_action": root.findChild(QObject, "fitSpectrumLevelsButton") is None,
+    "survey_amp": root.findChild(QObject, "surveyAmplifierInput") is not None,
+    "survey_amp_label": root.findChild(QObject, "surveyAmplifierLabel").property("text") == "AMP",
+    "removed_receiver_section": root.findChild(QObject, "receiverSettingsSection") is None,
+    "removed_audio_apply": root.findChild(QObject, "applyAudioSettings") is None,
+    "removed_display_fft": root.findChild(QObject, "detectionDisplayFFT") is None,
+    "help_available": bool(help_available),
+    "fft_label": fft_label.property("text"),
+    "formatted_defaults": formatted_defaults,
+    "label_rights": [fft_label.property("x") + fft_label.property("width"),
+                     normal_label.property("x") + normal_label.property("width"),
+                     weak_label.property("x") + weak_label.property("width")],
+    "field_lefts": [fft_input.property("x"), normal.property("x"), weak.property("x")],
+    "action_widths": [read_card.property("width"), restore_card.property("width"),
+                      apply_cfar.property("width")],
+    "amp_paddings": [amplifier.property("leftPadding"), amplifier.property("rightPadding")],
+    "amp_label": amplifier_label.property("text"),
+}
+image_path = Path("build/acceptance/phase08-ui-simplification/detection-settings-final.png")
+image_path.parent.mkdir(parents=True, exist_ok=True)
+root.grabWindow().save(str(image_path))
+QMetaObject.invokeMethod(dialog, "close")
+root.setProperty("rfSearchMode", True)
+for _ in range(10): app.processEvents(); time.sleep(.005)
+QMetaObject.invokeMethod(root.findChild(QObject, "surveyDetectionSettingsButton"), "clicked")
+for _ in range(10): app.processEvents(); time.sleep(.005)
+survey_dialog = root.findChild(QObject, "surveyAdvancedSettings")
+payload["survey_labels"] = [
+    root.findChild(QObject, "surveyLnaLabel").property("text"),
+    root.findChild(QObject, "surveyVgaLabel").property("text"),
+    root.findChild(QObject, "surveyAmplifierLabel").property("text"),
+    root.findChild(QObject, "surveyFramesLabel").property("text"),
+    root.findChild(QObject, "surveyGuardLabel").property("text"),
+]
+payload["survey_restore"] = root.findChild(QObject, "restoreSurveySettings").property("text")
+root.grabWindow().save(str(image_path.with_name("survey-settings-final.png")))
+QMetaObject.invokeMethod(survey_dialog, "close")
+root.setProperty("rfSearchMode", False)
+root.setProperty("sourcePanelOpen", True)
+for _ in range(10): app.processEvents(); time.sleep(.005)
+root.grabWindow().save(str(image_path.with_name("fixed-controls-final.png")))
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+''')
+        self.assertEqual("Ayarlar", payload.pop("dialog_title"))
+        self.assertEqual("FFT", payload.pop("fft_label"))
+        self.assertEqual(["8,58", "3,98"], payload.pop("formatted_defaults"))
+        self.assertEqual(1, len(set(round(value) for value in payload.pop("label_rights"))))
+        self.assertEqual(1, len(set(round(value) for value in payload.pop("field_lefts"))))
+        self.assertEqual(1, len(set(round(value) for value in payload.pop("action_widths"))))
+        self.assertEqual([28, 28], payload.pop("amp_paddings"))
+        self.assertEqual("AMP", payload.pop("amp_label"))
+        self.assertEqual(
+            ["LNA (dB)", "VGA (dB)", "AMP", "Gözlem (kare)", "Yerleşme (kare)"],
+            payload.pop("survey_labels"),
+        )
+        self.assertEqual("Varsayılana Dön", payload.pop("survey_restore"))
+        self.assertTrue(all(payload.values()), payload)
+        dialog_source = DETECTION_SETTINGS_QML.read_text(encoding="utf-8")
+        self.assertNotIn("Yalnız FPGA'nın sinyal kararını etkileyen ayarlar", dialog_source)
+        self.assertNotIn("Başlangıç önerisi:", dialog_source)
+        self.assertIn("dialog.normalCoefficientEdited ? normalCoefficient.text", dialog_source)
+        self.assertIn("dialog.weakCoefficientEdited ? weakCoefficient.text", dialog_source)
+        self.assertNotIn("10 MS/s yakalama:", dialog_source)
+        self.assertNotIn("Yalnız bant taramasındaki pencere gözlemini etkileyen", dialog_source)
+
     def test_detection_workspace_columns_are_centered_and_dividers_are_full_height(self) -> None:
         payload = self.run_qml(
             """
@@ -88,13 +322,60 @@ print(json.dumps(payload))
         self.assertNotIn('text: "Alıcı ve FPGA"', header)
         self.assertNotIn("operatorViewModel.sourceMessage", header)
         self.assertIn('text: "MERKEZ FREKANSI"', header)
-        self.assertIn('text: "ÖRNEKLEME HIZI"', header)
+        self.assertIn("text: operatorViewModel.sampleRateTitle", header)
 
     def test_canvas_font_family_with_spaces_is_quoted(self) -> None:
         source = QML.read_text(encoding="utf-8")
 
         self.assertNotIn('ctx.font = "8px Segoe UI"', source)
         self.assertIn('ctx.font = "8px \'Segoe UI\'"', source)
+
+    def test_long_gain_combo_uses_a_bounded_scrollable_popup(self) -> None:
+        source = APP_COMBO_QML.read_text(encoding="utf-8")
+
+        self.assertIn("popupMaximumHeight: 280", source)
+        self.assertIn(
+            "Math.min(popupList.contentHeight + 8, control.popupMaximumHeight)",
+            source,
+        )
+        self.assertIn(
+            "positionViewAtIndex(control.currentIndex, ListView.Center)", source
+        )
+        self.assertIn("boundsBehavior: Flickable.StopAtBounds", source)
+        self.assertIn("ScrollIndicator.vertical: ScrollIndicator", source)
+
+        payload = self.run_qml(
+            """
+from PySide6.QtCore import QMetaObject, Qt
+root = engine.rootObjects()[0]
+root.setWidth(1200); root.setHeight(720)
+root.setProperty("sourcePanelOpen", True)
+for _ in range(10): app.processEvents(); time.sleep(.005)
+vga = root.findChild(QObject, "liveVgaInput")
+vga.setProperty("currentIndex", 11)
+popup = root.findChild(QObject, "liveVgaInputPopup")
+QMetaObject.invokeMethod(popup, "open", Qt.DirectConnection)
+for _ in range(20): app.processEvents(); time.sleep(.005)
+popup_list = root.findChild(QObject, "liveVgaInputPopupList")
+initial_content_y = popup_list.property("contentY")
+QMetaObject.invokeMethod(popup_list, "positionViewAtEnd", Qt.DirectConnection)
+for _ in range(10): app.processEvents(); time.sleep(.005)
+payload = {
+    "current": vga.property("currentText"),
+    "height": popup.property("height"),
+    "content_height": popup_list.property("contentHeight"),
+    "initial_content_y": initial_content_y,
+    "end_content_y": popup_list.property("contentY"),
+}
+QMetaObject.invokeMethod(popup, "close", Qt.DirectConnection)
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual("22", payload["current"])
+        self.assertLessEqual(payload["height"], 280)
+        self.assertGreater(payload["content_height"], payload["height"])
+        self.assertGreater(payload["end_content_y"], payload["initial_content_y"])
 
     def test_listening_channel_fields_do_not_bind_directly_to_live_suggestions(self) -> None:
         source = QML.read_text(encoding="utf-8")
@@ -108,9 +389,23 @@ print(json.dumps(payload))
         self.assertIn('onSuggestionBasisChanged: applySuggestion(false)', offset_block)
         self.assertNotIn('text: operatorViewModel.listeningSuggestedOffsetKHz', offset_block)
         self.assertIn('text: ""', bandwidth_block)
-        self.assertIn('onTextEdited: operatorEdited = true', bandwidth_block)
+        self.assertIn('onTextEdited: { operatorEdited = true;', bandwidth_block)
+        self.assertIn('listeningBandwidthPreset.currentIndex', bandwidth_block)
         self.assertIn('onSuggestionBasisChanged: applySuggestion()', bandwidth_block)
         self.assertNotIn('text: operatorViewModel.listeningSuggestedBandwidthKHz', bandwidth_block)
+
+    def test_survey_and_listening_transitions_use_clear_labels(self) -> None:
+        survey_source = (QML.parent / "RxSurveyView.qml").read_text(encoding="utf-8")
+        parameter_source = (QML.parent / "ParameterMeasurementPanel.qml").read_text(encoding="utf-8")
+
+        self.assertIn('survey.rechecking ? "Son Kontrolü Durdur" : "Taramayı Durdur"', survey_source)
+        self.assertIn('if (state === "uncertain") return "TEKRAR ÖLÇÜLMELİ"', parameter_source)
+        click_block = parameter_source[
+            parameter_source.index('objectName: "parameterContinueListening"'):
+            parameter_source.index('objectName: "parameterReacquire"')
+        ]
+        self.assertIn("panel.viewModel.continueToListening()", click_block)
+        self.assertIn("panel.listeningRequested()", click_block)
 
     def test_fpga_error_revokes_ready_controls_without_header_error_status(self) -> None:
         payload = self.run_qml(
@@ -120,7 +415,8 @@ root.setProperty("sourcePanelOpen", True)
 view_model._hackrf_ready = True
 view_model._hackrf_transfer_executable = "hackrf_transfer"
 view_model._source_state = "Hazır"
-view_model.stateChanged.emit(); app.processEvents()
+view_model.stateChanged.emit()
+for _ in range(5): app.processEvents()
 settings = root.findChild(QObject, "receiverSettingsBadge")
 start = root.findChild(QObject, "liveStartButton")
 before = {"ready": view_model.hackrfReady, "start": start.property("enabled"),
@@ -141,10 +437,134 @@ print(json.dumps(payload))
             payload["before"],
         )
         self.assertEqual(
-            {"ready": False, "start": False, "settings": "Hata", "error": "FPGA bağlantısı kurulamadı"},
+            {"ready": False, "start": False, "settings": "Hata", "error": "FPGA algılanmadı"},
             payload["failed"],
         )
         self.assertFalse(payload["header_present"])
+
+    def test_fixed_band_start_and_stop_share_one_stable_layout_slot(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+view_model.setSourceMode("hackrf")
+root.setProperty("sourcePanelOpen", True)
+root.setProperty("rfSearchMode", False)
+for _ in range(20): app.processEvents(); time.sleep(.005)
+slot = root.findChild(QObject, "liveSessionActionSlot")
+start = root.findChild(QObject, "liveStartButton")
+stop = root.findChild(QObject, "liveStopButton")
+settings = root.findChild(QObject, "liveDetectionSettingsButton")
+idle = {"slot_y": slot.property("y"), "settings_y": settings.property("y"),
+        "start_y": start.property("y"), "stop_y": stop.property("y"),
+        "start_visible": start.property("visible"), "stop_visible": stop.property("visible")}
+view_model._live_session = object()
+view_model._playing = True
+view_model.stateChanged.emit()
+for _ in range(20): app.processEvents(); time.sleep(.005)
+running = {"slot_y": slot.property("y"), "settings_y": settings.property("y"),
+           "start_y": start.property("y"), "stop_y": stop.property("y"),
+           "start_visible": start.property("visible"), "stop_visible": stop.property("visible")}
+view_model._live_session = None
+view_model._playing = False
+view_model.stateChanged.emit()
+app.processEvents()
+view_model.shutdown(); root.close()
+print(json.dumps({"idle": idle, "running": running}))
+"""
+        )
+        self.assertEqual(payload["idle"]["slot_y"], payload["running"]["slot_y"])
+        self.assertEqual(payload["idle"]["settings_y"], payload["running"]["settings_y"])
+        self.assertEqual(payload["idle"]["start_y"], payload["running"]["stop_y"])
+        self.assertTrue(payload["idle"]["start_visible"])
+        self.assertFalse(payload["idle"]["stop_visible"])
+        self.assertFalse(payload["running"]["start_visible"])
+        self.assertTrue(payload["running"]["stop_visible"])
+
+    def test_short_stream_error_explains_incomplete_data_without_claiming_disconnect(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+view_model._show_error("short_stream", "7/100 kare; usb transfer stopped")
+for _ in range(10): app.processEvents(); time.sleep(.005)
+error = root.findChild(QObject, "receiverError")
+text = root.findChild(QObject, "receiverErrorText")
+payload = {"title": view_model.errorTitle, "message": view_model.errorMessage,
+           "visible": error.property("visible"), "text": text.property("text")}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertEqual("Alıcı verisi eksik kaldı", payload["title"])
+        self.assertIn("beklenen veri tamamlanamadı", payload["message"])
+        self.assertIn("fiziksel olarak çıktığı anlamına gelmez", payload["message"])
+        self.assertIn("doğrudan bir USB porta", payload["message"])
+        self.assertTrue(payload["visible"])
+        self.assertEqual(payload["message"], payload["text"])
+
+    def test_receiver_disconnect_restores_system_check_action(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+view_model._hackrf_ready = True
+view_model._hackrf_transfer_executable = "hackrf_transfer"
+view_model._active_receiver_serial = view_model._device_config.serial
+view_model._source_state = "Hazır"
+view_model.stateChanged.emit()
+for _ in range(5): app.processEvents()
+button = root.findChild(QObject, "systemCheckButton")
+before = {"ready": view_model.hackrfReady, "visible": button.property("visible")}
+view_model._live_failed(
+    view_model._generation,
+    "binary_pipe_failed",
+    "HackRF ikili alım bağlantısı kurulamadı.",
+)
+for _ in range(5): app.processEvents()
+after = {"ready": view_model.hackrfReady, "visible": button.property("visible"),
+         "title": view_model.errorTitle, "message": view_model.errorMessage}
+payload = {"before": before, "after": after}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertEqual({"ready": True, "visible": False}, payload["before"])
+        self.assertEqual(
+            {
+                "ready": False,
+                "visible": True,
+                "title": "Alıcı bağlantısı koptu",
+                "message": "Alıcı HackRF USB modunda görünmüyor. Sistemi Denetle ile yeniden bağlanın.",
+            },
+            payload["after"],
+        )
+
+    def test_receiver_health_check_does_not_flicker_scan_actions(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setProperty("sourcePanelOpen", True)
+view_model._hackrf_ready = True
+view_model._hackrf_transfer_executable = "hackrf_transfer"
+view_model._active_receiver_serial = view_model._device_config.serial
+view_model._source_state = "Hazır"
+view_model.stateChanged.emit()
+for _ in range(5): app.processEvents()
+start = root.findChild(QObject, "liveStartButton")
+survey = root.findChild(QObject, "bandSurveyButton")
+before = {"start": start.property("enabled"), "survey": survey.property("enabled")}
+view_model._receiver_health_in_flight = True
+view_model.stateChanged.emit()
+for _ in range(5): app.processEvents()
+during = {"start": start.property("enabled"), "survey": survey.property("enabled")}
+payload = {"before": before, "during": during}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+"""
+        )
+        self.assertEqual({"start": True, "survey": True}, payload["before"])
+        self.assertEqual(payload["before"], payload["during"])
 
     def test_brand_logo_toggles_primary_task_navigation(self) -> None:
         payload = self.run_qml(
@@ -161,7 +581,7 @@ def find_item(item, name):
     return None
 button = find_item(root.contentItem(), "primaryMenuButton")
 navigation = root.findChild(QObject, "primaryNavigation")
-items = [find_item(root.contentItem(), "workspaceNavigation" + str(index)) for index in range(5)]
+items = [find_item(root.contentItem(), "workspaceNavigation" + str(index)) for index in range(4)]
 initial = {"open": root.property("navigationOpen"), "visible": navigation.property("visible"),
            "busy": view_model.busy, "playing": view_model.playing}
 assert QMetaObject.invokeMethod(button, "clicked")
@@ -183,7 +603,7 @@ print(json.dumps(payload))
         self.assertTrue(payload["opened"]["open"])
         self.assertTrue(payload["opened"]["visible"])
         self.assertGreater(payload["opened"]["width"], 70)
-        self.assertEqual([True] * 5, payload["opened"]["items"])
+        self.assertEqual([True] * 4, payload["opened"]["items"])
         self.assertFalse(payload["opened"]["busy"])
         self.assertFalse(payload["opened"]["playing"])
         self.assertFalse(payload["closed"]["open"])
@@ -264,24 +684,32 @@ print(json.dumps(payload))
 root = engine.rootObjects()[0]
 root.setProperty("sourcePanelOpen", True)
 view_model._source_state = "Hata"
-view_model._error_title = "Alıcı bağlı değil"
-view_model._error_message = "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin."
+view_model._error_title = "Alıcı algılanmadı"
+view_model._error_message = "Alıcı algılanmadı"
 view_model._status_message = view_model._error_message
-view_model.stateChanged.emit(); app.processEvents()
+view_model.stateChanged.emit()
+deadline = time.perf_counter() + .3
+while time.perf_counter() < deadline: app.processEvents(); time.sleep(.002)
 settings_badge = root.findChild(QObject, "receiverSettingsBadge")
+error_box = root.findChild(QObject, "receiverError")
+error_text = root.findChild(QObject, "receiverErrorText")
 payload = {"header_present": root.findChild(QObject, "receiverHeaderBadge") is not None,
-           "settings": settings_badge.property("state")}
+           "settings": settings_badge.property("state"), "error_visible":error_box.property("visible"),
+           "error_text":error_text.property("text")}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
         self.assertFalse(payload["header_present"])
         self.assertEqual("Hata", payload["settings"])
+        self.assertTrue(payload["error_visible"])
+        self.assertEqual("Alıcı algılanmadı", payload["error_text"])
 
-    def test_live_status_guards_detection_fields_when_list_is_empty(self) -> None:
+    def test_detection_ui_does_not_present_internal_ratio_as_a_parameter(self) -> None:
         source = QML.read_text(encoding="utf-8")
-        self.assertIn("readonly property var leadingDetection:", source)
-        self.assertIn('? "P/N " + (signalSummaryCard.leadingFpga !== null', source)
+        self.assertNotIn('"P/N "', source)
+        self.assertNotIn("FPGA gözlemi", source)
+        self.assertIn("ToolTip.text: modelData.verificationLabel", source)
 
     def test_rx_only_status_hides_the_inapplicable_measurement_action(self) -> None:
         payload = self.run_qml(
@@ -423,7 +851,7 @@ for _ in range(30): app.processEvents(); time.sleep(.005)
 button = root.findChild(QObject, "liveDetectionSettingsButton")
 button.clicked.emit()
 for _ in range(30): app.processEvents(); time.sleep(.005)
-fft = root.findChild(QObject, "detectionDisplayFFT")
+fft = root.findChild(QObject, "detectionFpgaFFT")
 changed = view_model.setDetectionSettings(8192, 32, 256, 16)
 rejected = not view_model.setDetectionSettings(65536, 32, 256, 16)
 payload = {"button": button is not None, "fft": fft is not None,
@@ -476,7 +904,7 @@ print(json.dumps(payload))
         self.assertEqual("24", payload["vga"])
         self.assertEqual([False, False, False], payload["enabled"])
 
-    def test_mhz_start_button_enables_managed_gain_and_focuses_detection_band(self) -> None:
+    def test_mhz_start_button_uses_manual_gain_and_starts_with_full_spectrum(self) -> None:
         payload = self.run_qml(
             """
 import sys
@@ -485,29 +913,43 @@ from test_live_ed_view_model import _Session
 seen = []
 class CaptureSettings(_Session):
     def run(self, snapshot_handler):
-        seen.append([self.configuration.output_center_frequency_hz, self.configuration.assess_receive_level])
+        seen.append([
+            self.configuration.output_center_frequency_hz,
+            self.configuration.lna_gain_db,
+            self.configuration.vga_gain_db,
+            self.configuration.startup_settling_frames,
+        ])
         return super().run(snapshot_handler)
 root = engine.rootObjects()[0]
 root.setProperty('rfSearchMode', False)
 view_model.setSourceMode('hackrf')
 view_model._hackrf_ready = True
 view_model._hackrf_transfer_executable = 'hackrf_transfer'
+view_model._active_receiver_serial = view_model._device_config.serial
 view_model._live_session_factory = CaptureSettings
 view_model.stateChanged.emit(); app.processEvents()
 root.findChild(QObject, 'liveCenterInput').setProperty('text', '933,125')
+root.setSpectrumView(.2, .8)
 app.processEvents()
+automatic_gain = root.findChild(QObject, 'liveAutomaticGain')
 root.findChild(QObject, 'liveStartButton').clicked.emit()
 deadline = time.perf_counter() + 3
 while view_model.busy and time.perf_counter() < deadline:
     app.processEvents(); time.sleep(.005)
-payload = {'seen': seen, 'start': root.property('spectrumViewStart'), 'end': root.property('spectrumViewEnd')}
+payload = {
+    'seen': seen,
+    'automatic_gain_present': automatic_gain is not None,
+    'start': root.property('spectrumViewStart'),
+    'end': root.property('spectrumViewEnd'),
+}
 view_model.shutdown(); root.close()
 print(json.dumps(payload))
 """
         )
-        self.assertEqual([[933125000, True]], payload['seen'])
-        self.assertAlmostEqual(.6, payload['start'])
-        self.assertAlmostEqual(.775, payload['end'])
+        self.assertEqual([[933125000, 16, 16, 8]], payload['seen'])
+        self.assertFalse(payload['automatic_gain_present'])
+        self.assertAlmostEqual(0.0, payload['start'])
+        self.assertAlmostEqual(1.0, payload['end'])
 
     def test_qml_product_loads_at_minimum_screen(self) -> None:
         payload = self.run_qml(
@@ -525,11 +967,11 @@ root.spectrumViewForward(); app.processEvents()
 forward=[root.property("spectrumViewStart"),root.property("spectrumViewEnd")]
 root.resetSpectrumView(); app.processEvents()
 workspaces=[]
-for index in range(4):
+for index in range(3):
     root.setProperty("workspace",index); app.processEvents(); workspaces.append(root.property("workspace"))
 root.setProperty("workspace",0); root.setProperty("spectrumTaskTab",1); app.processEvents()
 task_tab=root.property("spectrumTaskTab")
-root.setProperty("workspace",3)
+root.setProperty("workspace",2)
 for _ in range(3): app.processEvents()
 workspace_focus=app.focusObject().objectName() if app.focusObject() is not None else ""
 minimum_body_size=root.property("uiBodyTextSize")
@@ -542,21 +984,21 @@ print(json.dumps(payload, ensure_ascii=False))
         )
         self.assertGreaterEqual(payload["width"], 1180)
         self.assertGreaterEqual(payload["height"], 680)
-        self.assertEqual(3, payload["workspace"])
+        self.assertEqual(2, payload["workspace"])
         self.assertEqual([0.25, 0.75], payload["zoomed"])
         self.assertEqual([0.0, 1.0], payload["back"])
         self.assertEqual([0.25, 0.75], payload["forward"])
         self.assertEqual([0.0, 1.0], payload["reset"])
-        self.assertEqual([0, 1, 2, 3], payload["workspaces"])
+        self.assertEqual([0, 1, 2], payload["workspaces"])
         self.assertEqual(1, payload["task_tab"])
-        self.assertEqual("workspaceNavigation4", payload["workspace_focus"])
+        self.assertEqual("workspaceNavigation3", payload["workspace_focus"])
         self.assertEqual(10, payload["minimum_body_size"])
         self.assertEqual(11, payload["fullhd_body_size"])
         self.assertTrue(payload["measurement_scroll"])
         self.assertTrue(payload["detection_list"])
         self.assertTrue(payload["listening_scroll"])
-        self.assertTrue(payload["pipeline_list"])
-        self.assertTrue(payload["system_log"])
+        self.assertFalse(payload["pipeline_list"])
+        self.assertFalse(payload["system_log"])
 
     def test_frequency_survey_screen_defaults_to_full_range_without_claiming_capture(self) -> None:
         payload = self.run_qml(
@@ -575,7 +1017,8 @@ payload = {"visible":panel.property("visible"),
            "parameter_text":root.findChild(QObject,"surveyOpenParameters").property("text"),
            "monitor":root.findChild(QObject,"surveyMonitor").property("enabled"),
            "source_panel":root.findChild(QObject,"sourcePanel").property("visible"),
-           "coverage":view_model.survey.coverageText,"count":view_model.survey.observationModel.rowCount()}
+           "coverage":view_model.survey.coverageText,"receiver":view_model.survey.receiverText,
+           "count":view_model.survey.observationModel.rowCount()}
 view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
@@ -589,7 +1032,61 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertFalse(payload["monitor"])
         self.assertFalse(payload["source_panel"])
         self.assertEqual(0, payload["count"])
-        self.assertEqual("0 / 9999 pencere tarandı · 0 hata", payload["coverage"])
+        self.assertEqual("0 / 2400 pencere tarandı · 0 hata", payload["coverage"])
+        self.assertEqual("Hızlı tarama profili: RX 10 MS/s → FPGA/ARM · RF AMP/Bias-Tee kapalı", payload["receiver"])
+
+    def test_survey_parameter_action_immediately_shows_fixed_reacquisition(self) -> None:
+        payload = self.run_qml(
+            """
+from app.operator_console.rx_survey import SurveyConfig
+import threading
+from platforms.acquisition import AcquisitionError
+class BlockingSession:
+    def __init__(self, executable, configuration):
+        self.cancelled = threading.Event()
+    def cancel(self):
+        self.cancelled.set()
+    def run(self, snapshot_handler):
+        while not self.cancelled.wait(.01):
+            pass
+        raise AcquisitionError("operation_cancelled", "İptal edildi.")
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+view_model.setSourceMode("hackrf")
+view_model._hackrf_ready = True
+view_model._hackrf_transfer_executable = "hackrf_transfer"
+view_model._active_receiver_serial = view_model._device_config.serial
+view_model._live_session_factory = BlockingSession
+view_model.survey._config = SurveyConfig(1_000_000, 2_000_000, 16, 16)
+view_model.survey._rows = [{"eventId": "survey:31", "frequencyHz": 1_300_000.0}]
+view_model.survey._selected = "survey:31"
+view_model.survey.changed.emit()
+root.setProperty("rfSearchMode", True)
+for _ in range(5): app.processEvents()
+button = root.findChild(QObject, "surveyOpenParameters")
+enabled_before = button.property("enabled")
+button.clicked.emit()
+payload = {
+    "enabled_before": enabled_before,
+    "survey_mode": root.property("rfSearchMode"),
+    "survey_visible": root.findChild(QObject, "frequencySurveyView").property("visible"),
+    "receiver_rate": view_model._receiver_sample_rate_hz,
+    "status": view_model.statusMessage,
+    "live": view_model.liveSessionActive,
+}
+view_model.stop()
+for _ in range(10): app.processEvents(); time.sleep(.005)
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertTrue(payload["enabled_before"])
+        self.assertFalse(payload["survey_mode"])
+        self.assertFalse(payload["survey_visible"])
+        self.assertEqual(8_000_000, payload["receiver_rate"])
+        self.assertIn("parametre çıkarımı", payload["status"].lower())
+        self.assertIn("8 MS/s", payload["status"])
+        self.assertTrue(payload["live"])
 
     def test_rf_controls_share_centered_numeric_alignment_and_single_action(self) -> None:
         payload = self.run_qml(
@@ -809,6 +1306,11 @@ payload["detail_rows"] = panel.property("detailRows").toVariant()
 payload["validation_summary_visible"] = root.findChild(QObject, "parameterValidationSummary").property("visible")
 payload["catalog_visible"] = root.findChild(QObject, "automaticParameterCatalog").property("visible")
 payload["catalog_summary"] = view_model.parameterCatalogSummary
+catalog_toggle = root.findChild(QObject, "parameterCatalogToggle")
+payload["catalog_toggle_initial"] = catalog_toggle.property("text")
+QMetaObject.invokeMethod(catalog_toggle, "clicked", Qt.DirectConnection)
+app.processEvents()
+payload["catalog_toggle_open"] = catalog_toggle.property("text")
 payload["details_initially_visible"] = root.findChild(QObject, "parameterDetails").property("visible")
 QMetaObject.invokeMethod(root.findChild(QObject, "parameterDetailsToggle"), "clicked", Qt.DirectConnection)
 payload["details_hidden_after_click"] = not root.findChild(QObject, "parameterDetails").property("visible")
@@ -823,13 +1325,15 @@ print(json.dumps(payload,ensure_ascii=False))
         )
         self.assertEqual(4, len(payload["primary_rows"]))
         self.assertEqual(10, len(payload["detail_rows"]))
-        self.assertEqual("Emisyon merkez frekansı", payload["primary_rows"][0]["label"])
-        self.assertEqual("İşgal edilen bant genişliği (OBW %99)", payload["primary_rows"][1]["label"])
-        self.assertEqual("Kanal gücü (dBFS)", payload["primary_rows"][2]["label"])
-        self.assertEqual("Sinyal türü (PC, deneysel)", payload["primary_rows"][3]["label"])
+        self.assertEqual("Taşıyıcı Frekans", payload["primary_rows"][0]["label"])
+        self.assertEqual("Bant Genişliği", payload["primary_rows"][1]["label"])
+        self.assertEqual("Kanal Gücü (dBFS)", payload["primary_rows"][2]["label"])
+        self.assertEqual("Sinyal Türü", payload["primary_rows"][3]["label"])
         self.assertTrue(payload["validation_summary_visible"])
         self.assertTrue(payload["catalog_visible"])
-        self.assertIn("otomatik parametre", payload["catalog_summary"].lower())
+        self.assertTrue(payload["catalog_summary"])
+        self.assertEqual("Kayıtları Göster", payload["catalog_toggle_initial"])
+        self.assertEqual("Kayıtları Gizle", payload["catalog_toggle_open"])
         self.assertTrue(payload["details_initially_visible"])
         self.assertTrue(payload["details_hidden_after_click"])
         self.assertGreater(payload["measurement_info"]["durationMs"], 0)
@@ -980,8 +1484,8 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual(0.0, payload["playback_progress"])
         self.assertIn(payload["output_state"], {"Ses çıkışı hazır", "Ses çıkışı yok · WAV kullanılabilir"})
         rows = {row["label"]: row["value"] for row in payload["rows"]}
-        self.assertEqual("AM", rows["Demodülasyon"])
-        self.assertEqual("48 kHz · mono PCM16", rows["Ses çıkışı"])
+        self.assertEqual("AM", rows["Yayın türü"])
+        self.assertEqual("Net ses", rows["Ses profili"])
 
     def test_qml_has_keyboard_accessibility_and_no_future_source_controls(self) -> None:
         text = "\n".join(
@@ -995,8 +1499,7 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "workspaceNavigation" + index',
             'Accessible.role: Accessible.StaticText',
             'property int uiBodyTextSize: width >= 1600 ? 11 : 10',
-            "Bu filtreyle eşleşen olay yok",
-            "Alıcıyı Denetle",
+            "Sistemi Denetle",
             "Taramayı Başlat",
             "Taramayı Durdur",
             'title: "BÂZ"',
@@ -1006,12 +1509,10 @@ print(json.dumps(payload,ensure_ascii=False))
             "ALICI AYARLARI",
             "Taramayı başlatınca spektrum burada görünür",
             "Taramayı başlatınca spektrogram burada görünür",
-            "SİNYAL TESPİT EDİLDİ",
-            "SİNYAL KONTROL EDİLİYOR",
+            "Tespit edildi",
+            "Ek doğrulama sürüyor",
             "Artık alınmıyor",
-            "DAHA ÖNCE ALINAN SİNYALLER",
-            "FPGA gözlemi",
-            "operatorViewModel.errorTitle",
+            "operatorViewModel.errorMessage",
             "zoomSpectrum",
             "panSpectrum",
             "spectrumViewBack",
@@ -1041,17 +1542,27 @@ print(json.dumps(payload,ensure_ascii=False))
             "addNextClockwiseDirectionMeasurement",
             "SAAT YÖNÜNDE OTOMATİK ADIM",
             "BAĞIL TEPE YÖNÜ",
-            'objectName: "pipelineList"',
-            'objectName: "systemLog"',
-            "SALT OKUNUR",
-            "BİLEŞEN AYRINTISI",
-            "Salt okunur · komut çalıştırmaz",
             "Kanalı Hazırla",
             'objectName: "emptySpectrumMessage"',
             'objectName: "emptyDetectionMessage"',
             "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)
+
+        for removed in (
+            "operatorViewModel.receiverSummary",
+            "operatorViewModel.receiverRows",
+            "10 MS/s FPGA/ARM burst taraması",
+            "Frekansı bilinmeyen yayın için sırayla alım.",
+            "Hızlı tarama profili: RX 10 MS/s → FPGA/ARM",
+            "İlk tamamlanan pencerede süre dökümü gösterilecek.",
+            '"label": "Sistem"',
+            'sequence: "Ctrl+5"',
+            'objectName: "pipelineList"',
+            'objectName: "systemLog"',
+            "SİSTEM DURUMU",
+        ):
+            self.assertNotIn(removed, text)
         self.assertNotIn("Listeyi tut", text)
         self.assertNotIn("detectionHoldButton", text)
         for removed_direction_control in (

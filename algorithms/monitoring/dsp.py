@@ -21,6 +21,7 @@ MAX_AUDIO_SECONDS = 20
 MAX_AUDIO_SAMPLES = AUDIO_SAMPLE_RATE_HZ * MAX_AUDIO_SECONDS
 CHANNEL_TAPS = 129
 AUDIO_TAPS = 65
+AUDIO_RESAMPLE_TAPS = 257
 OBSERVATION_INTERVAL_SECONDS = 0.250
 
 
@@ -48,6 +49,26 @@ def _resample_linear(values: npt.NDArray[np.float64], input_rate: float) -> npt.
     source_time = np.arange(values.size, dtype=np.float64) / input_rate
     target_time = np.arange(count, dtype=np.float64) / AUDIO_SAMPLE_RATE_HZ
     return np.interp(target_time, source_time, values).astype(np.float64, copy=False)
+
+
+def _resample_voice(
+    values: npt.NDArray[np.float64], input_rate: float, cutoff_hz: float
+) -> npt.NDArray[np.float64]:
+    """Band-limit demodulated voice before conversion to the 48 kHz output rate."""
+    if input_rate <= AUDIO_SAMPLE_RATE_HZ:
+        return _resample_linear(values, input_rate)
+    cutoff = min(float(cutoff_hz), 0.45 * AUDIO_SAMPLE_RATE_HZ, 0.45 * input_rate)
+    kernel = _lowpass(cutoff, input_rate, AUDIO_RESAMPLE_TAPS)
+    guard = (AUDIO_RESAMPLE_TAPS - 1) // 2
+    padded = np.pad(values, (guard, guard), mode="edge")
+    filtered = np.convolve(padded, kernel, mode="valid")
+    return _resample_linear(filtered, input_rate)
+
+
+def _voice_cutoff_hz(config: AnalogMonitorConfig) -> float:
+    if config.mode == "nfm" and config.channel_bandwidth_hz <= 12_500.0:
+        return 2_550.0
+    return 3_000.0
 
 
 def nfm_deemphasis(values: npt.ArrayLike, time_constant_us: float) -> npt.NDArray[np.float64]:
@@ -166,8 +187,10 @@ class AnalogMonitor:
             products = filtered[1:] * np.conj(filtered[:-1])
             baseband = np.angle(products) * config.sample_rate_hz / (2.0 * np.pi)
         baseband = np.asarray(baseband - np.mean(baseband), dtype=np.float64)
-        audio = _resample_linear(baseband, config.sample_rate_hz)
-        audio_cutoff = min(15_000.0, max(3_000.0, config.channel_bandwidth_hz * 0.42), 0.45 * AUDIO_SAMPLE_RATE_HZ)
+        audio_cutoff = _voice_cutoff_hz(config)
+        audio = _resample_voice(baseband, config.sample_rate_hz, audio_cutoff)
+        if config.mode == "nfm":
+            audio = nfm_deemphasis(audio, config.nfm_deemphasis_us)
         audio_kernel = _lowpass(audio_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS)
         audio = np.convolve(audio, audio_kernel, mode="same")
         audio_guard = (AUDIO_TAPS - 1) // 2
@@ -183,6 +206,7 @@ class AnalogMonitor:
         readonly = _readonly(audio)
         return AnalogMonitorResult(
             mode=config.mode,
+            nfm_deemphasis_us=config.nfm_deemphasis_us,
             sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
             audio=readonly,
             pcm16=pcm,
@@ -287,13 +311,10 @@ class AnalogMonitor:
             observe(observation_pending)
         baseband = np.concatenate(baseband_parts)
         baseband -= float(np.mean(baseband))  # DC/audio offset removal, before resampling.
-        audio = _resample_linear(baseband, intermediate_rate)
+        audio_cutoff = _voice_cutoff_hz(config)
+        audio = _resample_voice(baseband, intermediate_rate, audio_cutoff)
         if config.mode == "nfm":
             audio = nfm_deemphasis(audio, config.nfm_deemphasis_us)
-        audio_cutoff = min(
-            2_550.0 if config.mode == "nfm" and config.channel_bandwidth_hz <= 12_500.0 else 3_000.0,
-            0.45 * AUDIO_SAMPLE_RATE_HZ,
-        )
         audio = np.convolve(audio, _lowpass(audio_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS), mode="same")
         # Discard the causal filter warm-up once, never at each capture block.
         audio = audio[AUDIO_TAPS - 1 :]
@@ -310,6 +331,7 @@ class AnalogMonitor:
         power = channel_power_sum / max(channel_power_count, 1)
         return AnalogMonitorResult(
             mode=config.mode,
+            nfm_deemphasis_us=config.nfm_deemphasis_us,
             sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
             audio=readonly,
             pcm16=pcm,

@@ -73,6 +73,7 @@ class AutomaticParameterScheduler:
         self._draining_intent: int | None = None
         self._pending_outcomes: list[AutomaticParameterOutcome] = []
         self._next_intent_id = 1
+        self._expired_before_measurement_count = 0
 
     @property
     def completed_event_count(self) -> int:
@@ -81,6 +82,11 @@ class AutomaticParameterScheduler:
     @property
     def active_event_id(self) -> int | None:
         return self._active.event_id if self._active is not None else None
+
+    @property
+    def expired_before_measurement_count(self) -> int:
+        """Confirmed events that ended without ever becoming a measurement."""
+        return self._expired_before_measurement_count
 
     def _frequency(self, event: object) -> float:
         return self._center_frequency_hz + (
@@ -114,12 +120,11 @@ class AutomaticParameterScheduler:
             event_id = int(getattr(event, "event_id", 0))
             if event_id <= 0 or event_id in self._completed or event_id == active_event_id:
                 continue
-            self._skip(
-                event,
-                int(getattr(event, "start_shifted_bin")),
-                int(getattr(event, "end_shifted_bin")),
-                "event_ended_before_measurement",
-            )
+            # An event that never received a parameter intent is queue telemetry,
+            # not a measurement outcome. Publishing every short-lived detector
+            # event can flood the GUI/catalog under a strong modulated signal.
+            self._completed.add(event_id)
+            self._expired_before_measurement_count += 1
 
     def _skip(self, event: object, lower: int, upper: int, reason: str) -> None:
         event_id = int(getattr(event, "event_id"))

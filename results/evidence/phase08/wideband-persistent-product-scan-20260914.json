@@ -1,0 +1,136 @@
+{
+  "schema": "phase08-wideband-persistent-product-scan-v1",
+  "recorded_at_utc": "2026-09-14T07:55:00.248761+00:00",
+  "receiver_serial": "0000000000000000a32868dc36877e47",
+  "tool_inventory": {
+    "tools": [
+      {
+        "name": "hackrf_info",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_info.EXE"
+      },
+      {
+        "name": "hackrf_transfer",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [
+          "-B",
+          "-C",
+          "-F",
+          "-H",
+          "-R",
+          "-a",
+          "-b",
+          "-c",
+          "-d",
+          "-f",
+          "-g",
+          "-h",
+          "-i",
+          "-l",
+          "-m",
+          "-n",
+          "-o",
+          "-p",
+          "-r",
+          "-s",
+          "-t",
+          "-w",
+          "-x"
+        ],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_transfer.EXE"
+      },
+      {
+        "name": "hackrf_sweep",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [
+          "-B",
+          "-I",
+          "-N",
+          "-P",
+          "-W",
+          "-a",
+          "-d",
+          "-f",
+          "-g",
+          "-h",
+          "-l",
+          "-n",
+          "-p",
+          "-r",
+          "-w"
+        ],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_sweep.EXE"
+      }
+    ]
+  },
+  "device_status": {
+    "state": "ONE_DEVICE",
+    "device_count": 1,
+    "reason_code": null,
+    "devices": [
+      {
+        "serial": "0000000000000000a32868dc36877e47",
+        "board_id": "4 (HackRF One)",
+        "firmware_version": "v2.4.0 (API:1.11)",
+        "part_id": "0xa000cb3c 0xbc61474b"
+      }
+    ]
+  },
+  "bridge_capabilities": {
+    "inline_parameter_observation": true,
+    "maximum_parameter_span_bins": 512,
+    "parameter_contexts": 1,
+    "wideband_burst": true
+  },
+  "configuration": {
+    "lower_hz": 800000000,
+    "upper_hz": 840000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "frames_per_window": 256,
+    "guard_frames": 8,
+    "operator_condition": "unspecified",
+    "mode": "wideband_burst"
+  },
+  "source_sha256": {
+    "config/p0/hackrf_ed_rx.json": "f4457a1c4d4b1aabfd57fdb952eabb452979a848eb001e3cfeeac0f72bc9dd44",
+    "app/operator_console/quick_scan_actions.py": "6331484b1121ffd93e7cfa26dcd15af03a326f552608879c95c4a232721a0d9a",
+    "app/operator_console/qml/RxSurveyView.qml": "84d49aa579f50b5721779e2c23b35146a690269ce3b2f68bf4c287bbf32abd90",
+    "app/operator_console/rx_survey.py": "4c8c8f7dec5f8fd360274c85e623a6f6ce670be5f7b62067c05b61b3d150cbac",
+    "app/operator_console/live_ed.py": "d07d1f39c5aecba4e5794cc675305a65ece8e503acccc9a9650a06c9f2e57123",
+    "algorithms/p0/direct_frame.py": "440656eca50bd2edd328df16217a445b5c52f6f680e604db009f89278beda2ea",
+    "algorithms/p0/transport.py": "bf2ff52e62f272e9a659fc7a47987b8c3f28ee354e0ab26f8ad9d80483d293ed",
+    "platforms/acquisition/continuous.py": "ff8d05b1be32104b92948e8018ce6c0f87e98f0e02c5ebb47bbc445f460ff579",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "56513909e4f292fc64384807e80d8a06f7dc1bea190ec4a71c9fbf252db7ac3f"
+  },
+  "result": {
+    "state": "completed",
+    "total_windows": 16,
+    "completed_windows": 16,
+    "failed_windows": 0,
+    "elapsed_seconds": 12.327838899975177,
+    "audit_path": "results/evidence/phase08/wideband-persistent-product-scan-20260914.jsonl",
+    "error_code": ""
+  },
+  "wall_elapsed_seconds": 12.332016700005624,
+  "aggregate": {
+    "completed_windows": 16,
+    "screened_observations": 14,
+    "verified_observations": 4,
+    "verified_frequencies_hz": [
+      799999994.3339844,
+      815999994.5304487,
+      819994708.6796875,
+      819994318.0644531
+    ],
+    "usb_overruns_total": 0,
+    "crc_errors_total": 0,
+    "sequence_errors_total": 0,
+    "queue_drops_total": 0
+  },
+  "status": "passed"
+}

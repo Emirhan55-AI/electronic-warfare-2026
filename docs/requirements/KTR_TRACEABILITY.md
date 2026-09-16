@@ -1,5 +1,418 @@
 # KTR Gereksinim İzlenebilirliği
 
+## APP-F Sistem çalışma alanı kaldırma kaydı — 16 Eylül 2026
+
+Kullanıcı kararıyla `Sistem` görev girişi, `Ctrl+5` kısayolu, işlem zinciri
+denetçisi ve arayüz olay günlüğü ürün yüzeyinden kaldırıldı. KTR-4.1-OPS-B0
+kapsamındaki HackRF/FPGA bağlantı denetimi `Sistemi Denetle` eyleminde korunur.
+Değişiklik yalnız sunum kapsamındadır; DSP/RTL/ARM işleyişi, kanıt kayıtları ve
+PHASE-08/ST-06 kabul kapısı değişmez.
+
+## Durdurulan tam bant turu — 16 Eylül 2026
+
+Kullanıcı isteğiyle 1–6000 MHz turu 1963/2400 pencerede durduruldu; tamamlanan
+kapsam 1–4908,5 MHz, liste 161 geçmiş gözlemdir. 60 kayıt 40 MHz katlarına
+±10 kHz yakındır; bu ortak kaynak şüphesidir, kesin parazit/verici sayısı
+sınıflaması değildir. İki kare sayacı ve sekiz geniş/dar eşleşme incelemesi
+açıktır. İki kazanç ve bir USB taşma tekrarı vardır; başarısız kalan pencere
+sayısı sıfırdır. Son tekrar kontrolü yapılmadı. Özgün kayıt, hash ve ayrıntılar
+`output/rx-wideband-20260916/RAPOR.md` içindedir. KTR-4.1 / KTR-4.1-OPS-B0,
+PHASE-08/ST-06 fiziksel kabulü açık kalır; yeni faz açılmadı.
+
+## Tam bant taraması ve liste gözlemi — 16 Eylül 2026
+
+KTR-4.1 / KTR-4.1-OPS-B0 kapsamında canlı tam bant taraması başlatıldı.
+Kaynak sunumu, listeyi yeni kayıtta başa döndürmez; geçmiş/kayıt sayısını
+gösterir. Ham kanıt korunur. Sayaç taşması ve geniş adayın dar ikinci ayarla
+eşleşmesi kabulü açık tutar. İlk gözlem raporu
+`output/rx-wideband-20260916/RAPOR.md` içindedir.
+
+PHASE-08/ST-06 açık; bu kayıt yeni fiziksel kabul oluşturmaz.
+
+## Kullanıcı mesajları ve bölümleme — 16 Eylül 2026
+
+`RxSurveyView.qml`, `SİNYAL TESPİTİ` başlığı altında üç kullanıcı bölümü sunar:
+`Tekrar doğrulanan adaylar`, `Tekrar ölçülmesi gerekenler`, `Alıcı etkisi
+olabilecekler`. Kayıt özeti, `Tarama geçmişi` ve grup açıklamaları kaldırılarak
+dikey alan aday listesine bırakılmıştır. Aday satırları operatöre önce inceleme,
+yeniden ölçme veya yayın olarak kabul etmeme kararını verir. Aralığı ölçülen her kayıt aynı
+`Tespit aralığı` satırını taşır; 1 kHz'den dar çizgiler kenarları ayırmak için dört
+ondalık MHz ile biçimlenir. Teknik yöntem ayrıntısı üzerine gelme açıklamasında
+kalır. Gerçek QML ve sunum regresyonu geçmiştir; bölümleme
+fiziksel kabul kapısını değiştirmez.
+
+Liste güven ile seviyeyi ayrı taşır. Farklı alıcı ayarında yeniden görülme
+güven bölümünü belirler; bölüm içi sıra, kalibre edilmiş güç iddiası kurmadan
+ölçülen tepe/gürültü farkını kullanır. Zayıf veya farkı hesaplanamayan kayıtlar
+korunur. Üç farklı dar 40 MHz-kat çizgisi alıcı etkisi şüphesi için yeterlidir;
+satırlar silinmez ve kullanıcıya yayın kabul etmeme yönlendirmesi gösterilir.
+1750–1950 MHz kayıt örneği ile sunum, sıralama, kayıt koruma ve QML regresyon
+gruplarında 95 test geçmiştir. Bu değişiklik PHASE-08/ST-06 fiziksel kabulünü
+kapatmaz.
+
+## KTR-4.2 otomatik parametre kataloğu sunumu — 16 Eylül 2026
+
+`KAYITLAR` bölümü dört karelik PL/ARM sonuçlarını kalıcı SQLite kaydında tutar;
+seçili sinyalin `Parametre Çıkar` sonucu ayrı ölçüm kaydına yazılır.
+QML kartı listeyi varsayılan olarak kapalı gösterir; `Kayıtları Göster` ile ilk sekiz kayıt
+görünür ve CSV dışa aktarma tüm kayıtları içerir. `Parametre Çıkar` mevcut
+analiz aralığını onaylayarak ölçümü başlatır. Yenileme, CSV dışa aktarma ve
+kayıt klasörünü açma sonucunun başarı veya hata mesajı panelde görünür ve
+operasyon günlüğüne yazılır. Katalog satırları frekans, OBW, dBFS, SNR, alıcı
+bağı ve kalite durumunu taşır; geçerli profil yoksa dBm `Kalibre değil` kalır.
+Kart başlığında yalnız kayıt sayısı ve işlemler gösterilir. Ana sonuç alanları
+taşıyıcı frekans, bant genişliği, dBFS kanal gücü ve sinyal türüdür. Sinyal
+türü satırındaki `PC, deneysel` arayüz eki, OBW açıklaması ve parametre düğmesi
+altındaki canlı kare sayacı ana sunumdan kaldırılmıştır; deneysel PC
+sınıflandırıcısı kayıt ve teknik izlenebilirlikte belirtilmeye devam eder.
+Bu sunum değişikliği fiziksel parametre doğruluğu kabulü oluşturmaz.
+
+## KTR-4.1 / KTR-4.1-OPS-B0 — 16 Eylül 2026
+
+Tarama bitişindeki otomatik yeniden kontrol ayrı `Son Kontrolü Durdur` eylemi
+olarak sunulur. Sabit ve bant taraması listeleri canlı güncellemede ilk görülme
+sırasını ve sabit kart yüksekliğini korur; nihai aile sınıflaması ile güç/fark
+sıralaması tur sonunda bir kez uygulanır. Parametre→Dinleme devri sırasında iki-LO doğrulaması beş
+saniyelik ses tamponunu kesmez. OBW zamansal kararsızlığı eşik gevşetmeden
+`TEKRAR ÖLÇÜLMELİ` ve eyleme dönük açıklamayla gösterilir. QML, keyed model,
+canlı devir ve sunum regresyonları bu bağları denetler; fiziksel kabul durumu
+değişmez.
+
+KTR-4.3 dinleme kartındaki süre, ardışık I/Q tamponunun gerçek doluluğuna
+bağlandı. Hedef kanal doğrulamasındaki kısa kayıp artık veri sayacını görsel
+olarak sıfırlamaz; beş saniyelik veri hazır olduğunda sinyal sürekliliği
+`sinyal hazır`, `hedef sinyal kesiliyor` veya çoklu aday açıklamasıyla ayrı
+sunulur. Dinleme için mevcut FPGA süreklilik kapısı gevşetilmemiştir.
+
+`RxSurveyView.qml` frekans etiketlerini gerçek spektrum merkezi ve hızına bağlar.
+`Main.qml` tespit ile ek doğrulamayı ayrı sunar; `fixedVerificationActive`
+yalnız çalışan doğrulama bağlamından türetilir. Gerçek QML regresyonu 10 ve
+2 MS/s eksenlerini, boş/kuyruk/aktif doğrulama ayrımını ve tespit ekranındaki
+özet kartının gizliliğini sınar. Aday aralığı `Tespit aralığı` olarak gösterilir.
+16 Eylül yerel RF gözlemi eski çalışan süreç kapsamındadır; yeni kaynağa kabul
+aktarılmaz. Kanıt sınırları `docs/interfaces/SIGNAL_DETECTION_STATUS.md` içindedir.
+
+## KTR-4.3 analog dinleme ses yolu — 16 Eylül 2026
+
+AM/NFM demodülasyonu gerçek seçili I/Q üzerinde çalışır. Analog konuşma kanal
+sözleşmesi 2–25 kHz, parametre kaynaklı öneri 6–25 kHz ile sınırlandı. NFM
+varsayılanı de-emphasis uygulamayan `Net ses`; 750 µs yalnız isteğe bağlı
+eşleşen telsiz profilidir. 48 kHz'e örnek azaltmadan önce 257 tap konuşma
+alçak geçiren süzgeci yüksek frekanslı NFM ayrıştırıcı gürültüsünün ses bandına
+katlanmasını bastırır. Arayüz temel ayarlara ve altı sonuç satırına indirildi;
+dalga biçimi ile seviye/frekans kararlılığı korunur. Sentetik AM/NFM, 20 dB,
+blok sürekliliği, profil ve alias reddi testleri izlenebilirliği sağlar. Yeni
+kaynakla gerçek telsiz konuşması denenmedi; KTR-4.3 fiziksel kabulü açıktır.
+
+## KTR-4.1-OPS-B0 tespit ayarlarının görev ayrımı — 15 Eylül 2026
+
+`HackRFControls.qml` sabit frekans LNA/VGA/AMP seçimlerini tek doğrudan alıcı
+grubunda, `RxSurveyView.qml` tarama AMP seçimini kendi alıcı satırında sunar.
+`DetectionSettings.qml` yalnız FPGA FFT ile normal/zayıf CFAR eşiklerini ve
+ayrı tarama modunda pencere gözlem ayarlarını taşır. NFM ses düzeltmesi
+`Main.qml` Dinleme görevine taşınmış; salt görüntü FFT/yenileme/seviye/tepe-tut
+kontrolleri ürün yüzeyinden çıkarılmıştır. `test_app_f_quick_product.py` gerçek
+QML nesne ayrımını, `Ayarlar` başlığını, AMP/ses seçimini, CFAR sınırlarını ve sade pencereyi
+doğrular. İlgili iki ayrı regresyon sürecinde 136 + 61 test geçti. DSP, kart
+profil protokolü ve fiziksel kabul durumu değişmemiştir.
+
+Son sadeleştirmede iki sabit yönlendirme satırı kaldırılmış, görünür `FPGA FFT`
+etiketi `FFT` yapılmış ve `Karttan Oku` / `Varsayılana Dön` / `Uygula`
+düğmeleri eşitlenmiştir. Alternatif CFAR eşik profili için fiziksel doğrulama
+olmadığından katsayılar sınırlı elle giriş ve tam kart geri okuması olarak
+korunur. AMP iki durumlu RF yükselteci olduğundan dB değeri gibi sunulmaz;
+Sade `AMP` etiketi ve ortalı açık/kapalı seçim kullanılır. Gerçek QML denetimi bu
+metin, boyut ve hizalama sözleşmesini doğrular; ilgili QML/kart profili/canlı
+görünüm modeli regresyonunda 123 test geçmiştir.
+
+Alanlar iki sütunlu forma hizalanmıştır. CFAR değerleri iki ondalıkla sunulurken
+değiştirilmemiş alanın tam kart geri okuması korunur. QML testi biçimlendirmeyi,
+ortak etiket/kutu başlangıçlarını ve tam değeri seçen uygulama dalını denetler.
+
+Bant taraması görünür alıcı etiketleri `LNA (dB)` / `VGA (dB)` / `AMP` olarak
+sadeleştirilmiş; teknik 10 MS/s süre metni kaldırılmıştır. `Gözlem (kare)` ve
+`Yerleşme (kare)` doğrudan tespit penceresini etkilediği için korunur. Gerçek
+QML testi metinlerin varlık/yokluk sözleşmesini ve sade pencereyi doğrular.
+
+Tarama adayından parametre görevine geçişte `RxSurveyView.qml` önce sabit frekans
+yeniden alım görünümünü açar; `quick_scan_actions.py` seçilen adayı 8 MS/s RX ile
+yeniden doğruladığını bildirir. Başlatma durum yarışı nedeniyle reddedilirse
+korunmuş tarama görünümüne dönülür. Canlı aday ölçüme hazır olduğunda mevcut
+`surveyParameterReady` bağı Parametre sekmesini açar. QML ve görünüm modeli
+testleri görünüm geçişini, 8 MS/s alıcı yapılandırmasını ve hazır sinyal seçimini
+doğrular.
+
+`quick_view_model.py`, etkin FFT 8192/16384 iken 4096 varsayılanına dönüşün
+kontrollü kart yeniden başlatması istediğini ve bunun tam güç kesmeli cold-start
+kabul koşusu olmadığını kullanıcıya bildirir. Kart profili veya güvenli küçültme
+reddi değiştirilmemiştir; `test_card_detection_settings.py` bu ayrımı doğrular.
+
+`quick_runtime.py`, 8192/16384 FPGA FFT'nin daha uzun ham önizlemesini sabit
+16.384 kompleks örnekli görüntü/kaba aday penceresine gerçek bitişik örneklerle
+sınırlar. FPGA tespit karesi veya güç hesabı değiştirilmez.
+`test_detection_settings.py` iki büyük FFT profilinde çıktı uzunluğunu ve kaba
+aday yolunu; `test_live_ed_view_model.py` kullanıcı hata metnini doğrular.
+Kartın son geri okuması FFT 8192'dir; 4096 seçiminin uygulanması kontrollü kart
+yeniden başlatması gerektirir. Güncel kaynakla fiziksel tekrar açık kalır.
+
+Kontrollü yeniden başlatma sonrasında kartın kuşak 1 / FFT 4096 profiliyle açık
+uygulamadaki eski 8192 önbelleği ayrışabildiği için `quick_view_model.py`, şüpheli
+küçültme uygulamasından önce güncel kart profilini tekrar okur ve ayarı güncel
+kuşağa bağlar. `test_card_detection_settings.py` eski 8192 önbelleğiyle tek
+tıklamada 4096 uzlaşmasını doğrular. `transport.py` yapısal olarak geçerli kart
+başlığındaki sıfır dışı hizmet durumunu ayrı hata koduna çevirir;
+`test_p0_transport.py` DMA hatasının `local_response_header` olmadığını denetler.
+
+`Main.qml` ve `RxSurveyView.qml`, kalibre edilmemiş bağıl P/N ile FPGA gözlem
+sayısını kullanıcı üzerine-gelme metninde parametre gibi sunmaz. İç model bu
+değerleri tespit sürekliliği ve sıralaması için korur. QML regresyonu sayısal
+P/N sunumunun bulunmadığını doğrular; mutlak dBm yalnız geçerli kalibrasyonlu
+parametre ölçüm sözleşmesindedir.
+
+## KTR-4.1 / KTR-4.2 alıcı ayarları ve ölçüm bağlamı — 15 Eylül 2026
+
+`LiveEDConfiguration.rf_amplifier` ve `SurveyConfig.rf_amplifier`, sabit alım,
+geniş bant ve bağımsız aday doğrulamalarına aynı AMP seçimini taşır. Tarama
+referans anahtarı AMP'yi içerir. `parameter_catalog.py` AMP durumunu kalibrasyon
+eşlemesine ve kayıt ayrıntılarına bağlar; kapalı profili açık alıma uygulanmaz.
+Testler: `test_live_ed_view_model.py`, `test_rx_survey.py`,
+`test_fixed_band_verification.py`, `test_parameter_catalog.py`.
+
+`DetectionSettings.qml` CFAR giriş sınırlarını ve birbirinden bağımsız alıcı/ses
+taslaklarını denetler. `test_app_f_quick_product.py` gerçek QML'de katlanma,
+virgüllü giriş ve geçersiz katsayı engelini sınar.
+Alan yardımları ve görüntü değişiminde alıcı/ses taslaklarının korunması aynı
+QML testinde denetlenir. Operatör başlangıç/değişim tablosu
+`DETECTION_TUNING_AND_SOURCE_GUIDE.md` içindedir.
+Mevcut dinleme yolunda `nfm_deemphasis_us` kısa ve sürekli işleme sonucuna bağlıdır;
+`test_phase05_monitoring.py` aynı seçimin iki yoldaki etkisini doğrular.
+Bu kayıt kaynak/sentetik kapsamındadır; RF doğruluğu, PHASE-08/ST-06 veya
+parametre fiziksel kabulünü tamamlamaz.
+
+## KTR-4.1 örnekleme hızı sunumu — 15 Eylül 2026
+
+`quick_scan_actions.py`, fiziksel alıcı hızını oturum RX yapılandırmasından veya
+tarama profilinin aynı alım sabitlerinden alır. `quick_view_model.py` bunu
+`ÖRNEKLEME HIZI` altında tek değerle gösterir; hesaplamaların `sampleRateHz`
+işleme anlamı korunur. `tests/test_live_ed_view_model.py` sabit izleme 8 MS/s,
+bant taraması 10 MS/s ve 2 MS/s işleme ayrımını doğrular. Kaynak/ölçüm
+performans değerlendirmesi mimari belgesindedir; fiziksel kabul artışı yoktur.
+
+## KTR-4.1 sağlık denetimi ve tarama eylemi yarışı — 15 Eylül 2026
+
+`quick_scan_actions.py`, kısa alıcı sağlık denetimiyle çakışan sabit/bant tarama
+isteğini 50 ms aralıklarla denetim sonuna taşır. `HackRFControls.qml` sağlık
+işçisinin iç durumunu düğme stiline bağlamaz. Kaynak regresyonunda 81 test;
+düğme kararlılığı ve bağlantı kaybı için iki odaklı gerçek QML testi geçti.
+
+## KTR-4.1 alıcı USB bağlantı kaybı — 15 Eylül 2026
+
+`quick_view_model.py`, hazır ve boşta olan etkin tam HackRF seri kimliğini ayrı
+işçi havuzunda periyodik denetler. Kimlik kaybolduğunda etkin seri, RX aracı ve
+spur profili temizlenir; `hackrfReady=false` ile tarama kapanır.
+`quick_runtime.py`, tarama başlangıcındaki `binary_pipe_failed` kodunu
+`Alıcı bağlantısı koptu` ve `Sistemi Denetle` yönlendirmesine eşler.
+`tests/test_live_ed_view_model.py` boşta kaybı ve ikili boru hatasını;
+`tests/test_app_f_quick_product.py` gerçek QML'de sistem denetimi düğmesinin geri
+gelmesini doğrular. İlgili tam koşular 79 ve 34 test geçti. Fiziksel tak-çıkar
+tekrarı yapılmadığından KTR-4.1/ST-06 kabulü açık kalır.
+
+## KTR-4.1 PortaPack USB hazırlığı ve veri hızı sunumu — 15 Eylül 2026
+
+`quick_view_model.py`, görünür kayıtlı alıcıları rol önceliğiyle seçer:
+`ED_RX_PRIMARY …36877e47`, yoksa `ED_RX_SECONDARY …35138247`. Seçilen tam seri
+`quick_scan_actions.py` ve `quick_detection_state.py` üzerinden sabit frekans,
+bant taraması, bağımsız aday doğrulama, dinleme ve yön ölçümüne taşınır; seri
+değişiminde bilinen-spur profili de değişir. İki cihaz varsa birincil seçilir,
+yapılandırılmamış cihaz kabul edilmez ve COM numarası kullanılmaz.
+`tests/test_live_ed_view_model.py` yalnız ikincil bağlı fallback'i, iki cihazda
+birincil önceliğini ve sabit/bant yollarına seri aktarımını doğrular. İlgili tam
+regresyonlarda 76 görünüm-modeli, 33 QML ürün ve yedi HackRF arka uç testi geçti.
+İkincil alıcıyla fiziksel tekrar yapılmadı; kabul kapısı açık kalır.
+
+`platforms/acquisition/portapack.py`, yalnız PortaPack Mayhem USB-seri
+`VID 1D50 / PID 6018` kimliği tekil bulunduğunda `hackrf` komutunu gönderir.
+`quick_view_model.py`, bunu yalnız FPGA hizmeti hazır ve yapılandırılmış HackRF
+henüz görünür değilken çalıştırır; yeniden bağlanan cihazı `ED_RX_PRIMARY` seri
+numarasıyla doğrular. `tests/test_portapack_mode.py` yanlış/eksik/çoklu port ve
+eksik yazma sınırlarını; `tests/test_live_ed_view_model.py` FPGA kapısını,
+yeniden keşfi ve `8 MS/s → 2 MS/s` sunumunu doğrular. Gerçek QML kaynak sözleşmesi
+`tests/test_app_f_quick_product.py`, ürün bağımlılığı
+`tests/test_operator_product_boundary.py` ile izlenir. İlk fiziksel yeniden
+bağlanmama sonrasında seri komut teslimine port temizleme ve 500 ms tüketme
+aralığı eklendi; yedi regresyon geçti. Tek fiziksel koşuda `1D50:6018` CDC
+aygıtı `1D50:6089` HackRF olarak yeniden bağlandı ve `…36877e47` seri numarası
+doğrulandı. Hash bağlı kayıt
+`results/evidence/phase08/portapack-usb-handoff-20260915.json` içindedir.
+Tekrarlı gerçek QML düğmesi kabulü yapılmadığından KTR-4.1/ST-06 açık kalır.
+
+## KTR-4.1 FPGA tespit kapasitesi tanısı — 15 Eylül 2026
+
+`live_ed.py`, `dropped_candidates != 0` olduğunda kare, ham aday, etkin olay ve
+alınamayan aday sayılarını kontrollü `candidate_drop` ayrıntısına yazar.
+`quick_runtime.py` bunu `FPGA tespit kapasitesi aşıldı` başlığıyla sunar;
+`quick_view_model.py` bu veri-kapasitesi hatasını bağlantı hazırlığını iptal
+eden hata kümesinden ayırır. `tests/test_live_ed_session.py` sayısal tanıyı,
+`tests/test_live_ed_view_model.py` hata sonrasında donanımın hazır kaldığını,
+`tests/test_rx_survey.py` kapasite kaybının başarıya veya otomatik kazanç
+değişimine çevrilmediğini doğrular.
+
+## KTR-4.1 normal spektrum başlangıcı — 15 Eylül 2026
+
+`HackRFControls.qml`, sabit frekans başlatmasında
+`clearSpectrumViewHistory()` çağırır; alım ayarı ve kaynak durumu sinyalleri
+tespit bandına otomatik `setSpectrumView()` uygulamaz. Gerçek QML regresyonu
+`tests/test_app_f_quick_product.py` içinde önceden dar görünümü kurar ve
+başlatmadan sonra tam `0..1` görünümü doğrular. Tespit bandı kılavuzu ve FPGA
+işleme aralığı değişmemiştir.
+
+## KTR-4.1 eksik canlı akış tanıları — 15 Eylül 2026
+
+`platforms/acquisition/continuous.py`, erken EOF'ta alınan/beklenen kare
+sayısını, `hackrf_transfer` dönüş kodunu ve son stderr tanısını koruyarak ham
+alım `short_stream` kodunu üretir. `live_ed.py`, hata bildirmeden biten PC
+zincirini `live_pipeline_short_stream`, eksik FPGA alışverişini
+`fpga_short_stream` olarak ayırır. `quick_runtime.py` her kodu ayrı Türkçe
+başlık ve kurtarma mesajına eşler. `tests/test_hackrf_continuous.py` alt süreç
+tanısını; `tests/test_live_ed_session.py` FPGA/USB ayrımını;
+`tests/test_app_f_quick_product.py` gerçek QML mesajını doğrular. Eksik kareli
+oturum fail-closed kalır.
+
+## KTR-4.1 sabit tarama eylemi yerleşimi — 15 Eylül 2026
+
+`app/operator_console/qml/HackRFControls.qml`, `Taramayı Başlat` ve
+`Taramayı Durdur` eylemlerini aynı `liveSessionActionSlot` içinde tutar.
+`tests/test_app_f_quick_product.py` gerçek QML üzerinde boşta/çalışıyor durum
+geçişini kurar; eylem yuvası ve ayarlar düğmesinin düşey konumlarının aynı
+kaldığını, doğru eylemin görünür olduğunu doğrular. İşlev ve fiziksel kabul
+sözleşmesi değişmemiştir.
+
+## KTR-4.1 başlangıç kırpılma ayrımı — 15 Eylül 2026
+
+`LiveEDConfiguration.startup_settling_frames`, sunulan karelerden ayrı ve
+0–64 arasında sınırlı bir ham alım başlangıcı tanımlar. Operatör ürün yolları
+sekiz kare kullanır. `LiveEDSession`, bu karelerle kanal seçiciyi hazırlar,
+giriş/çıkış tam ölçek sayaçlarını `last_diagnostics` içinde ayrı tutar ve
+FPGA'ya yalnız sıfırdan başlayan ölçüm karelerini gönderir. Alım süreci için
+`MAX_CAPTURE_FRAMES`, 30 dakikalık `MAX_STREAM_FRAMES` üzerine yalnız 64
+karelik kesin yerleşme payı ekler.
+
+`tests/test_live_ed_session.py` başlangıçta kırpılmış/sonrasında temiz akışın
+geçtiğini, FPGA'ya istenen sayıda ve `0..N-1` sıralı kare gittiğini; yerleşme
+sonrası kırpılmanın yine `iq_saturation` ile durduğunu doğrular.
+`tests/test_app_f_quick_product.py` gerçek QML başlatmasının sekiz karelik
+ürün ayarını kullandığını, `tests/test_hackrf_continuous.py` genişletilmiş iç
+alım üst sınırının hâlâ fail-closed olduğunu sınar. Fiziksel tekrar yapılmadı;
+KTR-4.1/ST-06 kabulü açık kalır.
+
+## KTR-4.1 sistem denetimi metinleri — 15 Eylül 2026
+
+`HackRFControls.qml` ve `RxSurveyView.qml` ortak donanım denetimini `Sistemi
+Denetle` etiketiyle sunar. `quick_runtime.py`, eşzamanlı HackRF/FPGA yokluğunu
+başlık ve açıklamada `FPGA ve Alıcı algılanamadı` olarak eşler. Gerçek QML metin
+sözleşmesi `tests/test_app_f_quick_product.py`, birleşik hata davranışı
+`tests/test_live_ed_view_model.py` ile doğrulanır. `tests/test_live_ed_session.py`
+I/Q kırpılmasının `iq_saturation` ile fail-closed kaldığını sınar.
+
+## KTR-4.1 elle alıcı kazancı — 15 Eylül 2026
+
+`app/operator_console/qml/HackRFControls.qml` LNA/VGA seçimlerini doğrudan
+`startLiveEDSession` çağrısına aktarır; AMP aynı alıcı kartında seçilir ve ortak
+RX yapılandırmasına taşınır.
+Yönetimli kazanç slotu, alım seviyesi değerlendirme alanı, otomatik tekrar
+durumu ve bunların hata kodları ürün kaynağından kaldırılmıştır. Gerçek QML
+regresyonu otomatik kazanç nesnesinin bulunmadığını ve seçili kazançların canlı
+konfigürasyona değişmeden ulaştığını doğrular. I/Q kırpılma reddi ayrı veri
+bütünlüğü kapısı olarak korunur. PHASE-08/ST-06 fiziksel kabulü açık kalır.
+
+## KTR-4.1 alıcı kazancı kontrol erişimi — 15 Eylül 2026
+
+`app/operator_console/qml/AppCombo.qml`, uzun LNA/VGA seçeneklerini pencere
+dışına taşırmak yerine sınırlı ve kaydırılabilir açılır görünümde sunar; mevcut
+seçim açılışta görünür konuma alınır. `tests/test_app_f_quick_product.py` gerçek
+QML üzerinde 62 dB seçimine erişimi, 280 piksel sınırını ve kaydırma konumunu
+doğrular. Alıcı kazanç sözleşmesi ve donanım kabul durumu değişmemiştir.
+
+## KTR-4.1 / KTR-4.2 sabit frekans kararlılığı — 14 Eylül 2026
+
+`app/operator_console/quick_view_model.py` Qt işçilerini tamamlanma/hata sinyali
+GUI'de tüketilene kadar saklar ve katalog işlerini ayrı, tek işçili havuza
+aktarır. Aynı katalog bağlamındaki teslimler 500 ms pencerede birleşir.
+`app/operator_console/parameter_catalog.py` bir GUI teslimini tek
+SQLite işlemiyle yazar. `app/operator_console/automatic_parameter.py` ölçüme
+alınmamış sonlanan olayları katalog sonucu değil telemetri sayacı yapar;
+`live_ed.py` sayacı oturum tanısına taşır. Yaşam döngüsü, GUI'yi bloklamama,
+toplu işlem ve olay sonu regresyonları sırasıyla
+`tests/test_live_ed_view_model.py`, `tests/test_parameter_catalog.py` ve
+`tests/test_automatic_parameter.py` içindedir; güçlü geniş olayda kazanç azaltma
+ve ince düşük-seviye VGA artışı da görünüm modeli testleriyle bağlıdır. İlgili
+küme 161 testte geçti.
+
+`scripts/verify_fixed_frequency_gui_stability.py` gerçek QML, seri bağlı RX,
+kart taşıması, Qt heartbeat, katalog ve kaynak SHA-256 değerlerini tek JSON'da
+toplar. 16/14 dB 4.096-kare donma tekrarı ve 0/0 dB 2.048-kare parametre tanısı
+`results/evidence/phase08/fixed-frequency-stability-20260914-after.json` ile
+`fixed-frequency-stability-20260914-gain-zero.json` üzerinden izlenir. Nihai
+otomatik kazanç ve toplu katalog koşusu
+`fixed-frequency-stability-20260914-managed-batched.json` içindedir. İlkinde
+GUI azami aralık `43,38 ms` ve USB taşması sıfırdır; ikincide 10 geçerli ölçüm
+vardır; nihai otomatik koşuda 9 geçerli sonuç, sıfır USB taşması ve `48,68 ms`
+azami heartbeat ölçüldü. Kart hızı nominal sürekli eşiğin altında, dBm kalibrasyonu yok ve
+eşleştirilmiş negatif/Pd-Pfa eksiktir; KTR fiziksel kabulü ile ST-06 açık kalır.
+
+## KTR-4.1 tarama hızı izlenebilirliği — 14 Eylül 2026
+
+`scripts/measure_hackrf_rx_rates.py` seri numarasına bağlı, sınırlı ve yalnız
+RX 8/10/20 MS/s tekrarlarını kaydeder. Fiziksel sonuç
+`results/evidence/phase08/hackrf-rx-rate-observation-20260914.json` içindedir.
+Güncel bağlı `…36877e47` alıcı `ED_RX_PRIMARY`, önceki `…35138247` alıcı
+`ED_RX_SECONDARY` rolündedir; rol bağı
+`config/p0/hackrf_ed_rx.json` ve `tests/test_hackrf_acquisition.py` ile izlenir.
+`scripts/compare_rx_scan_profiles.py` aynı alıcı/aralıkta 128 kare, 64 kare ve
+deneysel kaba profili özgün JSONL kayıtlarıyla karşılaştırır.
+
+`platforms/acquisition/sweep.py` iki tam tur, sonlu CSV, seri bağı, iptal ve
+sınırlı süreç çıktısını doğrular. `tests/test_hackrf_sweep.py` eksik/bozuk,
+geçici aday, iptal, çıktı kesilmesi ve seçilmiş kart pencerelerini sınar;
+`tests/test_rx_survey.py` mevcut örtüşme ve ikinci LO yolunu korur. Fiziksel
+kaba profil hız kazanmadığından QML ürün seçeneği kaldırılmıştır.
+
+10 MS/s algılama-only burst için `algorithms/p0/direct_frame.py` CI8'i
+değiştirmeden çerçeveler. Python/C P0IQ sözleşmesi yalnız 2 veya 10 MS/s kabul
+eder; 10 MS/s'de parametre isteğini reddeder. İzlenebilirlik
+`tests/test_direct_p0_frame.py`, `tests/test_live_ed_session.py`,
+`tests/test_p0_transport.py`, C11 taşıma testi ve 10 MS/s Linux köprü
+loopback'iyle sağlanır. Ayrı P0CQ yetenek biti eski köprüde HackRF başlamadan
+fail-closed davranışı, 256 kare sınırı ise tamponlu burst kapsamını doğrular.
+ARM ikilisi seri porttan kimliği doğrulanan karta geçici yüklenerek üç 64/64
+fiziksel koşuda sıfır USB/CRC/sıra/kuyruk hatasıyla geçti. Kalıcı köprü yeniden
+başlatıldı. Kaynak ve ilk ret kaydı
+`results/evidence/phase08/wideband-burst-host-gate-20260914.json`, tekrarlı
+fiziksel ölçüm `results/evidence/phase08/wideband-burst-physical-20260914.json`
+içindedir. Sayısal gürültü/ton hücre eşlemesi
+`wideband-digital-mapping-20260914.json` ile; 67→16 pencere ve `3,817 s`
+fiziksel tarama gözlemi `wideband-burst-scan-20260914.json` ile bağlanır.
+Yayın-açık kör tekrarlar `wideband-burst-live-rf-run1/2-20260914.json[l]`,
+iki taraflı analog yerleşim `wideband-burst-rf-placement-20260914.json`, kalıcı
+SD/FIT yeniden başlatma `wideband-persistent-image-20260914.json`, 256-kare ürün
+ve gerçek QML düğmesi koşuları `wideband-persistent-product-scan-20260914.json[l]`
+ile `wideband-qml-live-scan-20260914.json[l]` üzerinden izlenir. Doğrulama
+oturumunda otomatik parametre kapalıdır; `tests/test_rx_survey.py` her-kare ve
+tespit-only sözleşmesini sınar. TX-kapalı negatif, genel Pd/Pfa, tam bant ve
+elektrik kesip açılan soğuk başlangıç açık kalır; ST-06 tamamlanmadı.
+
+## KTR-4.1–4.4 ED sürüm incelemesi — 13 Eylül 2026
+
+KTR-4.1/4.2 için yavaş GUI'de otomatik parametre teslimi ve oturumlar arası
+kalıcı kayıt `tests/test_live_ed_view_model.py` ile izlenir. Katalog bağlantı
+kapatma/geri alma ve geçersiz kalibrasyon `tests/test_parameter_catalog.py`;
+bozuk veritabanında başlangıç ve hata sunumu görünüm modeli testleriyle
+doğrulanır. KTR-4.2 kaynak kimliği dosyalarının paketlenmesi ve KTR-4.1–4.4
+ürün başlangıç sınırı `tests/test_operator_product_boundary.py` içindedir.
+49 C/Python parametre senaryosu yeniden geçti. Donanım/algoritma kabul durumu
+değişmedi; KTR-5.1–5.4 kapsam dışıdır.
+[Bulgular ve test kaydı](../reviews/ED_RELEASE_REVIEW_20260913.md).
+
 ## KTR-5.1–5.4 kapsam kararı — 13 Eylül 2026
 
 Kullanıcı kararıyla ürün yalnız ED sistemiyle devam eder. KTR-5.1–5.4 için
@@ -1386,6 +1799,7 @@ tutmaktır.
 | APP-D | KTR-4.1–4.4, KTR-6 | Uygulama, algoritma, platform ve doğrulama katmanlarının taşınırken davranış ve sahiplik koruması | Import sözleşmesi, golden/RTL regresyonu ve KTR yol güncellemesi |
 | APP-E | KTR-4.1-OPS, KTR-4.2–4.4 | Görev terminolojisi, bilgi mimarisi ve teknoloji kararının ölçülerek dondurulması | Kullanılabilirlik senaryoları, A/B performans ve ekran ölçeği kanıtı |
 | APP-F | KTR-4.1-OPS, KTR-4.2–4.4 | Yalnız uygulanmış ve doğrulanmış ED özelliklerini sunan görev odaklı operatör uygulaması | ADR-0027 ve ADR-0044; gerçek SigMF uçtan uca işleme; gerçek HackRF araç/cihaz probe durumu; QML ürün sınırı; 1280×720, 1366×768, 1920×1080 ve %150 render; 10 Hz, heartbeat, bounded çizim, Türkçe metin ve paketleme kapıları |
+| RX-GRC | KTR-4.1-OPS-B0 | Seri numarasına bağlı yalnız RX spektrum/spektrogram/IQ gözlemi; TX bloğu ve otomatik bozulma kararı yok | `digital_analog_detection/hackrf_rx_interference_monitor.grc`; GNU Radio 3.10.12 derleme geçişi ve canlı pencere gözlemi; belirli yayın açık/kapalı ölçümü ve ST-06 kabulü açık |
 
 APP-F arayüz bakımı 2026-08-25 tarihinde işlev değiştirmeden spektrum merkezli
 ürün kabuğunu, ED görev göstergesini, ikonlu çalışma alanı seçimini, üç adımlı
@@ -1484,7 +1898,7 @@ referans ve aynı ayarlı TX açık tur olmadan üretilemez.
 
 On üçüncü bakım paketi KTR-4.1 operatör akışını iki göreve indirmiştir: sabit
 frekansta tarama ve bant taraması. Sonraki bağlantı bakımıyla alıcı açılışta
-otomatik denetlenmez; operatör `Alıcıyı Denetle` eylemini açıkça başlatır. Frekans,
+otomatik denetlenmez; operatör `Sistemi Denetle` eylemini açıkça başlatır. Frekans,
 LNA ve VGA kontrolleri korunurken SigMF seçimi, olay konsolu, görünür
 yakınlaştırma/geçmiş, taban/aralık ve tepe-tut kontrolleri yarışma yüzeyinden
 kaldırılmıştır. Kayıtlı I/Q arka ucu yalnız hash-bağlı tekrarlanabilir doğrulama
@@ -1653,3 +2067,13 @@ sonrasında üst durum `ET ORTAMI — FARADAY LAB` ile kayıtlı ortam onayını
 bu durum mevcut görev düğmelerinin RF gönderdiği anlamına gelmez. Golden/replay
 verileri doğrulama paketinde kalır; gerçek donanım sonucu ancak fiziksel kabul
 kanıtı varsa yayın yüzeyinde etkinleştirilir.
+
+## PHASE-08 arayüz sadeleştirmesi ve kararlılık — 14 Eylül 2026
+
+14 Eylül 2026 PHASE-08 arayüz bakımında alıcı seri/envanter görünümü ve bant
+taramasındaki profil/süre açıklamaları kaldırıldı. Bağlantı başarısızlıkları
+yalnız `Alıcı algılanmadı` ve/veya `FPGA algılanmadı` metniyle sunulur; ayrıntılı
+kod olay günlüğünde kalır. Gerçek QML + HackRF + FPGA durdur/yeniden başlat
+koşusu `results/evidence/phase08/ui-simplification-stability-20260914.json`
+kanıtıyla KTR-4.1-OPS-B0 ve APP-F bağına eklenmiştir. Bu kısa koşu uzun süreli
+GUI dayanıklılık veya ST-06 kabulü değildir.

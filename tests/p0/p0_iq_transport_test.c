@@ -71,6 +71,15 @@ int main(void)
     REQUIRE(frame.center_frequency_hz == UINT64_C(101500000));
     REQUIRE(frame.payload_bytes == P0_IQ_PROCESSING_PAYLOAD_BYTES);
 
+    store_le32(packet + 28U, P0_IQ_WIDEBAND_SAMPLE_RATE_HZ);
+    store_le32(packet + 44U, p0_iq_crc32(packet, P0_IQ_HEADER_PREFIX_BYTES));
+    REQUIRE(p0_iq_processing_frame_decode(
+                packet, P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES,
+                &frame) == 0);
+    REQUIRE(frame.sample_rate_hz == P0_IQ_WIDEBAND_SAMPLE_RATE_HZ);
+    store_le32(packet + 28U, P0_IQ_PROCESSING_SAMPLE_RATE_HZ);
+    store_le32(packet + 44U, p0_iq_crc32(packet, P0_IQ_HEADER_PREFIX_BYTES));
+
     packet[12] ^= 1U;
     REQUIRE(p0_iq_processing_frame_decode(
                 packet, P0_IQ_HEADER_BYTES + P0_IQ_PROCESSING_PAYLOAD_BYTES,
@@ -140,7 +149,8 @@ int main(void)
     REQUIRE(p0_iq_capability_response_encode(capability) == 0);
     REQUIRE(memcmp(capability, "P0CR", 4U) == 0);
     REQUIRE(load_le32(capability + 8U) ==
-            P0_IQ_CAPABILITY_INLINE_PARAMETER);
+            (P0_IQ_CAPABILITY_INLINE_PARAMETER |
+             P0_IQ_CAPABILITY_WIDEBAND_BURST));
     REQUIRE(load_le32(capability + 12U) ==
             P0_IQ_CAPABILITY_MAXIMUM_PARAMETER_SPAN);
     REQUIRE(load_le32(capability + 16U) ==

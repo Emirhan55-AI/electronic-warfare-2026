@@ -1,5 +1,155 @@
 # P0 Gerçek Sistem Mimarisi
 
+## Durdurulan tam bant turu — 16 Eylül 2026
+
+Kullanıcı isteğiyle 1–6000 MHz turu 1963/2400 pencerede durduruldu; tamamlanan
+kapsam 1–4908,5 MHz, liste 161 geçmiş gözlemdir. 60 kayıt 40 MHz katlarına
+±10 kHz yakındır; bu ortak kaynak şüphesidir, kesin parazit/verici sayısı
+sınıflaması değildir. İki kare sayacı ve sekiz geniş/dar eşleşme incelemesi
+açıktır. İki kazanç ve bir USB taşma tekrarı vardır; başarısız kalan pencere
+sayısı sıfırdır. Son tekrar kontrolü yapılmadı. Özgün kayıt, hash ve ayrıntılar
+`output/rx-wideband-20260916/RAPOR.md` içindedir. KTR-4.1 / KTR-4.1-OPS-B0,
+PHASE-08/ST-06 fiziksel kabulü açık kalır; yeni faz açılmadı.
+
+## Tam bant taraması ve liste gözlemi — 16 Eylül 2026
+
+1 MHz–6 GHz gözleminde PC tarama biriktiricisinin aynı karedeki ayrı
+grupları bir geçmiş kayda tekrar sayabildiği görüldü. Bu, kart kare sayısının
+artması değildir; `observed_frames` süreklilik yorumunu etkileyen açık host
+sayaç hatasıdır. PL/PS algoritması bu incelemede değiştirilmedi. Ayrıntı
+`output/rx-wideband-20260916/RAPOR.md` içindedir.
+
+PHASE-08/ST-06 açık; bu kayıt yeni fiziksel kabul oluşturmaz.
+
+## Tespit sunumu sınırı — 16 Eylül 2026
+
+Tarama ekseni görüntülenen spektrumun merkez/hız metadatasını kullanır.
+Tespit, ek alıcı ayarıyla doğrulama ve geçmiş kayıt durumları sunumda ayrıdır.
+Aday sınırlarının ortalaması işgal bant genişliği ölçümü değildir. Bu değişiklik
+QML/görünüm modelindedir; PL, ARM aday/temporal hesabı, CFAR ve RF kazançları
+korunur. Fiziksel kabul durumu SIGNAL_DETECTION_STATUS.md içinde tutulur.
+
+## Alıcı ayarlarının uçtan uca bağlanması — 15 Eylül 2026
+
+RF AMP, alım oturumu yapılandırmasının parçasıdır; sabit izleme ve tarama
+doğrulamalarında korunur, açık/kapalı durumları aynı güç kalibrasyonu sayılmaz.
+Alım sürerken değiştirilmez. CFAR kontrolü mevcut kart protokolünü ve geri
+okumayı kullanır; RTL/eşik matematiği değişmedi. NFM ses düzeltmesi PC dinleme
+dalındadır ve tespit/parametre I/Q'sunu değiştirmez. LNA/VGA ana ekranda kalır;
+örnekleme profilleri ve analog filtre politikası değişmedi.
+
+## Tarama hızının değerlendirilmesi — 15 Eylül 2026
+
+Fiziksel alıcı örnekleme ayarı ile sistemin işlediği örnek sayısı ayrıdır.
+Sabit izleme 8 MS/s alır, filtrelenmiş 2 MS/s alt bandı işler. Ürün bant
+taraması 10 MS/s alır ve örnek azaltmadan sonlu pencereler işler. Üst bilgide
+yalnız alıcı ayarı gösterilir; bu sürekli işleme hızı iddiası değildir.
+
+Güncel tarama planı 2,5 MHz sorumluluk adımıyla 1 MHz–6 GHz için 2400 pencere
+üretir. Varsayılan 128 kare, 4096 FFT ve 10 MS/s ile pencere başına ana RF
+gözlemi 52,4288 ms'dir. Geçmiş 800–840 MHz QML kaydının 16 penceresinde ana
+aşama 5,608 s, ek doğrulama 1,608 s, ana RF gözlemi 0,839 s olmuştur.
+8 saniyelik kısa turu 2400 pencereye doğrusal ölçeklemek yaklaşık 20 dakika
+verir; bu yalnız tahmindir. Aday yoğunluğu, kazanç/taşıma tekrarları ve bağımsız
+yeniden ayarlamalar tam bant süresini değiştirebilir; 45 dakika kök nedeni
+tam tur kaydı olmadan kesinleşmez.
+
+PL Hann/FFT/güç/OS-CFAR hesabı yapar. ARM CPU0 DMA ve çözme, CPU1 aday ve
+temporal işleme yürütür; dört öğelik iş kuyruğu zaten vardır. 5 Eylül farklı
+ikiliyle yapılan kart içi tanı DMA+PL için ortalama 1,518 ms, ARM çözme+tespit
+için 1,757 ms bildirmiştir (`st06-pipelined-dma-profile-v1.json`). Bunlar örtüşen
+aşamalardır, süreleri tek bir sıralı gecikme gibi toplanmaz ve güncel ikiliye
+aktarılmaz. 14 Eylül 10 MS/s burst tüketimi yaklaşık 500 kare/s iken gereken
+2441,40625 kare/s'dir. Mevcut mimarinin PC-only eşdeğerinden daha hızlı olduğu
+ölçülmüş değildir; PL tasarım saatinden uçtan uca hız çıkarılamaz.
+
+İncelenecek iyileştirmeler, henüz uygulanmış yetenek değildir:
+
+1. Aynı kayıt/algoritma/FFT/eşik/gözlem süresi ile PC ve kart sürelerini ölçmek;
+   güncel kartta DMA/çözme/aday/temporal ve pencere kurulum sürelerini ayırmak.
+2. Her pencerede alıcı süreç/oturum açıp kapama maliyetini kalıcı alım ve kontrollü
+   yeniden ayarlamayla azaltmak; frekans geçişinde eski örnekleri ayırmak.
+3. Kare başına DMA/servis maliyetini toplu aktarım ve örtüşen tamponlarla azaltmak;
+   ARM'ın tüm güç hücrelerini tekrar işlediği pahalı aşamaları ölçüp uygun kısmını
+   PL'ye taşımak. Daha büyük kuyruk tek başına sürekli kapasite artırmaz.
+4. Geniş bant FFT'nin iki kullanılabilir yanını kapsayan tarama planını sınamak;
+   merkez/kenar kör bölgeleri ve tam sinyal desteği korunmadan adımı büyütmemek.
+5. Hızlı keşif ile ayrıntılı doğrulamayı ayırmak; kısa/darbeli/zayıf sinyallerde
+   kaçırma ve yanlış alarm ölçmek. Önceki kaba-sweep denemesi tüm pencereleri
+   tekrar seçtiği için hız kazandırmamıştır.
+
+HackRF'nin 20 MS/s donanım sınırı yazılım diliyle yükselmez. Yerel 14 Eylül
+USB koşularında 20 MS/s taşmalı, 8/10 MS/s kısa tekrarlar taşmasızdı. 10 MS/s
+sürekli hedefi önce alım ve kart yolunda birlikte kanıtlanmalıdır. Örnekleme
+hızı yükselirken FFT sabitse frekans hücresi genişler ve kare başına gözlem
+süresi kısalır; zaman eşikleri ve tespit doğruluğu ayrıca doğrulanır.
+
+## Canlı RX yerleşme sınırı — 15 Eylül 2026
+
+PC, her fiziksel HackRF oturumunun ilk sekiz ham karesini kanal seçici durumunu
+yerleştirmek için tüketir. Bu kareler PL/ARM taşımasına veya kullanıcı sonuç
+sayısına girmez; giriş ve kanal seçici çıkış kırpılmaları ayrı tanı olarak
+tutulur. Sonraki ilk ölçüm karesi FPGA'ya sıra/frame kimliği `0` ile gider ve
+bu noktadan sonraki tam ölçek bileşeni mevcut fail-closed kırpılma hatasını
+üretir. En çok 64 yerleşme karesine izin veren iç capture sınırı, sunulan
+30 dakikalık oturum sınırından ayrıdır.
+
+## Elle alıcı kazancı sınırı — 15 Eylül 2026
+
+PC operatör arayüzü LNA/VGA seçimlerini HackRF canlı oturumuna doğrudan verir.
+Başlangıç örneklerinden seviye çıkarıp kazancı değiştiren veya yeni oturum
+başlatan otomatik kontrol yolu yoktur. I/Q kırpılması koşuyu durduran ayrı bir
+veri bütünlüğü korumasıdır; otomatik kazanç davranışı değildir. 14 Eylül tarihli
+otomatik kazanç ölçümleri yalnız geçmiş kaynak sürümünü tanımlar.
+
+## Ölçülen tarama yolu ve darboğaz — 14 Eylül 2026
+
+Güncel sabit frekans izleme yolu HackRF'den 8 MS/s CI8 alır, PC'de 4:1 kanal
+seçimiyle 2 MS/s üretir ve 4096 örneklik P0IQ karelerini ZedBoard'a gönderir.
+Frekans taraması ise 10 MS/s CI8'i PC'de yeniden örneklemeden, 4096 örneklik
+sınırlı burst'ler halinde karta gönderir. PL içindeki
+Hann → FFT → güç → OS-CFAR aritmetik hattı 50 MHz'de saat başına bir karmaşık
+örnek kabul etmek üzere tasarlanmıştır. Uçtan uca hız yaklaşık 488 kare/s
+sınırındadır; kare başına ağ işlemi, DMA ve ARM servis döngüsü PL aritmetiğini
+besleyen sınırlayıcı yoldur. Bu nedenle 10 MS/s yolu sürekli gerçek zaman akışı
+değil, en fazla 256 karelik tarama burst'üdür.
+
+Deneysel `hackrf_sweep` iki turlu kaba taraması PC'de aday üretebilir; fakat
+fiziksel 800–840 MHz koşusunda tüm 67 kart penceresini seçip hız kazandırmadı.
+Bu nedenle ürün mimarisine kabul edilmedi ve kullanıcı arayüzünden çıkarıldı.
+10 MS/s ham RX aynı USB yerleşiminde üç kısa tekrarda overrun üretmedi;
+20 MS/s üretti. 10 MS/s sınırlı, doğrudan CI8 algılama burst'ü P0IQ
+metadatasıyla taşınır; PC kanal seçici çalışmaz ve otomatik parametre isteği
+reddedilir. Linux köprü loopback'i ve ARM cross-build geçti. Kartta çalışan
+eski köprü profili 10 MS/s fiziksel isteği reddetti. Yeni köprü ayrı yetenek
+bitiyle ve en fazla 256 karelik sınırla çalıştırıldı; üç 64 karelik
+fiziksel burst sıfır USB/taşıma hatasıyla tamamlandı. Ölçülen kart tüketimi
+`498,744–505,719 kare/s`, sürekli 10 MS/s için gereken hız `2441,40625 kare/s`
+oldu. Köprü `image.ub` kök dosya sistemine alındı; kontrollü yeniden başlatmada
+FPGA, ARM hizmetleri ve yetenek sorgusu geçti. Sürekli 10 MS/s için toplu
+DMA/servis ve seyrek aday çıkışı gerekir; bunlar henüz uygulanmış özellik değildir.
+
+Deneysel tarama planında 10 MS/s FFT'nin yalnız merkezden en az 1 MHz uzaktaki
+ve bant kenarına 1 MHz guard bırakan tarafı sorumluluk alır. 1 MHz'ye kadar tam
+sinyal desteği için pencere ilerlemesi 2,5 MHz'dir. İlk geniş bant adayları
+mevcut 2 MS/s karşı-LO doğrulamasına gider. Sayısal enjeksiyonda dört dış/iç
+tonun hücre eşlemesi tam geçti. Yayın açık iki kör tekrarda 800 MHz dar ve 820 MHz
+geniş gözlemleri karşı-LO 2 MS/s yolunda doğrulandı. Her iki hedefin `±1` ve
+`±3,25 MHz` yerleşimleri kalıcılık kapısını geçti. Güncel kaynakla gerçek QML
+eylemi kullanılarak 128-kare koşu 16/16 pencereyi `8,00 s` içinde sıfır hatayla
+bitirdi. TX-kapalı negatif,
+genel Pd/Pfa, tam bant ve elektrik kesip açılan soğuk başlangıç açık kalır.
+
+## ED sonuç teslimi ve kayıt ömrü — 13 Eylül 2026
+
+PC görüntü kuyruğu yalnız en son spektrumu tutmaya devam eder. Karttan dönen
+otomatik parametre sonuçları ayrı `_LiveSnapshotMailbox` içinde GUI teslimine
+kadar korunur; 1.024 sonuç sınırı aşılırsa alım açık hata ile durur. Katalog
+işlemleri sonunda SQLite bağlantısı kapatılır. Geçersiz kalibrasyon dBm
+üretmez; bozuk katalog dosyası korunarak kayıt özelliği hata durumunda kalır,
+ED arayüzü açılabilir. PC/PL/ARM sayısal görev paylaşımı ve protokoller değişmedi.
+[İnceleme ve kabul sınırları](../reviews/ED_RELEASE_REVIEW_20260913.md).
+
 ## Yalnız ED mimarisi — 13 Eylül 2026
 
 Güncel ürün mimarisi yalnız RX tabanlı ED işlevlerini içerir. ET görev alanı,

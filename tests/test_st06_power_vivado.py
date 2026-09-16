@@ -10,7 +10,7 @@ EVIDENCE = ROOT / "results/evidence/phase08/st06-power-vivado-v1.json"
 
 def test_st06_power_vivado_evidence_is_source_bound() -> None:
     completed = subprocess.run(
-        [sys.executable, "scripts/verify_st06_power_vivado.py", "--check"],
+        [sys.executable, "-X", "utf8", "scripts/verify_st06_power_vivado.py", "--check"],
         cwd=ROOT,
         check=False,
         capture_output=True,

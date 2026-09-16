@@ -1,0 +1,221 @@
+{
+  "schema": "hackrf-rx-rate-observation-v1",
+  "recorded_at": "2026-09-13T21:41:49.859967+00:00",
+  "receive_only": true,
+  "device": {
+    "serial": "0000000000000000a32868dc35138247",
+    "board_id": "4 (HackRF One)",
+    "firmware_version": "v2.4.0 (API:1.11)",
+    "part_id": "0xa000cb3c 0xbc3d4747"
+  },
+  "tool_inventory": {
+    "tools": [
+      {
+        "name": "hackrf_info",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_info.EXE"
+      },
+      {
+        "name": "hackrf_transfer",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [
+          "-B",
+          "-C",
+          "-F",
+          "-H",
+          "-R",
+          "-a",
+          "-b",
+          "-c",
+          "-d",
+          "-f",
+          "-g",
+          "-h",
+          "-i",
+          "-l",
+          "-m",
+          "-n",
+          "-o",
+          "-p",
+          "-r",
+          "-s",
+          "-t",
+          "-w",
+          "-x"
+        ],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_transfer.EXE"
+      },
+      {
+        "name": "hackrf_sweep",
+        "state": "available",
+        "help_verified": true,
+        "supported_options": [
+          "-B",
+          "-I",
+          "-N",
+          "-P",
+          "-W",
+          "-a",
+          "-d",
+          "-f",
+          "-g",
+          "-h",
+          "-l",
+          "-n",
+          "-p",
+          "-r",
+          "-w"
+        ],
+        "executable_path": "C:\\msys64\\ucrt64\\bin\\hackrf_sweep.EXE"
+      }
+    ]
+  },
+  "configuration": {
+    "center_frequency_hz": 820000000,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "rf_amplifier": false,
+    "repeats": 3
+  },
+  "runs": [
+    {
+      "sample_rate_hz": 8000000,
+      "repeat": 1,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 489,
+        "bytes_received": 16023552,
+        "elapsed_seconds": 1.0545261000224855,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 8011776/8Mio\r\nStop with Ctrl-C\r\n15.7 MB / 0.999 sec = 15.7 MB/second, average power -33.0 dBfs, 22624 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.5 MB / 0.018 sec = 29.2 MB/second, average power -33.0 dBfs, 13216 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01716 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n16274912 bytes transferred by M0\r\n16252928 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 8000000,
+      "repeat": 2,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 489,
+        "bytes_received": 16023552,
+        "elapsed_seconds": 1.0631163999787532,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 8011776/8Mio\r\nStop with Ctrl-C\r\n16.0 MB / 1.005 sec = 15.9 MB/second, average power -33.0 dBfs, 19008 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.3 MB / 0.012 sec = 21.6 MB/second, average power -33.0 dBfs, 13792 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01720 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n16276160 bytes transferred by M0\r\n16252928 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 8000000,
+      "repeat": 3,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 489,
+        "bytes_received": 16023552,
+        "elapsed_seconds": 1.0556566000159364,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 8011776/8Mio\r\nStop with Ctrl-C\r\n16.0 MB / 1.005 sec = 15.9 MB/second, average power -33.0 dBfs, 15936 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.3 MB / 0.012 sec = 21.3 MB/second, average power -33.0 dBfs, 14368 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01730 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n16277152 bytes transferred by M0\r\n16252928 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 10000000,
+      "repeat": 1,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 611,
+        "bytes_received": 20021248,
+        "elapsed_seconds": 1.0520890000043437,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(10000000 Hz/10.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 10010624/10Mio\r\nStop with Ctrl-C\r\n19.9 MB / 1.008 sec = 19.8 MB/second, average power -33.0 dBfs, 10176 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.3 MB / 0.002 sec = 120.5 MB/second, average power -33.0 dBfs, 20640 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01091 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n20218144 bytes transferred by M0\r\n20201472 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 10000000,
+      "repeat": 2,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 611,
+        "bytes_received": 20021248,
+        "elapsed_seconds": 1.0484225999971386,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(10000000 Hz/10.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 10010624/10Mio\r\nStop with Ctrl-C\r\n19.9 MB / 1.002 sec = 19.9 MB/second, average power -33.0 dBfs, 20448 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.3 MB / 0.008 sec = 32.1 MB/second, average power -33.0 dBfs, 21344 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01097 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n20219616 bytes transferred by M0\r\n20201472 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 10000000,
+      "repeat": 3,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 611,
+        "bytes_received": 20021248,
+        "elapsed_seconds": 1.0478866999910679,
+        "overruns": 0,
+        "longest_overrun_bytes": 0,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(10000000 Hz/10.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 10010624/10Mio\r\nStop with Ctrl-C\r\n19.9 MB / 0.998 sec = 20.0 MB/second, average power -33.0 dBfs, 16608 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 0.3 MB / 0.012 sec = 21.0 MB/second, average power -33.0 dBfs, 17664 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 1.01085 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n20217952 bytes transferred by M0\r\n20201472 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 20000000,
+      "repeat": 1,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 1221,
+        "bytes_received": 40009728,
+        "elapsed_seconds": 1.0554961000161711,
+        "overruns": 154,
+        "longest_overrun_bytes": 7456,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(20000000 Hz/20.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 20004864/20Mio\r\nStop with Ctrl-C\r\n39.6 MB / 1.005 sec = 39.4 MB/second, average power -32.9 dBfs, 23936 bytes free in buffer, 151 overruns, longest 7456 bytes\r\n 0.5 MB / 0.012 sec = 45.3 MB/second, average power -32.9 dBfs, 32768 bytes free in buffer, 153 overruns, longest 7456 bytes\r\n\r\nExiting...\r\nTotal time: 1.01679 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n40157184 bytes transferred by M0\r\n40124416 bytes transferred by M4\r\n154 overruns, longest 7456 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 20000000,
+      "repeat": 2,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 1221,
+        "bytes_received": 40009728,
+        "elapsed_seconds": 1.0597112000104971,
+        "overruns": 155,
+        "longest_overrun_bytes": 6208,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(20000000 Hz/20.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 20004864/20Mio\r\nStop with Ctrl-C\r\n39.6 MB / 1.007 sec = 39.3 MB/second, average power -32.9 dBfs, 24096 bytes free in buffer, 151 overruns, longest 6208 bytes\r\n 0.5 MB / 0.008 sec = 63.7 MB/second, average power -32.9 dBfs, 32768 bytes free in buffer, 154 overruns, longest 6208 bytes\r\n\r\nExiting...\r\nTotal time: 1.01530 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n40157184 bytes transferred by M0\r\n40124416 bytes transferred by M4\r\n155 overruns, longest 6208 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    },
+    {
+      "sample_rate_hz": 20000000,
+      "repeat": 3,
+      "requested_seconds": 1.0,
+      "statistics": {
+        "frames_received": 1221,
+        "bytes_received": 40009728,
+        "elapsed_seconds": 1.0554059999994934,
+        "overruns": 153,
+        "longest_overrun_bytes": 7776,
+        "process_returncode": 0,
+        "stderr_text": "call hackrf_set_sample_rate(20000000 Hz/20.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(820000000 Hz/820.000 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 20004864/20Mio\r\nStop with Ctrl-C\r\n39.3 MB / 1.000 sec = 39.3 MB/second, average power -32.9 dBfs, 32768 bytes free in buffer, 150 overruns, longest 5344 bytes\r\n 0.8 MB / 0.013 sec = 58.8 MB/second, average power -33.0 dBfs, 17344 bytes free in buffer, 152 overruns, longest 5344 bytes\r\n\r\nExiting...\r\nTotal time: 1.01403 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n40157184 bytes transferred by M0\r\n40124416 bytes transferred by M4\r\n153 overruns, longest 7776 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+      }
+    }
+  ],
+  "source_sha256": {
+    "scripts/measure_hackrf_rx_rates.py": "8b161d85ecebec9d4fffd0c8f35341e9b223f0c9f5c46c2dd72253cda664f3f0",
+    "platforms/acquisition/continuous.py": "ff8d05b1be32104b92948e8018ce6c0f87e98f0e02c5ebb47bbc445f460ff579",
+    "platforms/acquisition/contracts.py": "add0bbcc9c2fe4b31f02508feed480ab8bcfc652a67cd50f2f083d7560285315",
+    "platforms/acquisition/windows_pipe.py": "31c84e1ddcaa5f7e2a011c34983c6dbb4cc284a81f952d12d43d3d0e5af2a512"
+  },
+  "limits": [
+    "Bu gözlem yalnız USB RX taşımasını ölçer; FPGA/ARM veya RF tespit doğruluğu değildir.",
+    "Başka USB yerleşimi, firmware, bilgisayar veya süre için sonuç aktarılmaz."
+  ]
+}

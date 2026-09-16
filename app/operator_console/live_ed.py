@@ -16,6 +16,7 @@ import numpy as np
 
 from algorithms.p0.native_channelizer import create_realtime_channelizer
 from algorithms.p0.channelizer import P0ChannelizerProfile
+from algorithms.p0.direct_frame import DirectP0FrameAdapter, DirectP0Profile
 from algorithms.p0.parameter_client import MAXIMUM_BOARD_SPAN_BINS
 from algorithms.p0.transport import (
     IQFrame,
@@ -32,6 +33,7 @@ from .automatic_parameter import (
 )
 
 from platforms.acquisition.continuous import (
+    MAX_CAPTURE_FRAMES,
     MAX_STREAM_FRAMES,
     HackRFContinuousRX,
     HackRFStreamStatistics,
@@ -40,6 +42,7 @@ from platforms.acquisition.contracts import AcquisitionError, RXConfig
 
 
 LIVE_INPUT_SAMPLE_RATE_HZ = 8_000_000
+LIVE_WIDEBAND_INPUT_SAMPLE_RATE_HZ = 10_000_000
 LIVE_INPUT_SAMPLES_PER_FRAME = 16_384
 LIVE_OUTPUT_SAMPLE_RATE_HZ = 2_000_000
 LIVE_OUTPUT_SAMPLES_PER_FRAME = 4_096
@@ -54,6 +57,8 @@ LIVE_BOARD_PORT = 47_007
 LIVE_REQUIRED_FRAMES_PER_SECOND = LIVE_OUTPUT_SAMPLE_RATE_HZ / LIVE_OUTPUT_SAMPLES_PER_FRAME
 LIVE_CAPTURE_QUEUE_CAPACITY = 512
 LIVE_CHANNEL_QUEUE_CAPACITY = 64
+LIVE_STARTUP_SETTLING_FRAMES = 8
+LIVE_WIDEBAND_MAX_BURST_FRAMES = 256
 LIVE_MAX_DISPLAY_INTERVAL_FRAMES = 65_536
 LOCAL_RESPONSE_HEADER_BYTES = 48
 LOCAL_RESULT_HEADER_BYTES = 20
@@ -88,25 +93,34 @@ class LiveEDConfiguration:
     display_interval_frames: int = 15
     input_center_frequency_hz_override: int | None = None
     fpga_enabled: bool = True
-    assess_receive_level: bool = False
     display_fft_size: int = 16384
     fpga_fft_size: int = 4096
     automatic_parameters_enabled: bool = True
+    direct_fpga_input: bool = False
+    startup_settling_frames: int = 0
+    rf_amplifier: bool = False
 
     def __post_init__(self) -> None:
+        if type(self.rf_amplifier) is not bool:
+            raise AcquisitionError("invalid_rx_config", "RF yükselteci seçimi açık veya kapalı olmalıdır.")
         if (isinstance(self.fpga_fft_size, bool) or not isinstance(self.fpga_fft_size, int)
                 or self.fpga_fft_size not in (4096, 8192, 16384)):
             raise AcquisitionError("invalid_rx_config", "FPGA FFT boyutu 4096, 8192 veya 16384 olmalıdır.")
         if (isinstance(self.display_fft_size, bool) or not isinstance(self.display_fft_size, int)
                 or self.display_fft_size not in (4096, 8192, 16384)):
             raise AcquisitionError("invalid_rx_config", "Görüntü FFT boyutu 4096, 8192 veya 16384 olmalıdır.")
-        if not isinstance(self.assess_receive_level, bool):
-            raise AcquisitionError("invalid_rx_config", "Alım seviyesi denetim modu geçersizdir.")
         if not isinstance(self.fpga_enabled, bool):
             raise AcquisitionError("invalid_rx_config", "FPGA alım modu geçersizdir.")
         if not isinstance(self.automatic_parameters_enabled, bool):
             raise AcquisitionError(
                 "invalid_rx_config", "Otomatik parametre çıkarımı ayarı geçersizdir."
+            )
+        if not isinstance(self.direct_fpga_input, bool):
+            raise AcquisitionError("invalid_rx_config", "Doğrudan FPGA giriş ayarı geçersizdir.")
+        if self.direct_fpga_input and self.automatic_parameters_enabled:
+            raise AcquisitionError(
+                "invalid_rx_config",
+                "10 MS/s doğrudan FPGA taramasında otomatik parametre çıkarımı kapalı olmalıdır.",
             )
         if isinstance(self.output_center_frequency_hz, bool) or not isinstance(
             self.output_center_frequency_hz, int
@@ -116,6 +130,24 @@ class LiveEDConfiguration:
             raise AcquisitionError("invalid_center_frequency", "İzleme merkez frekansı HackRF sınırının dışındadır.")
         if not 1 <= self.frame_count <= MAX_STREAM_FRAMES:
             raise AcquisitionError("invalid_stream_length", "Canlı oturum kare sayısı güvenli sınırın dışındadır.")
+        if (
+            isinstance(self.startup_settling_frames, bool)
+            or not isinstance(self.startup_settling_frames, int)
+            or not 0 <= self.startup_settling_frames <= 64
+        ):
+            raise AcquisitionError(
+                "invalid_rx_config", "Başlangıç yerleşme kare sayısı 0–64 arasında olmalıdır."
+            )
+        if self.capture_frame_count > MAX_CAPTURE_FRAMES:
+            raise AcquisitionError(
+                "invalid_stream_length",
+                "Başlangıç yerleşmesiyle birlikte canlı RX kare sınırı aşılıyor.",
+            )
+        if self.direct_fpga_input and self.frame_count > LIVE_WIDEBAND_MAX_BURST_FRAMES:
+            raise AcquisitionError(
+                "invalid_stream_length",
+                "10 MS/s doğrudan FPGA taraması en fazla 256 karelik burst ile sınırlandırılmıştır.",
+            )
         if not 1 <= self.display_interval_frames <= LIVE_MAX_DISPLAY_INTERVAL_FRAMES:
             raise AcquisitionError("invalid_display_interval", "Canlı görünüm aralığı geçersizdir.")
         if not self.board_host or not 1 <= self.board_port <= 65_535:
@@ -133,7 +165,14 @@ class LiveEDConfiguration:
                     "Alıcı merkez frekansı HackRF sınırının dışındadır.",
                 )
             tuning_offset = abs(self.output_center_frequency_hz - input_center)
-            if not LIVE_MIN_TUNING_OFFSET_HZ <= tuning_offset <= LIVE_MAX_TUNING_OFFSET_HZ:
+            if self.direct_fpga_input and tuning_offset != 0:
+                raise AcquisitionError(
+                    "invalid_tuning_offset",
+                    "10 MS/s doğrudan FPGA yolunda alıcı ve işleme merkezi aynı olmalıdır.",
+                )
+            if not self.direct_fpga_input and not (
+                LIVE_MIN_TUNING_OFFSET_HZ <= tuning_offset <= LIVE_MAX_TUNING_OFFSET_HZ
+            ):
                 raise AcquisitionError(
                     "invalid_tuning_offset",
                     "Alıcı merkez frekansı doğrulanmış DC-güvenli ofset aralığıyla eşleşmiyor.",
@@ -144,6 +183,8 @@ class LiveEDConfiguration:
     def input_center_frequency_hz(self) -> int:
         if self.input_center_frequency_hz_override is not None:
             return self.input_center_frequency_hz_override
+        if self.direct_fpga_input:
+            return self.output_center_frequency_hz
         lower = self.output_center_frequency_hz - LIVE_TUNING_OFFSET_HZ
         return lower if lower >= 1_000_000 else self.output_center_frequency_hz + LIVE_TUNING_OFFSET_HZ
 
@@ -151,13 +192,27 @@ class LiveEDConfiguration:
     def rx_config(self) -> RXConfig:
         return RXConfig(
             center_frequency_hz=self.input_center_frequency_hz,
-            sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
-            sample_count=4 * self.fpga_fft_size,
-            rf_amplifier=False,
+            sample_rate_hz=(
+                LIVE_WIDEBAND_INPUT_SAMPLE_RATE_HZ
+                if self.direct_fpga_input else LIVE_INPUT_SAMPLE_RATE_HZ
+            ),
+            sample_count=(self.fpga_fft_size if self.direct_fpga_input else 4 * self.fpga_fft_size),
+            rf_amplifier=self.rf_amplifier,
             lna_gain_db=self.lna_gain_db,
             vga_gain_db=self.vga_gain_db,
             device_serial=self.device_serial,
         )
+
+    @property
+    def processing_sample_rate_hz(self) -> int:
+        return (
+            LIVE_WIDEBAND_INPUT_SAMPLE_RATE_HZ
+            if self.direct_fpga_input else LIVE_OUTPUT_SAMPLE_RATE_HZ
+        )
+
+    @property
+    def capture_frame_count(self) -> int:
+        return self.frame_count + self.startup_settling_frames
 
 
 @dataclass(frozen=True)
@@ -771,13 +826,21 @@ class LiveEDSession:
         if self._cancellation.is_set():
             raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
         config = self.configuration
-        channelizer_profile = P0ChannelizerProfile(
-            input_samples_per_frame=4 * config.fpga_fft_size,
-            output_samples_per_frame=config.fpga_fft_size,
-        )
-        channelizer = (self._channelizer_factory()
-                       if config.fpga_fft_size == 4096
-                       else self._channelizer_factory(channelizer_profile))
+        if config.direct_fpga_input:
+            channelizer = DirectP0FrameAdapter(
+                DirectP0Profile(
+                    input_samples_per_frame=config.fpga_fft_size,
+                    output_samples_per_frame=config.fpga_fft_size,
+                )
+            )
+        else:
+            channelizer_profile = P0ChannelizerProfile(
+                input_samples_per_frame=4 * config.fpga_fft_size,
+                output_samples_per_frame=config.fpga_fft_size,
+            )
+            channelizer = (self._channelizer_factory()
+                           if config.fpga_fft_size == 4096
+                           else self._channelizer_factory(channelizer_profile))
         channelizer_backend = str(getattr(channelizer, "backend_name", "unknown"))
         profile = getattr(channelizer, "profile", None)
         self.measurement_channelizer = {
@@ -788,7 +851,10 @@ class LiveEDSession:
                 if getattr(channelizer, "library_path", None) is not None else None
             ),
         }
-        if self._stream_factory is HackRFContinuousRX and channelizer_backend != "native-cpp":
+        if (
+            self._stream_factory is HackRFContinuousRX
+            and channelizer_backend not in {"native-cpp", "direct-ci8"}
+        ):
             raise AcquisitionError(
                 "native_channelizer_required",
                 "8 MS/s canlı HackRF akışı için derlenmiş P0 kanal seçici gereklidir.",
@@ -801,6 +867,8 @@ class LiveEDSession:
         pending_frames: dict[int, IQFrame] = {}
         input_saturated = 0
         output_saturated = 0
+        startup_input_saturated = 0
+        startup_output_saturated = 0
         capture_queue_high_watermark = 0
         channel_queue_high_watermark = 0
         preview_frames = 0
@@ -825,24 +893,28 @@ class LiveEDSession:
         def capture(stream: _ContinuousStream) -> None:
             nonlocal capture_queue_high_watermark, stream_statistics
             try:
-                for index, payload in enumerate(stream):
-                    self._latest_capture_sequence = index
-                    preview_needed = self._preview_handler is not None and (
-                        index == 0
-                        or index + 1 == config.frame_count
-                        or (index + 1) % config.display_interval_frames == 0
+                for capture_index, payload in enumerate(stream):
+                    sequence_number = capture_index - config.startup_settling_frames
+                    if sequence_number >= 0:
+                        self._latest_capture_sequence = sequence_number
+                    preview_needed = self._preview_handler is not None and sequence_number >= 0 and (
+                        sequence_number == 0
+                        or sequence_number + 1 == config.frame_count
+                        or (sequence_number + 1) % config.display_interval_frames == 0
                     )
                     received = (
                         time.perf_counter()
-                        if index % diagnostic_stride == 0 or preview_needed
+                        if sequence_number >= 0 and (
+                            sequence_number % diagnostic_stride == 0 or preview_needed
+                        )
                         else 0.0
                     )
                     if self._cancellation.is_set():
                         raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
                     while not self._cancellation.is_set():
                         try:
-                            capture_queue.put((index, payload, received), timeout=0.1)
-                            if index % diagnostic_stride == 0:
+                            capture_queue.put((capture_index, payload, received), timeout=0.1)
+                            if sequence_number >= 0 and sequence_number % diagnostic_stride == 0:
                                 capture_queue_high_watermark = max(
                                     capture_queue_high_watermark,
                                     capture_queue.qsize(),
@@ -873,28 +945,39 @@ class LiveEDSession:
 
         def channelized_frames():
             nonlocal input_saturated, output_saturated
-            level_nonzero = 0
-            for _ in range(config.frame_count):
+            nonlocal startup_input_saturated, startup_output_saturated
+            for _ in range(config.capture_frame_count):
                 if self._cancellation.is_set():
                     raise AcquisitionError("operation_cancelled", "Canlı ED oturumu iptal edildi.")
                 item = take_work(capture_queue, "Alım", "live_capture_timeout")
                 if item is end_of_stream:
                     if producer_error:
                         raise producer_error[0]
-                    raise AcquisitionError("short_stream", "Canlı HackRF akışı erken bitti.")
-                index, payload, received = item
-                sampled = index % diagnostic_stride == 0
+                    raise AcquisitionError(
+                        "live_pipeline_short_stream",
+                        "Alım üreticisi hata bildirmeden erken sonlandı.",
+                    )
+                capture_index, payload, received = item
+                sequence_number = capture_index - config.startup_settling_frames
+                sampled = sequence_number >= 0 and sequence_number % diagnostic_stride == 0
                 if sampled:
                     timing_samples["capture_queue_age_ms"].append((time.perf_counter() - received) * 1000)
                 processing_started = time.perf_counter() if sampled else 0.0
                 channelized, frame_input_saturated = channelizer.process_ci8(
                     payload,
-                    sequence_number=index,
-                    frame_id=index,
-                    input_sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
+                    sequence_number=(
+                        sequence_number if sequence_number >= 0 else capture_index
+                    ),
+                    frame_id=(sequence_number if sequence_number >= 0 else capture_index),
+                    input_sample_rate_hz=config.rx_config.sample_rate_hz,
                     input_center_frequency_hz=config.input_center_frequency_hz,
                     output_center_frequency_hz=config.output_center_frequency_hz,
+                    require_dc_safe_tuning=not config.direct_fpga_input,
                 )
+                if sequence_number < 0:
+                    startup_input_saturated += frame_input_saturated
+                    startup_output_saturated += channelized.saturated_components
+                    continue
                 input_saturated += frame_input_saturated
                 if frame_input_saturated:
                     raise AcquisitionError(
@@ -907,15 +990,6 @@ class LiveEDSession:
                         "iq_saturation",
                         "Kanal seçici çıkışında kırpılan örnek oluştu; alıcı kazançlarını azaltın.",
                     )
-                # Ignore the first 16 startup frames, then assess 32 consecutive
-                # frames. This detects coarse CI8 quantization, not RF absence.
-                if config.assess_receive_level and 16 <= index < 48:
-                    level_nonzero += len(channelized.frame.payload) - channelized.frame.payload.count(0)
-                    if index == 47 and level_nonzero < 32 * config.fpga_fft_size * 2 * 0.05:
-                        raise AcquisitionError(
-                            "rx_level_low",
-                            "Kanal seçici çıkışının %95'inden fazlası sıfır; alım seviyesi ayarlanmalı.",
-                        )
                 frame = channelized.frame
                 if sampled:
                     timing_samples["channelizer_ms"].append((time.perf_counter() - processing_started) * 1000)
@@ -932,7 +1006,7 @@ class LiveEDSession:
                         callback_started = time.perf_counter()
                         display_frame = IQFrame(
                             sequence_number=frame.sequence_number,
-                            sample_rate_hz=LIVE_INPUT_SAMPLE_RATE_HZ,
+                            sample_rate_hz=config.rx_config.sample_rate_hz,
                             center_frequency_hz=config.input_center_frequency_hz,
                             payload=payload,
                             frame_id=frame.sequence_number,
@@ -967,7 +1041,10 @@ class LiveEDSession:
                 if frame is end_of_stream:
                     if channel_error:
                         raise channel_error[0]
-                    raise AcquisitionError("short_stream", "Kanal seçici akışı erken bitti.")
+                    raise AcquisitionError(
+                        "live_pipeline_short_stream",
+                        "Kanal seçici hata bildirmeden erken sonlandı.",
+                    )
                 submitted_frame = (
                     automatic_scheduler.decorate(frame)
                     if automatic_scheduler is not None
@@ -988,7 +1065,15 @@ class LiveEDSession:
             if decoded.dma_status_flags != 7:
                 raise TransportError("dma_status", "Canlı FPGA DMA durumu geçersizdir.")
             if decoded.dropped_candidates != 0:
-                raise TransportError("candidate_drop", "Canlı FPGA olay zincirinde aday düşürüldü.")
+                raise TransportError(
+                    "candidate_drop",
+                    "FPGA tespit kapasitesi aşıldı: "
+                    f"kare {response.sequence_number + 1}, "
+                    f"ham aday {decoded.raw_candidate_count}, "
+                    f"etkin olay {len(decoded.active)}, "
+                    f"izlemeye alınamayan aday {decoded.dropped_candidates}. "
+                    "Bu bağlantı hatası değildir. LNA/VGA kazançlarını azaltıp yeniden deneyin.",
+                )
             output_frame = pending_frames.pop(response.sequence_number)
             outcomes: tuple[AutomaticParameterOutcome, ...] = ()
             if automatic_scheduler is not None:
@@ -1001,7 +1086,7 @@ class LiveEDSession:
                 response.sequence_number, output_frame, decoded, outcomes
             )
             latest_snapshot = snapshot
-            if output_frame.complex_sample_count == 4096:
+            if output_frame.complex_sample_count == 4096 and not config.direct_fpga_input:
                 confirmed_ids = tuple(
                     event.event_id for event in decoded.active if event.state == "confirmed"
                 )
@@ -1038,6 +1123,17 @@ class LiveEDSession:
                 else:
                     capabilities = getattr(self._transport, "capabilities", None)
                 if (
+                    config.direct_fpga_input
+                    and (
+                        capabilities is None
+                        or not bool(getattr(capabilities, "wideband_burst", False))
+                    )
+                ):
+                    raise AcquisitionError(
+                        "wideband_profile_unavailable",
+                        "Kart ağ köprüsü 10 MS/s geniş bant burst yeteneğini doğrulamadı.",
+                    )
+                if (
                     config.automatic_parameters_enabled
                     and config.fpga_fft_size == 4096
                     and capabilities is not None
@@ -1064,7 +1160,7 @@ class LiveEDSession:
             stream = self._stream_factory(
                 self.executable,
                 config.rx_config,
-                config.frame_count,
+                config.capture_frame_count,
                 cancellation=self._cancellation,
             )
             with self._lock:
@@ -1094,7 +1190,11 @@ class LiveEDSession:
                 if channel_error:
                     raise channel_error[0]
                 if exchanged != config.frame_count or completed != config.frame_count:
-                    raise AcquisitionError("short_stream", "Canlı ED oturumu tam kare sayısına ulaşmadı.")
+                    raise AcquisitionError(
+                        "fpga_short_stream",
+                        "FPGA alışverişi tam kare sayısına ulaşmadı: "
+                        f"istenen={config.frame_count}, alışveriş={exchanged}, yanıt={completed}.",
+                    )
                 if automatic_scheduler is not None:
                     final_outcomes = automatic_scheduler.finish()
                     automatic_parameter_outcome_count += len(final_outcomes)
@@ -1122,11 +1222,18 @@ class LiveEDSession:
             self.last_diagnostics = {
                 "fpga_enabled": config.fpga_enabled,
                 "completed_frames": completed,
+                "startup_settling_frames": config.startup_settling_frames,
+                "startup_input_saturated_components": startup_input_saturated,
+                "startup_output_saturated_components": startup_output_saturated,
                 "capture_queue_high_watermark": capture_queue_high_watermark,
                 "channel_queue_high_watermark": channel_queue_high_watermark,
                 "channelizer_backend": channelizer_backend,
                 "automatic_parameter_status": self.automatic_parameter_status,
                 "automatic_parameter_outcomes": automatic_parameter_outcome_count,
+                "automatic_parameter_expired_before_measurement": (
+                    automatic_scheduler.expired_before_measurement_count
+                    if automatic_scheduler is not None else 0
+                ),
                 "setup_seconds": (
                     stream_started - run_started
                     if stream_started is not None else time.perf_counter() - run_started
@@ -1147,9 +1254,9 @@ class LiveEDSession:
         if stream_statistics is None:
             raise AcquisitionError("stream_statistics_missing", "HackRF canlı RX özeti oluşmadı.")
         if (
-            stream_statistics.frames_received != config.frame_count
+            stream_statistics.frames_received != config.capture_frame_count
             or stream_statistics.bytes_received
-            != config.frame_count * config.rx_config.sample_count * 2
+            != config.capture_frame_count * config.rx_config.sample_count * 2
             or stream_statistics.process_returncode != 0
         ):
             raise AcquisitionError("stream_integrity", "HackRF canlı RX bütünlüğü doğrulanamadı.")
@@ -1191,7 +1298,7 @@ class LiveEDSession:
             elapsed_seconds=elapsed,
             frames_per_second=frames_per_second,
             real_time_margin=frames_per_second /
-                (LIVE_OUTPUT_SAMPLE_RATE_HZ / config.fpga_fft_size),
+                (config.processing_sample_rate_hz / config.fpga_fft_size),
             raw_candidate_total=raw_candidate_total,
             maximum_active_events=maximum_active,
             input_saturated_components=input_saturated,

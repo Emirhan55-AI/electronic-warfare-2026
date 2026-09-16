@@ -1,8 +1,37 @@
 # HackRF RX Host Acquisition Sözleşmesi
 
+Canlı `rf_amplifier` seçimi tam boolean'dır, varsayılan kapalıdır. AMP
+sabit izleme, tarama, aday doğrulama ve bunlardan başlatılan alımlarda aynı
+oturum yapılandırmasına taşınır. Ayar alım dururken kaydedilir; yeni oturumda
+`-a` komutuna çevrilir. Kayıttaki ayar oturum komutudur, bağımsız fiziksel
+geri okuma iddiası değildir. AMP kontrolü LNA/VGA değerlerini kendiliğinden
+değiştirmez; taramadaki mevcut kırpılma sonrası sınırlı kazanç tekrar politikası
+bu eklemede değiştirilmemiştir.
+Bias-T, özel analog filtre ve frekans kalibrasyonu bu eklemede açılmadı.
+
+Hazır durum kalıcı bir USB varsayımı değildir. Etkin tam seri boşta periyodik
+olarak yeniden keşfedilir; kaybolduğunda bütün RX başlatma kapıları kapanır ve
+operatör yeniden `Sistemi Denetle` akışına yönlendirilir. Tanı komutunun kendi
+başarısızlığı cihaz kaybı kanıtı sayılmaz; kesin kayıp sonraki denetimde aranır.
+
 ## Bileşen sınırı
 
 `platforms/acquisition/` Qt ve DSP import etmez. Gerçek ve deterministik test backend'leri aynı `HackRFBackend` sözleşmesini uygular. Controller yalnız bu sözleşmeyi kullanır; UI ve controller `subprocess` çağırmaz. Gerçek backend `hackrf_info`, `hackrf_transfer` ve `hackrf_sweep` dışında executable kabul etmez.
+
+PortaPack Mayhem denetim yolu ayrı bir RX hazırlık adımıdır. Yalnız USB-seri
+`VID 0x1D50 / PID 0x6018` kimliğini taşıyan tam bir aygıt tekil bulunduğunda
+115200 8N1 üzerinden `hackrf\r\n` gönderilir. Tam yazmadan sonra CDC çıkışı
+temizlenir ve firmware'in satırı tüketmesi için port kapatılmadan önce 500 ms
+beklenir. Bu adım FPGA hizmeti hazır değilse çalışmaz. Sonrasında `hackrf_info`
+ile yapılandırılmış alıcı seri numarası
+yeniden görülmeden RX hazır sayılmaz. Genel COM portuna, eksik kimliğe veya
+birden çok eşleşmeye komut gönderilmez.
+
+HackRF yeniden göründüğünde seçim keşif veya COM sırasına göre yapılmaz. Kayıtlı
+`ED_RX_PRIMARY` görünürse seçilir; değilse kayıtlı `ED_RX_SECONDARY` aynı RX
+ürün yolları için yedek olur. İki seri birlikte görünürse birincil seçilir.
+Etkin seri her `hackrf_transfer -d` bağına, bant taramasına, aday doğrulamasına
+ve seri-özel spur profiline taşınır. Yapılandırılmamış cihaz hazır yetkisi vermez.
 
 Araç keşfi dosya sistemi üzerinden yapılır. Güvenli yardım sorguları açık `argv`, `shell=False`, iki saniyelik zaman aşımı ve 32.768 byte stdout/stderr sınırıyla çalışır. Cihaz keşfi ancak operatör denetim düğmesine bastığında ve gerekli araç doğrulandığında worker içinde yapılabilir. B0'daki `NO_DEVICE` hazırlık sonucu, PHASE-08 fiziksel turunda tek `ED_RX` HackRF keşfi ve bounded RX kabulüyle aşılmıştır.
 

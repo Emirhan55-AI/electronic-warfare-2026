@@ -49,6 +49,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
                 "profiles/phase04f5/operation-default.json",
                 "config/p0/hackrf_ed_rx.json",
                 "config/p0/hackrf_spurs.json",
+                "config/p0/rx_calibration.json",
                 "datasets/fixtures/phase04f1/domain-model.json",
                 "datasets/fixtures/phase04f2/domain-model-v3.json",
                 "datasets/fixtures/phase04f4/domain-model-v5.json",
@@ -64,6 +65,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
         spec = (ROOT / "app" / "operator_console" / "pysidedeploy.spec").read_text(encoding="utf-8")
         self.assertIn("input_file = ../../baz_operator_console.py", spec)
         self.assertIn("--include-data-dir=qml=app/operator_console/qml", spec)
+        self.assertIn("--include-package=serial", spec)
         for qml_path in (ROOT / "app" / "operator_console" / "qml").glob("*.qml"):
             self.assertIn(f"qml/{qml_path.name}", spec)
         for module in (
@@ -77,6 +79,7 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "profiles/phase04f5/operation-default.json",
             "config/p0/hackrf_ed_rx.json",
             "config/p0/hackrf_spurs.json",
+            "config/p0/rx_calibration.json",
             "datasets/fixtures/phase04f1/domain-model.json",
             "datasets/fixtures/phase04f2/domain-model-v3.json",
             "datasets/fixtures/phase04f4/domain-model-v5.json",
@@ -86,6 +89,27 @@ class OperatorProductBoundaryTests(unittest.TestCase):
             "app/operator_console/assets/baz-logo-metal-red.png",
         ):
             self.assertIn(asset, spec)
+
+    def test_package_preserves_measurement_and_survey_source_identity(self) -> None:
+        from app.operator_console.measurement_record import PROVENANCE_SOURCES
+        from app.operator_console.rx_survey import SURVEY_SOURCES
+
+        document = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        profile = json.loads((ROOT / "profiles/phase04f5/operation-default.json").read_text(encoding="utf-8"))
+        required = set(PROVENANCE_SOURCES) | set(SURVEY_SOURCES)
+        required.update(item["path"] for item in profile["runtime_implementation"]["sources"])
+        self.assertEqual(required, set(document["required_provenance_assets"]))
+        self.assertIn("digital_analog_detection", document["allowed_source_roots"])
+        spec = (ROOT / "app/operator_console/pysidedeploy.spec").read_text(encoding="utf-8")
+        for path in required:
+            self.assertTrue((ROOT / path).is_file(), path)
+            if path.endswith(".qml"):
+                continue  # The complete QML directory is already included.
+            self.assertIn(f"--include-data-files=../../{path}={path}", spec)
+        requirements = (ROOT / "requirements/product.txt").read_text(encoding="utf-8")
+        self.assertIn("-r phase02.txt", requirements)
+        self.assertIn("scipy==1.16.0", requirements)
+        self.assertIn("pyserial==3.5", requirements)
 
     def test_product_runtime_uses_qml_and_loads_no_legacy_or_lab_modules(self) -> None:
         code = r'''

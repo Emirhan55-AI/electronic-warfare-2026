@@ -12,24 +12,25 @@ ScrollView {
     readonly property bool measuring: viewModel.parameterMeasurementActive
     property bool detailsOpen: false
     property bool editRange: false
+    property bool catalogOpen: false
     property string lowerInputText: ""
     property string upperInputText: ""
     readonly property bool rangeInputReady: lower.text.trim().length > 0 && upper.text.trim().length > 0
-    readonly property var mainKeys: ["emission_center_frequency", "occupied_bandwidth", "channel_power_dbfs", "signal_domain"]
-    readonly property var mainLabels: ["Emisyon merkez frekansı", "İşgal edilen bant genişliği (OBW %99)", "Kanal gücü (dBFS)", "Sinyal türü (PC, deneysel)"]
+    readonly property var mainKeys: ["carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs", "signal_domain"]
+    readonly property var mainLabels: ["Taşıyıcı Frekans", "Bant Genişliği", "Kanal Gücü (dBFS)", "Sinyal Türü"]
     readonly property var primaryRows: mainKeys.map(function(key, index) {
         var row = viewModel.parameterRows.find(function(item) { return item.key === key })
         return { label: mainLabels[index], value: row ? row.value : "—", state: row ? row.state : "pending", reason: row ? (row.reason || "") : "" }
     })
     readonly property var detailRows: viewModel.parameterRows.filter(function(row) {
-        return mainKeys.indexOf(row.key) < 0 && row.key !== "signal_domain"
+        return mainKeys.indexOf(row.key) < 0
     })
     readonly property int validPrimaryCount: primaryRows.filter(function(row) {
         return row.state === "valid"
     }).length
     function stateText(state) {
         if (state === "valid") return "GEÇERLİ"
-        if (state === "uncertain") return "BELİRSİZ"
+        if (state === "uncertain") return "TEKRAR ÖLÇÜLMELİ"
         if (state === "insufficient_quality") return "KALİTE YETERSİZ"
         if (state === "not_observed") return "GÖZLENMEDİ"
         if (state === "not_applicable") return "UYGULANMAZ"
@@ -96,25 +97,27 @@ ScrollView {
                 anchors.fill: parent
                 anchors.margins: 10
                 spacing: 7
-                Label {
-                    text: "OTOMATİK PARAMETRE KATALOĞU"
-                    color: BazTheme.textPrimary
-                    font.pixelSize: 12
-                    font.weight: Font.Bold
+                RowLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: "KAYITLAR"
+                        color: BazTheme.textPrimary
+                        font.pixelSize: 12
+                        font.weight: Font.Bold
+                        Layout.fillWidth: true
+                    }
+                    QuietButton {
+                        objectName: "parameterCatalogToggle"
+                        text: panel.catalogOpen ? "Kayıtları Gizle" : "Kayıtları Göster"
+                        implicitHeight: 28
+                        onClicked: panel.catalogOpen = !panel.catalogOpen
+                    }
                 }
                 Label {
                     Layout.fillWidth: true
-                    text: panel.viewModel.automaticParameterStatus
-                    color: BazTheme.textSecondary
-                    font.pixelSize: 11
-                    wrapMode: Text.WordWrap
-                }
-                Label {
-                    Layout.fillWidth: true
-                    text: panel.viewModel.parameterCatalogSummary + " · dBm yalnız tam eşleşen, süresi geçmemiş kalibrasyonla gösterilir."
+                    text: panel.viewModel.parameterCatalogSummary
                     color: BazTheme.textMuted
                     font.pixelSize: 10
-                    wrapMode: Text.WordWrap
                 }
                 RowLayout {
                     Layout.fillWidth: true
@@ -135,8 +138,17 @@ ScrollView {
                     }
                     Item { Layout.fillWidth: true }
                 }
+                Label {
+                    visible: panel.viewModel.parameterCatalogActionStatus.length > 0
+                    Layout.fillWidth: true
+                    text: panel.viewModel.parameterCatalogActionStatus
+                    color: panel.viewModel.parameterCatalogActionStatus.indexOf("adı") >= 0
+                           ? BazTheme.warning : BazTheme.accent
+                    font.pixelSize: 10
+                    wrapMode: Text.WrapAnywhere
+                }
                 Repeater {
-                    model: panel.viewModel.parameterHistory.slice(0, 32)
+                    model: panel.catalogOpen ? panel.viewModel.parameterHistory.slice(0, 8) : []
                     delegate: ColumnLayout {
                         required property var modelData
                         Layout.fillWidth: true
@@ -246,7 +258,7 @@ ScrollView {
                 objectName: "parameterConfirmRange"
                 visible: panel.editRange || (!panel.viewModel.analysisSpanConfirmed && panel.rangeInputReady)
                 text: panel.viewModel.sourceMode === "hackrf"
-                      ? "Aralığı Onayla ve Parametreleri Çıkar"
+                      ? "Parametre Çıkar"
                       : "Analiz Aralığını Onayla"
                 Layout.fillWidth: true
                 enabled: panel.viewModel.parameterCapabilityReady && panel.rangeInputReady
@@ -259,14 +271,6 @@ ScrollView {
                             panel.viewModel.requestMeasurement()
                     }
                 }
-            }
-            Label {
-                visible: panel.viewModel.statusMessage.length > 0
-                Layout.fillWidth: true
-                text: panel.viewModel.statusMessage
-                color: BazTheme.textSecondary
-                font.pixelSize: 11
-                wrapMode: Text.WordWrap
             }
             PrimaryButton {
                 objectName: "parameterMeasure"
@@ -347,13 +351,6 @@ ScrollView {
                 }
             }
         }
-        Label {
-            Layout.fillWidth: true
-            text: "OBW için analiz aralığı sinyalin tamamını kapsamalıdır. Analog/Sayısal sonucu PC'de otomatik hesaplanır; güven yetersizse Belirsiz gösterilir."
-            color: BazTheme.textMuted
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-        }
         QuietButton {
             objectName: "parameterDetailsToggle"
             visible: panel.hasResult
@@ -419,7 +416,10 @@ ScrollView {
             text: panel.viewModel.sourceMode === "hackrf" ? "Dinleme İçin Yeniden Al" : "Dinlemeye Geç"
             Layout.fillWidth: true
             enabled: !panel.viewModel.busy
-            onClicked: if (panel.viewModel.continueToListening()) panel.listeningRequested()
+            onClicked: {
+                panel.viewModel.continueToListening()
+                panel.listeningRequested()
+            }
         }
         PrimaryButton {
             objectName: "parameterReacquire"

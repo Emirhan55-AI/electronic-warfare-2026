@@ -1,36 +1,108 @@
 # Sinyal tespiti ayarları ve kaynak kılavuzu
 
-10 Eylül 2026 · PHASE-08 / ST-06 · KTR-4.1 / KTR-4.1-OPS-B0
+15 Eylül 2026 · PHASE-08 / ST-06 · KTR-4.1 / KTR-4.1-OPS-B0
+
+## Güncel alıcı ve ses kontrolleri
+
+### Operatör için kısa kullanım tablosu
+
+Alanların üzerinde bekleyince kısa yardım açılır. Sabit frekans ekranı LNA/VGA'yı
+aynı satırda, AMP'yi hemen altında; ayrı pencere yalnız FPGA tespitini gösterir.
+Dinlemeye ait kontrol Dinleme görevindedir; salt çizim ayarları ürün yüzeyinde
+operatör ayarı olarak sunulmaz.
+Bu başlangıç önerileri RF kabulü veya her ortamda en iyi ayar iddiası değildir.
+
+| Ayar | Ne işe yarar? | Nereden başlamalı, ne zaman değiştirmeli? |
+|---|---|---|
+| LNA / VGA | Alıcıdaki iki kazanç kademesi | AMP kapalı, 16/16 dB başlangıç olabilir. LNA 8, VGA 2 dB adımlıdır; sırayla deneyin. Harici yükselteç varsa daha düşük başlayın. Kırpılmada azaltın. |
+| AMP | Ek RF yükseltmesi | Kapalı başlayın. Zayıf alımda açıp karşılaştırın; bozulma artarsa kapatın. Ayarlanabilir dB değeri ve ara durumu yoktur. |
+| Normal CFAR eşiği | Normal eşik aşımını belirler | Varsayılan yaklaşık 8,58. Gerekiyorsa 0,1 adımla deneyin. Azaltmak yanlış alarmları da artırabilir. |
+| Zayıf CFAR eşiği | Zayıf adaylar için eşiktir | Varsayılan yaklaşık 3,98. Değeri yükseltmek hassasiyeti artırmaz. Kontrollü açık/kapalı sinyal kaydı olmadan ideal değer belirlenemez. |
+| FFT | FPGA tespitindeki frekans hücrelerinin ayrıntısı | 4096 ile kalın. Büyütmek işlem yükünü değiştirir; otomatik parametre yolu 4096 ister. Küçültme yeniden başlatma gerektirir. |
+| Dinleme genişliği | Dinlenen kanalın kapsadığı aralık | Tespit önerisiyle başlayın. AM: 6/9/12; NFM: 8/12,5/16/25 kHz seçenekleri yayına göre denenir. Gereksiz büyütmeyin. |
+| İnce frekans ayarı | Dinleme merkezini kaydırır | Önce tespit merkezini kullanın; gerekiyorsa ±0,1 kHz deneyin. Tarama merkezini değiştirmez. |
+| NFM ses düzeltmesi | Sesin tiz kısmını yumuşatır | Mevcut profil 750 µs; 0 kapalıdır. Yayına uygun seçilir, tespit hassasiyeti değildir. |
+| Görüntü FFT / yenileme | Çizimin ayrıntısı ve sıklığı | Ürün varsayılanı 16384 / 15 karedir; tespit kontrolü olmadığı için operatör yüzeyinde gösterilmez. |
+| Görüntü ölçeği | Sadece çizimin görünümü | İlk anlamlı karede otomatik ayarlanır; tespit eşiğini değiştirmez. |
+| Tarama gözlemi | Her frekans penceresinde gözlem süresi | 128 kare başlangıç. 64 daha kısa, 256 daha uzun gözlem; hız/kaçırma dengesi sahada ölçülür. |
+| Yerleşme | Frekans değişiminden sonraki geçiş karelerini dışlar | 8 kare varsayılanını koruyun. 16/32 seçimi ancak başlangıç geçişi ölçülürse değerlendirilir. |
+
+Kazanç kademeleri ve 16/16 başlangıcı:
+[HackRF üretici kılavuzu](https://hackrf.readthedocs.io/en/latest/setting_gain.html).
+Bias-T harici donanım bilgisi doğrulanana kadar eklenmez.
+
+LNA/VGA aynı satırda, AMP hemen altında kalır. AMP kapalı/açık seçimi alım dururken doğrudan
+kaydedilir ve sonraki alım yollarına taşınır. NFM ses düzeltmesinin iç sözleşmesi
+0–2000 µs sınırını korur; ürün arayüzü Dinleme görevinde yalnız `Kapalı` ve
+mevcut `750 µs` profilini sunar. Ayar yalnız sonraki ses hazırlamayı etkiler;
+önceki ses yeniden etiketlenmez. CFAR katsayıları FPGA penceresinde virgül veya
+noktayla düzenlenir; üst sınırlar hariçtir. Varsayılan katsayı tamlığı korunur;
+deneysel hassasiyet profilleri eklenmedi.
+
+Normal ve zayıf eşikler LNA/VGA gibi donanımın ayrık kazanç basamakları değildir;
+sınırları içinde sürekli katsayılardır. Güncel kaynakta fiziksel olarak
+doğrulanmış alternatif `hassas/normal/güçlü` eşik profilleri bulunmadığı için
+seçim kutusu eklenmez. `Karttan Oku` etkin tam değerleri getirir,
+`Varsayılana Dön` doğrulanmış başlangıç çiftini yükler; kontrollü karşılaştırma
+kanıtı oluşursa hazır profiller ayrıca değerlendirilir.
+Arayüz okunabilirlik için bu değerleri iki ondalıkla gösterir; operatör alanı
+değiştirmediyse karttan okunan tam sabit nokta değeri yeniden uygulanır.
+
+FFT 8192/16384 olduğunda alıcının ham önizlemesi görüntü yolunun sabit 16.384
+kompleks örnek penceresinden uzundur. Görüntü ve kaba aday yolu ilk 16.384 gerçek
+örneği kullanır; bu, FPGA tespit FFT'sini veya eşiklerini küçültmez. Büyük
+FFT'den 4096'ya dönüş kontrollü kart yeniden başlatması ister; uygulamayı yeniden
+açmak yalnız masaüstü yazılımını yeniler.
+
+Tespit kartında kullanılan P/N, tepenin yerel gürültüye göre bağıl oranıdır;
+dBm veya kalibre edilmiş mutlak güç değildir. FPGA gözlem sayısı da olay
+sürekliliğidir. Bu iki değer iç tespit kanıtında tutulur, fakat parametre sonucu
+sanılmaması için kullanıcı üzerine-gelme metninde gösterilmez. dBm yalnız
+eşleşen ve geçerli kalibrasyonla parametre ölçümünde anlamlıdır.
+
+Dinleme ekranında AM 6/9/12 kHz, NFM 8/12,5/16/25 kHz başlangıç seçenekleri,
+tespit önerisi/özel giriş, ±100 Hz ince ayar ve yalnız NFM'de ses düzeltmesi
+bulunur. Bunlar her emisyon için doğrulanmış optimum değerler değildir; backend
+kaynak bant sınırını korur. WFM ve susturma eklenmedi. Analog filtre/PPM seçimi
+ve Bias-T kapıları açılmadı.
+
+Aşağıdaki 2 MS/s tarama süresi tablosu eski tam tarama profilinin kapsamıdır.
+Güncel geniş bant penceresinde 10 MS/s, 4096 FFT kullanılır: 64/128/256 kare
+26,2144/52,4288/104,8576 ms ham yakalama eder. Yerleşme bu gözlemin içindedir;
+oturum açma, kart işleme, ek doğrulama ve başlangıç koruma süresi ayrıca vardır.
+Arayüz bu profilde 512 kareyi sunmaz. Gerçek tarama süresi bu değerlerden ibaret
+değildir. Donanımın mevcut fiziksel kabul sınırları değişmedi.
 
 ## Arayüzdeki ayarlar
 
-Sabit frekans ekranında alıcı kontrollerinin yanındaki **Tespit ve Görüntü
-Ayarları**, bant taramasında ise **Tarama Ayarları** açılır. İşleme ayarları
-oturum dururken değiştirilir ve bir sonraki başlatmada uygulanır. Seçimler
-uygulama oturumu boyunca korunur; uygulama yeniden açılınca varsayılanlar gelir.
+Sabit frekans ekranındaki **Ayarlar** yalnız gerçek tespit
+parametrelerini, bant taramasındaki **Tarama Ayarları** yalnız pencere gözlemini
+gösterir. İşleme ayarları oturum dururken değiştirilir ve bir sonraki başlatmada
+uygulanır. Seçimler uygulama oturumu boyunca korunur; uygulama yeniden açılınca
+varsayılanlar gelir.
 
 | Ayar | Seçim / varsayılan | Gerçek etkisi |
 |---|---|---|
 | LNA | 0–40 dB, 8 dB adım | Fiziksel alıcı kazancı |
 | VGA | 0–62 dB, 2 dB adım | Fiziksel alıcı kazancı |
-| Sınırlı otomatik kazanç | Açık/kapalı | Başlangıç alım seviyesine göre sınırlı yeniden deneme; sürekli AGC değildir |
+| AMP | **Kapalı** / Açık | İki durumlu ek RF yükselteci; ayarlanabilir dB kademesi değildir |
+| FFT | **4096** / 8192 / 16384 | Gerçek FPGA tespit hücrelerini ve işlem yükünü değiştirir |
 | FPGA normal CFAR katsayısı | `[1,16)`, varsayılan **8,5801430407** | Normal aday karar eşiğini gerçek FPGA'da değiştirir; tam geri okunur |
 | FPGA zayıf CFAR katsayısı | `[1,4)`, varsayılan **3,9810717055** | Zayıf aday eşiğini FPGA ve ARM olay raporunda birlikte değiştirir; normalden büyük olamaz |
-| Görüntü FFT | 4096 / 8192 / **16384** | Tek gerçek 8 MS/s I/Q karesinin ilk N örneğinde Hann ve N noktalı FFT |
-| Görüntü aralığı | 8 / **15** / 32 / 64 DSP karesi | Nominal 61,0 / 32,6 / 15,3 / 7,6 Hz sunum; gerçekleşen hız bilgisayar yüküne bağlı |
-| Tarama gözlemi | 64 / **128** / 256 / 512 kare | Pencere başına 131,1 / 262,1 / 524,3 / 1048,6 ms alım; ayar değiştirme ve yeniden kontrol süreleri ayrıca eklenir |
+| NFM ses düzeltmesi | Kapalı / **750 µs** | Yalnız Dinleme görevindeki NFM sesini değiştirir; tespiti değiştirmez |
+| Görüntü FFT / yenileme | İç varsayılan **16384 / 15** | Yalnız çizim; ürün yüzeyinde değiştirilmez |
+| Tarama gözlemi | 64 / **128** / 256 kare | 10 MS/s'de 26,2 / 52,4 / 104,9 ms ham yakalama; işleme ve doğrulama ayrıca eklenir |
 | Yerleşme | **8** / 16 / 32 kare | Gözlemin başındaki yerleşme kareleri; toplam pencere süresine dahil |
-| Görüntü tabanı / aralığı | −200…0 dBFS / 20…120 dB | Spektrum ve spektrogramın çizim ölçeği |
-| Tepeyi tut / seviyeyi sığdır | Operatör seçimi | Yalnız görselleştirme |
 
-Görüntü FFT seçimi FPGA FFT’sini değiştirmez. Kaba tespit ve canlı RF
-çizgisi doğrulaması kendi 16384 noktalı spektrumunu kullanır. Dolayısıyla daha
-küçük görüntü FFT’si tek başına işlem yükü kazancı iddiası değildir; bu seçimde
-ek bir görüntü FFT’si hesaplanır. Yenileme sıklığının azaltılması sunum yükünü
-azaltır. Görüntü kareleri atlansa da FPGA’ya gönderilen ölçüm kareleri bu
-ayar nedeniyle atlanmaz. 32768/65536 gerçek FFT için ardışık ham örnek
-biriktirme ve gecikme/bellek sözleşmesi gerekir; sıfır doldurma çözünürlük
-artışı diye gösterilmez.
+LNA, VGA ve AMP yalnız operatör tarafından seçilir. Canlı oturum bu değerleri
+otomatik değiştirmez veya alım seviyesine göre başka kazançla yeniden başlamaz.
+
+Görüntü FFT'si FPGA FFT’sini değiştirmez. Kaba tespit ve canlı RF çizgisi
+doğrulaması kendi 16384 noktalı spektrumunu kullanır; sunum 15 DSP karesinde bir
+yenilenir ve güç ölçeği ilk anlamlı karede otomatik ayarlanır. Görüntü kareleri
+atlansa da FPGA’ya gönderilen ölçüm kareleri bu nedenle atlanmaz. 32768/65536
+gerçek FFT için ardışık ham örnek biriktirme ve gecikme/bellek sözleşmesi gerekir;
+sıfır doldurma çözünürlük artışı diye gösterilmez.
 
 ## Değiştirilebilen ve sabit kalan tespit profili
 
@@ -44,7 +116,9 @@ reddedilir.
 Aynı açılışta 4096→8192→16384 yönü desteklenir. Fiziksel post-downshift
 deneyi XFFT/DMA kilitlenmesi bulduğu için daha küçük FFT seçimi sürücüde
 reddedilir; arayüz kartı yeniden başlatmayı ister. Yeniden başlatma 4096
-varsayılan profilini yükler. Bu sınır giderilmeden menü keyfî iki yönlü FFT
+varsayılan profilini yükler. Bu kontrollü servis/kart yeniden başlatmasıdır;
+elektriği tamamen kesip yeniden verme biçimindeki ST-06 cold-start kabul
+koşusuyla aynı işlem değildir. Bu sınır giderilmeden menü keyfî iki yönlü FFT
 değişimi olarak yorumlanmaz.
 
 Her FFT uzunluğu kendi periyodik UQ1.15 Hann ROM'unu kullanır. Dinamik AMD XFFT,

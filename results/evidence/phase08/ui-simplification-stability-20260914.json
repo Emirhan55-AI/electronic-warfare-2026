@@ -1,0 +1,36 @@
+{
+  "schema": "phase08-qml-cancel-restart-v1",
+  "recorded_at_utc": "2026-09-14T08:42:16.126544+00:00",
+  "source_sha256": {
+    "app/operator_console/quick_application.py": "60ae39ca9af276c19e7e86beda12530e5b154b6a4558fb1526c141dadcda897b",
+    "app/operator_console/quick_view_model.py": "920f17c1bf5d45aa9f685e2c76b914a6a99269e06009bbe998915c95e3e89528",
+    "app/operator_console/quick_scan_actions.py": "6331484b1121ffd93e7cfa26dcd15af03a326f552608879c95c4a232721a0d9a",
+    "app/operator_console/quick_runtime.py": "3c940d8c88934414f7d6197bfe647250f0b892ae8fc806b3ca120dfa4eb07c03",
+    "app/operator_console/survey_controller.py": "b89c43a857c24b840e5f3e049ecc9ae2abba862822003c654f5c947af41cb3b7",
+    "app/operator_console/qml/Main.qml": "9a5f31b500520ed44b97d46efa655372d99e9b6734960f16c467c80997af4b98",
+    "app/operator_console/qml/RxSurveyView.qml": "9d51680fe363208b14380060a36064c9a3c4910ab7f5821f5c641f7c62715327",
+    "app/operator_console/rx_survey.py": "4c8c8f7dec5f8fd360274c85e623a6f6ce670be5f7b62067c05b61b3d150cbac",
+    "config/p0/hackrf_ed_rx.json": "f4457a1c4d4b1aabfd57fdb952eabb452979a848eb001e3cfeeac0f72bc9dd44"
+  },
+  "probe_ready": true,
+  "first_start_invoked": true,
+  "first_started": true,
+  "progress_before_cancel": true,
+  "stop_visible": true,
+  "stop_invoked": true,
+  "cancel_finished": true,
+  "cancel_state": "Durduruldu",
+  "restart_enabled": true,
+  "restart_invoked": true,
+  "restart_started": true,
+  "restart_finished": true,
+  "restart_state": "Tur tamamlandı",
+  "restart_coverage": "2 / 2 pencere tarandı · 0 hata",
+  "error_message": "",
+  "ui_heartbeat": {
+    "ticks": 104,
+    "maximum_gap_ms": 88.37930002482608
+  },
+  "shutdown_seconds": 0.001657599990721792,
+  "status": "passed"
+}

@@ -80,8 +80,9 @@ def test_parameter_panel_exposes_domain_as_primary_result() -> None:
     source = (Path(__file__).resolve().parents[1]
               / "app/operator_console/qml/ParameterMeasurementPanel.qml").read_text(encoding="utf-8")
     assert '"channel_power_dbfs", "signal_domain"' in source
-    assert '"emission_center_frequency", "occupied_bandwidth"' in source
-    assert "Sinyal türü (PC, deneysel)" in source
+    assert "return mainKeys.indexOf(row.key) < 0" in source
+    assert '"Sinyal Türü"' in source
+    assert "Sinyal türü (PC, deneysel)" not in source
     assert "Alımı Durdur ve Parametreleri Çıkar" in source
 
 

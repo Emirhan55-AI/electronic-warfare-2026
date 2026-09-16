@@ -124,6 +124,8 @@ class QuickDetectionStateMixin:
                 if self._source_mode == "hackrf" else None,
                 int(self._live_receive_settings["vga_db"])
                 if self._source_mode == "hackrf" else None,
+                self._live_receive_settings.get("rf_amplifier", False)
+                if self._source_mode == "hackrf" else None,
             ),
         )
         self._spectrum_center_frequency_hz = float(spectrum.center_frequency_hz)
@@ -169,7 +171,8 @@ class QuickDetectionStateMixin:
                     vga = int(self._live_receive_settings["vga_db"]) if self._source_mode == "hackrf" else -1
                     self._direction_receiver_binding = (
                         f"{self._source_mode}|{float(spectrum.center_frequency_hz):.6f}|"
-                        f"{float(spectrum.sample_rate_hz):.6f}|{lower}:{upper}|{lna}:{vga}"
+                        f"{float(spectrum.sample_rate_hz):.6f}|{lower}:{upper}|{lna}:{vga}|"
+                        f"amp={int(bool(self._live_receive_settings.get('rf_amplifier', False)))}"
                     )
                     self._direction_frame_id = int(self._frame_index)
 
@@ -201,12 +204,12 @@ class QuickDetectionStateMixin:
         method = result.verification_method if isinstance(result, FixedBandVerification) else "none"
         revision = int(row.get("eventRevision", 0))
         labels = {
-            "verified_two_lo": ("Kararlı RF adayı", "2 ayarda kararlı"),
-            "rx_supported": ("FPGA adayı", "FPGA + RX spektrumu uyumlu"),
-            "pending": ("FPGA adayı", "İkinci alıcı ayarı denetleniyor"),
-            "not_reproduced": ("FPGA adayı", "İkinci ayarda görülmedi"),
-            "live_guard_failed": ("Donanım çizgisi", "Canlı RF kanıtı yok"),
-            "verification_error": ("FPGA adayı", "İkinci ayar tamamlanamadı"),
+            "verified_two_lo": ("Kararlı RF adayı", "Aynı frekans tekrar görüldü; önce bunu inceleyin."),
+            "rx_supported": ("FPGA adayı", "Alımda güçlü aday görüldü; yeniden ölçün."),
+            "pending": ("FPGA adayı", "Kontrol ediliyor; biraz bekleyin."),
+            "not_reproduced": ("FPGA adayı", "Sonraki ölçümde görülmedi; yeniden ölçün."),
+            "live_guard_failed": ("Donanım çizgisi", "Alıcı kaynaklı olabilir; yayın olarak kabul etmeyin."),
+            "verification_error": ("FPGA adayı", "Kontrol tamamlanamadı; yeniden ölçün."),
         }
         title, label = labels.get(
             state,
@@ -261,7 +264,7 @@ class QuickDetectionStateMixin:
             or self._fixed_verifier is not None
             or self._fixed_verification_record(candidate.frequency_hz) is not None
             or not self._hackrf_transfer_executable
-            or self._device_config.serial is None
+            or self._active_receiver_serial is None
         ):
             return
         key = round(candidate.frequency_hz / FIXED_VERIFY_MATCH_HZ)
@@ -282,11 +285,12 @@ class QuickDetectionStateMixin:
         self._fixed_preserved_history = [dict(row) for row in self._live_detection_history]
         self._fixed_verifier = self._fixed_verifier_factory(
             self._hackrf_transfer_executable,
-            self._device_config.serial,
+            self._active_receiver_serial,
             self._fixed_resume_settings["lna_db"],
             self._fixed_resume_settings["vga_db"],
             session_factory=self._live_session_factory,
             known_spurs_hz=self._known_spurs_hz,
+            rf_amplifier=bool(self._live_receive_settings.get("rf_amplifier", False)),
         )
         self._status_message = (
             f"{self._format_precise_rf(candidate.frequency_hz)} adayı iki alıcı ayarında denetleniyor."
@@ -345,6 +349,8 @@ class QuickDetectionStateMixin:
                 return
 
     def _maybe_verify_fpga_candidate(self, detections: list[dict[str, object]]) -> None:
+        if self._listening_parameter_target_hz is not None:
+            return
         candidates = [
             row for row in detections
             if row.get("stateKey") == "confirmed"
@@ -373,7 +379,7 @@ class QuickDetectionStateMixin:
         ])
 
     def _maybe_verify_coarse_candidate(self, frame: CoarseDetectionFrame) -> None:
-        if self._fixed_verification_candidate is not None:
+        if self._fixed_verification_candidate is not None or self._listening_parameter_target_hz is not None:
             return
         candidates = [
             item for item in frame.candidates
@@ -615,6 +621,10 @@ class QuickDetectionStateMixin:
                 self._live_detection_history.append(matched)
             row_key = matched["rowKey"]
             first_seen = matched["firstSeenFrame"]
+            display_frequency = str(matched.get("frequency", row["frequency"]))
+            display_frequency_hz = float(
+                matched.get("displayFrequencyHz", row["frequencyHz"])
+            )
             observations = int(matched["observationCount"]) + (0 if row.get("held") else 1)
             state = str(row.get("verificationLabel", "FPGA adayı"))
             if row.get("held"):
@@ -624,6 +634,8 @@ class QuickDetectionStateMixin:
                 row,
                 rowKey=row_key,
                 firstSeenFrame=first_seen,
+                displayFrequencyHz=display_frequency_hz,
+                frequency=display_frequency,
                 lastSeenFrame=self._frame_index,
                 observationCount=observations,
                 state=state,
@@ -637,28 +649,16 @@ class QuickDetectionStateMixin:
         if self._live_session is None:
             for retained in self._live_detection_history:
                 retained.update(observed=False, state="Son görüldü", stateKey="stale")
-        current = sorted(
+        ordered = sorted(
             (
                 row for row in self._live_detection_history
-                if bool(row["observed"])
-                and row.get("verificationKey") not in SUPPRESSED_VERIFICATION_STATES
+                if row.get("verificationKey") not in SUPPRESSED_VERIFICATION_STATES
             ),
-            key=lambda row: (-float(row["contrastDb"]), -int(row["lastSeenFrame"])),
+            key=lambda row: (int(row.get("firstSeenFrame", 0)), str(row.get("rowKey", ""))),
         )
-        history = sorted(
-            (
-                row for row in self._live_detection_history
-                if not bool(row["observed"])
-                and row.get("verificationKey") not in SUPPRESSED_VERIFICATION_STATES
-            ),
-            key=lambda row: (-int(row["lastSeenFrame"]), -float(row["contrastDb"])),
-        )
-        ordered = current + history
         for row in ordered:
             row["historyBoundary"] = False
-        if history:
-            history[0]["historyBoundary"] = True
-        self._detections = ordered[:12]
+        self._detections = ordered[-12:]
         self._live_list_frame = self._frame_index
         visible_ids = {int(row["eventId"]) for row in self._detections}
         session = self._live_session

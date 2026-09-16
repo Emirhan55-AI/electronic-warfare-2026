@@ -1,0 +1,240 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: 'Yalnız RX: spektrum, spektrogram ve I/Q zaman alanı gözlemi. TX bloğu içermez.'
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: hackrf_rx_interference_monitor
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: auto
+    thread_safe_setters: ''
+    title: HackRF RX - Sinyal Bozulması Gözlemi
+    window_size: (1280,900)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: 'USB kararlılığı için başlangıç değeri; bu akış yalnız alıcıdır.'
+    value: 2e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 16]
+    rotation: 0
+    state: enabled
+- name: center_freq
+  id: variable_qtgui_range
+  parameters:
+    gui_hint: 0,0,1,2
+    label: Merkez frekansı (Hz)
+    min_len: '400'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: 1e6
+    step: 100e3
+    stop: 6e9
+    value: 1900e6
+    widget: eng
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 80]
+    rotation: 0
+    state: enabled
+- name: lna_gain
+  id: variable_qtgui_range
+  parameters:
+    gui_hint: 1,0,1,1
+    label: LNA kazancı (dB)
+    min_len: '250'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '0'
+    step: '8'
+    stop: '40'
+    value: '16'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 144]
+    rotation: 0
+    state: enabled
+- name: vga_gain
+  id: variable_qtgui_range
+  parameters:
+    gui_hint: 1,1,1,1
+    label: VGA kazancı (dB)
+    min_len: '250'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '0'
+    step: '2'
+    stop: '62'
+    value: '16'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 208]
+    rotation: 0
+    state: enabled
+- name: soapy_hackrf_source_0
+  id: soapy_hackrf_source
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: 'False'
+    bandwidth: samp_rate
+    center_freq: center_freq
+    comment: 'Yalnız RX. AMP kapalı; TX sink veya RF çıkışı yoktur.'
+    dev_args: serial=a32868dc36877e47
+    gain: lna_gain
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fc32
+    vga: vga_gain
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [48, 336]
+    rotation: 0
+    state: enabled
+- name: qtgui_freq_sink_x_0
+  id: qtgui_freq_sink_x
+  parameters:
+    autoscale: 'False'
+    average: '0.20'
+    axislabels: 'True'
+    bw: samp_rate
+    ctrlpanel: 'False'
+    fc: center_freq
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 2,0,2,2
+    label: Spektrum
+    label1: Alınan sinyal
+    legend: 'False'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: complex
+    units: dBFS
+    update_time: '0.10'
+    wintype: window.WIN_HANN
+    ymax: '0'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 320]
+    rotation: 0
+    state: enabled
+- name: qtgui_waterfall_sink_x_0
+  id: qtgui_waterfall_sink_x
+  parameters:
+    alpha1: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '0'
+    fc: center_freq
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 4,0,3,2
+    int_max: '0'
+    int_min: '-120'
+    label1: Alınan sinyal
+    legend: 'False'
+    name: '"Spektrogram"'
+    nconnections: '1'
+    showports: 'False'
+    type: complex
+    update_time: '0.10'
+    wintype: window.WIN_HANN
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 416]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    autoscale: 'True'
+    axislabels: 'True'
+    ctrlpanel: 'False'
+    entags: 'False'
+    grid: 'True'
+    gui_hint: 7,0,2,2
+    label1: I
+    label2: Q
+    legend: 'True'
+    name: '"I/Q zaman alanı"'
+    nconnections: '1'
+    srate: samp_rate
+    size: '2048'
+    stemplot: 'False'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    ylabel: Bağıl genlik
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 512]
+    rotation: 0
+    state: enabled
+
+connections:
+- [soapy_hackrf_source_0, '0', qtgui_freq_sink_x_0, '0']
+- [soapy_hackrf_source_0, '0', qtgui_time_sink_x_0, '0']
+- [soapy_hackrf_source_0, '0', qtgui_waterfall_sink_x_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

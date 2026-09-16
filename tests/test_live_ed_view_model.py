@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 import struct
 import threading
 import time
@@ -35,6 +36,8 @@ from app.operator_console.live_ed import (
 )
 from app.operator_console.quick_view_model import MISSING_RECEIVER_ERROR_DISPLAY_MS, OperatorViewModel
 from app.operator_console.automatic_parameter import AutomaticParameterOutcome
+from app.operator_console.quick_runtime import _LiveSnapshotMailbox
+from app.operator_console.quick_task_completion import _analog_voice_bandwidth_khz
 from app.operator_console.detection_model import DetectionListModel
 from platforms.acquisition import (
     AcquisitionError,
@@ -48,6 +51,51 @@ from platforms.acquisition import (
 
 
 SERIAL = load_ed_rx_config().serial
+SECONDARY_SERIAL = next(
+    receiver.serial
+    for receiver in load_ed_rx_config().configured_receivers
+    if receiver.role == "ED_RX_SECONDARY"
+)
+
+
+def test_analog_voice_bandwidth_suggestion_is_bounded() -> None:
+    assert _analog_voice_bandwidth_khz(10_000.0) == 12.0
+    assert _analog_voice_bandwidth_khz(200_000.0) == 25.0
+    assert _analog_voice_bandwidth_khz(1_000.0) == 6.0
+
+
+def test_slow_gui_preserves_parameter_results_while_coalescing_frames():
+    mailbox = _LiveSnapshotMailbox()
+    response = LiveEDResponse(0, 0, 7, 0, False, 0, (), (), 0)
+    frame = IQFrame(0, 2_000_000, 820_000_000, b"\x00" * 8192, frame_id=0)
+    first = AutomaticParameterOutcome(1, 1, 820_000_000.0, 1.0, 2000, 2020,
+                                      "not_observed", "event_ownership_lost")
+    second = replace(first, event_id=2, intent_id=2)
+    assert mailbox.publish((LiveEDSnapshot(0, frame, response, (first,)), 1.0))
+    assert not mailbox.publish((LiveEDSnapshot(1, frame, response, (second,)), 2.0))
+    assert not mailbox.publish((LiveEDSnapshot(2, frame, response), 3.0))
+    latest, received_at = mailbox.take()
+    assert latest.sequence_number == 2
+    assert received_at == 3.0
+    assert latest.automatic_parameter_outcomes == (first, second)
+    assert mailbox.take() is None
+    assert mailbox.publish((LiveEDSnapshot(3, frame, response), 4.0))
+    assert mailbox.take()[0].automatic_parameter_outcomes == ()
+
+
+def test_parameter_delivery_overflow_is_explicit_and_preserves_pending_results():
+    mailbox = _LiveSnapshotMailbox()
+    mailbox.maximum_outcomes = 1
+    response = LiveEDResponse(0, 0, 7, 0, False, 0, (), (), 0)
+    frame = IQFrame(0, 2_000_000, 820_000_000, b"\x00" * 8192, frame_id=0)
+    outcome = AutomaticParameterOutcome(1, 1, 820_000_000.0, 1.0, 2000, 2020,
+                                        "not_observed", "event_ownership_lost")
+    snapshot = LiveEDSnapshot(0, frame, response, (outcome,))
+    mailbox.publish((snapshot, 1.0))
+    with pytest.raises(AcquisitionError) as caught:
+        mailbox.publish((snapshot, 2.0))
+    assert caught.value.code == "parameter_delivery_overflow"
+    assert mailbox.take() == (snapshot, 1.0)
 
 
 def _fake_board_parameter_measurement(host, port, intent, iq, *, sample_rate_hz,
@@ -107,9 +155,39 @@ class _TwoReceiverBackend(_Backend):
         return DeviceStatus("MULTIPLE_DEVICES", len(devices), devices=devices)
 
 
+class _SecondaryReceiverBackend(_Backend):
+    def discover_device(self, cancellation=None):
+        del cancellation
+        return DeviceStatus(
+            "ONE_DEVICE", 1, devices=(DeviceIdentity(SECONDARY_SERIAL),)
+        )
+
+
 class _DisconnectedBackend(_Backend):
     def discover_device(self, cancellation=None):
         del cancellation
+        return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+
+
+class _DisconnectableBackend(_Backend):
+    def __init__(self):
+        self.connected = True
+
+    def discover_device(self, cancellation=None):
+        del cancellation
+        if self.connected:
+            return DeviceStatus("ONE_DEVICE", 1, devices=(DeviceIdentity(SERIAL),))
+        return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
+
+
+class _PortaPackHandoffBackend(_Backend):
+    def __init__(self):
+        self.hackrf_mode = False
+
+    def discover_device(self, cancellation=None):
+        del cancellation
+        if self.hackrf_mode:
+            return DeviceStatus("ONE_DEVICE", 1, devices=(DeviceIdentity(SERIAL),))
         return DeviceStatus("NO_DEVICE", reason_code="device_not_found")
 
 
@@ -294,9 +372,13 @@ class _LiveListeningSession(_BlockingSession):
     def audio_channel_ready(self, target_frequency_hz):
         return self.audio_channel_frame_count(target_frequency_hz) == LIVE_AUDIO_WINDOW_FRAMES
 
-    def audio_channel_window_snapshot(self, target_frequency_hz):
+    def audio_channel_quality(self, target_frequency_hz):
         quality = self.audio_window_quality(31)
         quality.update(distinct_event_ids=2, event_id_changes=1, invalid_frames=0)
+        return quality
+
+    def audio_channel_window_snapshot(self, target_frequency_hz):
+        quality = self.audio_channel_quality(target_frequency_hz)
         return (self.window, quality) if self.audio_channel_ready(target_frequency_hz) else ((), quality)
 
     def run(self, snapshot_handler):
@@ -348,6 +430,14 @@ class _ConnectionFailedSession(_Session):
         raise AcquisitionError("connection_failed", "FPGA hizmetine bağlanılamadı.")
 
 
+class _BinaryPipeFailedSession(_Session):
+    def run(self, snapshot_handler):
+        del snapshot_handler
+        raise AcquisitionError(
+            "binary_pipe_failed", "HackRF ikili alım bağlantısı kurulamadı."
+        )
+
+
 class _InvalidSnapshotSession(_Session):
     def run(self, snapshot_handler):
         def invalid_snapshot(snapshot):
@@ -386,11 +476,15 @@ def test_detection_settings_reach_actual_live_and_survey_configuration():
         assert captured[0].display_interval_frames == 32
         assert captured[0].vga_gain_db == 62
         with patch.object(view._survey_controller, "start") as start:
-            view.startFrequencySurvey(100, 102, 16, 62)
+            view.startSurveyProfile(100, 102, 16, 62, "wideband_burst")
             config = start.call_args.args[2]
             assert config.frames_per_window == 256
             assert config.guard_frames == 16
             assert config.vga_gain_db == 62
+            assert config.mode == "wideband_burst"
+            assert view.sampleRateHz == 10_000_000
+            view._live_has_data = True
+            assert view.sampleRateText == "10 MS/s"
     finally:
         view.shutdown()
 
@@ -409,9 +503,10 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
 
     with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
         view_model.startLiveEDSession(104_650_000, 16, 16, 4)
-        _drain(app, lambda: view_model.busy)
+        _drain(app, lambda: view_model.busy or len(view_model.parameterHistory) < 1)
 
     assert view_model.sourceReady
+    assert view_model.sampleRateText == "8 MS/s"
     assert not view_model.liveSessionActive
     assert view_model.sourceName == "Alıcı ve FPGA"
     assert view_model.centerFrequencyHz == 104_650_000
@@ -432,6 +527,78 @@ def test_live_hackrf_fpga_session_drives_product_spectrum_and_detection() -> Non
     view_model.shutdown()
 
 
+def test_system_probe_switches_portapack_only_after_fpga_is_ready() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["portapack-system-probe-test"])
+    backend = _PortaPackHandoffBackend()
+    calls = []
+
+    def switch_mode() -> str:
+        calls.append("switch")
+        backend.hackrf_mode = True
+        return "COM9"
+
+    view_model = OperatorViewModel(
+        acquisition_backend=backend,
+        fpga_transport_factory=_FPGAReadyTransport,
+        portapack_mode_switcher=switch_mode,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert calls == ["switch"]
+        assert view_model.hackrfReady
+    finally:
+        view_model.shutdown()
+
+
+def test_system_probe_does_not_switch_portapack_when_fpga_is_unavailable() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["portapack-fpga-gate-test"])
+    backend = _PortaPackHandoffBackend()
+    calls = []
+    view_model = OperatorViewModel(
+        acquisition_backend=backend,
+        fpga_transport_factory=_FPGAMissingTransport,
+        portapack_mode_switcher=lambda: calls.append("switch") or "COM9",
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert calls == []
+        assert not view_model.hackrfReady
+        assert view_model.errorTitle == "FPGA ve Alıcı algılanamadı"
+    finally:
+        view_model.shutdown()
+
+
+def test_system_probe_explains_missing_portapack_control_connection() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["portapack-control-error-test"])
+    backend = _PortaPackHandoffBackend()
+
+    def switch_mode() -> str:
+        raise AcquisitionError(
+            "portapack_control_not_found",
+            "PortaPack USB denetim bağlantısı bulunamadı.",
+        )
+
+    view_model = OperatorViewModel(
+        acquisition_backend=backend,
+        fpga_transport_factory=_FPGAReadyTransport,
+        portapack_mode_switcher=switch_mode,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.hackrfReady
+        assert view_model.errorTitle == "Alıcı algılanmadı"
+        assert view_model.errorMessage == (
+            "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim "
+            "bağlantısına erişilemedi."
+        )
+    finally:
+        view_model.shutdown()
+
+
 def test_probe_reports_both_serial_bound_receiver_roles() -> None:
     app = QGuiApplication.instance() or QGuiApplication(["dual-receiver-probe-test"])
     view_model = OperatorViewModel(
@@ -450,8 +617,56 @@ def test_probe_reports_both_serial_bound_receiver_roles() -> None:
             "ED_RX_SECONDARY",
         ]
         assert all(row["stateKey"] == "found" for row in view_model.receiverRows)
-        assert "ana canlı RX yolu" in view_model.receiverRows[0]["state"]
-        assert "henüz fiziksel doğrulanmadı" in view_model.receiverRows[1]["state"]
+        assert "etkin ana RX yolu" in view_model.receiverRows[0]["state"]
+        assert "hazır yedek" in view_model.receiverRows[1]["state"]
+    finally:
+        view_model.shutdown()
+
+
+def test_secondary_receiver_is_safe_fallback_for_live_path() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["secondary-receiver-fallback-test"])
+    captured_live = []
+
+    def session_factory(executable, configuration):
+        captured_live.append((executable, configuration))
+        return _BlockingSession(executable, configuration)
+
+    view_model = OperatorViewModel(
+        acquisition_backend=_SecondaryReceiverBackend(),
+        live_session_factory=session_factory,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        assert view_model.hackrfReady
+        assert view_model._active_receiver_serial == SECONDARY_SERIAL
+        assert view_model._receiver_role_for_serial(SECONDARY_SERIAL) == "ED_RX_SECONDARY"
+        assert view_model._known_spurs_hz == (1_000_000_000,)
+        assert "İkinci alıcı (yedek)" in view_model.sourceName
+        assert view_model.receiverRows[1]["state"] == "Tanındı · etkin yedek RX yolu"
+
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        assert captured_live[0][1].device_serial == SECONDARY_SERIAL
+        view_model.stopLiveEDSession()
+    finally:
+        view_model.shutdown()
+
+
+def test_secondary_receiver_is_forwarded_to_wideband_survey() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["secondary-survey-fallback-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_SecondaryReceiverBackend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+
+        with patch.object(view_model._survey_controller, "start") as start:
+            view_model.startSurveyProfile(100, 102, 16, 16, "wideband_burst")
+            assert start.call_args.args[1] == SECONDARY_SERIAL
     finally:
         view_model.shutdown()
 
@@ -493,11 +708,14 @@ def test_automatic_parameter_outcomes_persist_across_restarted_live_sessions(tmp
         measurement_channelizer = {"profile": {"output_amplitude_scale": 1.0}}
 
         def run(self, snapshot_handler):
-            return super().run(
-                lambda snapshot: snapshot_handler(
-                    replace(snapshot, automatic_parameter_outcomes=(outcome,))
-                )
-            )
+            def publish(snapshot):
+                # All three arrive before the GUI consumes its one notification.
+                mailbox = _LiveSnapshotMailbox()
+                mailbox.publish((replace(snapshot, automatic_parameter_outcomes=(outcome,)), 1.0))
+                mailbox.publish((snapshot, 2.0))
+                mailbox.publish((snapshot, 3.0))
+                snapshot_handler(mailbox.take()[0])
+            return super().run(publish)
 
     app = QGuiApplication.instance() or QGuiApplication(["automatic-catalog-test"])
     view_model = OperatorViewModel(
@@ -512,7 +730,7 @@ def test_automatic_parameter_outcomes_persist_across_restarted_live_sessions(tmp
         _drain(app, lambda: view_model.busy)
 
         view_model.startLiveEDSession(104_650_000, 16, 16, 4)
-        _drain(app, lambda: view_model.busy)
+        _drain(app, lambda: view_model.busy or len(view_model.parameterHistory) < 1)
         assert len(view_model.parameterHistory) == 1
         assert view_model.parameterHistory[0]["dbfs"] == "-31.50 dBFS"
         assert view_model.parameterHistory[0]["dbm"] == "Kalibre değil"
@@ -525,11 +743,102 @@ def test_automatic_parameter_outcomes_persist_across_restarted_live_sessions(tmp
         # Kart olay kimlikleri yeni canlı koşuda yeniden başlayabilir. Katalog
         # oturum kimliği bu ikinci sonucu ilk koşuyla çakıştırmamalıdır.
         view_model.startLiveEDSession(104_650_000, 16, 16, 4)
-        _drain(app, lambda: view_model.busy)
+        _drain(app, lambda: view_model.busy or len(view_model.parameterHistory) < 2)
         assert len(view_model.parameterHistory) == 2
-        assert view_model.parameterCatalogSummary == "2 kayıt · geçerli dBFS gücüne göre sıralı"
+        assert view_model.parameterCatalogSummary == "2 kayıt"
     finally:
         view_model.shutdown()
+
+
+def test_corrupt_catalog_preserves_database_and_allows_application_start(tmp_path):
+    app = QGuiApplication.instance() or QGuiApplication(["corrupt-catalog-test"])
+    path = tmp_path / "catalog.sqlite3"
+    original = b"invalid database bytes"
+    path.write_bytes(original)
+    view = OperatorViewModel(acquisition_backend=_Backend(), parameter_catalog_path=path)
+    try:
+        assert view.parameterHistory == []
+        assert "açılamadı" in view.automaticParameterStatus
+        assert view.parameterCatalogPath == str(path)
+        view.refreshParameterCatalog()
+        assert "okunamadı" in view.automaticParameterStatus
+        assert view.exportParameterCatalog() == ""
+        assert path.read_bytes() == original
+    finally:
+        view.shutdown()
+        app.processEvents()
+
+
+def test_catalog_read_and_export_failures_are_reported(live_presentation):
+    view = live_presentation
+    with patch.object(view._parameter_catalog, "rows", side_effect=sqlite3.OperationalError("locked")):
+        view.refreshParameterCatalog()
+    assert "okunamadı" in view.automaticParameterStatus
+    assert "okunamadı" in view.parameterCatalogActionStatus
+    with patch.object(view._parameter_catalog, "export_csv", side_effect=sqlite3.OperationalError("locked")):
+        assert view.exportParameterCatalog() == ""
+    assert "aktarılamadı" in view.parameterCatalogActionStatus
+
+
+def test_catalog_actions_report_success_and_write_csv(tmp_path):
+    app = QGuiApplication.instance() or QGuiApplication(["catalog-actions-test"])
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        parameter_catalog_path=tmp_path / "catalog.sqlite3",
+    )
+    try:
+        view.refreshParameterCatalog()
+        assert view.parameterCatalogActionStatus.startswith("Katalog yenilendi")
+        exported = Path(view.exportParameterCatalog())
+        assert exported.is_file()
+        assert view.parameterCatalogActionStatus.startswith("CSV dışa aktarıldı")
+        with patch("app.operator_console.quick_view_model.QDesktopServices.openUrl", return_value=True):
+            assert view.openParameterCatalogFolder()
+        assert view.parameterCatalogActionStatus.endswith(str(tmp_path))
+        assert any(item["component"] == "Parametre kataloğu" for item in view.eventLog)
+    finally:
+        view.shutdown()
+        app.processEvents()
+
+
+def test_parameter_catalog_write_does_not_block_gui_thread(live_presentation):
+    view = live_presentation
+    entered = threading.Event()
+    release = threading.Event()
+
+    class SlowCatalog:
+        def add_many(self, outcomes, **context):
+            del context
+            entered.set()
+            assert release.wait(1.0)
+            return len(outcomes)
+
+        @staticmethod
+        def rows():
+            return [{"id": 1}]
+
+    view._parameter_catalog = SlowCatalog()
+    configuration = SimpleNamespace(
+        device_serial=SERIAL,
+        lna_gain_db=16,
+        vga_gain_db=16,
+    )
+    started = time.perf_counter()
+    view._queue_parameter_catalog_write(
+        view._generation,
+        tuple(object() for _ in range(64)),
+        configuration,
+        1.0,
+    )
+
+    assert time.perf_counter() - started < 0.05
+    assert view._parameter_catalog_pending_outcomes == 64
+    app = QGuiApplication.instance()
+    assert app is not None
+    _drain(app, lambda: not entered.is_set())
+    release.set()
+    _drain(app, lambda: view._parameter_catalog_pending_outcomes > 0)
+    assert view.parameterHistory == [{"id": 1}]
 
 
 def test_missing_receiver_probe_reports_an_actionable_error() -> None:
@@ -545,8 +854,8 @@ def test_missing_receiver_probe_reports_an_actionable_error() -> None:
         assert not view_model.busy
         assert not view_model.hackrfReady
         assert view_model.sourceState == "Hata"
-        assert view_model.errorTitle == "Alıcı bağlı değil"
-        assert view_model.errorMessage == "Yapılandırılmış alıcı bulunamadı. USB bağlantısını denetleyin."
+        assert view_model.errorTitle == "Alıcı algılanmadı"
+        assert view_model.errorMessage == "Alıcı algılanmadı"
         assert view_model.statusMessage == view_model.errorMessage
         assert view_model._probe_error_timer.interval() == MISSING_RECEIVER_ERROR_DISPLAY_MS
         assert view_model._probe_error_timer.isActive()
@@ -556,6 +865,21 @@ def test_missing_receiver_probe_reports_an_actionable_error() -> None:
         assert view_model.errorTitle == ""
         assert view_model.errorMessage == ""
         assert view_model.statusMessage == "Alıcı bağlantısı bekleniyor."
+    finally:
+        view_model.shutdown()
+
+
+def test_short_worker_is_retained_until_queued_completion(tmp_path):
+    app = QGuiApplication.instance() or QGuiApplication(["retained-worker-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        parameter_catalog_path=tmp_path / "retained-worker.sqlite3",
+    )
+    try:
+        view_model._submit(view_model._generation, "noop", lambda: "tamam")
+        assert len(view_model._active_task_refs) == 1
+        _drain(app, lambda: view_model.busy)
+        assert not view_model._active_task_refs
     finally:
         view_model.shutdown()
 
@@ -571,7 +895,8 @@ def test_missing_receiver_tools_error_also_returns_to_waiting() -> None:
         _drain(app, lambda: view_model.busy)
 
         assert view_model.sourceState == "Hata"
-        assert view_model.errorTitle == "Alıcı yazılımı bulunamadı"
+        assert view_model.errorTitle == "Alıcı algılanmadı"
+        assert view_model.errorMessage == "Alıcı algılanmadı"
         assert view_model._probe_error_timer.isActive()
 
         view_model._clear_missing_receiver_error()
@@ -594,8 +919,8 @@ def test_fpga_service_failure_blocks_ready_state_and_returns_to_waiting() -> Non
 
         assert not view_model.hackrfReady
         assert view_model.sourceState == "Hata"
-        assert view_model.errorTitle == "FPGA bağlantısı kurulamadı"
-        assert view_model.errorMessage == "FPGA hizmetine bağlanılamadı."
+        assert view_model.errorTitle == "FPGA algılanmadı"
+        assert view_model.errorMessage == "FPGA algılanmadı"
         assert view_model._probe_error_timer.isActive()
 
         view_model._clear_missing_receiver_error()
@@ -617,10 +942,8 @@ def test_receiver_and_fpga_failures_are_reported_together() -> None:
 
         assert not view_model.hackrfReady
         assert view_model.sourceState == "Hata"
-        assert view_model.errorTitle == "Alıcı ve FPGA bağlı değil"
-        assert view_model.errorMessage == (
-            "Alıcı ve FPGA bağlantısı kurulamadı. USB ve FPGA ağ bağlantılarını denetleyin."
-        )
+        assert view_model.errorTitle == "FPGA ve Alıcı algılanamadı"
+        assert view_model.errorMessage == "FPGA ve Alıcı algılanamadı"
         assert view_model._probe_error_timer.isActive()
     finally:
         view_model.shutdown()
@@ -663,10 +986,44 @@ def live_presentation():
     view.setSourceMode("hackrf")
     view._live_output_center_frequency_hz = 104_650_000
     view._live_sample_rate_hz = 2_000_000
+    view._receiver_sample_rate_hz = 8_000_000
     view._live_session = _BlockingSession("", None)
     view._live_has_data = True
+    view._active_receiver_serial = SERIAL
     yield view
     view.shutdown()
+
+
+def test_live_sample_rate_presentation_shows_receiver_rate(live_presentation) -> None:
+    view = live_presentation
+    view._spectrum_sample_rate_hz = 8_000_000
+    assert view.sampleRateTitle == "ÖRNEKLEME HIZI"
+    assert view.sampleRateText == "8 MS/s"
+    view._spectrum_sample_rate_hz = 2_000_000
+    assert view.sampleRateText == "8 MS/s"
+    assert view.sampleRateHz == 2_000_000
+
+
+def test_receiver_audio_settings_reject_active_sessions_and_invalid_values(live_presentation):
+    view = live_presentation
+    assert not view.setReceiverAndAudioSettings(True, 0.0)
+    assert not view.receiverRFAmplifier
+    view._live_session = None
+    for value in (-1, 2001, float("nan"), float("inf"), True, "750"):
+        assert not view.setReceiverAndAudioSettings(True, value)
+    assert not view.setReceiverAndAudioSettings(1, 750.0)
+    assert view.setReceiverAndAudioSettings(True, 0.0)
+    assert view.receiverRFAmplifier
+    assert view.listeningDeemphasisUs == 0.0
+    assert not view._live_has_data
+    assert view.setReceiverAndAudioSettings(False, 750.0)
+
+
+def test_live_configuration_preserves_amp_and_rejects_non_boolean():
+    config = LiveEDConfiguration(104_650_000, SERIAL, rf_amplifier=True)
+    assert config.rx_config.rf_amplifier is True
+    with pytest.raises(AcquisitionError):
+        LiveEDConfiguration(104_650_000, SERIAL, rf_amplifier=1)
 
 
 def _present(view, frame_id, *events):
@@ -846,6 +1203,21 @@ def test_same_frequency_is_retained_once_across_new_fpga_event_ids(live_presenta
     assert len(view.detections) == 2
 
 
+def test_fixed_detection_cards_keep_position_and_display_frequency(live_presentation):
+    view = live_presentation
+    _present(view, 0, _event(401, peak=2205))
+    first_key = view.detections[0]["rowKey"]
+    first_frequency = view.detections[0]["frequency"]
+
+    _present(view, 16, _event(402, peak=2240))
+    assert view.detections[0]["rowKey"] == first_key
+    assert view.detections[0]["frequency"] == first_frequency
+
+    stronger = replace(_event(403, peak=2505), peak_power=1_000.0, noise_power=1.0)
+    _present(view, 32, _event(404, peak=2240), stronger)
+    assert [row["rowKey"] for row in view.detections] == [first_key, "frequency-2"]
+
+
 def test_live_listening_target_stays_latched_across_event_id_migration(live_presentation):
     view = live_presentation
     _present(view, 0, _event(201, peak=2205))
@@ -883,7 +1255,7 @@ def test_stale_history_does_not_count_as_a_live_detection(live_presentation):
     _present(view, 144)
     assert view.activeDetectionCount == 0
     assert len(view.detections) == 1
-    assert view.detections[0]["historyBoundary"]
+    assert not view.detections[0]["historyBoundary"]
 
 
 def test_confirmed_host_candidate_is_not_presented_without_fpga_agreement(live_presentation):
@@ -928,7 +1300,7 @@ def test_persistent_same_iq_fpga_and_rx_agreement_stays_an_unverified_candidate(
 
     assert view.stableDetectionCount == 0
     assert view.detectionMarkers[0]["verificationKey"] == "rx_supported"
-    assert view.detections[0]["state"] == "FPGA + RX spektrumu uyumlu"
+    assert view.detections[0]["state"] == "Alımda güçlü aday görüldü; yeniden ölçün."
     assert view.detections[0]["title"] == "FPGA adayı"
     assert view._fixed_verification_candidate is None
     assert view._live_session is not None
@@ -947,7 +1319,7 @@ def test_only_two_lo_record_promotes_fpga_candidate_to_stable(live_presentation)
     _present(view, 0, event)
     assert view.stableDetectionCount == 1
     assert view.detectionMarkers[0]["verificationKey"] == "verified_two_lo"
-    assert view.detections[0]["state"] == "2 ayarda kararlı"
+    assert view.detections[0]["state"] == "Aynı frekans tekrar görüldü; önce bunu inceleyin."
     assert view.detections[0]["title"] == "Kararlı RF adayı"
 
 
@@ -1188,8 +1560,177 @@ def test_fpga_connection_failure_revokes_combined_receiver_readiness() -> None:
         assert not view_model.hackrfReady
         assert view_model._hackrf_transfer_executable == ""
         assert view_model.sourceState == "Hata"
-        assert view_model.errorTitle == "FPGA bağlantısı kurulamadı"
-        assert view_model.errorMessage == "FPGA hizmetine bağlanılamadı."
+        assert view_model.errorTitle == "FPGA algılanmadı"
+        assert view_model.errorMessage == "FPGA algılanmadı"
+    finally:
+        view_model.shutdown()
+
+
+def test_binary_pipe_failure_is_reported_as_receiver_disconnect_and_revokes_ready() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["receiver-disconnect-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_BinaryPipeFailedSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert view_model.hackrfReady
+
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        _drain(app, lambda: view_model.busy)
+
+        assert not view_model.hackrfReady
+        assert view_model._active_receiver_serial is None
+        assert view_model.errorTitle == "Alıcı bağlantısı koptu"
+        assert view_model.errorMessage == (
+            "Alıcı HackRF USB modunda görünmüyor. Sistemi Denetle ile yeniden bağlanın."
+        )
+    finally:
+        view_model.shutdown()
+
+
+def test_idle_receiver_health_check_detects_usb_mode_loss() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["receiver-health-test"])
+    backend = _DisconnectableBackend()
+    view_model = OperatorViewModel(
+        acquisition_backend=backend,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert view_model.hackrfReady
+        assert view_model._receiver_health_timer.isActive()
+
+        backend.connected = False
+        view_model._poll_receiver_health()
+        _drain(app, lambda: view_model._receiver_health_in_flight)
+
+        assert not view_model.hackrfReady
+        assert not view_model._receiver_health_timer.isActive()
+        assert view_model.errorTitle == "Alıcı bağlantısı koptu"
+    finally:
+        view_model.shutdown()
+
+
+def test_inconclusive_idle_receiver_health_check_preserves_ready_state() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["receiver-health-indeterminate-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model._receiver_health_completed(
+            view_model._generation,
+            "receiver_health",
+            DeviceStatus("DEVICE_ERROR", reason_code="device_probe_failed"),
+            0.01,
+        )
+        assert view_model.hackrfReady
+        assert view_model.errorTitle == ""
+    finally:
+        view_model.shutdown()
+
+
+def test_scan_start_waits_for_inflight_receiver_health_check() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["receiver-health-start-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_BlockingSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model._receiver_health_in_flight = True
+        view_model.startLiveEDSession(104_650_000, 16, 16, 4)
+        assert not view_model.liveSessionActive
+
+        view_model._receiver_health_in_flight = False
+        _drain(app, lambda: not view_model.liveSessionActive)
+        assert view_model.liveSessionActive
+        view_model.stopLiveEDSession()
+        _drain(app, lambda: view_model.busy)
+    finally:
+        view_model.shutdown()
+
+
+def test_band_survey_start_waits_for_inflight_receiver_health_check() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["receiver-health-survey-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        with patch.object(view_model._survey_controller, "start") as start:
+            view_model._receiver_health_in_flight = True
+            view_model.startSurveyProfile(100, 102, 16, 16, "wideband_burst")
+            assert not start.called
+
+            view_model._receiver_health_in_flight = False
+            _drain(app, lambda: not start.called)
+            assert start.called
+    finally:
+        view_model.shutdown()
+
+
+def test_candidate_capacity_error_keeps_connected_hardware_ready() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["candidate-capacity-readiness-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        assert view_model.hackrfReady
+
+        detail = (
+            "FPGA tespit kapasitesi aşıldı: kare 72, ham aday 91, etkin olay 64, "
+            "izlemeye alınamayan aday 4. Bu bağlantı hatası değildir. "
+            "LNA/VGA kazançlarını azaltıp yeniden deneyin."
+        )
+        view_model._live_failed(view_model._generation, "candidate_drop", detail)
+
+        assert view_model.hackrfReady
+        assert view_model._hackrf_transfer_executable
+        assert view_model.errorTitle == "FPGA tespit kapasitesi aşıldı"
+        assert view_model.errorMessage == detail
+    finally:
+        view_model.shutdown()
+
+
+def test_long_capture_error_explains_receiver_and_display_length_mismatch() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["long-capture-message-test"])
+    view_model = OperatorViewModel()
+    try:
+        view_model._show_error(
+            "long_capture", "HackRF capture beklenen uzunluktan uzun."
+        )
+
+        assert view_model.errorTitle == "Alıcı veri boyu uyuşmadı"
+        assert "görüntü işleme örnek boyları uyuşmadı" in view_model.errorMessage
+        assert "karttan FFT ayarını yeniden okuyun" in view_model.errorMessage
+        assert "Sistemi Denetle" in view_model.errorMessage
+    finally:
+        view_model.shutdown()
+
+
+def test_local_dma_failure_is_presented_as_an_fft_card_mismatch() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["local-dma-message-test"])
+    view_model = OperatorViewModel()
+    try:
+        view_model._show_error("local_dma_failure", "FPGA DMA işlemi tamamlanamadı.")
+
+        assert view_model.errorTitle == "FFT ayarı kartla uyuşmuyor"
+        assert "Karttan FFT ayarını yeniden okuyup" in view_model.errorMessage
+        assert "local_dma_failure" not in view_model.errorMessage
     finally:
         view_model.shutdown()
 
@@ -1350,6 +1891,36 @@ def test_parameter_handoff_reacquires_and_revalidates_listening_target() -> None
         assert view_model.listeningSuggestedOffsetKHz == pytest.approx(76.66015625)
         assert view_model.listeningSuggestedBandwidthKHz == 12.0
         assert "Parametre ölçümü" in view_model.listeningParameterBasisText
+    finally:
+        view_model.shutdown()
+
+
+def test_parameter_handoff_waits_for_receiver_health_check() -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["parameter-listening-health-test"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view_model.probeHackrf()
+        _drain(app, lambda: view_model.busy)
+        view_model._listening_parameter_target_hz = 104_726_660.15625
+        view_model._listening_parameter_bandwidth_khz = 12.0
+        view_model._listening_parameter_record_path = "measurement.zip"
+        view_model._receiver_health_in_flight = True
+
+        assert view_model.continueToListening()
+        assert not view_model.liveSessionActive
+        assert "otomatik başlayacak" in view_model.listeningState
+        assert view_model._listening_parameter_target_hz == pytest.approx(104_726_660.15625)
+
+        view_model._receiver_health_in_flight = False
+        with patch.object(view_model, "_coarse_supports_fpga_region", return_value=True):
+            _drain(app, lambda: not view_model.liveSessionActive)
+            _drain(app, lambda: view_model.selectedDetectionId < 0)
+        assert view_model.liveSessionActive
+        assert view_model.selectedDetectionId == 31
     finally:
         view_model.shutdown()
 
@@ -1861,7 +2432,24 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
 
         assert view_model.liveSessionActive
         assert view_model.listeningSelectionReady
-        assert view_model.liveListeningBufferText == "Canlı I/Q tamponu 5.0 / 5.0 s"
+        assert view_model.liveListeningBufferText == "Dinleme verisi 5.0 / 5.0 s · sinyal hazır"
+        session = view_model._live_session
+        assert session is not None
+        unstable = {
+            "total_frames": LIVE_AUDIO_WINDOW_FRAMES,
+            "observed_frames": 100,
+            "observed_fraction": 100 / LIVE_AUDIO_WINDOW_FRAMES,
+            "max_consecutive_misses": 50,
+            "invalid_frames": 0,
+            "acceptable": False,
+        }
+        with patch.object(session, "audio_channel_frame_count", return_value=100), patch.object(
+            session, "audio_channel_quality", return_value=unstable
+        ):
+            # The captured data remains full even when channel confidence drops.
+            assert view_model.liveListeningBufferText == (
+                "Dinleme verisi 5.0 / 5.0 s · hedef sinyal kesiliyor"
+            )
 
         with patch(
             "app.operator_console.quick_listening_actions.AnalogMonitor.process_continuous",
@@ -1877,20 +2465,12 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
         assert view_model.errorMessage == ""
         assert view_model.listeningReady
         assert not view_model.listeningShortPreview
-        assert view_model.listeningState == "Kesintisiz kanal sesi hazır."
-        assert any(
-            row["label"] == "Giriş kapsamı"
-            and row["value"].startswith("Canlı kesintisiz alım · 5.001 s")
-            for row in view_model.listeningRows
-        )
+        assert view_model.listeningState == "Ses hazır."
         rows = {row["label"]: row["value"] for row in view_model.listeningRows}
-        assert rows["Kanal gücü aralığı"] == "-20.00…-19.50 dBFS"
-        assert rows["Merkez frekans değişimi"] == "-12.0…+8.0 Hz"
-        assert rows["Zamansal gözlem"] == "2 nokta · 250 ms"
-        assert rows["Tespit sürekliliği"] == (
-            f"Doğrulandı · {LIVE_AUDIO_WINDOW_FRAMES - 2}/{LIVE_AUDIO_WINDOW_FRAMES} kare gözlendi · "
-            "en uzun boşluk 1 kare"
-        )
+        assert rows["Alım seviyesi"] == "-20.00…-19.50 dBFS"
+        assert rows["Frekans sapması"] == "-12.0…+8.0 Hz"
+        assert rows["Ses profili"] == "Net ses"
+        assert len(rows) == 6
         assert view_model.listeningObservationPoints == [
             {"time": 0.125, "power": -20.0, "frequency": -12.0},
             {"time": 0.375, "power": -19.5, "frequency": 8.0},
@@ -1899,46 +2479,6 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
         assert sum(block.size for block in blocks) == LIVE_AUDIO_WINDOW_FRAMES * 4096
     finally:
         view_model.shutdown()
-
-
-@pytest.mark.parametrize("errors,expected", [
-    (["rx_level_low"], [(16, 16), (24, 24)]),
-    (["iq_saturation"], [(16, 16), (8, 8)]),
-    (["rx_level_low", "iq_saturation"], [(16, 16), (24, 24)]),
-    (["operation_cancelled"], [(16, 16)]),
-])
-def test_managed_gain_retries_are_bounded_and_do_not_cycle(errors, expected) -> None:
-    app = QGuiApplication.instance() or QGuiApplication(["managed-gain-test"])
-    configurations = []
-    remaining = list(errors)
-
-    class LevelSession(_Session):
-        def run(self, snapshot_handler):
-            configurations.append((self.configuration.lna_gain_db, self.configuration.vga_gain_db))
-            assert self.configuration.assess_receive_level
-            if remaining:
-                raise AcquisitionError(remaining.pop(0), "level test")
-            return super().run(snapshot_handler)
-
-    view = OperatorViewModel(acquisition_backend=_Backend(), live_session_factory=LevelSession,
-                             fpga_transport_factory=_FPGAReadyTransport)
-    try:
-        view.setSourceMode("hackrf")
-        view.probeHackrf()
-        _drain(app, lambda: view.busy)
-        view.startManagedLiveEDSession(933_000_000, 16, 16, 64, True)
-        _drain(app, lambda: view.busy)
-        assert configurations == expected
-        if len(errors) == 2:
-            assert view.errorTitle == "Alıcı seviyesi ayarlanamadı"
-            assert view.detections == []
-        elif errors == ["operation_cancelled"]:
-            assert not view.errorTitle
-        else:
-            assert not view.errorTitle
-            assert view.liveReceiveSettings["lna_db"] == expected[-1][0]
-    finally:
-        view.shutdown()
 
 
 @pytest.mark.parametrize("session_factory", [_FailedSession, _InvalidSnapshotSession])
@@ -2032,7 +2572,8 @@ def test_frequency_survey_excludes_other_sources_and_keeps_historical_selection(
         assert view.survey.selectedKey == "0:31"
         assert view.survey.observationModel.rowCount() == 1
         assert view.monitorSurveyObservation()
-        assert view.liveReceiveSettings == {"center_hz": 1_200_000, "lna_db": 16, "vga_db": 16}
+        assert view.liveReceiveSettings == {"center_hz": 1_200_000, "lna_db": 16, "vga_db": 16,
+                                            "rf_amplifier": False}
         _drain(app, lambda: view.busy)
         assert view.centerFrequencyHz == 1_200_000
     finally:

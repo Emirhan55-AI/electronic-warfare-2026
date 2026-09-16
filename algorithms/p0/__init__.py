@@ -2,6 +2,7 @@
 
 from .bandwidth import BandwidthEstimate, BandwidthEstimator, BandwidthProfile
 from .channelizer import ChannelizedFrame, P0Channelizer, P0ChannelizerProfile
+from .direct_frame import DirectP0FrameAdapter, DirectP0Profile
 from .native_channelizer import (
     NativeP0Channelizer,
     create_realtime_channelizer,
@@ -155,6 +156,8 @@ __all__ = [
     "P0ChannelizerProfile",
     "NativeP0Channelizer",
     "create_realtime_channelizer",
+    "DirectP0FrameAdapter",
+    "DirectP0Profile",
     "find_native_channelizer_library",
     "native_channelizer_cpu_supported",
     "P0SearchEngine",

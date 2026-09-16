@@ -25,6 +25,7 @@ Ham RX I/Q
 | `integration.py` | Parametre ölçüm zinciriyle ED sınıflandırma bağı |
 | `train_classifier.py` | Çevrimdışı, sentetik eğitim ve değerlendirme aracı |
 | `hackrf_inspector.grc` | HackRF RX akışını ZMQ üzerinden yayımlayan alıcı akışı |
+| `hackrf_rx_interference_monitor.grc` | Yalnız RX çalışan; spektrum, spektrogram ve I/Q zaman alanını birlikte gösteren bağımsız bozulma/girişim gözlem akışı |
 
 13 Eylül 2026 bakımında, hiçbir ürün giriş noktası veya doğrulama tarafından
 kullanılmayan yinelenen `signal_channelizer_v1.py` aracı kaldırıldı. Sinyal

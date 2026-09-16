@@ -44,11 +44,13 @@ from algorithms.p0.detection_config import (
     DetectionProfile, DetectionConfigError, exchange_profile, NORMAL_DEFAULT, WEAK_DEFAULT,
 )
 from platforms.acquisition import (
+    AcquisitionError,
     DeviceStatus,
     HackRFBackend,
     RealHackRFBackend,
     ToolInventory,
     load_ed_rx_config,
+    switch_portapack_to_hackrf_mode,
 )
 from .audio_playback import AudioPlayback
 from .detection_model import DetectionListModel
@@ -97,6 +99,7 @@ from .quick_runtime import (
     LIVE_PIPELINE_DETAILS,
     PIPELINE_COMPONENTS,
     _LatestWorkMailbox,
+    _CatalogTask,
     _LiveMailbox,
     _LiveTask,
     _Task,
@@ -115,15 +118,19 @@ __all__ = (
 
 
 MISSING_RECEIVER_ERROR_DISPLAY_MS = 10_000
+PORTAPACK_REENUMERATION_TIMEOUT_SECONDS = 8.0
+PORTAPACK_REENUMERATION_POLL_SECONDS = 0.25
+RECEIVER_HEALTH_INTERVAL_MS = 1_500
 READINESS_INVALIDATING_LIVE_ERRORS = frozenset(
     {
         "connection_failed",
         "dma_status",
-        "candidate_drop",
         "transport_integrity",
         "stream_integrity",
         "live_queue_timeout",
         "live_capture_timeout",
+        "binary_pipe_failed",
+        "receiver_connection_lost",
     }
 )
 
@@ -174,6 +181,7 @@ class OperatorViewModel(
         developer_mode: bool | None = None,
         measurement_record_directory: Path | None = None,
         parameter_catalog_path: Path | None = None,
+        portapack_mode_switcher: Callable[[], str] | None = None,
     ) -> None:
         super().__init__(parent)
         resolved = resolve_default_operation_profile()
@@ -189,18 +197,32 @@ class OperatorViewModel(
         self._fpga_transport_factory = fpga_transport_factory
         self._fixed_verifier_factory = fixed_verifier_factory
         self._backend = acquisition_backend or RealHackRFBackend()
+        self._portapack_mode_switcher = (
+            portapack_mode_switcher
+            if portapack_mode_switcher is not None
+            else (switch_portapack_to_hackrf_mode if acquisition_backend is None else None)
+        )
         self._device_config = load_ed_rx_config()
+        self._active_receiver_serial: str | None = None
         catalog_path = parameter_catalog_path or (
             (Path(measurement_record_directory).parent if measurement_record_directory is not None else
              Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)))
             / "parameter-catalog.sqlite3"
         )
-        self._parameter_catalog = ParameterCatalog(
-            catalog_path,
-            Path(__file__).resolve().parents[2] / "config" / "p0" / "rx_calibration.json",
-        )
-        self._automatic_parameter_rows = self._parameter_catalog.rows()
+        self._parameter_catalog_path = Path(catalog_path)
+        self._parameter_catalog = None
+        self._automatic_parameter_rows = []
         self._automatic_parameter_status = "Kart canlı parametre yeteneği henüz denetlenmedi."
+        self._parameter_catalog_action_status = ""
+        try:
+            self._parameter_catalog = ParameterCatalog(
+                catalog_path,
+                Path(__file__).resolve().parents[2] / "config" / "p0" / "rx_calibration.json",
+            )
+            self._automatic_parameter_rows = self._parameter_catalog.rows()
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._parameter_catalog = None
+            self._automatic_parameter_status = f"Parametre kataloğu açılamadı: {exc}"
         self._receiver_rows = [
             {
                 "role": receiver.role,
@@ -213,12 +235,33 @@ class OperatorViewModel(
             }
             for receiver in self._device_config.configured_receivers
         ]
-        self._known_spurs_hz = load_known_spurs(self._device_config.serial)
+        self._known_spurs_hz: tuple[int, ...] = ()
         self._live_spur_guard_binding: tuple[float, float, int] | None = None
         self._live_spur_guard_power: deque[np.ndarray] = deque(maxlen=LIVE_SPUR_GUARD_WINDOW)
         self._live_spur_guard_passed: dict[int, bool] = {}
         self._pool = QThreadPool(self)
         self._pool.setMaxThreadCount(1)
+        self._catalog_pool = QThreadPool(self)
+        self._catalog_pool.setMaxThreadCount(1)
+        self._receiver_health_pool = QThreadPool(self)
+        self._receiver_health_pool.setMaxThreadCount(1)
+        self._receiver_health_in_flight = False
+        # A QRunnable can finish before its queued completion signal reaches
+        # the GUI thread.  Keep its Python owner alive until that signal is
+        # consumed; otherwise a fast probe can leave the UI permanently busy.
+        self._active_task_refs: set[object] = set()
+        self._parameter_catalog_pending_outcomes = 0
+        self._parameter_catalog_pending_inserted = 0
+        self._parameter_catalog_latest_rows: list[dict[str, object]] | None = None
+        self._parameter_catalog_buffer: list[
+            tuple[tuple[object, ...], dict[str, object]]
+        ] = []
+        self._parameter_catalog_flush_timer = QTimer(self)
+        self._parameter_catalog_flush_timer.setSingleShot(True)
+        self._parameter_catalog_flush_timer.setInterval(500)
+        self._parameter_catalog_flush_timer.timeout.connect(
+            self._flush_parameter_catalog_buffer
+        )
         self._timer = QTimer(self)
         self._timer.setInterval(100)
         self._timer.timeout.connect(self._advance)
@@ -229,6 +272,9 @@ class OperatorViewModel(
         self._probe_error_timer.setSingleShot(True)
         self._probe_error_timer.setInterval(MISSING_RECEIVER_ERROR_DISPLAY_MS)
         self._probe_error_timer.timeout.connect(self._clear_missing_receiver_error)
+        self._receiver_health_timer = QTimer(self)
+        self._receiver_health_timer.setInterval(RECEIVER_HEALTH_INTERVAL_MS)
+        self._receiver_health_timer.timeout.connect(self._poll_receiver_health)
 
         self._generation = 0
         self._closed = False
@@ -286,6 +332,8 @@ class OperatorViewModel(
         self._reduced_motion = False
         self._hackrf_ready = False
         self._hackrf_transfer_executable = ""
+        self._active_receiver_serial = None
+        self._known_spurs_hz = ()
         self._live_session: LiveEDSession | None = None
         self._live_presentation_error: tuple[str, str] | None = None
         self._live_has_data = False
@@ -299,12 +347,14 @@ class OperatorViewModel(
         self._live_output_center_frequency_hz = 0
         self._spectrum_center_frequency_hz = 0.0
         self._spectrum_sample_rate_hz = 0.0
-        self._managed_gain = None
+        self._receiver_sample_rate_hz = 0.0
         self._live_receive_settings = {
             "center_hz": 104_650_000,
             "lna_db": OPERATOR_DEFAULT_LNA_GAIN_DB,
             "vga_db": OPERATOR_DEFAULT_VGA_GAIN_DB,
         }
+        self._receiver_rf_amplifier = False
+        self._listening_deemphasis_us = 0.0
         self._live_sample_rate_hz = 0
         self._live_frames_per_second = 0.0
         self._survey_controller = SurveyController(self, factory=survey_factory)
@@ -407,6 +457,10 @@ class OperatorViewModel(
             self._fixed_verification_candidate is not None and self._fixed_verifier is not None
         )
 
+    @Property(bool, notify=stateChanged)
+    def fixedVerificationActive(self) -> bool:
+        return self._fixed_verification_candidate is not None and self._fixed_verifier is not None
+
     @Property(QObject, constant=True)
     def survey(self):
         return self._survey_controller
@@ -436,12 +490,17 @@ class OperatorViewModel(
         return self._format_frequency(self.centerFrequencyHz)
 
     @Property(str, notify=stateChanged)
+    def sampleRateTitle(self) -> str:
+        return "ÖRNEKLEME HIZI"
+
+    @Property(str, notify=stateChanged)
     def sampleRateText(self) -> str:
         if self._source is None and not self._live_has_data:
             return "—"
-        if self._source_mode == "hackrf" and self._live_has_data and self._spectrum_sample_rate_hz > self.sampleRateHz:
-            return f"RX {self._spectrum_sample_rate_hz / 1_000_000:g} · FPGA {self.sampleRateHz / 1_000_000:g} MS/s"
-        return f"{self.sampleRateHz / 1_000_000:g} MS/s" if self.sampleRateHz >= 1_000_000 else f"{self.sampleRateHz / 1_000:g} kS/s"
+        rate = self._receiver_sample_rate_hz if self._source_mode == "hackrf" else self.sampleRateHz
+        if rate <= 0:
+            return "—"
+        return f"{rate / 1_000_000:g} MS/s" if rate >= 1_000_000 else f"{rate / 1_000:g} kS/s"
 
     @Property(str, notify=stateChanged)
     def liveHealthText(self) -> str:
@@ -517,6 +576,36 @@ class OperatorViewModel(
     def detectionSettings(self):
         return dict(self._detection_settings)
 
+    @Property(bool, notify=detectionSettingsChanged)
+    def receiverRFAmplifier(self):
+        return self._receiver_rf_amplifier
+
+    @Property(float, notify=detectionSettingsChanged)
+    def listeningDeemphasisUs(self):
+        return self._listening_deemphasis_us
+
+    @Slot(bool, float, result=bool)
+    def setReceiverAndAudioSettings(self, rf_amplifier, deemphasis_us):
+        # Settings never mutate a running capture or a pending measurement.
+        if self._busy or self._live_session is not None or self._closed:
+            return False
+        if (type(rf_amplifier) is not bool or isinstance(deemphasis_us, bool)
+                or not isinstance(deemphasis_us, (int, float))
+                or not math.isfinite(deemphasis_us) or not 0 <= deemphasis_us <= 2000):
+            return False
+        if rf_amplifier != self._receiver_rf_amplifier:
+            self._fixed_verification_records.clear()
+            self._fixed_preserved_history = []
+            self._fixed_verification_queue.clear()
+            self._survey_controller.clearReference()
+            if self._source_mode == "hackrf":
+                self._clear_results(keep_source=True)
+                self._live_has_data = False
+        self._receiver_rf_amplifier = rf_amplifier
+        self._listening_deemphasis_us = float(deemphasis_us)
+        self.detectionSettingsChanged.emit()
+        return True
+
     @Property("QVariantMap", notify=detectionProfileChanged)
     def cardDetectionProfile(self):
         profile = self._card_detection_profile
@@ -527,7 +616,7 @@ class OperatorViewModel(
                 "fftSize": profile.fft_size if profile else 4096,
                 "runtimeFftSupported": profile.runtime_fft_supported if profile else False}
 
-    def _start_detection_profile_request(self, profile=None):
+    def _start_detection_profile_request(self, profile=None, *, reconcile_current=False):
         if self._busy or self._live_session is not None or self._closed:
             return False
         self._generation += 1
@@ -536,12 +625,33 @@ class OperatorViewModel(
         self._set_busy(True, "Kart tespit ayarları doğrulanıyor…")
         def operation():
             try:
-                return {"profile": exchange_profile(LIVE_BOARD_HOST, LIVE_BOARD_PORT, profile=profile)}
+                requested = profile
+                if reconcile_current and requested is not None:
+                    current = exchange_profile(LIVE_BOARD_HOST, LIVE_BOARD_PORT)
+                    if requested.fft_size < current.fft_size:
+                        return {
+                            "profile": current,
+                            "error": "Daha küçük FPGA FFT boyutu için kartı yeniden başlatın.",
+                        }
+                    if not current.runtime_fft_supported and requested.fft_size != current.fft_size:
+                        return {
+                            "profile": current,
+                            "error": "Kart imajı çalışma zamanında FFT değişimini desteklemiyor.",
+                        }
+                    requested = DetectionProfile(
+                        current.generation,
+                        requested.alpha_q32,
+                        requested.weak_alpha_q32,
+                        requested.fft_size,
+                        current.runtime_fft_supported,
+                    )
+                return {"profile": exchange_profile(
+                    LIVE_BOARD_HOST, LIVE_BOARD_PORT, profile=requested)}
             except Exception as exc:
                 return {"error": str(exc) if isinstance(exc, DetectionConfigError) else "Kart tespit ayarları doğrulanamadı."}
         task = _Task(generation, "detection_config", operation)
         task.signals.completed.connect(self._on_detection_profile_completed)
-        self._pool.start(task)
+        self._start_retained_task(self._pool, task)
         return True
 
     @Slot()
@@ -566,10 +676,6 @@ class OperatorViewModel(
             if (not self._card_detection_profile.runtime_fft_supported
                     and fft_size != self._card_detection_profile.fft_size):
                 raise DetectionConfigError("Kart imajı çalışma zamanında FFT değişimini desteklemiyor.")
-            if (self._card_detection_profile.runtime_fft_supported
-                    and fft_size < self._card_detection_profile.fft_size):
-                raise DetectionConfigError(
-                    "Daha küçük FPGA FFT boyutu için kartı yeniden başlatın.")
             values = [Decimal(value.strip().replace(",", ".")) for value in (normal, weak)]
             if any(not value.is_finite() or value < 1 or value >= limit
                    for value, limit in zip(values, (16, 4))):
@@ -589,7 +695,13 @@ class OperatorViewModel(
                 "küçük olmalı; zayıf eşik normali aşamaz.")
             self.detectionProfileChanged.emit()
             return False
-        return self._start_detection_profile_request(profile)
+        return self._start_detection_profile_request(
+            profile,
+            reconcile_current=(
+                self._card_detection_profile.runtime_fft_supported
+                and fft_size < self._card_detection_profile.fft_size
+            ),
+        )
 
     @Slot(result=bool)
     def restoreCardDetectionProfile(self):
@@ -597,7 +709,10 @@ class OperatorViewModel(
             return False
         if (self._card_detection_profile.runtime_fft_supported
                 and self._card_detection_profile.fft_size > 4096):
-            self._card_detection_message = "4096 varsayılanı için kartı yeniden başlatın."
+            self._card_detection_message = (
+                "4096 varsayılanına dönmek için kartı yeniden başlatın; "
+                "tam güç kesmeli cold-start gerekmez."
+            )
             self.detectionProfileChanged.emit()
             return False
         return self._start_detection_profile_request(DetectionProfile(
@@ -919,18 +1034,19 @@ class OperatorViewModel(
     @Property(str, notify=parameterCatalogChanged)
     def parameterCatalogSummary(self) -> str:
         count = len(self._automatic_parameter_rows)
-        return (
-            f"{count} kayıt · geçerli dBFS gücüne göre sıralı"
-            if count else "Henüz otomatik parametre kaydı yok"
-        )
+        return f"{count} kayıt" if count else "Henüz kayıt yok"
 
     @Property(str, notify=parameterCatalogChanged)
     def parameterCatalogPath(self) -> str:
-        return str(self._parameter_catalog.path)
+        return str(self._parameter_catalog_path)
 
     @Property(str, notify=parameterCatalogChanged)
     def automaticParameterStatus(self) -> str:
         return self._automatic_parameter_status
+
+    @Property(str, notify=parameterCatalogChanged)
+    def parameterCatalogActionStatus(self) -> str:
+        return self._parameter_catalog_action_status
 
     @Property("QVariantList", notify=stateChanged)
     def receiverRows(self) -> list[dict[str, str]]:
@@ -943,28 +1059,61 @@ class OperatorViewModel(
 
     @Slot()
     def refreshParameterCatalog(self) -> None:
-        self._automatic_parameter_rows = self._parameter_catalog.rows()
+        try:
+            if self._parameter_catalog is None:
+                raise ValueError("Parametre kataloğu kullanılamıyor.")
+            self._automatic_parameter_rows = self._parameter_catalog.rows()
+            if self._automatic_parameter_status.startswith("Katalog okunamadı:"):
+                self._automatic_parameter_status = "Katalog hazır."
+            self._parameter_catalog_action_status = (
+                f"Katalog yenilendi · {len(self._automatic_parameter_rows)} kayıt okunuyor."
+            )
+            self._add_log("Parametre kataloğu", self._parameter_catalog_action_status)
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._automatic_parameter_status = f"Katalog okunamadı: {exc}"
+            self._parameter_catalog_action_status = self._automatic_parameter_status
+            self._add_log("Parametre kataloğu", self._parameter_catalog_action_status)
         self.parameterCatalogChanged.emit()
 
     @Slot(result=bool)
     def openParameterCatalogFolder(self) -> bool:
-        opened = bool(
-            QDesktopServices.openUrl(
-                QUrl.fromLocalFile(str(self._parameter_catalog.path.parent))
-            )
+        folder = self._parameter_catalog_path.parent
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            self._parameter_catalog_action_status = f"Kayıt klasörü hazırlanamadı: {exc}"
+            self._add_log("Parametre kataloğu", self._parameter_catalog_action_status)
+            self.parameterCatalogChanged.emit()
+            return False
+        opened = bool(QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder))))
+        if not opened and hasattr(os, "startfile"):
+            try:
+                os.startfile(str(folder))
+                opened = True
+            except OSError:
+                opened = False
+        self._parameter_catalog_action_status = (
+            f"Kayıt klasörü açıldı: {folder}" if opened else
+            f"Kayıt klasörü açılamadı: {folder}"
         )
-        if opened:
-            self._add_log("Parametre kataloğu", "Kayıt klasörü açıldı")
+        self._add_log("Parametre kataloğu", self._parameter_catalog_action_status)
+        self.parameterCatalogChanged.emit()
         return opened
 
     @Slot(result=str)
     def exportParameterCatalog(self) -> str:
         try:
+            if self._parameter_catalog is None:
+                raise ValueError("Parametre kataloğu kullanılamıyor.")
             path = self._parameter_catalog.export_csv()
-        except (OSError, ValueError) as exc:
-            self._add_log("Parametre kataloğu", f"CSV dışa aktarılamadı: {exc}")
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self._parameter_catalog_action_status = f"CSV dışa aktarılamadı: {exc}"
+            self._add_log("Parametre kataloğu", self._parameter_catalog_action_status)
+            self.parameterCatalogChanged.emit()
             return ""
+        self._parameter_catalog_action_status = f"CSV dışa aktarıldı: {path}"
         self._add_log("Parametre kataloğu", f"CSV dışa aktarıldı: {path}")
+        self.parameterCatalogChanged.emit()
         return str(path)
 
     @Property("QVariantMap", notify=stateChanged)
@@ -1351,15 +1500,32 @@ class OperatorViewModel(
             return ""
         session = self._live_session
         if session is None or not hasattr(session, "audio_window_frame_count"):
-            return "Canlı I/Q tamponu hazır değil"
-        target_hz = self._listening_channel_target_hz()
-        if target_hz is not None and hasattr(session, "audio_channel_frame_count"):
-            count = session.audio_channel_frame_count(target_hz)
-        else:
-            count = session.audio_window_frame_count(self._selected_detection_id)
+            return "Dinleme verisi hazır değil"
+        # This counter describes the contiguous I/Q data already captured. The
+        # channel confidence gate is reported separately below; using its reset
+        # counter here made an intact receiver stream appear to restart whenever
+        # the detector briefly lost a modulated signal.
+        count = session.audio_window_frame_count()
         frames = min(LIVE_AUDIO_WINDOW_FRAMES, int(count))
         seconds = frames * 4096.0 / self.sampleRateHz if self.sampleRateHz > 0.0 else 0.0
-        return f"Canlı I/Q tamponu {seconds:.1f} / {LIVE_AUDIO_WINDOW_SECONDS:.1f} s"
+        prefix = f"Dinleme verisi {seconds:.1f} / {LIVE_AUDIO_WINDOW_SECONDS:.1f} s"
+        if frames < LIVE_AUDIO_WINDOW_FRAMES:
+            return prefix
+
+        target_hz = self._listening_channel_target_hz()
+        if target_hz is not None and hasattr(session, "audio_channel_quality"):
+            quality = dict(session.audio_channel_quality(target_hz))
+        elif self._selected_detection_id >= 0 and hasattr(session, "audio_window_quality"):
+            quality = dict(session.audio_window_quality(self._selected_detection_id))
+        else:
+            quality = {}
+        if quality.get("acceptable", False):
+            return prefix + " · sinyal hazır"
+        if int(quality.get("invalid_frames", 0)) > 0:
+            return prefix + " · aynı kanalda birden fazla aday var"
+        if quality:
+            return prefix + " · hedef sinyal kesiliyor"
+        return prefix + " · sinyal doğrulanıyor"
 
     @Property(bool, notify=listeningChanged)
     def listeningAudioAvailable(self) -> bool:
@@ -1421,16 +1587,20 @@ class OperatorViewModel(
             return
         self.stop()
         self._probe_error_timer.stop()
+        self._receiver_health_timer.stop()
         self._missing_receiver_error_visible = False
         self._generation += 1
         self._close_source()
         self._source_mode = mode  # type: ignore[assignment]
+        self._receiver_sample_rate_hz = 0.0
         self._source_name = "Kaynak seçilmedi"
         self._source_state = "Kullanılmıyor"
         self._error_title = ""
         self._error_message = ""
         self._hackrf_ready = False
         self._hackrf_transfer_executable = ""
+        self._active_receiver_serial = None
+        self._known_spurs_hz = ()
         self._live_has_data = False
         self._live_output_center_frequency_hz = 0
         self._live_sample_rate_hz = 0
@@ -1471,6 +1641,7 @@ class OperatorViewModel(
     def probeHackrf(self) -> None:
         if self._source_mode != "hackrf" or self._busy:
             return
+        self._receiver_health_timer.stop()
         self.stop()
         self._probe_error_timer.stop()
         self._missing_receiver_error_visible = False
@@ -1478,13 +1649,35 @@ class OperatorViewModel(
         generation = self._generation
         self._set_busy(True, "Alıcı bağlantısı denetleniyor…")
 
-        def operation() -> tuple[ToolInventory, DeviceStatus, bool, str]:
+        def operation() -> tuple[ToolInventory, DeviceStatus, bool, str, str]:
             with ThreadPoolExecutor(max_workers=2, thread_name_prefix="receiver-probe") as executor:
                 hackrf_future = executor.submit(self._probe_hackrf_device)
                 fpga_future = executor.submit(self._probe_fpga_service)
                 inventory, device = hackrf_future.result()
                 fpga_ready, fpga_reason = fpga_future.result()
-            return inventory, device, fpga_ready, fpga_reason
+
+            portapack_error = ""
+            if (
+                fpga_ready
+                and inventory.receive_available
+                and not self._configured_receiver_is_visible(device)
+                and self._portapack_mode_switcher is not None
+            ):
+                try:
+                    self._portapack_mode_switcher()
+                except AcquisitionError as exc:
+                    portapack_error = exc.code
+                else:
+                    deadline = time.monotonic() + PORTAPACK_REENUMERATION_TIMEOUT_SECONDS
+                    while True:
+                        device = self._backend.discover_device()
+                        if self._configured_receiver_is_visible(device):
+                            break
+                        if time.monotonic() >= deadline:
+                            portapack_error = "portapack_mode_timeout"
+                            break
+                        time.sleep(PORTAPACK_REENUMERATION_POLL_SECONDS)
+            return inventory, device, fpga_ready, fpga_reason, portapack_error
 
         self._submit(generation, "probe", operation)
 
@@ -1493,6 +1686,94 @@ class OperatorViewModel(
         if not inventory.receive_available:
             return inventory, DeviceStatus("TOOLCHAIN_UNAVAILABLE", reason_code="tools_unavailable")
         return inventory, self._backend.discover_device()
+
+    def _selected_configured_receiver(self, device: DeviceStatus):
+        if device.state not in {"ONE_DEVICE", "MULTIPLE_DEVICES"}:
+            return None
+        discovered = {item.serial.casefold() for item in device.devices}
+        configured = sorted(
+            self._device_config.configured_receivers,
+            key=lambda receiver: receiver.role != "ED_RX_PRIMARY",
+        )
+        return next(
+            (receiver for receiver in configured if receiver.serial.casefold() in discovered),
+            None,
+        )
+
+    def _configured_receiver_is_visible(self, device: DeviceStatus) -> bool:
+        return self._selected_configured_receiver(device) is not None
+
+    @Slot()
+    def _poll_receiver_health(self) -> None:
+        if (
+            self._closed
+            or not self._hackrf_ready
+            or self._busy
+            or self._live_session is not None
+            or self._active_receiver_serial is None
+            or self._receiver_health_in_flight
+        ):
+            return
+        generation = self._generation
+        self._receiver_health_in_flight = True
+        task = _Task(generation, "receiver_health", self._backend.discover_device)
+        task.signals.completed.connect(self._receiver_health_completed)
+        task.signals.failed.connect(self._receiver_health_failed)
+        self._start_retained_task(self._receiver_health_pool, task)
+
+    @Slot(int, str, object, float)
+    def _receiver_health_completed(
+        self, generation: int, kind: str, result: object, elapsed: float
+    ) -> None:
+        del kind, elapsed
+        self._receiver_health_in_flight = False
+        if (
+            generation != self._generation
+            or self._closed
+            or not self._hackrf_ready
+            or not isinstance(result, DeviceStatus)
+            or self._active_receiver_serial is None
+        ):
+            return
+        if result.state not in {"NO_DEVICE", "ONE_DEVICE", "MULTIPLE_DEVICES"}:
+            # An inconclusive diagnostic is retried; it does not prove that a
+            # previously identified USB receiver disappeared.
+            return
+        active_serial = self._active_receiver_serial.casefold()
+        active_visible = result.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
+            device.serial.casefold() == active_serial for device in result.devices
+        )
+        if not active_visible:
+            self._revoke_receiver_readiness()
+            self._source_state = "Hata"
+            self._show_error("receiver_connection_lost", result.reason_code)
+            self.pipelineChanged.emit()
+            self.stateChanged.emit()
+
+    @Slot(int, str, str)
+    def _receiver_health_failed(self, generation: int, code: str, detail: str) -> None:
+        del generation, code, detail
+        # A failed diagnostic is not proof that the receiver disappeared. The
+        # next bounded poll retries without changing operator-visible readiness.
+        self._receiver_health_in_flight = False
+
+    def _revoke_receiver_readiness(self) -> None:
+        self._receiver_health_timer.stop()
+        self._hackrf_ready = False
+        self._hackrf_transfer_executable = ""
+        self._active_receiver_serial = None
+        self._known_spurs_hz = ()
+
+    def _receiver_role_for_serial(self, serial: str) -> str:
+        serial_key = serial.casefold()
+        return next(
+            (
+                receiver.role
+                for receiver in self._device_config.configured_receivers
+                if receiver.serial.casefold() == serial_key
+            ),
+            "ED_RX_UNASSIGNED",
+        )
 
     def _probe_fpga_service(self) -> tuple[bool, str]:
         transport = self._fpga_transport_factory()
@@ -1608,10 +1889,16 @@ class OperatorViewModel(
         self._closed = True
         self.stop()
         self._probe_error_timer.stop()
+        self._receiver_health_timer.stop()
         self._playback_timer.stop()
+        self._parameter_catalog_flush_timer.stop()
         self._generation += 1
         self._backend.cancel()
         self._pool.waitForDone(2000)
+        self._receiver_health_pool.waitForDone(2000)
+        self._flush_parameter_catalog_buffer()
+        self._catalog_pool.waitForDone(2500)
+        self._active_task_refs.clear()
         self._audio_playback.close()
         self._close_source()
         self._backend.close()
@@ -1625,7 +1912,18 @@ class OperatorViewModel(
         if kind != "frame":
             self.pipelineChanged.emit()
             self.stateChanged.emit()
-        self._pool.start(task)
+        self._start_retained_task(self._pool, task)
+
+    def _start_retained_task(self, pool: QThreadPool, task: object) -> None:
+        """Start a Qt worker and retain it through queued signal delivery."""
+        self._active_task_refs.add(task)
+
+        def release(*_args, retained=task) -> None:
+            self._active_task_refs.discard(retained)
+
+        task.signals.completed.connect(release)
+        task.signals.failed.connect(release)
+        pool.start(task)
 
     @Slot(int, object)
     def _live_preview(self, generation: int, prepared: object) -> None:
@@ -1680,6 +1978,113 @@ class OperatorViewModel(
         self._add_log("Kaba RX tespiti", "Kaba tespit işçisi durdu; spektrum ve FPGA zinciri çalışmayı sürdürüyor.")
         self.detectionsChanged.emit()
 
+    def _queue_parameter_catalog_write(
+        self,
+        generation: int,
+        outcomes: tuple[object, ...],
+        configuration: object,
+        output_amplitude_scale: float,
+    ) -> None:
+        catalog = self._parameter_catalog
+        if catalog is None:
+            return
+        if configuration is None:
+            self._automatic_parameter_status = "Kayıt hatası · canlı alıcı yapılandırması kullanılamıyor."
+            self._add_log("Parametre kataloğu", self._automatic_parameter_status)
+            self.parameterCatalogChanged.emit()
+            return
+        outcome_count = len(outcomes)
+        if self._parameter_catalog_pending_outcomes + outcome_count > 1024:
+            self._live_presentation_error = (
+                "parameter_delivery_overflow",
+                "Arayüz parametre kayıtlarını zamanında alamadı; alım durduruldu.",
+            )
+            if self._live_session is not None:
+                self._live_session.cancel()
+            return
+        session_id = (
+            self._live_catalog_session_id
+            or f"{self._measurement_namespace}:{generation}"
+        )
+        receiver_serial = str(getattr(configuration, "device_serial"))
+        context = {
+            "session_id": session_id,
+            "receiver_role": self._receiver_role_for_serial(receiver_serial),
+            "receiver_serial": receiver_serial,
+            "sample_rate_hz": 2_000_000,
+            "lna_gain_db": int(getattr(configuration, "lna_gain_db")),
+            "vga_gain_db": int(getattr(configuration, "vga_gain_db")),
+            "output_amplitude_scale": output_amplitude_scale,
+            "rf_amplifier": bool(getattr(configuration, "rf_amplifier", False)),
+        }
+
+        self._parameter_catalog_pending_outcomes += outcome_count
+        self._parameter_catalog_buffer.append((outcomes, context))
+        if not self._parameter_catalog_flush_timer.isActive():
+            self._parameter_catalog_flush_timer.start()
+
+    @Slot()
+    def _flush_parameter_catalog_buffer(self) -> None:
+        catalog = self._parameter_catalog
+        if catalog is None or not self._parameter_catalog_buffer:
+            return
+        buffered, self._parameter_catalog_buffer = self._parameter_catalog_buffer, []
+        outcome_count = sum(len(outcomes) for outcomes, _context in buffered)
+        groups: list[list[object]] = []
+        for outcomes, context in buffered:
+            if groups and groups[-1][0] == context:
+                groups[-1][1].extend(outcomes)
+            else:
+                groups.append([context, list(outcomes)])
+
+        def persist():
+            inserted = 0
+            for context, outcomes in groups:
+                inserted += catalog.add_many(tuple(outcomes), **context)
+            return inserted, catalog.rows() if inserted else None
+
+        task = _CatalogTask(outcome_count, persist)
+        task.signals.completed.connect(self._parameter_catalog_write_completed)
+        task.signals.failed.connect(self._parameter_catalog_write_failed)
+        self._start_retained_task(self._catalog_pool, task)
+
+    @Slot(object)
+    def _parameter_catalog_write_completed(self, payload: object) -> None:
+        outcome_count, result = payload
+        inserted, rows = result
+        self._parameter_catalog_pending_outcomes = max(
+            0, self._parameter_catalog_pending_outcomes - int(outcome_count)
+        )
+        self._parameter_catalog_pending_inserted += int(inserted)
+        if rows is not None:
+            self._parameter_catalog_latest_rows = list(rows)
+        if self._parameter_catalog_pending_outcomes:
+            return
+        if self._parameter_catalog_latest_rows is not None:
+            self._automatic_parameter_rows = self._parameter_catalog_latest_rows
+        if self._parameter_catalog_pending_inserted:
+            self._add_log(
+                "Otomatik parametre",
+                f"{self._parameter_catalog_pending_inserted} sonuç kalıcı kataloğa eklendi.",
+            )
+        self._parameter_catalog_pending_inserted = 0
+        self._parameter_catalog_latest_rows = None
+        self.parameterCatalogChanged.emit()
+
+    @Slot(int, str)
+    def _parameter_catalog_write_failed(self, outcome_count: int, detail: str) -> None:
+        self._parameter_catalog_pending_outcomes = max(
+            0, self._parameter_catalog_pending_outcomes - outcome_count
+        )
+        self._automatic_parameter_status = (
+            f"Kayıt hatası · sonuç kataloğa yazılamadı: {detail}"
+        )
+        self._add_log("Parametre kataloğu", self._automatic_parameter_status)
+        if not self._parameter_catalog_pending_outcomes:
+            self._parameter_catalog_pending_inserted = 0
+            self._parameter_catalog_latest_rows = None
+            self.parameterCatalogChanged.emit()
+
     @Slot(int, object)
     def _live_snapshot(self, generation: int, snapshot: object) -> None:
         if isinstance(snapshot, _LiveMailbox):
@@ -1701,7 +2106,7 @@ class OperatorViewModel(
         automatic_status = str(
             getattr(session, "automatic_parameter_status", self._automatic_parameter_status)
         )
-        if automatic_status != self._automatic_parameter_status:
+        if self._parameter_catalog is not None and automatic_status != self._automatic_parameter_status:
             self._automatic_parameter_status = automatic_status
             self.parameterCatalogChanged.emit()
         if snapshot.automatic_parameter_outcomes:
@@ -1709,39 +2114,12 @@ class OperatorViewModel(
             channelizer = getattr(session, "measurement_channelizer", None) or {}
             profile = channelizer.get("profile", {}) if isinstance(channelizer, dict) else {}
             scale = float(profile.get("output_amplitude_scale", 1.0))
-            inserted = 0
-            try:
-                if configuration is None:
-                    raise ValueError("live_configuration_unavailable")
-                for outcome in snapshot.automatic_parameter_outcomes:
-                    inserted += int(
-                        self._parameter_catalog.add(
-                            outcome,
-                            session_id=(
-                                self._live_catalog_session_id
-                                or f"{self._measurement_namespace}:{generation}"
-                            ),
-                            receiver_role="ED_RX_PRIMARY",
-                            receiver_serial=str(configuration.device_serial),
-                            sample_rate_hz=2_000_000,
-                            lna_gain_db=int(configuration.lna_gain_db),
-                            vga_gain_db=int(configuration.vga_gain_db),
-                            output_amplitude_scale=scale,
-                        )
-                    )
-            except (OSError, ValueError, sqlite3.Error) as exc:
-                self._automatic_parameter_status = (
-                    f"Kayıt hatası · sonuç kataloğa yazılamadı: {exc}"
-                )
-                self._add_log("Parametre kataloğu", self._automatic_parameter_status)
-            else:
-                if inserted:
-                    self._automatic_parameter_rows = self._parameter_catalog.rows()
-                    self._add_log(
-                        "Otomatik parametre",
-                        f"{inserted} sonuç kalıcı kataloğa eklendi.",
-                    )
-            self.parameterCatalogChanged.emit()
+            self._queue_parameter_catalog_write(
+                generation,
+                snapshot.automatic_parameter_outcomes,
+                configuration,
+                scale,
+            )
         self._status_message = (
             f"Canlı FPGA karesi {snapshot.sequence_number + 1}/{self._frame_count} doğrulandı."
         )
@@ -1765,13 +2143,14 @@ class OperatorViewModel(
         if self._live_presentation_error is not None:
             self._live_failed(generation, *self._live_presentation_error)
             return
-        self._automatic_parameter_status = str(
-            getattr(
-                self._live_session,
-                "automatic_parameter_status",
-                self._automatic_parameter_status,
+        if self._parameter_catalog is not None:
+            self._automatic_parameter_status = str(
+                getattr(
+                    self._live_session,
+                    "automatic_parameter_status",
+                    self._automatic_parameter_status,
+                )
             )
-        )
         self.parameterCatalogChanged.emit()
         self._live_session = None
         self._busy = False
@@ -1804,26 +2183,10 @@ class OperatorViewModel(
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
             code, detail = self._live_presentation_error
-        managed = self._managed_gain
         self._live_session = None
         self._busy = False
         self._playing = False
         self._active_task_kind = ""
-        if code in {"iq_saturation", "rx_level_low"} and managed is not None and self._live_presentation_error is None:
-            direction = -8 if code == "iq_saturation" else 8
-            settings = self._live_receive_settings
-            gains = (max(0, min(40, int(settings["lna_db"]) + direction)),
-                     max(0, min(56, int(settings["vga_db"]) + direction)))
-            self._add_log("Alıcı ayarı", f"{code}: {detail}")
-            if managed["attempts"] < 8 and gains not in managed["visited"]:
-                self.startLiveEDSession(settings["center_hz"], *gains, self._frame_count, managed_gain=True)
-                self._status_message = f"Alıcı kazancı ayarlandı: LNA {gains[0]} dB / VGA {gains[1]} dB."
-                self._add_log("Alıcı ayarı", self._status_message)
-                self.stateChanged.emit()
-                return
-            self._managed_gain = None
-            code = "rx_gain_unresolved"
-            detail = "Otomatik kazanç aralığında uygun seviye bulunamadı. Verici gücünü veya anten konumunu değiştirin; elle kazanç da seçebilirsiniz."
         if code == "operation_cancelled":
             if (
                 not self._fixed_verification_stop_requested
@@ -1856,8 +2219,7 @@ class OperatorViewModel(
             self._clear_listening_parameter_basis()
             self._measurement_requested = False
             if code in READINESS_INVALIDATING_LIVE_ERRORS:
-                self._hackrf_ready = False
-                self._hackrf_transfer_executable = ""
+                self._revoke_receiver_readiness()
             self._live_has_data = False
             self._live_frames_per_second = 0.0
             self._clear_results(keep_source=True)
@@ -1926,8 +2288,10 @@ class OperatorViewModel(
         device: DeviceStatus,
         fpga_ready: bool,
         fpga_reason: str,
+        portapack_error: str = "",
     ) -> None:
-        serial = self._device_config.serial
+        selected_receiver = self._selected_configured_receiver(device)
+        serial = selected_receiver.serial if selected_receiver is not None else None
         transfer = inventory.get("hackrf_transfer")
         discovered_serials = {
             item.serial.casefold() for item in device.devices
@@ -1936,11 +2300,14 @@ class OperatorViewModel(
         for receiver in self._device_config.configured_receivers:
             found = receiver.serial.casefold() in discovered_serials
             if found and inventory.receive_available:
-                state = (
-                    "Tanındı · ana canlı RX yolu"
-                    if receiver.role == "ED_RX_PRIMARY"
-                    else "Tanındı · eşzamanlı ikinci akış henüz fiziksel doğrulanmadı"
-                )
+                if serial is not None and receiver.serial.casefold() == serial.casefold():
+                    state = (
+                        "Tanındı · etkin ana RX yolu"
+                        if receiver.role == "ED_RX_PRIMARY"
+                        else "Tanındı · etkin yedek RX yolu"
+                    )
+                else:
+                    state = "Tanındı · hazır yedek"
                 state_key = "found"
             elif found:
                 state, state_key = "Tanındı · RX aracı hazır değil", "unavailable"
@@ -1967,9 +2334,12 @@ class OperatorViewModel(
             hackrf_error = "tools_unavailable"
         elif device.state == "NO_DEVICE":
             hackrf_error = "device_not_found"
-        elif serial is None:
+        elif not self._device_config.configured_receivers:
             hackrf_error = "device_serial_unassigned"
             hackrf_detail = "device_serial_unassigned"
+        elif serial is None:
+            hackrf_error = "configured_serial_not_found"
+            hackrf_detail = "configured_serial_not_found"
         elif device.state in {"ONE_DEVICE", "MULTIPLE_DEVICES"} and any(
             item.serial.casefold() == serial.casefold() for item in device.devices
         ) and transfer.executable_path and "-B" in transfer.supported_options:
@@ -1983,14 +2353,13 @@ class OperatorViewModel(
             hackrf_error = "configured_serial_not_found"
 
         if hackrf_error or not fpga_ready:
-            self._hackrf_ready = False
-            self._hackrf_transfer_executable = ""
+            self._revoke_receiver_readiness()
             if hackrf_error and not fpga_ready:
                 code = "receiver_and_fpga_unavailable"
                 detail = f"hackrf={hackrf_detail or hackrf_error}; fpga={fpga_reason or 'connection_failed'}"
             elif hackrf_error:
-                code = hackrf_error
-                detail = hackrf_detail or hackrf_error
+                code = portapack_error or hackrf_error
+                detail = portapack_error or hackrf_detail or hackrf_error
             else:
                 code = "connection_failed"
                 detail = fpga_reason or "connection_failed"
@@ -1999,14 +2368,22 @@ class OperatorViewModel(
             return
 
         self._hackrf_ready = True
+        self._active_receiver_serial = serial
+        self._known_spurs_hz = load_known_spurs(serial)
         self._source_state = "Hazır"
         found_receivers = sum(row["stateKey"] == "found" for row in self._receiver_rows)
+        active_label = (
+            "Birincil alıcı"
+            if selected_receiver is not None and selected_receiver.role == "ED_RX_PRIMARY"
+            else "İkinci alıcı (yedek)"
+        )
         self._source_name = (
-            f"Birincil alıcı ve FPGA bağlı · {found_receivers}/"
+            f"{active_label} ve FPGA bağlı · {found_receivers}/"
             f"{len(self._receiver_rows)} HackRF tanındı"
         )
-        self._status_message = "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
+        self._status_message = f"{active_label} ve FPGA hazır; tarama başlatılabilir."
         self._add_log("Alıcı", self._status_message)
+        self._receiver_health_timer.start()
         self.pipelineChanged.emit()
 
     def _show_transient_probe_error(self, code: str, detail: str) -> None:
@@ -2046,7 +2423,11 @@ class OperatorViewModel(
     def _show_error(self, code: str, detail: str) -> None:
         self._source_state = "Hata" if self._source is None else self._source_state
         self._error_title = ERROR_TITLE.get(code, "İşlem tamamlanamadı")
-        self._error_message = ERROR_TEXT.get(code, f"İşlem tamamlanamadı ({code}).")
+        self._error_message = (
+            detail
+            if code == "candidate_drop" and detail
+            else ERROR_TEXT.get(code, f"İşlem tamamlanamadı ({code}).")
+        )
         self._status_message = self._error_message
         self._add_log("Hata", f"{code} · {detail}")
         self.stateChanged.emit()
@@ -2118,7 +2499,7 @@ class OperatorViewModel(
             "not_observed": "Gözlenmedi",
             "not_applicable": "Uygulanamaz",
             "insufficient_quality": "Kalite yetersiz",
-            "uncertain": "Belirsiz",
+            "uncertain": "Tekrar ölçülmeli",
         }.get(state, "Ölçülemedi")
 
 

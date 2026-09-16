@@ -19,6 +19,17 @@ from algorithms.p0.transport import IQFrame
 SERIAL = "0000000000000000a32868dc35138247"
 
 
+def test_amp_selection_is_preserved_in_both_fixed_retunes():
+    for amp in (False, True):
+        _StableSession.configurations.clear()
+        _StableSession.target_frequency_hz = 2_900_000_000.0
+        result = FixedBandVerifier("hackrf_transfer", SERIAL, 16, 16,
+                                   session_factory=_StableSession, rf_amplifier=amp).run(_candidate())
+        assert result.verified
+        assert len(_StableSession.configurations) == 2
+        assert all(config.rx_config.rf_amplifier is amp for config in _StableSession.configurations)
+
+
 def _snapshot(config, index, peak_bin, *, half_span_bins=2):
     event = LiveEDEvent(
         17,

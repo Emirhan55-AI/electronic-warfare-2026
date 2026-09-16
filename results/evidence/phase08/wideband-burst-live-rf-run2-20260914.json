@@ -1,0 +1,283 @@
+{
+  "schema": "phase08-wideband-burst-scan-observation-v1",
+  "recorded_at_utc": "2026-09-14T07:35:23.883585+00:00",
+  "temporary_bridge_sha256": "beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c",
+  "configuration": {
+    "lower_hz": 800000000,
+    "upper_hz": 840000000,
+    "frames_per_window": 64,
+    "guard_frames": 8,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "mode": "wideband_burst",
+    "rx_only": true
+  },
+  "planned_windows": [
+    {
+      "index": 0,
+      "lower_hz": 800000000,
+      "upper_hz": 802500000,
+      "center_hz": 799000000,
+      "include_upper": false
+    },
+    {
+      "index": 1,
+      "lower_hz": 802500000,
+      "upper_hz": 805000000,
+      "center_hz": 801500000,
+      "include_upper": false
+    },
+    {
+      "index": 2,
+      "lower_hz": 805000000,
+      "upper_hz": 807500000,
+      "center_hz": 804000000,
+      "include_upper": false
+    },
+    {
+      "index": 3,
+      "lower_hz": 807500000,
+      "upper_hz": 810000000,
+      "center_hz": 806500000,
+      "include_upper": false
+    },
+    {
+      "index": 4,
+      "lower_hz": 810000000,
+      "upper_hz": 812500000,
+      "center_hz": 809000000,
+      "include_upper": false
+    },
+    {
+      "index": 5,
+      "lower_hz": 812500000,
+      "upper_hz": 815000000,
+      "center_hz": 811500000,
+      "include_upper": false
+    },
+    {
+      "index": 6,
+      "lower_hz": 815000000,
+      "upper_hz": 817500000,
+      "center_hz": 814000000,
+      "include_upper": false
+    },
+    {
+      "index": 7,
+      "lower_hz": 817500000,
+      "upper_hz": 820000000,
+      "center_hz": 816500000,
+      "include_upper": false
+    },
+    {
+      "index": 8,
+      "lower_hz": 820000000,
+      "upper_hz": 822500000,
+      "center_hz": 819000000,
+      "include_upper": false
+    },
+    {
+      "index": 9,
+      "lower_hz": 822500000,
+      "upper_hz": 825000000,
+      "center_hz": 821500000,
+      "include_upper": false
+    },
+    {
+      "index": 10,
+      "lower_hz": 825000000,
+      "upper_hz": 827500000,
+      "center_hz": 824000000,
+      "include_upper": false
+    },
+    {
+      "index": 11,
+      "lower_hz": 827500000,
+      "upper_hz": 830000000,
+      "center_hz": 826500000,
+      "include_upper": false
+    },
+    {
+      "index": 12,
+      "lower_hz": 830000000,
+      "upper_hz": 832500000,
+      "center_hz": 829000000,
+      "include_upper": false
+    },
+    {
+      "index": 13,
+      "lower_hz": 832500000,
+      "upper_hz": 835000000,
+      "center_hz": 831500000,
+      "include_upper": false
+    },
+    {
+      "index": 14,
+      "lower_hz": 835000000,
+      "upper_hz": 837500000,
+      "center_hz": 834000000,
+      "include_upper": false
+    },
+    {
+      "index": 15,
+      "lower_hz": 837500000,
+      "upper_hz": 840000000,
+      "center_hz": 836500000,
+      "include_upper": true
+    }
+  ],
+  "result": {
+    "state": "completed",
+    "total_windows": 16,
+    "completed_windows": 16,
+    "failed_windows": 0,
+    "elapsed_seconds": 4.957309200020973,
+    "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\p0\\wideband-burst-20260914\\scan-800-840.jsonl",
+    "error_code": ""
+  },
+  "wall_elapsed_seconds": 4.958791200013366,
+  "aggregate": {
+    "completed_records": 16,
+    "primary_seconds_total": 3.3918355999630876,
+    "verification_seconds_total": 1.405254099983722,
+    "sample_observation_seconds_total": 0.4194304,
+    "screened_observations": 16,
+    "verified_observations": 2,
+    "usb_overruns_total": 0,
+    "crc_errors_total": 0,
+    "sequence_errors_total": 0,
+    "queue_drops_total": 0,
+    "window_timings": [
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.10061309998854995,
+        "primary_seconds": 0.22782339999685064,
+        "screening_seconds": 0.017406600003596395,
+        "verification_seconds": 0.18572810001205653,
+        "processing_seconds": 0.43095810001250356
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08619699999690056,
+        "primary_seconds": 0.21477879997109994,
+        "screening_seconds": 0.007958500005770475,
+        "verification_seconds": 5.499983672052622e-06,
+        "processing_seconds": 0.22274279996054247
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08321309997700155,
+        "primary_seconds": 0.2104202999616973,
+        "screening_seconds": 0.007930800027679652,
+        "verification_seconds": 1.9999570213258266e-06,
+        "processing_seconds": 0.2183530999463983
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07950210000853986,
+        "primary_seconds": 0.20892730000196025,
+        "screening_seconds": 0.008057600003667176,
+        "verification_seconds": 0.21557950001442805,
+        "processing_seconds": 0.4325644000200555
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07369889999972656,
+        "primary_seconds": 0.20103260001633316,
+        "screening_seconds": 0.008098199963569641,
+        "verification_seconds": 0.1852153000072576,
+        "processing_seconds": 0.3943460999871604
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07326999999349937,
+        "primary_seconds": 0.20825929997954518,
+        "screening_seconds": 0.00787179998587817,
+        "verification_seconds": 0.17931879998650402,
+        "processing_seconds": 0.39544989995192736
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.09189829998649657,
+        "primary_seconds": 0.2212450999650173,
+        "screening_seconds": 0.007645800011232495,
+        "verification_seconds": 1.9000144675374031e-06,
+        "processing_seconds": 0.22889279999071732
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08612769999308512,
+        "primary_seconds": 0.232505299965851,
+        "screening_seconds": 0.008343200024683028,
+        "verification_seconds": 0.22910789999878034,
+        "processing_seconds": 0.4699563999893144
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08916360000148416,
+        "primary_seconds": 0.2265260000131093,
+        "screening_seconds": 0.012045200041029602,
+        "verification_seconds": 0.21084309997968376,
+        "processing_seconds": 0.44941430003382266
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07358460000250489,
+        "primary_seconds": 0.20120210002642125,
+        "screening_seconds": 0.008104200009256601,
+        "verification_seconds": 1.9000144675374031e-06,
+        "processing_seconds": 0.2093082000501454
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08588570001302287,
+        "primary_seconds": 0.21366440004203469,
+        "screening_seconds": 0.008191599976271391,
+        "verification_seconds": 1.700012944638729e-06,
+        "processing_seconds": 0.22185770003125072
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07137379999039695,
+        "primary_seconds": 0.19875869998941198,
+        "screening_seconds": 0.008470800006762147,
+        "verification_seconds": 2.100015990436077e-06,
+        "processing_seconds": 0.20723160001216456
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07187909999629483,
+        "primary_seconds": 0.19957830000203103,
+        "screening_seconds": 0.008124099986162037,
+        "verification_seconds": 1.200009137392044e-06,
+        "processing_seconds": 0.20770359999733046
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08486420003464445,
+        "primary_seconds": 0.21270269999513403,
+        "screening_seconds": 0.00761550001334399,
+        "verification_seconds": 1.700012944638729e-06,
+        "processing_seconds": 0.22031990002142265
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.08692259999224916,
+        "primary_seconds": 0.21487480000359938,
+        "screening_seconds": 0.007636800000909716,
+        "verification_seconds": 1.5999539755284786e-06,
+        "processing_seconds": 0.22251319995848462
+      },
+      {
+        "sample_observation_seconds": 0.0262144,
+        "first_response_seconds": 0.07092690002173185,
+        "primary_seconds": 0.19953650003299117,
+        "screening_seconds": 0.008024099981412292,
+        "verification_seconds": 0.19944180001039058,
+        "processing_seconds": 0.40700240002479404
+      }
+    ]
+  },
+  "status": "completed",
+  "original_bridge_restored": true
+}

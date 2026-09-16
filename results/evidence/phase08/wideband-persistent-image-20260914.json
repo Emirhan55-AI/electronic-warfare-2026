@@ -1,0 +1,48 @@
+{
+  "schema": "phase08-wideband-persistent-image-v1",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-14T07:58:46.607512+00:00",
+  "method": "validated image.ub FIT rootfs extraction, single bridge replacement, deterministic newc/gzip repack and mkimage FIT rebuild",
+  "artifacts": {
+    "base_image_ub_sha256": "6bcbdcbe4c68e463274162aa5c7faf145c584a384d7237d5e6fada99a9d4406e",
+    "image_ub_sha256": "322457912d3bcefa84d3fe36f8751160729e16b02ff6fd3525071bd8b1b98a68",
+    "rootfs_cpio_gz_sha256": "ddb3df49138cf14c68fec341fc3ba33e8838ca3bc4af7d767d525092aecfa024",
+    "kernel_sha256": "5eaa8867f7daa729e3944821ffe6e270efdbc5ab7fbfd2a72d93e58709885bb1",
+    "device_tree_sha256": "3949ab718dab2aec2b1491900afbee68ee2802bc58d0c1b728b41d914ba30c58",
+    "bridge_sha256": "beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c",
+    "service_sha256": "20c151ea1291c0653432573595a7f3f20a08720a8330472642bd1d843f6822d7",
+    "sd_boot_bin_sha256": "de0d333ad4b5b87b17a9c675018cf079a8e4c37e1e899c92c68b8c4337e4f61c",
+    "sd_backup_image_ub_sha256": "6bcbdcbe4c68e463274162aa5c7faf145c584a384d7237d5e6fada99a9d4406e"
+  },
+  "restart_observation": {
+    "controlled_restart": true,
+    "cold_power_cycle": false,
+    "fpga_state": "operating",
+    "runtime_bridge_sha256": "beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c",
+    "runtime_service_sha256": "20c151ea1291c0653432573595a7f3f20a08720a8330472642bd1d843f6822d7",
+    "tcp_port_47007_listening": true,
+    "capabilities": {
+      "inline_parameter_observation": true,
+      "maximum_parameter_span_bins": 512,
+      "parameter_contexts": 1,
+      "wideband_burst": true
+    },
+    "ssh_hostkey_sha256": "SHA256:abIfaFdR6gh34m2diiz/JGLOKwOIkr9cmV6tYT1ADZk"
+  },
+  "rollback": {
+    "sd_backup_path": "/run/media/ZEDBOOT-mmcblk0p1/backup-20260914-before-wideband-burst/image.ub",
+    "backup_sha256": "6bcbdcbe4c68e463274162aa5c7faf145c584a384d7237d5e6fada99a9d4406e"
+  },
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "56513909e4f292fc64384807e80d8a06f7dc1bea190ec4a71c9fbf252db7ac3f",
+    "platforms/embedded/p0/include/p0_iq_transport.h": "86b019410a67b4ddf00246beffef482acf7eaa2306d2ba6e71a6bf346742b536",
+    "platforms/embedded/p0/src/p0_iq_transport.c": "4384a8df7d61f2eee774e0bb18e64e09d015029474860f1076b86f5bcc689098",
+    "algorithms/p0/transport.py": "bf2ff52e62f272e9a659fc7a47987b8c3f28ee354e0ab26f8ad9d80483d293ed"
+  },
+  "claim_boundary": {
+    "full_petalinux_rebuild": false,
+    "fit_repack_from_previously_booted_image": true,
+    "controlled_restart_passed": true,
+    "cold_power_cycle_pending": true
+  }
+}
