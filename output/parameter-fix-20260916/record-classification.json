@@ -1,0 +1,151 @@
+{
+  "physical_execution": false,
+  "rf_accuracy_acceptance": false,
+  "records": [
+    {
+      "record_id": "15c7774e15594edb8bae9e73429b43e5",
+      "record_sha256": "1ef6cb07a3c7cd913ed4c50428fb676d4d49f6b0d1a04a54fa844a2a23c868c7",
+      "old_domain": {
+        "classifier_residual_hz": 2500.0,
+        "confidence": 0.97783731168201,
+        "confidence_threshold": 0.9,
+        "estimated_offset_hz": -3885.997694594301,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "feature_values": [
+          0.3871677261233223,
+          2.4239367476749996,
+          253971.20607159924,
+          10.255144648613195,
+          0.025233802065711144,
+          0.6371777844869595
+        ],
+        "filter_bandwidth_hz": 800000.0,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096,
+        "method_id": "domain.digital-analog-logreg-pc-v1",
+        "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+        "physical_acceptance": false,
+        "probability_digital": 0.97783731168201,
+        "product_acceptance": false,
+        "profile_id": "digital-analog-synthetic-logreg-v1",
+        "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+        "state": "valid",
+        "value": "Sayısal"
+      },
+      "new_domain": {
+        "state": "valid",
+        "value": "Sayısal",
+        "reason": "Deneysel model tahmini; gerçek RF sinyal türü bağımsız olarak doğrulanmadı.",
+        "probability_digital": 0.9999679340696117,
+        "confidence": 0.9999679340696117,
+        "feature_values": [
+          0.339925192012859,
+          3.339908130865195,
+          277059.7156310959,
+          9.644181800988433,
+          0.05719781917245844,
+          0.6988479365373701
+        ],
+        "estimated_offset_hz": -3856.000803366233,
+        "filter_bandwidth_hz": 1314924.7171432676,
+        "classifier_residual_hz": 2500.0,
+        "method_id": "domain.selected-channel-logreg-pc-v2",
+        "profile_id": "selected-channel-synthetic-logreg-v2",
+        "model_sha256": "3aa0cd0bcb0d87cf56c629f5736d293289314e40f18d76465707eb31f6249257",
+        "physical_acceptance": false,
+        "product_acceptance": false,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "confidence_threshold": 0.9,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096
+      }
+    },
+    {
+      "record_id": "a2f955bbea2f40dd87360498e91e0b4f",
+      "record_sha256": "cb0ebf837440407fed30934c7dc27feb4c0d27c8028e19eac6c6164c8d563b51",
+      "old_domain": {
+        "classifier_residual_hz": 2500.0,
+        "confidence": 0.9866628995730051,
+        "confidence_threshold": 0.9,
+        "estimated_offset_hz": -2524.3610360730086,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "feature_values": [
+          0.38754772165448015,
+          2.4441912940530344,
+          254671.1970726927,
+          10.501356029058098,
+          0.013543194149661333,
+          0.6418062118397541
+        ],
+        "filter_bandwidth_hz": 800000.0,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096,
+        "method_id": "domain.digital-analog-logreg-pc-v1",
+        "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+        "physical_acceptance": false,
+        "probability_digital": 0.9866628995730051,
+        "product_acceptance": false,
+        "profile_id": "digital-analog-synthetic-logreg-v1",
+        "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+        "state": "valid",
+        "value": "Sayısal"
+      },
+      "new_domain": {
+        "state": "valid",
+        "value": "Sayısal",
+        "reason": "Deneysel model tahmini; gerçek RF sinyal türü bağımsız olarak doğrulanmadı.",
+        "probability_digital": 0.9999720573575873,
+        "confidence": 0.9999720573575873,
+        "feature_values": [
+          0.3388465993971696,
+          3.3149458488817785,
+          275574.89397331886,
+          9.962722606356655,
+          0.037577892964223786,
+          0.7003967332653518
+        ],
+        "estimated_offset_hz": -2522.859527865684,
+        "filter_bandwidth_hz": 1272669.1246942687,
+        "classifier_residual_hz": 2500.0,
+        "method_id": "domain.selected-channel-logreg-pc-v2",
+        "profile_id": "selected-channel-synthetic-logreg-v2",
+        "model_sha256": "3aa0cd0bcb0d87cf56c629f5736d293289314e40f18d76465707eb31f6249257",
+        "physical_acceptance": false,
+        "product_acceptance": false,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "confidence_threshold": 0.9,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096
+      }
+    }
+  ],
+  "limitation": "Özgün kayıtlar dört karedir; 16 karelik sayısal sonuç üretilemez. Sinyallerin gerçek türü bilinmiyor."
+}

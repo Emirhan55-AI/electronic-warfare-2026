@@ -1,0 +1,148 @@
+{
+  "schema": "fixed-frequency-gui-stability-v1",
+  "recorded_at_utc": "2026-09-14T12:06:30.485815+00:00",
+  "rx_only_verifier": true,
+  "configuration": {
+    "center_hz": 820000000,
+    "lna_db": 16,
+    "vga_db": 14,
+    "requested_frames": 64,
+    "qt_platform": "offscreen"
+  },
+  "outcome": {
+    "timed_out": false,
+    "error": null,
+    "status_message": "Canlı FPGA oturumu tamamlandı · 64 kare · USB taşması 0.",
+    "source_state": "Hazır",
+    "completed_frames": 64,
+    "frames_per_second": 426.02167435248737,
+    "hackrf_statistics": {
+      "frames_received": 64,
+      "bytes_received": 2097152,
+      "elapsed_seconds": 0.16976779996184632,
+      "overruns": 0,
+      "longest_overrun_bytes": 0,
+      "process_returncode": 0,
+      "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(818500000 Hz/818.500 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 1048576/1Mio\r\nStop with Ctrl-C\r\n 2.1 MB / 0.132 sec = 15.9 MB/second, average power -23.0 dBfs, 14144 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 0.13252 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n2117632 bytes transferred by M0\r\n2097152 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+    },
+    "session_elapsed_seconds": 0.29590229998575523,
+    "phase": "catalog",
+    "worker_threads_active": 0
+  },
+  "qt_heartbeat": {
+    "samples": 14,
+    "p50_ms": 20.001199998660013,
+    "p95_ms": 31.31554000428877,
+    "maximum_ms": 46.375000034458935,
+    "over_100_ms": 0
+  },
+  "session_diagnostics": {
+    "fpga_enabled": true,
+    "completed_frames": 64,
+    "capture_queue_high_watermark": 8,
+    "channel_queue_high_watermark": 11,
+    "channelizer_backend": "native-cpp",
+    "automatic_parameter_status": "Etkin · tespit sürerken tek bağlamlı dört kare PL/ARM ölçümü",
+    "automatic_parameter_outcomes": 1,
+    "automatic_parameter_expired_before_measurement": 24,
+    "setup_seconds": 0.07437440002104267,
+    "response_interval_seconds": 0.1478798000025563,
+    "hackrf_statistics": {
+      "frames_received": 64,
+      "bytes_received": 2097152,
+      "elapsed_seconds": 0.16976779996184632,
+      "overruns": 0,
+      "longest_overrun_bytes": 0,
+      "process_returncode": 0,
+      "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(818500000 Hz/818.500 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 1048576/1Mio\r\nStop with Ctrl-C\r\n 2.1 MB / 0.132 sec = 15.9 MB/second, average power -23.0 dBfs, 14144 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 0.13252 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n2117632 bytes transferred by M0\r\n2097152 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+    },
+    "timing_scope": "most_recent_at_most_4096_observations_per_stage",
+    "timing_ms": {
+      "capture_queue_age_ms": {
+        "samples": 64,
+        "p50": 1.0563500109128654,
+        "p95": 2.4733550118980925,
+        "maximum": 3.488000016659498
+      },
+      "channelizer_ms": {
+        "samples": 64,
+        "p50": 0.3120499895885587,
+        "p95": 0.7344099896727128,
+        "maximum": 1.117900013923645
+      },
+      "preview_callback_ms": {
+        "samples": 6,
+        "p50": 0.03404999733902514,
+        "p95": 0.05225000495556742,
+        "maximum": 0.054800009820610285
+      }
+    },
+    "stream_elapsed_seconds": 0.1790251000202261,
+    "frames_per_second_scope": "first_to_last_fpga_response_interval"
+  },
+  "automatic_parameter_status": "Etkin · tespit sürerken tek bağlamlı dört kare PL/ARM ölçümü",
+  "parameter_catalog_rows": [
+    {
+      "id": 1,
+      "frequency": "820.046875 MHz",
+      "dbfs": "—",
+      "dbm": "Kalibre değil",
+      "bandwidth": "—",
+      "lowerEdge": "—",
+      "upperEdge": "—",
+      "snr": "—",
+      "receiver": "Birincil alıcı · …36877e47",
+      "status": "Ölçülemedi",
+      "statusKey": "not_measurable",
+      "reason": "Canlı ölçüm aralığı 512 hücreyi aşıyor.",
+      "completedUtc": "2026-09-14T12:06:30.329584+00:00",
+      "calibrationStatus": "unavailable"
+    }
+  ],
+  "detections": [],
+  "event_log": [
+    {
+      "sequence": "0005",
+      "time": "15:06:30",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Canlı FPGA oturumu tamamlandı · 64 kare · USB taşması 0."
+    },
+    {
+      "sequence": "0004",
+      "time": "15:06:30",
+      "level": "BİLGİ",
+      "component": "Otomatik parametre",
+      "message": "1 sonuç kalıcı kataloğa eklendi."
+    },
+    {
+      "sequence": "0003",
+      "time": "15:06:30",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Alıcı → kanal seçici → FPGA taraması başlatıldı"
+    },
+    {
+      "sequence": "0002",
+      "time": "15:06:30",
+      "level": "BİLGİ",
+      "component": "Alıcı",
+      "message": "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
+    },
+    {
+      "sequence": "0001",
+      "time": "15:06:29",
+      "level": "BİLGİ",
+      "component": "Sistem",
+      "message": "Operatör uygulaması hazır"
+    }
+  ],
+  "source_sha256": {
+    "app/operator_console/automatic_parameter.py": "7454ac6ef99d5ae68b0dab57b15e978ce2dc286e11ba4d863dd18f31038a89e2",
+    "app/operator_console/live_ed.py": "95944ec5029941a3b4aa5d5d0d616b1fff1d2e5f2fab72ce28321f3a7a586d9e",
+    "app/operator_console/parameter_catalog.py": "286fa896fc783b8dc1ef00486a76871493e11fda7a885e163e7a16872bd46080",
+    "app/operator_console/quick_runtime.py": "e50c4b5eae86e2d1bf5db34f2300c06212cdec9493c25abfcb4c2044075105bf",
+    "app/operator_console/quick_view_model.py": "ed539c92ed328f84ada00f9167fd19f2f4bdc621eee6df07ad4beea5476c6047",
+    "app/operator_console/qml/Main.qml": "9a5f31b500520ed44b97d46efa655372d99e9b6734960f16c467c80997af4b98"
+  }
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "command": "umask 077; mkdir -p ~/.ssh; touch ~/.ssh/authorized_keys; grep -qxF 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICOSu5UP3P7JH5RTK1sfDBvddnOY0Pm3BOzs8ufhBH18 emirhan55@emirhan' ~/.ssh/authorized_keys || printf '%s\\n' 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICOSu5UP3P7JH5RTK1sfDBvddnOY0Pm3BOzs8ufhBH18 emirhan55@emirhan' >> ~/.ssh/authorized_keys; chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys"
+  },
+  {
+    "command": "test ! -e /home/petalinux/parameter-update-20260916 && mkdir -m 700 /home/petalinux/parameter-update-20260916"
+  },
+  {
+    "command": "test ! -e /tmp/parameter-before-20260916 && mkdir -m 755 /tmp/parameter-before-20260916 && cp -p /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge /tmp/parameter-before-20260916/",
+    "sudo": true
+  },
+  {
+    "download": "/usr/sbin/p0-ed-service",
+    "destination": "output\\parameter-fix-20260916\\previous-p0-ed-service"
+  },
+  {
+    "upload": "build/p0/parameter-extended-20260916/software-v2/p0-ed-service",
+    "destination": "/home/petalinux/parameter-update-20260916/p0-ed-service"
+  },
+  {
+    "command": "printf '%s\\n' '8cdebada8a96e213807e55c5a85e2642c7f6240c45175d2eecc72f8cc5f86130  /home/petalinux/parameter-update-20260916/p0-ed-service' | sha256sum -c -"
+  },
+  {
+    "download": "/usr/sbin/p0-ed-network-bridge",
+    "destination": "output\\parameter-fix-20260916\\previous-p0-ed-network-bridge"
+  },
+  {
+    "upload": "build/p0/parameter-extended-20260916/software-v2/p0-ed-network-bridge",
+    "destination": "/home/petalinux/parameter-update-20260916/p0-ed-network-bridge"
+  },
+  {
+    "command": "printf '%s\\n' '6b7cc56a549caca457e7b29bda385ab46a2aeb7433d1b7f490669d1c9bbc21b9  /home/petalinux/parameter-update-20260916/p0-ed-network-bridge' | sha256sum -c -"
+  }
+]

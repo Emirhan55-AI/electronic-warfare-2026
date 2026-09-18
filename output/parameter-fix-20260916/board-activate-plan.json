@@ -1,0 +1,6 @@
+[
+  {
+    "sudo": true,
+    "command": "set -eu; rollback() { /etc/init.d/p0-ed-service stop || true; cp -p /tmp/parameter-before-20260916/p0-ed-service /tmp/parameter-before-20260916/p0-ed-network-bridge /usr/sbin/; /etc/init.d/p0-ed-service start; }; trap 'rollback' EXIT; /etc/init.d/p0-ed-service stop; install -m 755 /home/petalinux/parameter-update-20260916/p0-ed-service /usr/sbin/p0-ed-service; install -m 755 /home/petalinux/parameter-update-20260916/p0-ed-network-bridge /usr/sbin/p0-ed-network-bridge; /etc/init.d/p0-ed-service start; sleep 1; kill -0 $(cat /run/p0-ed-service.pid); kill -0 $(cat /run/p0-ed-network-bridge.pid); sha256sum /proc/$(cat /run/p0-ed-service.pid)/exe /proc/$(cat /run/p0-ed-network-bridge.pid)/exe; ls -l /run/p0-ed/p0-ed.sock; trap - EXIT"
+  }
+]

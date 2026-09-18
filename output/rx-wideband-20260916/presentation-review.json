@@ -1,0 +1,492 @@
+{
+  "groups": [
+    {
+      "eventId": "group:verified",
+      "isHeader": true,
+      "groupKey": "verified",
+      "groupTitle": "Yüksek güvenli adaylar",
+      "groupDescription": "İki ayrı alımda görüldü; önce bunları inceleyin.",
+      "groupCount": 91,
+      "expanded": true
+    },
+    {
+      "eventId": "group:candidate",
+      "isHeader": true,
+      "groupKey": "candidate",
+      "groupTitle": "Tekrar ölçülmesi gerekenler",
+      "groupDescription": "Tek ölçümde bulundu; yayın olduğu henüz belli değil.",
+      "groupCount": 10,
+      "expanded": false
+    },
+    {
+      "eventId": "group:suspect",
+      "isHeader": true,
+      "groupKey": "suspect",
+      "groupTitle": "Alıcı etkisi olabilecekler",
+      "groupDescription": "Alıcı kaynaklı olabilir; yayın olarak kabul etmeyin.",
+      "groupCount": 60,
+      "expanded": false
+    }
+  ],
+  "visible_frequencies_mhz": [
+    1500.010264078776,
+    349.993896484375,
+    649.999989827474,
+    249.99520874023438,
+    103.29227701822916,
+    610.0,
+    958.5897115071614,
+    930.0683288574219,
+    299.99711100260413,
+    29.99998982747396,
+    946.7274385340073,
+    102.2998046875,
+    270.0000106148096,
+    4346.250011851486,
+    3658.5527607038907,
+    820.8965756194759,
+    3631.4473851521807,
+    1349.9757385253906,
+    946.7236328125,
+    499.99669228830646,
+    203.9990234375,
+    946.84814453125,
+    3046.25,
+    997.69775390625,
+    9.210232509655897,
+    2420.0000693581324,
+    2282.3067656017474,
+    2682.3064795960768,
+    2202.3064727783203,
+    2677.6936927208535,
+    226.1972458298142,
+    3135.0000345482017,
+    226.8069590692935,
+    225.58641516644022,
+    99.91943359375,
+    934.82666015625,
+    958.63037109375,
+    227.41726579337285,
+    4146.250045211226,
+    96.79764093137256,
+    11.002699908088236,
+    232.28821997549022,
+    929.93408203125,
+    224.977587890625,
+    290.00002441406247,
+    231.0686767578125,
+    699.9996337890626,
+    95.99652608235678,
+    229.24407958984375,
+    232.89718627929688,
+    94.10034179687501,
+    223.7576016512784,
+    1449.9739186356708,
+    2437.6934070121947,
+    230.4631824028201,
+    228.02630615234375,
+    104.287841796875,
+    820.96435546875,
+    224.36687268708883,
+    2199.3779875102796,
+    234.1116910367399,
+    749.9990743001302,
+    209.9995986729452,
+    549.9992304262908,
+    43.359375,
+    96.00666046142578,
+    10.922566731770832,
+    11.083025251116071,
+    130.000048828125,
+    395.199951171875,
+    2602.3065185546875,
+    2597.6937033913355,
+    407.9981023615057,
+    10.84199451264881,
+    790.0,
+    10.725483141447368,
+    899.9991183810763,
+    919.6957058376737,
+    2200.736618041992,
+    449.9977329799107,
+    169.99982561383928,
+    94.36737060546875,
+    23.776753743489582,
+    2442.30712890625,
+    222.75623668323863,
+    2277.6929931640625,
+    2357.693115234375,
+    2670.0,
+    810.0,
+    419.99786376953125,
+    24.996490478515625
+  ],
+  "visible_messages": [
+    {
+      "frequency_mhz": 1500.010264078776,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 349.993896484375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 649.999989827474,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 249.99520874023438,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 103.29227701822916,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 610.0,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 958.5897115071614,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 930.0683288574219,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 299.99711100260413,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 29.99998982747396,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 946.7274385340073,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 102.2998046875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 270.0000106148096,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 4346.250011851486,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 3658.5527607038907,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 820.8965756194759,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 3631.4473851521807,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 1349.9757385253906,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 946.7236328125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 499.99669228830646,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 203.9990234375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 946.84814453125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 3046.25,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 997.69775390625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 9.210232509655897,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2420.0000693581324,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2282.3067656017474,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2682.3064795960768,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2202.3064727783203,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2677.6936927208535,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 226.1972458298142,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 3135.0000345482017,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 226.8069590692935,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 225.58641516644022,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 99.91943359375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 934.82666015625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 958.63037109375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 227.41726579337285,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 4146.250045211226,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 96.79764093137256,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 11.002699908088236,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 232.28821997549022,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 929.93408203125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 224.977587890625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 290.00002441406247,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 231.0686767578125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 699.9996337890626,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 95.99652608235678,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 229.24407958984375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 232.89718627929688,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 94.10034179687501,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 223.7576016512784,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 1449.9739186356708,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2437.6934070121947,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 230.4631824028201,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 228.02630615234375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 104.287841796875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 820.96435546875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 224.36687268708883,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2199.3779875102796,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 234.1116910367399,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 749.9990743001302,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 209.9995986729452,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 549.9992304262908,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 43.359375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 96.00666046142578,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 10.922566731770832,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 11.083025251116071,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 130.000048828125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 395.199951171875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2602.3065185546875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2597.6937033913355,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 407.9981023615057,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 10.84199451264881,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 790.0,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 10.725483141447368,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 899.9991183810763,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 919.6957058376737,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2200.736618041992,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 449.9977329799107,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 169.99982561383928,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 94.36737060546875,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 23.776753743489582,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2442.30712890625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 222.75623668323863,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2277.6929931640625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2357.693115234375,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 2670.0,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 810.0,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 419.99786376953125,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    },
+    {
+      "frequency_mhz": 24.996490478515625,
+      "message": "Aynı frekans tekrar görüldü; önce bunu inceleyin."
+    }
+  ],
+  "source": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\output\\rx-wideband-20260916\\1de7f3a9efe041398957c8784acd78e2.jsonl",
+  "new_acquisition": false
+}

@@ -1,0 +1,77 @@
+{
+  "status": "local_validation_passed",
+  "hardware_deployed": false,
+  "physical_acceptance": false,
+  "blocker": "COM6 remains at electronic-warfare-zedboard login; changed SSH identity requires console verification.",
+  "checks": [
+    {
+      "command": "python -m pytest -q tests/test_selected_channel_domain.py tests/test_extended_parameter_record.py tests/test_board_parameter_measurement.py tests/test_measurement_record.py tests/test_live_ed_session.py tests/test_p0_transport.py",
+      "result": "100 passed"
+    },
+    {
+      "command": "python -m pytest -q tests/test_app_f_quick_product.py -k \"parameter or receiver_disconnect or qml_has_keyboard\"",
+      "result": "7 passed, 36 deselected"
+    },
+    {
+      "command": "python -m pytest -q tests/test_live_ed_view_model.py -k \"survives_fpga_event_id_churn or record_write_failure\"",
+      "result": "3 passed, 87 deselected"
+    },
+    {
+      "command": "python scripts/verify_p0_parameter_runtime.py --extended --wide",
+      "result": "49 passed; state-machine test passed"
+    },
+    {
+      "command": "python scripts/verify_p0_ed_service.py",
+      "result": "passed including v3 success/error response encoding"
+    },
+    {
+      "command": "wsl.exe --exec python3 output/parameter-fix-20260916/verify_transport.py",
+      "result": "IQ protocol, v1/v2/v3 parameter loopback and IQ loopback passed"
+    },
+    {
+      "command": "python scripts/verify_extended_parameter.py --output output/parameter-fix-20260916/extended-numeric-final.json",
+      "result": "12 extended valid, 12 short valid; no demonstrated rate improvement; clipped/noise/unstable rejected"
+    },
+    {
+      "command": "python -m pytest -q tests/test_app_f_quick_product.py -k model_prediction",
+      "result": "1 passed; model excluded from numeric validity count; fixture emits the production detectionsChanged signal"
+    }
+  ],
+  "initial_regression_failures": "Initial broad run: 154 passed, 3 failed. Obsolete summary label updated; receiver visibility and write failure passed focused reruns. New 16-frame test fixture initially exposed 16 frames to the four-frame setup API; fixture corrected, both lengths passed.",
+  "files": {
+    "digital_analog_detection/.gitignore": "23852136e846ccd7e9d47f05aa1e4357b56363c657ba6aafa329b4356c75997b",
+    "digital_analog_detection/channel_features.py": "934d9f14da9b5e74952b7b8b0b5afcfb672398413af5f969812581f93165f1bd",
+    "digital_analog_detection/classifier_model.py": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+    "digital_analog_detection/feature_extractor_v1.py": "a014ab354b1a8dd1af923ce871f2505c6eb2444eb75c5e5792807189d0062653",
+    "digital_analog_detection/hackrf_inspector.grc": "caa844be1bf0a5090e7ddb3a31a7d55f0a342f631037e7c08f805f9997d66bb1",
+    "digital_analog_detection/hackrf_rx_interference_monitor.grc": "067c4cab96253a1cb952c662ca707aec7f995dd9176831c20859423991603495",
+    "digital_analog_detection/integration.py": "dd9ce25ad2e3af075e2e09b0687708950f0c09bd813875c298426ada116b664c",
+    "digital_analog_detection/README.md": "ef3e63ec481ad9f952782c1641f9dc85462f6f4be20058510b0ba7283ac09526",
+    "digital_analog_detection/requirements.txt": "afec817922d9a3c6f749738a7fad9d9d166e6d480d1f185b3c87d48fbf40f900",
+    "digital_analog_detection/selected_channel_model.py": "3aa0cd0bcb0d87cf56c629f5736d293289314e40f18d76465707eb31f6249257",
+    "digital_analog_detection/selected_integration.py": "cd1991896a903fbdd2e40a30f738f51210e7d3cd2a00cb4a2d2598139ac492cf",
+    "digital_analog_detection/train_classifier.py": "dd0cd0592e0fdf59fcba2bfd6cd508625bcc852f882a1cc448e31fa308892ffc",
+    "digital_analog_detection/__init__.py": "d68ea90f9433f04c08a779961e4ab644bc5357e8c8decbbbd60624719f622f6e",
+    "output/parameter-fix-20260916/extended-numeric-final.json": "8608dbad613c398d46bce17fe25045b79adfa47989acfc0dff490649da9bc17f",
+    "output/parameter-fix-20260916/extended-numeric.json": "8608dbad613c398d46bce17fe25045b79adfa47989acfc0dff490649da9bc17f",
+    "output/parameter-fix-20260916/loopback_account.h": "c96b44f0defbc86e38350adb18d55797d61bdef9fa7a6a242e860b96a72c4146",
+    "output/parameter-fix-20260916/model-development.json": "a3afbc20ec2af530d3d4af8b041543c53b53a428c2833f635c7921a2f70cefb5",
+    "output/parameter-fix-20260916/record-classification.json": "66e76ff56320737f32448328dab570bb13e084322ff31ddeeaec21586ab44c01",
+    "output/parameter-fix-20260916/replay_selected.py": "1249290a933097fdd278246477873113b7536f5e51bfcf5cc3af04f3edd92da3",
+    "output/parameter-fix-20260916/transport.json": "74218a59f8ac953fdcc3a3b074e969b2750c9d7bedf1b27f5700dd0add12fd75",
+    "output/parameter-fix-20260916/verify_transport.py": "f991b74b1c29c584c5457729b25d6c0870d0a0088cf95ba5cfbf211de845d3b4",
+    "tests/test_app_f_quick_product.py": "7495735e92553b158d6345a2cf6dbdba3765c68a42c0e8a94f90e828b943bc9c",
+    "tests/test_extended_parameter_record.py": "7c5e35933164b658139212777dc8b73a385283e34c73466a605232fbdf621a75",
+    "tests/test_selected_channel_domain.py": "3632115f23107e06283efd17e460224b62c8f6fa2ca26750aa8640e9864ee0a6",
+    "tests/test_live_ed_session.py": "7b6c0bafd89e26abeb3c5e5b442b49971f495e27c4d7c89f65a9b8ce0813c862",
+    "tests/test_live_ed_view_model.py": "79a760bb1d671dc0bbd263d10066390cc48dbca1491f470ffe62389bf66dbb87",
+    "tests/p0/p0_ed_service_protocol_test.c": "b19edc1a889a425c8004fc8e5c6393ff2928013107e09a1250f6bf6c01a0ec0f",
+    "tests/p0/p0_parameter_runtime_test.c": "c3e0404c81b6f50106102c8dcbd2f275e3fe65b856b129c8e10908edc20f8183",
+    "app/operator_console/live_ed.py": "9dcded33d6dd3c1cc68b763847db81d8c3fa34c86fc901bce120ed11280f18b6",
+    "app/operator_console/quick_measurement_actions.py": "e82c1d704597627e9b24baab47db381abac65215a0a18a630ead5fded873d6de",
+    "app/operator_console/measurement_record.py": "19e33d9a1b1df11cd8323c6375f89c6de6ce154613982b45fd79abefd78ab2a5",
+    "app/operator_console/qml/ParameterMeasurementPanel.qml": "5adede1406f943b29d0c0a2185bffba95399476c03e57dc4387ff4ff2e002964",
+    "algorithms/p0/parameter_client.py": "faa113e490eb1f49ca86f4ed2c4a71a9098cde38f44d33ac3924d271d898b13e",
+    "algorithms/p0/transport.py": "1a8b6620cd1e195d321166a4f840d71195a6bf22504d1c22e38e197b1e364322"
+  }
+}

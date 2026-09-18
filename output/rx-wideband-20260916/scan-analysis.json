@@ -1,0 +1,109 @@
+{
+  "audit": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\1de7f3a9efe041398957c8784acd78e2.jsonl",
+  "snapshot_sha256": "138b61a31a181220e4dc1ccbd57ad40d8434aee0bbe3a0b6b8d6f9a5ffa6c52d",
+  "snapshot_bytes": 7697787,
+  "config": {
+    "lower_hz": 1000000,
+    "upper_hz": 6000000000,
+    "lna_gain_db": 24,
+    "vga_gain_db": 24,
+    "frames_per_window": 128,
+    "guard_frames": 8,
+    "operator_condition": "unspecified",
+    "mode": "wideband_burst",
+    "rf_amplifier": false
+  },
+  "serial": "0000000000000000a32868dc36877e47",
+  "record_counts": {
+    "begin": 1,
+    "window_start": 1964,
+    "window_gain_retry": 2,
+    "window_complete": 1963,
+    "window_transport_retry": 1,
+    "window_cancelled": 1,
+    "end": 1
+  },
+  "completed_windows": 1963,
+  "total_windows": 2400,
+  "last_window": {
+    "index": 1962,
+    "lower_hz": 4906000000,
+    "upper_hz": 4908500000,
+    "center_hz": 4905000000,
+    "include_upper": false
+  },
+  "observations": 161,
+  "possible_frames_per_window": 120,
+  "counter_overflow_keys": [
+    "3:0",
+    "39:0"
+  ],
+  "wide_to_narrow_keys": [
+    "3:0",
+    "15:0",
+    "16:0",
+    "39:0",
+    "40:1",
+    "370:0",
+    "375:0",
+    "377:0"
+  ],
+  "completed_primary_and_accepted_verification_counters": {
+    "crc_errors": 0,
+    "sequence_errors": 0,
+    "queue_drops": 0,
+    "usb_overruns": 0,
+    "input_saturated_components": 0
+  },
+  "observations_by_100MHz": {
+    "0-100": 22,
+    "100-200": 8,
+    "200-300": 24,
+    "300-400": 4,
+    "400-500": 7,
+    "500-600": 3,
+    "600-700": 6,
+    "700-800": 3,
+    "800-900": 5,
+    "900-1000": 15,
+    "1100-1200": 3,
+    "1200-1300": 2,
+    "1300-1400": 3,
+    "1400-1500": 4,
+    "1500-1600": 3,
+    "1600-1700": 1,
+    "1700-1800": 2,
+    "1800-1900": 3,
+    "1900-2000": 2,
+    "2000-2100": 2,
+    "2100-2200": 3,
+    "2200-2300": 7,
+    "2300-2400": 4,
+    "2400-2500": 5,
+    "2500-2600": 3,
+    "2600-2700": 7,
+    "2700-2800": 2,
+    "2800-2900": 1,
+    "3000-3100": 1,
+    "3100-3200": 1,
+    "3600-3700": 3,
+    "4100-4200": 1,
+    "4300-4400": 1
+  },
+  "end": {
+    "type": "end",
+    "state": "cancelled",
+    "total_windows": 2400,
+    "completed_windows": 1963,
+    "failed_windows": 0,
+    "elapsed_seconds": 863.064862,
+    "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\1de7f3a9efe041398957c8784acd78e2.jsonl",
+    "error_code": ""
+  },
+  "limitations": [
+    "Observations are not emitter identities.",
+    "Broad-to-narrow matches are diagnostic flags, not proven false positives.",
+    "Counters cover completed primary and accepted verification results only.",
+    "Running process and board image hashes have not been independently matched."
+  ]
+}

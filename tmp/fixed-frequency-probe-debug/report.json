@@ -1,0 +1,52 @@
+{
+  "schema": "fixed-frequency-gui-stability-v1",
+  "recorded_at_utc": "2026-09-14T12:04:50.281579+00:00",
+  "rx_only_verifier": true,
+  "configuration": {
+    "center_hz": 820000000,
+    "lna_db": 16,
+    "vga_db": 14,
+    "requested_frames": 64,
+    "qt_platform": "offscreen"
+  },
+  "outcome": {
+    "timed_out": true,
+    "error": null,
+    "status_message": "Alıcı bağlantısı denetleniyor…",
+    "source_state": "Kullanılmıyor",
+    "completed_frames": null,
+    "frames_per_second": null,
+    "hackrf_statistics": null,
+    "session_elapsed_seconds": null,
+    "phase": "probe",
+    "worker_threads_active": 0
+  },
+  "qt_heartbeat": {
+    "samples": 0,
+    "p50_ms": 0.0,
+    "p95_ms": 0.0,
+    "maximum_ms": 0.0,
+    "over_100_ms": 0
+  },
+  "session_diagnostics": {},
+  "automatic_parameter_status": "Kart canlı parametre yeteneği henüz denetlenmedi.",
+  "parameter_catalog_rows": [],
+  "detections": [],
+  "event_log": [
+    {
+      "sequence": "0001",
+      "time": "15:04:44",
+      "level": "BİLGİ",
+      "component": "Sistem",
+      "message": "Operatör uygulaması hazır"
+    }
+  ],
+  "source_sha256": {
+    "app/operator_console/automatic_parameter.py": "7454ac6ef99d5ae68b0dab57b15e978ce2dc286e11ba4d863dd18f31038a89e2",
+    "app/operator_console/live_ed.py": "95944ec5029941a3b4aa5d5d0d616b1fff1d2e5f2fab72ce28321f3a7a586d9e",
+    "app/operator_console/parameter_catalog.py": "286fa896fc783b8dc1ef00486a76871493e11fda7a885e163e7a16872bd46080",
+    "app/operator_console/quick_runtime.py": "e50c4b5eae86e2d1bf5db34f2300c06212cdec9493c25abfcb4c2044075105bf",
+    "app/operator_console/quick_view_model.py": "3fc9c19c60b76ee8b7e173c285f1b18a36159a9872b93be9ae994dec9c93fa3f",
+    "app/operator_console/qml/Main.qml": "9a5f31b500520ed44b97d46efa655372d99e9b6734960f16c467c80997af4b98"
+  }
+}

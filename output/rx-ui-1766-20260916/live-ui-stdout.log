@@ -1,0 +1,2 @@
+{"event": "hardware_ready", "status": "Birincil alýcý ve FPGA hazýr; tarama baþlatýlabilir.", "receiver": "0000000000000000a32868dc36877e47"}
+{"event": "rx_started", "center_hz": 1766000000, "lna_db": 24, "vga_db": 24, "rf_amp": false}

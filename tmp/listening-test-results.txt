@@ -1,0 +1,819 @@
+.....................................................................FE. [ 75%]
+.......................                                                  [100%]
+=================================== ERRORS ====================================
+_ ERROR at teardown of test_live_direction_uses_multiframe_board_power_and_resumes_rx _
+TEARDOWN ERROR: Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+
+---------------------------- Captured stderr call -----------------------------
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+================================== FAILURES ===================================
+_______ test_live_direction_uses_multiframe_board_power_and_resumes_rx ________
+tests\test_live_ed_view_model.py:2150: in test_live_direction_uses_multiframe_board_power_and_resumes_rx
+    assert view_model.directionMeasurementCount == 2
+E   assert 1 == 2
+E    +  where 1 = <app.operator_console.quick_view_model.OperatorViewModel(0x2ce005aebe0) at 0x000002CE0D105E40>.directionMeasurementCount
+---------------------------- Captured stderr call -----------------------------
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+Exceptions caught in Qt event loop:
+________________________________________________________________________________
+Traceback (most recent call last):
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_view_model.py", line 538, in _refresh_live_health
+    self._poll_direction_capture()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_direction_actions.py", line 297, in _poll_direction_capture
+    self._request_live_measurement(direction_window=window)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emirhan55\OneDrive\Documents\ChatGPT\TEKNOFEST\app\operator_console\quick_measurement_actions.py", line 552, in _request_live_measurement
+    selected_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+________________________________________________________________________________
+=========================== short test summary info ===========================
+FAILED tests/test_live_ed_view_model.py::test_live_direction_uses_multiframe_board_power_and_resumes_rx
+ERROR tests/test_live_ed_view_model.py::test_live_direction_uses_multiframe_board_power_and_resumes_rx
+1 failed, 93 passed, 1 error in 25.08s

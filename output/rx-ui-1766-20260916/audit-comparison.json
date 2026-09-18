@@ -1,0 +1,179 @@
+{
+  "manifest": {
+    "3266a529403a4addbec2f680d039d3d0.jsonl": {
+      "sha256": "1c10d8adffc381097396512b4a08ef5397d3a73b578d7012bee47fd61b7ff2d7",
+      "bytes": 68747
+    },
+    "3266a529403a4addbec2f680d039d3d0.recheck.jsonl": {
+      "sha256": "5572e4e5ec0932492cd52c448269599e9f38c1790cfde904a2cb5f4df2ac8435",
+      "bytes": 3535
+    },
+    "8e59e6539c094b5bb62c1109855b0654.jsonl": {
+      "sha256": "e8b96506c003899129782ec7061f44230bd6451a140e52589f503c7b16fdd5bb",
+      "bytes": 78292
+    },
+    "8e59e6539c094b5bb62c1109855b0654.recheck.jsonl": {
+      "sha256": "f6ca1fe0a55c771398e78faa4d81412b9052cc4704d66d7528103ab6e7b94936",
+      "bytes": 6687
+    },
+    "2d55ee21dcc7486d9b544c16cf9d2e87.jsonl": {
+      "sha256": "78325afbac1e3fb1bdd94e66ed00d2fed30877abdcae0f56712f4a2be0c1cb13",
+      "bytes": 72555
+    },
+    "2d55ee21dcc7486d9b544c16cf9d2e87.recheck.jsonl": {
+      "sha256": "dbd9185b2a9b5a74556592e98a11e6fc6e99988ea54f0651d3b3015e5bfb2414",
+      "bytes": 3534
+    }
+  },
+  "conditions": [
+    "off_user_confirmed",
+    "on_user_confirmed",
+    "off_user_confirmed"
+  ],
+  "runs": [
+    {
+      "name": "3266a529403a4addbec2f680d039d3d0.jsonl",
+      "config": {
+        "lower_hz": 1740000000,
+        "upper_hz": 1780000000,
+        "lna_gain_db": 24,
+        "vga_gain_db": 24,
+        "frames_per_window": 128,
+        "guard_frames": 8,
+        "operator_condition": "unspecified",
+        "mode": "wideband_burst",
+        "rf_amplifier": false
+      },
+      "recorded_at": "2026-09-16T00:11:10.652282+00:00",
+      "result": {
+        "type": "end",
+        "state": "completed",
+        "total_windows": 16,
+        "completed_windows": 16,
+        "failed_windows": 0,
+        "elapsed_seconds": 8.048698600032367,
+        "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\3266a529403a4addbec2f680d039d3d0.jsonl",
+        "error_code": ""
+      },
+      "primary_frames": 2048,
+      "overruns": 0,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "input_saturated_components": 0,
+      "output_saturated_components": 0,
+      "observations": [
+        {
+          "frequency_hz": 1759999613.9171512,
+          "bandwidth_hz": 4598.9280524253845,
+          "observed_frames": 43,
+          "verification_method": "integrated_rx"
+        },
+        {
+          "frequency_hz": 1760000976.5625,
+          "bandwidth_hz": 2589.370265007019,
+          "observed_frames": 33,
+          "verification_method": "fpga"
+        }
+      ]
+    },
+    {
+      "name": "8e59e6539c094b5bb62c1109855b0654.jsonl",
+      "config": {
+        "lower_hz": 1740000000,
+        "upper_hz": 1780000000,
+        "lna_gain_db": 24,
+        "vga_gain_db": 24,
+        "frames_per_window": 128,
+        "guard_frames": 8,
+        "operator_condition": "unspecified",
+        "mode": "wideband_burst",
+        "rf_amplifier": false
+      },
+      "recorded_at": "2026-09-16T00:19:21.690384+00:00",
+      "result": {
+        "type": "end",
+        "state": "completed",
+        "total_windows": 16,
+        "completed_windows": 16,
+        "failed_windows": 0,
+        "elapsed_seconds": 8.80594900000142,
+        "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\8e59e6539c094b5bb62c1109855b0654.jsonl",
+        "error_code": ""
+      },
+      "primary_frames": 2048,
+      "overruns": 0,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "input_saturated_components": 0,
+      "output_saturated_components": 0,
+      "observations": [
+        {
+          "frequency_hz": 1759999590.3403072,
+          "bandwidth_hz": 4551.774364471436,
+          "observed_frames": 59,
+          "verification_method": "fpga"
+        },
+        {
+          "frequency_hz": 1760000976.5625,
+          "bandwidth_hz": 2441.40625,
+          "observed_frames": 19,
+          "verification_method": "fpga"
+        },
+        {
+          "frequency_hz": 1766001881.9173176,
+          "bandwidth_hz": 1165832.51953125,
+          "observed_frames": 120,
+          "verification_method": "fpga"
+        }
+      ]
+    },
+    {
+      "name": "2d55ee21dcc7486d9b544c16cf9d2e87.jsonl",
+      "config": {
+        "lower_hz": 1740000000,
+        "upper_hz": 1780000000,
+        "lna_gain_db": 24,
+        "vga_gain_db": 24,
+        "frames_per_window": 128,
+        "guard_frames": 8,
+        "operator_condition": "unspecified",
+        "mode": "wideband_burst",
+        "rf_amplifier": false
+      },
+      "recorded_at": "2026-09-16T00:21:01.241598+00:00",
+      "result": {
+        "type": "end",
+        "state": "completed",
+        "total_windows": 16,
+        "completed_windows": 16,
+        "failed_windows": 0,
+        "elapsed_seconds": 7.52341849997174,
+        "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\2d55ee21dcc7486d9b544c16cf9d2e87.jsonl",
+        "error_code": ""
+      },
+      "primary_frames": 2048,
+      "overruns": 0,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "input_saturated_components": 0,
+      "output_saturated_components": 0,
+      "observations": [
+        {
+          "frequency_hz": 1759999627.3643093,
+          "bandwidth_hz": 4625.822368383408,
+          "observed_frames": 38,
+          "verification_method": "fpga"
+        },
+        {
+          "frequency_hz": 1760000976.5625,
+          "bandwidth_hz": 2441.40625,
+          "observed_frames": 22,
+          "verification_method": "fpga"
+        }
+      ]
+    }
+  ]
+}

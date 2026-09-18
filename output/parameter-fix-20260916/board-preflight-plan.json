@@ -1,0 +1,4 @@
+[
+  {"command":"id; uname -a; uptime; sha256sum /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge; ls -l /dev/p0-dma /etc/init.d/p0-ed*; cat /etc/default/p0-ed-network-bridge"},
+  {"command":"chown petalinux:petalinux /home/petalinux; id; sha256sum /run/media/ZEDBOOT-mmcblk0p1/BOOT.BIN /run/media/ZEDBOOT-mmcblk0p1/image.ub; cat /proc/device-tree/model", "sudo":true}
+]

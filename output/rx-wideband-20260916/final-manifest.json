@@ -1,0 +1,17 @@
+{
+  "audit_sha256": "138b61a31a181220e4dc1ccbd57ad40d8434aee0bbe3a0b6b8d6f9a5ffa6c52d",
+  "bytes": 7697787,
+  "raw_observations": 161,
+  "presentation_rows": 161,
+  "recheck_performed": false,
+  "end": {
+    "type": "end",
+    "state": "cancelled",
+    "total_windows": 2400,
+    "completed_windows": 1963,
+    "failed_windows": 0,
+    "elapsed_seconds": 863.064862,
+    "audit_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\build\\acceptance\\rx-survey\\1de7f3a9efe041398957c8784acd78e2.jsonl",
+    "error_code": ""
+  }
+}

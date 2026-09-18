@@ -1,0 +1,916 @@
+{
+  "requirements": [
+    "KTR-4.2",
+    "KTR-4.2-F1"
+  ],
+  "physical_execution": false,
+  "rf_accuracy_acceptance": false,
+  "records": [
+    {
+      "record_id": "15c7774e15594edb8bae9e73429b43e5",
+      "record_sha256": "1ef6cb07a3c7cd913ed4c50428fb676d4d49f6b0d1a04a54fa844a2a23c868c7",
+      "iq_sha256": "667cc4e8a9b6cfc20cf613e82cece63b6b669273ca477ea8a0363bb36489cce9",
+      "requested_utc": "2026-09-16T14:50:40.963590+00:00",
+      "sample_rate_hz": 2000000.0,
+      "observation_duration_s": 0.008192,
+      "original_span": {
+        "lower_shifted_bin": 689,
+        "provenance": "automatic_live_expansion",
+        "revision": 8,
+        "upper_shifted_bin": 3319
+      },
+      "original_fields": {
+        "carrier_line_frequency": {
+          "method_id": "frequency.carrier-temporal-artifact-rejection-v5",
+          "reason": "carrier_line_below_threshold",
+          "state": "not_observed",
+          "unit": "Hz",
+          "value": null
+        },
+        "channel_power_dbfs": {
+          "method_id": "power.reference-uncertainty-gated-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "dBFS",
+          "value": -29.54746847018097
+        },
+        "emission_center_frequency": {
+          "method_id": "frequency.excess-centroid-shrink-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "Hz",
+          "value": 819992725.0109125
+        },
+        "lower_band_edge": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": null,
+          "state": "valid",
+          "unit": "Hz",
+          "value": 819583194.1544917
+        },
+        "occupied_bandwidth": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": null,
+          "state": "valid",
+          "unit": "Hz",
+          "value": 821688.7726129866
+        },
+        "signal_domain": {
+          "method_id": "domain.digital-analog-logreg-pc-v1",
+          "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+          "state": "valid",
+          "unit": null,
+          "value": "Sayısal"
+        },
+        "snr_estimate_db": {
+          "method_id": "snr.reference-uncertainty-gated-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "dB",
+          "value": 13.799248583268243
+        },
+        "upper_band_edge": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": null,
+          "state": "valid",
+          "unit": "Hz",
+          "value": 820404882.9271047
+        }
+      },
+      "original_quality": {
+        "center_uncertainty_bins": 0.7805311781150693,
+        "detection_significance": 263.90175029260826,
+        "observed_frames": 4,
+        "reasons": [],
+        "reference_difference_db": 0.8229493109325303,
+        "state": "valid",
+        "temporal_edge_range_bins": 3.6862543042643665
+      },
+      "classification_replay": {
+        "state": "valid",
+        "value": "Sayısal",
+        "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+        "probability_digital": 0.97783731168201,
+        "confidence": 0.97783731168201,
+        "feature_values": [
+          0.3871677261233223,
+          2.4239367476749996,
+          253971.20607159924,
+          10.255144648613195,
+          0.025233802065711144,
+          0.6371777844869595
+        ],
+        "estimated_offset_hz": -3885.997694594301,
+        "filter_bandwidth_hz": 800000.0,
+        "classifier_residual_hz": 2500.0,
+        "method_id": "domain.digital-analog-logreg-pc-v1",
+        "profile_id": "digital-analog-synthetic-logreg-v1",
+        "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+        "physical_acceptance": false,
+        "product_acceptance": false,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "confidence_threshold": 0.9,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096
+      },
+      "numeric_replay_variants": [
+        {
+          "margin_bins": 0,
+          "span": [
+            689,
+            3319
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819992725.0109125
+            },
+            "lower_occupied_edge_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819583196.7352505
+            },
+            "upper_occupied_edge_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 820404885.7439104
+            },
+            "occupied_bandwidth_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 821689.0086599528
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.54767006376506
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.79887427079655
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.8202102933603688,
+              "detection_significance": 263.8735239976289,
+              "center_uncertainty_bins": 0.7827252873562814,
+              "temporal_edge_range_bins": 3.661124887330061
+            }
+          }
+        },
+        {
+          "margin_bins": 64,
+          "span": [
+            625,
+            3383
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819991162.4500296
+            },
+            "lower_occupied_edge_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819626290.2626394
+            },
+            "upper_occupied_edge_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 820375145.1175841
+            },
+            "occupied_bandwidth_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 748854.854944766
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.613173907626734
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.061926934375512
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.8380013336268148,
+              "detection_significance": 199.11565908210113,
+              "center_uncertainty_bins": 0.5895431648219699,
+              "temporal_edge_range_bins": 6.653027949144871
+            }
+          }
+        },
+        {
+          "margin_bins": 128,
+          "span": [
+            561,
+            3447
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819991158.3979816
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.613743840167857
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.040108198975839
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 2.6421841004818662,
+              "detection_significance": 190.28193948834692,
+              "center_uncertainty_bins": 0.4931383027941947,
+              "temporal_edge_range_bins": 21.166869620864873
+            }
+          }
+        },
+        {
+          "margin_bins": 256,
+          "span": [
+            433,
+            3575
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819984710.7666802
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.512179686178047
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.982541180459927
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.23205070962451152,
+              "detection_significance": 244.8256469231941,
+              "center_uncertainty_bins": 0.9466775923546101,
+              "temporal_edge_range_bins": 13.280860637111232
+            }
+          }
+        }
+      ],
+      "running_service_identity": "running_service_hash_not_exposed_by_protocol"
+    },
+    {
+      "record_id": "a2f955bbea2f40dd87360498e91e0b4f",
+      "record_sha256": "cb0ebf837440407fed30934c7dc27feb4c0d27c8028e19eac6c6164c8d563b51",
+      "iq_sha256": "59bd9966f89e261eeda720c1a3033fac1d856a292163b238abd4f9d9da03faee",
+      "requested_utc": "2026-09-16T14:58:29.844623+00:00",
+      "sample_rate_hz": 2000000.0,
+      "observation_duration_s": 0.008192,
+      "original_span": {
+        "lower_shifted_bin": 735,
+        "provenance": "automatic_live_expansion",
+        "revision": 9,
+        "upper_shifted_bin": 3326
+      },
+      "original_fields": {
+        "carrier_line_frequency": {
+          "method_id": "frequency.carrier-temporal-artifact-rejection-v5",
+          "reason": "carrier_line_below_threshold",
+          "state": "not_observed",
+          "unit": "Hz",
+          "value": null
+        },
+        "channel_power_dbfs": {
+          "method_id": "power.reference-uncertainty-gated-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "dBFS",
+          "value": -29.60507484010382
+        },
+        "emission_center_frequency": {
+          "method_id": "frequency.excess-centroid-shrink-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "Hz",
+          "value": 819941255.2805971
+        },
+        "lower_band_edge": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": "obw_temporal_instability",
+          "state": "uncertain",
+          "unit": "Hz",
+          "value": null
+        },
+        "occupied_bandwidth": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": "obw_temporal_instability",
+          "state": "uncertain",
+          "unit": "Hz",
+          "value": null
+        },
+        "signal_domain": {
+          "method_id": "domain.digital-analog-logreg-pc-v1",
+          "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+          "state": "valid",
+          "unit": null,
+          "value": "Sayısal"
+        },
+        "snr_estimate_db": {
+          "method_id": "snr.reference-uncertainty-gated-v3",
+          "reason": null,
+          "state": "valid",
+          "unit": "dB",
+          "value": 13.511445163849585
+        },
+        "upper_band_edge": {
+          "method_id": "band.debiased-obw99-tail-bias-correction-v6",
+          "reason": "obw_temporal_instability",
+          "state": "uncertain",
+          "unit": "Hz",
+          "value": null
+        }
+      },
+      "original_quality": {
+        "center_uncertainty_bins": 0.90487145703744,
+        "detection_significance": 234.89856600492422,
+        "observed_frames": 4,
+        "reasons": [
+          "obw_temporal_instability"
+        ],
+        "reference_difference_db": 0.36660639475094825,
+        "state": "uncertain",
+        "temporal_edge_range_bins": 15.826264671095942
+      },
+      "classification_replay": {
+        "state": "valid",
+        "value": "Sayısal",
+        "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+        "probability_digital": 0.9866628995730051,
+        "confidence": 0.9866628995730051,
+        "feature_values": [
+          0.38754772165448015,
+          2.4441912940530344,
+          254671.1970726927,
+          10.501356029058098,
+          0.013543194149661333,
+          0.6418062118397541
+        ],
+        "estimated_offset_hz": -2524.3610360730086,
+        "filter_bandwidth_hz": 800000.0,
+        "classifier_residual_hz": 2500.0,
+        "method_id": "domain.digital-analog-logreg-pc-v1",
+        "profile_id": "digital-analog-synthetic-logreg-v1",
+        "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+        "physical_acceptance": false,
+        "product_acceptance": false,
+        "feature_order": [
+          "std_amp",
+          "kurt_amp",
+          "std_freq",
+          "kurt_freq",
+          "gamma_max",
+          "abs_C42"
+        ],
+        "confidence_threshold": 0.9,
+        "input_frame_count": 4,
+        "input_samples_per_frame": 4096
+      },
+      "numeric_replay_variants": [
+        {
+          "margin_bins": 0,
+          "span": [
+            735,
+            3326
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819941255.2805971
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.60517609435154
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.511500707100328
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.36871068720085604,
+              "detection_significance": 234.90699211314967,
+              "center_uncertainty_bins": 0.9057749099271423,
+              "temporal_edge_range_bins": 15.837691579385023
+            }
+          }
+        },
+        {
+          "margin_bins": 64,
+          "span": [
+            671,
+            3390
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819998522.6207061
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.553057653494363
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 14.110507549304058
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.1684058077830701,
+              "detection_significance": 273.8478329506744,
+              "center_uncertainty_bins": 0.9042356676941918,
+              "temporal_edge_range_bins": 9.040726321408215
+            }
+          }
+        },
+        {
+          "margin_bins": 128,
+          "span": [
+            607,
+            3454
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819941278.3760312
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.58195671419187
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.724975532432047
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.8033256098383093,
+              "detection_significance": 232.73166006728974,
+              "center_uncertainty_bins": 1.0488949893053998,
+              "temporal_edge_range_bins": 12.707490631849396
+            }
+          }
+        },
+        {
+          "margin_bins": 256,
+          "span": [
+            479,
+            3582
+          ],
+          "result": {
+            "schema_version": 1,
+            "intent_id": 1,
+            "event_id": 1,
+            "frame_id": 3,
+            "observation_count": 4,
+            "emission_center_frequency_hz": {
+              "state": 1,
+              "reason": 0,
+              "value": 819968389.3255426
+            },
+            "lower_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "upper_occupied_edge_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "occupied_bandwidth_hz": {
+              "state": 3,
+              "reason": 8,
+              "value": 0
+            },
+            "channel_power_dbfs": {
+              "state": 1,
+              "reason": 0,
+              "value": -29.55716769278835
+            },
+            "snr_estimate_db": {
+              "state": 1,
+              "reason": 0,
+              "value": 13.922275390808583
+            },
+            "carrier_line_frequency_hz": {
+              "state": 4,
+              "reason": 9,
+              "value": 0
+            },
+            "quality": {
+              "reference_difference_db": 0.9160503328042403,
+              "detection_significance": 232.2923348381168,
+              "center_uncertainty_bins": 0.9714636744828214,
+              "temporal_edge_range_bins": 21.167106802544367
+            }
+          }
+        }
+      ],
+      "running_service_identity": "running_service_hash_not_exposed_by_protocol"
+    }
+  ],
+  "source_sha256": {
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "f7ff210ae104af749fa0502723f5fc41fb17f36eb22ee44afb2a34cb6b302e9d",
+    "digital_analog_detection/integration.py": "dd9ce25ad2e3af075e2e09b0687708950f0c09bd813875c298426ada116b664c",
+    "digital_analog_detection/classifier_model.py": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+    "digital_analog_detection/feature_extractor_v1.py": "a014ab354b1a8dd1af923ce871f2505c6eb2444eb75c5e5792807189d0062653",
+    "digital_analog_detection/train_classifier.py": "dd0cd0592e0fdf59fcba2bfd6cd508625bcc852f882a1cc448e31fa308892ffc",
+    "app/operator_console/quick_measurement_actions.py": "3353eb298b402a12b07fdb2d6e922757b889db15d4b4b44863f52dcacc160119",
+    "output/parameter-review-20260916/reproduce.py": "4eaae87a7e2b0fdc7e097accb768b308ba0f70b787b29d357d12074eaf6c97e0"
+  },
+  "compiler": "MSVC C11",
+  "synthetic_neighbor_probe": [
+    {
+      "neighbor_amplitude": 0.0,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "valid",
+      "value": "Analog",
+      "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+      "probability_digital": 1.0320357741774225e-08,
+      "confidence": 0.9999999896796422,
+      "feature_values": [
+        0.4631928811100082,
+        1.5040033020382066,
+        2143.5028632198437,
+        6.351985246278833,
+        0.3130460318694832,
+        0.39498011798915655
+      ],
+      "estimated_offset_hz": 25000.140787688306,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    },
+    {
+      "neighbor_amplitude": 0.25,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "valid",
+      "value": "Analog",
+      "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+      "probability_digital": 2.8638136695305496e-06,
+      "confidence": 0.9999971361863305,
+      "feature_values": [
+        0.47468688013997457,
+        1.839738040755272,
+        62344.31344306911,
+        13.539782389309584,
+        0.27297146498468705,
+        0.3595981424189165
+      ],
+      "estimated_offset_hz": 25002.345966480545,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    },
+    {
+      "neighbor_amplitude": 0.5,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "valid",
+      "value": "Analog",
+      "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+      "probability_digital": 0.0018203445992421524,
+      "confidence": 0.9981796554007578,
+      "feature_values": [
+        0.48374922344949767,
+        2.19144038653594,
+        146552.13584462547,
+        16.146809740092877,
+        0.19284736480908046,
+        0.29941143262075043
+      ],
+      "estimated_offset_hz": 25008.998891726143,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    },
+    {
+      "neighbor_amplitude": 1.0,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "valid",
+      "value": "Analog",
+      "reason": "Yüksek güvenli deneysel PC sınıflandırıcı kararı.",
+      "probability_digital": 0.04425299359468713,
+      "confidence": 0.9557470064053128,
+      "feature_values": [
+        0.46438469814065353,
+        2.2174425547939096,
+        175821.00656031104,
+        10.536810257446495,
+        0.06629922270416443,
+        0.3118013001125104
+      ],
+      "estimated_offset_hz": 25034.734902789736,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    },
+    {
+      "neighbor_amplitude": 2.0,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "uncertain",
+      "value": null,
+      "reason": "Model oyları güven eşiğini geçmedi.",
+      "probability_digital": 0.2314253961957017,
+      "confidence": 0.7685746038042983,
+      "feature_values": [
+        0.3612551926370847,
+        2.441331857148685,
+        139119.10615033688,
+        12.888995926331004,
+        0.009534834101580708,
+        0.5825119519190243
+      ],
+      "estimated_offset_hz": 25136.455278321755,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    },
+    {
+      "neighbor_amplitude": 4.0,
+      "note": "SNR tanı için sabit girdidir; bağımsız RF ölçümü değildir.",
+      "state": "uncertain",
+      "value": null,
+      "reason": "Model oyları güven eşiğini geçmedi.",
+      "probability_digital": 0.7696826742109887,
+      "confidence": 0.7696826742109887,
+      "feature_values": [
+        0.2243541344529185,
+        3.3172961927111957,
+        114416.64981879172,
+        24.13586847144215,
+        0.03618461865817203,
+        0.8299614330167369
+      ],
+      "estimated_offset_hz": 25538.333486036845,
+      "filter_bandwidth_hz": 800000.0,
+      "classifier_residual_hz": 2500.0,
+      "method_id": "domain.digital-analog-logreg-pc-v1",
+      "profile_id": "digital-analog-synthetic-logreg-v1",
+      "model_sha256": "4e45c330810ba7945b4c273e87d45ec96a01d0f7c8a66fe17ddf9e41708156eb",
+      "physical_acceptance": false,
+      "product_acceptance": false,
+      "feature_order": [
+        "std_amp",
+        "kurt_amp",
+        "std_freq",
+        "kurt_freq",
+        "gamma_max",
+        "abs_C42"
+      ],
+      "confidence_threshold": 0.9,
+      "input_frame_count": 4,
+      "input_samples_per_frame": 4096
+    }
+  ]
+}

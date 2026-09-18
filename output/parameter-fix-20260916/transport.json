@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "physical_execution": false,
+  "results": [
+    "P0_IQ_TRANSPORT_TEST=PASS",
+    "P0_PARAMETER_BRIDGE_LOOPBACK_TEST=PASS",
+    "P0_IQ_BRIDGE_LOOPBACK_TEST=PASS"
+  ]
+}
