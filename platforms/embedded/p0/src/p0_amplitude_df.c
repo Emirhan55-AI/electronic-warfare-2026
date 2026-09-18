@@ -14,8 +14,8 @@ typedef struct {
 } p0_df_point_t;
 
 static const p0_df_profile_t P0_FIELD_PROFILE = {
-    24U,
-    15.0,
+    8U,
+    360.0,
     3.0,
     3.0,
     1U,

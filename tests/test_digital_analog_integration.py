@@ -79,7 +79,7 @@ def test_invalid_frame_shape_is_rejected() -> None:
 def test_parameter_panel_exposes_domain_as_primary_result() -> None:
     source = (Path(__file__).resolve().parents[1]
               / "app/operator_console/qml/ParameterMeasurementPanel.qml").read_text(encoding="utf-8")
-    assert '"channel_power_dbfs", "signal_domain"' in source
+    assert '"channel_power_dbfs", "estimated_power_dbm", "signal_domain"' in source
     assert "return mainKeys.indexOf(row.key) < 0" in source
     assert '"Sinyal Türü"' in source
     assert "Sinyal türü (PC, deneysel)" not in source

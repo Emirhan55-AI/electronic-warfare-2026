@@ -52,6 +52,27 @@ ApplicationWindow {
     property int uiDenseMetaTextSize: width >= 1600 ? 10 : 8
     readonly property int liveSessionFrameLimit: 878906
 
+    component ListeningOption: CheckBox {
+        implicitHeight: 30
+        leftPadding: 0
+        rightPadding: 0
+        indicator: Rectangle {
+            width: 16; height: 16
+            y: (parent.height - height) / 2
+            radius: 3
+            color: parent.checked ? root.accent : root.surfaceAlt
+            border.color: parent.activeFocus ? root.textPrimary : root.textMuted
+            Text { anchors.centerIn: parent; text: parent.parent.checked ? "✓" : ""; color: "white"; font.pixelSize: 12 }
+        }
+        contentItem: Text {
+            text: parent.text
+            leftPadding: 24
+            color: root.textSecondary
+            font.pixelSize: 11
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
     onWorkspaceChanged: {
         if (workspace === 0) {
             spectrumCanvas.requestPaint()
@@ -1140,7 +1161,7 @@ ApplicationWindow {
                             spacing: 9
                             RowLayout {
                                 Layout.fillWidth: true
-                                SectionTitle { text: "KANAL AYARI"; Layout.fillWidth: true }
+                                SectionTitle { text: "DİNLEME AYARI"; Layout.fillWidth: true }
                                 StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.listeningSelectionReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
                             }
                             Rectangle {
@@ -1183,15 +1204,31 @@ ApplicationWindow {
                                     Label { text: "Yayın türü"; color: root.textSecondary; font.pixelSize: 10 }
                                     AppCombo {
                                         id: listeningMode
-                                        objectName: "listeningMode"; helpText: "Yayının türüne göre AM veya dar bant FM seçin. Geniş bant FM radyo yayını (WFM) bu seçenek değildir."
+                                        objectName: "listeningMode"; helpText: "Bilmiyorsanız aynı kayıt AM ve dar bant FM ile çözülür. Bu işlem yayın türünü belirlemez. Geniş bant FM ve sayısal ses desteklenmez."
                                         Layout.fillWidth: true
-                                        model: [{text: "Genlik Modülasyonu (AM)", value: "am"}, {text: "Dar Bant FM (NFM)", value: "nfm"}]
+                                        model: [{text: "AM olarak dene", value: "am"}, {text: "FM olarak dene (dar bant)", value: "nfm"}, {text: "Bilmiyorum · AM/FM karşılaştır", value: "compare"}]
+                                        currentIndex: 2
                                         textRole: "text"
                                         Accessible.name: "Dinleme modu"
                                         onActivated: listeningBandwidth.applySuggestion()
                                     }
-                                    Label { text: "Frekans düzeltmesi (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: "Son 5 saniye hazırlanır; alım durur. Tür bilinmiyorsa iki sonucu dinleyerek karşılaştırın."
+                                        wrapMode: Text.Wrap
+                                        color: root.textMuted
+                                        font.pixelSize: 10
+                                    }
+                                    ListeningOption {
+                                        id: listeningFineSettings
+                                        objectName: "listeningFineSettings"
+                                        text: "İnce ayarı göster"
+                                        checked: false
+                                        palette.windowText: root.textSecondary
+                                    }
+                                    Label { visible: listeningFineSettings.checked; text: "Frekans düzeltmesi (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
                                     RowLayout {
+                                        visible: listeningFineSettings.checked
                                         Layout.fillWidth: true
                                         TextField {
                                             id: listeningOffset
@@ -1227,18 +1264,20 @@ ApplicationWindow {
                                         }
                                     }
                                     RowLayout {
+                                        visible: listeningFineSettings.checked
                                         Layout.fillWidth: true
                                         QuietButton { text: "−0,1 kHz"; objectName: "listeningTuneDown"; Layout.fillWidth: true; onClicked: listeningOffset.nudge(-0.1) }
                                         QuietButton { text: "+0,1 kHz"; objectName: "listeningTuneUp"; Layout.fillWidth: true; onClicked: listeningOffset.nudge(0.1) }
                                     }
+                                    Label { text: "Kanal genişliği"; color: root.textSecondary; font.pixelSize: 10 }
                                     AppCombo {
                                         id: listeningBandwidthPreset
                                         objectName: "listeningBandwidthPreset"; helpText: "Önce tespit önerisini deneyin. Sinyali kesmeyecek kadar geniş tutun; gereksiz genişlik komşu sinyalleri ve gürültüyü içeri alabilir."
                                         Layout.fillWidth: true
                                         textRole: "text"
                                         model: listeningMode.currentIndex === 0
-                                            ? [{text: "Tespit önerisi", value: 0}, {text: "6 kHz", value: 6}, {text: "9 kHz", value: 9}, {text: "12 kHz", value: 12}, {text: "Özel", value: -1}]
-                                            : [{text: "Tespit önerisi", value: 0}, {text: "8 kHz", value: 8}, {text: "12,5 kHz", value: 12.5}, {text: "16 kHz", value: 16}, {text: "25 kHz", value: 25}, {text: "Özel", value: -1}]
+                                            ? [{text: "Ölçüme göre başlangıç", value: 0}, {text: "Dar · 6 kHz", value: 6}, {text: "Orta · 9 kHz", value: 9}, {text: "Geniş · 12 kHz", value: 12}, {text: "Elle ayarla", value: -1}]
+                                            : [{text: "Ölçüme göre başlangıç", value: 0}, {text: "Çok dar · 8 kHz", value: 8}, {text: "Dar · 12,5 kHz", value: 12.5}, {text: "Orta · 16 kHz", value: 16}, {text: "Geniş · 25 kHz", value: 25}, {text: "Elle ayarla", value: -1}]
                                         onActivated: {
                                             var value = model[currentIndex].value
                                             if (value === 0) listeningBandwidth.applySuggestion()
@@ -1248,9 +1287,10 @@ ApplicationWindow {
                                             }
                                         }
                                     }
-                                    Label { text: "Alım bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
+                                    Label { visible: listeningFineSettings.checked || listeningBandwidthPreset.currentIndex === listeningBandwidthPreset.count - 1; text: "Alım bant genişliği (kHz)"; color: root.textSecondary; font.pixelSize: 10 }
                                     TextField {
                                         id: listeningBandwidth
+                                        visible: listeningFineSettings.checked || listeningBandwidthPreset.currentIndex === listeningBandwidthPreset.count - 1
                                         objectName: "listeningBandwidth"
                                         Layout.fillWidth: true
                                         property string suggestionBasis: operatorViewModel.listeningParameterBasisText
@@ -1271,7 +1311,7 @@ ApplicationWindow {
                                         onTextEdited: { operatorEdited = true; listeningBandwidthPreset.currentIndex = listeningBandwidthPreset.count - 1 }
                                     }
                                     Label {
-                                        visible: listeningMode.currentIndex === 1
+                                        visible: listeningFineSettings.checked && listeningMode.currentIndex !== 0
                                         text: "Ses profili"
                                         color: root.textSecondary
                                         font.pixelSize: 10
@@ -1279,7 +1319,7 @@ ApplicationWindow {
                                     AppCombo {
                                         id: listeningDeemphasis
                                         objectName: "listeningDeemphasis"
-                                        visible: listeningMode.currentIndex === 1
+                                        visible: listeningFineSettings.checked && listeningMode.currentIndex !== 0
                                         helpText: "Önce Net ses profilini kullanın. Yalnız eşleşen bir telsiz profili gerekiyorsa 750 µs düzeltmeyi seçin."
                                         Layout.fillWidth: true
                                         textRole: "text"
@@ -1295,6 +1335,28 @@ ApplicationWindow {
                                                     model[currentIndex].value))
                                                 currentIndex = operatorViewModel.listeningDeemphasisUs === 0 ? 0 : 1
                                         }
+                                    }
+                                    ListeningOption {
+                                        id: listeningVoiceFilter
+                                        objectName: "listeningVoiceFilter"
+                                        text: "Konuşma filtresi · Uğultuyu azalt"
+                                        checked: true
+                                        palette.windowText: root.textSecondary
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        visible: text.length > 0
+                                        text: operatorViewModel.listeningBandwidthWarning
+                                        color: root.warning
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
+                                    }
+                                    Label {
+                                        Layout.fillWidth: true
+                                        text: "Ses kesiliyorsa kanalı genişletin; komşu yayın karışıyorsa daraltın. Anlaşılır ses çıkmaması, yayının şifreli olduğunu göstermez."
+                                        color: root.textMuted
+                                        font.pixelSize: 10
+                                        wrapMode: Text.Wrap
                                     }
                                     RowLayout {
                                         Layout.fillWidth: true
@@ -1337,14 +1399,16 @@ ApplicationWindow {
                                 }
                             }
                             PrimaryButton {
+                                objectName: "prepareListening"
                                 Layout.fillWidth: true
-                                text: operatorViewModel.listeningReady ? "Kanalı Yeniden Hazırla" : "Kanalı Hazırla"
+                                text: listeningMode.currentIndex === 2 ? "AM / FM Karşılaştırmasını Hazırla" : "Sesi Hazırla"
                                 enabled: operatorViewModel.listeningSelectionReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
                                 onClicked: operatorViewModel.requestListening(
                                     listeningMode.model[listeningMode.currentIndex].value,
-                                    Number(listeningOffset.text),
-                                    Number(listeningBandwidth.text),
-                                    listeningVolume.value
+                                    Number(listeningOffset.text.replace(",", ".")),
+                                    Number(listeningBandwidth.text.replace(",", ".")),
+                                    listeningVolume.value,
+                                    listeningVoiceFilter.checked
                                 )
                             }
                         }
@@ -1460,6 +1524,21 @@ ApplicationWindow {
                                     color: operatorViewModel.listeningShortPreview ? root.warning : operatorViewModel.listeningReady ? root.success : root.textSecondary
                                     font.pixelSize: 11
                                     wrapMode: Text.Wrap
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    visible: operatorViewModel.listeningComparisonModes.length > 0
+                                    Repeater {
+                                        model: operatorViewModel.listeningComparisonModes
+                                        QuietButton {
+                                            required property string modelData
+                                            text: modelData === "am" ? "AM sonucunu seç" : "FM sonucunu seç"
+                                            objectName: "listeningCompare_" + modelData
+                                            Layout.fillWidth: true
+                                            enabled: !operatorViewModel.busy
+                                            onClicked: operatorViewModel.selectListeningComparison(modelData)
+                                        }
+                                    }
                                 }
                                 Rectangle {
                                     id: listeningTransport
@@ -1590,7 +1669,7 @@ ApplicationWindow {
                                     anchors.margins: 12
                                     spacing: 9
                                     Label { objectName: "directionCaptureReason"; text: operatorViewModel.directionCaptureText; color: root.warning; font.pixelSize: 10; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                                    Label { text: "SAAT YÖNÜNDE OTOMATİK ADIM"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                    Label { text: "UYARLAMALI ANTEN TARAMASI"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     Label {
                                         objectName: "directionNextAngle"
                                         text: operatorViewModel.directionNextAngleText
@@ -1608,10 +1687,26 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                     }
                                     Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                    RowLayout {
+                                    ColumnLayout {
+                                        objectName: "directionProgressSummary"
                                         Layout.fillWidth: true
-                                        Label { text: "Ölçüm ilerlemesi"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
-                                        Label { text: operatorViewModel.directionRequirementText; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas" }
+                                        spacing: 2
+                                        Label {
+                                            objectName: "directionProgressLabel"
+                                            text: "Ölçüm ilerlemesi"
+                                            color: root.textSecondary
+                                            font.pixelSize: 9
+                                            Layout.fillWidth: true
+                                        }
+                                        Label {
+                                            objectName: "directionProgressStatus"
+                                            text: operatorViewModel.directionRequirementText
+                                            color: root.textPrimary
+                                            font.pixelSize: 9
+                                            font.family: "Consolas"
+                                            wrapMode: Text.Wrap
+                                            Layout.fillWidth: true
+                                        }
                                     }
                                     Rectangle {
                                         Layout.fillWidth: true
@@ -1620,7 +1715,7 @@ ApplicationWindow {
                                         color: "#2B2B2B"
                                         Rectangle { width: parent.width * operatorViewModel.directionProgress; height: parent.height; radius: 3; color: root.accent; Behavior on width { NumberAnimation { duration: root.transitionDuration } } }
                                     }
-                                    Label { text: "Her başarılı ölçümden sonra hedef açı otomatik 15° ilerler. Açı, 0° başlangıcına göre bağıl olarak kaydedilir."; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                    Label { text: "İlk ölçüm hedef kanalı kilitler. Tarama lobun iki sınırını bulur, sinyalin kaybolduğu açıyı lob dışı olarak kaydeder ve en güçlü bölgeyi 5° adımlarla daraltır."; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                     Item { Layout.fillHeight: true }
                                 }
                             }
@@ -1629,15 +1724,16 @@ ApplicationWindow {
                                 implicitHeight: 42
                                 objectName: "directionStartMeasurement"
                                 text: operatorViewModel.directionCapturePending ? "Ölçüm alınıyor…"
-                                      : operatorViewModel.directionNextAngleDeg < 0 ? "360° Tur Tamamlandı"
+                                      : operatorViewModel.directionNextAngleDeg < 0
+                                        ? (operatorViewModel.directionSweepComplete ? "Uyarlamalı Tarama Tamamlandı" : "Lob Sınırı Bulunamadı")
                                       : operatorViewModel.directionNextAngleText + " Ölçümünü Al"
                                 enabled: operatorViewModel.directionNextAngleDeg >= 0 && operatorViewModel.directionMeasurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
-                                Accessible.name: "Saat yönündeki sıradaki bağıl anten açısının kanal gücünü ölç"
+                                Accessible.name: "Uyarlamalı taramanın sıradaki bağıl anten açısının kanal gücünü ölç"
                                 onClicked: operatorViewModel.addNextClockwiseDirectionMeasurement()
                             }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümü İptal Et"; visible: operatorViewModel.directionCaptureCancellable; onClicked: operatorViewModel.cancelDirectionMeasurement() }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: (operatorViewModel.directionChannelLocked || operatorViewModel.directionPoints.length > 0) && !operatorViewModel.directionCapturePending && (!operatorViewModel.busy || operatorViewModel.liveSessionActive); onClicked: operatorViewModel.clearDirectionMeasurements() }
-                            Label { text: "Anteni her ölçüm arasında saat yönünde 15° çevirerek 360° turu tamamlayın."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                            Label { text: "Gösterilen bağıl açıya dönün. Sinyalin kaybolması hata değildir; ana lob sınırı olarak kullanılır."; color: root.warning; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                         }
                     }
 
@@ -1728,8 +1824,8 @@ ApplicationWindow {
                                         ColumnLayout {
                                             Layout.fillWidth: true
                                             spacing: 2
-                                            Label { text: "SAAT YÖNÜNDE TARAMA"; color: root.textSecondary; font.pixelSize: 9; font.weight: Font.DemiBold }
-                                            Label { text: "0° başlangıcından 15° adımlarla"; color: root.textPrimary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
+                                            Label { text: "UYARLAMALI LOB TARAMASI"; color: root.textSecondary; font.pixelSize: 9; font.weight: Font.DemiBold }
+                                            Label { text: "Sınır bulma · 5° tepe hassaslaştırma"; color: root.textPrimary; font.pixelSize: 10; elide: Text.ElideRight; Layout.fillWidth: true }
                                         }
                                         Label { text: operatorViewModel.directionRequirementText; color: root.accent; font.pixelSize: 10; font.family: "Consolas"; font.weight: Font.DemiBold }
                                     }

@@ -2,7 +2,7 @@
 
 ## Giriş ve sahiplik
 
-Zincir `SigMF/test I/Q → PHASE-02 FFT/PSD → PHASE-03 tespit → confirmed temporal olay → PHASE-04 parametre ölçümü → operatör seçimi → AM/NFM demodülasyon → 48 kHz mono PCM16` sırasındadır. Eski doğrudan API, kayıtlı fixture regresyonu için confirmed olaydan başlayabilir; yarışma ürün akışı parametre sonucunu dinlemeye devreder. Operatör demodülasyonu açıkça seçer ve önerilen merkez ofseti ile kanal genişliğini değiştirebilir. Ground truth, aile veya SNR etiketi runtime kararına girmez.
+Zincir `SigMF/test I/Q → PHASE-02 FFT/PSD → PHASE-03 tespit → confirmed temporal olay → PHASE-04 parametre ölçümü → operatör seçimi → AM/NFM demodülasyon → 48 kHz mono PCM16` sırasındadır. Eski doğrudan API, kayıtlı fixture regresyonu için confirmed olaydan başlayabilir; yarışma ürün akışı parametre sonucunu dinlemeye devreder. Operatör AM/NFM seçer veya bilinmeyen yayında aynı I/Q için iki yöntemi karşılaştırır; önerilen merkez ofseti ile kanal genişliğini değiştirebilir. Karşılaştırma sonuçları tür sınıflandırması değildir. Ground truth, aile veya SNR etiketi runtime kararına girmez.
 
 İstek kaynak, pipeline, yapılandırma, event kimliği/revizyonu ve başlangıç frame'iyle bağlanır. Kaynak, profil, Pfa, merkez politikası, DC ayarı, event veya dinleme ayarı değişince hazırlanmış ses silinir. Stale sonuç UI'ya uygulanmaz.
 
@@ -12,9 +12,9 @@ Zincir `SigMF/test I/Q → PHASE-02 FFT/PSD → PHASE-03 tespit → confirmed te
 - DDC: global birleşik örnek indisiyle kompleks frekans öteleme; NCO fazı blok sınırında korunur.
 - Kanal filtresi: `129` tap anti-alias ve `129` tap kanal FIR'ı; iki filtre delay-line durumu ve decimator fazı blok sınırında korunur.
 - AM: filtrelenmiş kompleks zarf.
-- NFM: ardışık filtrelenmiş örneklerin `angle(x[n]·conj(x[n−1]))` faz farkı; önceki kompleks örnek blok sınırında korunur. Kesintisiz ürün yolunda ardından 6 dB/oktav alıcı de-emphasis için varsayılan `750 µs` birinci derece filtre uygulanır; zaman sabiti yapılandırma sözleşmesindedir. Dört karelik eski fixture önizlemesi tarihsel golden çıktıyı korur ve de-emphasis içermez.
-- Yeniden örnekleme: anti-alias kanal filtresinden sonra deterministik doğrusal zaman ızgarası; çıkış tam `48.000 Hz`.
-- Ses filtresi: kesintisiz ürün yolunda kanal aralığına göre NFM'de `2,55/3 kHz`, AM'de `3 kHz` kesimli `65` tap bounded alçak geçiren filtre ve DC giderimi. Dört karelik fixture önizlemesi tarihsel geniş kesimi korur.
+- NFM: ardışık filtrelenmiş örneklerin `angle(x[n]·conj(x[n−1]))` faz farkı; önceki kompleks örnek blok sınırında korunur. De-emphasis varsayılan olarak kapalıdır; eşleşen verici profili biliniyorsa operatör `750 µs` seçebilir. Seçim kısa ve kesintisiz kayıt yollarında sonuca yazılır.
+- Yeniden örnekleme: örnek azaltma öncesi 257 tap ses FIR süzgecinden sonra deterministik doğrusal zaman ızgarası; çıkış tam `48.000 Hz`.
+- Ses filtresi: kesintisiz ürün yolunda kanal aralığına göre NFM'de `2,55/3 kHz`, AM'de `3 kHz` kesimli `65` tap bounded alçak geçiren filtre ve DC giderimi. Aynı ses bandı kısa önizlemede de uygulanır. İsteğe bağlı `voice_filter`, normalizasyon öncesinde 200 Hz kesimli 1025 tap Hamming FIR yüksek geçiren süzgeç ekler; birleşik sese bir kez uygulanır ve RF gözlem metriklerini değiştirmez. API varsayılanı kapalı, ürün konuşma seçimi başlangıçta açıktır.
 - PCM: mono signed little-endian PCM16; normalizasyon yalnız dinleme içindir, taşma kırpma öncesi sayılır ve zorunlu kapıda sıfırdır.
 - I/Q blok üst sınırı: `20` saniye; UI worker'ı kaydı yaklaşık `250 ms` kesintisiz okuma bloklarıyla işler.
 - Canlı ürün girişi: host kanal seçicisinin karta gönderilmiş ve yanıtı
@@ -37,6 +37,17 @@ Nyquist dışı kanal, yetersiz kesintisiz I/Q, geçersiz oran, desteklenmeyen d
 ## Project-internal kapılar
 
 Clean AM/NFM fixture'larında 48 kHz çıkış, sonlu değerler, sıfır PCM taşması, en fazla bir değerlendirme FFT bini ton hatası ve gecikme/kazanç hizalı korelasyon `≥0,95` zorunludur. Sabit `20 dB` sentetik SNR'de korelasyon `≥0,80`, ton hatası en fazla iki bindir. Aynı giriş iki çalıştırmada aynı ölçüm ve PCM üretir. Noise-only kayıtta confirmed olay yoksa dinleme etkinleşmez. Bu değerler şartname performans eşiği değil `project_internal` yazılım kapılarıdır.
+
+## Bilinmeyen tür için karşılaştırma
+
+`compare` ürün isteği DSP'de yeni bir modülasyon değildir; aynı I/Q ve aynı
+frekans/kanal/ses ayarlarıyla iki açık AM/NFM çağrısına açılır. Ses enerjisi
+yetersiz bir dal diğer sonucu engellemez; geçersiz I/Q hatası gizlenmez.
+Sonuçlar nesil kontrolünden geçtikten sonra saklanır; kaynak/seçim temizliği
+her iki sesi siler. Sonuç seçimi oynatmayı durdurur ve aynı kaydın sesini,
+metriklerini ve WAV kaynağını birlikte değiştirir. Otomatik sıralama, güven
+puanı veya tür kabulü üretilmez. WFM ve sayısal protokoller desteklenmez.
+25 kHz üstü ölçülmüş OBW için ürün, dar bant yolun kapsam uyarısını gösterir.
 
 ## UI ve donanım sınırı
 

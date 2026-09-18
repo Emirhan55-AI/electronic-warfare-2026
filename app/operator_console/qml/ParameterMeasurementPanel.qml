@@ -11,22 +11,21 @@ ScrollView {
     readonly property bool hasResult: viewModel.parameterRows.length > 0
     readonly property bool measuring: viewModel.parameterMeasurementActive
     property bool detailsOpen: false
-    property bool editRange: false
     property bool catalogOpen: false
-    property string lowerInputText: ""
-    property string upperInputText: ""
-    readonly property bool rangeInputReady: lower.text.trim().length > 0 && upper.text.trim().length > 0
-    readonly property var mainKeys: ["carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs", "signal_domain"]
-    readonly property var mainLabels: ["Taşıyıcı Frekans", "Bant Genişliği", "Kanal Gücü (dBFS)", "Sinyal Türü"]
+    readonly property var mainKeys: ["emission_center_frequency", "carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs", "estimated_power_dbm", "signal_domain"]
+    readonly property var requiredMainKeys: ["emission_center_frequency", "carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs"]
+    readonly property var mainLabels: ["Sinyal Merkez Frekansı", "Gözlenen Taşıyıcı Frekansı", "Bant Genişliği", "Kanal Gücü (dBFS)", "Tahmini Güç (dBm)", "Sinyal Türü"]
     readonly property var primaryRows: mainKeys.map(function(key, index) {
         var row = viewModel.parameterRows.find(function(item) { return item.key === key })
-        return { label: mainLabels[index], value: row ? row.value : "—", state: row ? row.state : "pending", reason: row ? (row.reason || "") : "" }
+        var state = row ? row.state : "pending"
+        if (key === "signal_domain" && state === "valid") state = "predicted"
+        return { key: key, label: mainLabels[index], value: row ? row.value : "—", state: state, reason: row ? (row.reason || "") : "" }
     })
     readonly property var detailRows: viewModel.parameterRows.filter(function(row) {
         return mainKeys.indexOf(row.key) < 0
     })
     readonly property int validPrimaryCount: primaryRows.filter(function(row) {
-        return row.state === "valid"
+        return requiredMainKeys.indexOf(row.key) >= 0 && row.state === "valid"
     }).length
     function stateText(state) {
         if (state === "valid") return "GEÇERLİ"
@@ -34,6 +33,8 @@ ScrollView {
         if (state === "insufficient_quality") return "KALİTE YETERSİZ"
         if (state === "not_observed") return "GÖZLENMEDİ"
         if (state === "not_applicable") return "UYGULANMAZ"
+        if (state === "estimated") return "TAHMİNİ"
+        if (state === "predicted") return "DENEYSEL TAHMİN"
         return "BEKLİYOR"
     }
     function stateColor(state) {
@@ -41,18 +42,7 @@ ScrollView {
         if (state === "pending" || state === "not_observed") return BazTheme.textMuted
         return BazTheme.warning
     }
-    function syncRangeInputs() {
-        lowerInputText = viewModel.analysisLowerMHzText
-        upperInputText = viewModel.analysisUpperMHzText
-    }
-    onHasResultChanged: { detailsOpen = hasResult; editRange = false; syncRangeInputs() }
-    Component.onCompleted: syncRangeInputs()
-    Connections {
-        target: panel.viewModel
-        function onDetectionsChanged() {
-            if (!panel.editRange) panel.syncRangeInputs()
-        }
-    }
+    onHasResultChanged: detailsOpen = hasResult
     clip: true
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
     ScrollBar.vertical: ScrollBar {
@@ -197,76 +187,24 @@ ScrollView {
                 Layout.fillWidth: true
                 text: panel.viewModel.analysisLowerMHzText.length > 0
                       ? "Analiz aralığı: " + panel.viewModel.analysisLowerMHzText + " – " + panel.viewModel.analysisUpperMHzText + " MHz"
-                      : "Otomatik aralık oluşturulamadı. Alt ve üst frekansı elle girin."
+                      : "Otomatik analiz aralığı oluşturulamadı. Tespit ekranından sinyali yeniden seçin."
                 color: BazTheme.textPrimary
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
             }
-            Label {
-                visible: panel.viewModel.analysisSpanLimited
-                Layout.fillWidth: true
-                text: "Aralık seçili sinyalin tamamını kapsamıyor. Ölçümden önce aralığı genişletin."
-                color: BazTheme.warning
-                font.pixelSize: 11
-                wrapMode: Text.WordWrap
-            }
-            QuietButton {
-                objectName: "parameterEditRange"
-                text: panel.editRange ? "Aralık Düzenlemeyi Kapat" : "Aralığı Düzenle"
-                onClicked: {
-                    if (!panel.editRange) panel.syncRangeInputs()
-                    panel.editRange = !panel.editRange
-                }
-            }
-            RowLayout {
-                visible: panel.editRange
-                Layout.fillWidth: true
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label { text: "Alt frekans (MHz)"; color: BazTheme.textSecondary; font.pixelSize: 11 }
-                    TextField {
-                        id: lower
-                        objectName: "parameterLowerMHz"
-                        Layout.fillWidth: true
-                        text: panel.lowerInputText
-                        onTextEdited: panel.lowerInputText = text
-                        Accessible.name: "Analiz alt frekansı megahertz"
-                    }
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Label { text: "Üst frekans (MHz)"; color: BazTheme.textSecondary; font.pixelSize: 11 }
-                    TextField {
-                        id: upper
-                        objectName: "parameterUpperMHz"
-                        Layout.fillWidth: true
-                        text: panel.upperInputText
-                        onTextEdited: panel.upperInputText = text
-                        Accessible.name: "Analiz üst frekansı megahertz"
-                    }
-                }
-            }
-            Label {
-                visible: panel.editRange
-                text: "Spektrumda Shift+sürükle ile de aralık çizebilirsiniz."
-                Layout.fillWidth: true
-                wrapMode: Text.Wrap
-                color: BazTheme.textSecondary
-                font.pixelSize: 11
-            }
             PrimaryButton {
                 objectName: "parameterConfirmRange"
-                visible: panel.editRange || (!panel.viewModel.analysisSpanConfirmed && panel.rangeInputReady)
+                visible: !panel.viewModel.analysisSpanConfirmed
+                         && panel.viewModel.analysisLowerMHzText.length > 0
+                         && panel.viewModel.analysisUpperMHzText.length > 0
                 text: panel.viewModel.sourceMode === "hackrf"
                       ? "Parametre Çıkar"
                       : "Analiz Aralığını Onayla"
                 Layout.fillWidth: true
-                enabled: panel.viewModel.parameterCapabilityReady && panel.rangeInputReady
+                enabled: panel.viewModel.parameterCapabilityReady
                 onClicked: {
-                    panel.viewModel.confirmAnalysisSpan(Number(lower.text.trim().replace(",", ".")), Number(upper.text.trim().replace(",", ".")))
+                    panel.viewModel.confirmAnalysisSpan(Number(panel.viewModel.analysisLowerMHzText), Number(panel.viewModel.analysisUpperMHzText))
                     if (panel.viewModel.analysisSpanConfirmed) {
-                        panel.editRange = false
-                        panel.syncRangeInputs()
                         if (panel.viewModel.sourceMode === "hackrf")
                             panel.viewModel.requestMeasurement()
                     }
@@ -274,7 +212,7 @@ ScrollView {
             }
             PrimaryButton {
                 objectName: "parameterMeasure"
-                visible: panel.viewModel.analysisSpanConfirmed && !panel.editRange
+                visible: panel.viewModel.analysisSpanConfirmed
                 text: panel.viewModel.liveSessionActive ? "Alımı Durdur ve Parametreleri Çıkar" : "Parametreleri Çıkar"
                 Layout.fillWidth: true
                 enabled: panel.viewModel.measurementReady && (!panel.viewModel.busy || panel.viewModel.liveSessionActive)
@@ -295,15 +233,15 @@ ScrollView {
             implicitHeight: validationSummary.implicitHeight + 20
             radius: 4
             color: BazTheme.surfaceAlt
-            border.color: panel.validPrimaryCount === panel.mainKeys.length ? BazTheme.success : BazTheme.warning
+            border.color: panel.validPrimaryCount === panel.requiredMainKeys.length ? BazTheme.success : BazTheme.warning
             ColumnLayout {
                 id: validationSummary
                 anchors.fill: parent
                 anchors.margins: 10
                 spacing: 3
                 Label {
-                    text: "DOĞRULAMA ÖZETİ · " + panel.validPrimaryCount + "/" + panel.mainKeys.length + " ANA ALAN GEÇERLİ"
-                    color: panel.validPrimaryCount === panel.mainKeys.length ? BazTheme.success : BazTheme.warning
+                    text: "ÖLÇÜM ÖZETİ · " + panel.validPrimaryCount + "/" + panel.requiredMainKeys.length + " SAYISAL ALAN GEÇERLİ"
+                    color: panel.validPrimaryCount === panel.requiredMainKeys.length ? BazTheme.success : BazTheme.warning
                     font.pixelSize: 11
                     font.weight: Font.Bold
                 }

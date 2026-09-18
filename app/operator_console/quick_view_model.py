@@ -24,6 +24,7 @@ from .parameter_catalog import ParameterCatalog
 from algorithms.monitoring import (
     AnalogMonitorResult,
 )
+from algorithms.p0.adaptive_df import AdaptiveDirectionSweep
 from algorithms.p0.df import FIELD_AMPLITUDE_DF_PROFILE, ManualAmplitudeDF
 from algorithms.p0.direction_client import BoardDFEstimate
 from algorithms.p0.coarse_detection import CoarseDetectionFrame
@@ -380,8 +381,10 @@ class OperatorViewModel(
 
         self._audio_playback = AudioPlayback(self)
         self._listening_result: AnalogMonitorResult | None = None
+        self._listening_comparison: dict[str, tuple] = {}
         self._listening_parameter_target_hz: float | None = None
         self._listening_parameter_bandwidth_khz = 16.0
+        self._listening_measured_bandwidth_hz: float | None = None
         self._listening_parameter_record_path = ""
         self._listening_state = "Doğrulanmış bir tespit seçin."
         self._listening_rows: list[dict[str, str]] = []
@@ -393,8 +396,9 @@ class OperatorViewModel(
         self._listening_playback_duration_s = 0.0
 
         self._df = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
+        self._df_sweep = AdaptiveDirectionSweep()
         self._df_points: list[dict[str, str]] = []
-        self._df_status = "15° adımlı 24 farklı anten açısında kanal gücü gerekir."
+        self._df_status = "UYARLAMALI TARAMA SÜRÜYOR"
         self._df_relative = "—"
         self._df_bearing = "—"
         self._df_reference_key: tuple[str, float | None] | None = None
@@ -408,6 +412,7 @@ class OperatorViewModel(
         self._df_capture_message = ""
         self._df_channel_span: tuple[int, int] | None = None
         self._df_target_frequency_hz: float | None = None
+        self._df_target_event_id: int | None = None
 
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
@@ -1286,9 +1291,10 @@ class OperatorViewModel(
     @Property(str, notify=directionChanged)
     def directionStatusText(self) -> str:
         return {
+            "UYARLAMALI TARAMA SÜRÜYOR": self._df_sweep.status_text,
             "LOB HAZIR": "Bağıl tepe yönü hazır",
-            "YETERSİZ AÇI": "15° adımlı 24 anten açısı gerekli",
-            "YETERSİZ AÇI KAPSAMI": "Açı ölçümleri 360° çevreyi kapsamıyor",
+            "YETERSİZ AÇI": "Lob sınırları ve hassas ölçümler tamamlanmadı",
+            "YETERSİZ AÇI KAPSAMI": "Lob sınırları yeterli biçimde çevrelenmedi",
             "YETERSİZ TEKRAR": "Her açı için ek güç ölçümü gerekli",
             "ALICI AYARI DEĞİŞTİ": "Alıcı ayarları ölçüm sırasında değişti",
             "HEDEF FREKANSI DEĞİŞTİ": "Aynı RF kaynağı izlenemedi",
@@ -1310,7 +1316,15 @@ class OperatorViewModel(
 
     @Property(float, notify=directionChanged)
     def directionProgress(self) -> float:
+        if self._source_mode == "hackrf":
+            return self._df_sweep.progress
         return min(1.0, self.directionDistinctAngleCount / 24.0)
+
+    @Property(bool, notify=directionChanged)
+    def directionSweepComplete(self) -> bool:
+        if self._source_mode == "hackrf":
+            return self._df_sweep.complete
+        return self._next_clockwise_direction_angle() is None
 
     @Property(float, notify=directionChanged)
     def directionNextAngleDeg(self) -> float:
@@ -1320,21 +1334,32 @@ class OperatorViewModel(
     @Property(str, notify=directionChanged)
     def directionNextAngleText(self) -> str:
         angle = self._next_clockwise_direction_angle()
-        return "TUR TAMAMLANDI" if angle is None else f"{angle:.0f}°"
+        if angle is None:
+            return "TARAMA TAMAMLANDI" if self.directionSweepComplete else "LOB SINIRI BULUNAMADI"
+        return f"{angle:.0f}°"
 
     @Property(str, notify=directionChanged)
     def directionStepInstructionText(self) -> str:
+        if self._source_mode == "hackrf":
+            return self._df_sweep.instruction_text
         angle = self._next_clockwise_direction_angle()
         if angle is None:
-            return "360° saat yönü taraması tamamlandı."
+            return "Uyarlamalı anten taraması tamamlandı."
         if angle == 0.0:
             return "Antenin başlangıç yönünü 0° kabul edin ve ilk ölçümü alın."
-        return f"Anteni saat yönünde {angle:.0f}° konumuna çevirin ve ölçümü alın."
+        if angle > 180.0:
+            return (
+                f"Anteni başlangıç yönünden saat yönünün tersine "
+                f"{360.0 - angle:.0f}° konumuna çevirin ve ölçümü alın."
+            )
+        return f"Anteni başlangıç yönünden saat yönünde {angle:.0f}° konumuna çevirin ve ölçümü alın."
 
     @Property(str, notify=directionChanged)
     def directionRequirementText(self) -> str:
         count = self.directionDistinctAngleCount
-        return f"{count}/24 farklı açı · {self.directionMeasurementCount} ölçüm"
+        if self._source_mode == "hackrf":
+            return f"{count} farklı açı · {self._df_sweep.status_text}"
+        return f"{count} farklı açı · {self.directionMeasurementCount} ölçüm"
 
     @Property(str, notify=directionChanged)
     def directionReferenceText(self) -> str:
@@ -1446,8 +1471,15 @@ class OperatorViewModel(
             return ""
         return (
             f"Parametre ölçümü · {self._format_frequency(self._listening_parameter_target_hz)} · "
-            f"OBW {self._format_rate(self._listening_parameter_bandwidth_khz * 1_000.0)}"
+            f"Önerilen kanal {self._format_rate(self._listening_parameter_bandwidth_khz * 1_000.0)}"
         )
+
+    @Property(str, notify=listeningChanged)
+    def listeningBandwidthWarning(self) -> str:
+        width = self._listening_measured_bandwidth_hz
+        if width is not None and width > 25_000:
+            return "Ölçülen yayın 25 kHz'den geniş. Bu dar bant ses yolu yayının tamamını kapsamaz; doğru çözümleme garanti edilmez."
+        return ""
 
     def _listening_channel_target_hz(self) -> float | None:
         target = self._listening_parameter_target_hz
@@ -1461,6 +1493,10 @@ class OperatorViewModel(
             return None
         value = selected.get("frequencyHz")
         return float(value) if isinstance(value, (int, float)) and math.isfinite(float(value)) else None
+
+    @Property("QStringList", notify=listeningChanged)
+    def listeningComparisonModes(self):
+        return list(getattr(self, "_listening_comparison", {}))
 
     @Property(bool, notify=listeningChanged)
     def listeningReady(self) -> bool:

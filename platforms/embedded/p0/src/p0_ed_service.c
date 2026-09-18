@@ -335,7 +335,7 @@ static void serve_parameter_batch(int client, p0_dma_runtime_t *dma,
         before.fft_size != 4096U) {
         status = 1U;
     }
-    for (frame = 0U; status == 0U && frame < 4U; ++frame) {
+    for (frame = 0U; status == 0U && frame < request->frame_count; ++frame) {
         const uint8_t *iq = request->iq + frame * 8192U;
         int dma_code;
         int decode_code = P0_PL_OS_CFAR_OK;
@@ -360,7 +360,9 @@ static void serve_parameter_batch(int client, p0_dma_runtime_t *dma,
         }
         /* Ownership is the frozen operator-selected record, not a new temporal
          * detection. The request's CI8 is reprocessed by the physical PL here. */
-        if (p0_parameter_runtime_observe(&pipeline->parameter_runtime, frame == 0U,
+        if (p0_parameter_runtime_observe(&pipeline->parameter_runtime,
+                frame == 0U ? (request->version == 3U ? 2 :
+                               request->locked_channel_power ? 3 : 1) : 0,
                 request->token, request->event_id, request->first_frame_id + frame,
                 request->sample_rate_hz, request->center_frequency_hz,
                 request->lower_bin, request->upper_bin, 1, iq, 8192U,
@@ -452,12 +454,12 @@ static void serve_client(int client, p0_dma_runtime_t *dma, p0_ed_pipeline_t *pi
         uint64_t dma_finished;
         uint64_t decode_finished;
 #endif
-        ssize_t received = recv(client, request_buffer, P0_PARAMETER_BATCH_REQUEST_BYTES,
+        ssize_t received = recv(client, request_buffer, P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES,
                                 MSG_TRUNC);
 
         if (received <= 0)
             break;
-        if (received == P0_PARAMETER_BATCH_REQUEST_BYTES && memcmp(request_buffer, "P0PM", 4U) == 0) {
+        if ((received == P0_PARAMETER_BATCH_REQUEST_BYTES || received == P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES) && memcmp(request_buffer, "P0PM", 4U) == 0) {
             p0_parameter_batch_request_t batch;
             if (data_seen || wait_for_worker_empty(&worker) != 0 ||
                 p0_parameter_batch_decode(request_buffer, (size_t)received, &batch) != 0) break;
@@ -695,7 +697,7 @@ int main(int argc, char **argv)
             goto release_pipeline;
         }
     }
-    request_buffer = malloc(P0_PARAMETER_BATCH_REQUEST_BYTES);
+    request_buffer = malloc(P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES);
     response_buffer = malloc(P0_ED_RESPONSE_BYTES);
     if (request_buffer == NULL || response_buffer == NULL) {
         fputs("Hizmet belleği ayrılamadı.\n", stderr);

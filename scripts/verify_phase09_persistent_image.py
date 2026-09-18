@@ -100,6 +100,10 @@ def verify(host: str, port: int, username: str, password: str, host_key: str) ->
 
     cases = []
     for name, measurements in _cases().items():
+        if name == "adaptive-lob-ready":
+            # The frozen v1 SD image predates the adaptive profile.  Its
+            # historical verifier deliberately does not transfer v2 claims.
+            continue
         estimate = estimate_on_board(host, port, tuple(measurements)).estimate
         cases.append({
             "case": name,

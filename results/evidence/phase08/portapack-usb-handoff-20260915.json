@@ -1,0 +1,48 @@
+{
+  "schema": "phase08-portapack-usb-handoff-v1",
+  "recorded_at_utc": "2026-09-15T02:17:28.7742056Z",
+  "operator_action": "Sistemi Denetle kapsamındaki PortaPack HackRF USB modu hazırlığı",
+  "initial_state": {
+    "serial_port": "COM4",
+    "usb_vid": "1D50",
+    "usb_pid": "6018",
+    "usb_serial": "TRANSCEIVER",
+    "hackrf_info": "No HackRF boards found."
+  },
+  "handoff": {
+    "command": "hackrf\\r\\n",
+    "baudrate": 115200,
+    "data_bits": 8,
+    "parity": "none",
+    "stop_bits": 1,
+    "post_write_settle_seconds": 0.5,
+    "selected_port": "COM4"
+  },
+  "result": {
+    "windows_device_name": "HackRF One",
+    "windows_status": "OK",
+    "usb_vid": "1D50",
+    "usb_pid": "6089",
+    "serial": "0000000000000000a32868dc36877e47",
+    "firmware": "v2.4.0 (API:1.11)",
+    "hackrf_info_found": true
+  },
+  "source_sha256": {
+    "platforms/acquisition/portapack.py": "c1c54e4ccfe123c9e5e9ed61de3b887c17f65b74da8bb7c4a10a8c7721a966f2",
+    "platforms/acquisition/__init__.py": "40fcf9782a55589ce1045c906a60003f64cedb985a760e930a21467c83198ec2",
+    "app/operator_console/quick_view_model.py": "0887c223669de8231aa8e608384b117fbbfbceaf91003eed56291839af4cd162",
+    "app/operator_console/quick_runtime.py": "e24420b347105e19f060ed3122a867e8d68315d8e7d546c342fab330e3cc968b",
+    "requirements/product.txt": "5f40646463481e609b1c1c813e04b1866b5e3b2132bd1c01d694fd79732ddca3"
+  },
+  "regression": {
+    "command": "python -m pytest tests/test_portapack_mode.py tests/test_live_ed_view_model.py -k portapack -q",
+    "passed": 7,
+    "failed": 0
+  },
+  "status": "observed_once_not_acceptance",
+  "acceptance_limits": [
+    "Tek fiziksel geçiş gözlemidir; tekrarlı açılış/geçiş kabulü değildir.",
+    "Birleşik gerçek QML Sistemi Denetle düğmesiyle tekrar henüz kaydedilmedi.",
+    "RF alım doğruluğu veya sürekli çalışma kabulü değildir."
+  ]
+}

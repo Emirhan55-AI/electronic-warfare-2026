@@ -53,16 +53,20 @@
 #define P0_ED_REQUEST_FLAGS_ALLOWED P0_ED_REQUEST_FLAGS_V1_ALLOWED
 
 #define P0_DETECTION_MESSAGE_BYTES 48U
-/* Explicit replay of four operator-selected CI8 frames through PL + ARM.
- * This operation does not assert a new live detection or classify modulation. */
+/* Explicit replay of operator-selected CI8 frames through PL + ARM.
+ * P0PM-v4 is the four-frame locked-direction-channel total-power contract;
+ * it does not assert a new live detection or classify modulation. */
 #define P0_PARAMETER_BATCH_HEADER_BYTES 64U
 #define P0_PARAMETER_BATCH_REQUEST_BYTES (64U + 32768U)
+#define P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES (64U + 16U * 8192U)
 #define P0_PARAMETER_BATCH_RESPONSE_BYTES 176U
 typedef struct {
     uint32_t token, first_frame_id, sample_rate_hz;
     int64_t center_frequency_hz;
     uint64_t event_id;
     uint16_t lower_bin, upper_bin;
+    uint16_t version, frame_count;
+    uint8_t locked_channel_power;
     uint32_t iq_crc32;
     const uint8_t *iq;
 } p0_parameter_batch_request_t;

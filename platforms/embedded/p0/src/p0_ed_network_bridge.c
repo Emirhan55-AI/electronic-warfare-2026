@@ -28,7 +28,8 @@
 #endif
 
 typedef struct {
-    uint8_t network_request[P0_PARAMETER_BATCH_REQUEST_BYTES];
+    uint8_t network_request[P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES];
+    size_t parameter_request_bytes;
     uint8_t local_request_header[P0_ED_REQUEST_HEADER_BYTES_V2];
     uint8_t local_response[P0_ED_RESPONSE_BYTES];
     uint8_t network_response[P0_IQ_RESPONSE_HEADER_BYTES + P0_ED_RESPONSE_BYTES];
@@ -190,10 +191,12 @@ static int read_processing_frame(int client, bridge_slot_t *slot,
         return p0_iq_capability_query_check(slot->network_request) == 0 ? 5 : -1;
     if (memcmp(slot->network_request, "P0PM", 4U) == 0) {
         p0_parameter_batch_request_t batch;
+        slot->parameter_request_bytes = slot->network_request[4] == 3U && slot->network_request[5] == 0U
+            ? P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES : P0_PARAMETER_BATCH_REQUEST_BYTES;
         if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
-                       P0_PARAMETER_BATCH_REQUEST_BYTES - P0_IQ_HEADER_BYTES, 0) != 0)
+                       slot->parameter_request_bytes - P0_IQ_HEADER_BYTES, 0) != 0)
             return -1;
-        return p0_parameter_batch_decode(slot->network_request, P0_PARAMETER_BATCH_REQUEST_BYTES,
+        return p0_parameter_batch_decode(slot->network_request, slot->parameter_request_bytes,
                                          &batch) == 0 ? 3 : -1;
     }
     if (memcmp(slot->network_request, "P0DF", 4U) == 0) {
@@ -416,11 +419,11 @@ static int serve_peer(int client, const char *local_socket)
                 ssize_t count;
                 if (!first_request || outstanding != 0U ||
                     p0_parameter_batch_decode(slots[tail].network_request,
-                        P0_PARAMETER_BATCH_REQUEST_BYTES, &batch) != 0) goto done;
+                        slots[tail].parameter_request_bytes, &batch) != 0) goto done;
                 if (set_io_timeout_seconds(client, 30) != 0 ||
                     set_io_timeout_seconds(local, 30) != 0) goto done;
-                count = send(local, slots[tail].network_request, P0_PARAMETER_BATCH_REQUEST_BYTES, MSG_NOSIGNAL);
-                if (count != P0_PARAMETER_BATCH_REQUEST_BYTES) goto done;
+                count = send(local, slots[tail].network_request, slots[tail].parameter_request_bytes, MSG_NOSIGNAL);
+                if (count < 0 || (size_t)count != slots[tail].parameter_request_bytes) goto done;
                 count = recv(local, slots[tail].local_response, sizeof(slots[tail].local_response), MSG_TRUNC);
                 if (p0_parameter_batch_response_check(slots[tail].local_response,
                         (size_t)count, batch.token) != 0 ||

@@ -5,15 +5,12 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-import numpy as np
 from PySide6.QtCore import Slot
 
 from algorithms.monitoring import AnalogMonitorResult
-from algorithms.p0.df import FIELD_AMPLITUDE_DF_PROFILE
 from algorithms.p0.direction_client import BoardDFEstimate
 from algorithms.pipeline import RuntimeFrameResult
 from .fixed_band_verification import FixedBandVerification
-from .live_ed import LIVE_AUDIO_WINDOW_SECONDS
 from .measurement_record import RecordedMeasurement
 from .quick_runtime import ERROR_TEXT
 
@@ -134,8 +131,15 @@ class QuickTaskCompletionMixin:
                             if pending_direction["frame_id"] is not None else None
                         ),
                         board_endpoint=tuple(pending_direction["board_endpoint"]),
+                        target_observed=any(
+                            bool(value)
+                            for value in pending_direction.get(
+                                "target_observed_frames",
+                                (pending_direction.get("require_observed_target", True),),
+                            )
+                        ),
                     )
-                    if self.directionDistinctAngleCount < FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles:
+                    if not self._direction_scan_complete():
                         self._status_message = (
                             f"{float(pending_direction['antenna_angle_deg']):.1f}° kart PL/ARM "
                             "kanal gücü kaydedildi; alım yeniden başlatılıyor."
@@ -148,7 +152,7 @@ class QuickTaskCompletionMixin:
                     self._status_message = self._df_status
                     self.directionChanged.emit()
                 if (
-                    self.directionDistinctAngleCount < FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles
+                    not self._direction_scan_complete()
                     and isinstance(resume, dict)
                 ):
                     self.startLiveEDSession(
@@ -172,10 +176,12 @@ class QuickTaskCompletionMixin:
                         and isinstance(bandwidth_field.value, (int, float))
                         and math.isfinite(float(bandwidth_field.value))
                     ):
+                        self._listening_measured_bandwidth_hz = float(bandwidth_field.value)
                         self._listening_parameter_bandwidth_khz = _analog_voice_bandwidth_khz(
                             float(bandwidth_field.value)
                         )
                     else:
+                        self._listening_measured_bandwidth_hz = None
                         self._listening_parameter_bandwidth_khz = 16.0
                     self._listening_parameter_record_path = self._measurement_record_path
                     self.listeningChanged.emit()
@@ -192,64 +198,17 @@ class QuickTaskCompletionMixin:
             self._add_log("Yön Bulma", self._status_message)
             self.directionChanged.emit()
         elif kind == "listening":
+            self._listening_comparison = {}
+            if isinstance(result, tuple) and len(result) == 6 and isinstance(result[0], dict):
+                self._listening_comparison = {
+                    mode: (audio, *result[1:]) for mode, audio in result[0].items()
+                    if mode in ("am", "nfm") and isinstance(audio, AnalogMonitorResult)
+                }
+                result = next(iter(self._listening_comparison.values()), result)
             if not isinstance(result, tuple) or len(result) != 6 or not isinstance(result[0], AnalogMonitorResult):
                 self._show_error("insufficient_audio", "Dinleme sonucu sözleşmeyle eşleşmedi.")
                 return
-            listening, _scope, input_duration, offset_hz, bandwidth_hz, _continuity = result
-            self._listening_result = listening
-            self._audio_playback.load(listening.pcm16)
-            self._playback_timer.stop()
-            self._listening_playback_position_s = 0.0
-            self._listening_playback_duration_s = self._audio_playback.duration_seconds
-            self._listening_playback_state = "Oynatmaya hazır"
-            self._listening_short_preview = float(input_duration) < LIVE_AUDIO_WINDOW_SECONDS
-            channel_frequency = self.centerFrequencyHz + float(offset_hz)
-            self._listening_rows = [
-                {"label": "Yayın türü", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
-                {"label": "Frekans", "value": self._format_frequency(channel_frequency)},
-                {"label": "Alım bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
-                {"label": "Ses profili", "value": (
-                    f"Telsiz düzeltmesi ({listening.nfm_deemphasis_us:g} µs)"
-                    if listening.mode == "nfm" and listening.nfm_deemphasis_us > 0
-                    else "Net ses")},
-            ]
-            if listening.channel_power_dbfs_trace:
-                power_low = min(listening.channel_power_dbfs_trace)
-                power_high = max(listening.channel_power_dbfs_trace)
-                frequency_low = min(listening.residual_frequency_hz_trace)
-                frequency_high = max(listening.residual_frequency_hz_trace)
-                self._listening_rows.extend(
-                    [
-                        {
-                            "label": "Alım seviyesi",
-                            "value": f"{power_low:.2f}…{power_high:.2f} dBFS",
-                        },
-                        {
-                            "label": "Frekans sapması",
-                            "value": f"{frequency_low:+.1f}…{frequency_high:+.1f} Hz",
-                        },
-                    ]
-                )
-            self._listening_observation_points = [
-                {"time": float(time_s), "power": float(power_dbfs), "frequency": float(frequency_hz)}
-                for time_s, power_dbfs, frequency_hz in zip(
-                    listening.observation_times_s,
-                    listening.channel_power_dbfs_trace,
-                    listening.residual_frequency_hz_trace,
-                )
-            ]
-            waveform_points = min(720, listening.audio.size)
-            indices = np.linspace(0, listening.audio.size - 1, waveform_points, dtype=np.int64)
-            self._listening_waveform = [float(listening.audio[index]) for index in indices]
-            self._listening_state = (
-                "Kısa önizleme hazır; kesintisiz dinleme kabulü için en az 5 saniyelik kayıt gerekir."
-                if self._listening_short_preview
-                else "Ses hazır."
-            )
-            self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
-            self._add_log("Dinleme", self._status_message)
-            self.playbackChanged.emit()
-            self.listeningChanged.emit()
+            self._present_listening(result)
         elif kind == "wav_export":
             self._status_message = f"WAV kaydedildi: {Path(str(result)).name}"
             self._listening_state = self._status_message

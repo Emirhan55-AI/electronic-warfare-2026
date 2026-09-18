@@ -25,7 +25,7 @@ kullanır.
 1. `Tespit`: kaynak, spektrum, spektrogram, tespit listesi ve seçili sinyal.
 2. `Parametre`: seçili sinyalin analiz aralığı, ölçüm durumu ve sonuçları.
 3. `Dinleme`: seçili doğrulanmış tespit, AM/NFM kanal ayarları, ses sonucu ve WAV.
-4. `Yön Bulma`: saat yönünde otomatik 15° adımlı güç ölçümü ve bağıl tepe yönü.
+4. `Yön Bulma`: iki taraflı lob sınırı, 5° tepe hassaslaştırması ve bağıl tepe yönü.
 Üst görev çubuğundaki `BÂZ` logosu; `Tespit`, `Parametre`, `Dinleme`, `Yön Bulma`
 girişlerini taşıyan ana görev menüsünü açıp kapatır. Menü başlangıçta kapalıdır
 ve bu görünüm değişikliği çalışan görevlere komut göndermez. Açılan sol
@@ -238,16 +238,20 @@ başarısı olarak sunulmaz.
    gösterir.
 2. Operatör anteni kendi belirlediği başlangıç yönüne getirir. Tek düğmenin ilk
    başarılı ölçümü bu fiziksel yönü bağıl `0°` olarak sabitler.
-3. Uygulama sonraki hedef açıyı otomatik olarak saat yönünde 15° artırır.
-   Operatör anteni gösterilen konuma getirip sabitledikten sonra aynı düğmeye basar.
+3. Uygulama önce saat yönünde 15° adımlarla ilk lob dışı noktayı bulur. Sonra
+   operatörden anteni `0°`a geri getirmesini ister ve saat yönünün tersinde 15°
+   adımlarla ikinci lob dışı noktayı arar.
 4. Her başarılı saha ölçümü bağıl açı, dört kareli PL/ARM kanal dBFS gücü,
    frekans, zaman ve kaynak kimliğiyle kaydedilir. Süre aşımı veya iptal açıyı
    ilerletmez; kaynak değişimi oturumu temizler.
-5. Tam 24 farklı açı, 15° azami boşluk, 3 dB tepe ve ön/arka ayrımı olmadan sonuç
+5. Lob dışı noktalar hata değil, kilitli kanalın eşik-altı güç gözlemidir. İki
+   sınır arasındaki en güçlü bölge 5° adımlarla hassaslaştırılır ve tek karşı-yön
+   ölçümü alınır.
+6. İki sınır, en az sekiz farklı açı, 3 dB tepe ve ön/arka ayrımı olmadan sonuç
    üretilmez; eksik koşul gösterilir.
-6. Geçerli sonuç yalnız antenin bağıl `0°` ekseninden saat yönündeki `Bağıl Tepe
+7. Geçerli sonuç yalnız antenin bağıl `0°` ekseninden saat yönündeki `Bağıl Tepe
    Yönü` olarak sunulur. Gerçek kuzey, hedef konumu veya menzil üretilmez.
-7. Uygulama fiziksel dönüşü ya da hızı ölçmez. Sürekli motor dönüşünden zamanla
+8. Uygulama fiziksel dönüşü ya da hızı ölçmez. Sürekli motor dönüşünden zamanla
    açı üretmek için enkoder/IMU bağı ve yeni fiziksel kabul gerekir.
 
 ## Akış 6 — Donanım denetimi ve kurtarma

@@ -35,9 +35,17 @@ static int test_wide_batch(void)
     REQUIRE(reply[4] == 2U);
     REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token) == 0);
     REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token + 1U) == -1);
-    reply[4] = 3U;
+    reply[4] = 5U;
     put32(reply + 172U, p0_ed_crc32(reply, 172U));
     REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token) == -1);
+    bytes[4] = 4U;
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == 0);
+    REQUIRE(request.version == 4U && request.frame_count == 4U &&
+            request.locked_channel_power == 1U);
+    REQUIRE(p0_parameter_batch_response_encode(&request, 1U, 0U, 0U, NULL, reply) == 0);
+    REQUIRE(reply[4] == 4U);
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), request.token) == 0);
     bytes[4] = 1U;
     put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
     REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
@@ -59,6 +67,42 @@ static int test_wide_batch(void)
     return 0;
 }
 
+static int test_extended_batch(void)
+{
+    static uint8_t bytes[P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES];
+    uint8_t reply[P0_PARAMETER_BATCH_RESPONSE_BYTES];
+    p0_parameter_batch_request_t request;
+    p0_parameter_result_t result = {0};
+    memcpy(bytes, "P0PM", 4U); bytes[4] = 3U; bytes[6] = 64U;
+    bytes[8] = 7U; bytes[28] = 1U;
+    put32(bytes + 16U, 2000000U);
+    bytes[36] = 56U; bytes[38] = 199U; bytes[39] = 15U;
+    put32(bytes + 40U, p0_ed_crc32(bytes + 64U, sizeof(bytes) - 64U));
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == 0);
+    REQUIRE(request.version == 3U && request.frame_count == 16U);
+    REQUIRE(p0_parameter_batch_response_encode(&request, 1U, 0U, 0U, NULL, reply) == 0);
+    REQUIRE(reply[4] == 3U);
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), 7U) == 0);
+    result.intent_id = request.token; result.event_id = request.event_id;
+    result.observation_count = 16U; result.frame_id = request.first_frame_id + 15U;
+    REQUIRE(p0_parameter_batch_response_encode(&request, 0U, 100U, 1U, &result, reply) == 0);
+    REQUIRE(reply[4] == 3U && reply[36] == 16U && reply[32] == 15U);
+    REQUIRE(p0_parameter_batch_response_check(reply, sizeof(reply), 7U) == 0);
+    result.observation_count = 4U;
+    REQUIRE(p0_parameter_batch_response_encode(&request, 0U, 100U, 1U, &result, reply) == -1);
+    REQUIRE(p0_parameter_batch_decode(bytes, P0_PARAMETER_BATCH_REQUEST_BYTES, &request) == -1);
+    bytes[4] = 2U; put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    bytes[4] = 3U; put32(bytes + 12U, UINT32_MAX - 14U);
+    put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    put32(bytes + 12U, 0U); put32(bytes + 60U, p0_ed_crc32(bytes, 60U));
+    bytes[sizeof(bytes) - 1U] ^= 1U;
+    REQUIRE(p0_parameter_batch_decode(bytes, sizeof(bytes), &request) == -1);
+    return 0;
+}
+
 int main(void)
 {
     uint8_t iq[P0_ED_IQ_FRAME_BYTES];
@@ -74,6 +118,7 @@ int main(void)
     size_t index;
 
     REQUIRE(test_wide_batch() == 0);
+    REQUIRE(test_extended_batch() == 0);
 
     REQUIRE(p0_ed_crc32((const uint8_t *)"123456789", 9U) ==
             UINT32_C(0xCBF43926));

@@ -1,5 +1,47 @@
 # Referans Modeller
 
+## KTR-4.4 uyarlamalı yön planlayıcı — 16 Eylül 2026
+
+`algorithms/p0/adaptive_df.py`, doğrulanmış `0°` başlangıcından saat yönündeki
+ilk lob dışı sınıra, `0°`a dönüşten sonra ters sınıra, ardından 5° tepe
+hassaslaştırmasına ve tek karşı-yön denetimine giden sınırlı ölçüm sırasını
+üretir. `df.py` nihai sonucu en az sekiz farklı ölçülmüş açı, 3 dB tepe ve
+ön/arka kapılarıyla verir; interpolasyon yapmaz.
+
+## KTR-4.4 kilitli yön kanalı toplam gücü — 16 Eylül 2026
+
+`P0PM-v4`, dört PL UQ28.30 güç karesinde kilitli sabit kanalın ortalama toplam
+gücünü hesaplar. Sinyal ve alıcı gürültüsü birlikte tutulduğu için hedef tespit
+eşiğinin altına indiğinde açı kaybolmaz; değer gürültü tabanına yaklaşır ve yayın
+varlığı kanıtı sayılmaz. Python referans modeli ile ARM C sonucu aynı ölçek
+sözleşmesini kullanır. Normal P0PM parametre yolu gürültü çıkarılmış güç ve kalite
+kapılarını korur. Fiziksel kartta normal yol düz spektrumu reddederken P0PM-v4
+aynı girdide sonlu toplam güç üretti; altı normal parametre sahnesi de geçti.
+Geçici kart kurulumu yeniden başlatmada korunmaz; canlı RF/RMS kabulü açıktır.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
 ## Yalnız ED kaynak kapsamı — 13 Eylül 2026
 
 ET dalga biçimi, görev ve iletim algoritmaları kaldırılmıştır. Bu dizin yalnız

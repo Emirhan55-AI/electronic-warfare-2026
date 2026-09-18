@@ -1,5 +1,27 @@
 # Sinyal izleme ve dinleme: güncel durum
 
+## Bilinmeyen yayınla dinleme — 16 Eylül 2026
+
+Mevcut KTR-4.3 yolu için `Bilmiyorum · AM/FM karşılaştır` seçimi eklendi.
+Aynı sınırlı I/Q penceresinden AM ve dar bant FM sonuçları hazırlanır; kullanıcı
+sonuçlar arasında geçer. Bu bir modülasyon sınıflandırıcısı değildir. Sonuçtaki
+`Çözümleme` alanı uygulanan yöntemi gösterir, ölçülmüş yayın türünü göstermez.
+Kanal genişliği anlaşılır seçeneklerle, frekans düzeltmesi ve de-emphasis
+`İnce ayar` altında sunulur. Ölçülen OBW 25 kHz'i aşıyorsa dar bant yolun tüm
+sinyali kapsamadığı belirtilir; sınırlandırılmış öneri OBW diye etiketlenmez.
+
+İsteğe bağlı konuşma filtresi, normalizasyondan önce 200 Hz kesimli 1025 tap
+FIR yüksek geçiren süzgeç uygular. Mevcut 2,55/3 kHz üst ses sınırı korunur.
+Filtre konuşma bandı içindeki gürültüyü veya bilinmeyen sayısal protokolü
+çözmez. AM/FM karşılaştırması ek DSP işi yapar; hız artışı iddiası yoktur.
+
+Canlı yol son 5,001216 saniyeyi sabitleyip alımı durdurarak ses üretir;
+kesintisiz hoparlör akışı değildir. Güç/frekans grafikleri bu kayıt penceresini
+izler. Genel AM/FM tanıma, WFM, sayısal protokol/kodek çözümü ve gerçek telsiz
+konuşmasıyla yeni fiziksel kabul yoktur. PHASE-08/ST-06 ve KTR-4.3 kabulü açık
+kalır; yeni faz açılmadı. Yöntem, testler ve sınırlar
+`docs/reviews/LISTENING_ASSISTANCE_20260916.md` içinde kayıtlıdır.
+
 ## Analog ses profili ve sade izleme görünümü — 16 Eylül 2026
 
 Dinleme zinciri gerçek I/Q üzerinde AM zarfı veya NFM faz farkını çözerek

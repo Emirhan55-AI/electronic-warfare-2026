@@ -71,6 +71,17 @@ def _voice_cutoff_hz(config: AnalogMonitorConfig) -> float:
     return 3_000.0
 
 
+def _remove_voice_rumble(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    """Optional 200 Hz high-pass; symmetric FIR preserves speech-band phase.
+
+    Apply once to the assembled audio, before normalization. This removes low
+    frequency rumble, not in-band noise, and does not estimate speech content.
+    """
+    kernel = -_lowpass(200.0, AUDIO_SAMPLE_RATE_HZ, 1025)
+    kernel[512] += 1.0
+    return np.convolve(np.pad(values, (512, 512), mode="edge"), kernel, mode="valid")
+
+
 def nfm_deemphasis(values: npt.ArrayLike, time_constant_us: float) -> npt.NDArray[np.float64]:
     """Apply the standard first-order 6 dB/octave NFM receive de-emphasis."""
     source = np.asarray(values, dtype=np.float64)
@@ -195,6 +206,8 @@ class AnalogMonitor:
         audio = np.convolve(audio, audio_kernel, mode="same")
         audio_guard = (AUDIO_TAPS - 1) // 2
         audio = audio[audio_guard:-audio_guard]
+        if config.voice_filter:
+            audio = _remove_voice_rumble(audio)
         audio -= np.mean(audio)
         if audio.size < 128 or audio.size > MAX_AUDIO_SAMPLES or not np.all(np.isfinite(audio)):
             raise MonitoringError("insufficient_audio", "Bounded ve sonlu ses sonucu üretilemedi.")
@@ -206,6 +219,7 @@ class AnalogMonitor:
         readonly = _readonly(audio)
         return AnalogMonitorResult(
             mode=config.mode,
+            voice_filter=config.voice_filter,
             nfm_deemphasis_us=config.nfm_deemphasis_us,
             sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
             audio=readonly,
@@ -318,6 +332,8 @@ class AnalogMonitor:
         audio = np.convolve(audio, _lowpass(audio_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS), mode="same")
         # Discard the causal filter warm-up once, never at each capture block.
         audio = audio[AUDIO_TAPS - 1 :]
+        if config.voice_filter:
+            audio = _remove_voice_rumble(audio)
         audio -= float(np.mean(audio))
         if audio.size < 128 or audio.size > MAX_AUDIO_SAMPLES or not np.all(np.isfinite(audio)):
             raise MonitoringError("insufficient_audio", "Bounded ve sonlu ses sonucu üretilemedi.")
@@ -331,6 +347,7 @@ class AnalogMonitor:
         power = channel_power_sum / max(channel_power_count, 1)
         return AnalogMonitorResult(
             mode=config.mode,
+            voice_filter=config.voice_filter,
             nfm_deemphasis_us=config.nfm_deemphasis_us,
             sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
             audio=readonly,

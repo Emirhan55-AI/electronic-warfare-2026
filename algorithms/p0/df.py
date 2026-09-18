@@ -13,8 +13,9 @@ class DFProfile:
     """Acceptance limits for one amplitude-DF measurement session.
 
     The historical estimator remains available for frozen training evidence.
-    ``FIELD_AMPLITUDE_DF_PROFILE`` is the product profile: it requires a
-    substantially complete circular sweep and keeps the reported bearing at an
+    ``FIELD_AMPLITUDE_DF_PROFILE`` is the product profile: the operator flow
+    brackets the directional-antenna lobe, refines its strongest sector and
+    retains one opposite-direction point.  The reported bearing remains an
     actually measured antenna angle.
     """
 
@@ -38,9 +39,9 @@ LEGACY_AMPLITUDE_DF_PROFILE = DFProfile(
 )
 
 FIELD_AMPLITUDE_DF_PROFILE = DFProfile(
-    profile_id="P0_AMPLITUDE_DF_FIELD_V1",
-    minimum_distinct_angles=24,
-    maximum_angular_gap_deg=15.0,
+    profile_id="P0_AMPLITUDE_DF_ADAPTIVE_V2",
+    minimum_distinct_angles=8,
+    maximum_angular_gap_deg=360.0,
     minimum_peak_prominence_db=3.0,
     minimum_front_to_back_db=3.0,
     minimum_measurements_per_angle=1,

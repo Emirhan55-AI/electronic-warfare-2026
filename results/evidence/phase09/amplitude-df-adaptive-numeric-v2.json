@@ -1,0 +1,42 @@
+{
+  "schema": "teknofest.phase09.amplitude-df-adaptive-numeric.v2",
+  "status": "passed",
+  "method": "0° confirmed start; clockwise lobe boundary; return to 0°; counterclockwise lobe boundary; 5° peak refinement; opposite-point gate; raw measured argmax",
+  "profile": {
+    "id": "P0_AMPLITUDE_DF_ADAPTIVE_V2",
+    "minimum_distinct_angles": 8,
+    "maximum_angular_gap_deg": 360.0,
+    "minimum_peak_prominence_db": 3.0,
+    "minimum_front_to_back_db": 3.0,
+    "average_domain": "linear_power"
+  },
+  "rms_definition": "sqrt(mean(wrap180(estimated_deg - truth_deg)^2))",
+  "adaptive_evaluation": {
+    "scene_count": 61,
+    "truth_offset_range_deg": [
+      -30,
+      30
+    ],
+    "status_counts": {
+      "LOB HAZIR": 61
+    },
+    "measurement_count_range": [
+      12,
+      14
+    ],
+    "rms_error_deg": 1.7177950029416047,
+    "p95_error_deg": 3.0,
+    "maximum_error_deg": 3.0
+  },
+  "negative_gate_statuses": {
+    "sector_without_opposite": "ÖN/ARKA BELİRSİZ",
+    "front_back_ambiguity": "ÖN/ARKA BELİRSİZ",
+    "receiver_binding_change": "ALICI AYARI DEĞİŞTİ"
+  },
+  "source_sha256": {
+    "algorithms/p0/df.py": "453f3dc94e4a1a3940d080b58bbdc2651d6df07e86a022dbd62b4f4ed086bb32",
+    "algorithms/p0/adaptive_df.py": "610e5bd4e6422808edd7078921012ffac9296369c563fef3c02debc8f8d7817c",
+    "scripts/verify_phase09_amplitude_df.py": "35c42e21036de65549d915b5dd2fb9cc4ec7eab4ebcdba96e21c3f9163e632d6"
+  },
+  "claim_boundary": "Deterministic synthetic directional patterns validate adaptive sequencing, raw-maximum logic and fail-closed gates. They do not establish antenna, multipath or field accuracy."
+}

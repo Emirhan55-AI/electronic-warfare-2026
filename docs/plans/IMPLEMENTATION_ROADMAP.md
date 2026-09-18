@@ -1,5 +1,44 @@
 # Uygulama Yol Haritası
 
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
+## PHASE-08 kalibrasyonsuz güç tahmini — 16 Eylül 2026
+
+Kullanıcı kararıyla Parametre ana sonucuna canlı HackRF dBFS değerinden ve
+alıcı kazanç bağlamından türetilen `Tahmini Güç (dBm)` eklendi. Sonuç yaklaşık
+işareti, `TAHMİNİ` durumu ve geniş belirsizlik taşır; kalibre dBm yerine geçmez.
+Fiziksel kalibrasyon, KTR-4.2 kabulü ve PHASE-08/ST-06 açık kalır; sonraki faz
+açılmadı.
+
+## PHASE-08 parametre arayüzü sadeleştirmesi — 16 Eylül 2026
+
+Kullanıcı kararıyla Parametre ekranındaki sınırlı analiz aralığı uyarısı,
+`Aralığı Düzenle` eylemi ve elle alt/üst frekans alanları kaldırıldı. Canlı
+ölçümün otomatik aralık genişletmesi ile geçersiz/kart dışı aralık retleri
+korunur. KTR-4.2 işleme veya kabul davranışı değişmedi;
+PHASE-08/ST-06 sürer ve sonraki faz açılmadı.
+
 ## PHASE-08 ürün arayüzü sadeleştirmesi — 16 Eylül 2026
 
 Kullanıcı onayıyla APP-F kabuğundaki `Sistem` çalışma alanı, menü girişi ve
@@ -297,6 +336,22 @@ kazanç tanısı da kalıcı confirmed olay üretmedi ve 8.192 karelik koşu nom
 gerçek-zaman hızının biraz altında kaldı; ikisi de başarıya çevrilmedi. Sonraki
 faz açılmamıştır.
 
+## PHASE-09 eşik altı yön açısı ölçüm düzeltmesi — 16 Eylül 2026
+
+Kullanıcının 60°/75° açılarında ölçümün durduğunu bildirmesi üzerine mevcut
+PHASE-09 kanal kapısı düzeltildi. İlk 0° noktası confirmed hedefle kanal kilidi
+kurar; sonraki açılar aynı kilitli kanalın yeni ve ardışık karelerini hedef olay
+görünmese de P0PM-v4 kart güç yoluna verir. Bütün açılar gürültü çıkarılmamış
+aynı sabit kanal toplam gücüyle karşılaştırılır; derin sönüm gürültü tabanına
+yakın sonlu bir nokta olur. Yakın/taşan ikinci aday retleri ve tüm alıcı ayarı
+bağları korunur. Kaynak testleri normal parametre kapısının gürültü-düz girdiyi
+reddettiğini, yön kipinin aynı girdide referans modelle eşleşen güç ürettiğini,
+confirmed ilk nokta ile dört karede de olay bulunmayan ikinci noktanın kaydını
+ve arşiv tekrarını doğrular. Güncel hizmet/köprü doğrulanmış karta geçici
+kurulmuş; P0PM-v4 fiziksel PL/ARM düz-spektrum testi ve altı normal parametre
+sahnesi geçmiştir. SD imaj kalıcılığı, canlı anten RF tekrarı ve derece RMS
+kabulü açık olduğundan sonraki faz onayı oluşmaz.
+
 ## PHASE-09 saat yönünde bağıl ölçüm arayüzü — 13 Eylül 2026
 
 Kullanıcının mevcut PHASE-09 içindeki açık yönlendirmesiyle ürün akışı tek
@@ -356,6 +411,17 @@ karelik ürün girdisi, operatör analiz aralığı ve kart SNR kapısı kullan�
 `Belirsiz` verilir; sonuç ve yöntem bağı ölçüm arşivinde yeniden üretilebilir.
 Bu geliştirme PÇ-03 ürün bağlantısını açar, fakat bağımsız canlı RF doğruluk
 kabulünü kapatmaz ve sonraki faza geçiş onayı oluşturmaz.
+
+## PHASE-09 uyarlamalı anten açıklığı taraması — 16 Eylül 2026
+
+Kullanıcının onayıyla tam 360°/24-açı yön akışı kaldırıldı. Ürün önce `0°`dan
+saat yönünde ilk lob dışı sınırı, sonra operatörün `0°`a geri dönüşüyle ters
+yöndeki sınırı bulur. Lob dışı ölçümler P0PM-v4 kilitli kanal gücü olarak
+kaydedilir. Sınırlar arasındaki tepe 5° adımlarla hassaslaştırılır; tek karşı-yön
+ölçümü ön/arka kapısını korur. Python planlayıcı, portable C/ARM profil ve QML
+bağı birlikte güncellendi. ARM hizmeti çalışan karta geçici kuruldu ve sekiz
+sayısal P0DF ağ sahnesi geçti; SD imajı değiştirilmedi. Yeni faz açılmadı;
+fiziksel derece RMS kabulü açık.
 
 ## PHASE-09 kanal ölçümü düzeltmesi — 12 Eylül 2026
 

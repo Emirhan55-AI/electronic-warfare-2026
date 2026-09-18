@@ -13,10 +13,15 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from algorithms.p0 import DFMeasurement, FIELD_AMPLITUDE_DF_PROFILE, ManualAmplitudeDF
+from algorithms.p0 import (
+    AdaptiveDirectionSweep,
+    DFMeasurement,
+    FIELD_AMPLITUDE_DF_PROFILE,
+    ManualAmplitudeDF,
+)
 
 
-DEFAULT_OUTPUT = ROOT / "results" / "evidence" / "phase09" / "amplitude-df-numeric-v1.json"
+DEFAULT_OUTPUT = ROOT / "results" / "evidence" / "phase09" / "amplitude-df-adaptive-numeric-v2.json"
 
 
 def digest(path: Path) -> str:
@@ -72,6 +77,56 @@ def evaluate_grid(step_deg: int) -> dict[str, object]:
     }
 
 
+def evaluate_adaptive_sweep() -> dict[str, object]:
+    estimates: list[float] = []
+    truths: list[float] = []
+    statuses: dict[str, int] = {}
+    measurement_counts: list[int] = []
+    for truth_signed in range(-30, 31):
+        truth = float(truth_signed % 360)
+        sweep = AdaptiveDirectionSweep()
+        model = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
+        while not sweep.complete:
+            angle = sweep.next_angle()
+            if angle is None:
+                raise AssertionError(f"adaptive sweep stopped before completion: {sweep.phase}")
+            power = power_pattern_dbfs(angle, truth)
+            target_observed = power >= -32.0
+            if not sweep.observations:
+                target_observed = True
+            frame_id = len(sweep.observations)
+            sweep.record(angle, power, target_observed)
+            model.add(DFMeasurement.create(
+                angle_deg=angle,
+                relative_power_db=power,
+                frequency_hz=145_000_000.0,
+                confidence=0.95,
+                channel_bandwidth_hz=12_500.0,
+                receiver_binding="adaptive-numeric|145MHz|12.5kHz|fixed-gain",
+                frame_id=frame_id,
+                source="SAYISAL UYARLAMALI DOĞRULAMA",
+            ))
+        estimate = model.estimate()
+        statuses[estimate.status] = statuses.get(estimate.status, 0) + 1
+        estimates.append(estimate.estimated_angle_deg)
+        truths.append(truth)
+        measurement_counts.append(len(sweep.observations))
+    errors = [
+        ManualAmplitudeDF.angular_error_deg(estimate, truth)
+        for estimate, truth in zip(estimates, truths)
+    ]
+    ordered = sorted(errors)
+    return {
+        "scene_count": len(errors),
+        "truth_offset_range_deg": [-30, 30],
+        "status_counts": statuses,
+        "measurement_count_range": [min(measurement_counts), max(measurement_counts)],
+        "rms_error_deg": ManualAmplitudeDF.rms_error_deg(estimates, truths),
+        "p95_error_deg": ordered[math.ceil(0.95 * len(ordered)) - 1],
+        "maximum_error_deg": max(errors),
+    }
+
+
 def negative_gate_statuses() -> dict[str, str]:
     cases: dict[str, ManualAmplitudeDF] = {}
 
@@ -82,7 +137,7 @@ def negative_gate_statuses() -> dict[str, str]:
             frequency_hz=145_000_000.0, confidence=0.95, channel_bandwidth_hz=12_500.0,
             receiver_binding="fixed", frame_id=frame_id,
         ))
-    cases["clustered_angles"] = clustered
+    cases["sector_without_opposite"] = clustered
 
     front_back = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
     for frame_id, angle in enumerate(range(0, 360, 15)):
@@ -108,23 +163,24 @@ def negative_gate_statuses() -> dict[str, str]:
 
 
 def build_report() -> dict[str, object]:
-    grids = [evaluate_grid(step) for step in (45, 30, 15)]
+    adaptive = evaluate_adaptive_sweep()
     negative = negative_gate_statuses()
     passed = (
-        grids[0]["status_counts"] == {"YETERSİZ AÇI": 360}
-        and grids[1]["status_counts"] == {"YETERSİZ AÇI": 360}
-        and grids[2]["status_counts"] == {"LOB HAZIR": 360}
-        and float(grids[-1]["rms_error_deg"]) <= 5.0
+        adaptive["status_counts"] == {"LOB HAZIR": 61}
+        and float(adaptive["rms_error_deg"]) <= 4.0
         and negative == {
-            "clustered_angles": "YETERSİZ AÇI KAPSAMI",
+            "sector_without_opposite": "ÖN/ARKA BELİRSİZ",
             "front_back_ambiguity": "ÖN/ARKA BELİRSİZ",
             "receiver_binding_change": "ALICI AYARI DEĞİŞTİ",
         }
     )
     return {
-        "schema": "teknofest.phase09.amplitude-df-numeric.v1",
+        "schema": "teknofest.phase09.amplitude-df-adaptive-numeric.v2",
         "status": "passed" if passed else "failed",
-        "method": "same-channel linear power by measured angle; raw argmax; no interpolation",
+        "method": (
+            "0° confirmed start; clockwise lobe boundary; return to 0°; counterclockwise "
+            "lobe boundary; 5° peak refinement; opposite-point gate; raw measured argmax"
+        ),
         "profile": {
             "id": FIELD_AMPLITUDE_DF_PROFILE.profile_id,
             "minimum_distinct_angles": FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles,
@@ -134,16 +190,16 @@ def build_report() -> dict[str, object]:
             "average_domain": "linear_power",
         },
         "rms_definition": "sqrt(mean(wrap180(estimated_deg - truth_deg)^2))",
-        "uniform_grid_quantization_reference": "step_deg/sqrt(12); ideal uniform truth phase only",
-        "grid_evaluations": grids,
+        "adaptive_evaluation": adaptive,
         "negative_gate_statuses": negative,
         "source_sha256": {
             "algorithms/p0/df.py": digest(ROOT / "algorithms" / "p0" / "df.py"),
+            "algorithms/p0/adaptive_df.py": digest(ROOT / "algorithms" / "p0" / "adaptive_df.py"),
             "scripts/verify_phase09_amplitude_df.py": digest(Path(__file__)),
         },
         "claim_boundary": (
-            "Deterministic independent angle-power scenes validate circular error, raw-maximum logic and "
-            "fail-closed gates. They do not establish antenna, multipath or field RMS accuracy."
+            "Deterministic synthetic directional patterns validate adaptive sequencing, raw-maximum "
+            "logic and fail-closed gates. They do not establish antenna, multipath or field accuracy."
         ),
     }
 

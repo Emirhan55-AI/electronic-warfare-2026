@@ -1,5 +1,74 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+## KTR-4.4 uyarlamalı anten açıklığı taraması — 16 Eylül 2026
+
+Yön bulma artık bütün 360° boyunca 24 tespit istemez. İlk `0°` ölçümü hedef
+kanalı kilitler; anten saat yönünde 15° adımlarla ilk lob dışı noktaya kadar
+ilerler. Ardından operatör anteni `0°` başlangıcına geri getirir ve saat yönünün
+tersinde 15° adımlarla diğer lob dışı sınırı bulur. Hedefin görülmediği sınır
+noktaları hata değil, P0PM-v4 kilitli kanal gücüyle kaydedilen lob dışı
+gözlemlerdir. İki sınır arasındaki en güçlü bölge 5° adımlarla hassaslaştırılır;
+tek karşı-yön ölçümü ön/arka belirsizliği kapısını korur. Sonuç yine yalnız
+ölçülmüş açıdaki bağıl ham maksimumdur; coğrafi kerteriz veya konum değildir.
+Uyarlamalı ARM hizmeti doğrulanmış karta `126a916d…` hash'iyle geçici kurulmuş,
+sekiz hazır/ret P0DF sahnesi ağ yolunda geçmiştir. SD imajı değiştirilmediği
+için yeniden başlatma eski profili geri getirir; canlı anten derece RMS kabulü
+açıktır.
+
+## KTR-4.4 eşik altı yön ölçümü — 16 Eylül 2026 tarihsel güç düzeltmesi
+
+Yön bulmada ilk 0° noktası hedef kanalı doğrulayıp kilitler. Sonraki 15°–345°
+noktalarında yönlü anten nedeniyle hedef tespit eşiğinin altına inse bile aynı
+kanalın dört yeni ardışık karesi P0PM-v4 ile sabit kanal toplam gücü ölçümüne
+alınır. Bu değer sinyal ile alıcı gürültüsünü birlikte içerir; yakın veya taşan
+başka aday pencereyi reddetmeye devam eder. Böylece arka/yan lob açıları sırf
+`confirmed` olay kayboldu diye beş saniyelik süre aşımına düşmez. Kaynak testleri
+normal parametre kapısının reddettiği düz/gürültü tabanı girdisini yön kipinde
+sayısal güç olarak korumayı, olaysız ikinci açı kaydını ve arşiv tekrarını
+doğruladı. Güncel ARM hizmeti ve ağ köprüsü doğrulanmış karta geçici olarak
+kuruldu; 47007 üzerinde fiziksel PL/ARM P0PM-v4 düz-spektrum testi ile altı
+normal parametre sahnesi geçti. SD açılış imajı değişmediği için yeniden
+başlatma bu kurulumu geri alır. Anten/RF ve derece RMS kabulü henüz yapılmadı.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
+## Tahmini güç sunumu — 16 Eylül 2026
+
+Parametre ekranında `Kanal Gücü (dBFS)` ile `Sinyal Türü` arasında `Tahmini Güç
+(dBm)` gösterilir. Canlı HackRF dBFS değeri, LNA/VGA, RF AMP, frekans ve sayısal
+ölçekle düzeltilir; sonuç yaklaşık işareti, `TAHMİNİ` durumu ve geniş belirsizlik
+taşır. Bu kalibre ölçüm veya verici çıkış gücü değildir. Gerçek dBm için cihaz ve
+ayar bağlamına özgü fiziksel kalibrasyon gereksinimi devam eder.
+
+## Parametre aralığı sunumu — 16 Eylül 2026
+
+Parametre ekranındaki sınırlı analiz aralığı uyarısı, `Aralığı Düzenle` eylemi
+ve elle alt/üst frekans alanları kaldırıldı. Canlı ölçüm başlatılırken güncel
+aday seçili aralığın dışına taşıyorsa aralık otomatik genişletilir; geçersiz ve
+kart sınırını aşan aralık retleri korunur. Bu yalnız arayüz sadeleştirmesidir;
+KTR-4.2 ve PHASE-08/ST-06 kabul durumu değişmedi.
+
 ## Sistem çalışma alanının kaldırılması — 16 Eylül 2026
 
 Operatör uygulamasındaki ayrı `Sistem` görevi kullanıcı kararıyla kaldırıldı.
@@ -220,8 +289,9 @@ arayüzünü yeniden başlatmak gerekir; aşağıdaki 11 Eylül standalone paket
 düzeltmeyi içermez.
 [Güncel akış ve kabul sınırı](docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
 
-Genlik tabanlı yön bulma alan profili 15° adımlı 24 açı, 3 dB tepe ve ön/arka
-kapıları, sabit hedef/alıcı bağı ve dairesel RMS hesabıyla uygulanmıştır.
+Genlik tabanlı yön bulma alan profili iki taraflı lob sınırı, 5° tepe
+hassaslaştırması, 3 dB tepe ve ön/arka kapıları, sabit hedef/alıcı bağı ve
+dairesel RMS hesabıyla uygulanmıştır.
 Portable C/ARM çekirdeği Python referansıyla sıfır fark verdi; CRC korumalı
 `P0DF-v1/P0FR-v1` yolu gerçek ZedBoard ARM'ında yedi sayısal sahneyi geçti.
 Canlı ürün her açıda dört ardışık FPGA karesini kartın PL/ARM kanal gücü yolunda

@@ -109,6 +109,39 @@ int main(void)
     REQUIRE(result.emission_center_frequency_hz.reason == P0_PARAMETER_REASON_CONTEXT_LOST);
     REQUIRE(runtime.active == 0U);
 
+    REQUIRE(observe(&runtime, &result, 2, 40U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(runtime.required_frames == 16U && runtime.allocated_frames == 16U);
+    for (index = 41U; index < 55U; ++index) {
+        REQUIRE(observe(&runtime, &result, 0, index, 1, 2000U, 2031U, iq, power) == 0);
+        REQUIRE(result.emission_center_frequency_hz.reason == P0_PARAMETER_REASON_ACCUMULATING);
+    }
+    REQUIRE(observe(&runtime, &result, 0, 55U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.observation_count == 16U && runtime.active == 0U);
+    REQUIRE(observe(&runtime, &result, 2, 60U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(observe(&runtime, &result, 0, 62U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.emission_center_frequency_hz.reason == P0_PARAMETER_REASON_CONTEXT_LOST);
+    REQUIRE(observe(&runtime, &result, 1, 70U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(runtime.required_frames == 4U);
+    for (index = 71U; index < 74U; ++index)
+        REQUIRE(observe(&runtime, &result, 0, index, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.observation_count == 4U && runtime.active == 0U);
+
+    /* A flat/noise-only channel fails the excess-power gate in the normal
+     * parameter mode, but direction mode must retain the same raw fixed-span
+     * total-power metric for every antenna angle. */
+    REQUIRE(result.channel_power_dbfs.state == P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY);
+    REQUIRE(observe(&runtime, &result, 3, 80U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(runtime.locked_channel_power == 1U && runtime.required_frames == 4U);
+    for (index = 81U; index < 84U; ++index)
+        REQUIRE(observe(&runtime, &result, 0, index, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.observation_count == 4U && runtime.active == 0U);
+    REQUIRE(result.channel_power_dbfs.state == P0_PARAMETER_FIELD_VALID);
+    REQUIRE(result.channel_power_dbfs.reason == P0_PARAMETER_REASON_NONE);
+    REQUIRE(isfinite(result.channel_power_dbfs.value));
+    REQUIRE(fabs(result.channel_power_dbfs.value -
+                 10.0 * log10(32.0 / (1536.0 * 4096.0))) < 1e-12);
+    REQUIRE(result.emission_center_frequency_hz.state ==
+            P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY);
     p0_parameter_runtime_release(&runtime);
     free(power);
     free(iq);

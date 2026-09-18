@@ -26,14 +26,39 @@ PARAMETER_PANEL_QML = ROOT / "app" / "operator_console" / "qml" / "ParameterMeas
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_parameter_model_prediction_is_not_counted_as_numeric_validity(self):
+        payload = self.run_qml('''
+root = engine.rootObjects()[0]
+root.setProperty("spectrumTaskTab", 1)
+view_model._parameter_rows = [
+    {"key": key, "value": "test", "state": "valid", "reason": ""}
+    for key in ("emission_center_frequency", "occupied_bandwidth", "channel_power_dbfs", "signal_domain")
+] + [{"key": "carrier_line_frequency", "value": "Gözlenmedi", "state": "not_observed", "reason": "Ayrı çizgi yok."}]
+view_model.detectionsChanged.emit()
+view_model.stateChanged.emit()
+app.processEvents()
+panel = root.findChild(QObject, "measurementScroll")
+payload = {"count": panel.property("validPrimaryCount"), "rows": panel.property("primaryRows").toVariant()}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+''')
+        self.assertEqual(3, payload["count"])
+        self.assertEqual("predicted", payload["rows"][-1]["state"])
+        self.assertEqual("not_observed", payload["rows"][1]["state"])
+
     def test_parameter_panel_uses_compact_record_and_result_labels(self):
         source = PARAMETER_PANEL_QML.read_text(encoding="utf-8")
-        for required in ('text: "KAYITLAR"', '"Kayıtları Göster"', '"Taşıyıcı Frekans"',
-                         '"Bant Genişliği"', '"Kanal Gücü (dBFS)"', '"Sinyal Türü"'):
+        for required in ('text: "KAYITLAR"', '"Kayıtları Göster"',
+                         '"Sinyal Merkez Frekansı"', '"Gözlenen Taşıyıcı Frekansı"',
+                         '"Bant Genişliği"', '"Kanal Gücü (dBFS)"',
+                         '"Tahmini Güç (dBm)"', '"Sinyal Türü"'):
             self.assertIn(required, source)
         for removed in ("OTOMATİK PARAMETRE KATALOĞU", "Canlı alımda otomatik tamamlanan",
                         "automaticParameterStatus +", "Sinyal türü (PC, deneysel)",
                         "OBW için analiz aralığı",
+                        "Aralık seçili sinyalin tamamını kapsamıyor",
+                        'objectName: "parameterEditRange"', 'text: "Aralığı Düzenle"',
+                        'objectName: "parameterLowerMHz"', 'objectName: "parameterUpperMHz"',
                         "visible: panel.viewModel.statusMessage.length > 0"):
             self.assertNotIn(removed, source)
 
@@ -1294,8 +1319,6 @@ from PySide6.QtCore import QMetaObject, Qt
 root = engine.rootObjects()[0]
 root.setProperty("spectrumTaskTab", 1)
 panel = root.findChild(QObject, "measurementScroll")
-root.findChild(QObject, "parameterLowerMHz").setProperty("text", view_model.analysisLowerMHzText.replace(".", ","))
-root.findChild(QObject, "parameterUpperMHz").setProperty("text", view_model.analysisUpperMHzText.replace(".", ","))
 QMetaObject.invokeMethod(root.findChild(QObject, "parameterConfirmRange"), "clicked", Qt.DirectConnection)
 view_model.requestMeasurement()
 while view_model.busy and time.perf_counter()<deadline: app.processEvents(); time.sleep(.002)
@@ -1323,12 +1346,14 @@ view_model.shutdown(); root.close()
 print(json.dumps(payload,ensure_ascii=False))
 """
         )
-        self.assertEqual(4, len(payload["primary_rows"]))
-        self.assertEqual(10, len(payload["detail_rows"]))
-        self.assertEqual("Taşıyıcı Frekans", payload["primary_rows"][0]["label"])
-        self.assertEqual("Bant Genişliği", payload["primary_rows"][1]["label"])
-        self.assertEqual("Kanal Gücü (dBFS)", payload["primary_rows"][2]["label"])
-        self.assertEqual("Sinyal Türü", payload["primary_rows"][3]["label"])
+        self.assertEqual(6, len(payload["primary_rows"]))
+        self.assertEqual(9, len(payload["detail_rows"]))
+        self.assertEqual("Sinyal Merkez Frekansı", payload["primary_rows"][0]["label"])
+        self.assertEqual("Gözlenen Taşıyıcı Frekansı", payload["primary_rows"][1]["label"])
+        self.assertEqual("Bant Genişliği", payload["primary_rows"][2]["label"])
+        self.assertEqual("Kanal Gücü (dBFS)", payload["primary_rows"][3]["label"])
+        self.assertEqual("Tahmini Güç (dBm)", payload["primary_rows"][4]["label"])
+        self.assertEqual("Sinyal Türü", payload["primary_rows"][5]["label"])
         self.assertTrue(payload["validation_summary_visible"])
         self.assertTrue(payload["catalog_visible"])
         self.assertTrue(payload["catalog_summary"])
@@ -1367,7 +1392,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertIn("Merkez kararsızlığı", labels)
         self.assertIn("OBW kenar değişimi", labels)
 
-    def test_empty_automatic_span_can_be_entered_and_confirmed_manually(self) -> None:
+    def test_manual_range_controls_are_absent_when_automatic_span_is_empty(self) -> None:
         payload = self.run_qml(
             """
 view_model.openSigmf(str(fixture))
@@ -1378,33 +1403,22 @@ while time.perf_counter()<deadline and not any(x["stateKey"]=="confirmed" for x 
 view_model.pause()
 confirmed=next(x for x in view_model.detections if x["stateKey"]=="confirmed")
 view_model.selectDetection(int(confirmed["eventId"]))
-peak_mhz=(view_model.centerFrequencyHz+(view_model.selectedRegionPeakNormalized-.5)*view_model.sampleRateHz)/1e6
 view_model._analysis_span=None; view_model._analysis_span_draft=None; view_model.detectionsChanged.emit()
-from PySide6.QtCore import QMetaObject, Qt
 root=engine.rootObjects()[0]; root.setProperty("spectrumTaskTab",1); app.processEvents()
 confirm=root.findChild(QObject,"parameterConfirmRange")
-before={"visible":confirm.property("visible"),"enabled":confirm.property("enabled")}
-QMetaObject.invokeMethod(root.findChild(QObject,"parameterEditRange"),"clicked",Qt.DirectConnection)
-lower=root.findChild(QObject,"parameterLowerMHz"); upper=root.findChild(QObject,"parameterUpperMHz")
-lower.setProperty("text",f"{peak_mhz-.010:.6f}".replace(".",","))
-upper.setProperty("text",f"{peak_mhz+.010:.6f}".replace(".",","))
-app.processEvents()
-during={"visible":confirm.property("visible"),"enabled":confirm.property("enabled"),
-        "lower":lower.property("text"),"upper":upper.property("text")}
-QMetaObject.invokeMethod(confirm,"clicked",Qt.DirectConnection); app.processEvents()
-payload={"before":before,"during":during,"confirmed":view_model.analysisSpanConfirmed,
-         "status":view_model.statusMessage}
+payload={"confirm_visible":confirm.property("visible"),
+         "edit":root.findChild(QObject,"parameterEditRange") is not None,
+         "lower":root.findChild(QObject,"parameterLowerMHz") is not None,
+         "upper":root.findChild(QObject,"parameterUpperMHz") is not None,
+         "confirmed":view_model.analysisSpanConfirmed}
 view_model.shutdown(); root.close(); print(json.dumps(payload,ensure_ascii=False))
 """
         )
-        self.assertFalse(payload["before"]["visible"])
-        self.assertFalse(payload["before"]["enabled"])
-        self.assertTrue(payload["during"]["visible"])
-        self.assertTrue(payload["during"]["enabled"])
-        self.assertIn(",", payload["during"]["lower"])
-        self.assertIn(",", payload["during"]["upper"])
-        self.assertTrue(payload["confirmed"], payload)
-        self.assertIn("onaylandı", payload["status"])
+        self.assertFalse(payload["confirm_visible"])
+        self.assertFalse(payload["edit"])
+        self.assertFalse(payload["lower"])
+        self.assertFalse(payload["upper"])
+        self.assertFalse(payload["confirmed"])
 
     def test_direction_result_is_blocked_without_real_source(self) -> None:
         payload = self.run_qml(
@@ -1418,6 +1432,31 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual([], payload["points"])
         self.assertEqual("—", payload["relative"])
         self.assertIn("gerçek bir kaynak", payload["status"])
+
+    def test_direction_progress_summary_does_not_overlap_at_minimum_screen(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1180); root.setHeight(680); root.setProperty("workspace", 2)
+for _ in range(3): app.processEvents()
+summary = root.findChild(QObject, "directionProgressSummary")
+label = root.findChild(QObject, "directionProgressLabel")
+status = root.findChild(QObject, "directionProgressStatus")
+payload = {
+    "summary_width": summary.property("width"),
+    "label_bottom": label.property("y") + label.property("height"),
+    "status_top": status.property("y"),
+    "status_width": status.property("width"),
+    "status_text": status.property("text"),
+}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertGreater(payload["summary_width"], 0)
+        self.assertGreaterEqual(payload["status_top"], payload["label_bottom"])
+        self.assertLessEqual(payload["status_width"], payload["summary_width"])
+        self.assertIn("Başlangıç hedef ölçümü bekleniyor", payload["status_text"])
 
     def test_direction_session_locks_reference_and_clears_on_source_change(self) -> None:
         payload = self.run_qml(
@@ -1484,7 +1523,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual(0.0, payload["playback_progress"])
         self.assertIn(payload["output_state"], {"Ses çıkışı hazır", "Ses çıkışı yok · WAV kullanılabilir"})
         rows = {row["label"]: row["value"] for row in payload["rows"]}
-        self.assertEqual("AM", rows["Yayın türü"])
+        self.assertEqual("AM", rows["Çözümleme"])
         self.assertEqual("Net ses", rows["Ses profili"])
 
     def test_qml_has_keyboard_accessibility_and_no_future_source_controls(self) -> None:
@@ -1527,7 +1566,7 @@ print(json.dumps(payload,ensure_ascii=False))
             "operatorViewModel.detectionModel",
             "paintDetectionGuides",
             'objectName: "measurementScroll"',
-            "DOĞRULAMA ÖZETİ",
+            "ÖLÇÜM ÖZETİ",
             "Teknik Doğrulamayı Gizle",
             'objectName: "listeningSettingsScroll"',
             'objectName: "listeningTransport"',
@@ -1536,18 +1575,32 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "directionClockwiseGuide"',
             'objectName: "directionNextAngle"',
             'objectName: "directionStepInstruction"',
+            'objectName: "directionProgressSummary"',
+            'objectName: "directionProgressLabel"',
+            'objectName: "directionProgressStatus"',
             'objectName: "directionCompass"',
             'objectName: "directionMeasurementList"',
             "directionStartMeasurement",
             "addNextClockwiseDirectionMeasurement",
-            "SAAT YÖNÜNDE OTOMATİK ADIM",
+            "UYARLAMALI ANTEN TARAMASI",
             "BAĞIL TEPE YÖNÜ",
-            "Kanalı Hazırla",
+            "Sesi Hazırla",
             'objectName: "emptySpectrumMessage"',
             'objectName: "emptyDetectionMessage"',
             "WAV Dışa Aktar",
         ):
             self.assertIn(required, text)
+
+        progress_summary_start = text.index('objectName: "directionProgressSummary"')
+        progress_summary_end = text.index(
+            'Rectangle {',
+            progress_summary_start,
+        )
+        progress_summary = text[progress_summary_start:progress_summary_end]
+        self.assertIn("ColumnLayout", text[progress_summary_start - 80:progress_summary_start])
+        self.assertIn('objectName: "directionProgressStatus"', progress_summary)
+        self.assertIn("wrapMode: Text.Wrap", progress_summary)
+        self.assertNotIn("RowLayout", progress_summary)
 
         for removed in (
             "operatorViewModel.receiverSummary",

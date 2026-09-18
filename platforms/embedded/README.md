@@ -1,5 +1,41 @@
 # Zynq PS
 
+## KTR-4.4 uyarlamalı P0DF profili — 16 Eylül 2026
+
+`p0_amplitude_df.c` ürün profili tam tur zorunluluğu yerine PC'nin iki taraflı
+lob sınırı ve 5° hassaslaştırma planından gelen en az sekiz farklı açıyı kabul
+eder. Bir karşı-yön noktasıyla 3 dB ön/arka kapısı, 3 dB rakip tepe kapısı,
+sabit alıcı/frekans bağı ve aynı-kare reddi korunur. P0DF-v1/P0FR-v1 tel biçimi
+değişmemiştir; profil kimliği `P0_AMPLITUDE_DF_ADAPTIVE_V2` olmuştur.
+Derlenen `p0-ed-service` (`126a916d…`) doğrulanmış ZedBoard'ın çalışan 47007
+yoluna geçici kurulmuş ve sekiz P0DF hazır/ret sahnesini geçmiştir. Tekrarlanabilir
+kayıt `results/evidence/phase09/amplitude-df-board-protocol-v2.json` içindedir.
+SD açılış imajı değiştirilmedi; yeniden başlatmada eski profil geri gelir.
+
+## KTR-4.4 P0PM-v4 yön kanalı gücü — 16 Eylül 2026
+
+Yön bulma için sürümlenen `P0PM-v4`, dört karede aynı sabit kanalın PL UQ28.30
+güç hücrelerini ARM'da ortalayıp sinyal + alıcı gürültüsü toplam dBFS değerini
+verir. Normal P0PM'nin gürültü çıkarılmış güç ve anlamlılık kapısı değişmez.
+PL 4096 FFT/OS-CFAR yolu değiştirilmemiştir; ağ köprüsü v4 paketini fail-closed
+aktarır ve PC sayısal geri dönüşü yoktur. C protokol/çalışma zamanı ile Python
+referans regresyonu geçti. Güncel ARM hizmeti ve köprü doğrulanmış ZedBoard'a
+geçici kuruldu; P0PM-v4 fiziksel PL/ARM testi ve altı normal parametre sahnesi
+47007 üzerinde geçti. SD imajı değişmediği için soğuk açılış kalıcılığı yoktur;
+canlı RF ve yön RMS kabulü açıktır.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
 ## PHASE-08 10 MS/s burst köprüsü — 14 Eylül 2026
 
 P0IQ v2 ağ köprüsü 10 MS/s, 4096 kompleks CI8 algılama burst'ünü ayrı P0CQ
@@ -20,8 +56,9 @@ hesabını ARM için taşır. Python referansıyla yedi sahnede sıfır fark eld
 `P0DF-v1/P0FR-v1` CRC korumalı hizmet yolu geçici 47008 ve kalıcı 47007 uçlarında
 gerçek ZedBoard `armv7l` üzerinde yedi sahneyi geçti. PetaLinux 5.679/5.679
 görevle derlendi; SD `image.ub` yazıldı, kart yeniden başladı ve hizmetler açılışta
-çalıştı. Canlı ürün açı başına dört ardışık kareyi mevcut PL/ARM parametre güç
-yoluyla ölçer. HackRF/yönlü anten ve bilinen yönle fiziksel RMS kabulü açıktır.
+çalıştı. Canlı ürün açı başına dört ardışık kareyi P0PM-v4 sabit kanal toplam
+güç yoluyla ölçer. Bu yeni sürümün kart kurulumu ile HackRF/yönlü anten ve
+bilinen yönle fiziksel RMS kabulü açıktır.
 Ayrıntı:
 [yön bulma durum sözleşmesi](../../docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md).
 

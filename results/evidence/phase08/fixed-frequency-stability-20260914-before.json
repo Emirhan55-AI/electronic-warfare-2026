@@ -1,0 +1,47 @@
+{
+  "schema": "fixed-frequency-gui-stability-baseline-v1",
+  "recorded_at_utc": "2026-09-14T11:44:19.832105+00:00",
+  "acceptance_use": false,
+  "source_binding": "Kaynak özeti başlangıç koşusunda kaydedilmedi; yalnız kök neden tanısıdır.",
+  "configuration": {
+    "center_hz": 820000000,
+    "lna_db": 16,
+    "vga_db": 14,
+    "requested_frames": 4096
+  },
+  "outcome": {
+    "completed_frames_before_failure": 4096,
+    "elapsed_seconds": 12.554,
+    "error": "usb_overrun",
+    "usb_overruns": 157,
+    "capture_queue_high_watermark": 512,
+    "channel_queue_high_watermark": 64
+  },
+  "qt_heartbeat": {
+    "samples": 100,
+    "p95_ms": 346.88,
+    "maximum_ms": 359.178,
+    "over_100_ms": 48
+  },
+  "automatic_parameter_delivery": {
+    "outcomes": 1673,
+    "reasons": {
+      "event_ended_before_measurement": 1668,
+      "neighbor_in_reference_window": 4,
+      "live_span_exceeds_512_bins": 1
+    }
+  },
+  "catalog_microbenchmark": {
+    "rows": 64,
+    "one_transaction_per_row_seconds": 1.393,
+    "single_batch_transaction_seconds": 0.0407,
+    "single_batch_1024_rows_seconds": 0.1295
+  },
+  "diagnostic_catalog_cleanup": {
+    "session_id": "50c62d74ab3a442c864553bdf0945def:2",
+    "removed_rows": 1673,
+    "target_rows_after_cleanup": 0,
+    "unrelated_rows_preserved": 8327,
+    "accidental_empty_file_removed": true
+  }
+}

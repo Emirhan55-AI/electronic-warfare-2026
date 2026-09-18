@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from pathlib import Path
+
+import numpy as np
 
 from PySide6.QtCore import QTimer, QUrl, Slot
 
@@ -16,8 +19,29 @@ from algorithms.monitoring import (
 )
 from platforms.acquisition import decode_ci8
 
-from .live_ed import LIVE_AUDIO_WINDOW_FRAMES
+from .live_ed import LIVE_AUDIO_WINDOW_FRAMES, LIVE_AUDIO_WINDOW_SECONDS
 from .quick_runtime import ERROR_TEXT
+
+
+def _prepare_audio(blocks, config, volume, *, continuous, compare):
+    """Compare explicit demodulators on exactly the same bounded IQ snapshot.
+
+    No ranking or modulation classification is inferred from output loudness.
+    A silent branch can fail independently of the other branch.
+    """
+    process = AnalogMonitor().process_continuous if continuous else AnalogMonitor().process
+    if not compare:
+        return process(blocks, config, volume=volume)
+    results = {}
+    for mode in ("am", "nfm"):
+        try:
+            results[mode] = process(blocks, replace(config, mode=mode), volume=volume)
+        except MonitoringError as exc:
+            if exc.code != "insufficient_audio":
+                raise
+    if not results:
+        raise MonitoringError("insufficient_audio", "AM ve FM denemelerinde ses üretilemedi.")
+    return results
 
 
 class QuickListeningActionsMixin:
@@ -27,6 +51,7 @@ class QuickListeningActionsMixin:
         self._playback_timer.stop()
         self._audio_playback.stop()
         self._listening_result = None
+        self._listening_comparison = {}
         self._listening_rows = []
         self._listening_waveform = []
         self._listening_observation_points = []
@@ -42,6 +67,7 @@ class QuickListeningActionsMixin:
     def _clear_listening_parameter_basis(self) -> None:
         self._listening_parameter_target_hz = None
         self._listening_parameter_bandwidth_khz = 16.0
+        self._listening_measured_bandwidth_hz = None
         self._listening_parameter_record_path = ""
         self.listeningChanged.emit()
 
@@ -91,9 +117,10 @@ class QuickListeningActionsMixin:
         return True
 
     @Slot(str, float, float, float)
-    def requestListening(self, mode: str, center_offset_khz: float, bandwidth_khz: float, volume: float) -> None:
+    @Slot(str, float, float, float, bool)
+    def requestListening(self, mode: str, center_offset_khz: float, bandwidth_khz: float, volume: float, voice_filter: bool = False) -> None:
         if self._source_mode == "hackrf":
-            self._request_live_listening(mode, center_offset_khz, bandwidth_khz, volume)
+            self._request_live_listening(mode, center_offset_khz, bandwidth_khz, volume, voice_filter)
             return
         if self._source is None or self._last_result is None or self._busy or not self.selectedDetectionReady:
             self._listening_state = "Dinleme için doğrulanmış bir tespit ve hazır kaynak gerekir."
@@ -112,11 +139,12 @@ class QuickListeningActionsMixin:
             return
         try:
             config = AnalogMonitorConfig(
-                mode,  # type: ignore[arg-type]
+                "nfm" if mode == "compare" else mode,  # type: ignore[arg-type]
                 self.sampleRateHz,
                 center_offset_khz * 1_000.0,
                 bandwidth_khz * 1_000.0,
                 nfm_deemphasis_us=self._listening_deemphasis_us,
+                voice_filter=voice_filter,
             )
             if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
                 raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")
@@ -152,13 +180,13 @@ class QuickListeningActionsMixin:
                     )
                     for offset in range(0, continuous_samples, block_size)
                 )
-                result = AnalogMonitor().process_continuous(blocks, config, volume=volume)
+                result = _prepare_audio(blocks, config, volume, continuous=True, compare=mode == "compare")
                 return result, "Kesintisiz kayıt", continuous_samples / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz, None
             if frame_count < 4:
                 raise MonitoringError("insufficient_iq", "Dinleme için dört ardışık I/Q karesi gerekir.")
             start_frame = max(0, min(self._frame_index - 3, frame_count - 4))
             frames = tuple(source.read_frame(start_frame + offset) for offset in range(4))  # type: ignore[attr-defined]
-            result = AnalogMonitor().process(frames, config, volume=volume)
+            result = _prepare_audio(frames, config, volume, continuous=False, compare=mode == "compare")
             return result, "Kısa I/Q önizlemesi", 4 * frame_length / sample_rate, config.center_offset_hz, config.channel_bandwidth_hz, None
 
         self._set_busy(True, f"Tespit #{selected_id} için {mode.upper()} kanalı hazırlanıyor…")
@@ -171,6 +199,7 @@ class QuickListeningActionsMixin:
         center_offset_khz: float,
         bandwidth_khz: float,
         volume: float,
+        voice_filter: bool = False,
     ) -> None:
         session = self._live_session
         if (
@@ -186,11 +215,12 @@ class QuickListeningActionsMixin:
             return
         try:
             config = AnalogMonitorConfig(
-                mode,  # type: ignore[arg-type]
+                "nfm" if mode == "compare" else mode,  # type: ignore[arg-type]
                 self.sampleRateHz,
                 center_offset_khz * 1_000.0,
                 bandwidth_khz * 1_000.0,
                 nfm_deemphasis_us=self._listening_deemphasis_us,
+                voice_filter=voice_filter,
             )
             if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
                 raise MonitoringError("invalid_volume", "Ses düzeyi 0 ile 1 arasında olmalıdır.")
@@ -251,7 +281,7 @@ class QuickListeningActionsMixin:
                 )
                 for start in range(0, len(window), frames_per_block)
             )
-            result = AnalogMonitor().process_continuous(blocks, config, volume=volume)
+            result = _prepare_audio(blocks, config, volume, continuous=True, compare=mode == "compare")
             return (
                 result,
                 "Canlı kesintisiz alım",
@@ -325,3 +355,70 @@ class QuickListeningActionsMixin:
 
         self._set_busy(True, "WAV dosyası kaydediliyor…")
         self._submit(self._generation, "wav_export", operation)
+
+    @Slot(str)
+    def selectListeningComparison(self, mode: str) -> None:
+        payload = getattr(self, "_listening_comparison", {}).get(mode)
+        if self._busy or payload is None:
+            return
+        self.stopListening()
+        self._present_listening(payload)
+
+    def _present_listening(self, result) -> None:
+        listening, _scope, input_duration, offset_hz, bandwidth_hz, _continuity = result
+        self._listening_result = listening
+        self._audio_playback.load(listening.pcm16)
+        self._playback_timer.stop()
+        self._listening_playback_position_s = 0.0
+        self._listening_playback_duration_s = self._audio_playback.duration_seconds
+        self._listening_playback_state = "Oynatmaya hazır"
+        self._listening_short_preview = float(input_duration) < LIVE_AUDIO_WINDOW_SECONDS
+        channel_frequency = self.centerFrequencyHz + float(offset_hz)
+        self._listening_rows = [
+            {"label": "Çözümleme", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
+            {"label": "Frekans", "value": self._format_frequency(channel_frequency)},
+            {"label": "Alım bant genişliği", "value": self._format_rate(float(bandwidth_hz))},
+            {"label": "Ses profili", "value": (
+                f"Telsiz düzeltmesi ({listening.nfm_deemphasis_us:g} µs)"
+                if listening.mode == "nfm" and listening.nfm_deemphasis_us > 0
+                else "Net ses") + (" · Konuşma filtresi" if listening.voice_filter else "")},
+        ]
+        if listening.channel_power_dbfs_trace:
+            power_low = min(listening.channel_power_dbfs_trace)
+            power_high = max(listening.channel_power_dbfs_trace)
+            frequency_low = min(listening.residual_frequency_hz_trace)
+            frequency_high = max(listening.residual_frequency_hz_trace)
+            self._listening_rows.extend(
+                [
+                    {
+                        "label": "Alım seviyesi",
+                        "value": f"{power_low:.2f}…{power_high:.2f} dBFS",
+                    },
+                    {
+                        "label": "Frekans sapması",
+                        "value": f"{frequency_low:+.1f}…{frequency_high:+.1f} Hz",
+                    },
+                ]
+            )
+        self._listening_observation_points = [
+            {"time": float(time_s), "power": float(power_dbfs), "frequency": float(frequency_hz)}
+            for time_s, power_dbfs, frequency_hz in zip(
+                listening.observation_times_s,
+                listening.channel_power_dbfs_trace,
+                listening.residual_frequency_hz_trace,
+            )
+        ]
+        waveform_points = min(720, listening.audio.size)
+        indices = np.linspace(0, listening.audio.size - 1, waveform_points, dtype=np.int64)
+        self._listening_waveform = [float(listening.audio[index]) for index in indices]
+        self._listening_state = (
+            "Kısa önizleme hazır; kesintisiz dinleme kabulü için en az 5 saniyelik kayıt gerekir."
+            if self._listening_short_preview
+            else "Ses hazır."
+        )
+        if self._listening_comparison:
+            self._listening_state += " AM/FM denemesi; yayın türü belirlenmedi. Aynı kaydın sonuçlarını karşılaştırın."
+        self._status_message = f"Tespit #{self._selected_detection_id} dinleme kanalı hazırlandı."
+        self._add_log("Dinleme", self._status_message)
+        self.playbackChanged.emit()
+        self.listeningChanged.emit()

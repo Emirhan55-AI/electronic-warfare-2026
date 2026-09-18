@@ -27,6 +27,7 @@ from .measurement_record import (
     utc_now,
     validate_measurement_ownership,
 )
+from .power_estimate import estimate_hackrf_input_power_dbm
 
 
 class QuickMeasurementActionsMixin:
@@ -235,6 +236,7 @@ class QuickMeasurementActionsMixin:
         if self._source_mode == "hackrf":
             self._request_live_measurement()
             return
+        self._parameter_power_estimate_context = None
         if not self.selectedDetectionReady or self._last_result is None or self._source is None or self._busy:
             return
         if self._analysis_span is None:
@@ -390,7 +392,8 @@ class QuickMeasurementActionsMixin:
                 if direction_window is not None
                 else tuple(session.current_measurement_window(self._selected_detection_id))
             )
-        if len(window) != 4:
+        frame_count = int(getattr(session, "parameter_measurement_frame_count", 4)) if channel_capture else 4
+        if len(window) != frame_count:
             self._status_message = (
                 capture_reason
                 or "Canlı parametre ölçümü için aynı tespitin dört ardışık FPGA karesi bekleniyor."
@@ -398,11 +401,17 @@ class QuickMeasurementActionsMixin:
             self.stateChanged.emit()
             return
         sequences = tuple(item.sequence_number for item in window)
-        if sequences != tuple(range(sequences[0], sequences[0] + 4)):
+        if sequences != tuple(range(sequences[0], sequences[0] + frame_count)):
             self._status_message = "Canlı ölçüm penceresi ardışık değil; yeni gözlem bekleniyor."
             self.stateChanged.emit()
             return
         owner_events = []
+        direction_requires_target = bool(
+            direction_window is not None
+            and self._pending_direction_measurement is not None
+            and self._pending_direction_measurement.get("require_observed_target", True)
+        )
+        direction_nearby_events = []
         for snapshot in window:
             owner_span = (
                 self._df_channel_span
@@ -419,14 +428,38 @@ class QuickMeasurementActionsMixin:
                 ),
                 None,
             ))
+            if direction_window is not None:
+                lower_guard, upper_guard = owner_span
+                nearby = tuple(
+                    event
+                    for event in snapshot.response.active
+                    if event.observed_this_frame
+                    and event.end_shifted_bin >= lower_guard - 4
+                    and event.start_shifted_bin <= upper_guard + 4
+                )
+                direction_nearby_events.append(nearby)
+                if owner is None and not direction_requires_target and not nearby:
+                    owner_events.append(None)
+                    continue
             if owner is None:
                 self._status_message = "Canlı ölçüm penceresinde tespit sürekliliği doğrulanamadı."
                 self.stateChanged.emit()
                 return
             owner_events.append(owner)
-        owner = owner_events[-1]
-        owner_lower = min(int(event.start_shifted_bin) for event in owner_events)
-        owner_upper = max(int(event.end_shifted_bin) for event in owner_events)
+        observed_owner_events = [event for event in owner_events if event is not None]
+        if direction_window is not None and self._pending_direction_measurement is not None:
+            self._pending_direction_measurement["target_observed_frames"] = tuple(
+                event is not None for event in owner_events
+            )
+        owner = observed_owner_events[-1] if observed_owner_events else None
+        owner_lower = min(
+            (int(event.start_shifted_bin) for event in observed_owner_events),
+            default=span.lower_shifted_bin,
+        )
+        owner_upper = max(
+            (int(event.end_shifted_bin) for event in observed_owner_events),
+            default=span.upper_shifted_bin,
+        )
         if owner_lower < span.lower_shifted_bin or owner_upper > span.upper_shifted_bin:
             expanded_lower = max(56, min(span.lower_shifted_bin, owner_lower))
             expanded_upper = min(4039, max(span.upper_shifted_bin, owner_upper))
@@ -476,21 +509,30 @@ class QuickMeasurementActionsMixin:
             for event in window[-1].response.active
             if event.observed_this_frame
         )
+        request_event_id = (
+            int(owner.event_id)
+            if owner is not None
+            else int(self._pending_direction_measurement["target_event_id"])
+        )
+        request_event_revision = int(owner.seen_count) if owner is not None else 0
         context = MeasurementContext(
             self._generation,
             self._generation,
             self._generation,
-            int(owner.event_id),
-            int(owner.seen_count),
-            tuple(event.event_id == owner.event_id for event in owner_events),
+            request_event_id,
+            request_event_revision,
+            tuple(
+                event is not None and event.event_id == request_event_id
+                for event in owner_events
+            ),
             candidates,
         )
         intent = MeasurementIntent(
             self._generation,
             self._generation,
             self._generation,
-            int(owner.event_id),
-            int(owner.seen_count),
+            request_event_id,
+            request_event_revision,
             sequences[0],
             span,
             context,
@@ -509,15 +551,36 @@ class QuickMeasurementActionsMixin:
             "sequence_numbers": list(sequences),
             "frame_ids": [snapshot.response.frame_id for snapshot in window],
             "transport_iq_sha256": [digest(snapshot.output_frame.payload) for snapshot in window],
-            "owner_observations": [asdict(event) for event in owner_events],
+            "owner_observations": [
+                None if event is None else asdict(event) for event in owner_events
+            ],
         }
         if direction_window is not None:
+            relaxed_power_capture = not direction_requires_target
             source_info["direction_capture"] = {
-                "binding": "operator_selected_channel_v1",
+                "binding": (
+                    "operator_locked_channel_power_v2"
+                    if relaxed_power_capture
+                    else "operator_selected_channel_v1"
+                ),
+                "frame_count": 4,
                 "span": list(self._df_channel_span),
                 "frequency_hz": self._df_target_frequency_hz,
-                "event_ids": [int(event.event_id) for event in owner_events],
-                "request_event_id_basis": "last_channel_observation",
+                "event_ids": [
+                    None if event is None else int(event.event_id)
+                    for event in owner_events
+                ],
+                "target_observed_frames": [event is not None for event in owner_events],
+                "nearby_observations": [
+                    [asdict(event) for event in events]
+                    for events in direction_nearby_events
+                ],
+                "request_event_id": request_event_id,
+                "request_event_id_basis": (
+                    "last_channel_observation"
+                    if owner is not None
+                    else "initial_confirmed_channel_label"
+                ),
                 "emitter_identity_verified": False,
                 "fresh_after_operator_request": True,
                 "host_capture_sequence_floor": session._direction_after_sequence,
@@ -526,6 +589,7 @@ class QuickMeasurementActionsMixin:
         elif channel_capture:
             source_info["channel_capture"] = {
                 "binding": "operator_selected_channel_v1",
+                "frame_count": frame_count,
                 "span": [span.lower_shifted_bin, span.upper_shifted_bin],
                 "frequency_hz": float(self._selected_detection_item()["frequencyHz"]),
                 "event_ids": [int(event.event_id) for event in owner_events],
@@ -547,6 +611,20 @@ class QuickMeasurementActionsMixin:
             raise
         if channel_capture:
             session.cancel_parameter_capture()
+        selected_item = self._selected_detection_item()
+        selected_frequency_hz = (float(self._df_target_frequency_hz) if direction_window is not None
+                                 else float(selected_item["frequencyHz"]) if selected_item is not None
+                                 else None)
+        output_amplitude_scale = (channelizer or {}).get("profile", {}).get(
+            "output_amplitude_scale", 1.0
+        )
+        self._parameter_power_estimate_context = {
+            "frequency_hz": selected_frequency_hz,
+            "lna_gain_db": int(configuration.lna_gain_db),
+            "vga_gain_db": int(configuration.vga_gain_db),
+            "rf_amplifier": bool(configuration.rf_amplifier),
+            "output_amplitude_scale": output_amplitude_scale,
+        }
         self._parameter_rows = []
         self._measurement_record_path = ""
         record_directory = self._measurement_record_directory
@@ -566,7 +644,7 @@ class QuickMeasurementActionsMixin:
 
         self._pending_live_measurement = operation
         self._measurement_requested = True
-        self._status_message = "Dört ardışık FPGA karesi sabitlendi; alım durdurulup parametreler ölçülüyor."
+        self._status_message = f"{frame_count} ardışık FPGA karesi sabitlendi; alım durdurulup parametreler ölçülüyor."
         self._add_log("Parametre", f"Tespit #{self._selected_detection_id} canlı ölçüm penceresi sabitlendi")
         session.cancel()
         self.stateChanged.emit()
@@ -593,13 +671,17 @@ class QuickMeasurementActionsMixin:
             "reference_power_unavailable": "Gürültü referansı hesaplanamadı.",
             "span_edge_clipping": "Sinyal analiz aralığının dışına taşıyor; aralığı genişletin.",
             "obw_temporal_instability": (
-                "Dört ardışık ölçümde bant sınırları aynı kalmadı. "
-                "Analiz aralığını sinyalin tamamını kapsayacak şekilde genişletip tekrar ölçün."
+                "Kısa ölçümde bant sınırları yeterince kararlı hesaplanamadı. "
+                "Sinyal sürerken yeniden ölçün; devam ederse daha uzun gözlem gerekir. "
+                "Aralığı genişletmek tek başına bu durumu çözmeyebilir."
             ),
-            "carrier_line_below_threshold": "Ayrı bir taşıyıcı çizgisi yeterince belirgin değil.",
+            "carrier_line_below_threshold": (
+                "Ayrı bir taşıyıcı çizgisi yeterince belirgin değil. "
+                "Bazı modülasyonlarda bu çizgi bulunmaz; sinyalin merkez frekansı ayrı gösterilir."
+            ),
             "quality_below_carrier_threshold": "Taşıyıcı tespiti için SNR yetersiz.",
             "excess_power_not_significant": "Gürültü üzerindeki sinyal gücü yeterince belirgin değil.",
-            "center_temporal_uncertainty": "Emisyon merkezi dört kare arasında kararlı değil.",
+            "center_temporal_uncertainty": "Emisyon merkezi gözlem boyunca kararlı değil.",
         }
 
         def reason_text(values: object) -> str:
@@ -646,6 +728,39 @@ class QuickMeasurementActionsMixin:
             row.update(key=key, state=str(getattr(field, "state", "valid")),
                        reason=reason_text(reason))
 
+        estimated_row = {
+            "key": "estimated_power_dbm",
+            "label": "Tahmini Güç (dBm)",
+            "value": "Hesaplanamadı",
+            "state": "not_applicable",
+            "reason": "Tahmin yalnız canlı HackRF ölçüm bağlamında oluşturulur.",
+        }
+        power_field = result.channel_power_dbfs
+        context = getattr(self, "_parameter_power_estimate_context", None)
+        if (
+            context is not None
+            and power_field.state == "valid"
+            and isinstance(power_field.value, (int, float))
+        ):
+            estimate = estimate_hackrf_input_power_dbm(
+                float(power_field.value),
+                frequency_hz=context.get("frequency_hz"),
+                lna_gain_db=context.get("lna_gain_db"),
+                vga_gain_db=context.get("vga_gain_db"),
+                rf_amplifier=context.get("rf_amplifier"),
+                output_amplitude_scale=context.get("output_amplitude_scale"),
+            )
+            if estimate is not None:
+                estimated_row.update(
+                    value=f"≈ {estimate.power_dbm:.1f} dBm (±{estimate.uncertainty_db:.0f} dB)",
+                    state="estimated",
+                    reason=(
+                        "Kalibrasyonsuz HackRF modeliyle SMA girişinde hesaplanan yaklaşık değerdir; "
+                        "gerçek dBm ölçümü veya verici çıkış gücü değildir."
+                    ),
+                )
+        rows.insert(6, estimated_row)
+
         quality = result.quality
         quality_state = str(quality.state)
         rows.append({
@@ -656,9 +771,9 @@ class QuickMeasurementActionsMixin:
                 else "Kayıtlı I/Q kalite kapısı"
             ),
             "value": (
-                f"Geçti · {int(quality.observed_frames)}/4 kare"
+                f"Geçti · {int(quality.observed_frames)}/{16 if quality.observed_frames > 4 else 4} kare"
                 if quality_state == "valid"
-                else f"{self._field_state(quality_state)} · {int(quality.observed_frames)}/4 kare"
+                else f"{self._field_state(quality_state)} · {int(quality.observed_frames)}/{16 if quality.observed_frames > 4 else 4} kare"
             ),
             "state": quality_state,
             "reason": reason_text(quality.reasons),

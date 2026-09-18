@@ -60,7 +60,7 @@ typedef struct {
     uint8_t angular_sampling_rms_valid;
 } p0_df_result_t;
 
-/* Product profile: 24 bearings, 15 degree maximum gap, 3 dB ambiguity gates. */
+/* Product profile: adaptive lobe bracket/refinement plus opposite-point gate. */
 const p0_df_profile_t *p0_amplitude_df_field_profile(void);
 
 /* Returns 0 on success, -1 for invalid input and -2 for a duplicate source frame. */

@@ -1,0 +1,321 @@
+{
+  "schema": "fixed-frequency-gui-stability-v1",
+  "recorded_at_utc": "2026-09-14T12:20:29.144400+00:00",
+  "rx_only_verifier": true,
+  "configuration": {
+    "center_hz": 820000000,
+    "lna_db": 16,
+    "vga_db": 14,
+    "requested_frames": 2048,
+    "managed_gain": true,
+    "qt_platform": "offscreen"
+  },
+  "outcome": {
+    "timed_out": false,
+    "error": null,
+    "status_message": "Canlı FPGA oturumu tamamlandı · 2048 kare · USB taşması 0.",
+    "source_state": "Hazır",
+    "completed_frames": 2048,
+    "frames_per_second": 476.1893241278214,
+    "hackrf_statistics": {
+      "frames_received": 2048,
+      "bytes_received": 67108864,
+      "elapsed_seconds": 4.250342499988619,
+      "overruns": 0,
+      "longest_overrun_bytes": 0,
+      "process_returncode": 0,
+      "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(818500000 Hz/818.500 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 33554432/33Mio\r\nStop with Ctrl-C\r\n16.0 MB / 1.015 sec = 15.8 MB/second, average power -33.8 dBfs, 19232 bytes free in buffer, 0 overruns, longest 0 bytes\r\n15.7 MB / 0.985 sec = 16.0 MB/second, average power -33.8 dBfs, 6368 bytes free in buffer, 0 overruns, longest 0 bytes\r\n16.3 MB / 1.006 sec = 16.2 MB/second, average power -33.8 dBfs, 22240 bytes free in buffer, 0 overruns, longest 0 bytes\r\n16.0 MB / 0.994 sec = 16.1 MB/second, average power -33.8 dBfs, 21664 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 3.1 MB / 0.196 sec = 16.1 MB/second, average power -33.8 dBfs, 9824 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 4.19659 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n67127136 bytes transferred by M0\r\n67108864 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+    },
+    "session_elapsed_seconds": 5.0809896000428125,
+    "phase": "catalog",
+    "worker_threads_active": 0
+  },
+  "qt_heartbeat": {
+    "samples": 239,
+    "p50_ms": 19.807900011073798,
+    "p95_ms": 37.08820002502762,
+    "maximum_ms": 62.67519999528304,
+    "over_100_ms": 0
+  },
+  "session_diagnostics": {
+    "fpga_enabled": true,
+    "completed_frames": 2048,
+    "capture_queue_high_watermark": 1,
+    "channel_queue_high_watermark": 56,
+    "channelizer_backend": "native-cpp",
+    "automatic_parameter_status": "Etkin · tespit sürerken tek bağlamlı dört kare PL/ARM ölçümü",
+    "automatic_parameter_outcomes": 0,
+    "automatic_parameter_expired_before_measurement": 1612,
+    "setup_seconds": 0.07439500000327826,
+    "response_interval_seconds": 4.2987104000058025,
+    "hackrf_statistics": {
+      "frames_received": 2048,
+      "bytes_received": 67108864,
+      "elapsed_seconds": 4.250342499988619,
+      "overruns": 0,
+      "longest_overrun_bytes": 0,
+      "process_returncode": 0,
+      "stderr_text": "call hackrf_set_sample_rate(8000000 Hz/8.000 MHz)\r\ncall hackrf_set_hw_sync_mode(0)\r\ncall hackrf_set_freq(818500000 Hz/818.500 MHz)\r\ncall hackrf_set_amp_enable(0)\r\nsamples_to_xfer 33554432/33Mio\r\nStop with Ctrl-C\r\n16.0 MB / 1.015 sec = 15.8 MB/second, average power -33.8 dBfs, 19232 bytes free in buffer, 0 overruns, longest 0 bytes\r\n15.7 MB / 0.985 sec = 16.0 MB/second, average power -33.8 dBfs, 6368 bytes free in buffer, 0 overruns, longest 0 bytes\r\n16.3 MB / 1.006 sec = 16.2 MB/second, average power -33.8 dBfs, 22240 bytes free in buffer, 0 overruns, longest 0 bytes\r\n16.0 MB / 0.994 sec = 16.1 MB/second, average power -33.8 dBfs, 21664 bytes free in buffer, 0 overruns, longest 0 bytes\r\n 3.1 MB / 0.196 sec = 16.1 MB/second, average power -33.8 dBfs, 9824 bytes free in buffer, 0 overruns, longest 0 bytes\r\n\r\nExiting...\r\nTotal time: 4.19659 s\r\nhackrf_stop_rx() done\r\nTransfer statistics:\r\n67127136 bytes transferred by M0\r\n67108864 bytes transferred by M4\r\n0 overruns, longest 0 bytes\r\nhackrf_close() done\r\nhackrf_exit() done\r\nfclose() done\r\nexit\r\n"
+    },
+    "timing_scope": "most_recent_at_most_4096_observations_per_stage",
+    "timing_ms": {
+      "capture_queue_age_ms": {
+        "samples": 128,
+        "p50": 0.04959999932907522,
+        "p95": 0.1463649910874663,
+        "maximum": 0.7486999966204166
+      },
+      "channelizer_ms": {
+        "samples": 128,
+        "p50": 0.39360002847388387,
+        "p95": 0.7029600004898382,
+        "maximum": 1.4967999886721373
+      },
+      "preview_callback_ms": {
+        "samples": 138,
+        "p50": 0.029149989131838083,
+        "p95": 0.05347499973140657,
+        "maximum": 0.07800001185387373
+      }
+    },
+    "stream_elapsed_seconds": 4.330825100012589,
+    "frames_per_second_scope": "first_to_last_fpga_response_interval"
+  },
+  "gain_retry_errors": [
+    {
+      "code": "operation_cancelled",
+      "detail": "AcquisitionError"
+    },
+    {
+      "code": "operation_cancelled",
+      "detail": "AcquisitionError"
+    }
+  ],
+  "automatic_parameter_status": "Etkin · tespit sürerken tek bağlamlı dört kare PL/ARM ölçümü",
+  "parameter_catalog_rows": [
+    {
+      "id": 3,
+      "frequency": "820.499988 MHz",
+      "dbfs": "-67.48 dBFS",
+      "dbm": "Kalibre değil",
+      "bandwidth": "—",
+      "lowerEdge": "—",
+      "upperEdge": "—",
+      "snr": "12.89 dB",
+      "receiver": "Birincil alıcı · …36877e47",
+      "status": "Belirsiz",
+      "statusKey": "uncertain",
+      "reason": "Sinyal analiz aralığının kenarına taşıyor.",
+      "completedUtc": "2026-09-14T12:20:24.593921+00:00",
+      "calibrationStatus": "unavailable"
+    },
+    {
+      "id": 4,
+      "frequency": "820.046875 MHz",
+      "dbfs": "—",
+      "dbm": "Kalibre değil",
+      "bandwidth": "—",
+      "lowerEdge": "—",
+      "upperEdge": "—",
+      "snr": "—",
+      "receiver": "Birincil alıcı · …36877e47",
+      "status": "Ölçülemedi",
+      "statusKey": "not_measurable",
+      "reason": "Canlı ölçüm aralığı 512 hücreyi aşıyor.",
+      "completedUtc": "2026-09-14T12:20:24.618401+00:00",
+      "calibrationStatus": "unavailable"
+    },
+    {
+      "id": 2,
+      "frequency": "820.500000 MHz",
+      "dbfs": "—",
+      "dbm": "Kalibre değil",
+      "bandwidth": "—",
+      "lowerEdge": "—",
+      "upperEdge": "—",
+      "snr": "—",
+      "receiver": "Birincil alıcı · …36877e47",
+      "status": "Ölçülemedi",
+      "statusKey": "not_measurable",
+      "reason": "Gürültü referans aralığında komşu sinyal var.",
+      "completedUtc": "2026-09-14T12:20:24.244804+00:00",
+      "calibrationStatus": "unavailable"
+    },
+    {
+      "id": 1,
+      "frequency": "820.046875 MHz",
+      "dbfs": "—",
+      "dbm": "Kalibre değil",
+      "bandwidth": "—",
+      "lowerEdge": "—",
+      "upperEdge": "—",
+      "snr": "—",
+      "receiver": "Birincil alıcı · …36877e47",
+      "status": "Ölçülemedi",
+      "statusKey": "not_measurable",
+      "reason": "Canlı ölçüm aralığı 512 hücreyi aşıyor.",
+      "completedUtc": "2026-09-14T12:20:24.244738+00:00",
+      "calibrationStatus": "unavailable"
+    }
+  ],
+  "detections": [
+    {
+      "eventId": 1646,
+      "title": "FPGA adayı",
+      "frequencyHz": 819387695.3125,
+      "peakFrequencyHz": 819387695.3125,
+      "lowerFrequencyHz": 819387695.3125,
+      "upperFrequencyHz": 819387695.3125,
+      "frequency": "819.3877 MHz",
+      "snr": "10.9 dB",
+      "contrastDb": 10.859790570222287,
+      "state": "Sinyal yok",
+      "stateKey": "stale",
+      "confirmed": false,
+      "observed": false,
+      "offsetKHz": -612.3046875,
+      "startBin": 794,
+      "endBin": 794,
+      "peakBin": 794,
+      "eventRevision": 1,
+      "eventSpanFrames": 1,
+      "occupancyRatio": 1.0,
+      "stableOccupancy": false,
+      "rxSpectrumSupported": false,
+      "lastObservedFrame": 2047,
+      "held": false,
+      "startNormalized": 0.6109619140625,
+      "endNormalized": 0.6109619140625,
+      "peakNormalized": 0.6109619140625,
+      "verificationKey": "unverified",
+      "verificationLabel": "Kararlılık ölçülüyor",
+      "verificationMethod": "none"
+    },
+    {
+      "eventId": 1647,
+      "title": "FPGA adayı",
+      "frequencyHz": 819701660.15625,
+      "peakFrequencyHz": 819701660.15625,
+      "lowerFrequencyHz": 819701660.15625,
+      "upperFrequencyHz": 819701660.15625,
+      "frequency": "819.7017 MHz",
+      "snr": "11.4 dB",
+      "contrastDb": 11.436974134527187,
+      "state": "İzleniyor",
+      "stateKey": "tentative",
+      "confirmed": false,
+      "observed": true,
+      "offsetKHz": -298.33984375,
+      "startBin": 1437,
+      "endBin": 1437,
+      "peakBin": 1437,
+      "eventRevision": 1,
+      "eventSpanFrames": 1,
+      "occupancyRatio": 1.0,
+      "stableOccupancy": false,
+      "rxSpectrumSupported": false,
+      "lastObservedFrame": 2047,
+      "held": false,
+      "startNormalized": 0.65020751953125,
+      "endNormalized": 0.65020751953125,
+      "peakNormalized": 0.65020751953125,
+      "verificationKey": "unverified",
+      "verificationLabel": "Kararlılık ölçülüyor",
+      "verificationMethod": "none"
+    }
+  ],
+  "event_log": [
+    {
+      "sequence": "0012",
+      "time": "15:20:29",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Canlı FPGA oturumu tamamlandı · 2048 kare · USB taşması 0."
+    },
+    {
+      "sequence": "0011",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Alıcı ayarı",
+      "message": "Alıcı kazancı ayarlandı: LNA 0 dB / VGA 0 dB."
+    },
+    {
+      "sequence": "0010",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Alıcı → kanal seçici → FPGA taraması başlatıldı"
+    },
+    {
+      "sequence": "0009",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Alıcı ayarı",
+      "message": "rx_span_too_wide: Güçlü sinyal canlı parametre aralığını aşıyor; kazanç azaltılıyor."
+    },
+    {
+      "sequence": "0008",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Otomatik parametre",
+      "message": "2 sonuç kalıcı kataloğa eklendi."
+    },
+    {
+      "sequence": "0007",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Alıcı ayarı",
+      "message": "Alıcı kazancı ayarlandı: LNA 8 dB / VGA 6 dB."
+    },
+    {
+      "sequence": "0006",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Alıcı → kanal seçici → FPGA taraması başlatıldı"
+    },
+    {
+      "sequence": "0005",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Alıcı ayarı",
+      "message": "rx_span_too_wide: Güçlü sinyal canlı parametre aralığını aşıyor; kazanç azaltılıyor."
+    },
+    {
+      "sequence": "0004",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Otomatik parametre",
+      "message": "2 sonuç kalıcı kataloğa eklendi."
+    },
+    {
+      "sequence": "0003",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Canlı ED",
+      "message": "Alıcı → kanal seçici → FPGA taraması başlatıldı"
+    },
+    {
+      "sequence": "0002",
+      "time": "15:20:24",
+      "level": "BİLGİ",
+      "component": "Alıcı",
+      "message": "Alıcı ve FPGA bağlantısı hazır; tarama başlatılabilir."
+    },
+    {
+      "sequence": "0001",
+      "time": "15:20:23",
+      "level": "BİLGİ",
+      "component": "Sistem",
+      "message": "Operatör uygulaması hazır"
+    }
+  ],
+  "source_sha256": {
+    "app/operator_console/automatic_parameter.py": "7454ac6ef99d5ae68b0dab57b15e978ce2dc286e11ba4d863dd18f31038a89e2",
+    "app/operator_console/live_ed.py": "95944ec5029941a3b4aa5d5d0d616b1fff1d2e5f2fab72ce28321f3a7a586d9e",
+    "app/operator_console/parameter_catalog.py": "286fa896fc783b8dc1ef00486a76871493e11fda7a885e163e7a16872bd46080",
+    "app/operator_console/quick_runtime.py": "e50c4b5eae86e2d1bf5db34f2300c06212cdec9493c25abfcb4c2044075105bf",
+    "app/operator_console/quick_view_model.py": "b89a50919f25637829aa313cee61bbdd9c1a1399a64acebc8090b37a5dca9e8d",
+    "app/operator_console/qml/Main.qml": "9a5f31b500520ed44b97d46efa655372d99e9b6734960f16c467c80997af4b98"
+  }
+}

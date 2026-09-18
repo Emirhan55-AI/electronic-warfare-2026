@@ -453,7 +453,7 @@ def _parent_run() -> int:
             and int(run["direction_measurement_count"]) == 1
             and int(run["direction_distinct_angle_count"]) == 1
             and not bool(run["direction_ready"])
-            and run["direction_status"] == "15° adımlı 24 anten açısı gerekli"
+            and run["direction_status"] == "Lob sınırları ve hassas ölçümler tamamlanmadı"
             and run["direction_reference"] == "Gerçek kuzey · anten 0°"
             and bool(run["direction_source_bound"])
             for run in runs

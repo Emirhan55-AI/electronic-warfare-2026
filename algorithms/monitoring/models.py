@@ -32,6 +32,7 @@ class AnalogMonitorConfig:
     channel_bandwidth_hz: float
     output_sample_rate_hz: int = 48_000
     nfm_deemphasis_us: float = 0.0
+    voice_filter: bool = False
 
     def __post_init__(self) -> None:
         if self.mode not in ("am", "nfm"):
@@ -107,6 +108,7 @@ class AnalogMonitorResult:
     channel_power_dbfs_trace: tuple[float, ...] = ()
     residual_frequency_hz_trace: tuple[float, ...] = ()
     nfm_deemphasis_us: float = 0.0
+    voice_filter: bool = False
 
     def __post_init__(self) -> None:
         if self.sample_rate_hz != 48_000:

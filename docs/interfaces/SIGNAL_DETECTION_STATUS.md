@@ -1,5 +1,74 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## KTR-4.4 yön akışı bağı — 16 Eylül 2026
+
+Yön Bulma, doğrulanmış `0°` kanal kilidinden sonra sağ ve sol lob dışı sınırları
+bulup tepe çevresini 5° adımlarla hassaslaştıran uyarlamalı akışa geçirilmiştir.
+Bu değişiklik FPGA sinyal tespit eşiklerini veya PHASE-08 Pd/Pfa kapılarını
+değiştirmez. Lob dışı açıdaki `target_observed=false`, yayın yokluğu veya verici
+kimliği iddiası değil, yön planlayıcısının kilitli kanal ölçüm girdisidir.
+
+## Yön bulmada eşik altı kanal ölçümü — 16 Eylül 2026
+
+Yön bulma ilk 0° kanal doğrulamasından sonra her açıda yeniden `confirmed` olay
+istemez. Kilitli kanalın dört yeni ardışık karesi, hedef yönlü anten deseninde
+tespit eşiğinin altına inse de P0PM güç ölçümüne gider; yakın/taşan başka aday
+retleri korunur. Yön ölçümüne özel P0PM-v4, gürültü çıkarılmış sinyal gücü yerine
+kilitli kanalın sinyal + alıcı gürültüsü toplamını bütün açılarda aynı yöntemle
+verir; derin sönümde bu değer gürültü tabanına yaklaşır. Tespit eşiği ve PL FFT
+yolu değişmez, olaysız kare yayın kanıtı sayılmaz. Kaynak regresyonu geçti;
+güncel kart hizmeti ve köprüsü doğrulanmış ZedBoard'a geçici kuruldu ve 47007
+üzerinde fiziksel PL/ARM işlev testi geçti. SD imajı değişmediği için yeniden
+başlatma kalıcılığı, canlı anten RF/RMS kabulü açık kalır. Ayrıntı
+`docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md` içindedir.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
+## Kalibrasyonsuz tahmini güç sunumu — 16 Eylül 2026
+
+Parametre sonucuna `Kanal Gücü (dBFS)` ile `Sinyal Türü` arasına `Tahmini Güç
+(dBm)` satırı eklendi. Yalnız canlı HackRF bağlamında geçerli dBFS sonucu,
+LNA/VGA, RF AMP, kanal seçici genlik ölçeği ve frekans kullanılır. Model,
+HackRF One'ın belgelenmiş −5 dBm azami girişini kaba sıfır-kazanç/tam-ölçek
+ankrajı kabul eder; yapılandırılmış nominal kazançları ve sayısal ölçeği çıkarır.
+Sonuç `TAHMİNİ`, yaklaşık işareti ve en az ±15 dB belirsizlikle gösterilir.
+RF AMP, bant uçları ve çok düşük tahminlerde belirsizlik artırılır.
+
+Bu satır kalibrasyon profili, gerçek dBm ölçümü, verici çıkış gücü veya RF
+doğruluk kabulü değildir. KTR-4.2'nin kalibre dBm kapısı açık kalır; mevcut dBFS
+alanı ve ölçüm kaydı değiştirilmedi. PHASE-08/ST-06 sürer ve yeni faz açılmadı.
+
+## Parametre aralığı uyarısının kaldırılması — 16 Eylül 2026
+
+Parametre ekranındaki `Aralık seçili sinyalin tamamını kapsamıyor` uyarısı
+ile `Aralığı Düzenle` eylemi ve buna bağlı elle alt/üst frekans alanları kullanıcı
+kararıyla kaldırıldı. Ölçüm başlatıldığında güncel aday onaylı aralığın dışına
+taşıyorsa mevcut canlı yol aralığı otomatik genişletmeye devam eder;
+geçersiz veya kart sınırını aşan aralıklar yine reddedilir. DSP, RTL, ARM,
+ölçüm kaydı ve KTR-4.2 kabul durumu değişmedi. PHASE-08/ST-06 açık kalır ve
+yeni faz açılmadı.
+
 ## Sistem çalışma alanının kaldırılması — 16 Eylül 2026
 
 Kullanıcı kararıyla ürün arayüzündeki `Sistem` görev girişi ve çalışma alanı

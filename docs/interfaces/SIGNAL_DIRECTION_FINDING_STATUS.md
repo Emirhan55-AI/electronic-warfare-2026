@@ -1,5 +1,83 @@
 # Yön bulma: güncel durum ve kabul sınırı
 
+## İki taraflı lob sınırı ve uyarlamalı tepe araması — 16 Eylül 2026
+
+Kullanıcı kararıyla ürün akışı tam 360°/24-açı zorunluluğundan yönlü antenin
+gerçek açıklığını kullanan uyarlamalı taramaya geçirilmiştir. İlk `0°` noktası
+hedefi doğrular ve kanalı kilitler. Ardından 15° saat yönü adımları, hedefin dört
+karenin hiçbirinde görülmediği ilk lob dışı noktaya kadar sürer. Bu nokta hata
+değil; P0PM-v4 sabit kanal toplam gücüyle, `target_observed=false` izi korunarak
+kaydedilmiş sağ sınırdır.
+
+Sağ sınırdan sonra arayüz operatöre anteni fiziksel olarak `0°` başlangıcına geri
+almasını söyler. 345°, 330°, … etiketleri sırasıyla başlangıçtan saat yönünün
+tersine 15°, 30°, … anlamına gelir ve ilk lob dışı sol sınıra kadar sürer. İki
+sınır arasındaki en güçlü ölçülmüş kaba noktanın çevresi 5° aralıklarla
+hassaslaştırılır. Son olarak yalnız bir karşı-yön noktası alınarak 3 dB ön/arka
+kapısı korunur. En az sekiz farklı açı, sabit alıcı/frekans/kanal bağı, aynı-kare
+reddi ve 3 dB rakip tepe kapısı geçmeden ARM `LOB HAZIR` üretmez.
+
+Planlama PC'de `AdaptiveDirectionSweep`, nihai sayısal karar Python ve portable
+C/ARM'da `P0_AMPLITUDE_DF_ADAPTIVE_V2` profiliyle yapılır. P0DF-v1/P0FR-v1 tel
+biçimi değişmemiştir. Deterministik 61 yerel başlangıç sahnesi ve sekiz hazır/ret
+C eşdeğerlik sahnesi geçmiştir. Aynı sekiz durum doğrulanmış ZedBoard `armv7l`
+üzerinde P0DF-v1/P0FR-v1 ağ yolunda da geçmiştir; kanıt
+`results/evidence/phase09/amplitude-df-board-protocol-v2.json` içindedir.
+`p0-ed-service` `126a916d…` hash'iyle çalışan 47007 yoluna geçici kurulmuştur;
+ağ köprüsü `4797d7c…` olarak korunmuştur. Bu, sayısal ARM/protokol yürütme
+kanıtıdır; yeni akışın fiziksel anten derece RMS kabulü ve SD soğuk-açılış
+kalıcılığı henüz tamamlanmamıştır. Kart yeniden başlatılırsa eski SD imajındaki
+profil geri gelir.
+
+## Kilitli kanalda eşik altı açı ölçümü — 16 Eylül 2026 tarihsel güç düzeltmesi
+
+KTR-4.4 / PHASE-09 yön akışındaki beş saniyelik 60°/75° durmasının kök nedeni
+fiziksel yayının sona ermesi değil, yazılımın ilk kanal seçiminden sonra her
+açıda yeniden dört `confirmed` olay istemesiydi. Yönlü anten ana lobdan
+uzaklaştığında beklenen düşük güç örneği tespit eşiğinin altına iniyor ve tam
+yön deseninin gerekli arka/yan lob noktası kaydedilmeden süre aşımı oluşuyordu.
+
+İlk 0° ölçümü, hedef kanalını dört yeni ve ardışık confirmed gözlemle doğrulamaya
+devam eder. Kanal ve alıcı bağı kilitlendikten sonraki 15°–345° isteklerinde ise
+aynı kilitli kanala ait dört yeni, ardışık CI8 kare hedef olay görünmese de
+yön ölçümüne özel `P0PM-v4` kart güç yoluna gönderilir. P0PM-v4, bütün açılarda
+aynı PL UQ28.30 hücrelerinden sabit kanalın dört-kare ortalama toplam gücünü
+hesaplar; gürültü çıkarmaz. Böylece derin sönüm noktası sinyal varlığı iddiası
+üretmeden alıcı gürültü tabanına yakın geçerli dBFS değeri olarak korunur.
+Kilitli kanalın dört hücrelik yakınında başka,
+taşan veya birden çok gözlenen aday varsa pencere yine reddedilir. Böylece
+“tespit yok” bir yayın kimliği iddiasına çevrilmez; yalnız anten deseninde
+ölçülmesi gereken düşük güç yönü kaybolmaz. Her kayıtta olayın görülüp
+görülmediği, yeni-kare tabanı, kanal/alıcı bağı ve I/Q hashleri korunur.
+
+Normal parametre yolu gürültü-düz girdiyi `excess_power_not_significant` ile
+reddetmeye devam eder. Aynı PL güç girdisi P0PM-v4 yön kipinde referans modelle
+eşleşen sonlu kanal gücü verir. Kaynak regresyonunda ilk açı confirmed olaylarla,
+ikinci açı ise dört karenin tamamında olay olmadan kaydedilmiş; P0PM-v4 protokol,
+C çalışma zamanı ve arşiv tekrar doğrulamalarından geçmiştir. PL 4096 FFT/OS-CFAR
+üretimi değişmemiş, mevcut güç hücreleri ARM'da farklı ve açıkça sürümlenmiş bir
+toplamla kullanılmıştır. Bu güç düzeltmesi yapıldığında P0DF'nin 24-açı kapısı
+değişmemişti. Güncel ürün kapısı daha sonra bu belgenin başındaki uyarlamalı V2
+profiline geçirilmiştir; P0PM-v4 güç sözleşmesi aynen korunur.
+
+Güncel kart hizmeti ve ağ köprüsü, COM6 seri konsolundan kimliği doğrulanan
+ZedBoard'a geçici olarak kurulmuştur. 47007 yolunda normal P0PM düz spektrumu
+`excess_power_not_significant` ile reddederken P0PM-v4 aynı fiziksel PL/ARM
+girdisinde `−58,9566117667 dBFS` kilitli kanal toplam gücü vermiş; altı normal
+parametre sahnesi de geçmiştir. FPGA profili ölçüm öncesi/sonrası değişmemiştir.
+Kanıtlar `results/evidence/phase09/p0pm-v4-direction-power-physical-20260916.json`,
+`p0pm-v4-normal-parameter-physical-20260916.json` ve
+`p0pm-v4-runtime-deployment-20260916.json` içindedir.
+
+SD açılış imajı değiştirilmedi; kart yeniden başlatılırsa eski hizmetler geri
+gelir. Eski hizmet P0PM-v4 isteğini fail-closed reddeder ve PC sayısal geri
+dönüşü yoktur. Yeni kaynakla fiziksel anten/RF tekrarı henüz yapılmadığından
+ekrandaki 0°–60° güç deseninin
+çok yollu ortam, anten/polarizasyon, yakın alan veya kablo etkisi ayrımı ve derece
+RMS kabulü açık kalır. Ekrandaki örnekte 30°–60° değerlerinin 0°'den yaklaşık
+5–6 dB yüksek olması yazılım tarafından 0°'ye zorlanmaz: 0° yalnız operatörün
+başlangıç eksenidir, ölçülen tepe değildir.
+
 ## Saat yönünde bağıl ölçüm akışı — 13 Eylül 2026
 
 KTR-4.4 / PHASE-09 ürün ekranı sensörsüz kullanım için sadeleştirilmiştir.
@@ -22,6 +100,9 @@ HackRF/yönlü anten ve bilinen açıyla derece RMS kabulü aşağıdaki sınır
 açık kalır.
 
 ## Kanal bağlı ölçüm akışı — 12 Eylül 2026
+
+Bu bölüm ilk kanal-bağlı akışın tarihsel kaydıdır. Her açıda confirmed gözlem
+isteyen davranış, yukarıdaki 16 Eylül P0PM-v4 eşik-altı akışıyla değiştirilmiştir.
 
 KTR-4.4 / PHASE-09 kapsamında operatör tespit listesinden hedefi bir kez seçer.
 `Ölçümü Başlat` seçilen kanal aralığını ve cihaz/merkez/örnekleme/FFT/LNA/VGA

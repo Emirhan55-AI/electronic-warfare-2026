@@ -24,7 +24,7 @@ from scripts.verify_phase09_amplitude_df_arm import _cases
 
 SERVICE = ROOT / "build/p0/st06-runtime-config-v2-20260910/software/p0-ed-service"
 BRIDGE = ROOT / "build/p0/st06-runtime-config-v2-20260910/software/p0-ed-network-bridge"
-EVIDENCE = ROOT / "results/evidence/phase09/amplitude-df-board-protocol-v1.json"
+EVIDENCE = ROOT / "results/evidence/phase09/amplitude-df-board-protocol-v2.json"
 
 
 def _tool(name: str) -> str:
@@ -90,7 +90,8 @@ def verify(host: str, port: int, username: str, password: str, host_key: str) ->
             })
         expected = {
             "lob-ready": "LOB HAZIR",
-            "coverage-gate": "YETERSİZ AÇI KAPSAMI",
+            "adaptive-lob-ready": "LOB HAZIR",
+            "coverage-gate": "ÖN/ARKA BELİRSİZ",
             "front-back-gate": "ÖN/ARKA BELİRSİZ",
             "receiver-gate": "ALICI AYARI DEĞİŞTİ",
             "target-gate": "HEDEF FREKANSI DEĞİŞTİ",
@@ -112,7 +113,7 @@ def verify(host: str, port: int, username: str, password: str, host_key: str) ->
                   "sha256sum /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge; "
                   "pgrep -a p0-ed-service; pgrep -a p0-ed-network-bridge"])
     return {
-        "schema": "phase09-amplitude-df-board-protocol-v1",
+        "schema": "phase09-amplitude-df-board-protocol-v2",
         "generated_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "status": "passed",
         "board": {"host": host, "architecture": "armv7l", "temporary_port": port,

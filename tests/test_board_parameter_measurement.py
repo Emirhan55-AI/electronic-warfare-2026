@@ -7,7 +7,13 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from algorithms.p0.parameter_client import encode_request, decode_response, BoardAnalysisSpan, BOARD_PERSISTENT_PAYLOAD_BYTES
+from algorithms.p0.parameter_client import (
+    BOARD_PERSISTENT_PAYLOAD_BYTES,
+    BoardAnalysisSpan,
+    decode_response,
+    encode_request,
+    locked_channel_total_power_dbfs,
+)
 from algorithms.parameters.f1_development import _intent
 from algorithms.spectrum import SpectrumConfig
 from app.operator_console import measurement_record as records
@@ -66,7 +72,7 @@ def test_live_record_uses_board_and_never_host_fallback(tmp_path):
     assert document['processing_location']=='hybrid_zedboard_arm_host'
     assert document['spectrum_origin']=='physical_pl_replay_of_recorded_ci8'
     assert document['calibration']['dbm_available'] is False
-    assert document['fields']['signal_domain']['method_id']=='domain.digital-analog-logreg-pc-v1'
+    assert document['fields']['signal_domain']['method_id']=='domain.selected-channel-logreg-pc-v2'
     assert document['fields']['signal_domain']['state']=='uncertain'
     assert document['automatic_signal_domain']['physical_acceptance'] is False
     assert document['automatic_signal_domain']['product_acceptance'] is False
@@ -96,6 +102,41 @@ def test_wide_span_is_versioned_and_does_not_change_frozen_host_span():
     struct.pack_into('<H', payload, 4, 2)
     struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
     assert decode_response(bytes(payload), intent, iq, 7).result.persistent_payload_bytes == BOARD_PERSISTENT_PAYLOAD_BYTES
+
+
+def test_locked_direction_channel_power_uses_fail_closed_v4_contract():
+    intent = _intent((2180, 2238), 1, 1)
+    iq = bytes(32768)
+    request = encode_request(
+        intent, iq, 2_000_000, 100_000_000, 7,
+        locked_channel_power=True,
+    )
+    assert struct.unpack_from('<H', request, 4)[0] == 4
+    payload = bytearray(response(intent, iq))
+    struct.pack_into('<H', payload, 4, 4)
+    struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
+    with pytest.raises(ValueError):
+        decode_response(bytes(payload), intent, iq, 7)
+    measured = decode_response(
+        bytes(payload), intent, iq, 7,
+        locked_channel_power=True,
+    )
+    assert measured.result.channel_power_dbfs.value == -30
+    assert measured.result.persistent_payload_bytes == BOARD_PERSISTENT_PAYLOAD_BYTES
+    with pytest.raises(ValueError, match="dört kare"):
+        encode_request(
+            intent, bytes(131072), 2_000_000, 100_000_000, 7,
+            locked_channel_power=True,
+        )
+
+
+def test_locked_direction_power_reference_matches_flat_pl_uq28_30_cells():
+    frame = tuple([1 << 30] * 4096)
+    measured = locked_channel_total_power_dbfs((frame, frame, frame, frame), 2000, 2031)
+    assert measured == pytest.approx(10.0 * np.log10(32.0 / (1536.0 * 4096.0)), abs=1e-12)
+    zero = tuple([0] * 4096)
+    with pytest.raises(ValueError, match="sıfır"):
+        locked_channel_total_power_dbfs((zero, zero, zero, zero), 2000, 2031)
 
 
 def test_wide_board_record_roundtrip_never_uses_host_numeric_estimator(tmp_path):

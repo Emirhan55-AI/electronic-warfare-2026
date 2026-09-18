@@ -54,6 +54,37 @@ def test_direction_capture_excludes_host_backlog_and_latches_changed_ids():
     assert session.direction_capture()[0] == ()
 
 
+def test_locked_direction_capture_keeps_fresh_frames_when_target_falls_below_detection():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session.begin_direction_capture(2290, 2320, require_observed_target=False)
+    for index in range(2, 6):
+        snapshot = _direction_snapshot(index, observed=False)
+        session._record_measurement_snapshot(
+            replace(snapshot, response=replace(snapshot.response, active=()))
+        )
+    frames, reason = session.direction_capture()
+    assert [frame.sequence_number for frame in frames] == [2, 3, 4, 5]
+    assert reason == "Kilitli kanal gücü toplanıyor: 4/4 kare."
+
+
+def test_locked_direction_capture_still_rejects_nearby_observed_candidate():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session.begin_direction_capture(2290, 2320, require_observed_target=False)
+    snapshot = _direction_snapshot(2)
+    event = snapshot.response.active[0]
+    session._record_measurement_snapshot(
+        replace(
+            snapshot,
+            response=replace(
+                snapshot.response,
+                active=(event, replace(event, event_id=99)),
+            ),
+        )
+    )
+    assert session.direction_capture()[0] == ()
+    assert "başka veya sınırı taşan" in session.direction_capture()[1]
+
+
 def test_parameter_capture_binds_fresh_channel_when_event_ids_change():
     session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
     session._latest_capture_sequence = 20
@@ -69,6 +100,27 @@ def test_parameter_capture_binds_fresh_channel_when_event_ids_change():
     assert [frame.sequence_number for frame in frames] == [22, 23, 24, 25]
     assert [frame.response.active[0].event_id for frame in frames] == [122, 123, 124, 125]
     assert "4/4" in reason
+    session.cancel_parameter_capture()
+    assert session.parameter_capture()[0] == ()
+
+
+def test_extended_parameter_capture_requires_all_fresh_contiguous_frames():
+    session = LiveEDSession("unused", LiveEDConfiguration(104_650_000, SERIAL))
+    session._transport._capabilities = TransportCapabilities(extended_parameter=True)
+    assert session.parameter_measurement_frame_count == 16
+    session._latest_capture_sequence = 20
+    session.begin_parameter_capture(2290, 2320)
+    for index in range(37):
+        session._record_measurement_snapshot(_direction_snapshot(index, event_id=100 + index))
+    assert len(session.parameter_capture()[0]) == 15
+    session._record_measurement_snapshot(_direction_snapshot(38))  # 37 kayıp
+    assert len(session.parameter_capture()[0]) == 1
+    for index in range(39, 54):
+        session._record_measurement_snapshot(_direction_snapshot(index, event_id=100 + index))
+    frames, _ = session.parameter_capture()
+    assert [frame.sequence_number for frame in frames] == list(range(38,54))
+    session._record_measurement_snapshot(_direction_snapshot(54, observed=False))
+    assert session.parameter_capture()[0] == frames
     session.cancel_parameter_capture()
     assert session.parameter_capture()[0] == ()
 

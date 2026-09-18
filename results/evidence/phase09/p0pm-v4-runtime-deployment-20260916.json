@@ -1,0 +1,43 @@
+{
+  "schema": "p0pm-v4-runtime-deployment-v1",
+  "generated_at_utc": "2026-09-16T17:53:42.0300441Z",
+  "status": "passed",
+  "requirements": [
+    "KTR-4.4"
+  ],
+  "board": {
+    "host": "192.168.7.2",
+    "port": 47007,
+    "architecture": "armv7l",
+    "fpga_state": "operating",
+    "ssh_host_key_sha256": "SHA256:3g8Gz4e1SVnLwR36CVFUrJUFbrKChr5bxdERwHpspD0",
+    "identity_verification": "COM6 115200 serial console"
+  },
+  "runtime_binaries": {
+    "p0-ed-service": "4deca35b208a9e9a50f6132ad89a40658819b800a0be218b90543ad0c7443f19",
+    "p0-ed-network-bridge": "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1"
+  },
+  "rollback": {
+    "board_path": "/var/backups/p0pm-v4-direction-20260916",
+    "p0-ed-service": "20c151ea1291c0653432573595a7f3f20a08720a8330472642bd1d843f6822d7",
+    "p0-ed-network-bridge": "beb168b6a87188c82f63d5b5310240bd83fe89ddfea2dbe84943199253493d0c"
+  },
+  "verification": {
+    "p0pm_v4_physical": "results/evidence/phase09/p0pm-v4-direction-power-physical-20260916.json",
+    "normal_parameter_regression": "results/evidence/phase09/p0pm-v4-normal-parameter-physical-20260916.json",
+    "normal_parameter_cases": 6,
+    "p0df_direction_cases": 7,
+    "p0df_direction_statuses_matched": true,
+    "runtime_processes_active": true,
+    "tcp_47007_listening": true,
+    "fpga_profile_unchanged": true
+  },
+  "deployment_attempt_note": "The first restart stopped before replacement because the minimal image lacks the install utility. Existing binaries remained intact. The second bounded attempt used cp/chmod, verified hashes, restarted both services and passed physical validation.",
+  "persistence": {
+    "current_runtime_updated": true,
+    "sd_image_updated": false,
+    "survives_reboot": false,
+    "cold_boot_verified": false
+  },
+  "claim_boundary": "The connected board is ready for live direction testing until reboot. This is not antenna-pattern, bearing, multipath, calibration or degree-RMS acceptance."
+}

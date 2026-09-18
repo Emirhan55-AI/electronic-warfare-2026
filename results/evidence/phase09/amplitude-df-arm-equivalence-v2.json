@@ -1,0 +1,75 @@
+{
+  "schema": "phase09-amplitude-df-arm-equivalence-v2",
+  "status": "passed",
+  "compiler": "MSVC C11",
+  "profile": "P0_AMPLITUDE_DF_ADAPTIVE_V2",
+  "cases": [
+    {
+      "case": "lob-ready",
+      "status": "LOB HAZIR",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "adaptive-lob-ready",
+      "status": "LOB HAZIR",
+      "measurements": 8,
+      "distinct_angles": 8,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "coverage-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "front-back-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "receiver-gate",
+      "status": "ALICI AYARI DEĞİŞTİ",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "target-gate",
+      "status": "HEDEF FREKANSI DEĞİŞTİ",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "prominence-gate",
+      "status": "BELİRSİZ MAKSİMUM",
+      "measurements": 24,
+      "distinct_angles": 24,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "case": "linear-repeat-average",
+      "status": "YETERSİZ AÇI",
+      "measurements": 2,
+      "distinct_angles": 1,
+      "maximum_absolute_error": 0.0
+    }
+  ],
+  "duplicate_frame_gate": "passed",
+  "circular_rms_deg": 7.615773105863909,
+  "maximum_equivalence_error": 0.0,
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_amplitude_df.h": "b24a7bd1a1dc1533adbd71793048e7bdaa69c37647d9acc4c02781c5349892fc",
+    "platforms/embedded/p0/src/p0_amplitude_df.c": "40eb780e234e9bf9d74a522dc306b4f15634f7f5c27d3900ec453f5ef66393b2",
+    "platforms/embedded/p0/src/p0_amplitude_df_run.c": "616a9d1293be3bd54c0535dd616fed0d2caa4f3b84fabef18748fc0f9bef1dd0",
+    "scripts/verify_phase09_amplitude_df_arm.py": "5ee1a7ed72096c674c5a039f5b335be25edc54f9d7255fa3dc9a7d5b4559581e",
+    "algorithms/p0/df.py": "453f3dc94e4a1a3940d080b58bbdc2651d6df07e86a022dbd62b4f4ed086bb32"
+  },
+  "claim_boundary": "Portable C/ARM software-reference equivalence only; no deployed-board, antenna, multipath, bearing-accuracy or field RMS acceptance claim."
+}

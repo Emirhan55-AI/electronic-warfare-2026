@@ -426,6 +426,7 @@ class LiveEDSession:
         self._direction_span: tuple[int, int] | None = None
         self._direction_frames: list[LiveEDSnapshot] = []
         self._direction_reason = ""
+        self._direction_require_observed_target = True
         self._latest_capture_sequence = -1
         self._latest_response_sequence = -1
         self._direction_after_sequence = -1
@@ -463,8 +464,13 @@ class LiveEDSession:
             history = self._measurement_histories.get(int(event_id), ())
             return tuple(history) if len(history) == LIVE_MEASUREMENT_WINDOW_FRAMES else ()
 
+    @property
+    def parameter_measurement_frame_count(self) -> int:
+        capabilities = getattr(self._transport, "capabilities", None)
+        return 16 if bool(getattr(capabilities, "extended_parameter", False)) else 4
+
     def begin_parameter_capture(self, lower: int, upper: int) -> None:
-        """Collect a fresh four-frame window for one operator-selected channel."""
+        """Collect 4 or 16 fresh frames, according to the board capability."""
         if (
             self.configuration.fpga_fft_size != 4096
             or not 56 <= lower <= upper <= 4039
@@ -492,8 +498,20 @@ class LiveEDSession:
         with self._measurement_lock:
             return tuple(self._parameter_frames), self._parameter_reason
 
-    def begin_direction_capture(self, lower: int, upper: int) -> None:
-        """Collect only responses processed after the operator's angle request."""
+    def begin_direction_capture(
+        self,
+        lower: int,
+        upper: int,
+        require_observed_target: bool = True,
+    ) -> None:
+        """Collect fresh channel-power frames after an operator angle request.
+
+        The first point establishes the selected channel with four confirmed
+        observations.  Once that lock exists, direction finding must also keep
+        the low-power/back-lobe samples for which the detector quite correctly
+        produces no event.  In that mode a newly observed neighbour still
+        invalidates the window, but an empty locked channel does not.
+        """
         if (
             self.configuration.fpga_fft_size != 4096
             or not 56 <= lower <= upper <= 4039
@@ -502,10 +520,15 @@ class LiveEDSession:
             raise ValueError("Yön ölçümü için 4096 FFT ve geçerli hedef kanalı gerekir.")
         with self._measurement_lock:
             self._direction_span = (lower, upper)
+            self._direction_require_observed_target = bool(require_observed_target)
             # Exclude the host queues and the read already in flight.
             self._direction_after_sequence = max(self._latest_capture_sequence, self._latest_response_sequence) + 1
             self._direction_frames = []
-            self._direction_reason = "Seçili kanalda sinyal bekleniyor."
+            self._direction_reason = (
+                "Seçili kanalda doğrulanmış sinyal bekleniyor."
+                if self._direction_require_observed_target
+                else "Kilitli kanalın yeni güç kareleri bekleniyor."
+            )
 
     def cancel_direction_capture(self) -> None:
         with self._measurement_lock:
@@ -538,19 +561,36 @@ class LiveEDSession:
         if snapshot.sequence_number <= self._direction_after_sequence:
             return
         lower, upper = self._direction_span
-        if self.direction_channel_owner(snapshot, lower, upper) is None:
+        owner = self.direction_channel_owner(snapshot, lower, upper)
+        nearby = [
+            event
+            for event in snapshot.response.active
+            if event.observed_this_frame
+            and event.end_shifted_bin >= lower - 4
+            and event.start_shifted_bin <= upper + 4
+        ]
+        if owner is None and (self._direction_require_observed_target or nearby):
             self._direction_frames.clear()
-            self._direction_reason = "Hedef kanalda tek ve doğrulanmış sinyal bekleniyor; sinyal zayıf, kesintili veya komşu sinyal var."
+            self._direction_reason = (
+                "Hedef kanalda tek ve doğrulanmış sinyal bekleniyor; sinyal zayıf, "
+                "kesintili veya komşu sinyal var."
+                if self._direction_require_observed_target
+                else "Kilitli kanalın yakınında başka veya sınırı taşan bir sinyal var; temiz güç penceresi bekleniyor."
+            )
             return
         if self._direction_frames and snapshot.sequence_number != self._direction_frames[-1].sequence_number + 1:
             self._direction_frames.clear()
         self._direction_frames.append(snapshot)
-        self._direction_reason = f"Yeni ölçüm verisi toplanıyor: {len(self._direction_frames)}/4 kare."
+        self._direction_reason = (
+            f"Yeni kanal gözlemi toplanıyor: {len(self._direction_frames)}/4 kare."
+            if self._direction_require_observed_target
+            else f"Kilitli kanal gücü toplanıyor: {len(self._direction_frames)}/4 kare."
+        )
 
     def _record_parameter_snapshot(self, snapshot: LiveEDSnapshot) -> None:
         # Caller holds _measurement_lock. Event IDs may change while the one
         # operator-selected, isolated channel remains continuous.
-        if self._parameter_span is None or len(self._parameter_frames) == 4:
+        if self._parameter_span is None or len(self._parameter_frames) == self.parameter_measurement_frame_count:
             return
         if snapshot.sequence_number <= self._parameter_after_sequence:
             return
@@ -569,7 +609,7 @@ class LiveEDSession:
             self._parameter_frames.clear()
         self._parameter_frames.append(snapshot)
         self._parameter_reason = (
-            f"Yeni kanal gözlemi toplanıyor: {len(self._parameter_frames)}/4 kare."
+            f"Yeni kanal gözlemi toplanıyor: {len(self._parameter_frames)}/{self.parameter_measurement_frame_count} kare."
         )
 
     def audio_window_frame_count(self, event_id: int | None = None) -> int:

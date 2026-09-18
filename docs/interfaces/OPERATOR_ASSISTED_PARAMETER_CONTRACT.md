@@ -1,5 +1,26 @@
 # PHASE-04-E1 Operatör Destekli Parametre Sözleşmesi
 
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## Kalibrasyonsuz tahmini güç — 16 Eylül 2026
+
+Ana sonuç görünümü, ölçülmüş dBFS alanını değiştirmeden ayrıca `Tahmini Güç
+(dBm)` sunar. Bu alan canlı HackRF alıcı bağlamındaki nominal LNA/VGA/RF AMP
+kazançlarını ve kanal seçici ölçeğini çıkaran, belgelenmiş azami giriş seviyesini
+kaba ankraj olarak kullanan kalibrasyonsuz modeldir. `estimated` durumunda ve
+geniş belirsizlikle gösterilir; ölçüm kaydındaki `dbm_available: false` ile
+kalibre dBm kapısı değişmez. Eksik bağlamda sayı üretilmez.
+
 ## P0PM-v1 kart ölçüm sözleşmesi — 11 Eylül 2026
 
 HackRF canlı yolunda onaylanmış dört 4096 örnekli CI8 kare, alım durduktan sonra

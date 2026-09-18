@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-16T17:52:55.047901+00:00",
+  "status": "passed",
+  "scope": "physical PL and ZedBoard ARM numeric integration",
+  "requirements": [
+    "KTR-4.2",
+    "PÇ-02",
+    "PÇ-04"
+  ],
+  "profile_before": {
+    "generation": 0,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "profile_after": {
+    "generation": 0,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "cases": [
+    {
+      "scene": "tone-bin-centered",
+      "span": [
+        2290,
+        2318
+      ],
+      "elapsed_us": 77668,
+      "profile_generation": 0,
+      "response_sha256": "014762dfd86ce5cdc2281d8e03933682170a2843c29862cd13d3add8cbb066ac",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 100125017.74840157,
+          "board": 100125017.74802478,
+          "absolute_error": 0.00037679076194763184,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "valid",
+          "reference": 100125027.80288237,
+          "board": 100125027.80261157,
+          "absolute_error": 0.00027079880237579346,
+          "tolerance": 2.0
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 100123724.7314352,
+          "board": 100123724.73031758,
+          "absolute_error": 0.001117616891860962,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 100126322.48953639,
+          "board": 100126322.48953347,
+          "absolute_error": 2.9206275939941406e-06,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 2597.7581011864536,
+          "board": 2597.7592158941134,
+          "absolute_error": 0.0011147076597808336,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -20.09733682970409,
+          "board": -20.097345981169834,
+          "absolute_error": 9.151465743428844e-06,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 7.7798161634479985,
+          "board": 7.779915248092992,
+          "absolute_error": 9.908464499375214e-05,
+          "tolerance": 0.02
+        }
+      }
+    },
+    {
+      "scene": "tone-off-bin",
+      "span": [
+        2290,
+        2318
+      ],
+      "elapsed_us": 77560,
+      "profile_generation": 0,
+      "response_sha256": "445c3ea7aff6c9f172cd874594aeae2027242596385c9e6d0e65335bf2a3d2d0",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 100125362.04149492,
+          "board": 100125362.03458689,
+          "absolute_error": 0.006908029317855835,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "valid",
+          "reference": 100125244.140625,
+          "board": 100125244.140625,
+          "absolute_error": 0.0,
+          "tolerance": 2.0
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 100124095.84786662,
+          "board": 100124095.84772187,
+          "absolute_error": 0.00014474987983703613,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 100130866.37827712,
+          "board": 100130866.35770859,
+          "absolute_error": 0.02056853473186493,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 6770.5304104956895,
+          "board": 6770.509986714135,
+          "absolute_error": 0.020423781554200104,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -19.73687015547771,
+          "board": -19.736861334374794,
+          "absolute_error": 8.821102916556356e-06,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 6.1256429127737615,
+          "board": 6.1256742902127,
+          "absolute_error": 3.1377438938662294e-05,
+          "tolerance": 0.02
+        }
+      }
+    },
+    {
+      "scene": "am-carrier",
+      "span": [
+        1776,
+        1819
+      ],
+      "elapsed_us": 77747,
+      "profile_generation": 0,
+      "response_sha256": "6f19541c190057d1bdcc7a6fd3fea3f4c3b05a6d7d87079e07b040542be8beda",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 99878016.50924855,
+          "board": 99878016.51065433,
+          "absolute_error": 0.0014057755470275879,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "valid",
+          "reference": 99877793.80862309,
+          "board": 99877793.80877592,
+          "absolute_error": 0.00015282630920410156,
+          "tolerance": 2.0
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 99873245.47038123,
+          "board": 99873245.47040327,
+          "absolute_error": 2.2038817405700684e-05,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 99882690.73179024,
+          "board": 99882690.74061859,
+          "absolute_error": 0.008828341960906982,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 9445.26140901314,
+          "board": 9445.270215318047,
+          "absolute_error": 0.008806304907921003,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -18.083201025005703,
+          "board": -18.083173968088907,
+          "absolute_error": 2.7056916795942243e-05,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 11.224841349833666,
+          "board": 11.224838695187918,
+          "absolute_error": 2.6546457476683827e-06,
+          "tolerance": 0.02
+        }
+      }
+    },
+    {
+      "scene": "nfm",
+      "span": [
+        2410,
+        2454
+      ],
+      "elapsed_us": 77872,
+      "profile_generation": 0,
+      "response_sha256": "fbcf6c6e30ac977bb3be48a07c8e00ec8e79b3fd65dcf4f4920538d50e382f36",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 100187558.55144106,
+          "board": 100187558.55501674,
+          "absolute_error": 0.0035756826400756836,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "valid",
+          "reference": 100187624.1777523,
+          "board": 100187624.17682374,
+          "absolute_error": 0.0009285658597946167,
+          "tolerance": 2.0
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 100183453.58894801,
+          "board": 100183453.59901424,
+          "absolute_error": 0.010066226124763489,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 100192069.85473657,
+          "board": 100192069.85163663,
+          "absolute_error": 0.0030999332666397095,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 8616.265788544242,
+          "board": 8616.252622386522,
+          "absolute_error": 0.013166157719751936,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -17.99100100951593,
+          "board": -17.9909864242174,
+          "absolute_error": 1.4585298529823376e-05,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 10.742870369439173,
+          "board": 10.742898383304185,
+          "absolute_error": 2.8013865012610495e-05,
+          "tolerance": 0.02
+        }
+      }
+    },
+    {
+      "scene": "wideband-noise-like",
+      "span": [
+        2456,
+        2576
+      ],
+      "elapsed_us": 33507,
+      "profile_generation": 0,
+      "response_sha256": "4afbc0ff1f87e7b60da436f000db6de217afc5436c43b698b6429bca9de86d8c",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 100228882.89923126,
+          "board": 100228882.89923126,
+          "absolute_error": 0.0,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "not_observed"
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 100205385.92359202,
+          "board": 100205385.92089647,
+          "absolute_error": 0.0026955455541610718,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 100251795.51076855,
+          "board": 100251795.50654419,
+          "absolute_error": 0.00422435998916626,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 46409.5871765291,
+          "board": 46409.58564771136,
+          "absolute_error": 0.0015288177382899448,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -17.246497194030333,
+          "board": -17.246448837724774,
+          "absolute_error": 4.835630555888315e-05,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 11.244647185335811,
+          "board": 11.24464588408232,
+          "absolute_error": 1.3012534907375084e-06,
+          "tolerance": 0.02
+        }
+      }
+    },
+    {
+      "scene": "dsb-sc",
+      "span": [
+        926,
+        970
+      ],
+      "elapsed_us": 15002,
+      "profile_generation": 0,
+      "response_sha256": "75a31af7ed3d4674d70d024df4e16b66148e900ddb27ccc212b624dafb655f41",
+      "fields": {
+        "emission_center_frequency": {
+          "state": "valid",
+          "reference": 99462897.30537833,
+          "board": 99462897.30704083,
+          "absolute_error": 0.0016624927520751953,
+          "tolerance": 2.0
+        },
+        "carrier_line_frequency": {
+          "state": "not_observed"
+        },
+        "lower_band_edge": {
+          "state": "valid",
+          "reference": 99457685.6041503,
+          "board": 99457685.6046588,
+          "absolute_error": 0.0005085021257400513,
+          "tolerance": 2.0
+        },
+        "upper_band_edge": {
+          "state": "valid",
+          "reference": 99467699.84621589,
+          "board": 99467699.84621792,
+          "absolute_error": 2.0265579223632812e-06,
+          "tolerance": 2.0
+        },
+        "occupied_bandwidth": {
+          "state": "valid",
+          "reference": 10014.242065593815,
+          "board": 10014.241559119118,
+          "absolute_error": 0.0005064746965217637,
+          "tolerance": 4.0
+        },
+        "channel_power_dbfs": {
+          "state": "valid",
+          "reference": -17.949919942188785,
+          "board": -17.949881148010167,
+          "absolute_error": 3.8794178617962416e-05,
+          "tolerance": 0.02
+        },
+        "snr_estimate_db": {
+          "state": "valid",
+          "reference": 9.107058118991281,
+          "board": 9.107067395658682,
+          "absolute_error": 9.276667400470728e-06,
+          "tolerance": 0.02
+        }
+      }
+    }
+  ],
+  "corrupt_payload_rejected": true,
+  "normal_detection_before": {
+    "frame_id": 0,
+    "dma_status_flags": 7,
+    "transport": {
+      "state": "DISCONNECTED",
+      "frames_sent": 1,
+      "frames_received": 1,
+      "bytes_sent": 8240,
+      "bytes_received": 976,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "last_error": null
+    }
+  },
+  "normal_detection_after": {
+    "frame_id": 0,
+    "dma_status_flags": 7,
+    "transport": {
+      "state": "DISCONNECTED",
+      "frames_sent": 1,
+      "frames_received": 1,
+      "bytes_sent": 8240,
+      "bytes_received": 976,
+      "crc_errors": 0,
+      "sequence_errors": 0,
+      "queue_drops": 0,
+      "last_error": null
+    }
+  },
+  "products": {
+    "p0-ed-service": "4deca35b208a9e9a50f6132ad89a40658819b800a0be218b90543ad0c7443f19",
+    "p0-ed-network-bridge": "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1"
+  },
+  "sources": {
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "bce91d8790d0a3195ec5d7ee43a9f4736bdfd3b61b953884b7b433b92a56ed15",
+    "platforms/embedded/p0/src/p0_ed_service.c": "f37ffb9229137d44d63f06b0a4162248abbdb098cba11e8a806bf97f0aa5b14e",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c": "3e3668bda605d6359673164007b1265c927de9a96c29f75a001e730ec6711f51",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "0d82aa393a5c30a14429d4e6a917199c9da1256232ec9add81e166c0a60eb105",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h": "187460dbdadd45a4e9cbecbfb87294a59f37215a6cac9184f87e3339b8243906",
+    "platforms/embedded/p0/include/p0_ed_service_protocol.h": "3e2e1d309a0392106577b60d096e54ddac98cec6586e83b12217b05658a04415",
+    "algorithms/p0/parameter_client.py": "9ffe5c29c44a1cbbd702d314e1e4f31fae7518f82e8d7b3aef0a41e2153b619d",
+    "scripts/verify_p0_parameter_board.py": "335ce442b25b384b33424788788a50ded3e35abccab376ec1d8910f5250eab0c"
+  },
+  "not_verified": [
+    "live HackRF RF accuracy",
+    "dBm calibration",
+    "cold boot persistence",
+    "analog/digital classification",
+    "field Pd/Pfa"
+  ]
+}

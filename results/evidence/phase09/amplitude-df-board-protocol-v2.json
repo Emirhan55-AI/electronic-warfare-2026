@@ -1,0 +1,137 @@
+{
+  "schema": "phase09-amplitude-df-board-protocol-v2",
+  "generated_at_utc": "2026-09-16T18:52:10.899472Z",
+  "status": "passed",
+  "board": {
+    "host": "192.168.7.2",
+    "architecture": "armv7l",
+    "temporary_port": 47008,
+    "ssh_host_key": "SHA256:3g8Gz4e1SVnLwR36CVFUrJUFbrKChr5bxdERwHpspD0"
+  },
+  "protocol": {
+    "request": "P0DF-v1",
+    "response": "P0FR-v1",
+    "request_crc32": true,
+    "response_crc32": true
+  },
+  "start_output": "P0 ED kart hizmeti hazır.\nP0 ED ağ köprüsü hazır.",
+  "cases": [
+    {
+      "case": "lob-ready",
+      "status": "LOB HAZIR",
+      "angle_deg": 45.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 10.9375,
+      "front_to_back_db": 22.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "adaptive-lob-ready",
+      "status": "LOB HAZIR",
+      "angle_deg": 10.0,
+      "measurement_count": 8,
+      "distinct_angle_count": 8,
+      "maximum_gap_deg": 160.0,
+      "prominence_db": 13.0,
+      "front_to_back_db": 35.0,
+      "sampling_rms_deg": null
+    },
+    {
+      "case": "coverage-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "angle_deg": 40.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 245.0,
+      "prominence_db": 5.0,
+      "front_to_back_db": null,
+      "sampling_rms_deg": null
+    },
+    {
+      "case": "front-back-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 0.5,
+      "front_to_back_db": 0.5,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "receiver-gate",
+      "status": "ALICI AYARI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "target-gate",
+      "status": "HEDEF FREKANSI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "prominence-gate",
+      "status": "BELİRSİZ MAKSİMUM",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.0,
+      "front_to_back_db": 10.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "linear-repeat-average",
+      "status": "YETERSİZ AÇI",
+      "angle_deg": 0.0,
+      "measurement_count": 2,
+      "distinct_angle_count": 1,
+      "maximum_gap_deg": 360.0,
+      "prominence_db": 0.0,
+      "front_to_back_db": 0.0,
+      "sampling_rms_deg": 103.92304845413264
+    }
+  ],
+  "persistent_services_before": [
+    "armv7l",
+    "126a916d47a3f5ef4f3f0feabbd6e197ce73b75bd187c961f64cbda2250d6bb5  /usr/sbin/p0-ed-service",
+    "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1  /usr/sbin/p0-ed-network-bridge",
+    "1047 /usr/sbin/p0-ed-service",
+    "1054 /usr/sbin/p0-ed-network-bridge"
+  ],
+  "persistent_services_after": [
+    "126a916d47a3f5ef4f3f0feabbd6e197ce73b75bd187c961f64cbda2250d6bb5  /usr/sbin/p0-ed-service",
+    "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1  /usr/sbin/p0-ed-network-bridge",
+    "1047 /usr/sbin/p0-ed-service",
+    "1054 /usr/sbin/p0-ed-network-bridge"
+  ],
+  "temporary_processes_removed": true,
+  "source_sha256": {
+    "platforms/embedded/p0/include/p0_amplitude_df.h": "b24a7bd1a1dc1533adbd71793048e7bdaa69c37647d9acc4c02781c5349892fc",
+    "platforms/embedded/p0/src/p0_amplitude_df.c": "40eb780e234e9bf9d74a522dc306b4f15634f7f5c27d3900ec453f5ef66393b2",
+    "platforms/embedded/p0/include/p0_ed_service_protocol.h": "3e2e1d309a0392106577b60d096e54ddac98cec6586e83b12217b05658a04415",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c": "3e3668bda605d6359673164007b1265c927de9a96c29f75a001e730ec6711f51",
+    "platforms/embedded/p0/src/p0_ed_service.c": "f37ffb9229137d44d63f06b0a4162248abbdb098cba11e8a806bf97f0aa5b14e",
+    "platforms/embedded/p0/src/p0_ed_network_bridge.c": "0d82aa393a5c30a14429d4e6a917199c9da1256232ec9add81e166c0a60eb105",
+    "algorithms/p0/direction_client.py": "a5dfdaacade969341963a0ff12db5b4ed40cb8e59c974544e3402dfb341cffd8",
+    "scripts/verify_phase09_direction_board.py": "a4a9fc353251b427f30cbdf3c17de109f0cd1fc753c35e9b3ea7b318e6931806"
+  },
+  "binary_sha256": {
+    "p0-ed-service": "126a916d47a3f5ef4f3f0feabbd6e197ce73b75bd187c961f64cbda2250d6bb5",
+    "p0-ed-network-bridge": "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1"
+  },
+  "claim_boundary": "Physical ZedBoard execution and versioned network-path numeric equivalence; the persistent SD image was not changed and no antenna, live RF or degree-RMS accuracy acceptance was performed."
+}

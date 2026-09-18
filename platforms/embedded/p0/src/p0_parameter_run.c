@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     unsigned int frame;
     int exit_code = EXIT_FAILURE;
 
-    if (argc != 14) {
+    if (argc != 14 && argc != 38) {
         fprintf(stderr,
                 "Kullanım: %s ORNEKLEME_HZ MERKEZ_HZ ALT_BIN UST_BIN "
                 "IQ0 GUC0 IQ1 GUC1 IQ2 GUC2 IQ3 GUC3 SONUC_JSON\n",
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
         fputs("Ölçüm belleği ayrılamadı.\n", stderr);
         goto done;
     }
-    for (frame = 0U; frame < P0_PARAMETER_REQUIRED_FRAMES; ++frame) {
+    for (frame = 0U; frame < (unsigned int)(argc - 6) / 2U; ++frame) {
         const char *iq_path = argv[5 + frame * 2U];
         const char *power_path = argv[6 + frame * 2U];
         unsigned int natural;
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
             shifted_power[natural ^ (P0_PARAMETER_FFT_SIZE / 2U)] =
                 load_le64(power_bytes + natural * 8U);
         if (p0_parameter_runtime_observe(
-                &runtime, frame == 0U, 1U, 1U, frame, sample_rate,
+                &runtime, frame == 0U ? (argc == 38 ? 2 : 1) : 0, 1U, 1U, frame, sample_rate,
                 center_frequency, (uint16_t)lower, (uint16_t)upper, 1,
                 iq, P0_PARAMETER_FFT_SIZE * 2U, shifted_power,
                 P0_PARAMETER_FFT_SIZE, &result) != 0) {
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
             goto release;
         }
     }
-    if (write_result(argv[13], &result) != 0) {
+    if (write_result(argv[argc - 1], &result) != 0) {
         fprintf(stderr, "Sonuç yazılamadı: %s\n", strerror(errno));
         goto release;
     }

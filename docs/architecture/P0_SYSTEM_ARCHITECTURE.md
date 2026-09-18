@@ -1,5 +1,46 @@
 # P0 Gerçek Sistem Mimarisi
 
+## Uyarlamalı yön taraması görev paylaşımı — 16 Eylül 2026
+
+PC'deki `AdaptiveDirectionSweep`, `0°` doğrulamasından sonra önce saat yönündeki,
+sonra operatörün `0°`a dönüşüyle ters yöndeki lob dışı sınırı planlar ve tepe
+çevresinde 5° noktalar ister. PL mevcut Hann→4096 FFT→UQ28.30 güç zincirini
+değiştirmez. ARM P0PM-v4 kilitli kanal toplam gücünü üretir ve tarama
+tamamlandığında `P0_AMPLITUDE_DF_ADAPTIVE_V2` kapılarıyla P0DF kararını verir.
+Lob dışı gözlem, hedef kimliği iddiası değil; aynı alıcı/kanal bağındaki eşik-altı
+güç ve gözlem maskesidir.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
+## Kalibrasyonsuz güç tahmini — 16 Eylül 2026
+
+PC sunum katmanı, karttan gelen geçerli dBFS kanal gücünü canlı alıcının
+frekans/LNA/VGA/RF AMP ve kanal seçici ölçek bağlamıyla yaklaşık SMA giriş
+dBm değerine dönüştürür. Alan `estimated` ve geniş belirsizlik taşır; PL/ARM
+ölçümü, kalıcı kalibrasyon sicili ve `channel_power_dbm` alanı değişmez.
+Kalibre profil yokken gerçek dBm üretmeme sınırı korunur.
+
 ## Durdurulan tam bant turu — 16 Eylül 2026
 
 Kullanıcı isteğiyle 1–6000 MHz turu 1963/2400 pencerede durduruldu; tamamlanan

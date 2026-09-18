@@ -1,0 +1,47 @@
+{
+  "schema": "listening-voice-filter-v1",
+  "requirement": "KTR-4.3",
+  "scope": "synthetic_filter_response_only",
+  "physical_acceptance": false,
+  "sample_rate_hz": 48000,
+  "input_seconds": 1,
+  "edge_excluded_seconds": 0.1,
+  "measurements": [
+    {
+      "frequency_hz": 50,
+      "gain_db": -50.296742276184546,
+      "passed": true
+    },
+    {
+      "frequency_hz": 100,
+      "gain_db": -50.24028476115241,
+      "passed": true
+    },
+    {
+      "frequency_hz": 300,
+      "gain_db": 0.01184432382915129,
+      "passed": true
+    },
+    {
+      "frequency_hz": 1000,
+      "gain_db": 0.0049402529903721645,
+      "passed": true
+    },
+    {
+      "frequency_hz": 2500,
+      "gain_db": 0.0019215734630075663,
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "algorithms/monitoring/dsp.py": "8f60fb5070775f3927daf5a74ec6d75d0d76a83dc7271b7f628adbbacac5c85e",
+    "algorithms/monitoring/models.py": "3095c7f233c11919ef114c3d525fdad835d8cfca4b78c351065085256839e263",
+    "app/operator_console/quick_listening_actions.py": "d6a06e7a505e95a1c3d4015f02d61061017e486c101d1619fc7dd57977fd7aab",
+    "app/operator_console/quick_task_completion.py": "aa68436bf7dd89f861437713c3d085c212c0f967a4c359a5c93570b01822bc30",
+    "app/operator_console/quick_view_model.py": "a3b774c0a1db44825d6525f2d1f87ea071cc56a95fc0e521cd5215a3dea48976",
+    "app/operator_console/qml/Main.qml": "54b73afc1fc3895fb3f894b4fca59739f001fcc7aec3a5937cb47f7cafd44983",
+    "tests/test_listening_comparison.py": "2c0dec0c927121938fde18d46df8708d0207cef61ddfdb34f6596d9a564bf80f",
+    "tests/test_phase05_monitoring.py": "18619205a263058abee61504266dee06587b5e79fe9ef56e2b8616c428d8ea7d",
+    "scripts/verify_listening_voice_filter.py": "bfb689d67228e473f2c67ed9f7117149d2743177abd1b35c799fefa1b8152a58"
+  }
+}

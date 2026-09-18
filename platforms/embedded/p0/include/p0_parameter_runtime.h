@@ -6,6 +6,8 @@
 
 #define P0_PARAMETER_FFT_SIZE 4096U
 #define P0_PARAMETER_REQUIRED_FRAMES 4U
+#define P0_PARAMETER_EXTENDED_FRAMES 16U
+#define P0_PARAMETER_EXTENDED_PAYLOAD_BYTES (P0_PARAMETER_PERSISTENT_PAYLOAD_BYTES * 4U)
 #define P0_PARAMETER_MINIMUM_SPAN_BINS 8U
 #define P0_PARAMETER_MAXIMUM_SPAN_BINS 3984U
 #define P0_PARAMETER_REFERENCE_BINS 32U
@@ -112,6 +114,9 @@ typedef struct {
     uint16_t local_bin_count;
     uint8_t observation_count;
     uint8_t active;
+    uint8_t required_frames;
+    uint8_t allocated_frames;
+    uint8_t locked_channel_power;
 } p0_parameter_runtime_t;
 
 int p0_parameter_runtime_init(p0_parameter_runtime_t *runtime);

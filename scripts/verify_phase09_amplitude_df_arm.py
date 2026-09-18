@@ -24,7 +24,7 @@ P0 = ROOT / "platforms" / "embedded" / "p0"
 HEADER = P0 / "include" / "p0_amplitude_df.h"
 CORE = P0 / "src" / "p0_amplitude_df.c"
 RUNNER = P0 / "src" / "p0_amplitude_df_run.c"
-EVIDENCE = ROOT / "results" / "evidence" / "phase09" / "amplitude-df-arm-equivalence-v1.json"
+EVIDENCE = ROOT / "results" / "evidence" / "phase09" / "amplitude-df-arm-equivalence-v2.json"
 
 STATUS = {
     "YETERSİZ AÇI": "INSUFFICIENT_ANGLES",
@@ -222,8 +222,17 @@ def _cases() -> dict[str, list[DFMeasurement]]:
         for index, angle in enumerate(range(0, 360, 15))
     ]
     repeated = [_measurement(0.0, -10.0, 1), _measurement(0.0, -20.0, 2)]
+    adaptive = [
+        _measurement(angle, power, 100 + index)
+        for index, (angle, power) in enumerate((
+            (0.0, -30.0), (15.0, -34.0), (30.0, -42.0),
+            (345.0, -33.0), (330.0, -44.0),
+            (5.0, -25.0), (10.0, -20.0), (190.0, -55.0),
+        ))
+    ]
     return {
         "lob-ready": ready,
+        "adaptive-lob-ready": adaptive,
         "coverage-gate": coverage,
         "front-back-gate": front_back,
         "receiver-gate": receiver,
@@ -261,7 +270,7 @@ def verify() -> dict[str, object]:
             raise AssertionError("circular RMS mismatch")
 
     return {
-        "schema": "phase09-amplitude-df-arm-equivalence-v1",
+        "schema": "phase09-amplitude-df-arm-equivalence-v2",
         "status": "passed",
         "compiler": compiler,
         "profile": FIELD_AMPLITUDE_DF_PROFILE.profile_id,

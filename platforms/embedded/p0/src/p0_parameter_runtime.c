@@ -256,8 +256,10 @@ static double average_psd(const p0_parameter_runtime_t *runtime, unsigned int sh
     unsigned int count = 0U;
     unsigned int frame;
 
-    for (frame = 0U; frame < P0_PARAMETER_REQUIRED_FRAMES; ++frame) {
-        if ((int)frame == omitted)
+    for (frame = 0U; frame < runtime->required_frames; ++frame) {
+        if (omitted >= 0 && omitted < 4 && (int)(frame / (runtime->required_frames / 4U)) == omitted)
+            continue;
+        if (omitted >= 4 && (int)(frame / (runtime->required_frames / 4U)) != omitted - 4)
             continue;
         total += local_psd(runtime, frame, shifted_bin);
         ++count;
@@ -343,7 +345,8 @@ static int calculate_edges(const p0_parameter_runtime_t *runtime, int omitted,
 {
     unsigned int lower = runtime->lower_shifted_bin;
     unsigned int width = (unsigned int)runtime->upper_shifted_bin - lower + 1U;
-    unsigned int frame_count = omitted < 0 ? 4U : 3U;
+    unsigned int frame_count = omitted < 0 ? runtime->required_frames : omitted < 4 ?
+        runtime->required_frames * 3U / 4U : runtime->required_frames / 4U;
     double left;
     double right;
     double noise = reference_noise(runtime, omitted, &left, &right);
@@ -383,7 +386,7 @@ static int broad_emission_bin(const p0_parameter_runtime_t *runtime,
     double total = 0.0;
     double moment = 0.0;
 
-    for (frame = 0U; frame < 4U; ++frame) {
+    for (frame = 0U; frame < runtime->required_frames; ++frame) {
         unsigned int sample;
         for (sample = lower - 36U; sample <= lower - 5U; ++sample)
             average_rectangular_noise +=
@@ -392,12 +395,12 @@ static int broad_emission_bin(const p0_parameter_runtime_t *runtime,
             average_rectangular_noise +=
                 magnitude_squared(local_rectangular_fft(runtime, frame, sample));
     }
-    average_rectangular_noise /= 256.0;
+    average_rectangular_noise /= 64.0 * runtime->required_frames;
     for (index = lower; index <= upper; ++index) {
         double power = 0.0;
-        for (frame = 0U; frame < 4U; ++frame)
+        for (frame = 0U; frame < runtime->required_frames; ++frame)
             power += magnitude_squared(local_rectangular_fft(runtime, frame, index));
-        power /= 4.0;
+        power /= runtime->required_frames;
         if (power >= 6.0 * average_rectangular_noise) {
             if (!found)
                 support_lower = index;
@@ -418,7 +421,7 @@ static int broad_emission_bin(const p0_parameter_runtime_t *runtime,
     work = calloc(P0_PARAMETER_FFT_SIZE, sizeof(*work));
     if (work == NULL)
         return -1;
-    for (frame = 0U; frame < 4U; ++frame) {
+    for (frame = 0U; frame < runtime->required_frames; ++frame) {
         double noise_total = 0.0;
         double selected_total = 0.0;
         double signal_amplitude;
@@ -453,7 +456,7 @@ static int broad_emission_bin(const p0_parameter_runtime_t *runtime,
         fft(work, P0_PARAMETER_FFT_SIZE, 0);
         for (index = lower; index <= upper; ++index) {
             unsigned int natural = index ^ (P0_PARAMETER_FFT_SIZE / 2U);
-            broad[index - lower] += magnitude_squared(work[natural]) / 4.0;
+            broad[index - lower] += magnitude_squared(work[natural]) / runtime->required_frames;
         }
     }
     free(work);
@@ -499,7 +502,7 @@ static int carrier_artifact_features(const p0_parameter_runtime_t *runtime,
         if (index != 0U) b[convolution - index] = b[index];
     }
     fft(b, convolution, 0);
-    for (frame = 0U; frame < 4U; ++frame) {
+    for (frame = 0U; frame < runtime->required_frames; ++frame) {
         double mean = 0.0, variance = 0.0, third = 0.0, total = 0.0;
         double frame_entropy = 0.0, scale;
         memset(channel, 0, 4096U * sizeof(*channel));
@@ -533,7 +536,7 @@ static int carrier_artifact_features(const p0_parameter_runtime_t *runtime,
             a[index].real = value.real * real - value.imag * imag;
             a[index].imag = value.real * imag + value.imag * real;
         }
-        *skewness += fmax(-10.0, fmin(10.0, third)) / 4.0;
+        *skewness += fmax(-10.0, fmin(10.0, third)) / runtime->required_frames;
         fft(a, convolution, 0);
         for (index = 0U; index < convolution; ++index) {
             double real = a[index].real * b[index].real - a[index].imag * b[index].imag;
@@ -547,7 +550,7 @@ static int carrier_artifact_features(const p0_parameter_runtime_t *runtime,
             double probability = magnitude_squared(a[index]) / fmax(total, 0x1p-1022);
             frame_entropy -= probability * log(fmax(probability, 1.0e-15));
         }
-        *entropy += frame_entropy / log((double)count) / 4.0;
+        *entropy += frame_entropy / log((double)count) / runtime->required_frames;
     }
     free(channel);
     free(a);
@@ -612,7 +615,7 @@ static int finalize_carrier(const p0_parameter_runtime_t *runtime,
     background = carrier_background(runtime, peak, -1);
     prominence = 10.0 * log10(average_psd(runtime, peak, -1) / fmax(background, 0x1p-1022));
     if (!isfinite(background) || prominence < 5.25) return 0;
-    for (index = 0U; index < 4U; ++index) {
+    for (index = 0U; index < runtime->required_frames; ++index) {
         background = carrier_background(runtime, peak, (int)index);
         prominence = 10.0 * log10(local_psd(runtime, index, peak) / fmax(background, 0x1p-1022));
         if (!isfinite(prominence) || prominence < 0.98) return 0;
@@ -647,6 +650,16 @@ static void fail_common(p0_parameter_result_t *result, uint8_t state, uint8_t re
     set_field(&result->snr_estimate_db, state, reason, 0.0);
 }
 
+static void preserve_locked_channel_power(const p0_parameter_runtime_t *runtime,
+                                          p0_parameter_result_t *result,
+                                          double raw_total, double bin_spacing)
+{
+    if (runtime->locked_channel_power && raw_total > 0.0 && isfinite(raw_total))
+        set_field(&result->channel_power_dbfs, P0_PARAMETER_FIELD_VALID,
+                  P0_PARAMETER_REASON_NONE,
+                  10.0 * log10(raw_total * bin_spacing));
+}
+
 static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_t *result)
 {
     unsigned int lower = runtime->lower_shifted_bin;
@@ -662,6 +675,7 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
     double center_weights[P0_PARAMETER_MAXIMUM_SPAN_BINS];
     double positive[P0_PARAMETER_MAXIMUM_SPAN_BINS];
     double total = 0.0;
+    double raw_total = 0.0;
     double corrected_significance;
     double center_weight_total = 0.0;
     double emission_bin = 0.0;
@@ -681,9 +695,13 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
     int centers_valid = 1;
     int base_edges_valid;
 
+    for (index = 0U; index < width; ++index)
+        raw_total += average_psd(runtime, lower + index, -1);
+
     if (!(left > 0.0) || !(right > 0.0) || !isfinite(noise)) {
         fail_common(result, P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY,
                     P0_PARAMETER_REASON_REFERENCE_POWER);
+        preserve_locked_channel_power(runtime, result, raw_total, bin_spacing);
         return 0;
     }
     reference_difference = fabs(10.0 * log10(left / right));
@@ -691,24 +709,26 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
     if (reference_difference > 3.0) {
         fail_common(result, P0_PARAMETER_FIELD_UNCERTAIN,
                     P0_PARAMETER_REASON_REFERENCE_MISMATCH);
+        preserve_locked_channel_power(runtime, result, raw_total, bin_spacing);
         return 0;
     }
     for (index = 0U; index < width; ++index) {
         signed_excess[index] = average_psd(runtime, lower + index, -1) - noise;
         total += signed_excess[index];
     }
-    result->detection_significance = total / (noise * sqrt((double)width / 4.0));
+    result->detection_significance = total / (noise * sqrt((double)width / runtime->required_frames));
     corrected_significance = total /
-        (noise * sqrt((double)width / 4.0 + (double)(width * width) / 256.0));
+        (noise * sqrt((double)width / runtime->required_frames + (double)(width * width) / (64.0 * runtime->required_frames)));
     if (!(total > 0.0) || !isfinite(total) || result->detection_significance < 12.0 ||
         !isfinite(corrected_significance) || corrected_significance < 6.25) {
         result->detection_significance = corrected_significance;
         fail_common(result, P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY,
                     P0_PARAMETER_REASON_EXCESS_POWER);
+        preserve_locked_channel_power(runtime, result, raw_total, bin_spacing);
         return 0;
     }
     result->detection_significance = corrected_significance;
-    noise_sigma = noise * 0.5 * sqrt(0.375);
+    noise_sigma = noise / sqrt((double)runtime->required_frames) * sqrt(0.375);
     for (index = 0U; index < width; ++index) {
         double value = convolved(signed_excess, width, index) - noise_sigma;
         center_weights[index] = value > 0.0 ? value : 0.0;
@@ -718,6 +738,7 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
     if (!(center_weight_total > 0.0)) {
         fail_common(result, P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY,
                     P0_PARAMETER_REASON_EXCESS_POWER);
+        preserve_locked_channel_power(runtime, result, raw_total, bin_spacing);
         return 0;
     }
     emission_bin /= center_weight_total;
@@ -826,7 +847,9 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
     }
 
     set_field(&result->channel_power_dbfs, P0_PARAMETER_FIELD_VALID,
-              P0_PARAMETER_REASON_NONE, 10.0 * log10(fmax(total * bin_spacing, 0x1p-1022)));
+              P0_PARAMETER_REASON_NONE,
+              10.0 * log10(fmax((runtime->locked_channel_power ? raw_total : total) *
+                                bin_spacing, 0x1p-1022)));
     for (index = 0U; index < width; ++index) {
         positive[index] = signed_excess[index] > 0.0 ? signed_excess[index] : 0.0;
         positive_total += positive[index];
@@ -870,6 +893,22 @@ static int finalize_result(p0_parameter_runtime_t *runtime, p0_parameter_result_
             if (valid) {
                 temporal_range = fmax(median_four(lower_differences),
                                       median_four(upper_differences));
+                /* Group omission alone can hide a short, much wider emission:
+                 * three subsets still contain its widest group. Require every
+                 * quarter-window to agree before accepting a long observation. */
+                if (runtime->required_frames == P0_PARAMETER_EXTENDED_FRAMES) {
+                    for (omitted = 0U; omitted < 4U; ++omitted) {
+                        double group_lower, group_upper;
+                        if (calculate_edges(runtime, (int)omitted + 4, 0.0075, 2.5,
+                                            &group_lower, &group_upper) != 0) {
+                            temporal_range = 4096.0;
+                            break;
+                        }
+                        temporal_range = fmax(temporal_range, fmax(
+                            fabs(group_lower - corrected_lower),
+                            fabs(group_upper - corrected_upper)));
+                    }
+                }
                 corrected_lower -= 0.375;
                 corrected_upper += 0.375;
                 result->temporal_edge_range_bins = temporal_range;
@@ -924,6 +963,9 @@ int p0_parameter_runtime_init(p0_parameter_runtime_t *runtime)
     memset(runtime, 0, sizeof(*runtime));
     runtime->local_psd = calloc(records, sizeof(*runtime->local_psd));
     runtime->local_rectangular_fft = calloc(records, sizeof(*runtime->local_rectangular_fft));
+    runtime->allocated_frames = P0_PARAMETER_REQUIRED_FRAMES;
+    runtime->required_frames = P0_PARAMETER_REQUIRED_FRAMES;
+    runtime->locked_channel_power = 0U;
     if (runtime->local_psd == NULL || runtime->local_rectangular_fft == NULL) {
         p0_parameter_runtime_release(runtime);
         errno = ENOMEM;
@@ -957,6 +999,7 @@ void p0_parameter_runtime_reset(p0_parameter_runtime_t *runtime)
     runtime->local_bin_count = 0U;
     runtime->observation_count = 0U;
     runtime->active = 0U;
+    runtime->required_frames = P0_PARAMETER_REQUIRED_FRAMES;
 }
 
 int p0_parameter_runtime_observe(
@@ -980,7 +1023,21 @@ int p0_parameter_runtime_observe(
         return -1;
     }
     if (start_measurement) {
+        unsigned int required = start_measurement == 2 ? P0_PARAMETER_EXTENDED_FRAMES : P0_PARAMETER_REQUIRED_FRAMES;
         p0_parameter_runtime_reset(runtime);
+        if (required > runtime->allocated_frames) {
+            size_t records = required * P0_PARAMETER_MAXIMUM_LOCAL_BINS;
+            double *psd = calloc(records, sizeof(*psd));
+            p0_parameter_complex_t *rectangular = calloc(records, sizeof(*rectangular));
+            if (psd == NULL || rectangular == NULL) {
+                free(psd); free(rectangular); errno = ENOMEM; return -1;
+            }
+            free(runtime->local_psd); free(runtime->local_rectangular_fft);
+            runtime->local_psd = psd; runtime->local_rectangular_fft = rectangular;
+            runtime->allocated_frames = (uint8_t)required;
+        }
+        runtime->required_frames = (uint8_t)required;
+        runtime->locked_channel_power = start_measurement == 3 ? 1U : 0U;
         runtime->intent_id = intent_id;
         runtime->event_id = event_id;
         runtime->sample_rate_hz = sample_rate_hz;
@@ -1027,7 +1084,7 @@ int p0_parameter_runtime_observe(
     }
     runtime->last_frame_id = frame_id;
     ++runtime->observation_count;
-    if (runtime->observation_count < P0_PARAMETER_REQUIRED_FRAMES) {
+    if (runtime->observation_count < runtime->required_frames) {
         initialize_result(result, intent_id, event_id, frame_id,
                           runtime->observation_count,
                           P0_PARAMETER_FIELD_NOT_AVAILABLE,
@@ -1035,7 +1092,7 @@ int p0_parameter_runtime_observe(
         return 0;
     }
     initialize_result(result, intent_id, event_id, frame_id,
-                      P0_PARAMETER_REQUIRED_FRAMES,
+                      runtime->required_frames,
                       P0_PARAMETER_FIELD_NOT_AVAILABLE,
                       P0_PARAMETER_REASON_NONE);
     if (finalize_result(runtime, result) != 0 || finalize_carrier(runtime, result) != 0) {

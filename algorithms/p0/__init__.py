@@ -37,6 +37,13 @@ from .df import (
     LEGACY_AMPLITUDE_DF_PROFILE,
     ManualAmplitudeDF,
 )
+from .adaptive_df import (
+    AdaptiveDFObservation,
+    AdaptiveDirectionSweep,
+    COARSE_STEP_DEG,
+    REFINEMENT_RADIUS_DEG,
+    REFINEMENT_STEP_DEG,
+)
 from .direction_client import BoardDFEstimate, decode_df_response, encode_df_request, estimate_on_board
 from .two_point_df import REAL_TWO_POINT_SOURCE, TwoPointDFResult, TwoPointPower, analyze_two_point_hackrf_df
 from .field_df import AntennaReference, LocationFix, PositionSource, geographic_bearing_from_manual_reference
@@ -102,7 +109,10 @@ __all__ = [
     "BandwidthEstimator",
     "BandwidthProfile",
     "AntennaReference",
+    "AdaptiveDFObservation",
+    "AdaptiveDirectionSweep",
     "CandidateRegion",
+    "COARSE_STEP_DEG",
     "ChannelizedFrame",
     "CoarseDetection",
     "CoarseDetectionConfig",
@@ -138,6 +148,8 @@ __all__ = [
     "TwoPointPower",
     "analyze_two_point_hackrf_df",
     "RECORDED_DF_SOURCE",
+    "REFINEMENT_RADIUS_DEG",
+    "REFINEMENT_STEP_DEG",
     "RecordedDFError",
     "RecordedDFPoint",
     "RecordedDFReport",

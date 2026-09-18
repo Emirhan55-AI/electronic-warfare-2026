@@ -1,5 +1,69 @@
 # Operatör Uygulaması
 
+## Uyarlamalı yön taraması — 16 Eylül 2026
+
+Yön Bulma akışı `0°` doğrulanmış kanal kilidinden sonra önce saat yönünde ilk
+lob dışı noktayı bulur. Sonra açıkça `0°` başlangıcına dönüş ister ve saat
+yönünün tersinde ikinci lob dışı noktayı arar. Bu iki sınır arasındaki en güçlü
+bölge 5° aralıklarla yeniden ölçülür; ayrıca ön/arka ayrımı için tek karşı-yön
+noktası alınır. Lob dışı noktalar başarısız ölçüm değildir ve listede
+`Lob dışı · kilitli kanal` olarak gösterilir.
+Yeni uyarlamalı profil çalışan kart hizmetine geçici yüklenmiş ve sekiz sayısal
+P0DF ağ sahnesinde doğrulanmıştır. Bu doğrulama arayüz sırasını ve ARM karar
+yolunu kapsar; fiziksel anten yön doğruluğunu veya kalıcı SD açılışını kapsamaz.
+
+## Yön bulmada eşik altı açı ölçümü — 16 Eylül 2026 tarihsel güç düzeltmesi
+
+İlk 0° ölçümü hedef kanalı dört confirmed gözlemle kilitler. Sonraki açılarda
+aynı kanalın dört yeni ardışık I/Q karesi, hedef olay tespit eşiğinin altına
+inse de P0PM-v4 kart ölçümüne gönderilir. Bütün açılarda aynı sabit kanalın
+sinyal + alıcı gürültüsü toplamı kullanılır; derin sönüm noktası gürültü tabanına
+yaklaşabilir ama süre aşımına dönüşmez. Kilitli kanalın yakınında başka veya
+taşan bir aday varsa ölçüm reddedilir. Kayıt olay görünürlüğünü, güç anlamını,
+alıcı bağını ve I/Q hashlerini korur. P0PM-v4 hizmeti ve ağ köprüsü güncel karta
+47007 üzerinde geçici kuruldu; fiziksel PL/ARM işlev testi geçti. SD açılış
+imajı değişmediğinden kart yeniden başlatılırsa kurulum geri alınır. Canlı anten
+tekrarı ve derece RMS kabulü açıktır.
+
+## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
+
+Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
+kartta manuel ölçüm 16 özgün kareye (2 MS/s hızda 32,768 ms) uzatıldı; eski
+kartta dört kare korunur. P0PM-v3, ARM grup kararlılığı denetimi ve kayıt/CRC
+bağı eklendi; sayısal hesap için PC geri dönüşü yoktur. PL'nin kare başına
+4096 FFT işlemi değişmedi. Yerel Analog/Sayısal modeli seçili kanal filtresiyle
+aynı önişlemede yeniden eğitildi; sonuç deneysel tahmin olarak gösterilir.
+Kaynak/test ve ARM derlemesi tamamlandı; karta yükleme ve yeni RF ölçümü
+henüz yapılmadı. PHASE-08/ST-06 ve fiziksel KTR-4.2 kabulü açıktır. Yöntem,
+kanıtlar, uyumluluk ve sınırlar: `docs/interfaces/PARAMETER_REFINEMENT_20260916.md`.
+
+## KTR-4.3 dinleme kolaylıkları — 16 Eylül 2026
+
+Bilinmeyen yayında aynı I/Q kaydını AM ve dar bant FM ile karşılaştırma,
+sade kanal seçimleri, gizlenebilir ince ayar ve isteğe bağlı 200 Hz konuşma
+filtresi eklendi. Yöntem seçimi otomatik tür tespiti sayılmaz. Canlı ses
+hazırlığı son beş saniyeyi sabitleyip RX'i durdurur; kesintisiz ses akışı ve
+sayısal kod çözümü yoktur. PL/ARM/RTL ve tespit kapıları değişmedi.
+Kaynak/test doğrulaması yeni fiziksel kabul değildir; PHASE-08/ST-06 ve
+KTR-4.3 açık kalır. Güncel ayrıntı `docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md`,
+tekrarlanabilir ölçüm ve test kaydı `docs/reviews/LISTENING_ASSISTANCE_20260916.md` içindedir.
+
+## Tahmini güç satırı — 16 Eylül 2026
+
+Parametre ana sonuçları `Sinyal Merkez Frekansı`, `Gözlenen Taşıyıcı Frekansı`,
+`Bant Genişliği`, `Kanal Gücü (dBFS)`, `Tahmini Güç (dBm)` ve `Sinyal Türü`
+sırasındadır. Tahmin yalnız canlı HackRF ölçümünde dBFS, frekans, LNA/VGA,
+RF AMP ve kanal seçici ölçeği tamken üretilir; yaklaşık işareti, `TAHMİNİ`
+durumu ve geniş belirsizlikle gösterilir. Kalibre dBm veya verici çıkış gücü
+değildir.
+
+## Parametre aralığı sunumu — 16 Eylül 2026
+
+Parametre ekranındaki sınırlı aralık uyarısı, `Aralığı Düzenle` eylemi ve elle
+alt/üst frekans alanları kaldırıldı. Otomatik aralık, ölçüm başlangıcındaki canlı
+genişletme ve geçersiz/kart dışı aralık retleri korunur. Bu değişiklik KTR-4.2
+ölçüm yöntemini veya kabul durumunu değiştirmez.
+
 ## Sistem çalışma alanının kaldırılması — 16 Eylül 2026
 
 Ürün menüsü artık `Tespit`, `Parametre`, `Dinleme` ve `Yön Bulma` görevlerini
@@ -1303,10 +1367,12 @@ Uygulamanın mevcut çalışma alanları:
 - `Dinleme`: sabit doğrulanmış tespit bağlamından operatör seçimli AM/NFM kanal
   hazırlama, demodüle ses dalga biçimi, gerçek oynatma konumu, fiziksel ses
   çıkışı durumu ve WAV dışa aktarma.
-- `Yön Bulma`: operatörün belirlediği `0°` başlangıcından saat yönünde 15°
-  adımları tek ölçüm düğmesiyle ilerletme, her açıda seçili kanalın gerçek dört
-  I/Q karesinden PL/ARM dBFS gücü ve yalnız bağıl tepe yönü. Uygulama fiziksel
-  dönüşü algılamaz; serbest açı veya coğrafi kerteriz üretmez.
+- `Yön Bulma`: operatörün belirlediği `0°` başlangıcından önce saat yönünde,
+  sonra `0°`a dönerek ters yönde lob sınırlarını arama; ilk açıda hedef kanalı doğrulama ve
+  sonraki açılarda hedef tespit eşiğinin altına inse de aynı kilitli kanalın
+  gerçek dört I/Q karesinden PL/ARM sabit kanal toplam dBFS gücü ile yalnız
+  bağıl tepe yönü.
+  Uygulama fiziksel dönüşü algılamaz; serbest açı veya coğrafi kerteriz üretmez.
 Parametre ölçümü yalnız doğrulanmış bir tespit, dört ardışık gözlem ve operatörün
 onayladığı analiz aralığı bulunduğunda açılır. Sonuçlar kalibrasyonsuz dBFS
 ölçeğindedir; uygulama dBm, çok kanallı DoA, menzil veya otomatik hedef konumu
@@ -1329,9 +1395,8 @@ frekans görünümünü yönetir. `Esc` açık olay konsolunu kapatır. Durum ro
 seçim kutuları ve görev kontrolleri erişilebilir ad taşır.
 
 Yön Bulma ölçümleri kaynak değişiminde temizlenir. İlk kayıt antenin bağıl 0°
-yönünü oturum için sabitler; sonraki hedef yalnız başarılı ölçümden sonra saat
-yönünde 15° artar. Tam 24 farklı açı ve belirgin bir güç maksimumu yoksa uygulama
-bağıl tepe yönü üretmez.
+yönünü oturum için sabitler. Sağ ve sol lob dışı sınırlar, 5° hassaslaştırma ve
+karşı-yön kapısı tamamlanmadan uygulama bağıl tepe yönü üretmez.
 
 Çalıştırma:
 

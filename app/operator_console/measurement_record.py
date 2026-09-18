@@ -22,15 +22,20 @@ from algorithms.parameters import (
 )
 from algorithms.pipeline import PHASE04F5_PROFILE_PATH, load_phase04f5_capability
 from algorithms.spectrum import SpectrumConfig, SpectrumProcessor
-from algorithms.p0.parameter_client import decode_response as decode_board_response, measure_on_board
-from algorithms.p0.parameter_client import BoardAnalysisSpan, BOARD_PERSISTENT_PAYLOAD_BYTES
-from digital_analog_detection import METHOD_ID as AUTOMATIC_DOMAIN_METHOD_ID
-from digital_analog_detection import classify_parameter_frames
+from algorithms.p0.parameter_client import (
+    LOCKED_CHANNEL_POWER_METHOD,
+    decode_response as decode_board_response,
+    measure_on_board,
+)
+from algorithms.p0.parameter_client import BoardAnalysisSpan, BOARD_PERSISTENT_PAYLOAD_BYTES, EXTENDED_BOARD_PAYLOAD_BYTES
+from digital_analog_detection.selected_integration import METHOD_ID as AUTOMATIC_DOMAIN_METHOD_ID
+from digital_analog_detection.selected_integration import classify_parameter_frames
 
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = "parameter-measurement-v1"
 IQ_BYTES = 4 * 4096 * 16
+MAX_IQ_BYTES = 16 * 4096 * 16
 MAX_DOCUMENT_BYTES = 131_072
 FIELD_SPECS = {
     "emission_center_frequency": ("emission_center_frequency", "Hz"),
@@ -64,6 +69,9 @@ PROVENANCE_SOURCES = (
     "digital_analog_detection/classifier_model.py",
     "digital_analog_detection/feature_extractor_v1.py",
     "digital_analog_detection/integration.py",
+    "digital_analog_detection/channel_features.py",
+    "digital_analog_detection/selected_channel_model.py",
+    "digital_analog_detection/selected_integration.py",
 )
 
 
@@ -127,7 +135,9 @@ def result_fields(result: F1ParameterResult) -> dict:
         fields[name] = {
             "state": field.state, "value": field.value if field.state == "valid" else None,
             "unit": unit, "reason": field.reason,
-            "method_id": F5ParameterEstimator.METHOD_IDS[method],
+            "method_id": (F5ParameterEstimator.METHOD_IDS[method] + ".groups16-v1"
+                          if result.quality.observed_frames == 16 and name != "signal_domain"
+                          else F5ParameterEstimator.METHOD_IDS[method]),
         }
     return fields
 
@@ -145,7 +155,7 @@ def _automatic_signal_domain(
         else None
     )
     classification = classify_parameter_frames(
-        frames,
+        frames[-4:],
         sample_rate_hz=sample_rate_hz,
         lower_shifted_bin=intent.span.lower_shifted_bin,
         upper_shifted_bin=intent.span.upper_shifted_bin,
@@ -187,7 +197,67 @@ def validate_measurement_ownership(intent: MeasurementIntent, source: dict) -> N
     context = intent.context
     events = source.get("owner_observations", [])
     lower, upper = intent.span.lower_shifted_bin, intent.span.upper_shifted_bin
-    sequences = list(range(intent.start_frame, intent.start_frame + 4))
+    frame_count = capture.get("frame_count", 4)
+    if type(frame_count) is not int or frame_count not in (4, 16) or (direction_capture is not None and frame_count != 4):
+        raise ValueError("Ölçüm kare sayısı geçersiz.")
+    sequences = list(range(intent.start_frame, intent.start_frame + frame_count))
+    if direction_capture is not None and capture.get("binding") == "operator_locked_channel_power_v2":
+        nearby = capture.get("nearby_observations", [])
+        event_ids = capture.get("event_ids", [])
+        observed_flags = capture.get("target_observed_frames", [])
+        observations_valid = (
+            len(events) == frame_count
+            and len(nearby) == frame_count
+            and len(event_ids) == frame_count
+            and len(observed_flags) == frame_count
+        )
+        if observations_valid:
+            for event, neighbours, event_id, observed in zip(
+                events, nearby, event_ids, observed_flags
+            ):
+                if not isinstance(neighbours, list) or len(neighbours) > 1:
+                    observations_valid = False
+                    break
+                if event is None:
+                    if neighbours or event_id is not None or observed is not False:
+                        observations_valid = False
+                        break
+                    continue
+                if (
+                    not isinstance(event, dict)
+                    or len(neighbours) != 1
+                    or not isinstance(neighbours[0], dict)
+                    or neighbours[0] != event
+                    or event_id != event.get("event_id")
+                    or observed is not True
+                    or event.get("state") != "confirmed"
+                    or event.get("observed_this_frame") is not True
+                    or not lower <= event.get("start_shifted_bin", -1)
+                    <= event.get("peak_shifted_bin", -1)
+                    <= event.get("end_shifted_bin", -1) <= upper
+                ):
+                    observations_valid = False
+                    break
+        valid = (
+            context is not None
+            and capture.get("span") == [lower, upper]
+            and capture.get("emitter_identity_verified") is False
+            and capture.get("fresh_after_operator_request") is True
+            and source.get("sequence_numbers") == sequences
+            and sequences[0] > capture.get("host_capture_sequence_floor", sequences[0])
+            and capture.get("request_event_id") == intent.event_id
+            and context.owner_event_id == intent.event_id
+            and context.owner_event_revision == intent.event_revision
+            and context.owner_observed_frames
+            == tuple(
+                event is not None and event.get("event_id") == intent.event_id
+                for event in events
+            )
+            and observations_valid
+        )
+        if not valid:
+            raise ValueError("Kilitli yön kanalının yeni kare veya komşu sinyal bağı geçersiz.")
+        return
     valid = (
         context is not None and capture.get("binding") == "operator_selected_channel_v1"
         and capture.get("span") == [lower, upper]
@@ -195,7 +265,7 @@ def validate_measurement_ownership(intent: MeasurementIntent, source: dict) -> N
         and capture.get("fresh_after_operator_request") is True
         and source.get("sequence_numbers") == sequences
         and sequences[0] > capture.get("host_capture_sequence_floor", sequences[0])
-        and len(events) == 4
+        and len(events) == frame_count
         and capture.get("event_ids") == [event["event_id"] for event in events]
         and events[-1]["event_id"] == intent.event_id
         and events[-1]["seen_count"] == intent.event_revision
@@ -222,20 +292,23 @@ def measure_and_record(
     board_endpoint: tuple[str, int] | None = None,
 ) -> RecordedMeasurement:
     """Run in the measurement worker; no full recording is read or hashed."""
-    if len(samples) != 4 or any(np.shape(frame) != (4096,) for frame in samples):
-        raise ValueError("Ölçüm kaydı dört adet 4096 örnekli kare gerektirir.")
+    frame_count = len(samples)
+    if frame_count not in (4, 16) or (frame_count == 16 and board_endpoint is None) or any(np.shape(frame) != (4096,) for frame in samples):
+        raise ValueError("Ölçüm kaydı 4 veya kartta 16 adet 4096 örnekli kare gerektirir.")
     if not all(np.all(np.isfinite(frame)) for frame in samples):
         raise ValueError("Ölçüm girdisinde sonlu olmayan örnek var.")
     if not math.isfinite(sample_rate_hz) or sample_rate_hz <= 0 or not math.isfinite(center_frequency_hz):
         raise ValueError("Ölçüm frekans bağlamı geçersiz.")
     # Explicit little-endian normalized estimator input, not an RF-voltage claim.
     iq = b"".join(np.asarray(frame, dtype="<c16").tobytes() for frame in samples)
-    frames = tuple(np.frombuffer(iq, dtype="<c16").reshape(4, 4096))
+    frames = tuple(np.frombuffer(iq, dtype="<c16").reshape(frame_count, 4096))
     binding = runtime_binding()
     source = json.loads(json_bytes(source))
     board = None
     if board_endpoint is not None:
         validate_measurement_ownership(intent, source)
+        if frame_count == 16 and (source.get("channel_capture") or {}).get("frame_count") != frame_count:
+            raise ValueError("Uzun ölçümün kanal ve 16 kare bağı eksik.")
         if not float(sample_rate_hz).is_integer() or not float(center_frequency_hz).is_integer():
             raise ValueError("Kart ölçümünün frekans bağlamı tam Hz olmalıdır.")
         interleaved = np.stack((np.stack(frames).real, np.stack(frames).imag), axis=-1) * 128.0
@@ -243,10 +316,12 @@ def measure_and_record(
             raise ValueError("Kart ölçümü özgün CI8 örneklerini gerektirir.")
         raw_ci8 = interleaved.astype(np.int8).tobytes()
         expected_hashes = source.get("transport_iq_sha256")
-        if expected_hashes is not None and expected_hashes != [digest(raw_ci8[i*8192:(i+1)*8192]) for i in range(4)]:
+        if expected_hashes is not None and expected_hashes != [digest(raw_ci8[i*8192:(i+1)*8192]) for i in range(frame_count)]:
             raise ValueError("Ölçüm girdisi kartta gözlenen karelerle eşleşmiyor.")
+        locked_channel_power = "direction_capture" in source
         board = measure_on_board(*board_endpoint, intent, raw_ci8,
-            sample_rate_hz=int(sample_rate_hz), center_frequency_hz=int(center_frequency_hz))
+            sample_rate_hz=int(sample_rate_hz), center_frequency_hz=int(center_frequency_hz),
+            locked_channel_power=locked_channel_power)
         result = board.result
     else:
         if intent.span.width_bins > 512:
@@ -261,10 +336,12 @@ def measure_and_record(
     if runtime_binding() != binding:
         raise ValueError("Ölçüm sırasında yöntem veya kaynak değişti; sonuç kaydedilmedi.")
     capability = load_phase04f5_capability()
-    memory_limit = BOARD_PERSISTENT_PAYLOAD_BYTES if board else (capability.maximum_persistent_payload_bytes if capability else 0)
+    memory_limit = (EXTENDED_BOARD_PAYLOAD_BYTES if frame_count == 16 else BOARD_PERSISTENT_PAYLOAD_BYTES) if board else (capability.maximum_persistent_payload_bytes if capability else 0)
     if capability is None or result.persistent_payload_bytes > memory_limit:
         raise ValueError("Ölçüm profili veya kalıcı bellek sınırı geçersiz.")
     fields = result_fields(result)
+    if board and "direction_capture" in source:
+        fields["channel_power_dbfs"]["method_id"] = LOCKED_CHANNEL_POWER_METHOD
     fields["signal_domain"]["method_id"] = AUTOMATIC_DOMAIN_METHOD_ID
     record_id = uuid4().hex
     document = {
@@ -278,14 +355,15 @@ def measure_and_record(
         "source": source, "intent": asdict(intent), "runtime": binding,
         "sample_rate_hz": sample_rate_hz, "center_frequency_hz": center_frequency_hz,
         "spectrum_config": asdict(spectrum_config),
-        "observation_duration_s": 4 * 4096 / sample_rate_hz,
+        "observation_duration_s": frame_count * 4096 / sample_rate_hz,
         "bin_spacing_hz": sample_rate_hz / 4096,
         "iq": {"entry": "iq.cf64_le", "encoding": "complex_float64_little_endian",
-               "reference": "normalized_estimator_input", "frames": 4, "samples_per_frame": 4096,
+               "reference": "normalized_estimator_input", "frames": frame_count, "samples_per_frame": 4096,
                "bytes": len(iq), "sha256": digest(iq),
-               "frame_sha256": [digest(iq[i * 65536:(i + 1) * 65536]) for i in range(4)]},
+               "frame_sha256": [digest(iq[i * 65536:(i + 1) * 65536]) for i in range(frame_count)]},
         "fields": fields, "quality": asdict(result.quality),
         "automatic_signal_domain": automatic_domain.as_record(),
+        "classification_frame_indices": list(range(frame_count - 4, frame_count)),
         "calibration": {"status": "unavailable", "profile_id": None, "profile_sha256": None,
                         "power_reference": "digital_full_scale", "dbm_available": False,
                         "frequency_calibration_available": False},
@@ -295,7 +373,12 @@ def measure_and_record(
         document["board_measurement"] = {
             "protocol": f"P0PM-v{struct.unpack_from('<H', board.response, 4)[0]}", "response_hex": board.response.hex(),
             "persistent_payload_bytes": result.persistent_payload_bytes,
-            "span_contract": "board-full-span-v2" if struct.unpack_from('<H', board.response, 4)[0] == 2 else "legacy-512-v1",
+            "span_contract": ("board-extended-v3" if frame_count == 16 else
+                              "locked-direction-channel-total-power-v4" if struct.unpack_from('<H', board.response, 4)[0] == 4 else
+                              "board-full-span-v2" if struct.unpack_from('<H', board.response, 4)[0] == 2 else "legacy-512-v1"),
+            "power_basis": ("locked_channel_total_signal_plus_noise"
+                            if struct.unpack_from('<H', board.response, 4)[0] == 4
+                            else "noise_subtracted_excess"),
             "elapsed_us": board.elapsed_us, "profile_generation": board.profile_generation,
             "fft_size": 4096, "classification_performed": False,
             "live_detection_revalidated": False,
@@ -336,20 +419,23 @@ def measure_and_record(
 
 def read_measurement(path: Path) -> tuple[dict, tuple[np.ndarray, ...]]:
     """Check bounded archive members and input hashes without extracting files."""
-    if path.stat().st_size > IQ_BYTES + MAX_DOCUMENT_BYTES + 4096:
+    if path.stat().st_size > MAX_IQ_BYTES + MAX_DOCUMENT_BYTES + 4096:
         raise ValueError("Ölçüm arşivi boyut sınırını aştı.")
     with zipfile.ZipFile(path) as archive:
         if archive.namelist() != ["measurement.json", "iq.cf64_le"]:
             raise ValueError("Ölçüm arşivi girdileri geçersiz.")
-        if archive.getinfo("measurement.json").file_size > MAX_DOCUMENT_BYTES or archive.getinfo("iq.cf64_le").file_size != IQ_BYTES:
+        if archive.getinfo("measurement.json").file_size > MAX_DOCUMENT_BYTES or archive.getinfo("iq.cf64_le").file_size not in (IQ_BYTES, MAX_IQ_BYTES):
             raise ValueError("Ölçüm arşivi açılmış boyutları geçersiz.")
         document = json.loads(archive.read("measurement.json"))
         iq = archive.read("iq.cf64_le")
+    frame_count = document["iq"]["frames"]
+    if type(frame_count) is not int or frame_count not in (4, 16) or len(iq) != frame_count * 65536:
+        raise ValueError("Ölçüm kare sayısı veya I/Q boyutu geçersiz.")
     if document["schema"] != SCHEMA or document["iq"]["sha256"] != digest(iq):
         raise ValueError("Ölçüm girdisi bütünlük denetiminden geçmedi.")
-    if document["iq"]["frame_sha256"] != [digest(iq[i * 65536:(i + 1) * 65536]) for i in range(4)]:
+    if document["iq"]["frame_sha256"] != [digest(iq[i * 65536:(i + 1) * 65536]) for i in range(frame_count)]:
         raise ValueError("Ölçüm kare özetleri uyuşmuyor.")
-    frames = tuple(np.frombuffer(iq, dtype="<c16").reshape(4, 4096))
+    frames = tuple(np.frombuffer(iq, dtype="<c16").reshape(frame_count, 4096))
     if not all(np.all(np.isfinite(frame)) for frame in frames):
         raise ValueError("Ölçüm girdisi sonlu değil.")
     return document, frames
@@ -360,17 +446,20 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
     document, frames = read_measurement(path)
     if expected_sha256 is not None and digest(path.read_bytes()) != expected_sha256:
         raise ValueError("Ölçüm arşivinin dış özeti uyuşmuyor.")
+    frame_count = len(frames)
     sample_rate = document["sample_rate_hz"]
     if not math.isfinite(sample_rate) or sample_rate <= 0 or (
-        document["observation_duration_s"] != 4 * 4096 / sample_rate
+        document["observation_duration_s"] != frame_count * 4096 / sample_rate
         or document["bin_spacing_hz"] != sample_rate / 4096
         or document["processing_location"] not in {
             "host", "zedboard_arm", "hybrid_zedboard_arm_host"
         }
         or document["iq"]["encoding"] != "complex_float64_little_endian"
-        or document["iq"]["bytes"] != IQ_BYTES
+        or document["iq"]["bytes"] != frame_count * 65536
     ):
         raise ValueError("Ölçüm birim veya süre bağlamı geçersiz.")
+    if document.get("classification_frame_indices", list(range(frame_count - 4, frame_count))) != list(range(frame_count - 4, frame_count)):
+        raise ValueError("Sınıflandırma kare bağı geçersiz.")
     if document["runtime"] != runtime_binding():
         raise ValueError("Kayıt farklı kaynak veya çalışma zamanı sürümüne ait.")
     if document["calibration"]["dbm_available"] or document["accuracy_proven"]:
@@ -384,11 +473,11 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
         context["owner_observed_frames"] = tuple(context["owner_observed_frames"])
         values["context"] = MeasurementContext(**context)
     intent = MeasurementIntent(**values)
-    if "direction_capture" in document["source"]:
+    if "direction_capture" in document["source"] or "channel_capture" in document["source"]:
         validate_measurement_ownership(intent, document["source"])
     if document["processing_location"] in {"zedboard_arm", "hybrid_zedboard_arm_host"}:
         board = document.get("board_measurement")
-        if not isinstance(board, dict) or board.get("protocol") not in {"P0PM-v1", "P0PM-v2"}:
+        if not isinstance(board, dict) or board.get("protocol") not in {"P0PM-v1", "P0PM-v2", "P0PM-v3", "P0PM-v4"}:
             raise ValueError("Kart ölçüm kaydı eksik veya geçersiz.")
         interleaved = np.stack((np.stack(frames).real, np.stack(frames).imag), axis=-1) * 128.0
         if np.any(interleaved != np.rint(interleaved)) or np.any(interleaved < -128) or np.any(interleaved > 127):
@@ -399,7 +488,15 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("Kart ölçüm yanıtı geçersiz.") from exc
         token = struct.unpack_from("<I", response, 8)[0] if len(response) >= 12 else 0
-        measured = decode_board_response(response, intent, raw_ci8, token)
+        locked_channel_power = board["protocol"] == "P0PM-v4"
+        if locked_channel_power != ("direction_capture" in document["source"]):
+            raise ValueError("Yön kanalı güç sözleşmesi ölçüm kaydıyla eşleşmiyor.")
+        expected_power_basis = ("locked_channel_total_signal_plus_noise"
+                                if locked_channel_power else "noise_subtracted_excess")
+        if board.get("power_basis", "noise_subtracted_excess") != expected_power_basis:
+            raise ValueError("Kart güç anlamı ölçüm protokolüyle eşleşmiyor.")
+        measured = decode_board_response(response, intent, raw_ci8, token,
+                                         locked_channel_power=locked_channel_power)
         if board["protocol"] != f"P0PM-v{struct.unpack_from('<H', response, 4)[0]}":
             raise ValueError("Kart protokol sürümü kaydedilen yanıtla eşleşmiyor.")
         if (board.get("input_ci8_sha256") != digest(raw_ci8)
@@ -417,6 +514,8 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
             ):
                 raise ValueError("Otomatik Analog/Sayısal sonucu aynı girdiden üretilemedi.")
         fields = result_fields(result)
+        if locked_channel_power:
+            fields["channel_power_dbfs"]["method_id"] = LOCKED_CHANNEL_POWER_METHOD
         fields["signal_domain"]["method_id"] = (
             AUTOMATIC_DOMAIN_METHOD_ID
             if document["processing_location"] == "hybrid_zedboard_arm_host"

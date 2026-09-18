@@ -99,13 +99,14 @@ def test_parameter_delivery_overflow_is_explicit_and_preserves_pending_results()
 
 
 def _fake_board_parameter_measurement(host, port, intent, iq, *, sample_rate_hz,
-                                      center_frequency_hz):
+                                      center_frequency_hz, locked_channel_power=False):
     del host, port, sample_rate_hz
     token = 7
     payload = bytearray(176)
-    version = 2 if intent.span.width_bins > 512 else 1
+    count = len(iq) // 8192
+    version = 4 if locked_channel_power else 3 if count == 16 else 2 if intent.span.width_bins > 512 else 1
     struct.pack_into('<4sHHIIQQIB', payload, 0, b'P0PR', version, 176, token, 0,
-                     token, intent.event_id, intent.start_frame + 3, 4)
+                     token, intent.event_id, intent.start_frame + count - 1, count)
     values = (center_frequency_hz, center_frequency_hz - 5_000,
               center_frequency_hz + 5_000, 10_000, -30, 12)
     for offset, value in zip(range(40, 112, 12), values):
@@ -113,7 +114,10 @@ def _fake_board_parameter_measurement(host, port, intent, iq, *, sample_rate_hz,
     struct.pack_into('<BBHd', payload, 144, 4, 9, 0, 0.)
     struct.pack_into('<IIII', payload, 156, 25_000, zlib.crc32(iq), 3, 4096)
     struct.pack_into('<I', payload, 172, zlib.crc32(payload[:172]))
-    return decode_board_parameter_response(bytes(payload), intent, iq, token)
+    return decode_board_parameter_response(
+        bytes(payload), intent, iq, token,
+        locked_channel_power=locked_channel_power,
+    )
 
 
 class _Backend:
@@ -1814,7 +1818,11 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert not view_model.liveSessionActive
         assert not view_model.busy
         assert view_model.errorMessage == ""
-        assert len(view_model.parameterRows) == 14
+        assert len(view_model.parameterRows) == 15
+        estimated = next(row for row in view_model.parameterRows if row["key"] == "estimated_power_dbm")
+        assert estimated["label"] == "Tahmini Güç (dBm)"
+        assert estimated["state"] == "estimated"
+        assert "dBm" in estimated["value"] and "±" in estimated["value"]
         quality_rows = {row["key"]: row for row in view_model.parameterRows}
         assert quality_rows["measurement_quality"]["label"] == "Kart ölçüm kalite kapısı"
         assert quality_rows["measurement_quality"]["value"] == "Geçti · 4/4 kare"
@@ -1933,9 +1941,13 @@ class _DirectionSession(_MeasurementSession):
         from app.operator_console.live_ed import LiveEDSession
         self.collector = LiveEDSession(executable, configuration)
         self._direction_after_sequence = -1
+        self._direction_require_observed_target = True
 
-    def begin_direction_capture(self, lower, upper):
-        self.collector.begin_direction_capture(lower, upper)
+    def begin_direction_capture(self, lower, upper, require_observed_target=True):
+        self._direction_require_observed_target = require_observed_target
+        self.collector.begin_direction_capture(
+            lower, upper, require_observed_target=require_observed_target
+        )
         self._direction_after_sequence = self.collector._direction_after_sequence
 
     def current_measurement_window(self, event_id):
@@ -1945,10 +1957,11 @@ class _DirectionSession(_MeasurementSession):
         for index, snapshot in enumerate(self.window, start=10):
             event = replace(snapshot.response.active[0], event_id=100 + index,
                             last_seen_frame_id=index)
+            active = (event,) if self._direction_require_observed_target else ()
             self.collector._record_measurement_snapshot(replace(
                 snapshot, sequence_number=index,
                 output_frame=replace(snapshot.output_frame, sequence_number=index, frame_id=index),
-                response=replace(snapshot.response, frame_id=index, active=(event,))))
+                response=replace(snapshot.response, frame_id=index, active=active)))
         return self.collector.direction_capture()
 
     def cancel_direction_capture(self):
@@ -2002,11 +2015,24 @@ class _ParameterChannelSession(_MeasurementSession):
         return LiveEDSession.direction_channel_owner(snapshot, lower, upper)
 
 
-def test_live_parameter_measurement_survives_fpga_event_id_churn(tmp_path) -> None:
+@pytest.mark.parametrize("frame_count", [4, 16])
+def test_live_parameter_measurement_survives_fpga_event_id_churn(tmp_path, frame_count) -> None:
+    class ParameterSession(_ParameterChannelSession):
+        parameter_measurement_frame_count = frame_count
+
+        def __init__(self, executable, configuration):
+            super().__init__(executable, configuration)
+            from algorithms.p0 import TransportCapabilities
+            self.collector._transport._capabilities = TransportCapabilities(extended_parameter=frame_count == 16)
+            self.window = self.window * (frame_count // 4)
+
+        def measurement_window(self, event_id):
+            return self.window[-4:] if event_id == 31 else ()
+
     app = QGuiApplication.instance() or QGuiApplication(["parameter-channel-test"])
     view_model = OperatorViewModel(
         acquisition_backend=_Backend(),
-        live_session_factory=_ParameterChannelSession,
+        live_session_factory=ParameterSession,
         fpga_transport_factory=_FPGAReadyTransport,
         measurement_record_directory=tmp_path,
     )
@@ -2054,8 +2080,10 @@ def test_live_parameter_measurement_survives_fpga_event_id_churn(tmp_path) -> No
         assert document["intent"]["span"]["provenance"] == "automatic_live_expansion"
         assert document["intent"]["span"]["lower_shifted_bin"] == previous_span[0] - 12
         assert document["intent"]["span"]["upper_shifted_bin"] == previous_span[1] + 9
-        assert document["source"]["channel_capture"]["event_ids"] == [110, 111, 112, 113]
-        assert document["intent"]["context"]["owner_observed_frames"] == [False, False, False, True]
+        assert document["source"]["channel_capture"]["event_ids"] == list(range(110, 110 + frame_count))
+        assert document["intent"]["context"]["owner_observed_frames"] == [False] * (frame_count - 1) + [True]
+        assert document["iq"]["frames"] == frame_count
+        assert document["observation_duration_s"] == frame_count * 4096 / 2000000
         assert "KTR-4.4" not in document["requirements"]
         replay_measurement(path)
     finally:
@@ -2145,6 +2173,10 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         )
         assert view_model.directionMeasurementCount == 2
         assert [row["angle"] for row in view_model.directionPoints] == ["0.0°", "15.0°"]
+        assert view_model.directionPoints[1]["source"] == "Lob dışı · kilitli kanal"
+        assert view_model.directionNextAngleDeg == 345.0
+        assert "0° başlangıç yönüne geri" in view_model.directionStepInstructionText
+        assert "tersine 15°" in view_model.directionStepInstructionText
         assert len({item.frame_id for item in view_model._df.measurements}) == 2
         assert list(tmp_path.glob("*.zip"))
         import json
@@ -2153,9 +2185,20 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         for path in tmp_path.glob("*.zip"):
             with zipfile.ZipFile(path) as archive:
                 document = json.loads(archive.read("measurement.json"))
-            assert document["source"]["direction_capture"]["event_ids"] == [110, 111, 112, 113]
-            assert document["intent"]["context"]["owner_observed_frames"] == [False, False, False, True]
+            capture = document["source"]["direction_capture"]
+            if capture["angle_deg"] == 0.0:
+                assert capture["binding"] == "operator_selected_channel_v1"
+                assert capture["event_ids"] == [110, 111, 112, 113]
+                assert document["intent"]["context"]["owner_observed_frames"] == [False, False, False, True]
+            else:
+                assert capture["binding"] == "operator_locked_channel_power_v2"
+                assert capture["event_ids"] == [None, None, None, None]
+                assert capture["target_observed_frames"] == [False, False, False, False]
+                assert document["intent"]["context"]["owner_observed_frames"] == [False] * 4
             assert "KTR-4.4" in document["requirements"]
+            assert document["board_measurement"]["protocol"] == "P0PM-v4"
+            assert document["board_measurement"]["power_basis"] == "locked_channel_total_signal_plus_noise"
+            assert document["fields"]["channel_power_dbfs"]["method_id"] == "power.locked-channel-total-signal-plus-noise-v1"
             replay_measurement(path)
     finally:
         coarse_patch.stop()
@@ -2222,8 +2265,10 @@ def test_live_direction_start_failure_does_not_lock_channel(tmp_path) -> None:
         view_model.startLiveEDSession(104_650_000, 8, 16, 4_096)
         _drain(app, lambda: not view_model.detections)
         view_model.selectDetection(31)
-        view_model._live_session.begin_direction_capture = lambda lower, upper: (_ for _ in ()).throw(
-            ValueError("geçersiz kanal")
+        view_model._live_session.begin_direction_capture = (
+            lambda lower, upper, require_observed_target=True: (_ for _ in ()).throw(
+                ValueError("geçersiz kanal")
+            )
         )
 
         view_model.addNextClockwiseDirectionMeasurement()

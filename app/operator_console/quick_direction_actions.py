@@ -7,20 +7,23 @@ import time
 
 from PySide6.QtCore import Slot
 
+from algorithms.p0.adaptive_df import COARSE_STEP_DEG
 from algorithms.p0.df import DFEstimate, DFMeasurement, FIELD_AMPLITUDE_DF_PROFILE
 from algorithms.p0.direction_client import estimate_on_board
 from algorithms.p0.field_df import AntennaReference, geographic_bearing_from_manual_reference
 from algorithms.p0.parameter_client import BoardAnalysisSpan, MAXIMUM_BOARD_SPAN_BINS
 
 
-CLOCKWISE_DIRECTION_ANGLE_COUNT = FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles
-CLOCKWISE_DIRECTION_STEP_DEG = 360.0 / CLOCKWISE_DIRECTION_ANGLE_COUNT
+CLOCKWISE_DIRECTION_ANGLE_COUNT = 24
+CLOCKWISE_DIRECTION_STEP_DEG = COARSE_STEP_DEG
 
 
 class QuickDirectionActionsMixin:
     """Keep manual DF measurement state separate from RF detection control."""
 
     def _next_clockwise_direction_angle(self) -> float | None:
+        if self._source_mode == "hackrf":
+            return self._df_sweep.next_angle()
         measured_angles = {
             round(item.angle_deg % 360.0, 6)
             for item in self._df.measurements
@@ -33,10 +36,10 @@ class QuickDirectionActionsMixin:
 
     @Slot()
     def addNextClockwiseDirectionMeasurement(self) -> None:
-        """Record the next 15-degree clockwise point from the operator's zero."""
+        """Record the next adaptive antenna point from the operator's zero."""
         angle = self._next_clockwise_direction_angle()
         if angle is None:
-            self._df_capture_message = "360° saat yönü taraması tamamlandı."
+            self._df_capture_message = "Uyarlamalı anten taraması tamamlandı."
             self.stateChanged.emit()
             return
         self.addDirectionMeasurement(angle, "none", 0.0)
@@ -99,6 +102,7 @@ class QuickDirectionActionsMixin:
         receiver_binding: str,
         frame_id: int | None,
         board_endpoint: tuple[str, int] | None = None,
+        target_observed: bool = True,
     ) -> None:
         ref = {
             "north": AntennaReference.NORTH,
@@ -132,6 +136,12 @@ class QuickDirectionActionsMixin:
                 frame_id=frame_id,
             )
             self._df.add(measurement)
+            if self._source_mode == "hackrf":
+                self._df_sweep.record(
+                    antenna_angle_deg,
+                    relative_power_db,
+                    target_observed,
+                )
         except ValueError as exc:
             self._status_message = str(exc)
             self.stateChanged.emit()
@@ -143,19 +153,33 @@ class QuickDirectionActionsMixin:
                 "power": f"{item.relative_power_db:.2f} dBFS",
                 "bearing": "—" if item.geographic_bearing_deg is None else f"{item.geographic_bearing_deg:.1f}°",
                 "frequency": self._format_frequency(item.frequency_hz),
-                "source": item.source,
+                "source": (
+                    "Hedef görüldü"
+                    if self._source_mode == "hackrf" and self._df_sweep.target_observed_at(item.angle_deg)
+                    else "Lob dışı · kilitli kanal"
+                    if self._source_mode == "hackrf"
+                    else item.source
+                ),
             }
             for item in self._df.measurements
         ]
         estimate = self._df.estimate()
-        self._apply_direction_estimate(estimate)
+        if self._source_mode == "hackrf" and not self._df_sweep.complete:
+            self._df_status = "UYARLAMALI TARAMA SÜRÜYOR"
+            self._df_relative = "—"
+            self._df_bearing = "—"
+        else:
+            self._apply_direction_estimate(estimate)
         self._add_log(
             "Yön Bulma",
-            f"{antenna_angle_deg:.1f}° seçili kanal gücü kaydedildi · {frequency_hz / 1_000_000.0:.6f} MHz",
+            (
+                f"{antenna_angle_deg:.1f}° hedef gözlemi ve kanal gücü kaydedildi"
+                if target_observed
+                else f"{antenna_angle_deg:.1f}° lob dışı sınır ve kilitli kanal gücü kaydedildi"
+            ) + f" · {frequency_hz / 1_000_000.0:.6f} MHz",
         )
         self.directionChanged.emit()
-        distinct_angle_count = len({item.angle_deg for item in self._df.measurements})
-        if distinct_angle_count >= FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles and self._source_mode == "hackrf":
+        if self._direction_scan_complete() and self._source_mode == "hackrf":
             session = self._live_session
             configuration = getattr(session, "configuration", None)
             endpoint = board_endpoint or (
@@ -181,13 +205,23 @@ class QuickDirectionActionsMixin:
             self._submit(self._generation, "direction", operation)
             self.directionChanged.emit()
 
+    def _direction_scan_complete(self) -> bool:
+        if self._source_mode == "hackrf":
+            return self._df_sweep.complete
+        return (
+            len({item.angle_deg for item in self._df.measurements})
+            >= FIELD_AMPLITUDE_DF_PROFILE.minimum_distinct_angles
+        )
+
     def _direction_binding(self):
         config = getattr(self._live_session, "configuration", None)
         if config is None:
             return None
         return (config.device_serial, config.output_center_frequency_hz,
-                config.input_center_frequency_hz, config.lna_gain_db,
-                config.vga_gain_db, config.fpga_fft_size)
+                config.input_center_frequency_hz, config.processing_sample_rate_hz,
+                config.lna_gain_db, config.vga_gain_db, config.rf_amplifier,
+                config.fpga_fft_size, config.direct_fpga_input,
+                config.board_host, config.board_port)
 
     def _direction_unavailable_reason(self) -> str:
         if self._pending_direction_measurement is not None:
@@ -242,18 +276,27 @@ class QuickDirectionActionsMixin:
         session = self._live_session
         config = session.configuration
         new_channel_lock = self._df_channel_span is None
+        require_observed_target = new_channel_lock
         channel_span = self._analysis_span_draft if new_channel_lock else self._df_channel_span
         assert channel_span is not None
         lower, upper = channel_span
         try:
-            session.begin_direction_capture(lower, upper)
+            if require_observed_target:
+                session.begin_direction_capture(lower, upper)
+            else:
+                session.begin_direction_capture(
+                    lower, upper, require_observed_target=False
+                )
         except ValueError as exc:
             self._df_capture_message = f"Yön ölçümü başlatılamadı: {exc}"
             self.stateChanged.emit()
             return
         if new_channel_lock:
             self._df_channel_span = channel_span
-            self._df_target_frequency_hz = float(self._selected_detection_item()["frequencyHz"])
+            selected = self._selected_detection_item()
+            assert selected is not None
+            self._df_target_frequency_hz = float(selected["frequencyHz"])
+            self._df_target_event_id = int(selected["eventId"])
             self._df_capture_binding = self._direction_binding()
         self._pending_direction_measurement = {
             "antenna_angle_deg": float(angle), "reference": reference,
@@ -266,9 +309,15 @@ class QuickDirectionActionsMixin:
                                 "lna_db": config.lna_gain_db, "vga_db": config.vga_gain_db,
                                 "frame_count": config.frame_count},
             "capture_session": session, "capture_generation": self._generation,
+            "require_observed_target": require_observed_target,
+            "target_event_id": self._df_target_event_id,
             "deadline": time.monotonic() + 5.0,
         }
-        self._df_capture_message = "Yeni ölçüm verisi toplanıyor; anteni sabit tutun."
+        self._df_capture_message = (
+            "Hedef kanal doğrulanıyor; anteni sabit tutun."
+            if require_observed_target
+            else "Kilitli kanalın gücü ölçülüyor; tespit kaybolsa da anteni sabit tutun."
+        )
         self.stateChanged.emit()
 
     def _poll_direction_capture(self) -> None:
@@ -328,9 +377,11 @@ class QuickDirectionActionsMixin:
         self._df_capture_message = ""
         self._df_channel_span = None
         self._df_target_frequency_hz = None
+        self._df_target_event_id = None
         self._df.clear()
+        self._df_sweep.clear()
         self._df_points = []
-        self._df_status = "15° adımlı 24 farklı anten açısında kanal gücü gerekir."
+        self._df_status = "UYARLAMALI TARAMA SÜRÜYOR"
         self._df_relative = "—"
         self._df_bearing = "—"
         self._df_reference_key = None

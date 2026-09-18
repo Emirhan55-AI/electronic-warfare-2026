@@ -47,6 +47,7 @@ CAPABILITY_TYPE_QUERY = 1
 CAPABILITY_TYPE_RESPONSE = 2
 CAPABILITY_INLINE_PARAMETER = 0x00000001
 CAPABILITY_WIDEBAND_BURST = 0x00000002
+CAPABILITY_EXTENDED_PARAMETER = 0x00000004
 
 
 class TransportError(RuntimeError):
@@ -70,6 +71,7 @@ class TransportCapabilities:
     maximum_parameter_span_bins: int = 0
     parameter_contexts: int = 0
     wideband_burst: bool = False
+    extended_parameter: bool = False
 
 
 @dataclass(frozen=True)
@@ -502,6 +504,8 @@ class IQCapabilityCodec:
         flags = CAPABILITY_INLINE_PARAMETER if capabilities.inline_parameter_observation else 0
         if capabilities.wideband_burst:
             flags |= CAPABILITY_WIDEBAND_BURST
+        if capabilities.extended_parameter:
+            flags |= CAPABILITY_EXTENDED_PARAMETER
         prefix = CAPABILITY_PREFIX.pack(
             magic,
             VERSION,
@@ -541,7 +545,7 @@ class IQCapabilityCodec:
             or version != VERSION
             or message_type != CAPABILITY_TYPE_RESPONSE
             or header_size != CAPABILITY_MESSAGE.size
-            or (flags & ~(CAPABILITY_INLINE_PARAMETER | CAPABILITY_WIDEBAND_BURST)) != 0
+            or (flags & ~(CAPABILITY_INLINE_PARAMETER | CAPABILITY_WIDEBAND_BURST | CAPABILITY_EXTENDED_PARAMETER)) != 0
             or reserved_a != 0
             or reserved_b != 0
             or reserved_c != 0
@@ -557,7 +561,7 @@ class IQCapabilityCodec:
             raise TransportError("capability_contract", "Kart yetenek sınırları geçersizdir.")
         return TransportCapabilities(
             inline, maximum_span, contexts,
-            bool(flags & CAPABILITY_WIDEBAND_BURST),
+            bool(flags & CAPABILITY_WIDEBAND_BURST), bool(flags & CAPABILITY_EXTENDED_PARAMETER),
         )
 
 

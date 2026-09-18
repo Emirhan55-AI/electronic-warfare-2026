@@ -45,11 +45,25 @@ class Phase09AmplitudeDFTests(unittest.TestCase):
         self.assertAlmostEqual(15.0 / math.sqrt(12.0), estimate.angular_sampling_rms_deg)
         self.assertEqual(FIELD_AMPLITUDE_DF_PROFILE.profile_id, estimate.profile_id)
 
-    def test_clustered_angles_fail_circular_coverage(self) -> None:
+    def test_sector_without_opposite_point_fails_front_back_gate(self) -> None:
         model = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
         for frame_id, angle in enumerate(range(0, 120, 5)):
             model.add(measurement(float(angle), -10.0 - abs(angle - 40.0) / 4.0, frame_id=frame_id))
-        self.assertEqual("YETERSİZ AÇI KAPSAMI", model.estimate().status)
+        self.assertEqual("ÖN/ARKA BELİRSİZ", model.estimate().status)
+
+    def test_adaptive_bracket_refinement_and_opposite_point_report_lob(self) -> None:
+        model = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
+        values = (
+            (0.0, -30.0), (15.0, -34.0), (30.0, -42.0),
+            (345.0, -33.0), (330.0, -44.0),
+            (5.0, -25.0), (10.0, -20.0), (190.0, -55.0),
+        )
+        for frame_id, (angle, power) in enumerate(values):
+            model.add(measurement(angle, power, frame_id=frame_id))
+        estimate = model.estimate()
+        self.assertEqual("LOB HAZIR", estimate.status)
+        self.assertEqual(10.0, estimate.estimated_angle_deg)
+        self.assertEqual(8, estimate.distinct_angle_count)
 
     def test_equal_front_and_back_lobes_are_rejected(self) -> None:
         model = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
