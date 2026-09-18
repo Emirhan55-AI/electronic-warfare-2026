@@ -1,0 +1,1 @@
+[{"command":"uname -a; uptime; sha256sum /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge; ps | grep p0-ed; cat /etc/default/p0-ed-network-bridge"}]

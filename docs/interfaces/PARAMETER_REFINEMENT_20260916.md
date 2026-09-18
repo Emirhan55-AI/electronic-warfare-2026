@@ -4,6 +4,50 @@ Kullanıcının parametre belirsizliği ve Analog/Sayısal ayrımı için istedi
 düzeltmenin kaynak kapsamıdır. PHASE-08/ST-06 ve KTR-4.2 kabulü açıktır;
 yeni faz veya fiziksel doğruluk kabulü oluşturulmadı.
 
+## 18 Eylül 2026 geniş bant OBW düzeltmesi
+
+Sonraki aynı-gün devamında ayrı koşullu taşıyıcı kestirimi P0PM-v5 olarak
+çalışan karta bağlandı. Doğrudan çizginin yokluğu taşıyıcı merkezinin yokluğu
+sayılmaz; mevcut merkez/OBW/çizgi anlamları değişmedi. Güncel ikili hash'leri,
+66 karşılaştırma, iki gerçek kart tekrarı ve başarısız yeni canlı kapılar
+`docs/interfaces/CARRIER_RECOVERY_20260918.md` içindedir. Aşağıdaki v3 ölçümleri
+tarihsel ikili bağlarıyla korunur; yeni ikiliye taşınmış kabul sayılmaz.
+
+`8ab4893c9d5a4c16a8c3befc77375f30.zip` adlı 16 karelik 820 MHz kaydında
+merkez kararlılığı `1,070` hücre, OBW kenar değişimi `35,618` hücre ve tam
+gözlem OBW genişliği `1401,693` hücredir. Eski yedi-hücre kapısı, kenar
+değişimi genişliğin yalnız `%2,54`'ü olduğu halde sonucu reddetmiştir.
+P0PM-v3 uzun ölçüm yolu için kenar kararlılık sınırı bu nedenle
+`maks(7 hücre, OBW genişliğinin %5'i)` olarak değiştirildi. Dört karelik
+dondurulmuş yol ve sıkışma/gürültü/komşu sinyal retleri korunur. Değişen uzun
+ölçüm yöntemi yeni kayıtlarda `.groups16-v2` son ekiyle izlenir; eski
+`.groups16-v1` kayıtları yeniden etiketlenmez.
+
+Kayıtlı I/Q'nun taşınabilir C tekrarı merkez için `820,031321536 MHz`, alt/üst
+kenar için `819,658288599/820,342708950 MHz` ve OBW için `684,420351 kHz`
+üretti. `extended-numeric-fixed.json` on iki kararlı geniş bant sahnesini,
+FM merkezini ve C/NumPy eşdeğerliğini geçirdi; `398,117` hücrelik bant değişimi
+ile `483,949` hücrelik frekans sıçraması reddedilmeye devam etti.
+
+Yeni hizmet ikilisi 18 Eylül'de çalışan karta yüklendi. `/usr/sbin/p0-ed-service`
+SHA-256 özeti `f8588228f861cd36aa6d87bbdfde6e6d281248418884290a85e32a5f739d2ddf`,
+ağ köprüsü özeti
+`4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1`dir.
+Kart yetenek yanıtı P0PM-v3 uzun ölçümü bildirdi; fiziksel PL/ARM sayısal kapısı
+altı sahneyi geçti. Sorunlu özgün kayıt çalışan hizmette `820,031321536 MHz`
+merkez ve `684,373127 kHz` OBW verdi. Ayrı yeni HackRF → kanalizer → FPGA → ARM
+koşusu 16/16 kareyle `820,144998 MHz` merkez, `674,851 kHz` OBW,
+`-41,92 dBFS` kanal gücü ve `9,30 dB` SNR üretti. Kanıtlar sırasıyla
+`real-820-board-v3.json`, `board-numeric-v3.json` ve `live-820-v3.json`
+dosyalarındadır. Soğuk açılışta hizmet kalıcılığı, genel RF doğruluğu ve dBm
+kalibrasyonu bu koşularla kabul edilmedi.
+
+Ana sunumda `Gözlenen Taşıyıcı Frekansı` korunur. 820 MHz kaydında dar taşıyıcı
+çizgisi kapısı geçmediği için alan `Gözlenmedi` kalır; merkez frekansı taşıyıcı
+diye kopyalanmaz. Analog/Sayısal sonucundaki görünür deneysel rozet kaldırıldı
+ve değer ana sonuç renginde gösterilir; sınıflandırıcının deneysel kökeni kayıt
+ve teknik izlenebilirlikten kaldırılmadı.
+
 ## Bulgular ve kullanıcıya sunulan sonuç
 
 820 MHz çevresindeki iki özgün arşiv dört adet 4096 örnekli I/Q karesi içerir:

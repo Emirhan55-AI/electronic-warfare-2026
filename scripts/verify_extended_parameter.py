@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from verify_p0_parameter_runtime import _build, _ci8
 from algorithms.spectrum import SpectrumProcessor
-from algorithms.parameters.extended_obw import extended_obw_reference
+from algorithms.parameters.extended_obw import extended_obw_reference, extended_temporal_limit
+from algorithms.parameters.extended_center import extended_center_reference
 
 
 def verify():
@@ -25,9 +26,10 @@ def verify():
         exe, state_exe, compiler = _build(directory)
         subprocess.run([str(state_exe)], check=True, capture_output=True)
         def run(samples, lower, upper):
-            paths, psd = [], []
+            paths, psd, decoded_frames = [], [], []
             for i, frame in enumerate(samples):
                 iq, decoded = _ci8(frame)
+                decoded_frames.append(decoded)
                 spectrum = processor.process(decoded, sample_rate_hz=fs, center_frequency_hz=820_000_000.)
                 power = np.rint(np.asarray(spectrum.fft_power_unshifted) * (1 << 30)).astype('<u8')
                 # Runner shifts unshifted PL-format powers before observation.
@@ -37,7 +39,16 @@ def verify():
             out = directory / 'result.json'
             subprocess.run([str(exe), str(fs), '820000000', str(lower), str(upper),
                             *map(str, paths), str(out)], check=True, capture_output=True)
-            return json.loads(out.read_text()), np.asarray(psd)
+            actual = json.loads(out.read_text())
+            if len(samples) == 16 and upper - lower + 1 >= 100 and actual['channel_power_dbfs']['state'] == 1:
+                reference = extended_center_reference(decoded_frames, lower, upper)
+                assert abs(reference['center_uncertainty_bins'] - actual['quality']['center_uncertainty_bins']) < 1e-7
+                field = actual['emission_center_frequency_hz']
+                assert (field['state'] == 1) == reference['valid']
+                if field['state'] == 1:
+                    expected = 820_000_000 + (reference['center_bin'] - 2048) * fs / 4096
+                    assert abs(field['value'] - expected) < 1e-5
+            return actual, np.asarray(psd)
         for seed in range(12):
             rng = np.random.default_rng(2026091600 + seed)
             snr = (10., 20., 30.)[seed % 3]
@@ -51,7 +62,7 @@ def verify():
             short, _ = run(frames[:4], 1560, 2450)
             reference = extended_obw_reference(psd, 1560, 2450)
             actual = long['occupied_bandwidth_hz']
-            if long['emission_center_frequency_hz']['state'] == 1 and actual['reason'] != 7:
+            if long['channel_power_dbfs']['state'] == 1 and actual['reason'] != 7:
                 assert abs(reference['temporal_edge_range_bins'] - long['quality']['temporal_edge_range_bins']) < 1e-8
                 assert actual['state'] == (1 if reference['reason'] is None else 3)
                 if actual['state'] == 1:
@@ -73,15 +84,29 @@ def verify():
         assert clipped['occupied_bandwidth_hz']['state'] != 1
         assert noise_only['occupied_bandwidth_hz']['state'] != 1
         assert unstable['occupied_bandwidth_hz']['state'] != 1
+        assert extended_temporal_limit(1000, 1200) == 10.0
+        assert extended_temporal_limit(1000, 1100) == 7.0
+        # Stationary FM and an actual quarter-window frequency jump are separate cases.
+        t = np.arange(16*4096) / fs
+        fm = (.12*np.exp(2j*np.pi*40_000*t + 1j*(100_000/1800)*np.sin(2*np.pi*1800*t))).reshape(16,4096)
+        fm_result, _ = run(fm + noise, 1750, 2500)
+        assert fm_result['emission_center_frequency_hz']['state'] == 1
+        assert abs(fm_result['emission_center_frequency_hz']['value'] - 820_040_000) < 4*fs/4096
+        shifted = fm * np.exp(2j*np.pi*np.repeat([-120_000, -40_000, 40_000, 120_000], 4*4096).reshape(16,4096)*t.reshape(16,4096))
+        shifted_result, _ = run(shifted + noise, 1400, 2800)
+        assert shifted_result['emission_center_frequency_hz']['state'] != 1
+        assert shifted_result['occupied_bandwidth_hz']['state'] != 1
         valid = sum(case['extended']['occupied_bandwidth_hz']['state'] == 1 for case in cases)
         assert valid >= 10, f'Geniş bant geliştirme kapısı geçmedi: {valid}/12'
     return {'status':'passed', 'compiler':compiler, 'physical_execution':False, 'rf_accuracy_acceptance':False,
             'cases': cases, 'extended_valid':valid,
             'short_valid':sum(case['short']['occupied_bandwidth_hz']['state']==1 for case in cases),
             'clipped':clipped, 'noise_only':noise_only, 'unstable':unstable,
+            'fm':fm_result, 'frequency_jump':shifted_result,
             'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in (
                 'platforms/embedded/p0/src/p0_parameter_runtime.c', 'platforms/embedded/p0/include/p0_parameter_runtime.h',
                 'platforms/embedded/p0/src/p0_parameter_run.c', 'algorithms/parameters/extended_obw.py',
+                'algorithms/parameters/extended_center.py',
                 'scripts/verify_extended_parameter.py')}}
 
 

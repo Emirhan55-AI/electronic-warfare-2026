@@ -62,6 +62,11 @@ ERROR_TEXT = {
     "nyquist_limit": "Seçili kanal kaynak Nyquist sınırını aşıyor.",
     "invalid_volume": "Ses düzeyi 0 ile 100 arasında olmalıdır.",
     "wav_write_failed": "WAV dosyası kaydedilemedi.",
+    "direction_request_invalid": "Yön isteği P0DF-v1 sözleşmesine uymadı; tarama ölçümleri korundu.",
+    "direction_board_unavailable": "Kart ARM yön hesabına yanıt vermedi; tarama ölçümleri korundu.",
+    "direction_request_rejected": "Kart yön ölçümlerini reddetti; kart hizmet sürümünü denetleyin.",
+    "direction_computation_failed": "Kart ARM yön hesabını tamamlayamadı; tarama ölçümleri korundu.",
+    "direction_response_invalid": "Kart ARM yön yanıtı doğrulanamadı; tarama ölçümleri korundu.",
 }
 
 ERROR_TITLE = {
@@ -94,6 +99,11 @@ ERROR_TITLE = {
     "iq_saturation": "Alımda kırpılma algılandı",
     "stream_integrity": "Alıcı verisi doğrulanamadı",
     "transport_integrity": "FPGA verisi doğrulanamadı",
+    "direction_request_invalid": "Yön isteği geçersiz",
+    "direction_board_unavailable": "Kart yön hesabına yanıt vermedi",
+    "direction_request_rejected": "Kart yön ölçümlerini reddetti",
+    "direction_computation_failed": "Kart yön hesabı başarısız",
+    "direction_response_invalid": "Kart yön yanıtı geçersiz",
     "live_queue_timeout": "Canlı veri gecikti",
     "live_capture_timeout": "Canlı alım başlamadı",
     "live_channelizer_timeout": "Sinyal işleme gecikti",

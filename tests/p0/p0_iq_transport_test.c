@@ -150,7 +150,8 @@ int main(void)
     REQUIRE(memcmp(capability, "P0CR", 4U) == 0);
     REQUIRE(load_le32(capability + 8U) ==
             (P0_IQ_CAPABILITY_INLINE_PARAMETER |
-             P0_IQ_CAPABILITY_WIDEBAND_BURST | P0_IQ_CAPABILITY_EXTENDED_PARAMETER));
+             P0_IQ_CAPABILITY_WIDEBAND_BURST | P0_IQ_CAPABILITY_EXTENDED_PARAMETER |
+             P0_IQ_CAPABILITY_CARRIER_RECOVERY));
     REQUIRE(load_le32(capability + 12U) ==
             P0_IQ_CAPABILITY_MAXIMUM_PARAMETER_SPAN);
     REQUIRE(load_le32(capability + 16U) ==

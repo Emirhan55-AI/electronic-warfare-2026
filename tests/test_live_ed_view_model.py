@@ -24,6 +24,7 @@ from PySide6.QtTest import QSignalSpy
 from algorithms.p0 import CoarseDetection, CoarseDetectionFrame, IQFrame, TransportStats
 from algorithms.p0.transport import InlineParameterField, InlineParameterResult, TransportError
 from algorithms.p0.parameter_client import decode_response as decode_board_parameter_response
+from algorithms.p0.direction_client import BoardDFEstimate, DirectionClientError
 from algorithms.monitoring import AnalogMonitorResult
 from app.operator_console.fixed_band_verification import FixedBandCandidate
 from app.operator_console.live_ed import (
@@ -384,6 +385,13 @@ class _LiveListeningSession(_BlockingSession):
     def audio_channel_window_snapshot(self, target_frequency_hz):
         quality = self.audio_channel_quality(target_frequency_hz)
         return (self.window, quality) if self.audio_channel_ready(target_frequency_hz) else ((), quality)
+
+    def audio_channel_frames_after(self, target_frequency_hz, after_sequence_number, minimum_frames=122):
+        quality = self.audio_channel_quality(target_frequency_hz)
+        if after_sequence_number is None:
+            return self.window, quality
+        quality["waiting_for_new_frames"] = True
+        return (), quality
 
     def run(self, snapshot_handler):
         event = LiveEDEvent(
@@ -1820,9 +1828,9 @@ def test_live_detection_measurement_uses_four_consecutive_fpga_frames(tmp_path) 
         assert view_model.errorMessage == ""
         assert len(view_model.parameterRows) == 15
         estimated = next(row for row in view_model.parameterRows if row["key"] == "estimated_power_dbm")
-        assert estimated["label"] == "Tahmini Güç (dBm)"
-        assert estimated["state"] == "estimated"
-        assert "dBm" in estimated["value"] and "±" in estimated["value"]
+        assert estimated["label"] == "Giriş Gücü (dBm)"
+        assert estimated["state"] == "not_applicable"
+        assert estimated["value"] == "Kalibrasyon gerekli"
         quality_rows = {row["key"]: row for row in view_model.parameterRows}
         assert quality_rows["measurement_quality"]["label"] == "Kart ölçüm kalite kapısı"
         assert quality_rows["measurement_quality"]["value"] == "Geçti · 4/4 kare"
@@ -2139,7 +2147,7 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         assert view_model.directionPoints[0]["bearing"] == "—"
         assert view_model.directionNextAngleDeg == 15.0
         assert view_model.directionNextAngleText == "15°"
-        assert view_model.directionReferenceText == "Coğrafi referans yok · yalnız bağıl yön"
+        assert view_model.directionReferenceText == "0° = ilk ölçümdeki anten ekseni · coğrafi yön tanımsız"
         assert view_model.liveSessionActive
         assert view_model._live_session.configuration.lna_gain_db == 8
         assert view_model._live_session.configuration.vga_gain_db == 16
@@ -2178,6 +2186,10 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
         assert "0° başlangıç yönüne geri" in view_model.directionStepInstructionText
         assert "tersine 15°" in view_model.directionStepInstructionText
         assert len({item.frame_id for item in view_model._df.measurements}) == 2
+        assert all(
+            item.frame_id is not None and 0 <= item.frame_id <= 0xFFFFFFFF
+            for item in view_model._df.measurements
+        )
         assert list(tmp_path.glob("*.zip"))
         import json
         import zipfile
@@ -2203,6 +2215,79 @@ def test_live_direction_uses_multiframe_board_power_and_resumes_rx(tmp_path) -> 
     finally:
         coarse_patch.stop()
         board_patch.stop()
+        view_model.shutdown()
+
+
+def test_completed_direction_scan_keeps_candidate_and_retries_only_arm_decision(tmp_path) -> None:
+    app = QGuiApplication.instance() or QGuiApplication(["direction-arm-retry"])
+    view_model = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_DirectionSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+        measurement_record_directory=tmp_path,
+    )
+    view_model._source_mode = "hackrf"
+    view_model._source_name = "Canlı alıcı"
+    view_model._live_session = SimpleNamespace(
+        configuration=SimpleNamespace(board_host="192.168.7.2", board_port=47007),
+        cancel=lambda: None,
+    )
+    sequence = (
+        (0.0, -40.0, True),
+        (15.0, -42.0, True),
+        (30.0, -36.0, True),
+        (45.0, -30.0, True),
+        (60.0, -55.0, False),
+        (345.0, -42.0, True),
+        (330.0, -46.0, True),
+        (315.0, -57.0, False),
+        (35.0, -34.0, True),
+        (40.0, -28.0, True),
+        (50.0, -33.0, True),
+        (220.0, -60.0, False),
+    )
+    try:
+        with patch(
+            "app.operator_console.quick_direction_actions.estimate_on_board",
+            side_effect=DirectionClientError(
+                "direction_board_unavailable", "Kart ARM yön hesabına yanıt vermedi."
+            ),
+        ):
+            for frame_id, (angle, power, observed) in enumerate(sequence):
+                view_model._commit_direction_measurement(
+                    antenna_angle_deg=angle,
+                    reference="none",
+                    reference_deg=0.0,
+                    relative_power_db=power,
+                    frequency_hz=820_032_000.0,
+                    bandwidth_hz=100_000.0,
+                    receiver_binding="fixed-rx",
+                    frame_id=frame_id,
+                    board_endpoint=("192.168.7.2", 47007),
+                    target_observed=observed,
+                )
+            _drain(app, lambda: view_model.busy)
+
+        assert view_model.directionSweepComplete
+        assert view_model.directionEstimateRetryAvailable
+        assert view_model.directionCandidateText == "40.0°"
+        assert "Ön-sağ" in view_model.directionCandidateDescriptionText
+        assert view_model.relativeArrivalText == "—"
+
+        estimate = view_model._df.estimate()
+        with patch(
+            "app.operator_console.quick_direction_actions.estimate_on_board",
+            return_value=BoardDFEstimate(estimate, 1, b""),
+        ):
+            view_model.retryDirectionEstimate()
+            _drain(app, lambda: view_model.busy)
+
+        assert not view_model.directionEstimateRetryAvailable
+        assert view_model.directionReady
+        assert view_model.relativeArrivalText == "40.0°"
+        assert view_model.directionIndicatorAngle == 40.0
+        assert view_model.directionIndicatorVerified
+    finally:
         view_model.shutdown()
 
 
@@ -2497,30 +2582,31 @@ def test_live_detection_listening_uses_five_second_consecutive_iq_window() -> No
             )
 
         with patch(
-            "app.operator_console.quick_listening_actions.AnalogMonitor.process_continuous",
+            "app.operator_console.quick_listening_actions.StreamingAnalogMonitor.process",
             return_value=monitor_result,
-        ) as process_continuous:
+        ) as process_stream:
             view_model.requestListening("am", 76.660, 16.0, 0.8)
             view_model.clearDetectionSelection()
             assert view_model.selectedDetectionId == 31
             _drain(app, lambda: not view_model.listeningReady and not view_model.errorMessage)
 
-        assert not view_model.liveSessionActive
-        assert not view_model.busy
+        assert view_model.liveSessionActive
+        assert view_model.continuousListeningActive
         assert view_model.errorMessage == ""
         assert view_model.listeningReady
         assert not view_model.listeningShortPreview
-        assert view_model.listeningState == "Ses hazır."
+        assert "Kesintisiz canlı dinleme sürüyor" in view_model.listeningState
         rows = {row["label"]: row["value"] for row in view_model.listeningRows}
-        assert rows["Alım seviyesi"] == "-20.00…-19.50 dBFS"
-        assert rows["Frekans sapması"] == "-12.0…+8.0 Hz"
-        assert rows["Ses profili"] == "Net ses"
-        assert len(rows) == 6
+        assert rows["Kanal gücü"] == "-19.50 dBFS"
+        assert rows["Frekans değişimi"] == "+8.0 Hz"
+        assert rows["Süreklilik"].startswith("%99")
+        assert rows["Analog sinyalleşme"].startswith("DTMF saptanmadı")
+        assert len(rows) == 7
         assert view_model.listeningObservationPoints == [
             {"time": 0.125, "power": -20.0, "frequency": -12.0},
             {"time": 0.375, "power": -19.5, "frequency": 8.0},
         ]
-        blocks = process_continuous.call_args.args[0]
+        blocks = process_stream.call_args.args[0]
         assert sum(block.size for block in blocks) == LIVE_AUDIO_WINDOW_FRAMES * 4096
     finally:
         view_model.shutdown()

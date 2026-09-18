@@ -1,0 +1,10 @@
+{
+  "response_hex": "5030435202023000070000000002000001000000000000000000000000000000000000000000000000000000a6a3b02b",
+  "capabilities": {
+    "inline_parameter_observation": true,
+    "maximum_parameter_span_bins": 512,
+    "parameter_contexts": 1,
+    "wideband_burst": true,
+    "extended_parameter": true
+  }
+}

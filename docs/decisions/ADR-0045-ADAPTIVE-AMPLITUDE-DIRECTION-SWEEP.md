@@ -5,6 +5,21 @@
 - Kapsam: KTR-4.4 / PHASE-09 manuel yönlü anten iş akışı
 - Önceki kararlar: ADR-0008 ve tarihsel `P0_AMPLITUDE_DF_FIELD_V1`
 
+## Uygulama eki — 18 Eylül 2026
+
+P0DF-v1 kaynak kare alanı 32 bittir. PC'nin RX oturum kuşağını üst 32 bite
+yerleştiren önceki uygulaması, uyarlamalı taramanın son isteğini paketleme
+aşamasında durduruyordu. Güncel uygulama özgün RX kimliğini kanıt kaydında
+korur; P0DF için ölçüm sırası ve kaynak kareden çakışmasız tarama-yerel uint32
+belirteci üretir. Başarısız son hesap ölçümleri silmez ve yalnız ARM kararı
+yeniden denenebilir.
+
+Arayüz kararı da netleştirilmiştir: `0°` ilk ölçümdeki fiziksel anten eksenidir.
+Coğrafi referans yoksa yön yalnız bu eksene göre derece ve antene bağlı sektör
+olarak sunulur. Ham maksimum `ölçüm adayı`, yalnız ARM `LOB HAZIR` sonucu
+doğrulanmış bağıl yöndür. Kontrollü bilinen yön koşuları olmadan `Derece RMS`
+değeri yayımlanmaz.
+
 ## Bağlam
 
 Yönlü anten ana lobdan uzaklaştırıldığında hedefin FPGA tespit eşiğinin altına

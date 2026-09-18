@@ -104,7 +104,9 @@ class QuickTaskCompletionMixin:
                 self._show_error("measurement_failed", "Parametre ölçümü kalıcı bellek sınırını aştı.")
                 return
             self._measurement_record_path = str(result.path)
-            self._measurement_info = {"completedUtc": result.completed_utc, "durationMs": result.observation_duration_s * 1000.0}
+            self._measurement_info = {"completedUtc": result.completed_utc,
+                                      "durationMs": result.observation_duration_s * 1000.0,
+                                      "frameCount": result.result.quality.observed_frames}
             self._add_log("Parametre kaydı", f"{result.path} · SHA-256 {result.sha256}")
             result = result.result
             pending_direction = self._pending_direction_measurement
@@ -194,7 +196,16 @@ class QuickTaskCompletionMixin:
                 self._show_error("direction_failed", "Kart ARM yön sonucu sözleşmeyle eşleşmedi.")
                 return
             self._apply_direction_estimate(result.estimate)
-            self._status_message = "Genlik tabanlı yön sonucu kart ARM'ında doğrulandı."
+            self._df_capture_message = (
+                "Tarama tamamlandı; bağıl yön kart ARM'ında doğrulandı."
+                if self.directionReady
+                else "Tarama tamamlandı; kart kalite kapısı bağıl yönü doğrulamadı."
+            )
+            self._status_message = (
+                "Genlik tabanlı yön sonucu kart ARM'ında doğrulandı."
+                if self.directionReady
+                else self.directionStatusText
+            )
             self._add_log("Yön Bulma", self._status_message)
             self.directionChanged.emit()
         elif kind == "listening":
@@ -280,7 +291,15 @@ class QuickTaskCompletionMixin:
                     self.stateChanged.emit()
                     return
             if task_kind == "direction":
-                self._df_status = "Kart ARM yön hesabı tamamlanamadı."
+                self._df_estimate_retry_available = True
+                self._df_status = ERROR_TEXT.get(
+                    code,
+                    "Kart ARM yön hesabı tamamlanamadı; tarama ölçümleri korundu.",
+                )
+                self._df_capture_message = (
+                    self._df_status
+                    + " Yalnız son hesabı tekrarlamak için Yön Hesabını Yeniden Dene'yi kullanın."
+                )
                 self._df_relative = "—"
                 self._df_bearing = "—"
                 self.directionChanged.emit()

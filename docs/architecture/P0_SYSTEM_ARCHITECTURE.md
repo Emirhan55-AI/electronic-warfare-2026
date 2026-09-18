@@ -1,5 +1,31 @@
 # P0 Gerçek Sistem Mimarisi
 
+## P0PM-v5 taşıyıcı frekansı kökeni — 18 Eylül 2026
+
+PL'nin Hann → 4096 FFT → UQ28.30 güç yolu korunur. P0PM-v5'in 16 özgün
+CI8 karesinden ARM, geçerli bant/SNR bağında ikinci/dördüncü kuvvet frekansını
+ve dört zaman grubu uzlaşmasını hesaplar. Ek 65536 noktalı FFT ARM yazılımıdır,
+PL özelliği olarak gösterilmez. PC yalnız CRC/kimlik/köken yanıtını çözer ve
+koşullu kestirimi ayrı kaydeder; kart hatasında sayısal geri dönüş yoktur.
+Doğrudan çizgi, koşullu kestirim, emisyon merkezi ve deneysel PC sinyal türü
+ayrı alanlardır. Yöntem, bellek, güncel ikili hash'leri ve açık fiziksel kapılar
+`docs/interfaces/CARRIER_RECOVERY_20260918.md` içindedir.
+
+## P0DF-v1 kaynak kimliği ve sonuç sunumu — 18 Eylül 2026
+
+Canlı RX oturum kuşağı ile gerçek kare sıra numarası PC kanıt kaydında korunur.
+P0DF-v1 tel alanı 32 bit olduğundan PC, en fazla 96 ölçümlük yön oturumu için
+ölçüm sırası ve ilk kaynak kareyi çakışmasız tarama-yerel bir belirtece çevirir;
+ARM aynı-kare ve sabit alıcı bağı kapılarını bu belirteçle uygular. Sınır dışı
+kimlik gönderilmez. Son P0DF işlemi bağlantı/yanıt hatası verirse PC ölçümleri
+korur ve yalnız aynı ARM karar isteğini yeniden gönderebilir.
+
+PC görünümü ham maksimumu yalnız `ölçüm adayı` olarak sunabilir. Nihai bağıl yön
+yetkisi ZedBoard ARM'ın `LOB HAZIR` yanıtında kalır. 0° fiziksel anten başlangıç
+eksenidir; sensör/pusula bağı olmadan coğrafi kerterize çevrilmez. Derece RMS
+tek taramanın ızgara metriğinden değil, bilinen gerçek yönlü çoklu fiziksel
+koşulardan hesaplanır.
+
 ## Uyarlamalı yön taraması görev paylaşımı — 16 Eylül 2026
 
 PC'deki `AdaptiveDirectionSweep`, `0°` doğrulamasından sonra önce saat yönündeki,

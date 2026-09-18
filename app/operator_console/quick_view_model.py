@@ -23,9 +23,10 @@ from .parameter_catalog import ParameterCatalog
 
 from algorithms.monitoring import (
     AnalogMonitorResult,
+    AudioRingBuffer,
 )
 from algorithms.p0.adaptive_df import AdaptiveDirectionSweep
-from algorithms.p0.df import FIELD_AMPLITUDE_DF_PROFILE, ManualAmplitudeDF
+from algorithms.p0.df import DFEstimate, FIELD_AMPLITUDE_DF_PROFILE, ManualAmplitudeDF
 from algorithms.p0.direction_client import BoardDFEstimate
 from algorithms.p0.coarse_detection import CoarseDetectionFrame
 from algorithms.parameters import (
@@ -89,7 +90,7 @@ from .quick_detection_state import (
     SUPPRESSED_VERIFICATION_STATES,
     QuickDetectionStateMixin,
 )
-from .quick_direction_actions import QuickDirectionActionsMixin
+from .quick_direction_actions import QuickDirectionActionsMixin, _relative_direction_description
 from .quick_listening_actions import QuickListeningActionsMixin
 from .quick_measurement_actions import QuickMeasurementActionsMixin
 from .quick_scan_actions import QuickScanActionsMixin
@@ -242,6 +243,8 @@ class OperatorViewModel(
         self._live_spur_guard_passed: dict[int, bool] = {}
         self._pool = QThreadPool(self)
         self._pool.setMaxThreadCount(1)
+        self._audio_pool = QThreadPool(self)
+        self._audio_pool.setMaxThreadCount(1)
         self._catalog_pool = QThreadPool(self)
         self._catalog_pool.setMaxThreadCount(1)
         self._receiver_health_pool = QThreadPool(self)
@@ -394,11 +397,24 @@ class OperatorViewModel(
         self._listening_playback_state = "Ses hazırlanmadı"
         self._listening_playback_position_s = 0.0
         self._listening_playback_duration_s = 0.0
+        self._listening_stream_active = False
+        self._listening_stream_processing = False
+        self._listening_stream_monitor = None
+        self._listening_stream_config = None
+        self._listening_stream_volume = 0.8
+        self._listening_stream_target_hz: float | None = None
+        self._listening_stream_last_sequence: int | None = None
+        self._listening_stream_chunks = 0
+        self._listening_stream_started_at = 0.0
+        self._listening_stream_audio = AudioRingBuffer()
+        self._listening_dtmf_codes: list[str] = []
+        self._listening_dtmf_chunk_active = False
 
         self._df = ManualAmplitudeDF(FIELD_AMPLITUDE_DF_PROFILE)
         self._df_sweep = AdaptiveDirectionSweep()
         self._df_points: list[dict[str, str]] = []
         self._df_status = "UYARLAMALI TARAMA SÜRÜYOR"
+        self._df_last_estimate: DFEstimate | None = None
         self._df_relative = "—"
         self._df_bearing = "—"
         self._df_reference_key: tuple[str, float | None] | None = None
@@ -413,6 +429,9 @@ class OperatorViewModel(
         self._df_channel_span: tuple[int, int] | None = None
         self._df_target_frequency_hz: float | None = None
         self._df_target_event_id: int | None = None
+        self._df_board_endpoint: tuple[str, int] | None = None
+        self._df_estimate_retry_available = False
+        self._df_source_frame_keys: set[tuple[int, int]] = set()
 
         self._add_log("Sistem", "Operatör uygulaması hazır")
         if self._profile_warning:
@@ -540,6 +559,7 @@ class OperatorViewModel(
     @Slot()
     def _refresh_live_health(self):
         self._poll_direction_capture()
+        self._poll_continuous_listening()
         if self.liveSessionActive:
             # Stale detections must not remain marked as current during a stall.
             if self._live_response_at and time.perf_counter() - self._live_response_at > .25:
@@ -1290,6 +1310,15 @@ class OperatorViewModel(
 
     @Property(str, notify=directionChanged)
     def directionStatusText(self) -> str:
+        estimate = self._df_last_estimate
+        if estimate is not None and self._df_status == "ÖN/ARKA BELİRSİZ":
+            value = "ölçülemedi" if estimate.front_to_back_db is None else f"{estimate.front_to_back_db:.2f} dB"
+            return f"Ön/arka farkı {value}; doğrulanmış yön için en az 3 dB gerekir"
+        if estimate is not None and self._df_status == "BELİRSİZ MAKSİMUM":
+            return (
+                f"Rakip tepe farkı {estimate.peak_prominence_db:.2f} dB; "
+                "doğrulanmış yön için en az 3 dB gerekir"
+            )
         return {
             "UYARLAMALI TARAMA SÜRÜYOR": self._df_sweep.status_text,
             "LOB HAZIR": "Bağıl tepe yönü hazır",
@@ -1364,13 +1393,67 @@ class OperatorViewModel(
     @Property(str, notify=directionChanged)
     def directionReferenceText(self) -> str:
         if self._df_reference_key is None:
-            return "İlk ölçümde sabitlenir"
+            return "0° = ilk ölçümde antenin baktığı fiziksel yön"
         mode, angle = self._df_reference_key
         if mode == "north":
             return "Gerçek kuzey · anten 0°"
         if mode == "manual" and angle is not None:
             return f"Anten 0° gerçek kerterizi · {angle:.1f}°"
-        return "Coğrafi referans yok · yalnız bağıl yön"
+        return "0° = ilk ölçümdeki anten ekseni · coğrafi yön tanımsız"
+
+    def _direction_candidate(self):
+        if not self._df.measurements:
+            return None
+        if self._source_mode == "hackrf" and not self._df_sweep.complete:
+            return None
+        return max(self._df.measurements, key=lambda item: item.relative_power_db)
+
+    @Property(str, notify=directionChanged)
+    def directionCandidateText(self) -> str:
+        candidate = self._direction_candidate()
+        return "—" if candidate is None else f"{candidate.angle_deg:.1f}°"
+
+    @Property(str, notify=directionChanged)
+    def directionCandidateDescriptionText(self) -> str:
+        candidate = self._direction_candidate()
+        if candidate is None:
+            return "Tarama tamamlandığında en güçlü ölçülen açı burada gösterilir."
+        return (
+            f"{_relative_direction_description(candidate.angle_deg)} · "
+            f"{candidate.relative_power_db:.2f} dBFS · ARM doğrulaması değildir"
+        )
+
+    @Property(str, notify=directionChanged)
+    def directionResultDescriptionText(self) -> str:
+        if not self.directionReady:
+            return "Doğrulanmış bağıl yön henüz yok."
+        try:
+            angle = float(self._df_relative.rstrip("°"))
+        except ValueError:
+            return "Doğrulanmış bağıl yön hazır."
+        return _relative_direction_description(angle)
+
+    @Property(float, notify=directionChanged)
+    def directionIndicatorAngle(self) -> float:
+        if self.directionReady:
+            try:
+                return float(self._df_relative.rstrip("°"))
+            except ValueError:
+                return -1.0
+        candidate = self._direction_candidate()
+        return -1.0 if candidate is None else float(candidate.angle_deg)
+
+    @Property(bool, notify=directionChanged)
+    def directionIndicatorVerified(self) -> bool:
+        return self.directionReady
+
+    @Property(str, notify=directionChanged)
+    def directionAccuracyText(self) -> str:
+        return "Derece RMS · kontrollü bilinen yön testi bekleniyor"
+
+    @Property(bool, notify=directionChanged)
+    def directionEstimateRetryAvailable(self) -> bool:
+        return bool(self._df_estimate_retry_available)
 
     @Property(str, notify=directionChanged)
     def relativeArrivalText(self) -> str:
@@ -1502,6 +1585,10 @@ class OperatorViewModel(
     def listeningReady(self) -> bool:
         return self._listening_result is not None
 
+    @Property(bool, notify=listeningChanged)
+    def continuousListeningActive(self) -> bool:
+        return self._listening_stream_active
+
     @Property(bool, notify=stateChanged)
     def listeningSelectionReady(self) -> bool:
         if self._source_mode != "hackrf":
@@ -1607,6 +1694,8 @@ class OperatorViewModel(
 
     @Property(str, notify=playbackChanged)
     def listeningOutputState(self) -> str:
+        if self._listening_stream_active:
+            return "Canlı ses akışı" if self._audio_playback.streaming else "Canlı WAV tamponu"
         return "Ses çıkışı hazır" if self._audio_playback.available else "Ses çıkışı yok · WAV kullanılabilir"
 
     @Property(str, notify=stateChanged)
@@ -1826,7 +1915,7 @@ class OperatorViewModel(
 
     @Slot(int)
     def selectDetection(self, event_id: int) -> None:
-        if self._pending_direction_measurement is not None:
+        if self._pending_direction_measurement is not None or self._listening_stream_active:
             return
         self._df_capture_message = ""
         if self._pending_live_listening is not None or self._pending_live_measurement is not None or (
@@ -1884,7 +1973,7 @@ class OperatorViewModel(
 
     @Slot()
     def clearDetectionSelection(self) -> None:
-        if self._pending_live_listening is not None or self._pending_live_measurement is not None or (
+        if self._listening_stream_active or self._pending_live_listening is not None or self._pending_live_measurement is not None or (
             self._busy and self._active_task_kind in {"listening", "measurement"}
         ):
             return
@@ -1931,6 +2020,7 @@ class OperatorViewModel(
         self._generation += 1
         self._backend.cancel()
         self._pool.waitForDone(2000)
+        self._audio_pool.waitForDone(2000)
         self._receiver_health_pool.waitForDone(2000)
         self._flush_parameter_catalog_buffer()
         self._catalog_pool.waitForDone(2500)
@@ -2174,6 +2264,10 @@ class OperatorViewModel(
         del elapsed
         if generation != self._generation or not isinstance(result, LiveEDSessionResult):
             return
+        if self._listening_stream_active:
+            self._stop_continuous_listening(
+                "Canlı alım tamamlandı; kesintisiz dinleme kaydı korunarak durduruldu."
+            )
         self.cancelDirectionMeasurement()
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
@@ -2215,6 +2309,10 @@ class OperatorViewModel(
     def _live_failed(self, generation: int, code: str, detail: str) -> None:
         if generation != self._generation:
             return
+        if self._listening_stream_active:
+            self._stop_continuous_listening(
+                "Canlı alım sona erdi; kesintisiz dinleme kaydı korunarak durduruldu."
+            )
         self.cancelDirectionMeasurement()
         self._live_health_timer.stop()
         if self._live_presentation_error is not None:
@@ -2486,6 +2584,13 @@ class OperatorViewModel(
     @Slot()
     def _refresh_listening_playback(self) -> None:
         self._listening_playback_position_s = self._audio_playback.position_seconds
+        if self._listening_stream_active or self._audio_playback.streaming:
+            self._listening_playback_duration_s = self._audio_playback.duration_seconds
+            self._listening_playback_state = (
+                "Kesintisiz canlı ses" if self._audio_playback.streaming else "Canlı WAV tamponu"
+            )
+            self.playbackChanged.emit()
+            return
         if (
             self._listening_playback_duration_s > 0.0
             and self._listening_playback_position_s >= self._listening_playback_duration_s - 0.01

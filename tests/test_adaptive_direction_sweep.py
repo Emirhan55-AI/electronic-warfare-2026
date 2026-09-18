@@ -3,6 +3,10 @@ from __future__ import annotations
 import pytest
 
 from algorithms.p0.adaptive_df import AdaptiveDirectionSweep
+from app.operator_console.quick_direction_actions import (
+    _direction_source_token,
+    _relative_direction_description,
+)
 
 
 def test_sweep_brackets_clockwise_then_returns_to_zero_for_counterclockwise_side() -> None:
@@ -72,3 +76,19 @@ def test_all_clockwise_points_seen_fails_closed_without_claiming_completion() ->
     assert not sweep.complete
     assert sweep.next_angle() is None
     assert "sınır bulunamadı" in sweep.status_text
+
+
+def test_direction_source_tokens_fit_p0df_v1_across_restarted_rx_sessions() -> None:
+    tokens = [_direction_source_token(index, 123) for index in range(12)]
+    assert len(set(tokens)) == 12
+    assert all(0 <= token <= 0xFFFFFFFF for token in tokens)
+    with pytest.raises(ValueError, match="kaynak kare"):
+        _direction_source_token(0, 1_000_000)
+
+
+def test_relative_direction_description_uses_operator_zero_not_cardinal_names() -> None:
+    assert _relative_direction_description(0.0) == "Ön · 0° ekseni doğrultusunda"
+    assert _relative_direction_description(90.0) == "Sağ · 0° ekseninden saat yönünde 90.0°"
+    assert _relative_direction_description(355.0) == (
+        "Ön · 0° ekseninden saat yönünün tersine 5.0°"
+    )

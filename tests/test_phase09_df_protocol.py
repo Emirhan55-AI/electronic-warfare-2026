@@ -5,7 +5,10 @@ import os
 from pathlib import Path
 import subprocess
 
+import pytest
+
 from algorithms.p0 import decode_df_response, encode_df_request
+from algorithms.p0.df import DFMeasurement
 from scripts.verify_phase09_amplitude_df_arm import _cases
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,3 +76,18 @@ def test_direction_request_crc_corruption_is_rejected(tmp_path: Path) -> None:
                          capture_output=True, text=True)
     assert run.returncode == 3
     assert not response_path.exists()
+
+
+def test_direction_request_rejects_source_frame_outside_v1_uint32() -> None:
+    measurement = DFMeasurement.create(
+        angle_deg=0.0,
+        relative_power_db=-40.0,
+        frequency_hz=820_032_000.0,
+        confidence=1.0,
+        source="test",
+        channel_bandwidth_hz=100_000.0,
+        receiver_binding="fixed-rx",
+        frame_id=(7 << 32) | 123,
+    )
+    with pytest.raises(ValueError, match="uint32"):
+        encode_df_request((measurement,), 1)

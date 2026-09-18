@@ -60,6 +60,7 @@ PROVENANCE_SOURCES = (
     "algorithms/p0/channelizer.py",
     "algorithms/p0/native_channelizer.py",
     "algorithms/p0/parameter_client.py",
+    "algorithms/parameters/carrier_recovery.py",
     "platforms/embedded/p0/include/p0_parameter_runtime.h",
     "platforms/embedded/p0/include/p0_ed_service_protocol.h",
     "platforms/embedded/p0/src/p0_parameter_runtime.c",
@@ -132,12 +133,29 @@ def result_fields(result: F1ParameterResult) -> dict:
                     raise ValueError("Sinyal türü geçersiz.")
             elif not isinstance(field.value, (float, int)) or not math.isfinite(field.value):
                 raise ValueError("Ölçüm alanında sonlu sayı yok.")
+        temporal_estimate = (
+            result.quality.observed_frames == 16
+            and name in {"emission_center_frequency", "lower_band_edge", "upper_band_edge", "occupied_bandwidth"}
+            and field.reason in {"center_temporal_uncertainty", "obw_temporal_instability"}
+            and isinstance(field.value, (int, float)) and math.isfinite(field.value) and field.value > 0
+        )
         fields[name] = {
-            "state": field.state, "value": field.value if field.state == "valid" else None,
+            "state": field.state, "value": field.value if field.state == "valid" or temporal_estimate else None,
             "unit": unit, "reason": field.reason,
-            "method_id": (F5ParameterEstimator.METHOD_IDS[method] + ".groups16-v1"
+            "method_id": (F5ParameterEstimator.METHOD_IDS[method] + ".groups16-v2"
                           if result.quality.observed_frames == 16 and name != "signal_domain"
                           else F5ParameterEstimator.METHOD_IDS[method]),
+        }
+    recovered = getattr(result, "recovered_carrier_frequency", None)
+    if recovered is not None:
+        from algorithms.parameters.carrier_recovery import METHOD_ID
+        if (recovered.state != "uncertain" or recovered.reason not in
+                {"recovered_carrier_order2", "recovered_carrier_order4"}
+                or not isinstance(recovered.value, (float, int)) or not math.isfinite(recovered.value)):
+            raise ValueError("Taşıyıcı kestiriminin kökeni veya değeri geçersiz.")
+        fields["recovered_carrier_frequency"] = {
+            "state": recovered.state, "value": recovered.value, "unit": "Hz",
+            "reason": recovered.reason, "method_id": METHOD_ID,
         }
     return fields
 
@@ -319,9 +337,11 @@ def measure_and_record(
         if expected_hashes is not None and expected_hashes != [digest(raw_ci8[i*8192:(i+1)*8192]) for i in range(frame_count)]:
             raise ValueError("Ölçüm girdisi kartta gözlenen karelerle eşleşmiyor.")
         locked_channel_power = "direction_capture" in source
+        recovery_options = ({"recover_carrier": True} if frame_count == 16
+                            and source.get("carrier_recovery_supported") is True else {})
         board = measure_on_board(*board_endpoint, intent, raw_ci8,
             sample_rate_hz=int(sample_rate_hz), center_frequency_hz=int(center_frequency_hz),
-            locked_channel_power=locked_channel_power)
+            locked_channel_power=locked_channel_power, **recovery_options)
         result = board.result
     else:
         if intent.span.width_bins > 512:
@@ -373,7 +393,8 @@ def measure_and_record(
         document["board_measurement"] = {
             "protocol": f"P0PM-v{struct.unpack_from('<H', board.response, 4)[0]}", "response_hex": board.response.hex(),
             "persistent_payload_bytes": result.persistent_payload_bytes,
-            "span_contract": ("board-extended-v3" if frame_count == 16 else
+            "span_contract": ("board-recovered-carrier-v5" if struct.unpack_from('<H', board.response, 4)[0] == 5 else
+                              "board-extended-v3" if frame_count == 16 else
                               "locked-direction-channel-total-power-v4" if struct.unpack_from('<H', board.response, 4)[0] == 4 else
                               "board-full-span-v2" if struct.unpack_from('<H', board.response, 4)[0] == 2 else "legacy-512-v1"),
             "power_basis": ("locked_channel_total_signal_plus_noise"
@@ -386,7 +407,10 @@ def measure_and_record(
             "execution": "reprocess_operator_selected_record_on_pl_and_arm",
             "executed_methods": [
                 name for name in F5ParameterEstimator.METHOD_IDS if name != "signal_domain"
-            ],
+            ] + (["frequency.suppressed-carrier-power-consensus-v1"]
+                 if struct.unpack_from('<H', board.response, 4)[0] == 5 else []),
+            "carrier_origin": (f"conditional_power_order{board.response[37]}"
+                               if board.response[37] else "observed_line_or_not_observed"),
             "service_binary_sha256": None,
             "service_identity_reason": "running_service_hash_not_exposed_by_protocol",
         }
@@ -477,7 +501,7 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
         validate_measurement_ownership(intent, document["source"])
     if document["processing_location"] in {"zedboard_arm", "hybrid_zedboard_arm_host"}:
         board = document.get("board_measurement")
-        if not isinstance(board, dict) or board.get("protocol") not in {"P0PM-v1", "P0PM-v2", "P0PM-v3", "P0PM-v4"}:
+        if not isinstance(board, dict) or board.get("protocol") not in {"P0PM-v1", "P0PM-v2", "P0PM-v3", "P0PM-v4", "P0PM-v5"}:
             raise ValueError("Kart ölçüm kaydı eksik veya geçersiz.")
         interleaved = np.stack((np.stack(frames).real, np.stack(frames).imag), axis=-1) * 128.0
         if np.any(interleaved != np.rint(interleaved)) or np.any(interleaved < -128) or np.any(interleaved > 127):
@@ -496,7 +520,8 @@ def replay_measurement(path: Path, *, expected_sha256: str | None = None) -> F1P
         if board.get("power_basis", "noise_subtracted_excess") != expected_power_basis:
             raise ValueError("Kart güç anlamı ölçüm protokolüyle eşleşmiyor.")
         measured = decode_board_response(response, intent, raw_ci8, token,
-                                         locked_channel_power=locked_channel_power)
+                                         locked_channel_power=locked_channel_power,
+                                         recover_carrier=board["protocol"] == "P0PM-v5")
         if board["protocol"] != f"P0PM-v{struct.unpack_from('<H', response, 4)[0]}":
             raise ValueError("Kart protokol sürümü kaydedilen yanıtla eşleşmiyor.")
         if (board.get("input_ci8_sha256") != digest(raw_ci8)

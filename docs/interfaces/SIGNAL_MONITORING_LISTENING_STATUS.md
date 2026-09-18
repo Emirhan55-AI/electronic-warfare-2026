@@ -1,5 +1,48 @@
 # Sinyal izleme ve dinleme: güncel durum
 
+## Kesintisiz analog dinleme ve görünür kanal izlemesi — 18 Eylül 2026
+
+KTR-4.3 canlı analog yolunda beş saniye artık dinleme süresi sınırı değildir.
+İlk `5,001216 s` ardışık I/Q, seçilen kanalın FPGA/ARM tarafından doğrulanması,
+en az `%95` gözlem ve en çok sekiz ardışık eksik kare kapısı için başlangıç
+tamponudur. Bu kapı geçildikten sonra aynı HackRF → FPGA/ARM RX oturumu
+durdurulmadan, yalnız yeni ve sıra numarası ardışık kareler yaklaşık `0,25 s`
+parçalar halinde PC'deki durum koruyan AM/NFM çözücüye verilir. Operatör
+`Durdur` diyene, RX oturumu bitene veya süreklilik kapısı kapanana kadar canlı
+dinleme sürer. I/Q penceresi beş saniye, dışa aktarılabilen PCM16/WAV geçmişi
+son yirmi saniye ile sınırlıdır; sınırsız bellek kuyruğu yoktur.
+
+Canlı çözücü NCO fazını, RF/ses FIR geçmişini, örnek azaltma ve yeniden örnekleme
+fazını, NFM önceki örneğini, 30 Hz DC kesiciyi, seçili 200 Hz konuşma filtresini,
+de-emphasis ve yavaş AGC durumunu parçalar arasında korur. Tüketici geride
+kalırsa, sıra boşluğu oluşursa veya seçili kanalın doğrulanması kaybolursa ses
+parçaları sessizce birleştirilmez; akış fail-closed durur. Sonuç kartında kanal
+frekansı, süreklilik, anlık güç ve frekans değişimi; ayrı grafikte ise 250 ms
+çözünürlüklü zamansal güç/frekans izi görünür.
+
+Yayın türü bilinmiyorsa operatör AM ve FM'i tek tek ayrı kayıtlarla denemek
+zorunda değildir: `AM / FM Karşılaştırmasını Hazırla`, aynı doğrulanmış I/Q
+penceresinden iki sonucu tek işlemde üretir. Bu yol otomatik modülasyon tanıma
+değildir ve karşılaştırma için sabit beş saniyelik kayıt kullanır. Operatörün
+seçtiği AM veya NFM ile kesintisiz akış başlatmak yeni canlı kanal doğrulaması
+gerektirir.
+
+Analog sinyalleşmede yalnız standart DTMF çifti, süre/dominans/twist kapılarıyla
+tutucu biçimde çözümlenir. CTCSS/DCS, 5-ton, AFSK/AX.25, konuşma karıştırıcıları,
+şifreleme veya bilinmeyen analog veri için genel çözücü yoktur; arayüz bunu
+`diğer kodlar incelenmedi` diye açıkça belirtir. Bu, amatör telsiz konuşma
+içeriğini ya da şifreyi çözme iddiası değildir.
+
+Durum koruyan NFM yolunun altı saniyelik girdiyi tek parça ve 0,5 saniyelik
+parçalarla bit düzeyinde aynı PCM16 üretmesi, DTMF `5#` kabulü ve tek 1 kHz tonun
+reddi, yalnız yeni canlı karelerin verilmesi ve geride kalan tüketicide açık sıra
+boşluğu regresyonlarla doğrulandı. Gerçek hoparlör gecikmesi, uzun süreli gerçek
+telsiz konuşma anlaşılabilirliği, vericiye özgü pre/de-emphasis eşleşmesi ve
+kontrollü RF kabulü yeniden ölçülmedi. Bu nedenle kaynak yeteneği uygulanmıştır;
+KTR-4.3 fiziksel kabulü ve PHASE-08/ST-06 açık kalır, yeni faz açılmamıştır.
+Yöntem ve tekrarlanabilir komutlar
+`docs/reviews/CONTINUOUS_ANALOG_LISTENING_20260918.md` içindedir.
+
 ## Bilinmeyen yayınla dinleme — 16 Eylül 2026
 
 Mevcut KTR-4.3 yolu için `Bilmiyorum · AM/FM karşılaştır` seçimi eklendi.

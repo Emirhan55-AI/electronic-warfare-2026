@@ -1,5 +1,63 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+## Koşullu taşıyıcı frekansı — 18 Eylül 2026
+
+Doğrudan çizgi bulunmayan uygun sinyallerde, 16 özgün karenin ikinci/dördüncü
+kuvveti ve dört zaman grubunun uzlaşmasıyla ARM'da ayrı taşıyıcı kestirimi
+eklenmiştir. `Taşıyıcı Frekansı Kestirimi` yaklaşık işareti ve `TAHMİNİ`
+durumuyla sunulur; gözlenen çizgi veya merkez yerine geçmez. Frekansa özel
+sabit yoktur. Yeni hizmet/köprü çalışan karta geçici kurulmuş; 66 C/NumPy
+karşılaştırması ve iki gerçek kayıt PL/ARM tekrarında geçmiştir. Yeni canlı
+denemede referans uyuşmazlığı ölçümü reddetmiştir; genel RF doğruluğu,
+kalibrasyon ve soğuk açılış kabulü açıktır. Güncel hash'ler, kapsam ve bütün
+sonuçlar: [taşıyıcı kestirim sözleşmesi](docs/interfaces/CARRIER_RECOVERY_20260918.md).
+
+## Kesintisiz analog dinleme — 18 Eylül 2026
+
+Canlı AM/NFM dinleme, ilk beş saniyelik FPGA/ARM kanal doğrulamasından sonra
+HackRF alımını durdurmadan operatör durdurana veya süreklilik kapısı kapanana
+kadar devam eder. Beş saniye artık dinleme sınırı değil, başlangıç doğrulama
+tamponudur. Ses DSP'si PC'de durum koruyan parçalı akışla çalışır; son yirmi
+saniye PCM16/WAV için sınırlı halkada tutulur. Zamansal kanal gücü ve frekans
+değişimi 250 ms izleriyle görünürdür. Bilinmeyen yayın için aynı beş saniyelik
+I/Q üzerinde tek işlem AM/FM karşılaştırması vardır; bu otomatik tanıma değildir.
+Analog kod çözme yalnız tutucu DTMF desteğidir. Gerçek telsiz konuşmasıyla uzun
+süreli fiziksel kabul henüz yapılmadığından KTR-4.3 kabulü açık kalır.
+
+## KTR-4.4 bağıl yön sonucunun görünürlüğü — 18 Eylül 2026
+
+Uyarlamalı yön taraması tamamlandığında P0DF-v1 isteğini durduran 64 bit
+uygulama kare kimliği / 32 bit protokol alanı uyumsuzluğu giderildi. Açı–güç
+ölçümleri son ARM hesabı başarısız olduğunda korunur; operatör taramayı
+tekrarlamadan yalnız yön hesabını yeniden deneyebilir. Yön ekranı 0°ı ilk
+ölçümde antenin baktığı fiziksel eksen olarak açıkça gösterir. Pusula/IMU bağı
+olmadığı için kuzey/doğu değil, bu eksene göre saat yönünde veya tersinde derece
+ve antene bağlı Ön/Sağ/Arka/Sol sektörü sunulur.
+
+Ham en güçlü ölçülmüş açı sarı `ölçüm adayı`, kartın kalite kapılarını geçen
+`LOB HAZIR` sonucu ise ayrı doğrulanmış bağıl yön olarak gösterilir. Aday sonuç
+ARM sonucu değildir. Fiziksel `Derece RMS` değeri, bilinen yönlü kontrollü deney
+henüz yapılmadığından açık kabul kapısı olarak görünür. Bu bakım kaynak ve ürün
+akışı düzeltmesidir. Çalışan 47007 kart hizmeti yeni P0DF belirteçleriyle sekiz
+sayısal sahneyi geçmiştir; kayıt
+`results/evidence/phase09/amplitude-df-live-service-20260918.json` içindedir.
+Bu yeni anten doğruluğu kanıtı değildir.
+
+## KTR-4.2 geniş bant ölçüm düzeltmesi — 18 Eylül 2026
+
+16 karelik uzun parametre ölçümünde sabit yedi FFT-hücresi OBW kararlılık
+sınırının geniş yayınları gereksiz reddettiği gerçek 820 MHz kayıt tekrarında
+ayrıştırıldı. Sınır uzun ölçümde en az yedi hücre veya ölçülen genişliğin `%5`i
+olacak şekilde ölçeklendi; dört karelik tarihsel yöntem değişmedi. Kayıt tekrarı
+`820,031321536 MHz` merkez ve `684,420351 kHz` OBW verdi; sentetik değişen bant
+ve frekans sıçraması retleri korunuyor. Güncel hizmet karta yüklendi; aynı özgün
+I/Q P0PM-v3 üzerinden `684,373127 kHz`, yeni gerçek HackRF → FPGA → ARM koşusu
+ise 16/16 kareyle `820,144998 MHz` merkez ve `674,851 kHz` OBW verdi. Bunlar bu
+koşuların işlev kanıtıdır; genel RF doğruluk kabulü veya dBm kalibrasyonu değildir.
+Parametre ekranında gözlenen taşıyıcı satırı yeniden görünür; taşıyıcı çizgisi
+yoksa sayı üretilmez. Analog/Sayısal değerinin görünür deneysel rozeti kaldırıldı
+ve değer ana sonuç rengiyle gösterilir; teknik model sınırı kayıtta korunur.
+
 ## KTR-4.4 uyarlamalı anten açıklığı taraması — 16 Eylül 2026
 
 Yön bulma artık bütün 360° boyunca 24 tespit istemez. İlk `0°` ölçümü hedef

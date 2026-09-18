@@ -1,5 +1,40 @@
 # Uygulama Yol Haritası
 
+## KTR-4.2 taşıyıcı kestirimi devamı — 18 Eylül 2026
+
+Mevcut onaylı parametre iyileştirmesinde, gözlenen çizgi ve merkezden ayrı
+koşullu taşıyıcı kestirimi ARM'a P0PM-v5 ile bağlandı. Frekansa özel sabit yoktur;
+16 CI8 kare, kalite ve zaman grubu uzlaşması gerekir. Yeni hizmet/köprü geçici
+kuruldu; iki gerçek PL/ARM tekrar kaydı ve kaynak/sayısal regresyonlar geçti.
+Yeni canlı referans uyuşmazlığı olumlu sonuç sayılmadı. Geniş aile kapsamı,
+yeni canlı kestirim, kalibre RF ve soğuk açılış kapıları açıktır. Yeni faz
+açılmadı; ayrıntı `docs/interfaces/CARRIER_RECOVERY_20260918.md` içindedir.
+
+## KTR-4.3 kesintisiz analog dinleme — 18 Eylül 2026
+
+Onaylı PHASE-08 kapsamındaki analog dinleme yolu, ilk beş saniyelik kanal ve
+süreklilik doğrulamasından sonra RX'i durdurmadan ardışık canlı AM/NFM ses
+parçaları üretecek şekilde genişletildi. Durum koruyan PC çözücü, sınırlı
+beş saniyelik I/Q penceresi ve son yirmi saniyelik PCM/WAV halkası kullanır;
+sıra boşluğu, kanal kaybı veya işleme yığılması akışı fail-closed durdurur.
+Zamansal güç ve artık merkez frekansı 250 ms izleri arayüzde belirginleştirildi.
+Bilinmeyen türde aynı kayıtla tek işlem AM/FM karşılaştırması korunur; otomatik
+tür sınıflandırması değildir. Analog kod kapsamına yalnız tutucu DTMF çözümü
+alındı; diğer analog sinyalleşme, şifre/kodek ve sayısal telsiz kapsam dışıdır.
+Kaynak/sentetik testler tamamlandı; gerçek konuşma, hoparlör gecikmesi ve uzun
+süreli fiziksel RF kabulü açıktır. Yeni faz açılmadı.
+
+## PHASE-09 bağıl yön sonucu kapanış bakımı — 18 Eylül 2026
+
+Mevcut onaylı PHASE-09 içinde, tamamlanan uyarlamalı taramanın P0DF-v1 son
+isteğini engelleyen 64 bit/32 bit kaynak kare kimliği uyumsuzluğu düzeltildi.
+Tarama-yerel belirteç protokol sınırında kalır; özgün RX kare bağı ve aynı-kare
+reddi korunur. Son hesap hatasında açı–güç ölçümleri silinmeden yalnız ARM kararı
+yeniden denenebilir. Ürün 0° referansını ilk fiziksel anten ekseni olarak,
+doğrulanmamış ham maksimumu `ölçüm adayı` olarak ve kartın `LOB HAZIR` sonucunu
+ayrı gösterir. Coğrafi yön ve kontrollü fiziksel derece RMS hâlâ açık kabul
+kapılarıdır. Yeni faz açılmamıştır.
+
 ## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
 
 Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren

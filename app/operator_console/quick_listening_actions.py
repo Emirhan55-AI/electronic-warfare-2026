@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import replace
 from pathlib import Path
 
@@ -15,12 +16,14 @@ from algorithms.monitoring import (
     AnalogMonitorConfig,
     AnalogMonitorResult,
     MonitoringError,
+    StreamingAnalogMonitor,
+    decode_dtmf,
     write_wav,
 )
 from platforms.acquisition import decode_ci8
 
 from .live_ed import LIVE_AUDIO_WINDOW_FRAMES, LIVE_AUDIO_WINDOW_SECONDS
-from .quick_runtime import ERROR_TEXT
+from .quick_runtime import ERROR_TEXT, _Task
 
 
 def _prepare_audio(blocks, config, volume, *, continuous, compare):
@@ -48,6 +51,7 @@ class QuickListeningActionsMixin:
     """Prepare, play and export operator-selected receive audio."""
 
     def _clear_listening(self, message: str) -> None:
+        self._stop_continuous_listening(message, preserve_audio=False)
         self._playback_timer.stop()
         self._audio_playback.stop()
         self._listening_result = None
@@ -63,6 +67,26 @@ class QuickListeningActionsMixin:
         self.playbackChanged.emit()
         self.listeningChanged.emit()
         self.pipelineChanged.emit()
+
+    def _stop_continuous_listening(self, message: str = "", *, preserve_audio: bool = True) -> None:
+        was_active = bool(getattr(self, "_listening_stream_active", False))
+        self._listening_stream_active = False
+        self._listening_stream_processing = False
+        self._listening_stream_monitor = None
+        self._listening_stream_config = None
+        self._listening_stream_target_hz = None
+        self._listening_stream_last_sequence = None
+        self._audio_playback.stop()
+        if not preserve_audio:
+            self._listening_stream_audio.clear()
+            self._listening_stream_chunks = 0
+            self._listening_stream_started_at = 0.0
+            self._listening_dtmf_codes = []
+            self._listening_dtmf_chunk_active = False
+        if message:
+            self._listening_state = message
+            if was_active:
+                self._add_log("Dinleme", message)
 
     def _clear_listening_parameter_basis(self) -> None:
         self._listening_parameter_target_hz = None
@@ -230,6 +254,10 @@ class QuickListeningActionsMixin:
             self.listeningChanged.emit()
             return
 
+        if mode != "compare":
+            self._start_continuous_live_listening(config, volume)
+            return
+
         channel_target_hz = self._listening_channel_target_hz()
         if (
             channel_target_hz is not None
@@ -299,6 +327,182 @@ class QuickListeningActionsMixin:
         session.cancel()
         self.stateChanged.emit()
 
+    def _start_continuous_live_listening(self, config: AnalogMonitorConfig, volume: float) -> None:
+        session = self._live_session
+        target_hz = self._listening_channel_target_hz()
+        if session is None or target_hz is None or not hasattr(session, "audio_channel_frames_after"):
+            self._listening_state = "Kesintisiz dinleme için canlı, doğrulanmış kanal gerekir."
+            self.listeningChanged.emit()
+            return
+        frames, quality = session.audio_channel_frames_after(target_hz, None)
+        if len(frames) != LIVE_AUDIO_WINDOW_FRAMES:
+            self._listening_state = "Kesintisiz dinleme başlamadan önce kanal beş saniye doğrulanmalıdır."
+            self.listeningChanged.emit()
+            return
+        self._stop_continuous_listening(preserve_audio=False)
+        self._listening_stream_active = True
+        self._listening_stream_monitor = StreamingAnalogMonitor(config)
+        self._listening_stream_config = config
+        self._listening_stream_volume = float(volume)
+        self._listening_stream_target_hz = float(target_hz)
+        self._listening_stream_last_sequence = int(frames[0].sequence_number) - 1
+        self._listening_stream_started_at = time.monotonic()
+        self._listening_state = "Kesintisiz dinleme başlatılıyor; doğrulanmış ilk kanal penceresi hazırlanıyor."
+        self._listening_playback_state = (
+            "Canlı ses başlatılıyor" if self._audio_playback.start_stream()
+            else "Ses aygıtı yok · canlı WAV tamponu hazırlanıyor"
+        )
+        self._playback_timer.start()
+        self._queue_continuous_listening(frames, quality)
+        self.listeningChanged.emit()
+        self.playbackChanged.emit()
+
+    def _queue_continuous_listening(self, frames, quality) -> None:
+        monitor = self._listening_stream_monitor
+        config = self._listening_stream_config
+        if not self._listening_stream_active or self._listening_stream_processing or monitor is None or config is None:
+            return
+        sequences = tuple(int(frame.sequence_number) for frame in frames)
+        if not sequences or sequences != tuple(range(sequences[0], sequences[0] + len(sequences))):
+            self._stop_continuous_listening("Canlı ses I/Q sırası kesildi; dinleme güvenli biçimde durduruldu.")
+            self.listeningChanged.emit()
+            return
+        frames_per_block = max(1, int(math.ceil(config.sample_rate_hz * 0.25 / 4096.0)))
+        volume = self._listening_stream_volume
+
+        def operation():
+            blocks = tuple(
+                decode_ci8(
+                    b"".join(frame.payload for frame in frames[start:start + frames_per_block]),
+                    expected_complex_samples=len(frames[start:start + frames_per_block]) * 4096,
+                )
+                for start in range(0, len(frames), frames_per_block)
+            )
+            return monitor.process(blocks, volume=volume), sequences[-1], dict(quality)
+
+        task = _Task(self._generation, "continuous_listening", operation)
+        task.signals.completed.connect(self._continuous_listening_completed)
+        task.signals.failed.connect(self._continuous_listening_failed)
+        self._listening_stream_processing = True
+        self._start_retained_task(self._audio_pool, task)
+
+    def _poll_continuous_listening(self) -> None:
+        if not self._listening_stream_active or self._listening_stream_processing:
+            return
+        session = self._live_session
+        target_hz = self._listening_stream_target_hz
+        if session is None or target_hz is None:
+            self._stop_continuous_listening("Canlı alım sona erdi; kesintisiz dinleme durduruldu.")
+            self.listeningChanged.emit()
+            return
+        frames, quality = session.audio_channel_frames_after(
+            target_hz,
+            self._listening_stream_last_sequence,
+            122,
+        )
+        if quality.get("sequence_gap"):
+            self._stop_continuous_listening("Canlı ses işlenirken I/Q parçası kaçtı; yanlış ses birleştirilmedi.")
+            self.listeningChanged.emit()
+            return
+        if quality.get("continuity_lost"):
+            self._stop_continuous_listening("Hedef kanal süreklilik kapısını kaybetti; canlı ses durduruldu.")
+            self.listeningChanged.emit()
+            return
+        if frames:
+            self._queue_continuous_listening(frames, quality)
+
+    @Slot(int, str, object, float)
+    def _continuous_listening_completed(self, generation: int, kind: str, payload: object, elapsed: float) -> None:
+        del kind, elapsed
+        if generation != self._generation or not self._listening_stream_active:
+            return
+        self._listening_stream_processing = False
+        if not isinstance(payload, tuple) or len(payload) != 3 or not isinstance(payload[0], AnalogMonitorResult):
+            self._stop_continuous_listening("Canlı ses sonucu geçersiz; dinleme durduruldu.")
+            self.listeningChanged.emit()
+            return
+        listening, last_sequence, continuity = payload
+        self._listening_stream_last_sequence = int(last_sequence)
+        self._listening_stream_chunks += 1
+        self._listening_stream_audio.append(listening.pcm16)
+        if self._audio_playback.streaming and not self._audio_playback.append_stream(listening.pcm16):
+            self._stop_continuous_listening("Ses çıkışı işleme hızına yetişemedi; dinleme durduruldu.")
+            self.listeningChanged.emit()
+            return
+        self._present_streaming_listening(listening, continuity)
+        QTimer.singleShot(0, self._poll_continuous_listening)
+
+    @Slot(int, str, str)
+    def _continuous_listening_failed(self, generation: int, code: str, detail: str) -> None:
+        del detail
+        if generation != self._generation or not self._listening_stream_active:
+            return
+        self._listening_stream_processing = False
+        self._stop_continuous_listening(
+            ERROR_TEXT.get(code, "Canlı ses parçası işlenemedi; dinleme durduruldu.")
+        )
+        self.listeningChanged.emit()
+
+    def _present_streaming_listening(self, listening: AnalogMonitorResult, continuity: dict) -> None:
+        self._listening_result = listening
+        self._listening_short_preview = False
+        duration = max(0.0, time.monotonic() - self._listening_stream_started_at)
+        self._listening_playback_duration_s = self._audio_playback.duration_seconds
+        self._listening_playback_state = (
+            "Kesintisiz canlı ses" if self._audio_playback.streaming else "Canlı WAV tamponu"
+        )
+        target = self._listening_stream_target_hz or self.centerFrequencyHz
+        power = listening.channel_power_dbfs_trace
+        frequency = listening.residual_frequency_hz_trace
+        symbols = decode_dtmf(listening.audio, listening.sample_rate_hz)
+        for index, symbol in enumerate(symbols):
+            # A held key can span worker chunks; suppress only that boundary
+            # duplicate.  A release or a second symbol in the same chunk keeps
+            # legitimate repeated keys such as "55".
+            held_across_boundary = (
+                index == 0
+                and self._listening_dtmf_chunk_active
+                and self._listening_dtmf_codes
+                and self._listening_dtmf_codes[-1] == symbol
+            )
+            if not held_across_boundary:
+                self._listening_dtmf_codes.append(symbol)
+        self._listening_dtmf_chunk_active = bool(symbols)
+        self._listening_dtmf_codes = self._listening_dtmf_codes[-32:]
+        self._listening_rows = [
+            {"label": "Çözümleme", "value": "AM" if listening.mode == "am" else "Dar Bant FM (NFM)"},
+            {"label": "Canlı izleme", "value": self._format_duration(duration)},
+            {"label": "Kanal frekansı", "value": self._format_frequency(target)},
+            {"label": "Süreklilik", "value": f"%{100.0 * float(continuity.get('observed_fraction', 0.0)):.1f}"},
+            {"label": "Kanal gücü", "value": f"{power[-1]:.2f} dBFS" if power else "Ölçülüyor"},
+            {"label": "Frekans değişimi", "value": f"{frequency[-1]:+.1f} Hz" if frequency else "Ölçülüyor"},
+            {
+                "label": "Analog sinyalleşme",
+                "value": (
+                    "DTMF: " + " ".join(self._listening_dtmf_codes)
+                    if self._listening_dtmf_codes else "DTMF saptanmadı · diğer kodlar incelenmedi"
+                ),
+            },
+        ]
+        self._listening_observation_points.extend(
+            {"time": float(t), "power": float(p), "frequency": float(f)}
+            for t, p, f in zip(
+                listening.observation_times_s,
+                listening.channel_power_dbfs_trace,
+                listening.residual_frequency_hz_trace,
+            )
+        )
+        self._listening_observation_points = self._listening_observation_points[-480:]
+        count = min(720, listening.audio.size)
+        indices = np.linspace(0, listening.audio.size - 1, count, dtype=np.int64)
+        self._listening_waveform = [float(listening.audio[index]) for index in indices]
+        self._listening_state = (
+            "Kesintisiz canlı dinleme sürüyor. Tespit, kanal gücü ve frekans değişimi izleniyor."
+        )
+        self._status_message = self._listening_state
+        self.listeningChanged.emit()
+        self.playbackChanged.emit()
+
     def _start_pending_live_listening(self) -> bool:
         operation, self._pending_live_listening = self._pending_live_listening, None
         if operation is None:
@@ -328,6 +532,11 @@ class QuickListeningActionsMixin:
 
     @Slot()
     def stopListening(self) -> None:
+        if self._listening_stream_active:
+            self._stop_continuous_listening(
+                "Kesintisiz dinleme operatör tarafından durduruldu; canlı alım sürüyor."
+            )
+            self.listeningChanged.emit()
         self._playback_timer.stop()
         self._audio_playback.stop()
         self._listening_playback_position_s = 0.0
@@ -336,7 +545,7 @@ class QuickListeningActionsMixin:
 
     @Slot(str)
     def exportListeningWav(self, value: str) -> None:
-        if self._listening_result is None or self._busy:
+        if self._listening_result is None:
             return
         url = QUrl(value)
         path = Path(url.toLocalFile() if url.isLocalFile() else value)
@@ -344,17 +553,18 @@ class QuickListeningActionsMixin:
             return
         if path.suffix.casefold() != ".wav":
             path = path.with_suffix(".wav")
-        payload = bytes(self._listening_result.pcm16)
+        stream_payload = self._listening_stream_audio.payload()
+        payload = stream_payload if stream_payload else bytes(self._listening_result.pcm16)
 
-        def operation() -> str:
-            try:
-                write_wav(path, payload)
-            except OSError as exc:
-                raise MonitoringError("wav_write_failed", "WAV dosyası yazılamadı.") from exc
-            return str(path)
-
-        self._set_busy(True, "WAV dosyası kaydediliyor…")
-        self._submit(self._generation, "wav_export", operation)
+        try:
+            write_wav(path, payload)
+        except OSError:
+            self._listening_state = "WAV dosyası yazılamadı."
+        else:
+            self._listening_state = f"WAV kaydedildi: {path.name}"
+            self._status_message = self._listening_state
+            self._add_log("Dinleme", self._listening_state)
+        self.listeningChanged.emit()
 
     @Slot(str)
     def selectListeningComparison(self, mode: str) -> None:
@@ -383,6 +593,13 @@ class QuickListeningActionsMixin:
                 if listening.mode == "nfm" and listening.nfm_deemphasis_us > 0
                 else "Net ses") + (" · Konuşma filtresi" if listening.voice_filter else "")},
         ]
+        dtmf = decode_dtmf(listening.audio, listening.sample_rate_hz)
+        self._listening_rows.append(
+            {
+                "label": "Analog sinyalleşme",
+                "value": "DTMF: " + " ".join(dtmf) if dtmf else "DTMF saptanmadı · diğer kodlar incelenmedi",
+            }
+        )
         if listening.channel_power_dbfs_trace:
             power_low = min(listening.channel_power_dbfs_trace)
             power_high = max(listening.channel_power_dbfs_trace)

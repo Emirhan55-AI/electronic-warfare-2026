@@ -16,6 +16,40 @@ from algorithms.p0.parameter_client import BoardAnalysisSpan, MAXIMUM_BOARD_SPAN
 
 CLOCKWISE_DIRECTION_ANGLE_COUNT = 24
 CLOCKWISE_DIRECTION_STEP_DEG = COARSE_STEP_DEG
+DIRECTION_SOURCE_TOKEN_STRIDE = 1_000_000
+UINT32_MAX = (1 << 32) - 1
+
+
+def _direction_source_token(measurement_index: int, source_frame_id: int) -> int:
+    """Map a fresh RX frame to the uint32, scan-local P0DF-v1 identity space."""
+
+    if (
+        isinstance(measurement_index, bool)
+        or not isinstance(measurement_index, int)
+        or measurement_index < 0
+        or isinstance(source_frame_id, bool)
+        or not isinstance(source_frame_id, int)
+        or not 0 <= source_frame_id < DIRECTION_SOURCE_TOKEN_STRIDE
+    ):
+        raise ValueError("Yön ölçümü kaynak kare kimliği geçersiz.")
+    token = measurement_index * DIRECTION_SOURCE_TOKEN_STRIDE + source_frame_id
+    if token > UINT32_MAX:
+        raise ValueError("Yön ölçümü kaynak kare kimliği P0DF-v1 sınırını aşıyor.")
+    return token
+
+
+def _relative_direction_description(angle_deg: float) -> str:
+    normalized = angle_deg % 360.0
+    signed = normalized - 360.0 if normalized > 180.0 else normalized
+    sectors = (
+        "Ön", "Ön-sağ", "Sağ", "Arka-sağ",
+        "Arka", "Arka-sol", "Sol", "Ön-sol",
+    )
+    sector = sectors[int((normalized + 22.5) // 45.0) % len(sectors)]
+    if abs(signed) < 0.05:
+        return f"{sector} · 0° ekseni doğrultusunda"
+    turn = "saat yönünde" if signed > 0.0 else "saat yönünün tersine"
+    return f"{sector} · 0° ekseninden {turn} {abs(signed):.1f}°"
 
 
 class QuickDirectionActionsMixin:
@@ -180,30 +214,51 @@ class QuickDirectionActionsMixin:
         )
         self.directionChanged.emit()
         if self._direction_scan_complete() and self._source_mode == "hackrf":
-            session = self._live_session
-            configuration = getattr(session, "configuration", None)
-            endpoint = board_endpoint or (
-                (configuration.board_host, configuration.board_port)
-                if configuration is not None else None
-            )
-            if endpoint is None:
-                self._df_status = "Kart ARM yön hesabı için canlı alıcı bağlamı bulunamadı."
-                self._df_relative = "—"
-                self._df_bearing = "—"
-                self.directionChanged.emit()
-                return
-            measurements = self._df.measurements
-            host, port = endpoint
+            self._request_direction_estimate(board_endpoint)
 
-            def operation():
-                return estimate_on_board(host, port, measurements)
-
-            self._df_status = "Kart ARM yön hesabı doğrulanıyor…"
+    def _request_direction_estimate(
+        self, board_endpoint: tuple[str, int] | None = None
+    ) -> None:
+        if not self._direction_scan_complete():
+            self._df_status = "Uyarlamalı anten taraması henüz tamamlanmadı."
+            self.directionChanged.emit()
+            return
+        session = self._live_session
+        configuration = getattr(session, "configuration", None)
+        endpoint = board_endpoint or self._df_board_endpoint or (
+            (configuration.board_host, configuration.board_port)
+            if configuration is not None else None
+        )
+        if endpoint is None:
+            self._df_status = "Kart ARM yön hesabı için canlı alıcı bağlamı bulunamadı."
             self._df_relative = "—"
             self._df_bearing = "—"
-            self._set_busy(True, "Kart ARM yön hesabı doğrulanıyor…")
-            self._submit(self._generation, "direction", operation)
+            self._df_estimate_retry_available = False
             self.directionChanged.emit()
+            return
+        self._df_board_endpoint = (str(endpoint[0]), int(endpoint[1]))
+        measurements = self._df.measurements
+        host, port = self._df_board_endpoint
+
+        def operation():
+            return estimate_on_board(host, port, measurements)
+
+        self._df_estimate_retry_available = False
+        self._df_capture_message = "Tarama tamamlandı; kart ARM yön hesabı doğrulanıyor."
+        self._df_status = "Kart ARM yön hesabı doğrulanıyor…"
+        self._df_relative = "—"
+        self._df_bearing = "—"
+        self._set_busy(True, "Kart ARM yön hesabı doğrulanıyor…")
+        self._submit(self._generation, "direction", operation)
+        self.directionChanged.emit()
+
+    @Slot()
+    def retryDirectionEstimate(self) -> None:
+        """Retry only the final ARM decision; preserve the completed RF sweep."""
+
+        if self._busy or not self._df_estimate_retry_available:
+            return
+        self._request_direction_estimate()
 
     def _direction_scan_complete(self) -> bool:
         if self._source_mode == "hackrf":
@@ -342,7 +397,23 @@ class QuickDirectionActionsMixin:
         self._analysis_span = BoardAnalysisSpan(
             *self._df_channel_span, "auto_suggested", self._span_revision
         )
-        pending["frame_id"] = (int(self._generation) << 32) | window[0].sequence_number
+        source_frame_id = int(window[0].output_frame.frame_id)
+        source_key = (int(pending["capture_generation"]), source_frame_id)
+        if source_key in self._df_source_frame_keys:
+            self.cancelDirectionMeasurement()
+            self._df_capture_message = "Aynı kaynak karesi ikinci bir anten açısı için kullanılamaz."
+            self.stateChanged.emit()
+            return
+        try:
+            pending["frame_id"] = _direction_source_token(
+                len(self._df.measurements), source_frame_id
+            )
+        except ValueError as exc:
+            self.cancelDirectionMeasurement()
+            self._df_capture_message = str(exc)
+            self.stateChanged.emit()
+            return
+        self._df_source_frame_keys.add(source_key)
         self._request_live_measurement(direction_window=window)
         if self._pending_live_measurement is None:
             message = self._status_message
@@ -378,16 +449,22 @@ class QuickDirectionActionsMixin:
         self._df_channel_span = None
         self._df_target_frequency_hz = None
         self._df_target_event_id = None
+        self._df_board_endpoint = None
+        self._df_source_frame_keys.clear()
         self._df.clear()
         self._df_sweep.clear()
         self._df_points = []
         self._df_status = "UYARLAMALI TARAMA SÜRÜYOR"
+        self._df_last_estimate = None
         self._df_relative = "—"
         self._df_bearing = "—"
+        self._df_estimate_retry_available = False
         self._df_reference_key = None
         self.directionChanged.emit()
         self.stateChanged.emit()
     def _apply_direction_estimate(self, estimate: DFEstimate) -> None:
+        self._df_estimate_retry_available = False
+        self._df_last_estimate = estimate
         self._df_status = estimate.status
         if estimate.status == "LOB HAZIR":
             self._df_relative = f"{estimate.estimated_angle_deg:.1f}°"

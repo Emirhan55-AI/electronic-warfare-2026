@@ -1,5 +1,37 @@
 # Yön bulma: güncel durum ve kabul sınırı
 
+## Bağıl yön sonucu, 0° referansı ve P0DF son hesap düzeltmesi — 18 Eylül 2026
+
+Tamamlanan canlı uyarlamalı taramada nihai kart hesabının başlamamasına neden
+olan kaynak hatası giderildi. Uygulama, yeniden başlayan her RX oturumunu ayırmak
+için `kuşak << 32 | kare` biçiminde 64 bit kimlik üretiyor; P0DF-v1 ise kaynak
+kare alanını 32 bit taşıyordu. İlk oturumdan sonraki ölçümler bu nedenle istek
+paketlenirken `uint32` sınırını aşıyor ve ekranda yalnız genel `Kart ARM yön
+hesabı tamamlanamadı` durumu kalıyordu. Güncel akış, özgün RX kare kimliğini ve
+aynı-kare reddini PC kayıtlarında korurken P0DF-v1 için ölçüm sırası ile kaynak
+kareyi birleştiren tarama-yerel 32 bit kaynak belirteci kullanır. Kodlayıcı sınır
+dışı değeri artık paketleme istisnası yerine açık sözleşme reddiyle durdurur.
+
+ARM bağlantısı veya yanıtı başarısız olursa toplanan açı–güç noktaları silinmez;
+`Yön Hesabını Yeniden Dene` yalnız nihai P0DF hesabını yineler. Arayüz `0°`ı
+ilk ölçümde antenin baktığı fiziksel eksen olarak görünür biçimde tanımlar.
+Coğrafi pusula/IMU referansı olmadığından kuzey, doğu veya gerçek azimut
+üretilmez. Sonuç, `Ön`, `Sağ`, `Arka`, `Sol` gibi antene bağlı sektör adıyla ve
+0° ekseninden saat yönündeki/tersindeki dereceyle açıklanır.
+
+Kart `LOB HAZIR` vermeden doğrulanmış bağıl yön yayımlanmaz. Buna karşılık
+tarama tamamlandığında ham en yüksek dBFS noktası sarı ve kesikli `ölçüm adayı`
+olarak ayrıca görünür; bu değer ARM sonucu veya doğruluk kabulü değildir.
+`Derece RMS` alanı kontrollü bilinen yön deneyi tamamlanana kadar açıkça
+bekliyor gösterilir. Kaynak regresyonu P0DF-v1 sınırını, yeniden başlayan RX
+oturumlarında benzersiz 32 bit belirteçleri, aday/doğrulanmış sonuç ayrımını ve
+ölçümler korunarak ARM yeniden denemesini kapsar. Çalışan 47007 kart hizmeti,
+yeni belirteçlerle sekiz sayısal hazır/ret sahnesini geçti; uyarlamalı sahne
+sekiz açıdan `LOB HAZIR / 10,0°` verdi. Tekrarlanabilir kayıt
+`results/evidence/phase09/amplitude-df-live-service-20260918.json` içindedir.
+Bu ARM/ağ sayısal kanıtıdır; yeni fiziksel anten/RF koşusu yapılmadı ve derece
+RMS kabulü açıktır.
+
 ## İki taraflı lob sınırı ve uyarlamalı tepe araması — 16 Eylül 2026
 
 Kullanıcı kararıyla ürün akışı tam 360°/24-açı zorunluluğundan yönlü antenin

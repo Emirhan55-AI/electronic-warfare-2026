@@ -55,7 +55,10 @@
 #define P0_DETECTION_MESSAGE_BYTES 48U
 /* Explicit replay of operator-selected CI8 frames through PL + ARM.
  * P0PM-v4 is the four-frame locked-direction-channel total-power contract;
- * it does not assert a new live detection or classify modulation. */
+ * it does not assert a new live detection or classify modulation.
+ * P0PM-v5 opts into conditional suppressed-carrier recovery over 16 frames.
+ * In v5 only, response byte 37 is 2/4 for recovered frequency at offset 144;
+ * zero keeps the directly observed carrier-line contract. CRC covers origin. */
 #define P0_PARAMETER_BATCH_HEADER_BYTES 64U
 #define P0_PARAMETER_BATCH_REQUEST_BYTES (64U + 32768U)
 #define P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES (64U + 16U * 8192U)

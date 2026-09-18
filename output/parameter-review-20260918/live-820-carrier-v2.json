@@ -1,0 +1,23 @@
+{
+  "schema": "live-parameter-once-v1",
+  "started_utc": "2026-09-18T02:39:31.697205+00:00",
+  "transmit_enabled": false,
+  "requested": {
+    "output_center_frequency_hz": 819953044,
+    "target_frequency_hz": 820012126.03125,
+    "lna_gain_db": 16,
+    "vga_gain_db": 16,
+    "frame_count": 8192
+  },
+  "probe": {
+    "hackrf_ready": false,
+    "source_state": "Hata",
+    "status": "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim bağlantısına erişilemedi.",
+    "error": "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim bağlantısına erişilemedi."
+  },
+  "status": "inconclusive",
+  "reason": "receiver_or_board_probe_failed",
+  "completed_utc": "2026-09-18T02:39:32.073575+00:00",
+  "final_status_message": "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim bağlantısına erişilemedi.",
+  "final_error_message": "Alıcı HackRF USB modunda bulunamadı ve PortaPack USB denetim bağlantısına erişilemedi."
+}

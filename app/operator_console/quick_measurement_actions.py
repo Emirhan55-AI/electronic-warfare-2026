@@ -27,7 +27,6 @@ from .measurement_record import (
     utc_now,
     validate_measurement_ownership,
 )
-from .power_estimate import estimate_hackrf_input_power_dbm
 
 
 class QuickMeasurementActionsMixin:
@@ -542,6 +541,7 @@ class QuickMeasurementActionsMixin:
         channelizer = getattr(session, "measurement_channelizer", None)
         source_info = {
             "kind": "hackrf", "session_id": f"{self._measurement_namespace}:{self._generation}",
+            "carrier_recovery_supported": bool(getattr(session, "carrier_recovery_supported", False)),
             "receiver_settings": asdict(configuration.rx_config),
             "receiver_settings_basis": "session_configuration_not_independent_readback",
             "channelizer": channelizer,
@@ -701,6 +701,10 @@ class QuickMeasurementActionsMixin:
                 return "Henüz doğrulanmadı"
             state = str(getattr(field, "state", "uncertain"))
             value = getattr(field, "value", None)
+            if (state != "valid" and getattr(field, "reason", None) in
+                {"center_temporal_uncertainty", "obw_temporal_instability"}
+                and isinstance(value, (int, float)) and math.isfinite(value) and value > 0):
+                return "≈ " + formatter(float(value))
             return formatter(float(value)) if state == "valid" and isinstance(value, (int, float)) else self._field_state(state)
 
         domain = (
@@ -709,10 +713,10 @@ class QuickMeasurementActionsMixin:
             else self._field_state(result.signal_domain.state)
         )
         rows = [
-            {"label": "Emisyon merkez frekansı", "value": measured("emission_center_frequency", result.emission_center_frequency, self._format_frequency)},
-            {"label": "Gözlenen taşıyıcı frekansı", "value": measured("carrier_line_frequency", result.carrier_line_frequency, self._format_frequency)},
-            {"label": "Alt OBW sınırı", "value": measured("occupied_bandwidth", result.lower_band_edge, self._format_frequency)},
-            {"label": "Üst OBW sınırı", "value": measured("occupied_bandwidth", result.upper_band_edge, self._format_frequency)},
+            {"label": "Emisyon merkez frekansı", "value": measured("emission_center_frequency", result.emission_center_frequency, lambda value: f"{value / 1e6:.6f} MHz")},
+            {"label": "Gözlenen taşıyıcı frekansı", "value": measured("carrier_line_frequency", result.carrier_line_frequency, lambda value: f"{value / 1e6:.6f} MHz")},
+            {"label": "Alt OBW sınırı", "value": measured("occupied_bandwidth", result.lower_band_edge, lambda value: f"{value / 1e6:.6f} MHz")},
+            {"label": "Üst OBW sınırı", "value": measured("occupied_bandwidth", result.upper_band_edge, lambda value: f"{value / 1e6:.6f} MHz")},
             {"label": "İşgal edilen bant genişliği (OBW %99)", "value": measured("occupied_bandwidth", result.occupied_bandwidth, self._format_rate)},
             {"label": "Kanal gücü (dBFS)", "value": measured("uncalibrated_channel_power_dbfs", result.channel_power_dbfs, lambda value: f"{value:.2f} dBFS")},
             {"label": "Bant içi SNR kestirimi", "value": measured("snr_estimate_db", result.snr_estimate_db, lambda value: f"{value:.2f} dB")},
@@ -727,39 +731,32 @@ class QuickMeasurementActionsMixin:
             reason = str(getattr(field, "reason", "") or "")
             row.update(key=key, state=str(getattr(field, "state", "valid")),
                        reason=reason_text(reason))
+            if row["value"].startswith("≈ "):
+                row["state"] = "variable"
 
+        # A maximum safe RF input is not an ADC full-scale calibration point.
+        # Keep the legacy row key for consumers, without inventing an absolute level.
         estimated_row = {
             "key": "estimated_power_dbm",
-            "label": "Tahmini Güç (dBm)",
-            "value": "Hesaplanamadı",
+            "label": "Giriş Gücü (dBm)",
+            "value": "Kalibrasyon gerekli",
             "state": "not_applicable",
-            "reason": "Tahmin yalnız canlı HackRF ölçüm bağlamında oluşturulur.",
+            "reason": (
+                "Gerçek dBm için bilinen giriş seviyesiyle alıcı kalibrasyonu gerekir. "
+                "Kanal gücü dBFS olarak ölçülür; verici çıkış gücü değildir."
+            ),
         }
-        power_field = result.channel_power_dbfs
-        context = getattr(self, "_parameter_power_estimate_context", None)
-        if (
-            context is not None
-            and power_field.state == "valid"
-            and isinstance(power_field.value, (int, float))
-        ):
-            estimate = estimate_hackrf_input_power_dbm(
-                float(power_field.value),
-                frequency_hz=context.get("frequency_hz"),
-                lna_gain_db=context.get("lna_gain_db"),
-                vga_gain_db=context.get("vga_gain_db"),
-                rf_amplifier=context.get("rf_amplifier"),
-                output_amplitude_scale=context.get("output_amplitude_scale"),
-            )
-            if estimate is not None:
-                estimated_row.update(
-                    value=f"≈ {estimate.power_dbm:.1f} dBm (±{estimate.uncertainty_db:.0f} dB)",
-                    state="estimated",
-                    reason=(
-                        "Kalibrasyonsuz HackRF modeliyle SMA girişinde hesaplanan yaklaşık değerdir; "
-                        "gerçek dBm ölçümü veya verici çıkış gücü değildir."
-                    ),
-                )
         rows.insert(6, estimated_row)
+        recovered = getattr(result, "recovered_carrier_frequency", None)
+        if recovered is not None and isinstance(recovered.value, (float, int)) and math.isfinite(recovered.value):
+            rows.append({
+                "key": "recovered_carrier_frequency", "label": "Taşıyıcı frekansı kestirimi",
+                "value": f"≈ {float(recovered.value) / 1e6:.6f} MHz", "state": "estimated",
+                "reason": (
+                    "Modülasyondan geri kazanılan koşullu frekans kestirimidir; "
+                    "doğrudan gözlenen taşıyıcı çizgisi veya modülasyon türü doğrulaması değildir."
+                ),
+            })
 
         quality = result.quality
         quality_state = str(quality.state)

@@ -1,0 +1,17 @@
+[
+  {
+    "sudo": true,
+    "command": "set -eu; mkdir -p /tmp/parameter-before-20260918-v3 /tmp/parameter-update-20260918-v3; cp -p /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge /tmp/parameter-before-20260918-v3/; chown petalinux:petalinux /tmp/parameter-update-20260918-v3"
+  },
+  {
+    "upload": "build\\p0\\parameter-20260918\\software-v3\\p0-ed-service",
+    "destination": "/tmp/parameter-update-20260918-v3/p0-ed-service"
+  },
+  {
+    "upload": "build\\p0\\parameter-20260918\\software-v3\\p0-ed-network-bridge",
+    "destination": "/tmp/parameter-update-20260918-v3/p0-ed-network-bridge"
+  },
+  {
+    "command": "sha256sum /tmp/parameter-update-20260918-v3/p0-ed-service /tmp/parameter-update-20260918-v3/p0-ed-network-bridge"
+  }
+]

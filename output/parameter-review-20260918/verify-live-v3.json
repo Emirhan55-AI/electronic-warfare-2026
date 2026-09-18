@@ -1,0 +1,3 @@
+[
+  {"command":"uname -m; sha256sum /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge; pgrep -a p0-ed-service; pgrep -a p0-ed-network-bridge; ls -l /run/p0-ed/p0-ed.sock"}
+]

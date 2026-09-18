@@ -92,6 +92,9 @@ typedef struct {
     double temporal_edge_range_bins;
     /* Local extension: the legacy 128-byte service result does not carry this field. */
     p0_parameter_field_t carrier_line_frequency_hz;
+    /* Conditional modulation recovery, never an observed spectral line. */
+    p0_parameter_field_t recovered_carrier_frequency_hz;
+    uint8_t carrier_recovery_order;
 } p0_parameter_result_t;
 
 typedef struct {
@@ -117,6 +120,7 @@ typedef struct {
     uint8_t required_frames;
     uint8_t allocated_frames;
     uint8_t locked_channel_power;
+    uint8_t recover_carrier;
 } p0_parameter_runtime_t;
 
 int p0_parameter_runtime_init(p0_parameter_runtime_t *runtime);

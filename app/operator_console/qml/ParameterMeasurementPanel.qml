@@ -12,37 +12,43 @@ ScrollView {
     readonly property bool measuring: viewModel.parameterMeasurementActive
     property bool detailsOpen: false
     property bool catalogOpen: false
-    readonly property var mainKeys: ["emission_center_frequency", "carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs", "estimated_power_dbm", "signal_domain"]
+    readonly property var mainKeys: ["emission_center_frequency", "carrier_line_frequency", "recovered_carrier_frequency", "occupied_bandwidth", "channel_power_dbfs", "estimated_power_dbm", "signal_domain"]
     readonly property var requiredMainKeys: ["emission_center_frequency", "carrier_line_frequency", "occupied_bandwidth", "channel_power_dbfs"]
-    readonly property var mainLabels: ["Sinyal Merkez Frekansı", "Gözlenen Taşıyıcı Frekansı", "Bant Genişliği", "Kanal Gücü (dBFS)", "Tahmini Güç (dBm)", "Sinyal Türü"]
+    readonly property var mainLabels: ["Sinyal Merkez Frekansı", "Gözlenen Taşıyıcı Frekansı", "Taşıyıcı Frekansı Kestirimi", "Bant Genişliği", "Kanal Gücü (dBFS)", "Giriş Gücü (dBm)", "Sinyal Türü"]
     readonly property var primaryRows: mainKeys.map(function(key, index) {
         var row = viewModel.parameterRows.find(function(item) { return item.key === key })
         var state = row ? row.state : "pending"
         if (key === "signal_domain" && state === "valid") state = "predicted"
         return { key: key, label: mainLabels[index], value: row ? row.value : "—", state: state, reason: row ? (row.reason || "") : "" }
+    }).filter(function(row) {
+        return row.key !== "recovered_carrier_frequency" || row.state !== "pending"
     })
     readonly property var detailRows: viewModel.parameterRows.filter(function(row) {
         return mainKeys.indexOf(row.key) < 0
     })
+    readonly property var detailReasons: viewModel.parameterRows.map(function(row) {
+        return row.reason || ""
+    }).filter(function(reason, index, all) { return reason.length > 0 && all.indexOf(reason) === index })
     readonly property int validPrimaryCount: primaryRows.filter(function(row) {
         return requiredMainKeys.indexOf(row.key) >= 0 && row.state === "valid"
     }).length
     function stateText(state) {
         if (state === "valid") return "GEÇERLİ"
         if (state === "uncertain") return "TEKRAR ÖLÇÜLMELİ"
+        if (state === "variable") return "DEĞİŞKEN"
         if (state === "insufficient_quality") return "KALİTE YETERSİZ"
         if (state === "not_observed") return "GÖZLENMEDİ"
-        if (state === "not_applicable") return "UYGULANMAZ"
+        if (state === "not_applicable") return ""
         if (state === "estimated") return "TAHMİNİ"
-        if (state === "predicted") return "DENEYSEL TAHMİN"
+        if (state === "predicted") return ""
         return "BEKLİYOR"
     }
     function stateColor(state) {
         if (state === "valid") return BazTheme.success
-        if (state === "pending" || state === "not_observed") return BazTheme.textMuted
+        if (["pending", "not_observed", "not_applicable", "predicted", "estimated"].indexOf(state) >= 0) return BazTheme.textMuted
         return BazTheme.warning
     }
-    onHasResultChanged: detailsOpen = hasResult
+    onHasResultChanged: detailsOpen = false
     clip: true
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
     ScrollBar.vertical: ScrollBar {
@@ -110,6 +116,7 @@ ScrollView {
                     font.pixelSize: 10
                 }
                 RowLayout {
+                    visible: panel.catalogOpen
                     Layout.fillWidth: true
                     QuietButton {
                         objectName: "parameterCatalogRefresh"
@@ -228,7 +235,7 @@ ScrollView {
         }
         Rectangle {
             objectName: "parameterValidationSummary"
-            visible: panel.hasResult
+            visible: panel.hasResult && panel.detailsOpen
             Layout.fillWidth: true
             implicitHeight: validationSummary.implicitHeight + 20
             radius: 4
@@ -274,18 +281,11 @@ ScrollView {
                 Label {
                     text: modelData.value
                     Layout.fillWidth: true
-                    color: modelData.state === "valid" ? BazTheme.textPrimary : BazTheme.textMuted
+                    color: modelData.state === "valid" || modelData.key === "signal_domain" || modelData.key === "recovered_carrier_frequency"
+                           ? BazTheme.textPrimary : BazTheme.textMuted
                     font.pixelSize: 18
                     font.weight: Font.DemiBold
                     wrapMode: Text.Wrap
-                }
-                Label {
-                    visible: modelData.state !== "valid" && modelData.reason.length > 0
-                    text: modelData.reason
-                    Layout.fillWidth: true
-                    color: BazTheme.warning
-                    font.pixelSize: 11
-                    wrapMode: Text.WordWrap
                 }
             }
         }
@@ -322,18 +322,21 @@ ScrollView {
                             font.weight: Font.Bold
                         }
                     }
-                    Label {
-                        visible: modelData.reason.length > 0
-                        text: modelData.reason
-                        Layout.fillWidth: true
-                        color: BazTheme.warning
-                        font.pixelSize: 10
-                        wrapMode: Text.WordWrap
-                    }
+                }
+            }
+            Repeater {
+                model: panel.detailReasons
+                delegate: Label {
+                    required property string modelData
+                    text: modelData
+                    Layout.fillWidth: true
+                    color: BazTheme.textSecondary
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
                 }
             }
             Label {
-                text: "Gözlem süresi: " + Number(panel.viewModel.measurementInfo.durationMs || 0).toFixed(3) + " ms · 4 kare\n"
+                text: "Gözlem süresi: " + Number(panel.viewModel.measurementInfo.durationMs || 0).toFixed(3) + " ms · " + (panel.viewModel.measurementInfo.frameCount || 0) + " kare\n"
                       + "Hesaplama bitişi (UTC): " + (panel.viewModel.measurementInfo.completedUtc || "Bilinmiyor")
                 Layout.fillWidth: true
                 color: BazTheme.textSecondary

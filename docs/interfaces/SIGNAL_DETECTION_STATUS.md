@@ -1,5 +1,66 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## KTR-4.2 koşullu taşıyıcı kestirimi — 18 Eylül 2026
+
+P0PM-v5, seçili 16 özgün karenin ikinci/dördüncü kuvvet çizgisi ve dört zaman
+grubu uzlaşmasıyla ARM'da ayrı koşullu taşıyıcı frekansı kestirir. Doğrudan
+gözlenen çizgi veya merkez alanı değiştirilmez; PL FFT ve tespit eşikleri
+aynıdır. Yeni hizmet/köprü çalışan karta hash bağlı geçici kuruldu. İki gerçek
+kayıt fiziksel PL/ARM tekrarında yaklaşık 820 MHz taşıyıcı kestirimi verdi;
+66 C/NumPy, altı normal kart parametre ve sekiz yön protokol sahnesi geçti.
+Yeni canlı ölçüm referans uyuşmazlığında reddedildi; bu RF başarı sayılmaz.
+Koşullu alan, yöntem/köken ve olumsuz sonuçlar
+`docs/interfaces/CARRIER_RECOVERY_20260918.md` içindedir. Genel RF doğruluğu,
+kalibrasyon, yeni canlı kestirim ve soğuk açılış kabulü açıktır; yeni faz yoktur.
+
+## KTR-4.3 kesintisiz analog dinleme bağı — 18 Eylül 2026
+
+Mevcut PHASE-08/ST-06 tespit bağı değiştirilmeden, doğrulanmış seçili kanalın ilk
+beş saniyelik I/Q penceresinden sonra yalnız yeni ardışık kareleri PC dinleme
+yoluna aktarılabilir hale getirildi. RX ve FPGA tespiti kesintisiz dinleme
+sırasında çalışmayı sürdürür; kanal gözlem oranı, ardışık boşluk, sıra numarası
+ve işleme yığılması kapıları kapanırsa ses fail-closed durur. Bu kaynak/sentetik
+işlev doğrulamasıdır; yeni fiziksel tespit veya KTR-4.3 RF kabulü değildir.
+PHASE-08/ST-06 kapıları değişmemiş ve açık kalmıştır. Ayrıntı
+`docs/interfaces/SIGNAL_MONITORING_LISTENING_STATUS.md` içindedir.
+
+## KTR-4.4 yön sonucu görünürlüğü — 18 Eylül 2026
+
+Uyarlamalı yön taramasının son ARM isteğinde 64 bit uygulama kare kimliği ile
+32 bit P0DF-v1 alanı arasındaki uyumsuzluk giderildi. Ölçümler başarısız son
+hesapta korunur ve yalnız ARM kararı yeniden denenebilir. Ürün 0° eksenini ilk
+ölçümdeki fiziksel anten yönü olarak gösterir; coğrafi referans yoksa kuzey/doğu
+iddiası üretmez. Ham en güçlü açı adayı ile ARM doğrulanmış bağıl yön ayrı
+sunulur. Fiziksel derece RMS kabulü değişmemiş ve açık kalmıştır. Ayrıntı
+`docs/interfaces/SIGNAL_DIRECTION_FINDING_STATUS.md` içindedir.
+
+## KTR-4.2 geniş bant OBW kararlılık düzeltmesi — 18 Eylül 2026
+
+Ekran görüntüsündeki 820 MHz ölçümünün özgün 16 karelik kaydı yeniden oynatıldı.
+Merkez `820,031321536 MHz` değerinde kararlıydı; eski mutlak yedi FFT-hücresi
+kapısı, yaklaşık `684,420 kHz` genişliğe karşı yalnız `%2,54` olan
+`35,618` hücrelik kenar değişimini yine de reddediyordu. Kök neden yayın yokluğu,
+PL hesabı veya taşıma hatası değil; geniş bantla ölçeklenmeyen ARM kalite
+kapısıdır. Uzun ölçümde sınır artık `maks(7 hücre, ölçülen OBW'nin %5'i)`dir.
+Dört karelik tarihsel yol değişmedi.
+
+Aynı kayıt taşınabilir C yolunda `819,658288599–820,342708950 MHz` kenarları ve
+`684,420351 kHz` OBW ile geçerli sonuç verdi. On iki sentetik geniş bant sahnesi
+geçmeye devam etti; değişen bant ve dört kademeli frekans sıçraması reddedildi.
+
+Yeni ikili çalışan karta yüklenip hash ile doğrulandı. Fiziksel PL/ARM sayısal
+kapısı altı sahneyi geçti; aynı özgün kayıt P0PM-v3 üzerinden `684,373127 kHz`
+OBW verdi. Yeni gerçek HackRF → FPGA → ARM koşusunda güncel RF sinyali 16/16
+kareyle `820,144998 MHz` merkez, `819,664402–820,339253 MHz` kenarlar,
+`674,851 kHz` OBW ve `-41,92 dBFS` kanal gücü üretti. Çalışan servis özeti ve
+kanıtlar `output/parameter-review-20260918/` altındadır. Soğuk açılış kalıcılığı,
+genel RF doğruluğu ve dBm kalibrasyonu kabul edilmedi. Ana sonuçlarda
+`Gözlenen Taşıyıcı Frekansı` yeniden gösterilir; dar
+taşıyıcı çizgisi bulunmayan yayında sayı uydurulmaz. Sinyal türündeki görünür
+`DENEYSEL TAHMİN` rozeti kaldırıldı ve değer ana sonuç rengine alındı; modelin
+deneysel sınırı kayıt ve teknik ayrıntıda korunur. PHASE-08/ST-06 ve fiziksel
+KTR-4.2 kabulü açıktır.
+
 ## KTR-4.4 yön akışı bağı — 16 Eylül 2026
 
 Yön Bulma, doğrulanmış `0°` kanal kilidinden sonra sağ ve sol lob dışı sınırları

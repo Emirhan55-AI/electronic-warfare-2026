@@ -15,6 +15,7 @@ from .df import DFEstimate, DFMeasurement, FIELD_AMPLITUDE_DF_PROFILE
 REQUEST_BYTES = 6176
 RESPONSE_BYTES = 104
 MAX_MEASUREMENTS = 96
+UINT32_MAX = (1 << 32) - 1
 STATUS = (
     "YETERSİZ AÇI",
     "YETERSİZ AÇI KAPSAMI",
@@ -34,6 +35,14 @@ class BoardDFEstimate:
     response: bytes
 
 
+class DirectionClientError(RuntimeError):
+    """Actionable failure from the board DF transaction."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
 def _binding_hash(binding: str) -> int:
     if not binding:
         raise ValueError("Yön ölçümünde alıcı ayarı bağı zorunludur.")
@@ -47,6 +56,12 @@ def encode_df_request(measurements: tuple[DFMeasurement, ...], token: int) -> by
     for index, item in enumerate(measurements):
         if item.channel_bandwidth_hz is None or item.frame_id is None:
             raise ValueError("Yön ölçümü kanal bant genişliği ve kaynak karesiyle bağlı olmalıdır.")
+        if (
+            isinstance(item.frame_id, bool)
+            or not isinstance(item.frame_id, int)
+            or not 0 <= item.frame_id <= UINT32_MAX
+        ):
+            raise ValueError("Yön ölçümü kaynak karesi P0DF-v1 uint32 sınırında olmalıdır.")
         struct.pack_into(
             "<5dII dQ", message, 32 + index * 64,
             item.angle_deg, item.relative_power_db, item.frequency_hz,
@@ -69,8 +84,13 @@ def decode_df_response(payload: bytes, token: int) -> BoardDFEstimate:
     if service_status:
         if service_status not in (1, 2) or any(payload[16:100]):
             raise ValueError("Kart yön hata yanıtı geçersiz.")
-        error = "Kart yön ölçümlerini reddetti." if service_status == 1 else "Kart yön hesabı başarısız."
-        raise RuntimeError(error)
+        if service_status == 1:
+            raise DirectionClientError(
+                "direction_request_rejected", "Kart yön ölçümlerini reddetti."
+            )
+        raise DirectionClientError(
+            "direction_computation_failed", "Kart yön hesabı başarısız."
+        )
     status_code, measurement_count, distinct_count, flags = struct.unpack_from("<IIII", payload, 16)
     values = struct.unpack_from("<8d", payload, 32)
     if (status_code >= len(STATUS) or flags & ~3 or not all(math.isfinite(value) for value in values)
@@ -99,7 +119,12 @@ def decode_df_response(payload: bytes, token: int) -> BoardDFEstimate:
 def estimate_on_board(host: str, port: int,
                       measurements: tuple[DFMeasurement, ...]) -> BoardDFEstimate:
     token = secrets.randbelow((1 << 32) - 1) + 1
-    request = encode_df_request(measurements, token)
+    try:
+        request = encode_df_request(measurements, token)
+    except (ValueError, struct.error) as exc:
+        raise DirectionClientError(
+            "direction_request_invalid", "Kart yön isteği oluşturulamadı."
+        ) from exc
     response = bytearray()
     try:
         with socket.create_connection((host, port), timeout=5.0) as connection:
@@ -108,8 +133,20 @@ def estimate_on_board(host: str, port: int,
             while len(response) < RESPONSE_BYTES:
                 chunk = connection.recv(RESPONSE_BYTES - len(response))
                 if not chunk:
-                    raise RuntimeError("Kart yön bağlantısı yanıt tamamlanmadan kapandı.")
+                    raise DirectionClientError(
+                        "direction_board_unavailable",
+                        "Kart yön bağlantısı yanıt tamamlanmadan kapandı.",
+                    )
                 response.extend(chunk)
     except OSError as exc:
-        raise RuntimeError("Kart ARM yön hesabına yanıt vermedi.") from exc
-    return decode_df_response(bytes(response), token)
+        raise DirectionClientError(
+            "direction_board_unavailable", "Kart ARM yön hesabına yanıt vermedi."
+        ) from exc
+    try:
+        return decode_df_response(bytes(response), token)
+    except DirectionClientError:
+        raise
+    except ValueError as exc:
+        raise DirectionClientError(
+            "direction_response_invalid", "Kart ARM yön yanıtı doğrulanamadı."
+        ) from exc

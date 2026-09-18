@@ -1,5 +1,92 @@
 # KTR Gereksinim İzlenebilirliği
 
+## KTR-4.2 koşullu taşıyıcı frekansı — 18 Eylül 2026
+
+İz: `p0_parameter_runtime.c`, `parameter_client.py`, `carrier_recovery.py`,
+`measurement_record.py` ve `ParameterMeasurementPanel.qml`. P0CQ `0x8` /
+P0PM-v5, ikinci/dördüncü kuvvet ve dört zaman grubu uzlaşmasını ARM'da uygular;
+köken byte 37, CRC ve özgün 16 CI8 kare bağını korur. Kayıt/arayüz koşullu
+kestirimi gözlenen çizgiden ve merkezden ayırır. 66 C/NumPy karşılaştırması,
+iki gerçek PL/ARM kayıt tekrarı, altı normal parametre ve sekiz yön kart sahnesi
+geçti. 6 dB sentetik kapsam kaybı ve yeni canlı referans uyuşmazlığı retleri
+saklanmıştır. Güncel hizmet hash'i, kanıtlar ve açık kalibrasyon/RF/soğuk
+açılış kapıları: `docs/interfaces/CARRIER_RECOVERY_20260918.md`. KTR-4.2 veya
+PHASE-08/ST-06 tamamlanmış sayılmaz; yeni faz açılmadı.
+
+## KTR-4.3 kesintisiz analog izleme/dinleme — 18 Eylül 2026
+
+- Gereksinim: Tespit edilen ve parametreleri çıkarılan analog yayının
+  sürekliliği ile zamansal/frekanssal davranışı izlenir; çözülebilen şifresiz
+  ses/veri, demodülasyon sonrasında operatöre sunulur.
+- Uygulama: `live_ed.py`, doğrulanmış ilk beş saniyeden sonra yalnız yeni ve
+  ardışık FPGA/ARM bağlı I/Q karelerini verir. `StreamingAnalogMonitor`, AM/NFM
+  demodülasyon durumunu parçalar arasında korur. `quick_listening_actions.py`
+  canlı hoparlör/WAV akışını, yirmi saniyelik PCM halkasını ve fail-closed
+  süreklilik kapılarını yönetir. `Main.qml`, 250 ms güç/frekans izini ve açık
+  canlı durumu gösterir. `signaling.py` yalnız tutucu DTMF çözümü sağlar.
+- Doğrulama: `tests/test_phase05_monitoring.py`, tek/parçalı altı saniyelik NFM
+  girdisinde aynı PCM16'yı, DTMF kabul/ret kapılarını ve DSP sınırlarını;
+  `tests/test_live_ed_session.py`, yalnız yeni ardışık kareleri ve geride kalma
+  boşluğunu; `tests/test_live_ed_view_model.py`, beş saniyeden sonra RX'in açık
+  kalmasını, canlı durum/iz/süreklilik/DTMF sunumunu sınar.
+- Açık kabul: Gerçek analog amatör telsiz konuşmasının uzun süreli hoparlör
+  dinlemesi, uçtan uca gecikme/dropout, verici pre-emphasis eşleşmesi ve
+  kontrollü kapalı/açık/kapalı RF tekrarı henüz yapılmadı. DTMF dışındaki analog
+  kodlar ile sayısal telsiz protokolleri uygulanmadı. PHASE-08/ST-06 ve KTR-4.3
+  fiziksel kabulü açıktır.
+
+## KTR-4.4 bağıl yön ve P0DF sonuç görünürlüğü — 18 Eylül 2026
+
+- Gereksinim: Genlik tabanlı yön bulma, ölçülmüş açı–güç noktalarından sensörün
+  0° eksenine göre derece sonucu üretir; coğrafi referans yoksa kuzey/doğu
+  kerterizi iddia etmez. Fiziksel doğruluk bilinen gerçek yönlere karşı dairesel
+  `Derece RMS` ile değerlendirilir.
+- Uygulama: `quick_direction_actions.py`, P0DF-v1 için tarama-yerel 32 bit kaynak
+  belirteci ve ölçümleri koruyan ARM yeniden-deneme eylemini sağlar.
+  `direction_client.py` uint32 sözleşmesini gönderimden önce doğrular ve kart
+  hata sınıflarını ayırır. `quick_view_model.py` ile `Main.qml`, ilk fiziksel
+  anten eksenini 0° olarak gösterir; ham en güçlü ölçüm adayını ARM doğrulanmış
+  sonuçtan ayırır ve derece RMS kapısının açık olduğunu bildirir.
+- Doğrulama: `tests/test_adaptive_direction_sweep.py`,
+  `tests/test_phase09_df_protocol.py`, `tests/test_live_ed_view_model.py` ve
+  `tests/test_app_f_quick_product.py` protokol sınırı, yeniden başlayan oturum
+  belirteçleri, bağıl sektör metni, sonuç yeniden denemesi ve QML görünürlüğünü
+  sınar. `scripts/verify_phase09_direction_live_service.py` çalışan 47007 kart
+  hizmetindeki sekiz sayısal sahneyi doğrular; sonuç
+  `results/evidence/phase09/amplitude-df-live-service-20260918.json` içindedir.
+- Açık kabul: Yeni kaynakla bilinen fiziksel açı, uygun yönlü anten ve kontrollü
+  yayın kullanılarak tekrarlar tamamlanmadı. RMSE, bias, p95, maksimum hata ve
+  geçerli sonuç oranı henüz ürün doğruluğu olarak yayımlanamaz.
+
+## KTR-4.2 OBW ölçekli kararlılık ve sonuç sunumu — 18 Eylül 2026
+
+16 karelik P0PM-v3 yolunda OBW kenar kararlılık kapısı, dar/geniş yayınlarda
+aynı göreli anlamı korumak için `maks(7 hücre, ölçülen OBW'nin %5'i)` olarak
+ölçeklendi; tarihsel dört kare yolu değişmedi. Özgün 820 MHz kayıt tekrarı eski
+`35,618 > 7` retini, yeni `35,618 < 70,085` geçişini ve `684,420351 kHz`
+sonucunu doğrular. Yeni uzun ölçüm kayıtları `.groups16-v2` yöntem son ekini
+taşır; sentetik değişen bant ve frekans sıçraması retleri korunur.
+İz: `platforms/embedded/p0/src/p0_parameter_runtime.c`,
+`algorithms/parameters/extended_obw.py`, `scripts/verify_extended_parameter.py`,
+`output/parameter-review-20260918/real-820-replay-fixed.json` ve
+`output/parameter-review-20260918/extended-numeric-fixed.json`.
+
+Çalışan kartta kurulum ve işlev izi:
+`output/parameter-review-20260918/capabilities-v3.json`,
+`output/parameter-review-20260918/board-numeric-v3.json`,
+`output/parameter-review-20260918/real-820-board-v3.json` ve
+`output/parameter-review-20260918/live-820-v3.json`. Son dosya gerçek
+HackRF → FPGA → ARM akışında 16/16 kare, geçerli merkez/OBW/güç/SNR ve ayrı
+`Gözlenmedi` taşıyıcı sonucunu kaydeder. Soğuk açılış kalıcılığı, genel RF
+doğruluğu ve dBm kalibrasyonu açık kabul kapılarıdır.
+
+`ParameterMeasurementPanel.qml` ayrı `Gözlenen Taşıyıcı Frekansı` satırını
+yeniden ana sonuçlara alır. Gözlenmeyen taşıyıcıya sayı üretilmez. Sinyal türü
+değeri ana sonuç rengiyle gösterilir ve görünür deneysel rozet kaldırılır;
+deneysel model bağı kayıt/metot kimliğinde korunur. Tek canlı RF koşusunun
+işlev geçişi genel RF doğruluğunu, dBm kalibrasyonunu veya fiziksel KTR-4.2
+kabulünü tamamlamaz.
+
 ## KTR-4.2 parametre iyileştirmesi — 16 Eylül 2026
 
 Merkez frekansı ve ayrı taşıyıcı çizgisi ana sonuçlarda ayrıldı. Yetenek bildiren
@@ -1833,7 +1920,7 @@ Bu matris yarışma görevlerini ve genel algoritma sırasını gerçek referans
 | KTR-4.2-F1 | 4.2 Parametre Çıkarımı | PHASE-04 ürün yeteneğini alan bazlı doğrulama | Emisyon merkez frekansı, ayrı gözlenen taşıyıcı frekansı, OBW99, kalibre edilmemiş kanal gücü/SNR; confirmed olay ve operatör onaylı izole span; alan bazlı abstention ve digest bağlı fail-closed profil | F1D/F2D/F3D/F4D tamamlandı ve başarısız; F5A-F5E tamamlandı; PÇ-02/PÇ-04 sayısal bağ uygulandı | F5 protokol/yöntem kilitleri, binding 40/40, OOS 24/24; 33 sahnelik C eşdeğerliği; altı sahnelik fiziksel PL/ARM entegrasyonu; bozuk CRC, profil ve kayıp bağ negatifleri | Canlı HackRF ölçüm komutu dört sabitlenmiş CI8 kareyi karta gönderir ve yalnız doğrulanmış PL/ARM yanıtını kaydeder; kart hatasında PC hesabına dönmez. Taşıyıcı çizgisi dahil sayısal alanlar ARM'dadır. Analog/sayısal alan ertelendi. Kontrollü RF doğruluğu, geniş bant fiziksel kapsama ve dBm kalibrasyonu açık |
 | KTR-4.1-OPS | 4.1 Yarışma İş Akışı | Bilinmeyen, hakem bandı ve hakem frekansı girişleriyle sinyal varlığını doğrulama | Hz domainli `SearchRequest`; ortak replay/HackRF acquisition backend; `UNKNOWN`, `JUDGE_BAND`, `JUDGE_FREQUENCY`; frekans verilse de OS-CFAR ve confirmation atlanmaz; 600 kHz sorumluluk adımlı örtüşen ayar, ikinci fiziksel LO kontrolü ve kontrollü TX kapalı/açık fark sınıflandırması | P0 Mandatory Closure Block A + PHASE-08 | Üç pozitif replay demo; band dışı, yanlış frekans, NaN, ters band, zarf dışı ve aşırı-span negatifleri; Qt binding; tamamlanmış iki JSONL taramasında aynı ayar, mutlak RF eşleştirmesi ve en az 6 dB güç artışı oracle'ı | Replay/host modları ve canlı HackRF tarama/ikinci-LO ürün akışı uygulandı. Sabit bant 2/3 sonucu yalnız `FPGA adayı`; kontrollü A/B olmadan harici yayın sayılmaz. 1,3 GHz yakınında iki-LO fiziksel aday bir turda görüldü, sonraki turda yoktu. Kontrollü TX kapalı/açık fiziksel kabul, tam-pencere geniş yayın ve saha Pd/Pfa ölçümü açık |
 | KTR-4.1-OPS-B0 | 4.1 Yarışma İş Akışı | Üç arama modunu seri seçili HackRF-1 RX'e hazırlama | RX-only `hackrf_transfer`, seri bağlı ED_RX config'i, 8 MS/s, ±100 kHz DC dışlama ve 500 kHz offset tuning | P0 Block B0 + PHASE-08 fiziksel RX | Toolchain self-test; discovery/ci8/argv/plan/mapping/queue/UI unit testleri; beş tekrarlı fiziksel bounded RX ve host tespit kabulü | Fiziksel HackRF tek cihaz ve yapılandırılmış seriyle eşleşti. Beş canlı koşuda toplam 81.920 kompleks önek eksiksiz, doyum sıfır ve her koşuda en az bir `LIVE_HACKRF` doğrulanmış aday elde edildi. Sürekli USB→kanal seçici→ZedBoard FPGA yolu ayrı 5/5 kabulde geçti. Ürün QML bağı, gerçek olay çözümü, yazılım iptal ve kart-yok fail-closed testleri geçti; beş fiziksel tam ürün oturumunda 20.480 kare hatasız tamamlandı. USB okuma, 512 karelik sınırlı ham-I/Q kuyruğuyla kanal seçimi ve FPGA taşımasından ayrılmıştır. Güncel ürün sekiz tam fiziksel oturumda 32.768 kareyi sıfır USB/taşıma hatasıyla işlemiş; 750. karede operatör iptali ve ardından yeniden başlatma geçmiştir. Hash-bağlı kanıt `results/evidence/phase08/detection-ui-decoupling.json` içindedir. Kesintisiz 15 dakikalık kabulde 439.453/439.453 kare ve 14.399.995.904 ham bayt sıfır USB/taşıma hatasıyla geçmiş; kuyruk tepe kullanımı 28/512 olmuştur. Hash-bağlı kanıt `results/evidence/phase08/live-rx-endurance.json` içindedir. Kontrollü RF doğruluğu kabulü açıktır |
-| KTR-4.3 | 5.1.3 / 4.3 Sinyal İzleme ve Analog Dinleme | Tespit edilip parametreleri çıkarılan analog yayının sürekliliğini, zamansal/frekanssal davranışını izleme ve operatör denetiminde dinleme | Parametre ölçümünden emisyon merkezi/OBW aktarımı; yeni canlı oturumda yeniden FPGA doğrulaması; açık AM/NFM seçimi; bounded DDC, 129 tap kanal filtresi, 48 kHz resample, AM zarf/NFM faz-fark, 65 tap ses filtresi, mono PCM16/WAV; karta gönderilmiş ve yanıtı doğrulanmış host I/Q için 5,001216 saniyelik sınırlı tampon; olayın ARM'da pencere boyunca confirmed kalması, en az %95 gözlem ve en çok 8 kare ardışık boşluk; 250 ms dBFS güç ve artık merkez frekansı dizileri | PHASE-05 ve PHASE-08 canlı devamı | Deterministik AM/NFM clean ve 20 dB kapıları; bağımsız periodogram/korelasyon oracle'ı; bilinen −200…+200 Hz kayma ve blok değişmezliği; korunmuş fiziksel HackRF NFM tekrarında 1.700 Hz ton için 0,048828 Hz hata ve sıfır kırpılma; QML parametre→yeniden al→dinleme, tespit/ofset/BW/süre/güç/frekans/WAV bağları; standalone paket QML/profil/config/DLL varlık ve çıkış kodu 0 smoke testi; noise-only, olay kaybı, gözlem oranı ve sıra boşluğu negatifleri | Kısmi — AM/NFM HOST/REPLAY ve 250 ms kanal izleme sayısal olarak doğrulandı; parametre sonucu dinlemeye aktarılıyor ve canlı hedef eski olay kimliğine güvenmeden yeniden doğrulanıyor. Canlı yol birim/QML testinde ve standalone paketin başlangıcında geçti. Fiziksel NFM tekrar kaydı güncel DSP'de doğru tonu verdi, ancak içerik sentetik tondu ve ürün FPGA olay bağı yoktu. Kontrollü analog amatör telsiz RF doğruluğu, cihaz profiline uygun de-emphasis, fiziksel konuşma/ses çıkışı ve saha kabulü yok; isteğe bağlı sayısal telsiz protokolü uygulanmadı |
+| KTR-4.3 | 5.1.3 / 4.3 Sinyal İzleme ve Analog Dinleme | Tespit edilip parametreleri çıkarılan analog yayının sürekliliğini, zamansal/frekanssal davranışını izleme ve operatör denetiminde dinleme | Parametre ölçümünden emisyon merkezi/OBW aktarımı; yeni canlı oturumda yeniden FPGA doğrulaması; açık AM/NFM seçimi veya aynı kayıtla tek işlem AM/FM karşılaştırması; 5,001216 saniyelik sınırlı başlangıç I/Q halkası; ARM confirmed bağı, en az %95 gözlem, en çok 8 ardışık eksik kare ve sıra sürekliliği; ilk kapıdan sonra yalnız yeni yaklaşık 250 ms parçalar; durum koruyan bounded DDC, 129 tap kanal filtresi, 48 kHz resample, AM zarf/NFM faz-fark, DC/isteğe bağlı 200 Hz konuşma filtresi, 65 tap ses filtresi, yavaş AGC, mono PCM16 ve son 20 saniyelik WAV halkası; 250 ms dBFS güç/artık merkez frekansı izi; tutucu DTMF çözümü | PHASE-05 ve onaylı PHASE-08 canlı devamı | Deterministik AM/NFM clean ve 20 dB kapıları; bağımsız periodogram/korelasyon oracle'ı; bilinen −200…+200 Hz kayma; altı saniyelik NFM girdisinde tek parça/0,5 saniyelik parçalar arasında bit düzeyinde PCM16 eşitliği; DTMF `5#` kabulü ve tek-ton reddi; yalnız yeni canlı kare, tüketici-geride sıra boşluğu ve süreklilik negatifleri; QML canlı RX'in açık kalması, tespit/ofset/BW/süre/güç/frekans/DTMF/WAV bağları; korunmuş fiziksel HackRF NFM tekrarında 1.700 Hz ton için 0,048828 Hz hata ve sıfır kırpılma | Kısmi — kesintisiz AM/NFM PC akışı, sınırlı bellek, fail-closed sıra/süreklilik kapıları ve görünür 250 ms kanal izlemesi kaynak/sentetik testlerde doğrulandı. FPGA tespiti ve ARM yaşam döngüsü canlı kalır; demodülasyon, ses ve DTMF PC'dedir. Fiziksel NFM tekrar kaydı güncel DSP'de doğru tonu verdi, ancak içerik sentetik tondu ve yeni kesintisiz ürün/FPGA olayı bağıyla tekrar edilmedi. Kontrollü analog amatör telsiz konuşması, hoparlör gecikmesi/dropout, cihaz profiline uygun de-emphasis ve saha kabulü yoktur. DTMF dışındaki analog kodlar ve isteğe bağlı sayısal telsiz protokolü uygulanmadı |
 | KTR-4.4 | 5.1.4 / 4.4 Yön Bulma | Sinyal geliş yönünü yaklaşık belirleme ve derece RMS ile değerlendirme | HackRF-1 ve uygun yönlü antenle manuel dönüş; seçili hedef kanalında dört taze karelik P0PM-v4 toplam dBFS ölçümü; sabit frekans/kanal/kare/LNA/VGA bağı; `0°` doğrulanmış başlangıçtan saat yönünde ilk lob dışı sınır, `0°`a dönüşten sonra ters yöndeki sınır, sınırlar içinde 5° tepe hassaslaştırması ve tek karşı-yön ölçümü; 3 dB tepe/ön-arka kapıları; bağıl ham maksimum LOB. Lob dışı nokta başarısızlık değil gözlem maskeli kilitli kanal ölçümüdür. Sensör/enkoder ve doğrulanmış coğrafi referans yokken gerçek kuzey, harita, hedef konumu veya coğrafi kerteriz üretilmez | PHASE-09 uyarlamalı saha öncesi entegrasyon ve geçici kart çalışma zamanı tamam; fiziksel RMS kabulü açık / P0 Mandatory EH Core | Uyarlamalı sıra ve sınır birim testleri; 61 sentetik yerel tepe sahnesi; bağımsız argmax, dairesel hata/RMS, ön/arka belirsizliği, ayar değişimi ve aynı-kare negatifleri; Python↔portable C sekiz hazır/ret sahnesinde ara metrik eşdeğerliği; doğrulanmış ZedBoard üzerinde sekiz P0DF ağ sahnesi; `P0DF-v1/P0FR-v1` CRC protokolü; canlı dört-kare PL/ARM güç ve `target_observed` bağı; QML/view-modelde sağ sınırdan sonra `0°`a dönüş ve 345° talimatı; tarihsel manuel referans ve harita regresyonu | `P0_AMPLITUDE_DF_ADAPTIVE_V2` sayısal 61/61 sahnede LOB üretti; portable C sekiz sahnede Python'la sıfır fark verdi; aynı sekiz durum geçici 47008 kart ağ yolunda geçti ve çalışan 47007 hizmeti `126a916d…` hash'iyle güncellendi. Eski tam-tur ve kalıcı SD kanıtı tarihsel `FIELD_V1` profilinde korunur, yeni profile aktarılmaz. SD imajı ve fiziksel HackRF/yönlü anten derece RMS tekrarı tamamlanmadan kalıcılık veya fiziksel doğruluk iddiası kurulmaz |
 | KTR-4.5 | 4.5 Konum Belirleme | Yaklaşık verici konumu çıkarma | Bilinen iki ölçüm noktasından manuel LOB doğrularını birleştirme | Sonraki fazlar | Bilinen konumlu kontrollü hedeflerle hata analizi | Uygulanmadı |
 | KTR-5.1 | 5.1 Sürekli Karıştırma | Kaynak KTR maddesi | Uygulama, arayüz, yapılandırma ve test yok | Kapsam dışı — kullanıcı kararı | Yok | ADR-0044 uyarınca ürün kapsamından çıkarıldı; tarihli eski kayıtlar güncel yetenek değildir |

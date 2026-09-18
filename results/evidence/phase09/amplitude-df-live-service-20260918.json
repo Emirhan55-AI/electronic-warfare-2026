@@ -1,0 +1,114 @@
+{
+  "schema": "phase09-amplitude-df-live-service-v1",
+  "generated_at_utc": "2026-09-18T02:02:21.962702Z",
+  "status": "passed",
+  "requirements": [
+    "KTR-4.4"
+  ],
+  "board": {
+    "host": "192.168.7.2",
+    "port": 47007
+  },
+  "protocol": {
+    "request": "P0DF-v1",
+    "response": "P0FR-v1",
+    "source_frame_identity": "scan-local uint32 measurement-index plus RX frame"
+  },
+  "cases": [
+    {
+      "case": "lob-ready",
+      "status": "LOB HAZIR",
+      "angle_deg": 45.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 10.9375,
+      "front_to_back_db": 22.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "adaptive-lob-ready",
+      "status": "LOB HAZIR",
+      "angle_deg": 10.0,
+      "measurement_count": 8,
+      "distinct_angle_count": 8,
+      "maximum_gap_deg": 160.0,
+      "prominence_db": 13.0,
+      "front_to_back_db": 35.0,
+      "sampling_rms_deg": null
+    },
+    {
+      "case": "coverage-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "angle_deg": 40.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 245.0,
+      "prominence_db": 5.0,
+      "front_to_back_db": null,
+      "sampling_rms_deg": null
+    },
+    {
+      "case": "front-back-gate",
+      "status": "ÖN/ARKA BELİRSİZ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 0.5,
+      "front_to_back_db": 0.5,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "receiver-gate",
+      "status": "ALICI AYARI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "target-gate",
+      "status": "HEDEF FREKANSI DEĞİŞTİ",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.5,
+      "front_to_back_db": 9.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "prominence-gate",
+      "status": "BELİRSİZ MAKSİMUM",
+      "angle_deg": 0.0,
+      "measurement_count": 24,
+      "distinct_angle_count": 24,
+      "maximum_gap_deg": 15.0,
+      "prominence_db": 1.0,
+      "front_to_back_db": 10.0,
+      "sampling_rms_deg": 4.330127018922194
+    },
+    {
+      "case": "linear-repeat-average",
+      "status": "YETERSİZ AÇI",
+      "angle_deg": 0.0,
+      "measurement_count": 2,
+      "distinct_angle_count": 1,
+      "maximum_gap_deg": 360.0,
+      "prominence_db": 0.0,
+      "front_to_back_db": 0.0,
+      "sampling_rms_deg": 103.92304845413264
+    }
+  ],
+  "source_sha256": {
+    "algorithms/p0/direction_client.py": "9100b5bb4a5241fdca3b72f1a78c3aec195e64cf2d33209abc1372407c6e022c",
+    "app/operator_console/quick_direction_actions.py": "a535c9fd9af14546d7f82e702f2cedf26657c2dd705caf7192a1dc2f8837cf47",
+    "platforms/embedded/p0/src/p0_amplitude_df.c": "40eb780e234e9bf9d74a522dc306b4f15634f7f5c27d3900ec453f5ef66393b2",
+    "scripts/verify_phase09_direction_live_service.py": "8daf4ed75ea29bd2f122ecad2eae0e63311f5050c68e3c3142b73b1dca105128"
+  },
+  "claim_boundary": "Connected running-service ARM/network numeric verification only; no deployment, antenna, live RF, geographic bearing or degree-RMS accuracy acceptance."
+}

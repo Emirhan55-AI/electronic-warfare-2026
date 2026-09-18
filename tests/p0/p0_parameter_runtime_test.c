@@ -142,6 +142,20 @@ int main(void)
                  10.0 * log10(32.0 / (1536.0 * 4096.0))) < 1e-12);
     REQUIRE(result.emission_center_frequency_hz.state ==
             P0_PARAMETER_FIELD_INSUFFICIENT_QUALITY);
+    REQUIRE(observe(&runtime, &result, 4, 90U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(runtime.recover_carrier == 1U && runtime.required_frames == 16U);
+    for (index = 91U; index < 106U; ++index)
+        REQUIRE(observe(&runtime, &result, 0, index, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.observation_count == 16U && runtime.active == 0U);
+    REQUIRE(result.recovered_carrier_frequency_hz.state != P0_PARAMETER_FIELD_VALID);
+    REQUIRE(result.carrier_recovery_order == 0U);
+    REQUIRE(observe(&runtime, &result, 4, 110U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(observe(&runtime, &result, 0, 112U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(result.emission_center_frequency_hz.reason == P0_PARAMETER_REASON_CONTEXT_LOST);
+    REQUIRE(result.recovered_carrier_frequency_hz.state != P0_PARAMETER_FIELD_VALID);
+    REQUIRE(result.carrier_recovery_order == 0U && runtime.active == 0U);
+    REQUIRE(observe(&runtime, &result, 1, 120U, 1, 2000U, 2031U, iq, power) == 0);
+    REQUIRE(runtime.recover_carrier == 0U && runtime.required_frames == 4U);
     p0_parameter_runtime_release(&runtime);
     free(power);
     free(iq);

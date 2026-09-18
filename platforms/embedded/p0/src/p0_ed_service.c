@@ -361,7 +361,7 @@ static void serve_parameter_batch(int client, p0_dma_runtime_t *dma,
         /* Ownership is the frozen operator-selected record, not a new temporal
          * detection. The request's CI8 is reprocessed by the physical PL here. */
         if (p0_parameter_runtime_observe(&pipeline->parameter_runtime,
-                frame == 0U ? (request->version == 3U ? 2 :
+                frame == 0U ? (request->version == 5U ? 4 : request->version == 3U ? 2 :
                                request->locked_channel_power ? 3 : 1) : 0,
                 request->token, request->event_id, request->first_frame_id + frame,
                 request->sample_rate_hz, request->center_frequency_hz,

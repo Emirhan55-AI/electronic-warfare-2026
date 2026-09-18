@@ -655,8 +655,8 @@ int p0_parameter_batch_decode(const uint8_t *bytes, size_t size,
     if (bytes == NULL || request == NULL || (size != P0_PARAMETER_BATCH_REQUEST_BYTES && size != P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES) ||
         memcmp(bytes, "P0PM", 4U) != 0 ||
         (load_le16(bytes + 4U) != 1U && load_le16(bytes + 4U) != 2U &&
-         load_le16(bytes + 4U) != 3U && load_le16(bytes + 4U) != 4U) ||
-        ((load_le16(bytes + 4U) == 3U) != (size == P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES)) ||
+         load_le16(bytes + 4U) != 3U && load_le16(bytes + 4U) != 4U && load_le16(bytes + 4U) != 5U) ||
+        (((load_le16(bytes + 4U) == 3U || load_le16(bytes + 4U) == 5U)) != (size == P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES)) ||
         load_le16(bytes + 6U) != P0_PARAMETER_BATCH_HEADER_BYTES ||
         load_le32(bytes + 44U) != 0U || load_le32(bytes + 48U) != 0U ||
         load_le32(bytes + 52U) != 0U || load_le32(bytes + 56U) != 0U ||
@@ -673,7 +673,7 @@ int p0_parameter_batch_decode(const uint8_t *bytes, size_t size,
     request->iq_crc32 = load_le32(bytes + 40U);
     request->iq = bytes + 64U;
     request->version = load_le16(bytes + 4U);
-    request->frame_count = request->version == 3U ? 16U : 4U;
+    request->frame_count = request->version == 3U || request->version == 5U ? 16U : 4U;
     request->locked_channel_power = request->version == 4U ? 1U : 0U;
     width = (unsigned int)request->upper_bin - request->lower_bin + 1U;
     if (request->token == 0U || request->event_id == 0U || request->sample_rate_hz == 0U ||
@@ -690,8 +690,8 @@ int p0_parameter_batch_response_encode(const p0_parameter_batch_request_t *reque
 {
     if (request == NULL || bytes == NULL || status > 5U) return -1;
     if (status == 0U && (result == NULL || !parameter_result_valid(result) ||
-        result->observation_count != (request->version == 3U ? 16U : 4U) ||
-        result->frame_id != request->first_frame_id + (request->version == 3U ? 15U : 3U) ||
+        result->observation_count != request->frame_count ||
+        result->frame_id != request->first_frame_id + request->frame_count - 1U ||
         result->intent_id != request->token || result->event_id != request->event_id ||
         result->carrier_line_frequency_hz.state > P0_PARAMETER_FIELD_NOT_OBSERVED ||
         result->carrier_line_frequency_hz.reason > P0_PARAMETER_REASON_CARRIER_LOW_SNR ||
@@ -700,13 +700,21 @@ int p0_parameter_batch_response_encode(const p0_parameter_batch_request_t *reque
          result->carrier_line_frequency_hz.reason != P0_PARAMETER_REASON_NONE))) return -1;
     memset(bytes, 0, P0_PARAMETER_BATCH_RESPONSE_BYTES);
     memcpy(bytes, "P0PR", 4U);
-    store_le16(bytes + 4U, request->version == 4U ? 4U : request->version == 3U ? 3U : 2U);
+    store_le16(bytes + 4U, request->version >= 3U ? request->version : 2U);
     store_le16(bytes + 6U, P0_PARAMETER_BATCH_RESPONSE_BYTES);
     store_le32(bytes + 8U, request->token);
     store_le32(bytes + 12U, status);
     if (status == 0U) {
         encode_parameter_result(bytes + 16U, result);
         encode_parameter_field(bytes + 144U, &result->carrier_line_frequency_hz);
+        if (request->version == 5U && result->carrier_line_frequency_hz.state != P0_PARAMETER_FIELD_VALID &&
+            result->recovered_carrier_frequency_hz.state == P0_PARAMETER_FIELD_VALID) {
+            if ((result->carrier_recovery_order != 2U && result->carrier_recovery_order != 4U) ||
+                result->recovered_carrier_frequency_hz.reason != P0_PARAMETER_REASON_NONE ||
+                !isfinite(result->recovered_carrier_frequency_hz.value)) return -1;
+            encode_parameter_field(bytes + 144U, &result->recovered_carrier_frequency_hz);
+            bytes[37U] = result->carrier_recovery_order;
+        }
         store_le32(bytes + 156U, elapsed_us);
         store_le32(bytes + 160U, request->iq_crc32);
         store_le32(bytes + 164U, generation);
@@ -721,9 +729,13 @@ int p0_parameter_batch_response_check(const uint8_t *bytes, size_t size, uint32_
     return bytes != NULL && size == P0_PARAMETER_BATCH_RESPONSE_BYTES &&
         memcmp(bytes, "P0PR", 4U) == 0 &&
         (load_le16(bytes + 4U) == 1U || load_le16(bytes + 4U) == 2U ||
-         load_le16(bytes + 4U) == 3U || load_le16(bytes + 4U) == 4U) &&
+         load_le16(bytes + 4U) == 3U || load_le16(bytes + 4U) == 4U || load_le16(bytes + 4U) == 5U) &&
         load_le16(bytes + 6U) == size && load_le32(bytes + 8U) == token &&
         load_le32(bytes + 12U) <= 5U &&
+        bytes[38U] == 0U && bytes[39U] == 0U &&
+        (bytes[37U] == 0U || (load_le16(bytes + 4U) == 5U &&
+         (bytes[37U] == 2U || bytes[37U] == 4U) &&
+         load_le32(bytes + 12U) == 0U && bytes[144U] == P0_PARAMETER_FIELD_VALID)) &&
         load_le32(bytes + 172U) == p0_ed_crc32(bytes, 172U) ? 0 : -1;
 }
 

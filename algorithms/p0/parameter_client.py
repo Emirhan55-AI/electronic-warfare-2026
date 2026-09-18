@@ -61,6 +61,11 @@ REASONS = {0: None, 1: "accumulating", 2: "event_ownership_lost",
 
 
 @dataclass(frozen=True)
+class RecoveredParameterResult(F1ParameterResult):
+    recovered_carrier_frequency: FieldMeasurement | None = None
+
+
+@dataclass(frozen=True)
 class BoardMeasurement:
     result: F1ParameterResult
     response: bytes
@@ -70,7 +75,7 @@ class BoardMeasurement:
 
 def encode_request(intent: MeasurementIntent, iq: bytes, sample_rate_hz: int,
                    center_frequency_hz: int, token: int, *,
-                   locked_channel_power: bool = False) -> bytes:
+                   locked_channel_power: bool = False, recover_carrier: bool = False) -> bytes:
     lower, upper = intent.span.lower_shifted_bin, intent.span.upper_shifted_bin
     count = len(iq) // 8192
     if (len(iq) not in (32768, 131072) or type(sample_rate_hz) is not int or not 0 < sample_rate_hz <= 20_000_000
@@ -81,7 +86,9 @@ def encode_request(intent: MeasurementIntent, iq: bytes, sample_rate_hz: int,
         raise ValueError("Kart ölçüm girdisi veya frekans bağlamı geçersiz.")
     if locked_channel_power and count != 4:
         raise ValueError("Kilitli yön kanalı güç ölçümü tam dört kare gerektirir.")
-    version = (4 if locked_channel_power else
+    if recover_carrier and (count != 16 or locked_channel_power):
+        raise ValueError("Taşıyıcı geri kazanımı tam 16 karelik parametre ölçümü gerektirir.")
+    version = (5 if recover_carrier else 4 if locked_channel_power else
                3 if count == 16 else 2 if intent.span.width_bins > 512 else 1)
     header = HEADER.pack(b"P0PM", version, 64, token, intent.start_frame, sample_rate_hz,
                          center_frequency_hz, intent.event_id, lower, upper, zlib.crc32(iq), 0)
@@ -90,7 +97,7 @@ def encode_request(intent: MeasurementIntent, iq: bytes, sample_rate_hz: int,
 
 
 def decode_response(payload: bytes, intent: MeasurementIntent, iq: bytes, token: int, *,
-                    locked_channel_power: bool = False) -> BoardMeasurement:
+                    locked_channel_power: bool = False, recover_carrier: bool = False) -> BoardMeasurement:
     count = len(iq) // 8192
     if len(iq) not in (32768, 131072):
         raise ValueError("Kart ölçümü 4 veya 16 özgün I/Q karesi gerektirir.")
@@ -98,7 +105,8 @@ def decode_response(payload: bytes, intent: MeasurementIntent, iq: bytes, token:
         raise ValueError("Kart parametre yanıtının uzunluğu geçersiz.")
     magic, version, length, actual_token, status = struct.unpack_from("<4sHHII", payload)
     if ((magic, length, actual_token) != (b"P0PR", RESPONSE_BYTES, token)
-            or version not in (1, 2, 3, 4) or ((count == 16) != (version == 3))
+            or version not in (1, 2, 3, 4, 5) or ((count == 16) != (version in (3, 5)))
+            or ((version == 5) != recover_carrier)
             or ((version == 4) != locked_channel_power)
             or (intent.span.width_bins > 512 and version < 2)
             or struct.unpack_from("<I", payload, 172)[0] != zlib.crc32(payload[:172])):
@@ -115,7 +123,8 @@ def decode_response(payload: bytes, intent: MeasurementIntent, iq: bytes, token:
     elapsed, iq_crc, generation, fft_size = struct.unpack_from("<IIII", payload, 156)
     if ((intent_id, event_id, frame_id, actual_count) !=
             (token, intent.event_id, intent.start_frame + count - 1, count)
-            or any(payload[37:40]) or iq_crc != zlib.crc32(iq) or fft_size != 4096):
+            or any(payload[38:40]) or (payload[37] not in (0, 2, 4) if version == 5 else payload[37] != 0)
+            or iq_crc != zlib.crc32(iq) or fft_size != 4096):
         raise ValueError("Kart sonucu seçilen I/Q kareleriyle eşleşmiyor.")
 
     def field(offset: int, unit: str, carrier: bool = False) -> FieldMeasurement:
@@ -123,30 +132,45 @@ def decode_response(payload: bytes, intent: MeasurementIntent, iq: bytes, token:
         if (state not in STATES or reason not in REASONS or reserved or not math.isfinite(value)
                 or (state == 1 and reason != 0) or (not carrier and (state > 3 or reason > 8))):
             raise ValueError("Kart ölçüm alanı geçersiz.")
-        return FieldMeasurement(STATES[state], value if state == 1 else None, unit, REASONS[reason])
+        # v3 can preserve a window estimate when only temporal stability fails.
+        # Legacy replies carry zero; clipping, noise and absent carrier never
+        # acquire numeric estimates through this path.
+        temporal_estimate = (version in (3, 5) and not carrier and value > 0 and
+                             ((offset == 40 and state == 2 and reason == 6) or
+                              (offset in (52, 64, 76) and state == 3 and reason == 8)))
+        return FieldMeasurement(STATES[state], value if state == 1 or temporal_estimate else None,
+                                unit, REASONS[reason])
 
     center, lower, upper, bandwidth, power, snr = (
         field(offset, unit) for offset, unit in zip(range(40, 112, 12), ("Hz", "Hz", "Hz", "Hz", "dBFS", "dB")))
     carrier = field(144, "Hz", True)
+    recovered = None
+    if payload[37]:
+        if carrier.state != "valid" or not isinstance(carrier.value, (float, int)):
+            raise ValueError("Kart taşıyıcı kestirimi kökeni ve alanı uyuşmuyor.")
+        recovered = FieldMeasurement("uncertain", carrier.value, "Hz",
+                                     f"recovered_carrier_order{payload[37]}")
+        carrier = FieldMeasurement("not_observed", reason="carrier_line_below_threshold")
     quality = struct.unpack_from("<dddd", payload, 112)
     if not all(math.isfinite(value) for value in quality):
         raise ValueError("Kart kalite göstergeleri geçersiz.")
     invalid = [item for item in (center, lower, upper, bandwidth, power, snr) if item.state != "valid"]
     state = invalid[0].state if invalid else "valid"
     reasons = tuple(dict.fromkeys(item.reason for item in invalid if item.reason))
-    result = F1ParameterResult(intent, center, carrier, lower, upper, bandwidth, power, snr,
+    result = RecoveredParameterResult(intent, center, carrier, lower, upper, bandwidth, power, snr,
         FieldMeasurement("not_applicable", reason="classification_deferred"),
         F1Quality(state, reasons, count, *quality),
-        EXTENDED_BOARD_PAYLOAD_BYTES if version == 3 else BOARD_PERSISTENT_PAYLOAD_BYTES if version in (2, 4) else 56064)
+        EXTENDED_BOARD_PAYLOAD_BYTES if version in (3, 5) else BOARD_PERSISTENT_PAYLOAD_BYTES if version in (2, 4) else 56064,
+        recovered)
     return BoardMeasurement(result, payload, elapsed, generation)
 
 
 def measure_on_board(host: str, port: int, intent: MeasurementIntent, iq: bytes, *,
                      sample_rate_hz: int, center_frequency_hz: int,
-                     locked_channel_power: bool = False) -> BoardMeasurement:
+                     locked_channel_power: bool = False, recover_carrier: bool = False) -> BoardMeasurement:
     token = secrets.randbelow((1 << 32) - 1) + 1
     request = encode_request(intent, iq, sample_rate_hz, center_frequency_hz, token,
-                             locked_channel_power=locked_channel_power)
+                             locked_channel_power=locked_channel_power, recover_carrier=recover_carrier)
     response = bytearray()
     try:
         with socket.create_connection((host, port), timeout=5.0) as connection:
@@ -155,10 +179,11 @@ def measure_on_board(host: str, port: int, intent: MeasurementIntent, iq: bytes,
             while len(response) < RESPONSE_BYTES:
                 chunk = connection.recv(RESPONSE_BYTES - len(response))
                 if not chunk:
-                    required = "yön kanalı için P0PM-v4" if locked_channel_power else "16 kare için P0PM-v3"
+                    required = ("taşıyıcı kestirimi için P0PM-v5" if recover_carrier else
+                                "yön kanalı için P0PM-v4" if locked_channel_power else "16 kare için P0PM-v3")
                     raise RuntimeError(f"Kart ölçüm bağlantısı kapandı. Kart hizmeti ve ağ köprüsü istenen ölçüm sürümünü birlikte desteklemelidir ({required}).")
                 response.extend(chunk)
     except OSError as exc:
         raise RuntimeError("Kart parametre ölçümüne yanıt vermedi.") from exc
     return decode_response(bytes(response), intent, iq, token,
-                           locked_channel_power=locked_channel_power)
+                           locked_channel_power=locked_channel_power, recover_carrier=recover_carrier)

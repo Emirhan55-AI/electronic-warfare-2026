@@ -1162,7 +1162,7 @@ ApplicationWindow {
                             RowLayout {
                                 Layout.fillWidth: true
                                 SectionTitle { text: "DİNLEME AYARI"; Layout.fillWidth: true }
-                                StateBadge { state: operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.listeningSelectionReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
+                                StateBadge { state: operatorViewModel.continuousListeningActive ? "Çalışıyor" : operatorViewModel.busy ? "Çalışıyor" : operatorViewModel.listeningReady ? "Hazır" : operatorViewModel.listeningSelectionReady ? "Hazır" : operatorViewModel.selectedDetectionReady ? "Bekliyor" : "Kullanılmıyor" }
                             }
                             Rectangle {
                                 Layout.fillWidth: true
@@ -1214,7 +1214,9 @@ ApplicationWindow {
                                     }
                                     Label {
                                         Layout.fillWidth: true
-                                        text: "Son 5 saniye hazırlanır; alım durur. Tür bilinmiyorsa iki sonucu dinleyerek karşılaştırın."
+                                        text: listeningMode.currentIndex === 2
+                                              ? "Tür bilinmiyorsa tek işlemle aynı doğrulanmış kayıt AM ve dar bant FM olarak hazırlanır; iki sonucu karşılaştırırsınız."
+                                              : "İlk 5 saniye kanal doğrulamasıdır. Ardından FPGA tespiti ve canlı ses siz durdurana kadar birlikte sürer."
                                         wrapMode: Text.Wrap
                                         color: root.textMuted
                                         font.pixelSize: 10
@@ -1401,7 +1403,8 @@ ApplicationWindow {
                             PrimaryButton {
                                 objectName: "prepareListening"
                                 Layout.fillWidth: true
-                                text: listeningMode.currentIndex === 2 ? "AM / FM Karşılaştırmasını Hazırla" : "Sesi Hazırla"
+                                text: listeningMode.currentIndex === 2 ? "AM / FM Karşılaştırmasını Hazırla" : "Kesintisiz Dinlemeyi Başlat"
+                                Accessible.description: "Sesi Hazırla; ilk beş saniyelik doğrulamadan sonra canlı dinlemeyi kesintisiz sürdür"
                                 enabled: operatorViewModel.listeningSelectionReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
                                 onClicked: operatorViewModel.requestListening(
                                     listeningMode.model[listeningMode.currentIndex].value,
@@ -1460,7 +1463,7 @@ ApplicationWindow {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    SectionTitle { text: "SİNYAL KARARLILIĞI"; Layout.fillWidth: true }
+                                    SectionTitle { text: "ZAMANSAL VE FREKANSSAL KANAL İZLEME"; Layout.fillWidth: true }
                                     Label { text: "SEVİYE"; color: root.accent; font.pixelSize: 8; font.weight: Font.Bold }
                                     Label { text: "FREKANS"; color: root.warning; font.pixelSize: 8; font.weight: Font.Bold }
                                 }
@@ -1477,7 +1480,7 @@ ApplicationWindow {
                                         var points = operatorViewModel.listeningObservationPoints
                                         if (!points || points.length < 2) {
                                             ctx.fillStyle = root.textMuted; ctx.font = "10px 'Segoe UI'"; ctx.textAlign = "center"; ctx.textBaseline = "middle"
-                                            ctx.fillText("Beş saniyelik kanal gözlemi yok", width / 2, height / 2)
+                                            ctx.fillText("Canlı kanal gözlemi henüz oluşmadı", width / 2, height / 2)
                                             return
                                         }
                                         function drawSeries(key, color) {
@@ -1512,7 +1515,7 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     SectionTitle { text: "SES ÇIKIŞI"; Layout.fillWidth: true }
                                     Label {
-                                        text: operatorViewModel.listeningShortPreview ? "KISA ÖNİZLEME" : operatorViewModel.listeningReady ? "HAZIR" : "BEKLENİYOR"
+                                        text: operatorViewModel.continuousListeningActive ? "CANLI" : operatorViewModel.listeningShortPreview ? "KISA ÖNİZLEME" : operatorViewModel.listeningReady ? "HAZIR" : "BEKLENİYOR"
                                         color: operatorViewModel.listeningShortPreview ? root.warning : operatorViewModel.listeningReady ? root.success : root.textMuted
                                         font.pixelSize: 9
                                         font.weight: Font.Bold
@@ -1555,7 +1558,7 @@ ApplicationWindow {
                                         RowLayout {
                                             Layout.fillWidth: true
                                             Label { text: operatorViewModel.listeningPlaybackState; color: operatorViewModel.listeningPlaybackState === "Oynatılıyor" ? root.success : root.textPrimary; font.pixelSize: 9; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                                            Label { text: operatorViewModel.listeningOutputState; color: operatorViewModel.listeningOutputState === "Ses çıkışı hazır" ? root.success : root.warning; font.pixelSize: 8 }
+                                            Label { text: operatorViewModel.listeningOutputState; color: operatorViewModel.listeningOutputState === "Ses çıkışı hazır" || operatorViewModel.listeningOutputState.indexOf("Canlı") === 0 ? root.success : root.warning; font.pixelSize: 8 }
                                         }
                                         Rectangle {
                                             Layout.fillWidth: true
@@ -1601,11 +1604,11 @@ ApplicationWindow {
                                 }
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    QuietButton { text: "Oynat"; implicitWidth: 72; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.playListening() }
-                                    QuietButton { text: "Duraklat"; implicitWidth: 82; enabled: operatorViewModel.listeningAudioAvailable && !operatorViewModel.busy; onClicked: operatorViewModel.pauseListening() }
-                                    QuietButton { text: "Durdur"; implicitWidth: 72; enabled: operatorViewModel.listeningReady && !operatorViewModel.busy; onClicked: operatorViewModel.stopListening() }
+                                    QuietButton { text: "Oynat"; implicitWidth: 72; enabled: operatorViewModel.listeningAudioAvailable; onClicked: operatorViewModel.playListening() }
+                                    QuietButton { text: "Duraklat"; implicitWidth: 82; enabled: operatorViewModel.listeningAudioAvailable; onClicked: operatorViewModel.pauseListening() }
+                                    QuietButton { text: "Durdur"; implicitWidth: 72; enabled: operatorViewModel.continuousListeningActive || operatorViewModel.listeningReady; onClicked: operatorViewModel.stopListening() }
                                     Item { Layout.fillWidth: true }
-                                    PrimaryButton { text: "WAV Dışa Aktar"; enabled: operatorViewModel.listeningReady && !operatorViewModel.busy; onClicked: wavDialog.open() }
+                                    PrimaryButton { text: "Son 20 sn WAV Dışa Aktar"; enabled: operatorViewModel.listeningReady; onClicked: wavDialog.open() }
                                 }
                             }
                         }
@@ -1655,6 +1658,20 @@ ApplicationWindow {
                                         Label { text: operatorViewModel.liveSessionActive ? "Canlı alım" : "Alım durdu"; color: root.textSecondary; font.pixelSize: 9 }
                                     }
                                     Label { text: operatorViewModel.directionTargetText; color: root.textMuted; font.pixelSize: 8; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                }
+                            }
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: 52
+                                radius: 4
+                                color: root.surfaceAlt
+                                border.color: root.border
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 9
+                                    spacing: 2
+                                    Label { text: "0° REFERANSI"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
+                                    Label { objectName: "directionZeroReference"; text: operatorViewModel.directionReferenceText; color: root.textPrimary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                 }
                             }
                             Rectangle {
@@ -1724,12 +1741,16 @@ ApplicationWindow {
                                 implicitHeight: 42
                                 objectName: "directionStartMeasurement"
                                 text: operatorViewModel.directionCapturePending ? "Ölçüm alınıyor…"
+                                      : operatorViewModel.directionEstimateRetryAvailable ? "Yön Hesabını Yeniden Dene"
                                       : operatorViewModel.directionNextAngleDeg < 0
                                         ? (operatorViewModel.directionSweepComplete ? "Uyarlamalı Tarama Tamamlandı" : "Lob Sınırı Bulunamadı")
                                       : operatorViewModel.directionNextAngleText + " Ölçümünü Al"
-                                enabled: operatorViewModel.directionNextAngleDeg >= 0 && operatorViewModel.directionMeasurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive)
+                                enabled: (operatorViewModel.directionEstimateRetryAvailable && !operatorViewModel.busy)
+                                         || (operatorViewModel.directionNextAngleDeg >= 0 && operatorViewModel.directionMeasurementReady && (!operatorViewModel.busy || operatorViewModel.liveSessionActive))
                                 Accessible.name: "Uyarlamalı taramanın sıradaki bağıl anten açısının kanal gücünü ölç"
-                                onClicked: operatorViewModel.addNextClockwiseDirectionMeasurement()
+                                onClicked: operatorViewModel.directionEstimateRetryAvailable
+                                           ? operatorViewModel.retryDirectionEstimate()
+                                           : operatorViewModel.addNextClockwiseDirectionMeasurement()
                             }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümü İptal Et"; visible: operatorViewModel.directionCaptureCancellable; onClicked: operatorViewModel.cancelDirectionMeasurement() }
                             QuietButton { Layout.fillWidth: true; text: "Ölçümleri Temizle"; enabled: (operatorViewModel.directionChannelLocked || operatorViewModel.directionPoints.length > 0) && !operatorViewModel.directionCapturePending && (!operatorViewModel.busy || operatorViewModel.liveSessionActive); onClicked: operatorViewModel.clearDirectionMeasurements() }
@@ -1765,6 +1786,7 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         Layout.fillHeight: true
                                         property real indicatedBearing: -1
+                                        property bool verifiedBearing: false
                                         Accessible.name: "Saat yönündeki bağıl geliş yönü göstergesi"
                                         onIndicatedBearingChanged: requestPaint()
                                         Behavior on indicatedBearing {
@@ -1773,8 +1795,8 @@ ApplicationWindow {
                                         Connections {
                                             target: operatorViewModel
                                             function onDirectionChanged() {
-                                                var relativeBearing = parseFloat(operatorViewModel.relativeArrivalText)
-                                                bearingCompass.indicatedBearing = !isNaN(relativeBearing) ? relativeBearing : -1
+                                                bearingCompass.indicatedBearing = operatorViewModel.directionIndicatorAngle
+                                                bearingCompass.verifiedBearing = operatorViewModel.directionIndicatorVerified
                                                 bearingCompass.requestPaint()
                                             }
                                         }
@@ -1799,14 +1821,26 @@ ApplicationWindow {
                                             var bearing = bearingCompass.indicatedBearing
                                             if (bearing >= 0) {
                                                 var bearingRad = bearing * Math.PI / 180 - Math.PI / 2
-                                                ctx.strokeStyle = root.accent; ctx.lineWidth = 2.5
+                                                ctx.strokeStyle = bearingCompass.verifiedBearing ? root.accent : root.warning
+                                                ctx.lineWidth = bearingCompass.verifiedBearing ? 2.8 : 2.0
+                                                ctx.setLineDash(bearingCompass.verifiedBearing ? [] : [5, 4])
                                                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(bearingRad) * (radius - 8), cy + Math.sin(bearingRad) * (radius - 8)); ctx.stroke()
-                                                ctx.fillStyle = root.accent; ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill()
+                                                ctx.setLineDash([])
+                                                ctx.fillStyle = bearingCompass.verifiedBearing ? root.accent : root.warning
+                                                ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill()
                                             } else {
                                                 ctx.fillStyle = root.textMuted; ctx.font = "10px 'Segoe UI'"
                                                 ctx.fillText(operatorViewModel.directionMeasurementCount > 0 ? "Sonuç üretilemedi" : "Ölçüm bekleniyor", cx, cy)
                                             }
                                         }
+                                    }
+                                    Label {
+                                        text: bearingCompass.indicatedBearing < 0 ? ""
+                                              : bearingCompass.verifiedBearing ? "ARM DOĞRULANDI" : "ÖLÇÜM ADAYI"
+                                        color: bearingCompass.verifiedBearing ? root.success : root.warning
+                                        font.pixelSize: 8
+                                        font.weight: Font.Bold
+                                        Layout.alignment: Qt.AlignHCenter
                                     }
                                 }
                             }
@@ -1832,12 +1866,20 @@ ApplicationWindow {
                                 }
                                 Panel {
                                     Layout.fillWidth: true; Layout.fillHeight: true
-                                    RowLayout { anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                                        ColumnLayout { Layout.fillWidth: true; spacing: 4
-                                            Label { text: "BAĞIL TEPE YÖNÜ"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
-                                            Label { text: "Antenin 0° ekseninden saat yönünde"; color: root.textMuted; font.pixelSize: 9 }
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 14
+                                        spacing: 4
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            ColumnLayout { Layout.fillWidth: true; spacing: 2
+                                                Label { text: operatorViewModel.directionReady ? "DOĞRULANMIŞ BAĞIL YÖN" : "EN GÜÇLÜ ÖLÇÜM ADAYI"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
+                                                Label { text: operatorViewModel.directionReady ? operatorViewModel.directionResultDescriptionText : operatorViewModel.directionCandidateDescriptionText; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                            }
+                                            Label { text: operatorViewModel.directionReady ? operatorViewModel.relativeArrivalText : operatorViewModel.directionCandidateText; color: operatorViewModel.directionReady ? root.accent : root.warning; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
                                         }
-                                        Label { text: operatorViewModel.relativeArrivalText; color: root.accent; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                        Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
+                                        Label { objectName: "directionAccuracyStatus"; text: operatorViewModel.directionAccuracyText; color: root.warning; font.pixelSize: 8; wrapMode: Text.Wrap; Layout.fillWidth: true }
                                     }
                                 }
                             }

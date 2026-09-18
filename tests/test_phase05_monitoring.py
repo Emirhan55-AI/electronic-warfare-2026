@@ -16,8 +16,10 @@ from algorithms.monitoring import (
     AudioRingBuffer,
     FIXTURE_SPECS,
     MonitoringError,
+    StreamingAnalogMonitor,
     aligned_correlation,
     dominant_tone_hz,
+    decode_dtmf,
     generate_iq,
     nfm_deemphasis,
     pcm16_bytes,
@@ -116,6 +118,26 @@ class Phase05MonitoringTests(unittest.TestCase):
         np.testing.assert_allclose(whole.residual_frequency_hz_trace, chunked.residual_frequency_hz_trace, atol=1e-12)
         self.assertLess(max(abs(value) for value in chunked.residual_frequency_hz_trace), 10.0)
 
+    def test_streaming_nfm_is_pcm_identical_across_worker_chunk_boundaries(self) -> None:
+        sample_rate = 192_000.0
+        duration = 6.0
+        time_axis = np.arange(int(sample_rate * duration), dtype=np.float64) / sample_rate
+        source = 0.7 * np.exp(
+            2j * np.pi * 24_000.0 * time_axis
+            - 2.2j * np.cos(2.0 * np.pi * 1_000.0 * time_axis)
+        )
+        config = AnalogMonitorConfig("nfm", sample_rate, 24_000.0, 16_000.0, voice_filter=True)
+        whole = StreamingAnalogMonitor(config).process(source, volume=0.8)
+        chunked_monitor = StreamingAnalogMonitor(config)
+        chunks = tuple(
+            chunked_monitor.process(source[index:index + 96_000], volume=0.8)
+            for index in range(0, source.size, 96_000)
+        )
+        self.assertEqual(whole.pcm16, b"".join(chunk.pcm16 for chunk in chunks))
+        self.assertTrue(all(chunk.quality_code == "streaming" for chunk in chunks))
+        self.assertTrue(all(chunk.clipping_count == 0 for chunk in chunks))
+        self.assertLessEqual(abs(chunks[-1].dominant_tone_hz - 1_000.0), 1.0)
+
     def test_channel_observation_tracks_known_frequency_drift(self) -> None:
         sample_rate = 192_000.0
         duration = 5.0
@@ -185,6 +207,21 @@ class Phase05MonitoringTests(unittest.TestCase):
         shifted = np.concatenate((np.zeros(31), tone[:-31]))
         self.assertLessEqual(abs(dominant_tone_hz(tone) - 1500.0), 48_000 / 4096)
         self.assertGreaterEqual(aligned_correlation(tone, shifted), 0.999)
+
+    def test_dtmf_decoder_accepts_sustained_symbols_and_rejects_speech_tone(self) -> None:
+        rate = 48_000
+        tone_time = np.arange(int(0.12 * rate), dtype=np.float64) / rate
+        silence = np.zeros(int(0.08 * rate), dtype=np.float64)
+
+        def symbol(low: float, high: float) -> np.ndarray:
+            return 0.35 * np.sin(2 * np.pi * low * tone_time) + 0.35 * np.sin(2 * np.pi * high * tone_time)
+
+        payload = np.concatenate((symbol(770, 1336), silence, symbol(941, 1477)))
+        self.assertEqual(("5", "#"), decode_dtmf(payload, rate))
+        repeated = np.concatenate((symbol(770, 1336), silence, symbol(770, 1336)))
+        self.assertEqual(("5", "5"), decode_dtmf(repeated, rate))
+        speech_tone = np.sin(2 * np.pi * 1_000 * np.arange(rate) / rate)
+        self.assertEqual((), decode_dtmf(speech_tone, rate))
 
 
 if __name__ == "__main__":

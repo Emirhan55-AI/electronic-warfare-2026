@@ -7,6 +7,7 @@ from .dsp import (
     OBSERVATION_INTERVAL_SECONDS,
     AnalogMonitor,
     AudioRingBuffer,
+    StreamingAnalogMonitor,
     aligned_correlation,
     dominant_tone_hz,
     nfm_deemphasis,
@@ -22,6 +23,7 @@ from .models import (
     ListeningIntent,
     MonitoringError,
 )
+from .signaling import decode_dtmf
 
 __all__ = [
     "AUDIO_SAMPLE_RATE_HZ",
@@ -32,6 +34,7 @@ __all__ = [
     "AnalogMonitorConfig",
     "AnalogMonitorResult",
     "AudioRingBuffer",
+    "StreamingAnalogMonitor",
     "FIXTURE_SPECS",
     "ListeningIntent",
     "MonitoringError",
@@ -39,6 +42,7 @@ __all__ = [
     "build_fixture_files",
     "build_phase05_evidence",
     "dominant_tone_hz",
+    "decode_dtmf",
     "nfm_deemphasis",
     "generate_iq",
     "pcm16_bytes",

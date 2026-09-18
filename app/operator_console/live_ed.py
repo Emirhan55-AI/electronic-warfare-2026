@@ -469,6 +469,11 @@ class LiveEDSession:
         capabilities = getattr(self._transport, "capabilities", None)
         return 16 if bool(getattr(capabilities, "extended_parameter", False)) else 4
 
+    @property
+    def carrier_recovery_supported(self) -> bool:
+        capabilities = getattr(self._transport, "capabilities", None)
+        return bool(getattr(capabilities, "carrier_recovery", False))
+
     def begin_parameter_capture(self, lower: int, upper: int) -> None:
         """Collect 4 or 16 fresh frames, according to the board capability."""
         if (
@@ -761,6 +766,92 @@ class LiveEDSession:
             if not quality.get("acceptable", False):
                 return (), quality
             return tuple(self._audio_frames), quality
+
+    def audio_channel_window_after(
+        self,
+        target_frequency_hz: float,
+        after_sequence_number: int | None,
+    ) -> tuple[tuple[IQFrame, ...], dict[str, int | float | bool]]:
+        """Return one new, complete five-second channel window.
+
+        The rolling buffer remains bounded.  A slow consumer that misses even
+        one required frame receives an explicit ``sequence_gap`` result instead
+        of audio assembled across a discontinuity.
+        """
+        with self._audio_lock:
+            quality = self.audio_channel_quality(float(target_frequency_hz))
+            frames = tuple(self._audio_frames)
+            if len(frames) != LIVE_AUDIO_WINDOW_FRAMES or not quality.get("acceptable", False):
+                return (), quality
+            first = int(frames[0].sequence_number)
+            last = int(frames[-1].sequence_number)
+            expected_first = first if after_sequence_number is None else int(after_sequence_number) + 1
+            if after_sequence_number is not None and last - int(after_sequence_number) < LIVE_AUDIO_WINDOW_FRAMES:
+                quality["waiting_for_new_window"] = True
+                return (), quality
+            if first != expected_first:
+                quality["sequence_gap"] = True
+                quality["expected_first_sequence"] = expected_first
+                quality["actual_first_sequence"] = first
+                return (), quality
+            sequences = tuple(int(frame.sequence_number) for frame in frames)
+            if sequences != tuple(range(first, first + LIVE_AUDIO_WINDOW_FRAMES)):
+                quality["sequence_gap"] = True
+                return (), quality
+            return frames, quality
+
+    def audio_channel_frames_after(
+        self,
+        target_frequency_hz: float,
+        after_sequence_number: int | None,
+        minimum_frames: int = 122,
+    ) -> tuple[tuple[IQFrame, ...], dict[str, int | float | bool]]:
+        """Return new bounded frames for a stateful live demodulator."""
+        if minimum_frames < 1 or minimum_frames > LIVE_AUDIO_WINDOW_FRAMES:
+            raise ValueError("Canlı ses parça sınırı geçersizdir.")
+        with self._audio_lock:
+            observations, _, validities = self._audio_channel_observations(
+                float(target_frequency_hz)
+            )
+            frames = tuple(self._audio_frames)
+            quality = self.audio_channel_quality(float(target_frequency_hz))
+            if len(frames) != LIVE_AUDIO_WINDOW_FRAMES or not quality.get("acceptable", False):
+                return (), quality
+            if after_sequence_number is None:
+                return frames, quality
+            first = int(frames[0].sequence_number)
+            expected = int(after_sequence_number) + 1
+            if expected < first:
+                quality["sequence_gap"] = True
+                quality["expected_first_sequence"] = expected
+                quality["actual_first_sequence"] = first
+                return (), quality
+            start = max(0, expected - first)
+            selected = frames[start:]
+            selected_observations = tuple(observations[start:])
+            selected_validities = tuple(validities[start:])
+            if len(selected) < minimum_frames:
+                quality["waiting_for_new_frames"] = True
+                return (), quality
+            selected_quality = self._audio_continuity(
+                selected_observations,
+                complete=all(selected_validities),
+            )
+            # Short streaming chunks use the same ratio/miss gates without the
+            # full-window length clause used by _audio_continuity.
+            selected_quality["acceptable"] = bool(
+                all(selected_validities)
+                and selected_quality["observed_fraction"] >= LIVE_AUDIO_MIN_OBSERVED_FRACTION
+                and selected_quality["max_consecutive_misses"] <= LIVE_AUDIO_MAX_CONSECUTIVE_MISSES
+            )
+            if not selected_quality["acceptable"]:
+                selected_quality["continuity_lost"] = True
+                return (), selected_quality
+            sequences = tuple(int(frame.sequence_number) for frame in selected)
+            if sequences != tuple(range(expected, expected + len(selected))):
+                selected_quality["sequence_gap"] = True
+                return (), selected_quality
+            return selected, selected_quality
 
     def audio_window_ready(self, event_id: int | None = None) -> bool:
         if event_id is None:

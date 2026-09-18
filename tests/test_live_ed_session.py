@@ -990,6 +990,37 @@ def test_live_audio_channel_ignores_retained_overlapping_event_and_tolerates_bri
     assert quality["invalid_frames"] == 0
 
 
+def test_live_audio_stream_returns_only_new_frames_and_reports_consumer_gap() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
+        stream_factory=_FakeStream, transport_factory=_FakeTransport,
+    )
+    target_frequency_hz = 104_775_000.0
+    for sequence in range(LIVE_AUDIO_WINDOW_FRAMES):
+        snapshot = _direction_snapshot(sequence, event_id=17)
+        session._record_audio_frame(snapshot.output_frame, (17,), (17,), snapshot)
+    initial, quality = session.audio_channel_frames_after(target_frequency_hz, None)
+    assert len(initial) == LIVE_AUDIO_WINDOW_FRAMES
+    assert quality["acceptable"]
+    last = int(initial[-1].sequence_number)
+
+    for sequence in range(last + 1, last + 123):
+        snapshot = _direction_snapshot(sequence, event_id=17)
+        session._record_audio_frame(snapshot.output_frame, (17,), (17,), snapshot)
+    fresh, quality = session.audio_channel_frames_after(target_frequency_hz, last)
+    assert len(fresh) == 122
+    assert int(fresh[0].sequence_number) == last + 1
+    assert quality["acceptable"]
+
+    stale_last = int(fresh[-1].sequence_number)
+    for sequence in range(stale_last + 1, stale_last + LIVE_AUDIO_WINDOW_FRAMES + 2):
+        snapshot = _direction_snapshot(sequence, event_id=17)
+        session._record_audio_frame(snapshot.output_frame, (17,), (17,), snapshot)
+    missing, quality = session.audio_channel_frames_after(target_frequency_hz, stale_last)
+    assert not missing
+    assert quality["sequence_gap"]
+
+
 def test_live_audio_rejects_low_observation_coverage_even_without_long_gap() -> None:
     session = LiveEDSession(
         "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),

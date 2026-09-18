@@ -1,5 +1,16 @@
 # Parametre iyileştirme protokolü — 9 Eylül 2026
 
+## Koşullu taşıyıcı ürün devamı — 18 Eylül 2026
+
+Mevcut onaylı KTR-4.2 iyileştirmesinde ayrı ikinci/dördüncü kuvvet taşıyıcı
+kestirimi P0PM-v5 ile ARM'a bağlanmıştır. Bu, aşağıdaki tarihsel sınıflandırıcı
+adaylarının genel kabulü değildir. Çizgi/merkez/kestirim anlamları, 16-kare
+bağı, C/NumPy karşılaştırması ve yeni ikili/kayıt izleri ayrı korunur. İki
+gerçek kayıt kartta koşullu sonuç vermiş; yeni canlı referans uyuşmazlığı
+reddedilmiştir. 6 dB kapsam kaybı ve daha geniş aile/RF/kalibrasyon/soğuk
+açılış kapıları açıktır. Güncel sözleşme ve kanıt:
+`docs/interfaces/CARRIER_RECOVERY_20260918.md`.
+
 ## Dört parametrenin gerçek RF durumu — 9 Eylül 2026
 
 KTR-4.2 / KTR-4.2-F1: yeni temiz AM koşusunda dar aralık SNR'si

@@ -1,0 +1,116 @@
+{
+  "schema": "carrier-deployment-evidence-v1",
+  "status": "passed",
+  "recorded_utc": "2026-09-18T02:45:28.667710+00:00",
+  "requirements": [
+    "KTR-4.2"
+  ],
+  "scope": "source/binary/capability and existing physical record consistency; not global RF acceptance",
+  "build_manifest_sha256": "6088207ade8ecedb234edf6dc4adf1725e5d6b6381f3b31e771cf7e98bd8d2ec",
+  "products": {
+    "p0-ed-service": {
+      "path": "build/p0/parameter-20260918/software-carrier-v1/p0-ed-service",
+      "sha256": "99d87146a7d41058fbc2e7c62f65114d55e7f4f23e6c261958dc09c959e98e8c"
+    },
+    "p0-ed-network-bridge": {
+      "path": "build/p0/parameter-20260918/software-carrier-v1/p0-ed-network-bridge",
+      "sha256": "58988d6cf551ac71512bb9be96a369429e5adae3f69508a03aac6d6f5685b0f3"
+    }
+  },
+  "capabilities": {
+    "inline_parameter_observation": true,
+    "maximum_parameter_span_bins": 512,
+    "parameter_contexts": 1,
+    "wideband_burst": true,
+    "extended_parameter": true,
+    "carrier_recovery": true
+  },
+  "capability_response_hex": "50304352020230000f00000000020000010000000000000000000000000000000000000000000000000000008812105b",
+  "reports": {
+    "carrier-recovery-c-v3.json": {
+      "sha256": "a28f6659e501785c9d20c69b532f7c7632ed081234536ca689a399d115e38a39",
+      "status": "passed"
+    },
+    "extended-carrier-regression-v1.json": {
+      "sha256": "3954225d19bf3ced6ae9fef5f218aa7e69d7e2a23ce196a2960bc3be41ed9e32",
+      "status": "passed"
+    },
+    "board-numeric-carrier-v1.json": {
+      "sha256": "57ba390b3c36ca89f37900237e965d3e8561a7c15ec4128e14f03015d1e45b45",
+      "status": "passed"
+    },
+    "board-direction-carrier-v1.json": {
+      "sha256": "9e6061c7ed287d5fc7a0359647439e8c31a6a8e00ab99a1554d96b0aa038a9eb",
+      "status": "passed"
+    },
+    "real-820-carrier-board-v1.json": {
+      "sha256": "e1c6fe887a543955e5482390c62ee2e5e24b0d3c7238d5946bb1aa782597fe1e",
+      "status": "passed",
+      "record_sha256": "6dd75b383d96fee31494ac9c5d9a4a88febe6c41619adb2e3f76d85e043011ac",
+      "conditional_carrier_hz": 819999903.9185488,
+      "elapsed_us": 621690
+    },
+    "real-new820-carrier-board-v1.json": {
+      "sha256": "bb444c520806f4ef479e2a10af5dd7cf67289ec45dfed9b7b55a98675b69c40c",
+      "status": "passed",
+      "record_sha256": "3bf08d0e32e431d11751f17caa36adcf1029151a067476aeb8ec3b386a2a45a3",
+      "conditional_carrier_hz": 819999971.8656968,
+      "elapsed_us": 624306
+    }
+  },
+  "new_live_runs": [
+    {
+      "path": "output/parameter-review-20260918/live-820-carrier-v1.json",
+      "sha256": "36dcf14fa5169362211aba99b39b1315cd7342e79cf3c4f01fc876b2e523b3e0",
+      "raw_status": "passed",
+      "measurement_valid": false,
+      "invalid_fields": [
+        "emission_center_frequency",
+        "occupied_bandwidth",
+        "channel_power_dbfs",
+        "snr_estimate_db"
+      ],
+      "reason": "quality_gate_rejected",
+      "record_sha256": "ca255de2a2b90b8c334bc9e0b95e85f570a425717f7b533c3759a3f85c6d4954",
+      "reference_difference_db": 4.466696108845195
+    },
+    {
+      "path": "output/parameter-review-20260918/live-820-carrier-v2.json",
+      "sha256": "422cb5e0ad91d264539db051ca00cadb72f4d0090e47b2dcbc0c3e4dec51ab4c",
+      "raw_status": "inconclusive",
+      "measurement_valid": false,
+      "invalid_fields": [
+        "emission_center_frequency",
+        "occupied_bandwidth",
+        "channel_power_dbfs",
+        "snr_estimate_db"
+      ],
+      "reason": "receiver_or_board_probe_failed"
+    }
+  ],
+  "sources": {
+    "algorithms/parameters/carrier_recovery.py": "09e14aac4df194fd886ecf298380a408d5c92e4e89c72b945ef0867f298be095",
+    "algorithms/p0/parameter_client.py": "4835c84caa62158bae86812a39ca6921376c7d120b0e0be108668f710e82f26b",
+    "algorithms/p0/transport.py": "e70212944a293a9ae96c94ede492a737031fd331995740095fbc88311f40e599",
+    "app/operator_console/live_ed.py": "41fce541492f0d7be7f8fc7fa0b099f9a0d2fb3d8ce9ba2294a7732282da081e",
+    "app/operator_console/measurement_record.py": "9c57657b0726ee3df0ffd246c4bfa993a20d2ebf4280d4de9f8b8a07b5232fc3",
+    "app/operator_console/quick_measurement_actions.py": "cd2486f2031113ee7408eac06371d43e05a7c7e3b423f9b704f1169c68e554af",
+    "app/operator_console/qml/ParameterMeasurementPanel.qml": "950ccca8f3ff5a8128ffea259edf96df15782b9507701feb695540f5e50606b9",
+    "scripts/capture_live_parameter_once.py": "d61bc6084337afff31fe8cb23dcff75c646d33e7751b00db280e138c36acad53",
+    "scripts/replay_parameter_record_on_board.py": "c5239042bc17b0ae5f1def14964bb0074987b221aee140b79a9e5743992bdcdf",
+    "scripts/verify_carrier_deployment_evidence.py": "71c3146082b97c33b05529870afd2ccb773707c59a038add4fba7fb98825f63b",
+    "tests/test_carrier_recovery.py": "daaae1c1e6224bc69be439131e98a67cddf535d8cb79ec0d537aa16b1a9fd294",
+    "tests/test_app_f_quick_product.py": "68a98157b3faa22d3a5efa314afe574e79798d8fe2998ca21546c0aa80433468",
+    "tests/p0/p0_ed_service_protocol_test.c": "63e7c974e9228ba88065c8bcefe0a726c8365c8485d9e877efe4f214be0115dd",
+    "tests/p0/p0_iq_transport_test.c": "9c8ff8462a743602d0e749daee71690e433ecfa8f1cf42e0b8349f1c7a239677",
+    "tests/p0/p0_parameter_runtime_test.c": "e810c11b299b45ecb9f1a24372c21a9ea82600b5ec5b2423715fa049b5e79f81"
+  },
+  "open_gates": [
+    "new live RF conditional-carrier visibility",
+    "broader modulation coverage",
+    "calibrated absolute frequency",
+    "dBm calibration",
+    "cold boot persistence",
+    "PHASE-08/ST-06 and physical KTR-4.2 acceptance"
+  ]
+}

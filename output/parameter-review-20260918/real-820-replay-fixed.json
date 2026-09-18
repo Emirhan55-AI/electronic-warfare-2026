@@ -1,0 +1,135 @@
+{
+  "record": "8ab4893c9d5a4c16a8c3befc77375f30.zip",
+  "record_sha256": "6dd75b383d96fee31494ac9c5d9a4a88febe6c41619adb2e3f76d85e043011ac",
+  "compiler": "MSVC C11",
+  "original_fields": {
+    "carrier_line_frequency": {
+      "method_id": "frequency.carrier-temporal-artifact-rejection-v5.groups16-v1",
+      "reason": "carrier_line_below_threshold",
+      "state": "not_observed",
+      "unit": "Hz",
+      "value": null
+    },
+    "channel_power_dbfs": {
+      "method_id": "power.reference-uncertainty-gated-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "dBFS",
+      "value": -42.08943042057096
+    },
+    "emission_center_frequency": {
+      "method_id": "frequency.excess-centroid-shrink-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 820031321.535899
+    },
+    "lower_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    },
+    "occupied_bandwidth": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    },
+    "signal_domain": {
+      "method_id": "domain.selected-channel-logreg-pc-v2",
+      "reason": "Deneysel model tahmini; gerçek RF sinyal türü bağımsız olarak doğrulanmadı.",
+      "state": "valid",
+      "unit": null,
+      "value": "Sayısal"
+    },
+    "snr_estimate_db": {
+      "method_id": "snr.reference-uncertainty-gated-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "dB",
+      "value": 8.841407150044764
+    },
+    "upper_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    }
+  },
+  "original_quality": {
+    "center_uncertainty_bins": 1.0677631088609785,
+    "detection_significance": 146.93043268241286,
+    "observed_frames": 16,
+    "reasons": [
+      "obw_temporal_instability"
+    ],
+    "reference_difference_db": 2.055475308048256,
+    "state": "uncertain",
+    "temporal_edge_range_bins": 35.626939616659456
+  },
+  "portable_c_result": {
+    "schema_version": 1,
+    "intent_id": 1,
+    "event_id": 1,
+    "frame_id": 15,
+    "observation_count": 16,
+    "emission_center_frequency_hz": {
+      "state": 1,
+      "reason": 0,
+      "value": 820031321.535899
+    },
+    "lower_occupied_edge_hz": {
+      "state": 1,
+      "reason": 0,
+      "value": 819658288.5992217
+    },
+    "upper_occupied_edge_hz": {
+      "state": 1,
+      "reason": 0,
+      "value": 820342708.9501153
+    },
+    "occupied_bandwidth_hz": {
+      "state": 1,
+      "reason": 0,
+      "value": 684420.350893549
+    },
+    "channel_power_dbfs": {
+      "state": 1,
+      "reason": 0,
+      "value": -42.08952101540039
+    },
+    "snr_estimate_db": {
+      "state": 1,
+      "reason": 0,
+      "value": 8.842559619460074
+    },
+    "carrier_line_frequency_hz": {
+      "state": 4,
+      "reason": 9,
+      "value": 0
+    },
+    "quality": {
+      "reference_difference_db": 2.0565803141781864,
+      "detection_significance": 146.9892398890466,
+      "center_uncertainty_bins": 1.0697655116057154,
+      "temporal_edge_range_bins": 35.61751241403954
+    }
+  },
+  "physical_replay": false,
+  "center_reference": {
+    "center_bin": 2208.3123935213266,
+    "center_uncertainty_bins": 48.61043392120455,
+    "valid": false
+  },
+  "obw_reference": {
+    "lower_bin": 1444.3409392061255,
+    "upper_bin": 2846.033817836114,
+    "temporal_edge_range_bins": 35.61751241403954,
+    "temporal_edge_limit_bins": 70.08464393149943,
+    "reason": null
+  }
+}

@@ -61,7 +61,7 @@ def test_extended_archive_replay_and_no_host_fallback(tmp_path):
     assert doc['classification_frame_indices']==[12,13,14,15]
     assert doc['board_measurement']['protocol']=='P0PM-v3'
     assert doc['board_measurement']['span_contract']=='board-extended-v3'
-    assert doc['fields']['occupied_bandwidth']['method_id'].endswith('.groups16-v1')
+    assert doc['fields']['occupied_bandwidth']['method_id'].endswith('.groups16-v2')
     assert records.replay_measurement(result.path).persistent_payload_bytes==EXTENDED_BOARD_PAYLOAD_BYTES
     source['sequence_numbers'][5] += 1
     with pytest.raises(ValueError): records.validate_measurement_ownership(intent,source)

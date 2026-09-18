@@ -1,0 +1,6 @@
+[
+  {"sudo":true,"command":"set -eu; mkdir -p /tmp/parameter-before-20260918-carrier-v1 /tmp/parameter-update-20260918-carrier-v1; cp -p /usr/sbin/p0-ed-service /usr/sbin/p0-ed-network-bridge /tmp/parameter-before-20260918-carrier-v1/; chown petalinux:petalinux /tmp/parameter-update-20260918-carrier-v1"},
+  {"upload":"build/p0/parameter-20260918/software-carrier-v1/p0-ed-service","destination":"/tmp/parameter-update-20260918-carrier-v1/p0-ed-service"},
+  {"upload":"build/p0/parameter-20260918/software-carrier-v1/p0-ed-network-bridge","destination":"/tmp/parameter-update-20260918-carrier-v1/p0-ed-network-bridge"},
+  {"command":"sha256sum /tmp/parameter-update-20260918-carrier-v1/p0-ed-service /tmp/parameter-update-20260918-carrier-v1/p0-ed-network-bridge"}
+]

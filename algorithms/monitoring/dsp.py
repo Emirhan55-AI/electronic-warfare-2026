@@ -366,6 +366,225 @@ class AnalogMonitor:
         )
 
 
+class StreamingAnalogMonitor:
+    """Stateful AM/NFM demodulator for consecutive live I/Q chunks.
+
+    NCO phase, RF/audio FIR histories, decimator phase, FM discriminator,
+    resampler phase, DC blocker and gain all survive chunk boundaries.  The
+    class owns no device or unbounded queue; callers remain responsible for
+    proving that every supplied chunk is consecutive.
+    """
+
+    def __init__(self, config: AnalogMonitorConfig) -> None:
+        self.config = config
+        self.decimation = max(1, int(config.sample_rate_hz // 200_000.0))
+        self.intermediate_rate = config.sample_rate_hz / self.decimation
+        self.anti_alias = _lowpass(
+            min(80_000.0, self.intermediate_rate * 0.42),
+            config.sample_rate_hz,
+            CHANNEL_TAPS,
+        )
+        self.channel = _lowpass(
+            min(config.channel_bandwidth_hz * 0.45, self.intermediate_rate * 0.45),
+            self.intermediate_rate,
+            CHANNEL_TAPS,
+        )
+        self.voice_cutoff = _voice_cutoff_hz(config)
+        self.voice = _lowpass(
+            min(self.voice_cutoff, self.intermediate_rate * 0.45),
+            self.intermediate_rate,
+            AUDIO_RESAMPLE_TAPS,
+        )
+        self.output = _lowpass(self.voice_cutoff, AUDIO_SAMPLE_RATE_HZ, AUDIO_TAPS)
+        self.rumble = None
+        if config.voice_filter:
+            self.rumble = -_lowpass(200.0, AUDIO_SAMPLE_RATE_HZ, 1025)
+            self.rumble[512] += 1.0
+        self._anti_state = np.zeros(CHANNEL_TAPS - 1, dtype=np.complex128)
+        self._channel_state = np.zeros(CHANNEL_TAPS - 1, dtype=np.complex128)
+        self._voice_state = np.zeros(AUDIO_RESAMPLE_TAPS - 1, dtype=np.float64)
+        self._output_state = np.zeros(AUDIO_TAPS - 1, dtype=np.float64)
+        self._rumble_state = np.zeros(1024, dtype=np.float64)
+        self._input_index = 0
+        self._decimator_index = 0
+        self._previous_iq: complex | None = None
+        self._resample_tail: float | None = None
+        self._resample_input_count = 0
+        self._next_output_position = 0.0
+        self._dc_input = 0.0
+        self._dc_output = 0.0
+        self._deemphasis_state: float | None = None
+        self._gain = 1.0
+        self._agc_envelope = 0.0
+        self._elapsed_intermediate_samples = 0
+        self._observation_pending = np.empty(0, dtype=np.complex128)
+
+    @staticmethod
+    def _fir(values, kernel, state):
+        joined = np.concatenate((state, values))
+        output = np.convolve(joined, kernel, mode="valid")
+        return output, np.asarray(joined[-(kernel.size - 1):], dtype=values.dtype)
+
+    def _resample(self, values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        if not values.size:
+            return np.empty(0, dtype=np.float64)
+        start = self._resample_input_count
+        if self._resample_tail is None:
+            source = values
+            source_start = start
+        else:
+            source = np.concatenate((np.asarray([self._resample_tail]), values))
+            source_start = start - 1
+        source_end = start + values.size - 1
+        step = self.intermediate_rate / AUDIO_SAMPLE_RATE_HZ
+        first = max(self._next_output_position, float(source_start))
+        if first > source_end:
+            output = np.empty(0, dtype=np.float64)
+        else:
+            count = int(math.floor((source_end - first) / step)) + 1
+            positions = first + step * np.arange(count, dtype=np.float64)
+            output = np.interp(
+                positions,
+                source_start + np.arange(source.size, dtype=np.float64),
+                source,
+            )
+            self._next_output_position = float(positions[-1] + step)
+        self._resample_tail = float(values[-1])
+        self._resample_input_count += values.size
+        return np.asarray(output, dtype=np.float64)
+
+    def _remove_dc(self, values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        # Stateful first-order 30 Hz high-pass avoids per-chunk mean steps.
+        pole = math.exp(-2.0 * math.pi * 30.0 / AUDIO_SAMPLE_RATE_HZ)
+        output = np.empty_like(values)
+        previous_input, previous_output = self._dc_input, self._dc_output
+        for index, value in enumerate(values):
+            current = float(value) - previous_input + pole * previous_output
+            output[index] = current
+            previous_input, previous_output = float(value), current
+        self._dc_input, self._dc_output = previous_input, previous_output
+        return output
+
+    def _deemphasize(self, values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        tau = self.config.nfm_deemphasis_us
+        if self.config.mode != "nfm" or tau == 0.0 or not values.size:
+            return values
+        alpha = math.exp(-1.0 / (AUDIO_SAMPLE_RATE_HZ * tau * 1e-6))
+        output = np.empty_like(values)
+        state = float(values[0]) if self._deemphasis_state is None else self._deemphasis_state
+        for index, value in enumerate(values):
+            state = alpha * state + (1.0 - alpha) * float(value)
+            output[index] = state
+        self._deemphasis_state = state
+        return output
+
+    def process(self, blocks: npt.ArrayLike | tuple[npt.ArrayLike, ...], *, volume: float = 1.0) -> AnalogMonitorResult:
+        if isinstance(blocks, np.ndarray) and blocks.ndim == 1:
+            input_blocks = (np.asarray(blocks, dtype=np.complex128),)
+        else:
+            input_blocks = tuple(np.asarray(block, dtype=np.complex128) for block in blocks)  # type: ignore[arg-type]
+        if not input_blocks or any(block.ndim != 1 or block.size == 0 for block in input_blocks):
+            raise MonitoringError("insufficient_iq", "Canlı dinleme için ardışık I/Q blokları gereklidir.")
+        if not math.isfinite(volume) or not 0.0 <= volume <= 1.0:
+            raise MonitoringError("invalid_volume", "Ses seviyesi 0 ile 1 arasında olmalıdır.")
+
+        audio_parts: list[npt.NDArray[np.float64]] = []
+        observation_times: list[float] = []
+        observation_power: list[float] = []
+        observation_frequency: list[float] = []
+        total_input = 0
+        power_sum = 0.0
+        power_count = 0
+        observation_size = max(256, int(round(self.intermediate_rate * OBSERVATION_INTERVAL_SECONDS)))
+
+        for block in input_blocks:
+            if not np.all(np.isfinite(block.real)) or not np.all(np.isfinite(block.imag)):
+                raise MonitoringError("nonfinite_iq", "I/Q örneklerinde NaN veya Inf bulundu.")
+            total_input += block.size
+            indices = self._input_index + np.arange(block.size, dtype=np.float64)
+            mixed = block * np.exp(
+                -2j * np.pi * self.config.center_offset_hz * indices / self.config.sample_rate_hz
+            )
+            self._input_index += block.size
+            anti, self._anti_state = self._fir(mixed, self.anti_alias, self._anti_state)
+            positions = np.arange(self._decimator_index, self._decimator_index + anti.size)
+            decimated = anti[positions % self.decimation == 0]
+            self._decimator_index += anti.size
+            if not decimated.size:
+                continue
+            filtered, self._channel_state = self._fir(decimated, self.channel, self._channel_state)
+            power_sum += float(np.vdot(filtered, filtered).real)
+            power_count += filtered.size
+            self._observation_pending = np.concatenate((self._observation_pending, filtered))
+            while self._observation_pending.size >= observation_size:
+                segment = self._observation_pending[:observation_size]
+                self._observation_pending = self._observation_pending[observation_size:]
+                power = float(np.mean(np.abs(segment) ** 2))
+                products = segment[1:] * np.conj(segment[:-1])
+                phasor = complex(np.sum(products))
+                residual = (
+                    math.atan2(phasor.imag, phasor.real) * self.intermediate_rate / (2.0 * math.pi)
+                    if abs(phasor) > np.finfo(np.float64).tiny else 0.0
+                )
+                self._elapsed_intermediate_samples += segment.size
+                observation_times.append(self._elapsed_intermediate_samples / self.intermediate_rate)
+                observation_power.append(10.0 * math.log10(max(power, np.finfo(np.float64).tiny)))
+                observation_frequency.append(residual)
+            if self.config.mode == "am":
+                baseband = np.abs(filtered)
+            else:
+                extended = filtered if self._previous_iq is None else np.concatenate((np.asarray([self._previous_iq]), filtered))
+                baseband = np.angle(extended[1:] * np.conj(extended[:-1])) * self.intermediate_rate / (2.0 * np.pi)
+                self._previous_iq = complex(filtered[-1])
+            voice, self._voice_state = self._fir(np.asarray(baseband, dtype=np.float64), self.voice, self._voice_state)
+            resampled = self._resample(voice)
+            if resampled.size:
+                audio_parts.append(resampled)
+
+        if not audio_parts:
+            raise MonitoringError("insufficient_audio", "Canlı dinleme parçasından ses üretilemedi.")
+        audio = np.concatenate(audio_parts)
+        audio = self._deemphasize(self._remove_dc(audio))
+        audio, self._output_state = self._fir(audio, self.output, self._output_state)
+        if self.rumble is not None:
+            audio, self._rumble_state = self._fir(audio, self.rumble, self._rumble_state)
+        rms = float(np.sqrt(np.mean(audio * audio)))
+        if not math.isfinite(rms) or rms <= np.finfo(np.float64).eps:
+            raise MonitoringError("insufficient_audio", "Canlı demodüle ses enerjisi yetersizdir.")
+        # Stateful slow AGC is sample-invariant: changing worker chunk sizes must
+        # not create volume steps or different PCM at a chunk boundary.
+        scaled = np.empty_like(audio)
+        envelope, gain = self._agc_envelope, self._gain
+        for index, value in enumerate(audio):
+            envelope = max(abs(float(value)), envelope * 0.9998)
+            target_gain = min(20.0, max(0.1, 0.18 / max(envelope, 1e-3)))
+            gain += 0.002 * (target_gain - gain)
+            scaled[index] = min(0.95, max(-0.95, float(value) * gain * volume))
+        self._agc_envelope, self._gain = envelope, gain
+        pcm = np.rint(scaled * 32767.0).astype("<i2").tobytes()
+        readonly = _readonly(scaled)
+        power = power_sum / max(power_count, 1)
+        return AnalogMonitorResult(
+            mode=self.config.mode,
+            voice_filter=self.config.voice_filter,
+            nfm_deemphasis_us=self.config.nfm_deemphasis_us,
+            sample_rate_hz=AUDIO_SAMPLE_RATE_HZ,
+            audio=readonly,
+            pcm16=pcm,
+            dominant_tone_hz=dominant_tone_hz(readonly),
+            clipping_count=0,
+            input_frame_count=0,
+            input_complex_samples=total_input,
+            transient_guard_input_samples=0,
+            quality_code="streaming",
+            rf_power_dbfs=10.0 * math.log10(max(power, np.finfo(np.float64).tiny)),
+            observation_interval_s=OBSERVATION_INTERVAL_SECONDS,
+            observation_times_s=tuple(observation_times),
+            channel_power_dbfs_trace=tuple(observation_power),
+            residual_frequency_hz_trace=tuple(observation_frequency),
+        )
+
+
 class AudioRingBuffer:
     """Bounded PCM16 ring retaining at most twenty seconds."""
 

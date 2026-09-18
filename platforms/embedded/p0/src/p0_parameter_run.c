@@ -107,6 +107,8 @@ static int write_result(const char *path, const p0_parameter_result_t *result)
     write_field(file, "channel_power_dbfs", &result->channel_power_dbfs, 1);
     write_field(file, "snr_estimate_db", &result->snr_estimate_db, 1);
     write_field(file, "carrier_line_frequency_hz", &result->carrier_line_frequency_hz, 1);
+    write_field(file, "recovered_carrier_frequency_hz", &result->recovered_carrier_frequency_hz, 1);
+    fprintf(file, "  \"carrier_recovery_order\":%u,\n", (unsigned int)result->carrier_recovery_order);
     fputs("  \"quality\":{\"reference_difference_db\":", file);
     write_json_double(file, result->reference_difference_db);
     fputs(",\"detection_significance\":", file);
@@ -169,7 +171,7 @@ int main(int argc, char **argv)
             shifted_power[natural ^ (P0_PARAMETER_FFT_SIZE / 2U)] =
                 load_le64(power_bytes + natural * 8U);
         if (p0_parameter_runtime_observe(
-                &runtime, frame == 0U ? (argc == 38 ? 2 : 1) : 0, 1U, 1U, frame, sample_rate,
+                &runtime, frame == 0U ? (argc == 38 ? (getenv("P0_PARAMETER_RECOVERY") != NULL ? 4 : 2) : 1) : 0, 1U, 1U, frame, sample_rate,
                 center_frequency, (uint16_t)lower, (uint16_t)upper, 1,
                 iq, P0_PARAMETER_FFT_SIZE * 2U, shifted_power,
                 P0_PARAMETER_FFT_SIZE, &result) != 0) {

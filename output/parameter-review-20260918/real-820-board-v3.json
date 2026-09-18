@@ -1,0 +1,139 @@
+{
+  "status": "passed",
+  "record_path": "C:\\Users\\emirhan55\\AppData\\Local\\TEKNOFEST 2026 Elektronik Harp\\BÂZ\\parameter-records\\8ab4893c9d5a4c16a8c3befc77375f30.zip",
+  "record_sha256": "6dd75b383d96fee31494ac9c5d9a4a88febe6c41619adb2e3f76d85e043011ac",
+  "input_ci8_sha256": "9fd13137ff38f0f9f6a39d91e80c257ba3db925929e55b9a1664ea45df05f570",
+  "board_endpoint": {
+    "host": "192.168.7.2",
+    "port": 47007
+  },
+  "protocol": "P0PM-v3",
+  "elapsed_us": 397031,
+  "profile_generation": 0,
+  "fields": {
+    "emission_center_frequency": {
+      "state": "valid",
+      "value": 820031321.535899,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "frequency.excess-centroid-shrink-v3.groups16-v2"
+    },
+    "carrier_line_frequency": {
+      "state": "not_observed",
+      "value": null,
+      "unit": "Hz",
+      "reason": "carrier_line_below_threshold",
+      "method_id": "frequency.carrier-temporal-artifact-rejection-v5.groups16-v2"
+    },
+    "lower_band_edge": {
+      "state": "valid",
+      "value": 819658321.3898104,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "upper_band_edge": {
+      "state": "valid",
+      "value": 820342694.5164194,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "occupied_bandwidth": {
+      "state": "valid",
+      "value": 684373.1266088886,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "channel_power_dbfs": {
+      "state": "valid",
+      "value": -42.08943042057096,
+      "unit": "dBFS",
+      "reason": null,
+      "method_id": "power.reference-uncertainty-gated-v3.groups16-v2"
+    },
+    "snr_estimate_db": {
+      "state": "valid",
+      "value": 8.841407150044764,
+      "unit": "dB",
+      "reason": null,
+      "method_id": "snr.reference-uncertainty-gated-v3.groups16-v2"
+    },
+    "signal_domain": {
+      "state": "not_applicable",
+      "value": null,
+      "unit": null,
+      "reason": "classification_deferred",
+      "method_id": "domain.family-conditioned-prototype-rejection-v5"
+    }
+  },
+  "quality": {
+    "state": "valid",
+    "reasons": [],
+    "observed_frames": 16,
+    "reference_difference_db": 2.055475308048256,
+    "detection_significance": 146.93043268241286,
+    "center_uncertainty_bins": 1.0677631088609785,
+    "temporal_edge_range_bins": 35.626939616659456
+  },
+  "response_sha256": "ecca797e383e2c34b9e2a9b84d2eeb6e66cbcd67c3c621b4e4441d33eb37b0f1",
+  "source_measurement_fields": {
+    "carrier_line_frequency": {
+      "method_id": "frequency.carrier-temporal-artifact-rejection-v5.groups16-v1",
+      "reason": "carrier_line_below_threshold",
+      "state": "not_observed",
+      "unit": "Hz",
+      "value": null
+    },
+    "channel_power_dbfs": {
+      "method_id": "power.reference-uncertainty-gated-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "dBFS",
+      "value": -42.08943042057096
+    },
+    "emission_center_frequency": {
+      "method_id": "frequency.excess-centroid-shrink-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 820031321.535899
+    },
+    "lower_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    },
+    "occupied_bandwidth": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    },
+    "signal_domain": {
+      "method_id": "domain.selected-channel-logreg-pc-v2",
+      "reason": "Deneysel model tahmini; gerçek RF sinyal türü bağımsız olarak doğrulanmadı.",
+      "state": "valid",
+      "unit": null,
+      "value": "Sayısal"
+    },
+    "snr_estimate_db": {
+      "method_id": "snr.reference-uncertainty-gated-v3.groups16-v1",
+      "reason": null,
+      "state": "valid",
+      "unit": "dB",
+      "value": 8.841407150044764
+    },
+    "upper_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v1",
+      "reason": "obw_temporal_instability",
+      "state": "uncertain",
+      "unit": "Hz",
+      "value": null
+    }
+  }
+}

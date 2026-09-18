@@ -207,7 +207,8 @@ int p0_iq_capability_response_encode(
     packet[5] = 2U;
     store_le16(packet + 6U, P0_IQ_CAPABILITY_BYTES);
     store_le32(packet + 8U, P0_IQ_CAPABILITY_INLINE_PARAMETER |
-                              P0_IQ_CAPABILITY_WIDEBAND_BURST | P0_IQ_CAPABILITY_EXTENDED_PARAMETER);
+                              P0_IQ_CAPABILITY_WIDEBAND_BURST | P0_IQ_CAPABILITY_EXTENDED_PARAMETER |
+                              P0_IQ_CAPABILITY_CARRIER_RECOVERY);
     store_le32(packet + 12U, P0_IQ_CAPABILITY_MAXIMUM_PARAMETER_SPAN);
     store_le32(packet + 16U, P0_IQ_CAPABILITY_PARAMETER_CONTEXTS);
     store_le32(packet + 44U,

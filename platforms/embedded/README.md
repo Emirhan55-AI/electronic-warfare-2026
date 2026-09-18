@@ -1,5 +1,17 @@
 # Zynq PS
 
+## P0PM-v5 koşullu taşıyıcı kestirimi — 18 Eylül 2026
+
+P0CQ `0x8`, 16-kare ikinci/dördüncü kuvvet taşıyıcı kestirim desteğidir.
+Seçili ham I/Q'nun kanal izolasyonu, 65536 FFT tepe düzeltmesi ve dört zaman
+grubu uzlaşması ARM'da çalışır; PL kare başına 4096 FFT değişmedi. Geçici
+bellek 2 MiB, kalıcı parametre yükü 1.557.504 bayttır. Yanıt byte 37'deki CRC
+korumalı 0/2/4 kökeni, doğrudan çizgi ile koşullu kestirimi ayırır. v1…v4
+anlamları korunmuştur. Yeni hizmet/köprü geçici kurulumundan sonra iki gerçek
+PL/ARM kayıt tekrarı, altı parametre ve sekiz yön protokol sahnesi geçti.
+SD imajı değişmedi. Güncel hash'ler, sayısal kapsam kaybı, yeni canlı retler ve
+açık fiziksel kapılar: `docs/interfaces/CARRIER_RECOVERY_20260918.md`.
+
 ## KTR-4.4 uyarlamalı P0DF profili — 16 Eylül 2026
 
 `p0_amplitude_df.c` ürün profili tam tur zorunluluğu yerine PC'nin iki taraflı

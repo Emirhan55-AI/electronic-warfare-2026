@@ -191,7 +191,7 @@ static int read_processing_frame(int client, bridge_slot_t *slot,
         return p0_iq_capability_query_check(slot->network_request) == 0 ? 5 : -1;
     if (memcmp(slot->network_request, "P0PM", 4U) == 0) {
         p0_parameter_batch_request_t batch;
-        slot->parameter_request_bytes = slot->network_request[4] == 3U && slot->network_request[5] == 0U
+        slot->parameter_request_bytes = (slot->network_request[4] == 3U || slot->network_request[4] == 5U) && slot->network_request[5] == 0U
             ? P0_PARAMETER_BATCH_EXTENDED_REQUEST_BYTES : P0_PARAMETER_BATCH_REQUEST_BYTES;
         if (read_exact(client, slot->network_request + P0_IQ_HEADER_BYTES,
                        slot->parameter_request_bytes - P0_IQ_HEADER_BYTES, 0) != 0)

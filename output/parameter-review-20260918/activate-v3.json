@@ -1,0 +1,6 @@
+[
+  {
+    "sudo": true,
+    "command": "set -eu; rollback() { /etc/init.d/p0-ed-service stop || true; cp -p /tmp/parameter-before-20260918-v3/p0-ed-service /tmp/parameter-before-20260918-v3/p0-ed-network-bridge /usr/sbin/; /etc/init.d/p0-ed-service start; }; trap 'rollback' EXIT; test \"$(sha256sum /tmp/parameter-update-20260918-v3/p0-ed-service | cut -d' ' -f1)\" = f8588228f861cd36aa6d87bbdfde6e6d281248418884290a85e32a5f739d2ddf; test \"$(sha256sum /tmp/parameter-update-20260918-v3/p0-ed-network-bridge | cut -d' ' -f1)\" = 4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1; /etc/init.d/p0-ed-service stop; cp /tmp/parameter-update-20260918-v3/p0-ed-service /usr/sbin/p0-ed-service; chmod 755 /usr/sbin/p0-ed-service; cp /tmp/parameter-update-20260918-v3/p0-ed-network-bridge /usr/sbin/p0-ed-network-bridge; chmod 755 /usr/sbin/p0-ed-network-bridge; /etc/init.d/p0-ed-service start; sleep 1; kill -0 $(cat /run/p0-ed-service.pid); kill -0 $(cat /run/p0-ed-network-bridge.pid); test \"$(sha256sum /usr/sbin/p0-ed-service | cut -d' ' -f1)\" = f8588228f861cd36aa6d87bbdfde6e6d281248418884290a85e32a5f739d2ddf; test \"$(sha256sum /usr/sbin/p0-ed-network-bridge | cut -d' ' -f1)\" = 4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1; ls -l /run/p0-ed/p0-ed.sock; trap - EXIT"
+  }
+]

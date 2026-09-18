@@ -26,6 +26,30 @@ PARAMETER_PANEL_QML = ROOT / "app" / "operator_console" / "qml" / "ParameterMeas
 
 
 class QuickProductTests(unittest.TestCase):
+    def test_recovered_carrier_is_separate_conditional_primary_row(self):
+        payload = self.run_qml('''
+root = engine.rootObjects()[0]
+root.setProperty("spectrumTaskTab", 1)
+view_model._parameter_rows = [
+    {"key": "carrier_line_frequency", "value": "Gözlenmedi", "state": "not_observed", "reason": "Ayrı çizgi yok."},
+    {"key": "recovered_carrier_frequency", "value": "≈ 819.999972 MHz", "state": "estimated", "reason": "Koşullu kestirim."},
+    {"key": "signal_domain", "value": "Sayısal", "state": "valid", "reason": ""}
+]
+view_model.detectionsChanged.emit()
+view_model.stateChanged.emit()
+app.processEvents()
+panel = root.findChild(QObject, "measurementScroll")
+payload = {"count": panel.property("validPrimaryCount"), "rows": panel.property("primaryRows").toVariant()}
+view_model.shutdown(); root.close()
+print(json.dumps(payload))
+''')
+        self.assertEqual(0, payload["count"])
+        rows = {row["key"]: row for row in payload["rows"]}
+        self.assertEqual("not_observed", rows["carrier_line_frequency"]["state"])
+        self.assertEqual("estimated", rows["recovered_carrier_frequency"]["state"])
+        self.assertEqual("Taşıyıcı Frekansı Kestirimi", rows["recovered_carrier_frequency"]["label"])
+        self.assertEqual("predicted", rows["signal_domain"]["state"])
+
     def test_parameter_model_prediction_is_not_counted_as_numeric_validity(self):
         payload = self.run_qml('''
 root = engine.rootObjects()[0]
@@ -44,15 +68,19 @@ print(json.dumps(payload))
 ''')
         self.assertEqual(3, payload["count"])
         self.assertEqual("predicted", payload["rows"][-1]["state"])
-        self.assertEqual("not_observed", payload["rows"][1]["state"])
+        carrier = next(row for row in payload["rows"] if row["key"] == "carrier_line_frequency")
+        self.assertEqual("Gözlenen Taşıyıcı Frekansı", carrier["label"])
+        self.assertEqual("not_observed", carrier["state"])
 
     def test_parameter_panel_uses_compact_record_and_result_labels(self):
         source = PARAMETER_PANEL_QML.read_text(encoding="utf-8")
         for required in ('text: "KAYITLAR"', '"Kayıtları Göster"',
                          '"Sinyal Merkez Frekansı"', '"Gözlenen Taşıyıcı Frekansı"',
                          '"Bant Genişliği"', '"Kanal Gücü (dBFS)"',
-                         '"Tahmini Güç (dBm)"', '"Sinyal Türü"'):
+                         '"Giriş Gücü (dBm)"', '"Sinyal Türü"'):
             self.assertIn(required, source)
+        self.assertNotIn('return "DENEYSEL TAHMİN"', source)
+        self.assertIn('modelData.key === "signal_domain"', source)
         for removed in ("OTOMATİK PARAMETRE KATALOĞU", "Canlı alımda otomatik tamamlanan",
                         "automaticParameterStatus +", "Sinyal türü (PC, deneysel)",
                         "OBW için analiz aralığı",
@@ -1336,7 +1364,7 @@ app.processEvents()
 payload["catalog_toggle_open"] = catalog_toggle.property("text")
 payload["details_initially_visible"] = root.findChild(QObject, "parameterDetails").property("visible")
 QMetaObject.invokeMethod(root.findChild(QObject, "parameterDetailsToggle"), "clicked", Qt.DirectConnection)
-payload["details_hidden_after_click"] = not root.findChild(QObject, "parameterDetails").property("visible")
+payload["details_visible_after_click"] = root.findChild(QObject, "parameterDetails").property("visible")
 payload["measurement_info"] = view_model.measurementInfo
 view_model.startScan()
 app.processEvents()
@@ -1352,15 +1380,18 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual("Gözlenen Taşıyıcı Frekansı", payload["primary_rows"][1]["label"])
         self.assertEqual("Bant Genişliği", payload["primary_rows"][2]["label"])
         self.assertEqual("Kanal Gücü (dBFS)", payload["primary_rows"][3]["label"])
-        self.assertEqual("Tahmini Güç (dBm)", payload["primary_rows"][4]["label"])
+        self.assertEqual("Giriş Gücü (dBm)", payload["primary_rows"][4]["label"])
+        self.assertEqual("Kalibrasyon gerekli", payload["primary_rows"][4]["value"])
         self.assertEqual("Sinyal Türü", payload["primary_rows"][5]["label"])
-        self.assertTrue(payload["validation_summary_visible"])
+        self.assertFalse(payload["validation_summary_visible"])
         self.assertTrue(payload["catalog_visible"])
         self.assertTrue(payload["catalog_summary"])
         self.assertEqual("Kayıtları Göster", payload["catalog_toggle_initial"])
         self.assertEqual("Kayıtları Gizle", payload["catalog_toggle_open"])
-        self.assertTrue(payload["details_initially_visible"])
-        self.assertTrue(payload["details_hidden_after_click"])
+        self.assertFalse(payload["details_initially_visible"])
+        self.assertTrue(payload["details_visible_after_click"])
+        self.assertEqual(4, payload["measurement_info"]["frameCount"])
+        self.assertTrue(payload["primary_rows"][0]["value"].endswith(" MHz"))
         self.assertGreater(payload["measurement_info"]["durationMs"], 0)
         self.assertTrue(payload["measurement_info"]["completedUtc"])
         self.assertTrue(all(row["value"] == "—" for row in payload["cleared_rows"]))
@@ -1491,7 +1522,7 @@ print(json.dumps(payload,ensure_ascii=False))
         self.assertEqual(1, payload["locked"]["count"])
         self.assertIn("referansı değiştirilemez", payload["locked"]["status"])
         self.assertEqual(0, payload["cleared"])
-        self.assertEqual("İlk ölçümde sabitlenir", payload["reference_after"])
+        self.assertEqual("0° = ilk ölçümde antenin baktığı fiziksel yön", payload["reference_after"])
 
     def test_confirmed_detection_prepares_truthfully_labeled_am_audio(self) -> None:
         payload = self.run_qml(
@@ -1573,6 +1604,7 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "listeningResultList"',
             "Oynatma konumu, salt okunur",
             'objectName: "directionClockwiseGuide"',
+            'objectName: "directionZeroReference"',
             'objectName: "directionNextAngle"',
             'objectName: "directionStepInstruction"',
             'objectName: "directionProgressSummary"',
@@ -1580,10 +1612,13 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "directionProgressStatus"',
             'objectName: "directionCompass"',
             'objectName: "directionMeasurementList"',
+            'objectName: "directionAccuracyStatus"',
             "directionStartMeasurement",
+            "Yön Hesabını Yeniden Dene",
+            "EN GÜÇLÜ ÖLÇÜM ADAYI",
+            "DOĞRULANMIŞ BAĞIL YÖN",
             "addNextClockwiseDirectionMeasurement",
             "UYARLAMALI ANTEN TARAMASI",
-            "BAĞIL TEPE YÖNÜ",
             "Sesi Hazırla",
             'objectName: "emptySpectrumMessage"',
             'objectName: "emptyDetectionMessage"',

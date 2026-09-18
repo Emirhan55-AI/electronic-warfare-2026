@@ -1,5 +1,61 @@
 # Operatör Uygulaması
 
+## Ayrı taşıyıcı kestirimi — 18 Eylül 2026
+
+P0CQ taşıyıcı desteği bildiren kartta 16-kare manuel parametre isteği P0PM-v5
+kullanır. ARM'ın ikinci/dördüncü kuvvet uzlaşması geçerse beyaz ana sonuçta
+`Taşıyıcı Frekansı Kestirimi`, yaklaşık MHz ve `TAHMİNİ` gösterilir. Gözlenen
+çizgi alanı ayrı kalır; kestirim sayısal geçerli alan sayısını artırmaz. Eski
+kartta eski protokol ve altı satır korunur. Kayıt yöntem/köken/CRC bağını saklar
+ve yanıtı yeniden üretebilir; PC sayısal geri dönüşü yoktur. İki gerçek kayıt
+çalışan kartta yaklaşık 820 MHz verdi; yeni canlı referans uyuşmazlığı retleri
+gizlenmedi. Kapsam, hash'ler ve açık fiziksel kapılar:
+[koşullu taşıyıcı sözleşmesi](../docs/interfaces/CARRIER_RECOVERY_20260918.md).
+
+## Kesintisiz analog dinleme — 18 Eylül 2026
+
+`Dinleme` kartında açık AM veya NFM seçimi, doğrulanmış ilk beş saniyeden sonra
+canlı alımı durdurmadan ses üretmeye devam eder. `Durdur` yalnız ses akışını
+durdurur; RX oturumu sürer. Sıra boşluğu, seçili kanal kaybı veya işleme
+yığılması algılanırsa kesintili örnekler birleştirilmez. Arayüz kanal frekansı,
+süreklilik, anlık güç, frekans değişimi ve 250 ms zamansal izleri gösterir; son
+yirmi saniye WAV olarak dışa aktarılabilir. `Bilmiyorum · AM/FM karşılaştır`
+aynı sınırlı kayıttan iki sonucu hazırlar, otomatik tür kararı vermez. Analog
+sinyalleşme satırı yalnız doğrulanan DTMF dizisini gösterir; diğer kodlar
+incelenmiş sayılmaz. Gerçek telsiz konuşmasıyla fiziksel kabul açık kalır.
+
+## Bağıl yön sonucu ve ARM yeniden denemesi — 18 Eylül 2026
+
+Yön taramasının son P0DF-v1 isteğinde 32 bit sınırını aşan kare kimliği
+düzeltildi. Başarısız son hesap açı–güç noktalarını artık silmez; `Yön Hesabını
+Yeniden Dene` yalnız ARM kararını tekrarlar. Ekran 0°ı ilk ölçümdeki fiziksel
+anten ekseni olarak açıklar ve coğrafi referans yoksa kuzey/doğu göstermez.
+Tamamlanan taramanın en güçlü noktası sarı `ölçüm adayı`, yalnız kartın
+`LOB HAZIR` sonucu doğrulanmış bağıl yön olarak çizilir. Bağıl dereceye ek olarak
+Ön/Sağ/Arka/Sol sektörü ve saat yönü tarifi verilir. Fiziksel `Derece RMS`
+kanıtı henüz bulunmadığından sonuç alanında bu kabul kapısı açık gösterilir.
+Çalışan 47007 kart hizmetindeki sekiz sayısal P0DF sahnesi güncel kaynakla
+geçmiştir; bu ARM/ağ işlev kanıtıdır, anten doğruluğu değildir.
+
+## Parametre sonuçları ve geniş bant OBW — 18 Eylül 2026
+
+Ana sonuçlar sırasıyla `Sinyal Merkez Frekansı`, `Gözlenen Taşıyıcı Frekansı`,
+`Bant Genişliği`, `Kanal Gücü (dBFS)`, `Giriş Gücü (dBm)` ve `Sinyal Türü`
+satırlarını gösterir. Taşıyıcı yalnız dar çizgi kanıtı varsa sayıdır; aksi halde
+`Gözlenmedi` gösterilir. Sinyal türünde görünür deneysel rozet yoktur ve değer
+diğer ana sonuçlar gibi birincil metin rengindedir; model bağı teknik kayıtta
+korunur. Gerçek dBm kalibrasyon yoksa `Kalibrasyon gerekli` kalır.
+
+16 karelik ölçümde OBW kenar kararlılığı artık genişliğe ölçeklenir: sınır
+`maks(7 FFT hücresi, OBW'nin %5'i)`dir. Ekran görüntüsündeki kayıt tekrarında
+`35,618` hücrelik değişim `70,085` hücrelik sınır içinde kalmış ve
+`684,420351 kHz` OBW üretmiştir. Dört karelik eski yol değişmedi; sentetik
+değişen bant ve frekans sıçraması reddedilmeye devam eder. Güncel ARM hizmeti
+karta yüklenmiş, aynı kayıt kartta `684,373127 kHz` vermiş ve yeni canlı
+HackRF → FPGA → ARM ölçümü 16/16 kareyle `674,851 kHz` OBW üretmiştir. Bu
+sonuçlar ilgili koşuların işlev kanıtıdır; genel fiziksel RF doğruluk kabulü veya
+dBm kalibrasyonu değildir.
+
 ## Uyarlamalı yön taraması — 16 Eylül 2026
 
 Yön Bulma akışı `0°` doğrulanmış kanal kilidinden sonra önce saat yönünde ilk

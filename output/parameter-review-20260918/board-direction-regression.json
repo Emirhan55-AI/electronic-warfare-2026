@@ -1,0 +1,94 @@
+{
+  "schema": "p0pm-v4-direction-power-physical-v1",
+  "generated_at_utc": "2026-09-18T01:06:52.792280Z",
+  "status": "passed",
+  "requirements": [
+    "KTR-4.4"
+  ],
+  "board": {
+    "host": "192.168.7.2",
+    "port": 47007,
+    "architecture": "armv7l"
+  },
+  "profile_before": {
+    "generation": 0,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "profile_after": {
+    "generation": 0,
+    "alpha_q32": 36851433755,
+    "weak_alpha_q32": 17098572778,
+    "fft_size": 4096,
+    "runtime_fft_supported": true
+  },
+  "stimulus": {
+    "kind": "hann_center_impulse_flat_fft_power",
+    "frames": 4,
+    "frame_bytes": 8192,
+    "ci8_sha256": "8d42afd09ba6eb7e1e737b8275022c768fd3878033ea1c90a03630328df17242",
+    "span": [
+      2000,
+      2031
+    ]
+  },
+  "normal_parameter": {
+    "protocol_version": 2,
+    "channel_power": {
+      "state": "insufficient_quality",
+      "value": null,
+      "unit": "dBFS",
+      "reason": "excess_power_not_significant"
+    },
+    "quality": {
+      "state": "insufficient_quality",
+      "reasons": [
+        "excess_power_not_significant"
+      ],
+      "observed_frames": 4,
+      "reference_difference_db": 0.0,
+      "detection_significance": -4.40131230098777e-15,
+      "center_uncertainty_bins": 0.0,
+      "temporal_edge_range_bins": 0.0
+    },
+    "elapsed_us": 14374
+  },
+  "locked_direction": {
+    "protocol_version": 4,
+    "power_basis": "locked_channel_total_signal_plus_noise",
+    "channel_power": {
+      "state": "valid",
+      "value": -58.95661176671324,
+      "unit": "dBFS",
+      "reason": null
+    },
+    "quality": {
+      "state": "insufficient_quality",
+      "reasons": [
+        "excess_power_not_significant"
+      ],
+      "observed_frames": 4,
+      "reference_difference_db": 0.0,
+      "detection_significance": -4.40131230098777e-15,
+      "center_uncertainty_bins": 0.0,
+      "temporal_edge_range_bins": 0.0
+    },
+    "elapsed_us": 14374
+  },
+  "binaries": {
+    "p0-ed-service": "126a916d47a3f5ef4f3f0feabbd6e197ce73b75bd187c961f64cbda2250d6bb5",
+    "p0-ed-network-bridge": "4797d7c300fb38e09869984b13bece5618f7ebcb34b459a4df5d96c601bb6bc1"
+  },
+  "sources": {
+    "algorithms/p0/parameter_client.py": "9ffe5c29c44a1cbbd702d314e1e4f31fae7518f82e8d7b3aef0a41e2153b619d",
+    "platforms/embedded/p0/include/p0_ed_service_protocol.h": "3e2e1d309a0392106577b60d096e54ddac98cec6586e83b12217b05658a04415",
+    "platforms/embedded/p0/include/p0_parameter_runtime.h": "187460dbdadd45a4e9cbecbfb87294a59f37215a6cac9184f87e3339b8243906",
+    "platforms/embedded/p0/src/p0_ed_service.c": "f37ffb9229137d44d63f06b0a4162248abbdb098cba11e8a806bf97f0aa5b14e",
+    "platforms/embedded/p0/src/p0_ed_service_protocol.c": "3e3668bda605d6359673164007b1265c927de9a96c29f75a001e730ec6711f51",
+    "platforms/embedded/p0/src/p0_parameter_runtime.c": "bce91d8790d0a3195ec5d7ee43a9f4736bdfd3b61b953884b7b433b92a56ed15",
+    "scripts/verify_p0pm_v4_direction_board.py": "bc67c51dd6d5f918ee0f8deab8c8fe3fa34fe5bf4a4a14e2e20d4878aa1a5133"
+  },
+  "claim_boundary": "Physical ZedBoard PL/ARM and P0PM-v4 network-path functional proof on a deterministic flat-power CI8 fixture; no antenna, live RF, calibration, bearing, multipath or degree-RMS accuracy acceptance."
+}

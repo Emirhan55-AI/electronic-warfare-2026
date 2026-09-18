@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "record_path": "C:\\Users\\emirhan55\\OneDrive\\Documents\\ChatGPT\\TEKNOFEST\\output\\parameter-review-20260918\\live-records-v3\\cd828d9e96fc40f5bb9eea118ddd04d5.zip",
+  "record_sha256": "3bf08d0e32e431d11751f17caa36adcf1029151a067476aeb8ec3b386a2a45a3",
+  "input_ci8_sha256": "2f757facda29cc150c7a3c33be732a8a5e8d440b9354d524287bd2caf1ebb8c6",
+  "board_endpoint": {
+    "host": "192.168.7.2",
+    "port": 47007
+  },
+  "protocol": "P0PM-v5",
+  "elapsed_us": 624306,
+  "profile_generation": 0,
+  "fields": {
+    "emission_center_frequency": {
+      "state": "valid",
+      "value": 820144998.2478259,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "frequency.excess-centroid-shrink-v3.groups16-v2"
+    },
+    "carrier_line_frequency": {
+      "state": "not_observed",
+      "value": null,
+      "unit": "Hz",
+      "reason": "carrier_line_below_threshold",
+      "method_id": "frequency.carrier-temporal-artifact-rejection-v5.groups16-v2"
+    },
+    "lower_band_edge": {
+      "state": "valid",
+      "value": 819664401.8685627,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "upper_band_edge": {
+      "state": "valid",
+      "value": 820339253.2140912,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "occupied_bandwidth": {
+      "state": "valid",
+      "value": 674851.3455284887,
+      "unit": "Hz",
+      "reason": null,
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2"
+    },
+    "channel_power_dbfs": {
+      "state": "valid",
+      "value": -41.92163670991168,
+      "unit": "dBFS",
+      "reason": null,
+      "method_id": "power.reference-uncertainty-gated-v3.groups16-v2"
+    },
+    "snr_estimate_db": {
+      "state": "valid",
+      "value": 9.297005691727533,
+      "unit": "dB",
+      "reason": null,
+      "method_id": "snr.reference-uncertainty-gated-v3.groups16-v2"
+    },
+    "signal_domain": {
+      "state": "not_applicable",
+      "value": null,
+      "unit": null,
+      "reason": "classification_deferred",
+      "method_id": "domain.family-conditioned-prototype-rejection-v5"
+    },
+    "recovered_carrier_frequency": {
+      "state": "uncertain",
+      "value": 819999971.8656968,
+      "unit": "Hz",
+      "reason": "recovered_carrier_order2",
+      "method_id": "frequency.suppressed-carrier-power-consensus-v1"
+    }
+  },
+  "quality": {
+    "state": "valid",
+    "reasons": [],
+    "observed_frames": 16,
+    "reference_difference_db": 0.6193996325565188,
+    "detection_significance": 156.41093600326568,
+    "center_uncertainty_bins": 0.7763380768121018,
+    "temporal_edge_range_bins": 12.05559611111562
+  },
+  "response_sha256": "400d95ea3ab65827c1f66fe08e3f46135fc641622f87f05cb3e1e92015d73f55",
+  "source_measurement_fields": {
+    "carrier_line_frequency": {
+      "method_id": "frequency.carrier-temporal-artifact-rejection-v5.groups16-v2",
+      "reason": "carrier_line_below_threshold",
+      "state": "not_observed",
+      "unit": "Hz",
+      "value": null
+    },
+    "channel_power_dbfs": {
+      "method_id": "power.reference-uncertainty-gated-v3.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "dBFS",
+      "value": -41.92163670991168
+    },
+    "emission_center_frequency": {
+      "method_id": "frequency.excess-centroid-shrink-v3.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 820144998.2478259
+    },
+    "lower_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 819664401.8685627
+    },
+    "occupied_bandwidth": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 674851.3455284887
+    },
+    "signal_domain": {
+      "method_id": "domain.selected-channel-logreg-pc-v2",
+      "reason": "Deneysel model tahmini; gerçek RF sinyal türü bağımsız olarak doğrulanmadı.",
+      "state": "valid",
+      "unit": null,
+      "value": "Sayısal"
+    },
+    "snr_estimate_db": {
+      "method_id": "snr.reference-uncertainty-gated-v3.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "dB",
+      "value": 9.297005691727533
+    },
+    "upper_band_edge": {
+      "method_id": "band.debiased-obw99-tail-bias-correction-v6.groups16-v2",
+      "reason": null,
+      "state": "valid",
+      "unit": "Hz",
+      "value": 820339253.2140912
+    }
+  }
+}
