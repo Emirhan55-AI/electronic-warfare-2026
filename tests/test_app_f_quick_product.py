@@ -93,6 +93,13 @@ print(json.dumps(payload))
     def test_survey_result_header_keeps_space_for_signal_rows(self):
         source = RX_SURVEY_QML.read_text(encoding="utf-8")
         self.assertIn('text: "SİNYAL TESPİTİ"', source)
+        self.assertIn('objectName: "surveyExportFrequencies"', source)
+        self.assertIn('text: "Taaruz Aktarım"', source)
+        self.assertIn('onClicked: survey.exportFrequencies()', source)
+        self.assertLess(
+            source.index('objectName: "surveyExportFrequencies"'),
+            source.index('objectName: "surveyStart"'),
+        )
         self.assertNotIn('survey.observationCount + " kayıt', source)
         self.assertNotIn('text: "Tarama geçmişi"', source)
         self.assertNotIn("view.groupDescription(", source)
@@ -202,8 +209,8 @@ root.setWidth(1440); root.setHeight(900)
 view_model.setSourceMode("hackrf")
 amplifier = root.findChild(QObject, "liveAmplifierInput")
 amplifier_label = root.findChild(QObject, "liveAmplifierLabel")
-amplifier.setProperty("currentIndex", 1)
-QMetaObject.invokeMethod(amplifier, "activated", Q_ARG(int, 1))
+QMetaObject.invokeMethod(amplifier, "clicked")
+app.processEvents()
 dialog = root.findChild(QObject, "receiverAdvancedSettings")
 QMetaObject.invokeMethod(dialog, "open")
 view_model._card_detection_profile = DetectionProfile(1, NORMAL_DEFAULT, WEAK_DEFAULT)
@@ -259,6 +266,8 @@ payload = {
     "action_widths": [read_card.property("width"), restore_card.property("width"),
                       apply_cfar.property("width")],
     "amp_paddings": [amplifier.property("leftPadding"), amplifier.property("rightPadding")],
+    "amp_text": amplifier.property("text"),
+    "amp_checked": amplifier.property("checked"),
     "amp_label": amplifier_label.property("text"),
 }
 image_path = Path("build/acceptance/phase08-ui-simplification/detection-settings-final.png")
@@ -294,6 +303,8 @@ print(json.dumps(payload))
         self.assertEqual(1, len(set(round(value) for value in payload.pop("field_lefts"))))
         self.assertEqual(1, len(set(round(value) for value in payload.pop("action_widths"))))
         self.assertEqual([28, 28], payload.pop("amp_paddings"))
+        self.assertEqual("Açık", payload.pop("amp_text"))
+        self.assertTrue(payload.pop("amp_checked"))
         self.assertEqual("AMP", payload.pop("amp_label"))
         self.assertEqual(
             ["LNA (dB)", "VGA (dB)", "AMP", "Gözlem (kare)", "Yerleşme (kare)"],
@@ -1141,6 +1152,52 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertIn("8 MS/s", payload["status"])
         self.assertTrue(payload["live"])
 
+    def test_running_survey_keeps_reacquisition_actions_available(self) -> None:
+        payload = self.run_qml(
+            """
+from app.operator_console.rx_survey import SurveyConfig
+class ActiveSurvey:
+    def __init__(self): self.cancelled = False
+    def cancel(self): self.cancelled = True
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900)
+view_model.survey._config = SurveyConfig(1_000_000, 2_000_000, 16, 16)
+view_model.survey._rows = [{"eventId": "survey:31", "frequencyHz": 1_300_000.0}]
+view_model.survey._selected = "survey:31"
+active = ActiveSurvey()
+view_model.survey._survey = active
+view_model.survey._state = "Taranıyor"
+view_model._busy = view_model._playing = True
+view_model._active_task_kind = "survey"
+view_model.survey.changed.emit(); view_model.stateChanged.emit()
+root.setProperty("rfSearchMode", True)
+for _ in range(5): app.processEvents()
+parameters = root.findChild(QObject, "surveyOpenParameters")
+monitor = root.findChild(QObject, "surveyMonitor")
+before = {"parameters": parameters.property("enabled"),
+          "monitor": monitor.property("enabled"), "monitor_text": monitor.property("text")}
+parameters.clicked.emit()
+for _ in range(5): app.processEvents()
+payload = {"before": before, "cancelled": active.cancelled,
+           "state": view_model.survey.state,
+           "survey_mode": root.property("rfSearchMode"),
+           "parameters_after": parameters.property("enabled"),
+           "monitor_after": monitor.property("enabled")}
+view_model.survey._survey = None
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertEqual(
+            {"parameters": True, "monitor": True, "monitor_text": "Sinyali Yeniden Al"},
+            payload["before"],
+        )
+        self.assertTrue(payload["cancelled"])
+        self.assertEqual("Durduruluyor", payload["state"])
+        self.assertFalse(payload["survey_mode"])
+        self.assertFalse(payload["parameters_after"])
+        self.assertFalse(payload["monitor_after"])
+
     def test_rf_controls_share_centered_numeric_alignment_and_single_action(self) -> None:
         payload = self.run_qml(
             """
@@ -1489,6 +1546,77 @@ print(json.dumps(payload, ensure_ascii=False))
         self.assertLessEqual(payload["status_width"], payload["summary_width"])
         self.assertIn("Başlangıç hedef ölçümü bekleniyor", payload["status_text"])
 
+    def test_direction_moves_history_above_spectrogram_and_keeps_live_spectrum(self) -> None:
+        payload = self.run_qml(
+            """
+root = engine.rootObjects()[0]
+root.setWidth(1440); root.setHeight(900); root.setProperty("workspace", 2)
+for _ in range(3): app.processEvents()
+field = root.findChild(QObject, "directionNorthBearingInput")
+legend = root.findChild(QObject, "directionNorthBearingLegend")
+history = root.findChild(QObject, "directionMeasurementList")
+spectrogram = root.findChild(QObject, "directionSpectrogram")
+spectrum = root.findChild(QObject, "directionSpectrum")
+spectrum_trace = root.findChild(QObject, "directionSpectrumTrace")
+spectrogram_zoom = root.findChild(QObject, "directionSpectrogramZoomArea")
+spectrum_zoom = root.findChild(QObject, "directionSpectrumZoomArea")
+field.setProperty("text", "44")
+for _ in range(3): app.processEvents()
+marked = {"bearing": root.property("manualNorthBearing"),
+          "legend": legend.property("text"), "legend_visible": legend.property("visible")}
+field.setProperty("text", "")
+view_model._spectrum_center_frequency_hz = 995000000.0
+view_model._spectrum_sample_rate_hz = 8000000.0
+view_model._live_output_center_frequency_hz = 995000000.0
+view_model._df_target_frequency_hz = 996000000.0
+view_model._df_channel_span = (2000, 2100)
+view_model.stateChanged.emit(); view_model.spectrumChanged.emit()
+root.setSpectrumView(.25, .75)
+for _ in range(3): app.processEvents()
+payload = {"marked": marked, "cleared": root.property("manualNorthBearing"),
+           "legend_cleared": legend.property("visible"),
+           "history_width": history.property("width"),
+           "spectrogram_width": spectrogram.property("width"),
+           "spectrum_width": spectrum.property("width"),
+           "spectrogram_view": [spectrogram.property("viewStart"), spectrogram.property("viewEnd")],
+           "spectrum_view": [spectrum_trace.property("viewStart"), spectrum_trace.property("viewEnd")],
+           "target_marker": [view_model.directionTargetStartNormalized,
+                              view_model.directionTargetPeakNormalized,
+                              view_model.directionTargetEndNormalized],
+           "zoom_areas": [spectrogram_zoom is not None, spectrum_zoom is not None]}
+view_model.shutdown(); root.close()
+print(json.dumps(payload, ensure_ascii=False))
+"""
+        )
+        self.assertEqual(44.0, payload["marked"]["bearing"])
+        self.assertIn("44°", payload["marked"]["legend"])
+        self.assertTrue(payload["marked"]["legend_visible"])
+        self.assertEqual(-1.0, payload["cleared"])
+        self.assertFalse(payload["legend_cleared"])
+        self.assertGreater(payload["history_width"], 0)
+        self.assertGreater(payload["spectrogram_width"], 0)
+        self.assertGreater(payload["spectrum_width"], 0)
+        self.assertLess(abs(payload["spectrogram_width"] - payload["spectrum_width"]), 80)
+        self.assertEqual([0.25, 0.75], payload["spectrogram_view"])
+        self.assertEqual([0.25, 0.75], payload["spectrum_view"])
+        self.assertTrue(all(0 <= value <= 1 for value in payload["target_marker"]))
+        self.assertAlmostEqual(0.625, payload["target_marker"][1], places=6)
+        self.assertEqual([True, True], payload["zoom_areas"])
+        source = QML.read_text(encoding="utf-8")
+        guides = (QML.parent / "DetectionGuidePainter.js").read_text(encoding="utf-8")
+        self.assertIn("root.paintFullSpectrumFpgaDetections(ctx, plotLeft, plotTop, plotWidth, plotHeight)", source)
+        self.assertIn("function onDetectionsChanged() { directionSpectrum.requestPaint() }", source)
+        self.assertIn("function paintDetectionGuidesInRange", guides)
+        self.assertIn("includeSelected !== false", guides)
+        self.assertIn("function paintDirectionTargetGuide", guides)
+        self.assertIn("DetectionGuidePainter.paintDirectionTargetGuide", source)
+        self.assertIn('z: -1\n                                            source: operatorViewModel.spectralDisplay', source)
+        self.assertIn('root.spectrumViewStart, root.spectrumViewEnd)', source)
+        self.assertNotIn("EN GÜÇLÜ ÖLÇÜM ADAYI", source)
+        self.assertNotIn('objectName: "directionAccuracyStatus"', source)
+        self.assertLess(source.index('objectName: "directionMeasurementList"'),
+                        source.index('objectName: "directionSpectrogram"'))
+
     def test_direction_session_locks_reference_and_clears_on_source_change(self) -> None:
         payload = self.run_qml(
             f"""
@@ -1611,12 +1739,13 @@ print(json.dumps(payload,ensure_ascii=False))
             'objectName: "directionProgressLabel"',
             'objectName: "directionProgressStatus"',
             'objectName: "directionCompass"',
+            'objectName: "directionNorthBearingInput"',
+            'objectName: "directionNorthBearingLegend"',
             'objectName: "directionMeasurementList"',
-            'objectName: "directionAccuracyStatus"',
+            'objectName: "directionSpectrogram"',
+            'objectName: "directionSpectrum"',
             "directionStartMeasurement",
             "Yön Hesabını Yeniden Dene",
-            "EN GÜÇLÜ ÖLÇÜM ADAYI",
-            "DOĞRULANMIŞ BAĞIL YÖN",
             "addNextClockwiseDirectionMeasurement",
             "UYARLAMALI ANTEN TARAMASI",
             "Sesi Hazırla",

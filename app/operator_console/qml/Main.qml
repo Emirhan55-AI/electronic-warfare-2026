@@ -31,6 +31,7 @@ ApplicationWindow {
     property real analysisDragStart: -1
     property real analysisDragEnd: -1
     property int spectrumTaskTab: 0
+    property real manualNorthBearing: -1
     property color appBackground: "#181818"
     property color surface: "#1F1F1F"
     property color surfaceAlt: "#202020"
@@ -73,6 +74,29 @@ ApplicationWindow {
         }
     }
 
+    component SpectrumZoomArea: MouseArea {
+        required property real plotLeft
+        required property real plotWidth
+        property real pressX: 0
+        property real pressStart: 0
+        property real pressEnd: 1
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton
+        cursorShape: pressed ? Qt.ClosedHandCursor : Qt.CrossCursor
+        onPressed: function(mouse) { pressX = mouse.x; pressStart = root.spectrumViewStart; pressEnd = root.spectrumViewEnd }
+        onPositionChanged: function(mouse) {
+            if (!pressed) return
+            var delta = -(mouse.x - pressX) * (pressEnd - pressStart) / Math.max(1, plotWidth)
+            root.setSpectrumView(pressStart + delta, pressEnd + delta)
+        }
+        onReleased: root.commitSpectrumView()
+        onWheel: function(wheel) {
+            var anchor = Math.max(0, Math.min(1, (wheel.x - plotLeft) / Math.max(1, plotWidth)))
+            root.zoomSpectrum(anchor, wheel.angleDelta.y > 0 ? 0.75 : 1.333333)
+        }
+        onDoubleClicked: root.resetSpectrumView()
+    }
+
     onWorkspaceChanged: {
         if (workspace === 0) {
             spectrumCanvas.requestPaint()
@@ -104,6 +128,14 @@ ApplicationWindow {
 
     function paintDetectionGuides(ctx, left, top, plotWidth, plotHeight, includeCandidates) {
         DetectionGuidePainter.paintDetectionGuides(root, operatorViewModel, ctx, left, top, plotWidth, plotHeight, includeCandidates)
+    }
+
+    function paintFullSpectrumFpgaDetections(ctx, left, top, plotWidth, plotHeight) {
+        DetectionGuidePainter.paintDetectionGuidesInRange(root, operatorViewModel, ctx, left, top,
+                                                          plotWidth, plotHeight, true, false,
+                                                          root.spectrumViewStart, root.spectrumViewEnd)
+        DetectionGuidePainter.paintDirectionTargetGuide(root, operatorViewModel, ctx, left, top, plotWidth,
+                                                        plotHeight, root.spectrumViewStart, root.spectrumViewEnd)
     }
 
     function commitSpectrumView() {
@@ -169,6 +201,16 @@ ApplicationWindow {
         return operatorViewModel.spectrumCenterFrequencyHz + (normalized - 0.5) * operatorViewModel.spectrumSampleRateHz
     }
 
+    function updateManualNorthBearing(value) {
+        var normalized = String(value).trim().replace(",", ".")
+        if (normalized.length === 0) {
+            manualNorthBearing = -1
+            return
+        }
+        var degrees = Number(normalized)
+        manualNorthBearing = isFinite(degrees) && degrees >= 0 && degrees < 360 ? degrees : -1
+    }
+
     function normalizedAtSpectrumX(x, width) {
         var plotLeft = 0
         var plotWidth = Math.max(1, width - 1)
@@ -202,10 +244,14 @@ ApplicationWindow {
     onSpectrumViewStartChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
+        directionSpectrogramGuides.requestPaint()
+        directionSpectrum.requestPaint()
     }
     onSpectrumViewEndChanged: {
         spectrumCanvas.requestPaint()
         waterfall.requestPaint()
+        directionSpectrogramGuides.requestPaint()
+        directionSpectrum.requestPaint()
     }
     onSpectrumCursorNormalizedChanged: {
         spectrumCanvas.requestPaint()
@@ -217,6 +263,7 @@ ApplicationWindow {
     }
     onAnalysisDragStartChanged: spectrumCanvas.requestPaint()
     onAnalysisDragEndChanged: spectrumCanvas.requestPaint()
+    onManualNorthBearingChanged: bearingCompass.requestPaint()
 
     Connections {
         target: operatorViewModel
@@ -1662,16 +1709,35 @@ ApplicationWindow {
                             }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 52
+                                implicitHeight: 104
                                 radius: 4
                                 color: root.surfaceAlt
                                 border.color: root.border
                                 ColumnLayout {
                                     anchors.fill: parent
                                     anchors.margins: 9
-                                    spacing: 2
+                                    spacing: 5
                                     Label { text: "0° REFERANSI"; color: root.textMuted; font.pixelSize: 8; font.weight: Font.Bold }
                                     Label { objectName: "directionZeroReference"; text: operatorViewModel.directionReferenceText; color: root.textPrimary; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+                                        Label { text: "Kuzeyden açı"; color: root.textSecondary; font.pixelSize: 9; Layout.fillWidth: true }
+                                        AppField {
+                                            id: directionNorthBearingInput
+                                            objectName: "directionNorthBearingInput"
+                                            Layout.preferredWidth: 82
+                                            implicitHeight: 30
+                                            placeholderText: "0–359"
+                                            horizontalAlignment: TextInput.AlignHCenter
+                                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                            validator: DoubleValidator { bottom: 0; top: 359.99; decimals: 2; notation: DoubleValidator.StandardNotation }
+                                            helpText: "0° kuzeydir; açı saat yönünde artar. Bu alan yalnız pusulada görsel bir işaret oluşturur, ölçüm sonucu değildir."
+                                            Accessible.name: "Kuzeyden saat yönündeki pusula işareti, derece"
+                                            onTextChanged: root.updateManualNorthBearing(text)
+                                        }
+                                        Label { text: "°"; color: root.textPrimary; font.pixelSize: 12 }
+                                    }
                                 }
                             }
                             Rectangle {
@@ -1787,7 +1853,7 @@ ApplicationWindow {
                                         Layout.fillHeight: true
                                         property real indicatedBearing: -1
                                         property bool verifiedBearing: false
-                                        Accessible.name: "Saat yönündeki bağıl geliş yönü göstergesi"
+                                        Accessible.name: "Saat yönündeki bağıl geliş yönü ve kullanıcı pusula işareti göstergesi"
                                         onIndicatedBearingChanged: requestPaint()
                                         Behavior on indicatedBearing {
                                             NumberAnimation { duration: root.transitionDuration + 130; easing.type: Easing.OutCubic }
@@ -1818,6 +1884,20 @@ ApplicationWindow {
                                                 ctx.beginPath(); ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner)
                                                 ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius); ctx.stroke()
                                             }
+                                            var manualBearing = root.manualNorthBearing
+                                            if (manualBearing >= 0) {
+                                                var manualRad = manualBearing * Math.PI / 180 - Math.PI / 2
+                                                var markerX = cx + Math.cos(manualRad) * (radius - 2)
+                                                var markerY = cy + Math.sin(manualRad) * (radius - 2)
+                                                ctx.fillStyle = "#C586C0"
+                                                ctx.strokeStyle = "#C586C0"
+                                                ctx.lineWidth = 1.5
+                                                ctx.beginPath()
+                                                ctx.moveTo(markerX + Math.cos(manualRad) * 7, markerY + Math.sin(manualRad) * 7)
+                                                ctx.lineTo(markerX + Math.cos(manualRad + 2.35) * 7, markerY + Math.sin(manualRad + 2.35) * 7)
+                                                ctx.lineTo(markerX + Math.cos(manualRad - 2.35) * 7, markerY + Math.sin(manualRad - 2.35) * 7)
+                                                ctx.closePath(); ctx.fill()
+                                            }
                                             var bearing = bearingCompass.indicatedBearing
                                             if (bearing >= 0) {
                                                 var bearingRad = bearing * Math.PI / 180 - Math.PI / 2
@@ -1834,13 +1914,24 @@ ApplicationWindow {
                                             }
                                         }
                                     }
-                                    Label {
-                                        text: bearingCompass.indicatedBearing < 0 ? ""
-                                              : bearingCompass.verifiedBearing ? "ARM DOĞRULANDI" : "ÖLÇÜM ADAYI"
-                                        color: bearingCompass.verifiedBearing ? root.success : root.warning
-                                        font.pixelSize: 8
-                                        font.weight: Font.Bold
+                                    RowLayout {
                                         Layout.alignment: Qt.AlignHCenter
+                                        spacing: 12
+                                        Label {
+                                            text: bearingCompass.indicatedBearing < 0 ? ""
+                                                  : bearingCompass.verifiedBearing ? "ARM DOĞRULANDI" : "ÖLÇÜM ADAYI"
+                                            color: bearingCompass.verifiedBearing ? root.success : root.warning
+                                            font.pixelSize: 8
+                                            font.weight: Font.Bold
+                                        }
+                                        Label {
+                                            objectName: "directionNorthBearingLegend"
+                                            visible: root.manualNorthBearing >= 0
+                                            text: "PUSULA İŞARETİ " + root.manualNorthBearing.toLocaleString(Qt.locale(), "f", root.manualNorthBearing % 1 === 0 ? 0 : 2) + "°"
+                                            color: "#C586C0"
+                                            font.pixelSize: 8
+                                            font.weight: Font.Bold
+                                        }
                                     }
                                 }
                             }
@@ -1868,18 +1959,43 @@ ApplicationWindow {
                                     Layout.fillWidth: true; Layout.fillHeight: true
                                     ColumnLayout {
                                         anchors.fill: parent
-                                        anchors.margins: 14
+                                        anchors.margins: 12
                                         spacing: 4
                                         RowLayout {
                                             Layout.fillWidth: true
-                                            ColumnLayout { Layout.fillWidth: true; spacing: 2
-                                                Label { text: operatorViewModel.directionReady ? "DOĞRULANMIŞ BAĞIL YÖN" : "EN GÜÇLÜ ÖLÇÜM ADAYI"; color: root.textSecondary; font.pixelSize: 10; font.weight: Font.DemiBold }
-                                                Label { text: operatorViewModel.directionReady ? operatorViewModel.directionResultDescriptionText : operatorViewModel.directionCandidateDescriptionText; color: root.textMuted; font.pixelSize: 9; wrapMode: Text.Wrap; Layout.fillWidth: true }
-                                            }
-                                            Label { text: operatorViewModel.directionReady ? operatorViewModel.relativeArrivalText : operatorViewModel.directionCandidateText; color: operatorViewModel.directionReady ? root.accent : root.warning; font.pixelSize: 28; font.family: "Consolas"; font.weight: Font.DemiBold }
+                                            SectionTitle { text: "ÖLÇÜM GEÇMİŞİ"; Layout.fillWidth: true }
+                                            Label { text: operatorViewModel.directionStatusText; color: operatorViewModel.directionReady ? root.success : root.warning; font.pixelSize: 9; elide: Text.ElideRight; Layout.maximumWidth: parent.width * 0.58 }
                                         }
                                         Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                        Label { objectName: "directionAccuracyStatus"; text: operatorViewModel.directionAccuracyText; color: root.warning; font.pixelSize: 8; wrapMode: Text.Wrap; Layout.fillWidth: true }
+                                        RowLayout {
+                                            Layout.fillWidth: true
+                                            visible: operatorViewModel.directionMeasurementCount > 0
+                                            Label { text: "BAĞIL AÇI"; color: root.textSecondary; font.pixelSize: 8; Layout.preferredWidth: 80 }
+                                            Label { text: "KANAL GÜCÜ"; color: root.textSecondary; font.pixelSize: 8; Layout.preferredWidth: 94 }
+                                            Label { text: "FREKANS"; color: root.textSecondary; font.pixelSize: 8; Layout.preferredWidth: 90 }
+                                            Label { text: "KAYNAK"; color: root.textSecondary; font.pixelSize: 8; Layout.fillWidth: true }
+                                        }
+                                        ListView {
+                                            id: directionMeasurementList
+                                            objectName: "directionMeasurementList"
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            clip: true
+                                            model: operatorViewModel.directionPoints
+                                            spacing: 1
+                                            delegate: Rectangle {
+                                                required property var modelData
+                                                required property int index
+                                                width: ListView.view.width; height: 28; color: index % 2 ? "#202020" : "transparent"
+                                                RowLayout { anchors.fill: parent; anchors.leftMargin: 6; anchors.rightMargin: 6
+                                                    Label { text: modelData.angle; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 74 }
+                                                    Label { text: modelData.power; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 88 }
+                                                    Label { text: modelData.frequency; color: root.textPrimary; font.pixelSize: 9; font.family: "Consolas"; Layout.preferredWidth: 84 }
+                                                    Label { text: modelData.source; color: root.textSecondary; font.pixelSize: 9; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                                }
+                                            }
+                                            Label { anchors.centerIn: parent; visible: operatorViewModel.directionMeasurementCount === 0; text: "İlk saha ölçümü bekleniyor"; color: root.textMuted; font.pixelSize: 10 }
+                                        }
                                     }
                                 }
                             }
@@ -1887,47 +2003,146 @@ ApplicationWindow {
                         Panel {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            ColumnLayout {
+                            RowLayout {
                                 anchors.fill: parent
                                 anchors.margins: 16
-                                spacing: 10
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    SectionTitle { text: "ÖLÇÜM GEÇMİŞİ"; Layout.fillWidth: true }
-                                }
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Label { text: operatorViewModel.directionStatusText; color: operatorViewModel.directionReady ? root.success : root.warning; font.pixelSize: 11; Layout.fillWidth: true }
-                                }
-                                Rectangle { Layout.fillWidth: true; height: 1; color: root.border }
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    visible: operatorViewModel.directionMeasurementCount > 0
-                                    Label { text: "BAĞIL AÇI"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 86 }
-                                    Label { text: "KANAL GÜCÜ"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 100 }
-                                    Label { text: "FREKANS"; color: root.textSecondary; font.pixelSize: 9; Layout.preferredWidth: 95 }
-                                    Label { text: "KAYNAK"; color: root.textSecondary; font.pixelSize: 10; Layout.fillWidth: true }
-                                }
-                                ListView {
-                                    id: directionMeasurementList
-                                    objectName: "directionMeasurementList"
+                                spacing: 14
+                                ColumnLayout {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    clip: true
-                                    model: operatorViewModel.directionPoints
-                                    spacing: 2
-                                    delegate: Rectangle {
-                                        required property var modelData
-                                        required property int index
-                                        width: ListView.view.width; height: 38; color: index % 2 ? "#202020" : "transparent"
-                                        RowLayout { anchors.fill: parent; anchors.leftMargin: 8; anchors.rightMargin: 8
-                                            Label { text: modelData.angle; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 78 }
-                                            Label { text: modelData.power; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 92 }
-                                            Label { text: modelData.frequency; color: root.textPrimary; font.pixelSize: 10; font.family: "Consolas"; Layout.preferredWidth: 87 }
-                                            Label { text: modelData.source; color: root.textSecondary; font.pixelSize: 10; elide: Text.ElideMiddle; Layout.fillWidth: true }
+                                    Layout.preferredWidth: 1
+                                    spacing: 10
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        SectionTitle { text: "SPEKTROGRAM"; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.centerFrequencyText; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
+                                    }
+                                    Item {
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        Layout.minimumHeight: 120
+                                        WaterfallImage {
+                                            id: directionSpectrogram
+                                            objectName: "directionSpectrogram"
+                                            anchors.fill: parent
+                                            visibleRows: 64
+                                            source: operatorViewModel.spectralDisplay
+                                            viewStart: root.spectrumViewStart
+                                            viewEnd: root.spectrumViewEnd
+                                            Accessible.role: Accessible.Graphic
+                                            Accessible.name: "Yön ölçümünde seçili alıcının kalibrasyonsuz dBFS spektrogramı"
+                                        }
+                                        Canvas {
+                                            id: directionSpectrogramGuides
+                                            objectName: "directionSpectrogramGuides"
+                                            anchors.fill: parent
+                                            z: 1
+                                            Connections {
+                                                target: operatorViewModel
+                                                function onSpectrumChanged() { directionSpectrogramGuides.requestPaint() }
+                                                function onDetectionsChanged() { directionSpectrogramGuides.requestPaint() }
+                                            }
+                                            onPaint: {
+                                                var ctx = getContext("2d"); ctx.reset(); ctx.clearRect(0, 0, width, height)
+                                                if (operatorViewModel.spectrumPointCount >= 2) root.paintFullSpectrumFpgaDetections(ctx, 0, 0, width, height)
+                                            }
+                                        }
+                                        SpectrumZoomArea { objectName: "directionSpectrogramZoomArea"; z: 2; plotLeft: 0; plotWidth: parent.width }
+                                        Label {
+                                            anchors.centerIn: parent
+                                            visible: operatorViewModel.spectrumPointCount < 2
+                                            text: "Canlı alım başladığında spektrogram burada görünür"
+                                            color: root.textMuted
+                                            font.pixelSize: 11
                                         }
                                     }
-                                    Label { anchors.centerIn: parent; visible: operatorViewModel.directionMeasurementCount === 0; text: "İlk saha ölçümü bekleniyor"; color: root.textMuted; font.pixelSize: 11 }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        visible: operatorViewModel.spectrumPointCount >= 2
+                                        Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewStart)); color: root.textSecondary; font.pixelSize: 9 }
+                                        Item { Layout.fillWidth: true }
+                                        Label { text: root.formatFrequency(root.frequencyAt((root.spectrumViewStart + root.spectrumViewEnd) / 2)); color: root.textPrimary; font.pixelSize: 9 }
+                                        Item { Layout.fillWidth: true }
+                                        Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewEnd)); color: root.textSecondary; font.pixelSize: 9 }
+                                    }
+                                }
+                                Rectangle { Layout.fillHeight: true; width: 1; color: root.border }
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 1
+                                    spacing: 10
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        SectionTitle { text: "CANLI SPEKTRUM"; Layout.fillWidth: true }
+                                        Label { text: operatorViewModel.centerFrequencyText; color: root.textSecondary; font.pixelSize: 9; font.family: "Consolas" }
+                                    }
+                                    Canvas {
+                                        id: directionSpectrum
+                                        objectName: "directionSpectrum"
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        Layout.minimumHeight: 120
+                                        readonly property real plotLeft: Math.min(42, width * 0.16)
+                                        property real plotRight: Math.max(plotLeft + 1, width - 8)
+                                        property real plotTop: 8
+                                        property real plotBottom: Math.max(plotTop + 1, height - 20)
+                                        SpectrumTrace {
+                                            objectName: "directionSpectrumTrace"
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: directionSpectrum.plotLeft
+                                            anchors.right: parent.right
+                                            anchors.rightMargin: 8
+                                            anchors.top: parent.top
+                                            anchors.topMargin: directionSpectrum.plotTop
+                                            anchors.bottom: parent.bottom
+                                            anchors.bottomMargin: 20
+                                            z: -1
+                                            source: operatorViewModel.spectralDisplay
+                                            viewStart: root.spectrumViewStart
+                                            viewEnd: root.spectrumViewEnd
+                                        }
+                                        Accessible.role: Accessible.Graphic
+                                        Accessible.name: "Yön ölçümünde seçili alıcının kalibrasyonsuz dBFS spektrumu"
+                                        Connections {
+                                            target: operatorViewModel
+                                            function onSpectrumChanged() { directionSpectrum.requestPaint() }
+                                            function onDetectionsChanged() { directionSpectrum.requestPaint() }
+                                        }
+                                        onPaint: {
+                                            var ctx = getContext("2d")
+                                            ctx.reset(); ctx.clearRect(0, 0, width, height)
+                                            var plotWidth = plotRight - plotLeft
+                                            var plotHeight = plotBottom - plotTop
+                                            ctx.strokeStyle = root.borderStrong; ctx.lineWidth = 1
+                                            ctx.font = "9px Consolas"; ctx.textAlign = "right"; ctx.textBaseline = "middle"
+                                            for (var i = 0; i <= 4; i++) {
+                                                var y = plotTop + i * plotHeight / 4
+                                                ctx.beginPath(); ctx.moveTo(plotLeft, y); ctx.lineTo(plotRight, y); ctx.stroke()
+                                                ctx.fillStyle = root.textMuted
+                                                ctx.fillText((operatorViewModel.spectrumMaxDb - i * (operatorViewModel.spectrumMaxDb - operatorViewModel.spectrumMinDb) / 4).toFixed(0), plotLeft - 6, y)
+                                            }
+                                            if (operatorViewModel.spectrumPointCount >= 2)
+                                                root.paintFullSpectrumFpgaDetections(ctx, plotLeft, plotTop, plotWidth, plotHeight)
+                                        }
+                                        Label {
+                                            anchors.centerIn: parent
+                                            visible: operatorViewModel.spectrumPointCount < 2
+                                            text: "Canlı alım başladığında spektrum burada görünür"
+                                            color: root.textMuted
+                                            font.pixelSize: 11
+                                        }
+                                        SpectrumZoomArea { objectName: "directionSpectrumZoomArea"; plotLeft: directionSpectrum.plotLeft; plotWidth: directionSpectrum.plotRight - directionSpectrum.plotLeft }
+                                    }
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        visible: operatorViewModel.spectrumPointCount >= 2
+                                        Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewStart)); color: root.textSecondary; font.pixelSize: 9 }
+                                        Item { Layout.fillWidth: true }
+                                        Label { text: root.formatFrequency(root.frequencyAt((root.spectrumViewStart + root.spectrumViewEnd) / 2)); color: root.textPrimary; font.pixelSize: 9 }
+                                        Item { Layout.fillWidth: true }
+                                        Label { text: root.formatFrequency(root.frequencyAt(root.spectrumViewEnd)); color: root.textSecondary; font.pixelSize: 9 }
+                                    }
                                 }
                             }
                         }

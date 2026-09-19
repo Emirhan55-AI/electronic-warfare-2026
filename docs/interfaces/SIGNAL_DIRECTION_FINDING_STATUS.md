@@ -1,5 +1,31 @@
 # Yön bulma: güncel durum ve kabul sınırı
 
+## Kuzey referanslı görsel işaret ve yön spektrumu — 19 Eylül 2026
+
+Yön Bulma ekranına `Kuzeyden açı` sayısal girişi eklendi. Operatörün 0°–359,99°
+arasında girdiği değer, 0° kuzey ve saat yönünde artan açı kabulüyle pusula
+çemberinde mor bir üçgen ve ayrı `PUSULA İŞARETİ` açıklaması olarak gösterilir.
+Alan boşaltıldığında işaret kaldırılır. Bu değer ölçüm noktalarına, uyarlamalı
+tarama planına, P0PM gücüne veya P0DF/ARM kararına aktarılmaz; coğrafi yön
+ölçümü, sensör doğrulaması ya da doğrulanmış geliş yönü değildir.
+
+Ölçüm geçmişi, önceki en güçlü aday kartının yerine pusulanın sağındaki üst
+alana taşınmıştır; ayrı en güçlü aday kartı kaldırılmıştır. Alt sonuç alanının
+solunda aynı alıcı oturumunun kalibrasyonsuz dBFS spektrogramı, sağında canlı
+spektrum ve gerçek frekans uçları gösterilir. Ana spektrumda FPGA tespit olaylarını belirten
+renkli bant ve dikey tepe işaretleri aynı gerçek `detectionMarkers` kaynağından
+bu görünümde de çizilir. Uyarlamalı yön taramasında güncel olay görünmese bile
+kilitli hedef frekansı ve kanal aralığı ayrı turuncu bant/dikey çizgi olarak
+korunur; seçili hedefin mavi çizgisi bunların üzerini örtmez.
+Spektrum ve spektrogram aynı görünüm aralığına bağlıdır: fare tekerleğiyle
+imleç çevresinde birlikte yakınlaşır, sürüklemeyle birlikte kayar ve çift
+tıklamayla tam alım genişliğine döner. Frekans eksenleri görünür aralığı izler.
+Veri yokken spektrum ve spektrogram başarı veya yayın
+varlığı izlenimi üretmez. QML regresyonu 44° işaretini, temizleme davranışını,
+geçmişin yeni konumunu, alt spektrogram–spektrum bölünmesini, kilitli FPGA hedef
+işaretini, eşzamanlı yakınlaştırmayı ve mevcut minimum ekran yerleşimini doğrular. Bu
+yalnız operatör sunumu değişikliğidir; fiziksel derece RMS kabulü açıktır.
+
 ## Bağıl yön sonucu, 0° referansı ve P0DF son hesap düzeltmesi — 18 Eylül 2026
 
 Tamamlanan canlı uyarlamalı taramada nihai kart hesabının başlamamasına neden

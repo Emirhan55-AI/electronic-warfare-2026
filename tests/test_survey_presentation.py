@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from app.operator_console.survey_presentation import merge_signal_rows, signal_fields
 
 
@@ -167,3 +169,47 @@ def test_hidden_selection_clears_and_recheck_failure_demotes():
     controller._recheck_update(dict(key='x',state='not_seen',checked_at='now'))
     assert controller.groupedObservationModel.rowCount() == 1
     assert controller.observationGroups[0]['groupCount'] == 0
+
+
+def test_frequency_export_writes_every_presented_signal_to_project_logs(tmp_path):
+    from app.operator_console.survey_controller import SurveyController
+
+    (tmp_path / "app" / "operator_console").mkdir(parents=True)
+    (tmp_path / "docs" / "plans").mkdir(parents=True)
+    (tmp_path / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").touch()
+    controller = SurveyController()
+    controller._rows = [
+        dict(row("first", 1), frequencyHz=855_123_456.0),
+        dict(row("second", 2), frequencyHz=1_500_000_000.0),
+    ]
+
+    with (
+        patch("app.operator_console.survey_controller.ROOT", tmp_path),
+        patch("app.operator_console.survey_controller.datetime") as clock,
+    ):
+        clock.now.return_value.strftime.return_value = "19_06_08"
+        assert controller.exportFrequencies()
+        assert controller.exportFrequencies()
+
+    exported = sorted((tmp_path / "Logs").glob("*.txt"))
+    assert len(exported) == 2
+    assert [path.name for path in exported] == ["19_06_08_1.txt", "19_06_08_2.txt"]
+    assert exported[0].read_text(encoding="utf-8").splitlines() == [
+        "855,123456 MHz",
+        "1500,000000 MHz",
+    ]
+    assert controller.exportMessage.startswith("2 frekans Logs klasörüne kaydedildi:")
+
+
+def test_frequency_export_rejects_an_empty_signal_list(tmp_path):
+    from app.operator_console.survey_controller import SurveyController
+
+    controller = SurveyController()
+    with patch(
+        "app.operator_console.survey_controller.QStandardPaths.writableLocation",
+        return_value=str(tmp_path),
+    ):
+        assert not controller.exportFrequencies()
+
+    assert controller.exportMessage == "Aktarılacak frekans bulunamadı."
+    assert list(tmp_path.iterdir()) == []

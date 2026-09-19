@@ -1,5 +1,71 @@
 # KTR Gereksinim İzlenebilirliği
 
+## KTR-4.1-OPS-B0 AMP düğme sözleşmesi — 19 Eylül 2026
+
+`HackRFControls.qml` ve `RxSurveyView.qml`, RF AMP'yi açılır liste yerine
+`Kapalı`/`Açık` metinli, seçili durumu görünür iki durumlu düğme olarak sunar.
+`toggleReceiverRFAmplifier()` yalnız alıcı dururken ortak ayarı değiştirir;
+canlı veya bant taraması sürerken düğme pasif ve backend çağrısı fail-closed'dur.
+Görünüm modeli testi etkin oturum reddini ve ardışık iki tıklamadaki durum
+değişimini, QML testi görünür düğme durumunu doğrular. Alım ve tarama
+yapılandırmaları mevcut `rf_amplifier` alanını kullanmayı sürdürür.
+
+## KTR-4.4 kuzey işareti ve eşzamanlı spektrum sunumu — 19 Eylül 2026
+
+`Main.qml`, Yön Bulma görevinde 0° kuzey ve saat yönünde artan 0°–359,99°
+kullanıcı işaretini pusulada ölçüm sonucundan ayrı renk ve etiketle gösterir.
+Değer yalnız görünüm durumudur; `directionPoints`, `AdaptiveDirectionSweep`,
+P0PM-v4 veya P0DF-v1 girdilerine bağlanmaz. Aynı görevde alt panelin solunda
+`spectralDisplay` kaynağından kalibrasyonsuz dBFS spektrogramı, sağında canlı
+spektrum bulunur. KTR-4.4 açı–güç geçmişi eski en güçlü aday kartının yerine
+üst alana taşınmıştır. `DetectionGuidePainter.js` aynı
+`detectionMarkers` olaylarını tam spektrum koordinatına taşıyarak FPGA tespit
+bantlarını ve tepe çizgilerini yön görünümünde de çizer. Görünüm modeli ayrıca
+kilitli yön hedefinin frekans/kanal sınırlarını normalize eder; olay görünürlüğü
+geçici olarak kaybolsa da bu gerçek kilit bağı turuncu işaret olarak kalır.
+Her iki grafik `spectrumViewStart/End` bağını ve aynı tekerlek/sürükleme/çift
+tıklama kontrollerini kullanır. `test_app_f_quick_product.py`,
+44° girişini, alan temizlenince işaretin kalkmasını, geçmişin yeni konumunu,
+spektrogram–spektrum yerleşimini, kilitli FPGA işaretini, eşzamanlı görünüm
+aralığını ve erişilebilir nesne
+sözleşmesini doğrular.
+Bu sunum izi coğrafi yön ölçümü,
+anten kalibrasyonu veya fiziksel derece RMS kabulü değildir.
+
+## KTR-4.1 → KTR-4.2 çalışan tarama devri — 19 Eylül 2026
+
+Tarama sürerken seçili geçmiş gözlem için `Parametre Çıkarımına Git` veya
+`Sinyali Yeniden Al` verilebilir. `RxSurveyView.qml` bu iki eylemi çalışan
+taramada etkin tutar; `quick_scan_actions.py` hedef frekansı ve işlem niyetini
+kilitler, taramayı kontrollü iptal eder ve worker kapanışından sonra aynı
+kazançlarla sabit 8 MS/s RX başlatır. Böylece tek HackRF üzerinde çakışan iki
+alım süreci oluşturulmaz. Görünüm modeli testleri hem doğrudan yeniden alımı hem
+parametre için hazır confirmed olay seçimini; QML testi düğme sözleşmesini
+doğrular. KTR-4.1 tespiti ve KTR-4.2 parametre matematiği değişmemiştir; bu ürün
+akışı doğrulaması yeni fiziksel RF kabulü değildir.
+
+## KTR-4.1 sinyal frekansı aktarımı — 19 Eylül 2026
+
+`RxSurveyView.qml`, `Taramayı Başlat` eyleminin solunda `Taaruz Aktarım`
+düğmesini sunar. `SurveyController`, `SİNYAL TESPİTİ` bölümünü oluşturan güncel
+sunum satırlarının frekanslarını proje kökündeki `Logs` klasöründe
+`gün_saat_dakika_sıra.txt` adlı UTF-8 TXT dosyasına birer satır olarak yazar;
+aynı dakika içindeki sıra `_1` değerinden başlar, boş listede dosya oluşturmaz ve mevcut
+dosyayı değiştirmez. Birim testleri dosya içeriğini, boş liste davranışını ve
+Türkçe sonucu; QML testi düğme adı, çağrı bağı ve `Taramayı Başlat` öncesindeki
+yerleşimi denetler. Bu yalnız KTR-4.1 operatör çıktısıdır; tespit hesabı, RF
+kanıtı ve açık PHASE-08/ST-06 kabul kapıları değişmez.
+
+## Windows EXE paketi — 18 Eylül 2026
+
+KTR-4.1–4.4 ürün erişimi Windows EXE ve logolu masaüstü kısayoluyla sağlanır. İz: `scripts/build_windows_product.py`, `scripts/verify_windows_product.py`, `scripts/install_desktop_shortcut.ps1`, paket manifesti ve dağıtım tarifi. Taşıyıcı kestirimi ve seçili kanal sınıflandırıcısının eksik dört kaynak izi eklendi; kalibrasyon varlığı denetim listesiyle eşitlendi. İlgili sözleşme testleri 12/12 geçti. 90 zorunlu varlık, bütün 3.229 paket dosyası, kaynaklar, EXE ve ZIP hash ile bağlıdır; izole açılış ve masaüstünden gerçek EXE penceresi doğrulandı. Olumsuz Qt/ICU kaydı korunur. Kanıt `results/evidence/app/windows-product-20260918.json`, sınır `docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md` içindedir. Yeni fiziksel RF/DSP kabulü yoktur.
+
+## Masaüstü kısayolu izi — 18 Eylül 2026
+
+KTR-4.1–4.4 görevlerine erişim, `scripts/install_desktop_shortcut.ps1` üzerinden güncel `app.operator_console` ürün girişiyle sağlanır. `quick_application.py` mevcut `assets/baz-logo.ico` dosyasını pencere simgesi olarak kullanır; paket manifesti ve dağıtım tarifi ICO varlığını içerir. Doğrulama: ürün `--smoke-test` açılışı, kısayol hedef/argüman/çalışma dizini/simge denetimi ve kısayoldan gerçek pencere açılışı. DSP, RTL, ARM hesapları ve fiziksel kabul değişmedi.
+
+Açılış smoke testi ve kısayoldan gerçek `BÂZ` penceresi doğrulandı. İlgili paket testlerinde 10/12 geçiş vardır; iki başarısızlık önceki sürümde de bulunan eksik kaynak izleri ve `release-assets` liste uyuşmazlığıdır. Bunlar yeni bağımsız paket kabulünü açık tutar; yerel masaüstü açılışı başarılıdır.
+
 ## KTR-4.2 koşullu taşıyıcı frekansı — 18 Eylül 2026
 
 İz: `p0_parameter_runtime.c`, `parameter_client.py`, `carrier_recovery.py`,
@@ -1910,6 +1976,11 @@ hizmeti ve frekansı saklı kontrollü RF Pd/Pfa kabulü açık kalır.
 Eski fiziksel özetler yalnız kaydettikleri kaynak sürümünün kanıtıdır. Yeni
 tarama/Windows taşıma kaynakları için bu arşivlerin hash kapıları geçilmiş
 sayılmaz; yeni alımlar `build/acceptance/rx-survey/` altında saklanır.
+
+19 Eylül 2026 KTR-4.3 kanal sahipliği regresyonu, seçili frekansı ölçülen
+sınırları içinde taşıyan tek güncel FPGA olayını yalnız `50 kHz` izleme
+toleransında kalan yakın adaydan ayırır. Seçili frekansta iki gerçek örtüşme
+yine fail-closed reddedilir. Bu kaynak testi fiziksel RF kabulü değildir.
 
 Bu matris yarışma görevlerini ve genel algoritma sırasını gerçek referans donanıma eşler. KTR teknik parametrelerin veya sayısal performans hedeflerinin bağlayıcı kaynağı değildir. Hiçbir satır tamamlanmış bir DSP/RF yeteneği iddiası değildir.
 

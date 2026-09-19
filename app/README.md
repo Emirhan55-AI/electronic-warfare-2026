@@ -1,5 +1,40 @@
 # Operatör Uygulaması
 
+## Yön pusula işareti ve canlı spektrum — 19 Eylül 2026
+
+Yön Bulma ekranındaki `Kuzeyden açı` alanına 0°–359,99° girildiğinde, 0° kuzey
+ve saat yönünde artan açı düzeniyle pusulada ayrı bir mor işaret gösterilir.
+Örneğin `44` girişi 44° konumuna işaret koyar. Bu işaret ölçüm veya ARM sonucu
+değildir ve uyarlamalı taramayı değiştirmez; alan temizlenince kaldırılır.
+Ölçüm geçmişi pusulanın sağındaki eski en güçlü aday alanında gösterilir. Alt
+saha sonuç alanının sol yarısı mevcut alıcı oturumunun kalibrasyonsuz dBFS
+spektrogramını, sağ yarısı canlı spektrumunu gösterir. FPGA tespit olaylarının
+ana spektrumdaki renkli bantları ve dikey tepe işaretleri burada da aynı canlı
+olay kaynağından çizilir. Olay geçici olarak görünmese bile yön taramasında
+kilitlenen hedef frekansı turuncu çizgiyle korunur. İki grafikte fare tekerleği
+yakınlaştırır, sürükleme kaydırır ve çift tıklama görünümü sıfırlar. Fiziksel yön
+doğruluğu ve derece RMS kabulü açık kalır.
+
+## Çalışan taramadan parametre ve yeniden alım devri — 19 Eylül 2026
+
+Tarama listesindeki seçili gözlem için `Parametre Çıkarımına Git` ve `Sinyali
+Yeniden Al` artık tarama sürerken kullanılabilir. İstek seçimi korur, etkin
+taramayı güvenli biçimde kapatır ve worker tamamlandıktan sonra aynı kazançlarla
+seçili frekansta sabit 8 MS/s alımı açar. Tek HackRF üzerinde tarama ve sabit RX
+eşzamanlı çalıştırılmaz. Parametre görünümü yalnız eşleşen güncel confirmed olay
+ve dört karelik ölçüm penceresi hazır olduğunda açılır. DSP/FPGA hesabı ve
+fiziksel kabul durumu değişmemiştir.
+
+## Windows EXE paketi — 18 Eylül 2026
+
+Güncel ürün `dist/operator-console-20260918/BAZ/BAZ.exe` olarak paketlendi ve kaynak klasöründen ayrı kullanıcı uygulama dizinine kuruldu. Logolu masaüstü kısayolu bu EXE kurulumu açar; Python kurulumu gerekmez. 90 zorunlu varlık, 3.229 paket dosyası, Python bulunmayan PATH ve proje dışı çalışma diziniyle açılış, gerçek EXE penceresi ve paket import sınırı doğrulandı. İlgili kaynak/paket sözleşmesi testleri 12/12 geçti; önceki iki liste/kaynak izi uyuşmazlığı düzeltildi. [Paket sözleşmesi](../docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md); kanıt `results/evidence/app/windows-product-20260918.json` içindedir. Donanım kabulü değişmedi.
+
+## Masaüstünden başlatma — 18 Eylül 2026
+
+`scripts/install_desktop_shortcut.ps1`, Windows masaüstüne logolu `BÂZ.lnk` kurar. Kısayol aynı Python kurulumundaki `pythonw.exe -m app.operator_console` yolunu ve proje çalışma dizinini kullanır. Terminal açılmaz; uygulama logosu pencere/görev çubuğunda da görünür. Gerektiğinde `-PythonExecutable` ile ürün bağımlılıklarının kurulu olduğu Python seçilebilir. Python kurulumu ve proje dizini gereklidir; bu bağımsız EXE kurulumu değildir.
+
+Açılış smoke testi ve kısayoldan gerçek `BÂZ` penceresi doğrulandı. İlgili paket testlerinde 10/12 geçiş vardır; iki başarısızlık önceki sürümde de bulunan eksik kaynak izleri ve `release-assets` liste uyuşmazlığıdır. Bunlar yeni bağımsız paket kabulünü açık tutar; yerel masaüstü açılışı başarılıdır.
+
 ## Ayrı taşıyıcı kestirimi — 18 Eylül 2026
 
 P0CQ taşıyıcı desteği bildiren kartta 16-kare manuel parametre isteği P0PM-v5
@@ -19,7 +54,10 @@ canlı alımı durdurmadan ses üretmeye devam eder. `Durdur` yalnız ses akış
 durdurur; RX oturumu sürer. Sıra boşluğu, seçili kanal kaybı veya işleme
 yığılması algılanırsa kesintili örnekler birleştirilmez. Arayüz kanal frekansı,
 süreklilik, anlık güç, frekans değişimi ve 250 ms zamansal izleri gösterir; son
-yirmi saniye WAV olarak dışa aktarılabilir. `Bilmiyorum · AM/FM karşılaştır`
+yirmi saniye WAV olarak dışa aktarılabilir. Canlı kanal sahipliği seçili
+frekansı gerçekten kapsayan tek FPGA olayına bağlanır; yalnız tolerans alanında
+kalan yakın aday hazırlığı gereksiz yere engellemez, seçili frekansta gerçek
+örtüşme ise fail-closed kalır. `Bilmiyorum · AM/FM karşılaştır`
 aynı sınırlı kayıttan iki sonucu hazırlar, otomatik tür kararı vermez. Analog
 sinyalleşme satırı yalnız doğrulanan DTMF dizisini gösterir; diğer kodlar
 incelenmiş sayılmaz. Gerçek telsiz konuşmasıyla fiziksel kabul açık kalır.
@@ -150,6 +188,11 @@ açılışta yüklenir. Bulgular `output/rx-wideband-20260916/RAPOR.md` içinded
 adaylar` (farklı alıcı ayarında yeniden görülen ve önce incelenmesi gereken kayıtlar), `Tekrar
 ölçülmesi gerekenler` (yayın olduğu henüz belli olmayan kayıtlar) ve `Alıcı
 etkisi olabilecekler` (yayın olarak kabul edilmemesi gereken düzenli izler).
+`Taramayı Başlat` eyleminin solundaki `Taaruz Aktarım`, bu bölümdeki güncel
+frekans değerlerinin tamamını birer satır halinde UTF-8 TXT dosyasına yazar ve
+dosyayı proje kökündeki `Logs` klasörüne `gün_saat_dakika_sıra.txt` adıyla
+kaydeder. Aynı dakika içindeki aktarımlar `_1`, `_2`, `_3` sırasıyla ilerler;
+mevcut dosyanın üzerine yazılmaz ve sonuç tarama kartında Türkçe gösterilir.
 Grup düğmeleri arasında açıklama metni, kayıt özeti ve `Tarama geçmişi` satırı
 gösterilmez; ayrılan yükseklik doğrudan sinyal listesine verilir. Aday satırları
 ölçüm ve kısa durum bilgisini taşımaya devam eder. Bu başlıklar verici kimliği
@@ -180,8 +223,9 @@ bant genişliği ölçümü değildir. Yeni sunumun fiziksel RF kabulü henüz y
 
 Sabit frekans alıcı kartı LNA/VGA'yı aynı sade satırda, AMP'yi hemen altında
 tam genişlikte gösterir.
-AMP varsayılan kapalıdır; alım dururken seçilir ve sonraki sabit/tarama alımına
-uygulanır. AMP değişimi eski canlı hedef/ölçüm bağlamını ve referans
+AMP varsayılan kapalıdır; alım dururken tek tıklamayla açık/kapalı değiştirilir
+ve sonraki sabit/tarama alımına uygulanır. Alım sürerken düğme pasiftir. AMP
+değişimi eski canlı hedef/ölçüm bağlamını ve referans
 karşılaştırmasını geçersiz kılar. Bant taraması da AMP'yi doğrudan kendi alıcı
 satırında gösterir.
 

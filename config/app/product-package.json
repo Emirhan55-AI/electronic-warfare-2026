@@ -31,6 +31,7 @@
     "HackRF Canlı RX"
   ],
   "allowed_runtime_assets": [
+    "app/operator_console/assets/baz-logo.ico",
     "profiles/phase03/operation-default.json",
     "profiles/phase04f5/operation-default.json",
     "config/p0/hackrf_ed_rx.json",
@@ -57,6 +58,7 @@
     "algorithms/p0/native_channelizer.py",
     "algorithms/p0/parameter_client.py",
     "algorithms/p0/transport.py",
+    "algorithms/parameters/carrier_recovery.py",
     "algorithms/parameters/f1_domain.py",
     "algorithms/parameters/f1_estimator.py",
     "algorithms/parameters/f2_domain.py",
@@ -90,9 +92,12 @@
     "app/operator_console/survey_presentation.py",
     "app/operator_console/survey_recheck.py",
     "config/p0/hackrf_spurs.json",
+    "digital_analog_detection/channel_features.py",
     "digital_analog_detection/classifier_model.py",
     "digital_analog_detection/feature_extractor_v1.py",
     "digital_analog_detection/integration.py",
+    "digital_analog_detection/selected_channel_model.py",
+    "digital_analog_detection/selected_integration.py",
     "platforms/acquisition/continuous.py",
     "platforms/acquisition/contracts.py",
     "platforms/acquisition/hackrf.py",

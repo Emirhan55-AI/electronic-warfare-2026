@@ -44,6 +44,9 @@ başlatılarak 4096'a dönülür; çalışma sırasında küçültme sürücüde
 
 Bant taramasındaki seçili frekans, parametre ekranına geçmiş kayıt olarak
 aktarılmaz. `Parametre Çıkarımına Git` önce aynı kazançlarla sabit alımı açar.
+Eylem tarama sürerken verilirse seçim korunur; tek alıcıda eşzamanlı ikinci RX
+açılmadan tarama kontrollü durdurulur ve worker kapandıktan sonra sabit alıma
+devredilir. Operatörün ayrıca `Taramayı Durdur` eylemini kullanması gerekmez.
 Yalnız hedef frekans aralığıyla eşleşen güncel `confirmed` gözlem seçilir; canlı
 dört karelik ölçüm penceresi hazır olduğunda Parametre görünümü açılır. Hedef
 yeniden görülmezse seçim hazır sayılmaz ve ölçüm başlatılamaz.

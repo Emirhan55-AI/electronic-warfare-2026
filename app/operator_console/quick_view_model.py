@@ -365,6 +365,7 @@ class OperatorViewModel(
         self._survey_controller.preview.connect(self._survey_preview)
         self._survey_controller.finished.connect(self._survey_finished)
         self._pending_survey_parameter_frequency_hz: int | None = None
+        self._pending_survey_handoff: tuple[str, int] | None = None
         self._pending_listening_frequency_hz: int | None = None
         self._listening_live_target_hz: float | None = None
         self._pending_live_measurement: Callable[[], RecordedMeasurement] | None = None
@@ -1524,6 +1525,24 @@ class OperatorViewModel(
             f"{self._format_rate(bandwidth_hz)} kanal"
         )
 
+    @Property(float, notify=stateChanged)
+    def directionTargetStartNormalized(self) -> float:
+        if self._df_channel_span is not None:
+            return self._normalized_live_bin(self._df_channel_span[0])
+        return self.selectedRegionStartNormalized
+
+    @Property(float, notify=stateChanged)
+    def directionTargetEndNormalized(self) -> float:
+        if self._df_channel_span is not None:
+            return self._normalized_live_bin(self._df_channel_span[1])
+        return self.selectedRegionEndNormalized
+
+    @Property(float, notify=stateChanged)
+    def directionTargetPeakNormalized(self) -> float:
+        if self._df_target_frequency_hz is not None:
+            return self._normalized_live_frequency(self._df_target_frequency_hz)
+        return self.selectedRegionPeakNormalized
+
 
     @Property(str, notify=detectionsChanged)
     def listeningDetectionTitle(self) -> str:
@@ -1645,7 +1664,7 @@ class OperatorViewModel(
         if quality.get("acceptable", False):
             return prefix + " · sinyal hazır"
         if int(quality.get("invalid_frames", 0)) > 0:
-            return prefix + " · aynı kanalda birden fazla aday var"
+            return prefix + " · seçili frekansı aynı anda birden fazla aday kapsıyor"
         if quality:
             return prefix + " · hedef sinyal kesiliyor"
         return prefix + " · sinyal doğrulanıyor"

@@ -35,9 +35,6 @@ ColumnLayout {
             lnaInput.currentIndex = lnaInput.model.indexOf(operatorViewModel.liveReceiveSettings.lna_db)
             vgaInput.currentIndex = vgaInput.model.indexOf(operatorViewModel.liveReceiveSettings.vga_db)
         }
-        function onDetectionSettingsChanged() {
-            amplifierInput.currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
-        }
     }
     RowLayout {
         Layout.fillWidth: true
@@ -55,20 +52,20 @@ ColumnLayout {
     ColumnLayout {
         Layout.fillWidth: true
         Label { objectName: "liveAmplifierLabel"; text: "AMP"; color: shell.textSecondary; font.pixelSize: 11; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
-        AppCombo {
+        QuietButton {
             id: amplifierInput
             objectName: "liveAmplifierInput"
             helpText: "Kapalı başlayın. Çok zayıf sinyalde Açık ile karşılaştırın; kırpılma veya bozulma artarsa kapatın."
             Layout.fillWidth: true
             leftPadding: 28
-            model: ["Kapalı", "Açık"]
-            currentIndex: operatorViewModel.receiverRFAmplifier ? 1 : 0
+            rightPadding: 28
+            text: operatorViewModel.receiverRFAmplifier ? "Açık" : "Kapalı"
+            checked: operatorViewModel.receiverRFAmplifier
             enabled: !operatorViewModel.busy
-            onActivated: {
-                if (!operatorViewModel.setReceiverAndAudioSettings(
-                        currentIndex === 1, operatorViewModel.listeningDeemphasisUs))
-                    currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
-            }
+            Accessible.role: Accessible.CheckBox
+            Accessible.checked: operatorViewModel.receiverRFAmplifier
+            Accessible.name: "RF yükselteci " + (operatorViewModel.receiverRFAmplifier ? "açık" : "kapalı")
+            onClicked: operatorViewModel.toggleReceiverRFAmplifier()
         }
     }
     Item {

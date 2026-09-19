@@ -1,5 +1,6 @@
 """Bounded Qt presentation of a receive survey and historical observations."""
 
+from datetime import datetime
 from pathlib import Path
 import json
 import math
@@ -9,7 +10,7 @@ from dataclasses import asdict, replace
 from collections import deque
 import threading
 
-from PySide6.QtCore import QObject, Property, QRunnable, QTimer, Signal, Slot
+from PySide6.QtCore import QObject, Property, QRunnable, QStandardPaths, QTimer, Signal, Slot
 
 from .detection_model import DetectionListModel
 from .survey_presentation import signal_fields, merge_signal_rows, grouped_signal_rows
@@ -37,6 +38,20 @@ from platforms.acquisition.source import decode_ci8
 
 
 MAX_DISPLAY_OBSERVATIONS = 4096
+
+
+def _project_logs_directory():
+    documents = QStandardPaths.writableLocation(
+        QStandardPaths.StandardLocation.DocumentsLocation
+    )
+    candidates = [ROOT]
+    if documents:
+        candidates.append(Path(documents) / "ChatGPT" / "TEKNOFEST")
+    for candidate in candidates:
+        if ((candidate / "app" / "operator_console").is_dir()
+                and (candidate / "docs" / "plans" / "IMPLEMENTATION_ROADMAP.md").is_file()):
+            return candidate / "Logs"
+    return None
 
 
 def _rank_observation_rows(rows):
@@ -178,6 +193,7 @@ class SurveyController(QObject):
         self._expanded_groups = {"verified"}
         self._group_summaries = []
         self._selected = ""
+        self._export_message = ""
         self._state = "Hazır"
         self._detail = "Frekansı bilinmeyen yayın için sırayla alım."
         self._audit = ""
@@ -347,6 +363,50 @@ class SurveyController(QObject):
     def observationGroups(self):
         return self._group_summaries
 
+    @Property(str, notify=changed)
+    def exportMessage(self):
+        return self._export_message
+
+    @Slot(result=bool)
+    def exportFrequencies(self):
+        frequencies_hz = [
+            float(row.get("frequencyHz", 0.0))
+            for row in self._rows
+            if math.isfinite(float(row.get("frequencyHz", 0.0)))
+            and float(row.get("frequencyHz", 0.0)) > 0.0
+        ]
+        if not frequencies_hz:
+            self._export_message = "Aktarılacak frekans bulunamadı."
+            self.changed.emit()
+            return False
+
+        logs_directory = _project_logs_directory()
+        if logs_directory is None:
+            self._export_message = "Proje klasörü bulunamadı; frekanslar kaydedilemedi."
+            self.changed.emit()
+            return False
+
+        timestamp = datetime.now().strftime("%d_%H_%M")
+        suffix = 1
+        target = logs_directory / f"{timestamp}_{suffix}.txt"
+        while target.exists():
+            suffix += 1
+            target = logs_directory / f"{timestamp}_{suffix}.txt"
+
+        try:
+            logs_directory.mkdir(parents=True, exist_ok=True)
+            lines = [f"{frequency_hz / 1e6:.6f}".replace(".", ",") + " MHz"
+                     for frequency_hz in frequencies_hz]
+            target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        except OSError:
+            self._export_message = "Frekans dosyası Logs klasörüne kaydedilemedi."
+            self.changed.emit()
+            return False
+
+        self._export_message = f"{len(lines)} frekans Logs klasörüne kaydedildi: {target.name}"
+        self.changed.emit()
+        return True
+
     @Slot(str)
     def toggleObservationGroup(self, key):
         if key not in {"verified", "candidate", "suspect"}:
@@ -429,6 +489,7 @@ class SurveyController(QObject):
         self._grouped_model.set_rows([])
         self._group_summaries = []
         self._selected = ""
+        self._export_message = ""
         self._elapsed = 0.0
         self._run_condition = config.operator_condition
         self._comparison_audit = ""

@@ -651,6 +651,20 @@ class LiveEDSession:
                     matches.append(event)
         observed_matches = [event for event in matches if event.observed_this_frame]
         if len(observed_matches) > 1:
+            # The tolerance above keeps a channel lock alive while an event's
+            # reported edges move slightly.  It must not, however, turn every
+            # other event inside that tolerance into an owner of the selected
+            # frequency.  Prefer the sole event whose measured span actually
+            # contains the selected frequency; only overlapping owners (or two
+            # merely-near candidates with no current owner) are ambiguous.
+            direct_matches = []
+            for event in observed_matches:
+                lower_hz = center_hz + (event.start_shifted_bin - 2048.0) * spacing_hz
+                upper_hz = center_hz + (event.end_shifted_bin - 2048.0) * spacing_hz
+                if lower_hz <= target_frequency_hz <= upper_hz:
+                    direct_matches.append(event)
+            if len(direct_matches) == 1:
+                return direct_matches[0], True, True
             return None, False, False
         if observed_matches:
             return observed_matches[0], True, True

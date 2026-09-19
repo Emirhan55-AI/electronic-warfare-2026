@@ -33,11 +33,13 @@ REQUIRED_ASSETS = {
     "profiles/phase04f5/operation-default.json",
     "config/p0/hackrf_ed_rx.json",
     "config/p0/hackrf_spurs.json",
+    "config/p0/rx_calibration.json",
     "datasets/fixtures/phase04f1/domain-model.json",
     "datasets/fixtures/phase04f2/domain-model-v3.json",
     "datasets/fixtures/phase04f4/domain-model-v5.json",
     "algorithms/p0/native/bin/p0_channelizer.dll",
     "app/operator_console/assets/baz-logo-metal-red.png",
+    "app/operator_console/assets/baz-logo.ico",
     "app/operator_console/assets/baz-logo-intro.png",
     "app/operator_console/assets/baz-logo-glow.png",
 }

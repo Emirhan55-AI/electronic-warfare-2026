@@ -1019,6 +1019,7 @@ def test_live_sample_rate_presentation_shows_receiver_rate(live_presentation) ->
 def test_receiver_audio_settings_reject_active_sessions_and_invalid_values(live_presentation):
     view = live_presentation
     assert not view.setReceiverAndAudioSettings(True, 0.0)
+    assert not view.toggleReceiverRFAmplifier()
     assert not view.receiverRFAmplifier
     view._live_session = None
     for value in (-1, 2001, float("nan"), float("inf"), True, "750"):
@@ -1028,6 +1029,10 @@ def test_receiver_audio_settings_reject_active_sessions_and_invalid_values(live_
     assert view.receiverRFAmplifier
     assert view.listeningDeemphasisUs == 0.0
     assert not view._live_has_data
+    assert view.toggleReceiverRFAmplifier()
+    assert not view.receiverRFAmplifier
+    assert view.toggleReceiverRFAmplifier()
+    assert view.receiverRFAmplifier
     assert view.setReceiverAndAudioSettings(False, 750.0)
 
 
@@ -2693,16 +2698,15 @@ def test_frequency_survey_excludes_other_sources_and_keeps_historical_selection(
         assert not view.detections  # Survey history is not a live detection list.
         view.survey.selectObservation("0:31")
         assert view.survey.selectedFrequency == 1_300_000
-        assert not view.monitorSurveyObservation()
+        assert view.monitorSurveyObservation()
+        assert view.survey.state == "Durduruluyor"
         view.setSourceMode("sigmf")
         assert view.sourceMode == "hackrf"
-        view.pause()
-        _drain(app, lambda: view.busy)
-        assert not view.busy and not view.survey.running
+        _drain(app, lambda: view.survey.running or not view.liveSessionActive)
+        assert not view.survey.running
         assert view.survey.state == "Durduruldu"
         assert view.survey.selectedKey == "0:31"
         assert view.survey.observationModel.rowCount() == 1
-        assert view.monitorSurveyObservation()
         assert view.liveReceiveSettings == {"center_hz": 1_200_000, "lna_db": 16, "vga_db": 16,
                                             "rf_amplifier": False}
         _drain(app, lambda: view.busy)
@@ -2737,6 +2741,54 @@ def test_survey_parameter_action_reacquires_and_selects_matching_live_detection(
         assert view.selectedDetectionId == 31
         assert view.measurementSelectionReady
         assert view.selectedDetectionFrequencyText != "—"
+    finally:
+        view.shutdown()
+
+
+def test_running_survey_hands_selected_signal_to_parameter_reacquisition():
+    from app.operator_console.rx_survey import SurveyConfig
+
+    class ActiveSurvey:
+        def __init__(self):
+            self.cancelled = False
+
+        def cancel(self):
+            self.cancelled = True
+
+    app = QGuiApplication.instance() or QGuiApplication(["running-survey-parameter-handoff-test"])
+    view = OperatorViewModel(
+        acquisition_backend=_Backend(),
+        live_session_factory=_MeasurementSession,
+        fpga_transport_factory=_FPGAReadyTransport,
+    )
+    try:
+        view.setSourceMode("hackrf")
+        view.probeHackrf()
+        _drain(app, lambda: view.busy)
+        view.survey._config = SurveyConfig(1_000_000, 2_000_000, 16, 16)
+        view.survey._rows = [{"eventId": "survey:31", "frequencyHz": 1_300_000.0}]
+        view.survey.selectObservation("survey:31")
+        active = ActiveSurvey()
+        view.survey._survey = active
+        view.survey._state = "Taranıyor"
+        view._busy = view._playing = True
+        view._active_task_kind = "survey"
+        ready = QSignalSpy(view.surveyParameterReady)
+
+        assert view.openSurveyObservationParameters()
+        assert active.cancelled
+        assert view.survey.state == "Durduruluyor"
+        assert view.statusMessage.startswith("Tarama güvenli biçimde durduruluyor")
+
+        view.survey._survey = None
+        view._survey_finished("cancelled")
+        with patch.object(view, "_coarse_supports_fpga_region", return_value=True):
+            _drain(app, lambda: ready.count() == 0)
+
+        assert ready.count() == 1
+        assert view.selectedDetectionId == 31
+        assert view.measurementSelectionReady
+        assert view.liveReceiveSettings["center_hz"] == 1_200_000
     finally:
         view.shutdown()
 

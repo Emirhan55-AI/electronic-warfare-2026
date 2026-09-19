@@ -1,5 +1,18 @@
 # Sinyal izleme ve dinleme: güncel durum
 
+## Seçili kanal sahipliği düzeltmesi — 19 Eylül 2026
+
+Canlı dinleme kapısındaki `50 kHz` olay izleme toleransı artık seçili frekansı
+gerçekte kapsamayan yakın bir FPGA adayını aynı kanalın ikinci sahibi saymaz.
+Seçili frekansı ölçülen alt/üst sınırları içinde taşıyan tek gözlenen ve
+doğrulanmış olay varsa beş saniyelik kanal doğrulaması ilerler; seçili frekansı
+aynı anda kapsayan iki olay veya yalnız tolerans alanında kalan iki ayrı aday
+yine belirsiz kabul edilerek fail-closed durur. Böylece dolu I/Q tamponunda
+yakın komşu aday yüzünden AM/FM karşılaştırma düğmesinin gereksiz yere kapalı
+kalması giderildi. FPGA tespiti, eşikler, RTL/ARM ve `%95`/sekiz-kare süreklilik
+kapıları değişmedi. Kaynak regresyonu fiziksel RF kabulü değildir; KTR-4.3 ve
+PHASE-08/ST-06 kabul kapıları açık kalır.
+
 ## Kesintisiz analog dinleme ve görünür kanal izlemesi — 18 Eylül 2026
 
 KTR-4.3 canlı analog yolunda beş saniye artık dinleme süresi sınırı değildir.

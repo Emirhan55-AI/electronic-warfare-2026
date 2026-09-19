@@ -1,5 +1,13 @@
 # P0 Gerçek Sistem Mimarisi
 
+## Windows EXE paketi — 18 Eylül 2026
+
+Masaüstü kısayolu artık kullanıcıya özel uygulama dizinindeki Windows x64 EXE kurulumu açar. Python/Qt ve sayısal çalışma zamanı paketin içindedir; proje kaynak klasörüne veya sistem Python kurulumu bağımlılığı yoktur. Qt, Windows sistem ICU arayüzünü kullanır; uyumsuz üçüncü taraf ICU pakete alınmaz. HackRF araçları/USB sürücüsü ve kart hizmeti donanım bağlantısı için ayrı gerekliliklerdir. PC/PL/PS hesap ve görev paylaşımı ile operatör başlatma kapıları değişmedi. Sözleşme: `docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md`.
+
+## Windows masaüstü başlatma yolu — 18 Eylül 2026
+
+Yerel `BÂZ.lnk`, mevcut ürün bağımlılıklarının kurulu olduğu Python kurulumunun `pythonw.exe` dosyasıyla `-m app.operator_console` çalıştırır; çalışma dizini proje köküdür. Bu PC sunum katmanının açılış yoludur. PL/PS görev paylaşımı, RX akışı ve operatör başlatma kapıları değişmez.
+
 ## P0PM-v5 taşıyıcı frekansı kökeni — 18 Eylül 2026
 
 PL'nin Hann → 4096 FFT → UQ28.30 güç yolu korunur. P0PM-v5'in 16 özgün

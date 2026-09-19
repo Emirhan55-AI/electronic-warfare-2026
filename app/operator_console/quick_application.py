@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 
 from PySide6.QtCore import QLocale, QLockFile, QStandardPaths, QTimer, QUrl
-from PySide6.QtGui import QFont, QFontDatabase, QGuiApplication
+from PySide6.QtGui import QFont, QFontDatabase, QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 from .quick_view_model import OperatorViewModel
@@ -53,6 +53,7 @@ def build_quick_application(
     app = QGuiApplication.instance() or QGuiApplication(argv or [])
     app.setApplicationName("BÂZ")
     app.setOrganizationName("TEKNOFEST 2026 Elektronik Harp")
+    app.setWindowIcon(QIcon(str(Path(__file__).with_name("assets") / "baz-logo.ico")))
     app.setFont(_ui_font())
     QLocale.setDefault(QLocale(QLocale.Language.Turkish, QLocale.Country.Turkey))
 

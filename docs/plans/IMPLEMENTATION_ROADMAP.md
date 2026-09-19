@@ -1,5 +1,46 @@
 # Uygulama Yol Haritası
 
+## PHASE-08 / ST-06 AMP düğme bakımı — 19 Eylül 2026
+
+Mevcut alıcı ayarı kapsamındaki AMP açılır seçimi, sabit frekans ve bant taraması
+kartlarında tek tıklamayla açık/kapalı değişen iki durumlu düğme oldu. Koşu
+ortasında alıcı yapılandırması değiştirilmez; düğme alım sürerken pasif kalır.
+Görünüm modeli ve QML regresyonu bu davranışı kapsar. Yeni faz açılmadı; RF,
+RTL/PL/ARM ve ST-06 kabul sınırı değişmedi.
+
+## PHASE-09 yön görünümü bakımı — 19 Eylül 2026
+
+Kullanıcı isteğiyle mevcut PHASE-09 arayüzüne kuzeyi 0° kabul eden, saat
+yönünde 0°–359,99° görsel pusula işareti eklendi. İşaret uyarlamalı tarama veya
+ARM sonucuna girdi değildir. Saha ölçümü sonuç alanı ölçüm geçmişi ve canlı
+kalibrasyonsuz dBFS spektrumu olarak ikiye bölündü; ardından ölçüm geçmişi eski
+en güçlü aday alanına taşındı ve alt boşalan yarıya spektrogram yerleştirildi.
+Canlı spektrum mevcut FPGA tespit bantlarını ve tepe çizgilerini de gösterir.
+Güncel olay listesi boşalsa bile yön taramasının kilitli hedefi turuncu işaretle
+korunur. Spektrum ve spektrogram eşzamanlı yakınlaştırma, kaydırma ve sıfırlama
+kullanır. QML yerleşim ve davranış
+regresyonları eklendi. Yön hesabı, RTL/PL/ARM, RF akışı ve açık fiziksel derece
+RMS kabulü değişmedi; yeni faz açılmadı.
+
+## PHASE-08 / ST-06 operatör frekans aktarımı — 19 Eylül 2026
+
+Kullanıcı isteğiyle mevcut PHASE-08 kapsamı içinde bant taramasının
+`SİNYAL TESPİTİ` frekansları proje kökündeki `Logs` klasörüne
+`gün_saat_dakika_sıra.txt` adlı UTF-8 TXT olarak aktarılabilir hale getirildi.
+Aynı dakika içindeki sıra `_1` ile başlar. `Taaruz Aktarım` düğmesi `Taramayı Başlat`
+eyleminin solundadır; yalnız güncel sunum satırlarını aktarır, boş listede dosya
+üretmez ve mevcut dosyanın üzerine yazmaz. Denetleyici ve QML regresyonları
+eklenmiştir. Faz sırası, RF/RTL/ARM davranışı ve ST-06 fiziksel kabul kapıları
+değişmedi; sonraki faz açılmadı.
+
+## Windows EXE paketi — 18 Eylül 2026
+
+Kullanıcı isteğiyle mevcut ürünün Windows EXE paketi üretildi, kaynak klasöründen ayrı kullanıcı uygulama dizinine kuruldu ve logolu masaüstü kısayolu EXE kurulumu açacak şekilde güncellendi. Paket bütünlüğü, bağımsız açılış, gerçek pencere ve 12/12 ilgili sözleşme testi geçti. Kapsam mevcut ürünün paketleme bakımıdır; yeni faz açılmadı ve donanım kabulü değişmedi. Sözleşme: `docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md`.
+
+## Masaüstü erişimi bakımı — 18 Eylül 2026
+
+Kullanıcı isteğiyle mevcut ürünün güncel kaynak girişine logolu, konsolsuz Windows masaüstü kısayolu eklendi. Yeni faz açılmadı; bağımsız dağıtım paketi üretilmedi. KTR-4.1–4.4 işleme ve donanım kabul kapıları değişmedi.
+
 ## KTR-4.2 taşıyıcı kestirimi devamı — 18 Eylül 2026
 
 Mevcut onaylı parametre iyileştirmesinde, gözlenen çizgi ve merkezden ayrı

@@ -1,5 +1,68 @@
 # Sinyal tespiti: güncel durum ve kabul sınırı
 
+## AMP iki durumlu düğme bakımı — 19 Eylül 2026
+
+Sabit frekans ve bant taraması alıcı kartlarındaki AMP seçim kutusu tek tıklamalı
+iki durumlu düğmeye çevrildi. Düğme `Kapalı` iken tıklanınca `Açık`, yeniden
+tıklanınca `Kapalı` olur. Alıcı yapılandırmasının koşu ortasında değişmemesi için
+canlı alım veya bant taraması sürerken düğme pasiftir; operatör önce taramayı
+durdurur, AMP durumunu değiştirir ve sonraki alımı başlatır. FPGA/ARM/RTL,
+tespit eşikleri ve fiziksel kabul kapıları değişmedi.
+
+## Yön görünümünde kullanıcı işareti ve spektrum — 19 Eylül 2026
+
+Yön Bulma ekranına 0° kuzey kabulüyle 0°–359,99° arasında yalnız görsel pusula
+işareti eklendi; işaret ölçüm, uyarlamalı tarama veya ARM yön sonucu değildir.
+Ölçüm geçmişi pusulanın sağındaki eski aday alanına taşındı; alt sonuç alanı
+kalibrasyonsuz dBFS spektrogramı ve canlı spektrum olarak ikiye ayrıldı. FPGA
+tespit olaylarının ana spektrumdaki bant ve
+tepe çizgileri aynı gerçek olay kaynağından bu spektrumda da gösterilir; yön
+taramasında kilitli hedef ayrı turuncu işaretle korunur. Spektrum ve spektrogram
+ortak tekerlek yakınlaştırması, sürükleme ve çift tıklama sıfırlaması kullanır.
+QML regresyonları geçti. Tespit/parametre hesapları, PL/ARM/RTL ve açık fiziksel
+kabul kapıları değişmedi.
+
+## Dinleme kanal sahipliği düzeltmesi — 19 Eylül 2026
+
+Canlı dinlemede seçili frekansı ölçülen sınırları içinde taşıyan tek FPGA olayı,
+yalnız `50 kHz` izleme toleransı içinde kalan yakın bir aday yüzünden artık
+belirsiz sayılmaz. Seçili frekansı aynı anda kapsayan iki olay fail-closed
+kalır. Bu değişiklik dolu beş saniyelik I/Q tamponundan AM/FM karşılaştırması
+hazırlanmasını engelleyen yanlış kapıyı düzeltir; tespit eşikleri, PL/ARM/RTL,
+RF doğruluk iddiası ve PHASE-08/ST-06 kabul durumu değişmez.
+
+## Çalışan taramadan sabit yeniden alıma geçiş — 19 Eylül 2026
+
+Bant taraması sürerken seçili bir gözlem için `Parametre Çıkarımına Git` ve
+`Sinyali Yeniden Al` eylemleri kullanılabilir hale getirildi. Tek HackRF üzerinde
+iki eşzamanlı RX süreci açılmaz: seçim ve tarama geçmişi korunur, etkin tarama
+kontrollü iptal edilir ve tarama worker'ı tamamen kapandıktan sonra aynı kazançlar
+ile seçili frekansta 8 MS/s sabit alım başlatılır. Parametre yolunda yalnız hedef
+aralığıyla eşleşen güncel confirmed gözlem ve dört karelik ölçüm penceresi hazır
+olduğunda Parametre görünümü açılır. Düğmeler devir sırasında yeniden girişe
+kapanır. Görünüm modeli ve QML regresyonları bu yaşam döngüsünü doğrular; tespit,
+parametre hesabı, PL/ARM/RTL ve fiziksel kabul kapıları değişmedi.
+
+## Sinyal frekanslarının Logs klasörüne aktarımı — 19 Eylül 2026
+
+Bant taraması görünümünde `Taramayı Başlat` düğmesinin soluna kullanıcı
+adlandırmasıyla `Taaruz Aktarım` eylemi eklendi. Eylem, `SİNYAL TESPİTİ`
+bölümündeki güncel sunum satırlarının tüm frekanslarını birer satır ve altı
+ondalık MHz biçiminde UTF-8 TXT dosyasına yazar. Dosya proje kökündeki `Logs`
+klasöründe `gün_saat_dakika_sıra.txt` adıyla oluşturulur. Aynı dakika içindeki
+kayıtlar `_1`, `_2`, `_3` şeklinde ilerler ve mevcut dosyanın üzerine yazılmaz.
+Boş listede dosya oluşturulmaz ve sonuç arayüzde Türkçe bildirilir. İki denetleyici
+testi ile QML yerleşim/sözleşme regresyonu geçti. Tespit, sınıflama, RF alımı,
+PL/ARM/RTL ve PHASE-08/ST-06 kabul kapıları değişmedi; yeni fiziksel kanıt değildir.
+
+## Windows EXE paketi — 18 Eylül 2026
+
+Güncel kaynak ürünün Windows EXE paketi ve kaynak klasöründen ayrı kullanıcı kurulumu doğrulandı. Logolu masaüstü kısayolu EXE kurulumu açar. Proje dışı çalışma dizini, Python içermeyen PATH ve ayrı geçici dizinle açılış geçti; 90 zorunlu varlık ve 3.229 paket dosyası hash ile bağlıdır. Paketleme sırasında reddedilen Qt/ICU açılışı ayrı olumsuz kayıtta korunur. Sözleşme `docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md`, güncel kanıt `results/evidence/app/windows-product-20260918.json` içindedir. KTR-4.1–4.4 hesapları ve PHASE-08/ST-06 fiziksel kabul kapıları değişmedi.
+
+## Yerel masaüstü açılışı — 18 Eylül 2026
+
+Güncel kaynak ürününe bağlı logolu Windows masaüstü kısayolu `scripts/install_desktop_shortcut.ps1` ile kurulabilir; pencere/görev çubuğu aynı logoyu kullanır. KTR-4.1–4.4 hesapları, RX başlatma ve güvenlik kapıları değişmez. Bu yalnız yerel uygulama açılışıdır; PHASE-08/ST-06 ve fiziksel kabul kapıları açık kalır.
+
 ## KTR-4.2 koşullu taşıyıcı kestirimi — 18 Eylül 2026
 
 P0PM-v5, seçili 16 özgün karenin ikinci/dördüncü kuvvet çizgisi ve dört zaman

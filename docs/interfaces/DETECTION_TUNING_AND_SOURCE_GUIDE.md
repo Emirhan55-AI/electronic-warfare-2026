@@ -31,8 +31,10 @@ Kazanç kademeleri ve 16/16 başlangıcı:
 [HackRF üretici kılavuzu](https://hackrf.readthedocs.io/en/latest/setting_gain.html).
 Bias-T harici donanım bilgisi doğrulanana kadar eklenmez.
 
-LNA/VGA aynı satırda, AMP hemen altında kalır. AMP kapalı/açık seçimi alım dururken doğrudan
-kaydedilir ve sonraki alım yollarına taşınır. NFM ses düzeltmesinin iç sözleşmesi
+LNA/VGA aynı satırda, AMP hemen altında kalır. AMP düğmesi alım dururken tek
+tıklamayla `Kapalı` ile `Açık` arasında değişir ve seçim sonraki alım yollarına
+taşınır. Canlı alım veya bant taraması sürerken düğme pasiftir; önce tarama
+durdurulur. NFM ses düzeltmesinin iç sözleşmesi
 0–2000 µs sınırını korur; ürün arayüzü Dinleme görevinde yalnız `Kapalı` ve
 mevcut `750 µs` profilini sunar. Ayar yalnız sonraki ses hazırlamayı etkiler;
 önceki ses yeniden etiketlenmez. CFAR katsayıları FPGA penceresinde virgül veya

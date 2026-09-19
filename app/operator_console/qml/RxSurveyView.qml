@@ -15,9 +15,6 @@ Item {
     Connections {
         target: operatorViewModel
         function onSurveyParameterReady() { view.parameterRequested() }
-        function onDetectionSettingsChanged() {
-            amp.currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
-        }
     }
 
     component Caption: Label {
@@ -37,8 +34,8 @@ Item {
         }
         background: Rectangle {
             radius: 4
-            color: action.hovered ? view.theme.accentSoft : view.theme.surfaceAlt
-            border.color: action.activeFocus ? view.theme.accent : view.theme.border
+            color: action.checked ? view.theme.accentSoft : action.hovered ? view.theme.accentSoft : view.theme.surfaceAlt
+            border.color: action.activeFocus || action.checked ? view.theme.accent : view.theme.border
         }
     }
     component Card: Rectangle {
@@ -158,24 +155,28 @@ Item {
                             Layout.fillWidth: true
                             horizontalAlignment: Text.AlignHCenter
                         }
-                        GainChoice {
+                        Action {
                             id: amp
                             objectName: "surveyAmplifierInput"
                             Layout.preferredWidth: 120
                             Layout.fillWidth: true
-                            model: ["Kapalı", "Açık"]
-                            currentIndex: operatorViewModel.receiverRFAmplifier ? 1 : 0
+                            text: operatorViewModel.receiverRFAmplifier ? "Açık" : "Kapalı"
+                            checked: operatorViewModel.receiverRFAmplifier
                             enabled: !operatorViewModel.busy
-                            Accessible.name: "Tarama RF yükselteci"
-                            onActivated: {
-                                if (!operatorViewModel.setReceiverAndAudioSettings(
-                                        currentIndex === 1, operatorViewModel.listeningDeemphasisUs))
-                                    currentIndex = operatorViewModel.receiverRFAmplifier ? 1 : 0
-                            }
+                            Accessible.role: Accessible.CheckBox
+                            Accessible.checked: operatorViewModel.receiverRFAmplifier
+                            Accessible.name: "Tarama RF yükselteci " + (operatorViewModel.receiverRFAmplifier ? "açık" : "kapalı")
+                            onClicked: operatorViewModel.toggleReceiverRFAmplifier()
                         }
                     }
                     Item { Layout.fillWidth: true }
                     Action { visible: !operatorViewModel.hackrfReady; text: "Sistemi Denetle"; enabled: !operatorViewModel.busy; onClicked: operatorViewModel.probeHackrf() }
+                    Action {
+                        objectName: "surveyExportFrequencies"
+                        text: "Taaruz Aktarım"
+                        enabled: survey.observationCount > 0
+                        onClicked: survey.exportFrequencies()
+                    }
                     Action {
                         objectName: "surveyStart"
                         visible: !survey.running
@@ -215,6 +216,7 @@ Item {
                     Action { text: "Referansı Sil"; visible: survey.referenceReady; enabled: !operatorViewModel.busy; onClicked: survey.clearReference() }
                     Caption { text: survey.referenceText; Layout.fillWidth: true; wrapMode: Text.Wrap; color: survey.referenceReady ? view.theme.accent : view.theme.textSecondary }
                 }
+                Caption { visible: !!survey.exportMessage; text: survey.exportMessage; color: view.theme.accent; Layout.fillWidth: true; horizontalAlignment: Text.AlignRight; wrapMode: Text.Wrap }
                 Caption { visible: !!operatorViewModel.errorMessage; text: operatorViewModel.errorMessage; color: view.theme.danger; Layout.fillWidth: true; wrapMode: Text.Wrap }
                 RowLayout {
                     visible: false
@@ -389,7 +391,9 @@ Item {
                         objectName: "surveyOpenParameters"
                         Layout.fillWidth: true
                         text: "Parametre Çıkarımına Git"
-                        enabled: !operatorViewModel.busy && survey.selectedFrequency > 0
+                        enabled: survey.selectedFrequency > 0
+                                 && (!operatorViewModel.busy || survey.running)
+                                 && survey.state !== "Durduruluyor"
                         onClicked: {
                             // Show the fixed-frequency reacquisition immediately. If the
                             // backend rejects the start because state changed meanwhile,
@@ -402,8 +406,10 @@ Item {
                     Action {
                         objectName: "surveyMonitor"
                         Layout.fillWidth: true
-                        text: survey.running ? "Önce taramayı durdurun" : "Sinyali Yeniden Al"
-                        enabled: !operatorViewModel.busy && survey.selectedFrequency > 0
+                        text: "Sinyali Yeniden Al"
+                        enabled: survey.selectedFrequency > 0
+                                 && (!operatorViewModel.busy || survey.running)
+                                 && survey.state !== "Durduruluyor"
                         onClicked: if (operatorViewModel.monitorSurveyObservation()) view.fixedBandRequested()
                     }
                 }

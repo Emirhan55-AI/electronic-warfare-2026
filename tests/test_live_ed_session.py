@@ -990,6 +990,56 @@ def test_live_audio_channel_ignores_retained_overlapping_event_and_tolerates_bri
     assert quality["invalid_frames"] == 0
 
 
+def test_live_audio_channel_uses_exact_owner_when_another_candidate_is_only_nearby() -> None:
+    session = LiveEDSession(
+        "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),
+        stream_factory=_FakeStream, transport_factory=_FakeTransport,
+    )
+    spacing_hz = 2_000_000 / 4096
+    first_owner = _direction_snapshot(0, event_id=17).response.active[0]
+    target_frequency_hz = (
+        104_650_000 + (first_owner.peak_shifted_bin - 2048) * spacing_hz
+    )
+    for sequence in range(LIVE_AUDIO_WINDOW_FRAMES):
+        snapshot = _direction_snapshot(sequence, event_id=17)
+        owner = snapshot.response.active[0]
+        nearby = replace(
+            owner,
+            event_id=18,
+            start_shifted_bin=owner.end_shifted_bin + 30,
+            end_shifted_bin=owner.end_shifted_bin + 40,
+            peak_shifted_bin=owner.end_shifted_bin + 35,
+        )
+        snapshot = replace(
+            snapshot,
+            response=replace(snapshot.response, active=(owner, nearby)),
+        )
+        session._record_audio_frame(
+            snapshot.output_frame,
+            (17, 18),
+            (17, 18),
+            snapshot,
+        )
+
+    assert session.audio_channel_ready(target_frequency_hz)
+    window, quality = session.audio_channel_window_snapshot(target_frequency_hz)
+    assert len(window) == LIVE_AUDIO_WINDOW_FRAMES
+    assert quality["observed_frames"] == LIVE_AUDIO_WINDOW_FRAMES
+    assert quality["invalid_frames"] == 0
+
+    overlapping = replace(owner, event_id=19)
+    overlapping_snapshot = replace(
+        snapshot,
+        response=replace(snapshot.response, active=(owner, overlapping)),
+    )
+    resolved_owner, observed, valid = session._audio_channel_evidence(
+        overlapping_snapshot, target_frequency_hz
+    )
+    assert resolved_owner is None
+    assert not observed
+    assert not valid
+
+
 def test_live_audio_stream_returns_only_new_frames_and_reports_consumer_gap() -> None:
     session = LiveEDSession(
         "hackrf_transfer", LiveEDConfiguration(104_650_000, SERIAL),

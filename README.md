@@ -1,5 +1,21 @@
 # Elektronik Harp Operatör ve FPGA Sinyal İşleme Sistemi
 
+## Çalışan taramadan seçili sinyale geçiş — 19 Eylül 2026
+
+Bant taraması sürerken seçili satırdan parametre çıkarımına veya sabit yeniden
+alıma geçilebilir. Uygulama hedefi koruyup taramayı kontrollü kapatır; tarama
+worker'ı sonlandıktan sonra aynı kazançlarla seçili frekansta 8 MS/s sabit RX
+başlar. Tek HackRF üzerinde çakışan iki alım açılmaz. Bu kullanıcı akışı
+değişikliğidir; tespit/parametre algoritmaları ve fiziksel kabul durumu değişmez.
+
+## Windows EXE paketi — 18 Eylül 2026
+
+Güncel Windows x64 EXE paketi `dist/operator-console-20260918/BAZ/BAZ.exe` konumundadır. Masaüstündeki logolu `BÂZ` kısayolu kaynak klasöründen ayrı, kullanıcıya özel uygulama dizinindeki EXE kurulumu açar. Ayrı Python kurulumu gerekmez; EXE ve destek dosyaları birlikte korunur. Paylaşım arşivi `dist/operator-console-20260918/BAZ-Windows-20260918.zip` içindedir. Yeniden üretim, doğrulama ve donanım bağlantısı sınırları: [Windows EXE paketi](docs/interfaces/WINDOWS_PRODUCT_PACKAGE.md).
+
+## Logolu masaüstü kısayolu — 18 Eylül 2026
+
+Windows masaüstündeki `BÂZ` kısayolu güncel kaynak uygulamasını konsol penceresi açmadan başlatır. Kurulum: `powershell -ExecutionPolicy Bypass -File scripts/install_desktop_shortcut.ps1`. Mevcut Python ve ürün bağımlılıkları gerekir; proje dizini ve Python kurulumu korunmalıdır. Kısayol ve görev çubuğu mevcut BÂZ logosunu kullanır. Bu yerel açılış düzenlemesi bağımsız dağıtım paketi veya donanım kabulü değildir.
+
 ## Koşullu taşıyıcı frekansı — 18 Eylül 2026
 
 Doğrudan çizgi bulunmayan uygun sinyallerde, 16 özgün karenin ikinci/dördüncü

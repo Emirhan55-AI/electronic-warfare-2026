@@ -21,6 +21,15 @@ from .rx_survey import SURVEY_MONITOR_CENTER_OFFSET_HZ, SurveyConfig
 class QuickScanActionsMixin:
     """Coordinate RX scans without owning presentation state or DSP algorithms."""
 
+    @Slot(result=bool)
+    def toggleReceiverRFAmplifier(self) -> bool:
+        """Toggle RF AMP while the receiver is stopped."""
+        if self._closed or self._busy or self._live_session is not None:
+            return False
+        return self.setReceiverAndAudioSettings(
+            not self._receiver_rf_amplifier, self._listening_deemphasis_us
+        )
+
     @Slot(float, float, int, int)
     def startFrequencySurvey(self, lower_mhz, upper_mhz, lna_gain_db, vga_gain_db) -> None:
         self._start_frequency_survey(
@@ -79,6 +88,7 @@ class QuickScanActionsMixin:
             self._show_error("invalid_survey_config", str(exc))
             return
         self._pending_survey_parameter_frequency_hz = None
+        self._pending_survey_handoff = None
         if operator_condition == "tx_on_comparison" and not self._survey_controller.reference_matches(config, self._active_receiver_serial):
             self._show_error(
                 "survey_reference_required",
@@ -152,19 +162,47 @@ class QuickScanActionsMixin:
         self._add_log("Tarama", self._status_message)
         self.pipelineChanged.emit()
         self.stateChanged.emit()
+        handoff = self._pending_survey_handoff
+        self._pending_survey_handoff = None
+        if handoff is not None:
+            kind, target_hz = handoff
+            QTimer.singleShot(0, lambda: self._complete_survey_handoff(kind, target_hz))
+
+    def _complete_survey_handoff(self, kind: str, target_hz: int) -> None:
+        if self._closed or self._busy or self._survey_controller.running:
+            if kind == "parameters":
+                self._pending_survey_parameter_frequency_hz = None
+            return
+        if not self._start_survey_observation_monitoring(target_hz):
+            if kind == "parameters":
+                self._pending_survey_parameter_frequency_hz = None
+            self._show_error(
+                "survey_handoff_failed",
+                "Seçili sinyal için sabit frekans alımı başlatılamadı.",
+            )
+            return
+        if kind == "parameters":
+            self._status_message = (
+                "Parametre çıkarımı için seçilen sinyal 8 MS/s sabit alımda "
+                "yeniden doğrulanıyor."
+            )
+            self._add_log("Parametre", self._status_message)
+            self.stateChanged.emit()
 
     @Slot(result=bool)
     def monitorSurveyObservation(self):
         self._pending_survey_parameter_frequency_hz = None
-        return self._monitor_survey_observation()
+        return self._request_survey_handoff("monitor")
 
     @Slot(result=bool)
     def openSurveyObservationParameters(self):
         frequency = self._survey_controller.selectedFrequency
-        if self._busy or frequency <= 0:
+        if frequency <= 0:
             return False
         self._pending_survey_parameter_frequency_hz = round(frequency)
-        if self._monitor_survey_observation():
+        if self._request_survey_handoff("parameters"):
+            if self._survey_controller.running:
+                return True
             self._status_message = (
                 "Parametre çıkarımı için seçilen sinyal 8 MS/s sabit alımda "
                 "yeniden doğrulanıyor."
@@ -175,12 +213,36 @@ class QuickScanActionsMixin:
         self._pending_survey_parameter_frequency_hz = None
         return False
 
+    def _request_survey_handoff(self, kind: str) -> bool:
+        frequency = self._survey_controller.selectedFrequency
+        if frequency <= 0 or kind not in {"monitor", "parameters"}:
+            return False
+        target_hz = round(frequency)
+        if self._survey_controller.running:
+            if self._pending_survey_handoff is not None or self._survey_controller.state == "Durduruluyor":
+                return False
+            self._pending_survey_handoff = (kind, target_hz)
+            self._status_message = (
+                "Tarama güvenli biçimde durduruluyor; seçili sinyal sabit frekansta yeniden alınacak."
+            )
+            self._add_log("Tarama", self._status_message)
+            self._survey_controller.cancel()
+            self.stateChanged.emit()
+            return True
+        if self._busy:
+            return False
+        return self._start_survey_observation_monitoring(target_hz)
+
     def _monitor_survey_observation(self) -> bool:
         frequency = self._survey_controller.selectedFrequency
         if self._busy or frequency <= 0:
             return False
+        return self._start_survey_observation_monitoring(round(frequency))
+
+    def _start_survey_observation_monitoring(self, target_hz: int) -> bool:
+        if self._busy or target_hz <= 0:
+            return False
         config = self._survey_controller._config
-        target_hz = round(frequency)
         analysis_center_hz = target_hz - SURVEY_MONITOR_CENTER_OFFSET_HZ
         if analysis_center_hz < 1_000_000:
             analysis_center_hz = target_hz + SURVEY_MONITOR_CENTER_OFFSET_HZ
